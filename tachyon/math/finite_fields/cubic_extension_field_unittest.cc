@@ -181,8 +181,7 @@ TEST_F(CubicExtensionFieldTest, MultiplicativeGroupOperators) {
 
 TEST_F(CubicExtensionFieldTest, JsonValueConverter) {
   GF7_3 expected_point(GF7(1), GF7(2), GF7(3));
-  std::string expected_json =
-      R"({"c0":{"value":"0x1"},"c1":{"value":"0x2"},"c2":{"value":"0x3"}})";
+  std::string expected_json = R"({"c0":"0x1","c1":"0x2","c2":"0x3"})";
 
   GF7_3 p;
   std::string error;

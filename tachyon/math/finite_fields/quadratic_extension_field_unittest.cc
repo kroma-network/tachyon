@@ -193,7 +193,7 @@ TEST(CyclotomicInverseTest, FastCyclotomicInverse) {
 
 TEST_F(QuadraticExtensionFieldTest, JsonValueConverter) {
   GF7_2 expected_point(GF7(1), GF7(2));
-  std::string expected_json = R"({"c0":{"value":"0x1"},"c1":{"value":"0x2"}})";
+  std::string expected_json = R"({"c0":"0x1","c1":"0x2"})";
 
   GF7_2 p;
   std::string error;

@@ -1,2447 +1,1084 @@
 {
-    "prover_openings": [
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e172000015"
-                        },
-                        {
-                            "value": "0x12d62582906462c130f4ea4b800a85e9eb4f7f466d5bfa89ea8bf20deb857e75"
-                        },
-                        {
-                            "value": "0x24d3621acf7ac08f3ff2b1536911a5f55c73faa6ac631dc11419dde5d02fa4c3"
-                        },
-                        {
-                            "value": "0x266f277a8898dcbac4b1619077fd15d7cbea2cab246f1f963405b98fcc267aa1"
-                        },
-                        {
-                            "value": "0x060c89ce5c2634052bcdbb3cfc1599961851e0d3f772cdc7d66f3fa047f70371"
-                        },
-                        {
-                            "value": "0x156c4fe519d5f5230fbb7446f480a0625386582f64a5a96b70ce67ebeda2e08a"
-                        },
-                        {
-                            "value": "0x223a74e2b7a94291a2b3184a19ef58b1df6171d7daec0bf0b1d81cc3b5729d8e"
-                        },
-                        {
-                            "value": "0x2ba1af62d8a5586c97e3b9a88ae7c1b5b62381468bc2a5b77ca221dab0353b7b"
-                        },
-                        {
-                            "value": "0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000012"
-                        },
-                        {
-                            "value": "0x0f22af6b65f8136a0f5512232c8b93ec26b2d0fc013663a9943ea7d915d45ed0"
-                        },
-                        {
-                            "value": "0x05846289b590ab92b5a9fe123a3a92ba45ce0c915ba153e7705a0edb63c71fdd"
-                        },
-                        {
-                            "value": "0x0975b22f115b3aa88ffb637fcf46ae05a5851de94b98412a2332ad75e4aa12f1"
-                        },
-                        {
-                            "value": "0x244b3ad628e5381f557881c2b53b93bb6adb8a6b730f74b744f677412a08fcab"
-                        },
-                        {
-                            "value": "0x29637812b230d5062e425e23446999871bcdcd195aa3e07b4962d30a01daf0a5"
-                        },
-                        {
-                            "value": "0x1436635e85ae919fd850c3bd45c71f58cec45781108263895177e1a2f6969e12"
-                        },
-                        {
-                            "value": "0x054213d94fc9d0827668c9484e598821f7e65fbbbd3fd3b302b178926e228806"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x0fa13ccbca58eaacf3e0137cbaa3f09e0de199864589ed3b5d52513eb59012bb"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0xd4c8829e6feb9ab9606917e970b944717cc4d9a74695dd4e7cc23b5888b6dce"
-                },
-                "y": {
-                    "value": "0x3a99ef4660a95515763e072043119fcbf6d3f3b709af6bf05b5c8b4d815a775"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x060c89ce5c263405370a08b6d0302b0ba5067d090f372e12287c3eb27e000003"
-                        },
-                        {
-                            "value": "0x3028c9344e30580ea8438e904895dd3aca99e1c6df3b1350af25b1d4ade4a57a"
-                        },
-                        {
-                            "value": "0x2a517e34acc241a2d74e670c1c87a3c89fb9647a6c280716ec20a7bd46cce6d5"
-                        },
-                        {
-                            "value": "0x1b368ad453cf5e33080841d7bae0a9d361d2e68b5064b035c0399f94e5b0c709"
-                        },
-                        {
-                            "value": "0x12259d6b14729c0e271bcff645092f863f16b80e0590c05793badbac4cce7331"
-                        },
-                        {
-                            "value": "0x0e2e8378d846e58ea5bf2f5d9d2b15ec6e089dbc279e7e73b8720ec69ca8daf3"
-                        },
-                        {
-                            "value": "0x2a45aa0d3f0d2460e04bcbf2a284939a713c0b7a196c7bf3cd85e41c023d22e8"
-                        },
-                        {
-                            "value": "0x29b017d8e7a9669ad6361e0a527678af4ba104241b73f98af9dce2a9f6f8d7eb"
-                        },
-                        {
-                            "value": "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e171fffffe"
-                        },
-                        {
-                            "value": "0x003b853e9301481b100cb72638eb7b225d9a06819a7e5d4094bc43bf421b5a87"
-                        },
-                        {
-                            "value": "0x0612d03e346f5e86e101deaa64f9b494887a83ce0d91697a57c14dd6a933192c"
-                        },
-                        {
-                            "value": "0x152dc39e8d6241f6b04803dec6a0ae89c66101bd2954c05b83a855ff0a4f38f8"
-                        },
-                        {
-                            "value": "0x1e3eb107ccbf041b913475c03c7828d6e91d303a7428b039b02719e7a3318cd0"
-                        },
-                        {
-                            "value": "0x2235cafa08eaba9b12911658e4564270ba2b4a8c521af21d8b6fe6cd5357250e"
-                        },
-                        {
-                            "value": "0x061ea465a2247bc8d80479c3defcc4c2b6f7dcce604cf49d765c1177edc2dd19"
-                        },
-                        {
-                            "value": "0x06b43699f988398ee21a27ac2f0adfaddc92e4245e4577064a0512e9f9072816"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x1ca0efb9353dd426b7c7a7d4e5147967371203bd0076145a34c71b9007d15fca"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0xe80af0f2dac74d170c3995fd07ffd5577918b748fe4ba0843fd2386ce9ae384"
-                },
-                "y": {
-                    "value": "0x58b31b773e7a0e22f1ef9d6bbcc154b3dfaec09ff6c78084c1ae5c150f6624d"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e172000015"
-                        },
-                        {
-                            "value": "0x12d62582906462c130f4ea4b800a85e9eb4f7f466d5bfa89ea8bf20deb857e75"
-                        },
-                        {
-                            "value": "0x24d3621acf7ac08f3ff2b1536911a5f55c73faa6ac631dc11419dde5d02fa4c3"
-                        },
-                        {
-                            "value": "0x266f277a8898dcbac4b1619077fd15d7cbea2cab246f1f963405b98fcc267aa1"
-                        },
-                        {
-                            "value": "0x060c89ce5c2634052bcdbb3cfc1599961851e0d3f772cdc7d66f3fa047f70371"
-                        },
-                        {
-                            "value": "0x156c4fe519d5f5230fbb7446f480a0625386582f64a5a96b70ce67ebeda2e08a"
-                        },
-                        {
-                            "value": "0x223a74e2b7a94291a2b3184a19ef58b1df6171d7daec0bf0b1d81cc3b5729d8e"
-                        },
-                        {
-                            "value": "0x2ba1af62d8a5586c97e3b9a88ae7c1b5b62381468bc2a5b77ca221dab0353b7b"
-                        },
-                        {
-                            "value": "0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000012"
-                        },
-                        {
-                            "value": "0x0f22af6b65f8136a0f5512232c8b93ec26b2d0fc013663a9943ea7d915d45ed0"
-                        },
-                        {
-                            "value": "0x05846289b590ab92b5a9fe123a3a92ba45ce0c915ba153e7705a0edb63c71fdd"
-                        },
-                        {
-                            "value": "0x0975b22f115b3aa88ffb637fcf46ae05a5851de94b98412a2332ad75e4aa12f1"
-                        },
-                        {
-                            "value": "0x244b3ad628e5381f557881c2b53b93bb6adb8a6b730f74b744f677412a08fcab"
-                        },
-                        {
-                            "value": "0x29637812b230d5062e425e23446999871bcdcd195aa3e07b4962d30a01daf0a5"
-                        },
-                        {
-                            "value": "0x1436635e85ae919fd850c3bd45c71f58cec45781108263895177e1a2f6969e12"
-                        },
-                        {
-                            "value": "0x054213d94fc9d0827668c9484e598821f7e65fbbbd3fd3b302b178926e228806"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x01df83543b4be0f49ba822a8067a75444a113d2cda81e8e541109ba09c6d0214"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0xd4c8829e6feb9ab9606917e970b944717cc4d9a74695dd4e7cc23b5888b6dce"
-                },
-                "y": {
-                    "value": "0x3a99ef4660a95515763e072043119fcbf6d3f3b709af6bf05b5c8b4d815a775"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x2c17c0f5f77b48b6f8bb69a7cceac8da32489a140bb6ae30550fea98dcca2729"
-                        },
-                        {
-                            "value": "0x2482e87fb833258b7d6faf7180dac78821d421cb82737c2ca9c85544014bce0d"
-                        },
-                        {
-                            "value": "0x1cf5deb215f48e7edd15d1d845fd18c91ba0dda114d82471b96db592c501a135"
-                        },
-                        {
-                            "value": "0x19423f3a7cc9227f9e58cc469e2f2955d3226b29b7d61f4c99defb0755db6f27"
-                        },
-                        {
-                            "value": "0x141aec4bfe36cc59490b8eb64802803edfbfae97926a2afaa496ae6b96324d77"
-                        },
-                        {
-                            "value": "0x1e72408aadda81ddcd62a0b8ea8520f3d4951ba76e54590e7e647282126dc4de"
-                        },
-                        {
-                            "value": "0x132a255ed346ac9ba404d2061800dcb85146a33455191698b249d2412656695e"
-                        },
-                        {
-                            "value": "0x2ccbc43312750ff857bb20a53bb64dcd6eeb14f53b65313ae1d0feee0675d890"
-                        },
-                        {
-                            "value": "0x1616c186407bb6a2d4ce1647f92b42852c0f917cc185d76777e3b40b5e5bbae3"
-                        },
-                        {
-                            "value": "0x05ba6117e26437f6619d1b925f6dfc54226ad706ad734bc779dbfe3f9bd44e58"
-                        },
-                        {
-                            "value": "0x190710278d14025ccee750f5bf641d17ee04e59f6b3953e727be90897dc3eeab"
-                        },
-                        {
-                            "value": "0x0637fc3a4e5dcfa006a90c08321c77605239cec29b20648153a62a3cd7a2d83a"
-                        },
-                        {
-                            "value": "0x2dd226c45e7f23db94e0297daba673c35d005a41ce53596382c763a811b7e18b"
-                        },
-                        {
-                            "value": "0x1d45324a309410209f1ce9db95cf0b06cce476aca282c08b8a8324d6e3f9a4de"
-                        },
-                        {
-                            "value": "0x0ee0a9cc83d1650822f0e3f02350d71273a3b713e12d684dbb7df68224fe2575"
-                        },
-                        {
-                            "value": "0x2528b264054f1dd1142113f6267b53de862afe9194195d4f23c9d38d375a2a37"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x1a1ba62baa824efaa4befc327a860d549b0f21345dee287d700942d3802f2777"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x16ad53c6cb565e23a435f06849c1fca80d7dd87de0c25d2a37012543b01bc77"
-                },
-                "y": {
-                    "value": "0xfdcfdd9560c81de5141f9b51b95d3639e2a9eabb093eda4ed5934e24c3775e4"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x2c17c0f5f77b48b6f8bb69a7cceac8da32489a140bb6ae30550fea98dcca2729"
-                        },
-                        {
-                            "value": "0x2482e87fb833258b7d6faf7180dac78821d421cb82737c2ca9c85544014bce0d"
-                        },
-                        {
-                            "value": "0x1cf5deb215f48e7edd15d1d845fd18c91ba0dda114d82471b96db592c501a135"
-                        },
-                        {
-                            "value": "0x19423f3a7cc9227f9e58cc469e2f2955d3226b29b7d61f4c99defb0755db6f27"
-                        },
-                        {
-                            "value": "0x141aec4bfe36cc59490b8eb64802803edfbfae97926a2afaa496ae6b96324d77"
-                        },
-                        {
-                            "value": "0x1e72408aadda81ddcd62a0b8ea8520f3d4951ba76e54590e7e647282126dc4de"
-                        },
-                        {
-                            "value": "0x132a255ed346ac9ba404d2061800dcb85146a33455191698b249d2412656695e"
-                        },
-                        {
-                            "value": "0x2ccbc43312750ff857bb20a53bb64dcd6eeb14f53b65313ae1d0feee0675d890"
-                        },
-                        {
-                            "value": "0x1616c186407bb6a2d4ce1647f92b42852c0f917cc185d76777e3b40b5e5bbae3"
-                        },
-                        {
-                            "value": "0x05ba6117e26437f6619d1b925f6dfc54226ad706ad734bc779dbfe3f9bd44e58"
-                        },
-                        {
-                            "value": "0x190710278d14025ccee750f5bf641d17ee04e59f6b3953e727be90897dc3eeab"
-                        },
-                        {
-                            "value": "0x0637fc3a4e5dcfa006a90c08321c77605239cec29b20648153a62a3cd7a2d83a"
-                        },
-                        {
-                            "value": "0x2dd226c45e7f23db94e0297daba673c35d005a41ce53596382c763a811b7e18b"
-                        },
-                        {
-                            "value": "0x1d45324a309410209f1ce9db95cf0b06cce476aca282c08b8a8324d6e3f9a4de"
-                        },
-                        {
-                            "value": "0x0ee0a9cc83d1650822f0e3f02350d71273a3b713e12d684dbb7df68224fe2575"
-                        },
-                        {
-                            "value": "0x2528b264054f1dd1142113f6267b53de862afe9194195d4f23c9d38d375a2a37"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x190fbeaa37659963b02ba989785b4a104ad2fffa6acdc7fed55a04d374b4039b"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x16ad53c6cb565e23a435f06849c1fca80d7dd87de0c25d2a37012543b01bc77"
-                },
-                "y": {
-                    "value": "0xfdcfdd9560c81de5141f9b51b95d3639e2a9eabb093eda4ed5934e24c3775e4"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x1b26aab418970af02bb4af272fa0f9103e0cb0e470f9fadcd375129953e79cba"
-                        },
-                        {
-                            "value": "0x192ca548746879a2863b41d25a72cfc763927b9d3d583b68479c2288186f03bd"
-                        },
-                        {
-                            "value": "0x2717b21eb04ef5ca7374496840db2a3606fb643edcefa5cf63c6f2d58bf4fd8e"
-                        },
-                        {
-                            "value": "0x1f24d818f62ea18fb0b7c7c9fa8088f721f7f2d0707a94602a61aa93fcb4123d"
-                        },
-                        {
-                            "value": "0x12d5f438cf33400c2d5fda136e0d3401ae591d1c66c2af6adc95ed5db8f7f8da"
-                        },
-                        {
-                            "value": "0x05bd91f33bcfa11b1c99e42d0633c450726b52de7f0fff9e09ac8b58eb50d808"
-                        },
-                        {
-                            "value": "0x1ebe483c4a8bed2c78b7f8f2505672822ffb2b7895d73d582d37ceb1f3f2173e"
-                        },
-                        {
-                            "value": "0x007fc35853678a45f868ed4842c6a75edf1e65835eac914814c64548f361aa45"
-                        },
-                        {
-                            "value": "0x13a443a76de74dc5daea5da806164fdd8ba1a081559d3e59da45710bfc71c8b1"
-                        },
-                        {
-                            "value": "0x2ac155a1ca4ef56592ba2d7d627f54be553e944622e48164d26a15acecad32d2"
-                        },
-                        {
-                            "value": "0x016878006aa738f94a09b59a928ef7d9d3982ea95d4b51e46a22752e11c58a5c"
-                        },
-                        {
-                            "value": "0x184d567b0a6eb2dc34fa5c71e956a5153e579570f841cd31620c455e58477a62"
-                        },
-                        {
-                            "value": "0x2e7405b321d54798e75f654199090a08ef72689729eaae6eef48dd1a82e94392"
-                        },
-                        {
-                            "value": "0x13ce04db3756a33530548baab13824336b5a5415222f8b3547440a05fe76fbb9"
-                        },
-                        {
-                            "value": "0x2484a997019dcbbb597364e56bd57ff4576abe166671c10956dde4cfe0c1f4c8"
-                        },
-                        {
-                            "value": "0x169ed0d157e029e19579426f0c02fbca0ba4c370f83cca396ae61d28bc69e885"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x2af01d0655e6a2b4495ab0eb0901d601c410de4c6c43dc958a59c408655e5609"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x477698b841d60ab1dfa466a9ccde627778106ae7ccfcde75247b2a256f0b740"
-                },
-                "y": {
-                    "value": "0xa5a2dc0da5660baf57695de3da9c489f927b6ad08b63798bb596441dd794830"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x1b26aab418970af02bb4af272fa0f9103e0cb0e470f9fadcd375129953e79cba"
-                        },
-                        {
-                            "value": "0x192ca548746879a2863b41d25a72cfc763927b9d3d583b68479c2288186f03bd"
-                        },
-                        {
-                            "value": "0x2717b21eb04ef5ca7374496840db2a3606fb643edcefa5cf63c6f2d58bf4fd8e"
-                        },
-                        {
-                            "value": "0x1f24d818f62ea18fb0b7c7c9fa8088f721f7f2d0707a94602a61aa93fcb4123d"
-                        },
-                        {
-                            "value": "0x12d5f438cf33400c2d5fda136e0d3401ae591d1c66c2af6adc95ed5db8f7f8da"
-                        },
-                        {
-                            "value": "0x05bd91f33bcfa11b1c99e42d0633c450726b52de7f0fff9e09ac8b58eb50d808"
-                        },
-                        {
-                            "value": "0x1ebe483c4a8bed2c78b7f8f2505672822ffb2b7895d73d582d37ceb1f3f2173e"
-                        },
-                        {
-                            "value": "0x007fc35853678a45f868ed4842c6a75edf1e65835eac914814c64548f361aa45"
-                        },
-                        {
-                            "value": "0x13a443a76de74dc5daea5da806164fdd8ba1a081559d3e59da45710bfc71c8b1"
-                        },
-                        {
-                            "value": "0x2ac155a1ca4ef56592ba2d7d627f54be553e944622e48164d26a15acecad32d2"
-                        },
-                        {
-                            "value": "0x016878006aa738f94a09b59a928ef7d9d3982ea95d4b51e46a22752e11c58a5c"
-                        },
-                        {
-                            "value": "0x184d567b0a6eb2dc34fa5c71e956a5153e579570f841cd31620c455e58477a62"
-                        },
-                        {
-                            "value": "0x2e7405b321d54798e75f654199090a08ef72689729eaae6eef48dd1a82e94392"
-                        },
-                        {
-                            "value": "0x13ce04db3756a33530548baab13824336b5a5415222f8b3547440a05fe76fbb9"
-                        },
-                        {
-                            "value": "0x2484a997019dcbbb597364e56bd57ff4576abe166671c10956dde4cfe0c1f4c8"
-                        },
-                        {
-                            "value": "0x169ed0d157e029e19579426f0c02fbca0ba4c370f83cca396ae61d28bc69e885"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x1850f63235f10a13262e3ba222bda97c8fde7afccbe0f6a5e9d962ea456a2149"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x477698b841d60ab1dfa466a9ccde627778106ae7ccfcde75247b2a256f0b740"
-                },
-                "y": {
-                    "value": "0xa5a2dc0da5660baf57695de3da9c489f927b6ad08b63798bb596441dd794830"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x01560814b583224327802eef8c1d73d84fa58fbf72903b46153e5b84462bccb4"
-                        },
-                        {
-                            "value": "0x0610cf7bec53d014f83ea169eac90120525c86dad94026151cb0b929dbfde72a"
-                        },
-                        {
-                            "value": "0x05b4516754b7b214bb4d655888459cb980c1fccb34aec28f0745f777dff6acb5"
-                        },
-                        {
-                            "value": "0x10de1cd9c0cef832dd63a8d651097ac7c2ec3ae1f96e68e698ad69831fc8db01"
-                        },
-                        {
-                            "value": "0x2e559d894d46842b037ceab67292482d588990d22fe8462318f899f50fbba7ac"
-                        },
-                        {
-                            "value": "0x0c32262afba90bf5411c761c595e7fffde2c72a5d1a69cb44302a2b9ae455570"
-                        },
-                        {
-                            "value": "0x2ae377c49a9b57aef48f4e8a220fc08bba34a989729e441949d874b3495d410d"
-                        },
-                        {
-                            "value": "0x2cb2e6a7815ab3ead9bb73355878010cb6c2b3865b0c7576f1ea44cc1bb5e169"
-                        },
-                        {
-                            "value": "0x2c2e45ea36cff436d89262869af053228777559c786232e9469cff017b4553dd"
-                        },
-                        {
-                            "value": "0x2203981d714298588c1db7ee545574b556cdd5518ff696267b977162f1f69e96"
-                        },
-                        {
-                            "value": "0x1c055e3f95c67aa5275524f8377cd756877d8e7b055f2ac0f95165c395094c08"
-                        },
-                        {
-                            "value": "0x2f41fc9f6ec4754443405f688630fec8952d8cb35b33571b077e56765bf9d5b7"
-                        },
-                        {
-                            "value": "0x06b0ef59aae4136f30c249b0d55cd5e4b4fd0f151c4108a0b01589a7d0cd5ee8"
-                        },
-                        {
-                            "value": "0x0d55a330d9fe6fb51e14257ef62ea5c94dd4b3db085cd95cf4edde8f5debebc1"
-                        },
-                        {
-                            "value": "0x29e1f7b3a7081867034e4c12b71d1cad98c4bd2672bb40a7a109d1a7c1854bd4"
-                        },
-                        {
-                            "value": "0x2b76f84395a5bd0aa75348656b2533970584b8c55106763300e523f5f7830641"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x021920c3c93e6a2e03fa1c53ffa1cade0bff5d83143357d01ca57d74d0d87ec9"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x27dd27bd64c2a6d5cd7e0a85c4c024711ee51e42665eaa9b36ee6a757faeacb7"
-                },
-                "y": {
-                    "value": "0xefceabfdcfdba04d109a9de2368ad6440ce70ed2e004d008f7ae9d12939e09d"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x01560814b583224327802eef8c1d73d84fa58fbf72903b46153e5b84462bccb4"
-                        },
-                        {
-                            "value": "0x0610cf7bec53d014f83ea169eac90120525c86dad94026151cb0b929dbfde72a"
-                        },
-                        {
-                            "value": "0x05b4516754b7b214bb4d655888459cb980c1fccb34aec28f0745f777dff6acb5"
-                        },
-                        {
-                            "value": "0x10de1cd9c0cef832dd63a8d651097ac7c2ec3ae1f96e68e698ad69831fc8db01"
-                        },
-                        {
-                            "value": "0x2e559d894d46842b037ceab67292482d588990d22fe8462318f899f50fbba7ac"
-                        },
-                        {
-                            "value": "0x0c32262afba90bf5411c761c595e7fffde2c72a5d1a69cb44302a2b9ae455570"
-                        },
-                        {
-                            "value": "0x2ae377c49a9b57aef48f4e8a220fc08bba34a989729e441949d874b3495d410d"
-                        },
-                        {
-                            "value": "0x2cb2e6a7815ab3ead9bb73355878010cb6c2b3865b0c7576f1ea44cc1bb5e169"
-                        },
-                        {
-                            "value": "0x2c2e45ea36cff436d89262869af053228777559c786232e9469cff017b4553dd"
-                        },
-                        {
-                            "value": "0x2203981d714298588c1db7ee545574b556cdd5518ff696267b977162f1f69e96"
-                        },
-                        {
-                            "value": "0x1c055e3f95c67aa5275524f8377cd756877d8e7b055f2ac0f95165c395094c08"
-                        },
-                        {
-                            "value": "0x2f41fc9f6ec4754443405f688630fec8952d8cb35b33571b077e56765bf9d5b7"
-                        },
-                        {
-                            "value": "0x06b0ef59aae4136f30c249b0d55cd5e4b4fd0f151c4108a0b01589a7d0cd5ee8"
-                        },
-                        {
-                            "value": "0x0d55a330d9fe6fb51e14257ef62ea5c94dd4b3db085cd95cf4edde8f5debebc1"
-                        },
-                        {
-                            "value": "0x29e1f7b3a7081867034e4c12b71d1cad98c4bd2672bb40a7a109d1a7c1854bd4"
-                        },
-                        {
-                            "value": "0x2b76f84395a5bd0aa75348656b2533970584b8c55106763300e523f5f7830641"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x1850e36381c7815fe57548db8e5870b80591159a5d5fec87f987a55c40034302"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x27dd27bd64c2a6d5cd7e0a85c4c024711ee51e42665eaa9b36ee6a757faeacb7"
-                },
-                "y": {
-                    "value": "0xefceabfdcfdba04d109a9de2368ad6440ce70ed2e004d008f7ae9d12939e09d"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x23b6be73de9d4d13b1c910543033f2b710cda13085433997193e210b27d1f263"
-                        },
-                        {
-                            "value": "0x1a001b7d2c12d1ad390e46c75a2a9987c64d37d0c752667463d622c9de304695"
-                        },
-                        {
-                            "value": "0x159dd595aba9326ab79ee29e377b406d66beae9dbe7d85f766bb50599bbeb8b2"
-                        },
-                        {
-                            "value": "0x1f96c632dd3c844d8345188b9aa2e1ee637fe49aba0ed7975d968fd4f930eefa"
-                        },
-                        {
-                            "value": "0x1b36f04ec15725d6ecab1fcb25a6ea51acbf6f1de9a52706d0fb12b0701ab01b"
-                        },
-                        {
-                            "value": "0x020b267c4795e87212e1cccce20efb78a5a17d051d31d530f27d9e0ed520d5de"
-                        },
-                        {
-                            "value": "0x01166b11f6762098417a8b521c113d3a30ce3a5a6a80668cf22c67a9b24237b0"
-                        },
-                        {
-                            "value": "0x15b702e7696d35482428983f71ea99c64f8ebe5b282ea0e8f6b774b245eb3780"
-                        },
-                        {
-                            "value": "0x0d1b42be204a62ab857dd6bb9ab026260f741671beda5d97e0e172a10051de49"
-                        },
-                        {
-                            "value": "0x19321af2193aceae389d158591853bf82e7d2fca7ab86a54a8472ca2354a808d"
-                        },
-                        {
-                            "value": "0x13fabadbef9e4a7b10f55a03c835c4fef599c73d814c0a3952aa544888844903"
-                        },
-                        {
-                            "value": "0x011938f3c213d0f5a1473dd9535a7906feaa50737c6cc6ed358206ca1fe641d4"
-                        },
-                        {
-                            "value": "0x10ed356906e94396f26102b56c67c32a996ad53acaa4ab0fe6942374201d36b1"
-                        },
-                        {
-                            "value": "0x07aff53fd5f4425b02cb7a7f8a17e7a3913d838a0cad92366907bf839c101ecb"
-                        },
-                        {
-                            "value": "0x125d7019aa002bd0807ebdaf5e1b9e97f96f525e15868e0dfa4316126171beb4"
-                        },
-                        {
-                            "value": "0x26ae3e4d97508cc7d0d2fcf61f11fa400f9fa2faeda37673661133df0ca48b77"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x1c927a2ab0d78f73bd243a32266e1165d14ebe4f4950aa487c53d090104e5b09"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x1c30dbdea5181f79dadfdc2195bf45e077f5fcd47c1621058ae5c8a5684f004c"
-                },
-                "y": {
-                    "value": "0x28bbabd833d7b5d594236352611e7a6b5e6d03dd592b7d551573391cf8d79cf8"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x23b6be73de9d4d13b1c910543033f2b710cda13085433997193e210b27d1f263"
-                        },
-                        {
-                            "value": "0x1a001b7d2c12d1ad390e46c75a2a9987c64d37d0c752667463d622c9de304695"
-                        },
-                        {
-                            "value": "0x159dd595aba9326ab79ee29e377b406d66beae9dbe7d85f766bb50599bbeb8b2"
-                        },
-                        {
-                            "value": "0x1f96c632dd3c844d8345188b9aa2e1ee637fe49aba0ed7975d968fd4f930eefa"
-                        },
-                        {
-                            "value": "0x1b36f04ec15725d6ecab1fcb25a6ea51acbf6f1de9a52706d0fb12b0701ab01b"
-                        },
-                        {
-                            "value": "0x020b267c4795e87212e1cccce20efb78a5a17d051d31d530f27d9e0ed520d5de"
-                        },
-                        {
-                            "value": "0x01166b11f6762098417a8b521c113d3a30ce3a5a6a80668cf22c67a9b24237b0"
-                        },
-                        {
-                            "value": "0x15b702e7696d35482428983f71ea99c64f8ebe5b282ea0e8f6b774b245eb3780"
-                        },
-                        {
-                            "value": "0x0d1b42be204a62ab857dd6bb9ab026260f741671beda5d97e0e172a10051de49"
-                        },
-                        {
-                            "value": "0x19321af2193aceae389d158591853bf82e7d2fca7ab86a54a8472ca2354a808d"
-                        },
-                        {
-                            "value": "0x13fabadbef9e4a7b10f55a03c835c4fef599c73d814c0a3952aa544888844903"
-                        },
-                        {
-                            "value": "0x011938f3c213d0f5a1473dd9535a7906feaa50737c6cc6ed358206ca1fe641d4"
-                        },
-                        {
-                            "value": "0x10ed356906e94396f26102b56c67c32a996ad53acaa4ab0fe6942374201d36b1"
-                        },
-                        {
-                            "value": "0x07aff53fd5f4425b02cb7a7f8a17e7a3913d838a0cad92366907bf839c101ecb"
-                        },
-                        {
-                            "value": "0x125d7019aa002bd0807ebdaf5e1b9e97f96f525e15868e0dfa4316126171beb4"
-                        },
-                        {
-                            "value": "0x26ae3e4d97508cc7d0d2fcf61f11fa400f9fa2faeda37673661133df0ca48b77"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x2a9025d9b99336a05ea2e946ddf222aeb1213f9eb9a4e500021abd259c9ce4a3"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x1c30dbdea5181f79dadfdc2195bf45e077f5fcd47c1621058ae5c8a5684f004c"
-                },
-                "y": {
-                    "value": "0x28bbabd833d7b5d594236352611e7a6b5e6d03dd592b7d551573391cf8d79cf8"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x01560814b583224327802eef8c1d73d84fa58fbf72903b46153e5b84462bccb4"
-                        },
-                        {
-                            "value": "0x0610cf7bec53d014f83ea169eac90120525c86dad94026151cb0b929dbfde72a"
-                        },
-                        {
-                            "value": "0x05b4516754b7b214bb4d655888459cb980c1fccb34aec28f0745f777dff6acb5"
-                        },
-                        {
-                            "value": "0x10de1cd9c0cef832dd63a8d651097ac7c2ec3ae1f96e68e698ad69831fc8db01"
-                        },
-                        {
-                            "value": "0x2e559d894d46842b037ceab67292482d588990d22fe8462318f899f50fbba7ac"
-                        },
-                        {
-                            "value": "0x0c32262afba90bf5411c761c595e7fffde2c72a5d1a69cb44302a2b9ae455570"
-                        },
-                        {
-                            "value": "0x2ae377c49a9b57aef48f4e8a220fc08bba34a989729e441949d874b3495d410d"
-                        },
-                        {
-                            "value": "0x2cb2e6a7815ab3ead9bb73355878010cb6c2b3865b0c7576f1ea44cc1bb5e169"
-                        },
-                        {
-                            "value": "0x2c2e45ea36cff436d89262869af053228777559c786232e9469cff017b4553dd"
-                        },
-                        {
-                            "value": "0x2203981d714298588c1db7ee545574b556cdd5518ff696267b977162f1f69e96"
-                        },
-                        {
-                            "value": "0x1c055e3f95c67aa5275524f8377cd756877d8e7b055f2ac0f95165c395094c08"
-                        },
-                        {
-                            "value": "0x2f41fc9f6ec4754443405f688630fec8952d8cb35b33571b077e56765bf9d5b7"
-                        },
-                        {
-                            "value": "0x06b0ef59aae4136f30c249b0d55cd5e4b4fd0f151c4108a0b01589a7d0cd5ee8"
-                        },
-                        {
-                            "value": "0x0d55a330d9fe6fb51e14257ef62ea5c94dd4b3db085cd95cf4edde8f5debebc1"
-                        },
-                        {
-                            "value": "0x29e1f7b3a7081867034e4c12b71d1cad98c4bd2672bb40a7a109d1a7c1854bd4"
-                        },
-                        {
-                            "value": "0x2b76f84395a5bd0aa75348656b2533970584b8c55106763300e523f5f7830641"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125"
-            },
-            "opening": {
-                "value": "0x1772fb9a8e183147338a84957333e344f9ee953cc5b60c61e816ff09cf3c7a8e"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x27dd27bd64c2a6d5cd7e0a85c4c024711ee51e42665eaa9b36ee6a757faeacb7"
-                },
-                "y": {
-                    "value": "0xefceabfdcfdba04d109a9de2368ad6440ce70ed2e004d008f7ae9d12939e09d"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x1b26aab418970af02bb4af272fa0f9103e0cb0e470f9fadcd375129953e79cba"
-                        },
-                        {
-                            "value": "0x192ca548746879a2863b41d25a72cfc763927b9d3d583b68479c2288186f03bd"
-                        },
-                        {
-                            "value": "0x2717b21eb04ef5ca7374496840db2a3606fb643edcefa5cf63c6f2d58bf4fd8e"
-                        },
-                        {
-                            "value": "0x1f24d818f62ea18fb0b7c7c9fa8088f721f7f2d0707a94602a61aa93fcb4123d"
-                        },
-                        {
-                            "value": "0x12d5f438cf33400c2d5fda136e0d3401ae591d1c66c2af6adc95ed5db8f7f8da"
-                        },
-                        {
-                            "value": "0x05bd91f33bcfa11b1c99e42d0633c450726b52de7f0fff9e09ac8b58eb50d808"
-                        },
-                        {
-                            "value": "0x1ebe483c4a8bed2c78b7f8f2505672822ffb2b7895d73d582d37ceb1f3f2173e"
-                        },
-                        {
-                            "value": "0x007fc35853678a45f868ed4842c6a75edf1e65835eac914814c64548f361aa45"
-                        },
-                        {
-                            "value": "0x13a443a76de74dc5daea5da806164fdd8ba1a081559d3e59da45710bfc71c8b1"
-                        },
-                        {
-                            "value": "0x2ac155a1ca4ef56592ba2d7d627f54be553e944622e48164d26a15acecad32d2"
-                        },
-                        {
-                            "value": "0x016878006aa738f94a09b59a928ef7d9d3982ea95d4b51e46a22752e11c58a5c"
-                        },
-                        {
-                            "value": "0x184d567b0a6eb2dc34fa5c71e956a5153e579570f841cd31620c455e58477a62"
-                        },
-                        {
-                            "value": "0x2e7405b321d54798e75f654199090a08ef72689729eaae6eef48dd1a82e94392"
-                        },
-                        {
-                            "value": "0x13ce04db3756a33530548baab13824336b5a5415222f8b3547440a05fe76fbb9"
-                        },
-                        {
-                            "value": "0x2484a997019dcbbb597364e56bd57ff4576abe166671c10956dde4cfe0c1f4c8"
-                        },
-                        {
-                            "value": "0x169ed0d157e029e19579426f0c02fbca0ba4c370f83cca396ae61d28bc69e885"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125"
-            },
-            "opening": {
-                "value": "0x2e8be5374a7e38c58fd45f0b7cd736114fda48180be4c8bac5d8d7826b1f1afd"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x477698b841d60ab1dfa466a9ccde627778106ae7ccfcde75247b2a256f0b740"
-                },
-                "y": {
-                    "value": "0xa5a2dc0da5660baf57695de3da9c489f927b6ad08b63798bb596441dd794830"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x2c17c0f5f77b48b6f8bb69a7cceac8da32489a140bb6ae30550fea98dcca2729"
-                        },
-                        {
-                            "value": "0x2482e87fb833258b7d6faf7180dac78821d421cb82737c2ca9c85544014bce0d"
-                        },
-                        {
-                            "value": "0x1cf5deb215f48e7edd15d1d845fd18c91ba0dda114d82471b96db592c501a135"
-                        },
-                        {
-                            "value": "0x19423f3a7cc9227f9e58cc469e2f2955d3226b29b7d61f4c99defb0755db6f27"
-                        },
-                        {
-                            "value": "0x141aec4bfe36cc59490b8eb64802803edfbfae97926a2afaa496ae6b96324d77"
-                        },
-                        {
-                            "value": "0x1e72408aadda81ddcd62a0b8ea8520f3d4951ba76e54590e7e647282126dc4de"
-                        },
-                        {
-                            "value": "0x132a255ed346ac9ba404d2061800dcb85146a33455191698b249d2412656695e"
-                        },
-                        {
-                            "value": "0x2ccbc43312750ff857bb20a53bb64dcd6eeb14f53b65313ae1d0feee0675d890"
-                        },
-                        {
-                            "value": "0x1616c186407bb6a2d4ce1647f92b42852c0f917cc185d76777e3b40b5e5bbae3"
-                        },
-                        {
-                            "value": "0x05ba6117e26437f6619d1b925f6dfc54226ad706ad734bc779dbfe3f9bd44e58"
-                        },
-                        {
-                            "value": "0x190710278d14025ccee750f5bf641d17ee04e59f6b3953e727be90897dc3eeab"
-                        },
-                        {
-                            "value": "0x0637fc3a4e5dcfa006a90c08321c77605239cec29b20648153a62a3cd7a2d83a"
-                        },
-                        {
-                            "value": "0x2dd226c45e7f23db94e0297daba673c35d005a41ce53596382c763a811b7e18b"
-                        },
-                        {
-                            "value": "0x1d45324a309410209f1ce9db95cf0b06cce476aca282c08b8a8324d6e3f9a4de"
-                        },
-                        {
-                            "value": "0x0ee0a9cc83d1650822f0e3f02350d71273a3b713e12d684dbb7df68224fe2575"
-                        },
-                        {
-                            "value": "0x2528b264054f1dd1142113f6267b53de862afe9194195d4f23c9d38d375a2a37"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125"
-            },
-            "opening": {
-                "value": "0x23fc00efe984c5098fc8228923773907fe7da84caa1c1bbee1f3609d8b86b696"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x16ad53c6cb565e23a435f06849c1fca80d7dd87de0c25d2a37012543b01bc77"
-                },
-                "y": {
-                    "value": "0xfdcfdd9560c81de5141f9b51b95d3639e2a9eabb093eda4ed5934e24c3775e4"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e172000015"
-                        },
-                        {
-                            "value": "0x12d62582906462c130f4ea4b800a85e9eb4f7f466d5bfa89ea8bf20deb857e75"
-                        },
-                        {
-                            "value": "0x24d3621acf7ac08f3ff2b1536911a5f55c73faa6ac631dc11419dde5d02fa4c3"
-                        },
-                        {
-                            "value": "0x266f277a8898dcbac4b1619077fd15d7cbea2cab246f1f963405b98fcc267aa1"
-                        },
-                        {
-                            "value": "0x060c89ce5c2634052bcdbb3cfc1599961851e0d3f772cdc7d66f3fa047f70371"
-                        },
-                        {
-                            "value": "0x156c4fe519d5f5230fbb7446f480a0625386582f64a5a96b70ce67ebeda2e08a"
-                        },
-                        {
-                            "value": "0x223a74e2b7a94291a2b3184a19ef58b1df6171d7daec0bf0b1d81cc3b5729d8e"
-                        },
-                        {
-                            "value": "0x2ba1af62d8a5586c97e3b9a88ae7c1b5b62381468bc2a5b77ca221dab0353b7b"
-                        },
-                        {
-                            "value": "0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000012"
-                        },
-                        {
-                            "value": "0x0f22af6b65f8136a0f5512232c8b93ec26b2d0fc013663a9943ea7d915d45ed0"
-                        },
-                        {
-                            "value": "0x05846289b590ab92b5a9fe123a3a92ba45ce0c915ba153e7705a0edb63c71fdd"
-                        },
-                        {
-                            "value": "0x0975b22f115b3aa88ffb637fcf46ae05a5851de94b98412a2332ad75e4aa12f1"
-                        },
-                        {
-                            "value": "0x244b3ad628e5381f557881c2b53b93bb6adb8a6b730f74b744f677412a08fcab"
-                        },
-                        {
-                            "value": "0x29637812b230d5062e425e23446999871bcdcd195aa3e07b4962d30a01daf0a5"
-                        },
-                        {
-                            "value": "0x1436635e85ae919fd850c3bd45c71f58cec45781108263895177e1a2f6969e12"
-                        },
-                        {
-                            "value": "0x054213d94fc9d0827668c9484e598821f7e65fbbbd3fd3b302b178926e228806"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x0fa13ccbca58eaacf3e0137cbaa3f09e0de199864589ed3b5d52513eb59012bb"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0xd4c8829e6feb9ab9606917e970b944717cc4d9a74695dd4e7cc23b5888b6dce"
-                },
-                "y": {
-                    "value": "0x3a99ef4660a95515763e072043119fcbf6d3f3b709af6bf05b5c8b4d815a775"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x060c89ce5c263405370a08b6d0302b0ba5067d090f372e12287c3eb27e000003"
-                        },
-                        {
-                            "value": "0x3028c9344e30580ea8438e904895dd3aca99e1c6df3b1350af25b1d4ade4a57a"
-                        },
-                        {
-                            "value": "0x2a517e34acc241a2d74e670c1c87a3c89fb9647a6c280716ec20a7bd46cce6d5"
-                        },
-                        {
-                            "value": "0x1b368ad453cf5e33080841d7bae0a9d361d2e68b5064b035c0399f94e5b0c709"
-                        },
-                        {
-                            "value": "0x12259d6b14729c0e271bcff645092f863f16b80e0590c05793badbac4cce7331"
-                        },
-                        {
-                            "value": "0x0e2e8378d846e58ea5bf2f5d9d2b15ec6e089dbc279e7e73b8720ec69ca8daf3"
-                        },
-                        {
-                            "value": "0x2a45aa0d3f0d2460e04bcbf2a284939a713c0b7a196c7bf3cd85e41c023d22e8"
-                        },
-                        {
-                            "value": "0x29b017d8e7a9669ad6361e0a527678af4ba104241b73f98af9dce2a9f6f8d7eb"
-                        },
-                        {
-                            "value": "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e171fffffe"
-                        },
-                        {
-                            "value": "0x003b853e9301481b100cb72638eb7b225d9a06819a7e5d4094bc43bf421b5a87"
-                        },
-                        {
-                            "value": "0x0612d03e346f5e86e101deaa64f9b494887a83ce0d91697a57c14dd6a933192c"
-                        },
-                        {
-                            "value": "0x152dc39e8d6241f6b04803dec6a0ae89c66101bd2954c05b83a855ff0a4f38f8"
-                        },
-                        {
-                            "value": "0x1e3eb107ccbf041b913475c03c7828d6e91d303a7428b039b02719e7a3318cd0"
-                        },
-                        {
-                            "value": "0x2235cafa08eaba9b12911658e4564270ba2b4a8c521af21d8b6fe6cd5357250e"
-                        },
-                        {
-                            "value": "0x061ea465a2247bc8d80479c3defcc4c2b6f7dcce604cf49d765c1177edc2dd19"
-                        },
-                        {
-                            "value": "0x06b43699f988398ee21a27ac2f0adfaddc92e4245e4577064a0512e9f9072816"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x1ca0efb9353dd426b7c7a7d4e5147967371203bd0076145a34c71b9007d15fca"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0xe80af0f2dac74d170c3995fd07ffd5577918b748fe4ba0843fd2386ce9ae384"
-                },
-                "y": {
-                    "value": "0x58b31b773e7a0e22f1ef9d6bbcc154b3dfaec09ff6c78084c1ae5c150f6624d"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e172000015"
-                        },
-                        {
-                            "value": "0x12d62582906462c130f4ea4b800a85e9eb4f7f466d5bfa89ea8bf20deb857e75"
-                        },
-                        {
-                            "value": "0x24d3621acf7ac08f3ff2b1536911a5f55c73faa6ac631dc11419dde5d02fa4c3"
-                        },
-                        {
-                            "value": "0x266f277a8898dcbac4b1619077fd15d7cbea2cab246f1f963405b98fcc267aa1"
-                        },
-                        {
-                            "value": "0x060c89ce5c2634052bcdbb3cfc1599961851e0d3f772cdc7d66f3fa047f70371"
-                        },
-                        {
-                            "value": "0x156c4fe519d5f5230fbb7446f480a0625386582f64a5a96b70ce67ebeda2e08a"
-                        },
-                        {
-                            "value": "0x223a74e2b7a94291a2b3184a19ef58b1df6171d7daec0bf0b1d81cc3b5729d8e"
-                        },
-                        {
-                            "value": "0x2ba1af62d8a5586c97e3b9a88ae7c1b5b62381468bc2a5b77ca221dab0353b7b"
-                        },
-                        {
-                            "value": "0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000012"
-                        },
-                        {
-                            "value": "0x0f22af6b65f8136a0f5512232c8b93ec26b2d0fc013663a9943ea7d915d45ed0"
-                        },
-                        {
-                            "value": "0x05846289b590ab92b5a9fe123a3a92ba45ce0c915ba153e7705a0edb63c71fdd"
-                        },
-                        {
-                            "value": "0x0975b22f115b3aa88ffb637fcf46ae05a5851de94b98412a2332ad75e4aa12f1"
-                        },
-                        {
-                            "value": "0x244b3ad628e5381f557881c2b53b93bb6adb8a6b730f74b744f677412a08fcab"
-                        },
-                        {
-                            "value": "0x29637812b230d5062e425e23446999871bcdcd195aa3e07b4962d30a01daf0a5"
-                        },
-                        {
-                            "value": "0x1436635e85ae919fd850c3bd45c71f58cec45781108263895177e1a2f6969e12"
-                        },
-                        {
-                            "value": "0x054213d94fc9d0827668c9484e598821f7e65fbbbd3fd3b302b178926e228806"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x01df83543b4be0f49ba822a8067a75444a113d2cda81e8e541109ba09c6d0214"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0xd4c8829e6feb9ab9606917e970b944717cc4d9a74695dd4e7cc23b5888b6dce"
-                },
-                "y": {
-                    "value": "0x3a99ef4660a95515763e072043119fcbf6d3f3b709af6bf05b5c8b4d815a775"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x27bad031f6e5d63c6287744855e8ade0884815738c74c2cb0146042ba80f9dc1"
-                        },
-                        {
-                            "value": "0x0aedfd48d1d99352bddbae12766888014ce326c0184a49030f255bc402971c8e"
-                        },
-                        {
-                            "value": "0x1421f8d1f52f38eadad21dacba2c9c8ae2fa265be2b5cf56ecac1dc30e880614"
-                        },
-                        {
-                            "value": "0x2615ac9cfd366ea7c7b50c56fa3753c345533ddfaa1cfd23b7fdf6771010b3ae"
-                        },
-                        {
-                            "value": "0x055a53b13f4ef2982200bcee18cad82631591d7537e81f9f6d0d9af73919aca7"
-                        },
-                        {
-                            "value": "0x055992fb3e68a839041d15f16baee9aac780d3cc027c2650a8fa07d8c708ffa4"
-                        },
-                        {
-                            "value": "0x01288fca758908fd75be91359aae9947105255cb57e3737ba4cd2cb249b9568b"
-                        },
-                        {
-                            "value": "0x057b12a3c876f530ff3416b1f37b57888c294abfca1add3c80920e715ebd3dce"
-                        },
-                        {
-                            "value": "0x128bda5bfdc7fd9f0bcd7a4590e6367ac7d02e478e7fe7b4effcc682fee6ac4e"
-                        },
-                        {
-                            "value": "0x15fa52c718251448f4a7b5e5a51b8983626f542e76616ec2a97b51a9ca55acaa"
-                        },
-                        {
-                            "value": "0x2e1e139d30e7837e3a9c17b1cfabb68449abe4a71d09929789ba75a389477d5b"
-                        },
-                        {
-                            "value": "0x18d881eb1a3059a451819fc43526ad05f7144db79e00c502abb2999c9677e5eb"
-                        },
-                        {
-                            "value": "0x0497036ec879338b7800d9c8785fd34de9677ccba2b989725a258156fecaeddc"
-                        },
-                        {
-                            "value": "0x2a58721ef44e23f723b2f6f0c767346ee25de6a9ce3be5143c45bf02700f6067"
-                        },
-                        {
-                            "value": "0x241e67371586327ed2947f58dc70148a99a32ae01d5f67a82bba22edc0c67134"
-                        },
-                        {
-                            "value": "0x11fb89af7e2c3df6b15be924a02551ebb634e49577dd20c759a6da3a058acf9e"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x11e368174b8acccfbdfa3df69075bbfc0a755a0b1e8b75eed1af049a4454c091"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0xd2b3853c2faafac946818a717533f3b12ab292173d52c1a9015cdf18ef87827"
-                },
-                "y": {
-                    "value": "0x21b7650147538e48bab652f15aece419695f7374c8e8bfae869451bb50f387ec"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x27bad031f6e5d63c6287744855e8ade0884815738c74c2cb0146042ba80f9dc1"
-                        },
-                        {
-                            "value": "0x0aedfd48d1d99352bddbae12766888014ce326c0184a49030f255bc402971c8e"
-                        },
-                        {
-                            "value": "0x1421f8d1f52f38eadad21dacba2c9c8ae2fa265be2b5cf56ecac1dc30e880614"
-                        },
-                        {
-                            "value": "0x2615ac9cfd366ea7c7b50c56fa3753c345533ddfaa1cfd23b7fdf6771010b3ae"
-                        },
-                        {
-                            "value": "0x055a53b13f4ef2982200bcee18cad82631591d7537e81f9f6d0d9af73919aca7"
-                        },
-                        {
-                            "value": "0x055992fb3e68a839041d15f16baee9aac780d3cc027c2650a8fa07d8c708ffa4"
-                        },
-                        {
-                            "value": "0x01288fca758908fd75be91359aae9947105255cb57e3737ba4cd2cb249b9568b"
-                        },
-                        {
-                            "value": "0x057b12a3c876f530ff3416b1f37b57888c294abfca1add3c80920e715ebd3dce"
-                        },
-                        {
-                            "value": "0x128bda5bfdc7fd9f0bcd7a4590e6367ac7d02e478e7fe7b4effcc682fee6ac4e"
-                        },
-                        {
-                            "value": "0x15fa52c718251448f4a7b5e5a51b8983626f542e76616ec2a97b51a9ca55acaa"
-                        },
-                        {
-                            "value": "0x2e1e139d30e7837e3a9c17b1cfabb68449abe4a71d09929789ba75a389477d5b"
-                        },
-                        {
-                            "value": "0x18d881eb1a3059a451819fc43526ad05f7144db79e00c502abb2999c9677e5eb"
-                        },
-                        {
-                            "value": "0x0497036ec879338b7800d9c8785fd34de9677ccba2b989725a258156fecaeddc"
-                        },
-                        {
-                            "value": "0x2a58721ef44e23f723b2f6f0c767346ee25de6a9ce3be5143c45bf02700f6067"
-                        },
-                        {
-                            "value": "0x241e67371586327ed2947f58dc70148a99a32ae01d5f67a82bba22edc0c67134"
-                        },
-                        {
-                            "value": "0x11fb89af7e2c3df6b15be924a02551ebb634e49577dd20c759a6da3a058acf9e"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x0bf644932135dc0354b7894bcce618471838a3c81224399d962da14d3c5ce060"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0xd2b3853c2faafac946818a717533f3b12ab292173d52c1a9015cdf18ef87827"
-                },
-                "y": {
-                    "value": "0x21b7650147538e48bab652f15aece419695f7374c8e8bfae869451bb50f387ec"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x25eb43faf087b073127c0c78c9bff217db519dc4e341fa67c3bff39521fafaa0"
-                        },
-                        {
-                            "value": "0x1d11001a2c335416fd402e6f2320a36637e9716224dbd24c644e8d992a9937d2"
-                        },
-                        {
-                            "value": "0x022ed7d9821857ae10b56d3e6653f9d2d66c5830f37fd8f8fe919499fd5cd141"
-                        },
-                        {
-                            "value": "0x067ba58be138be7551ae282a31bdbc382611eb1ec1598e903f8f2c5b54c2ae7b"
-                        },
-                        {
-                            "value": "0x119475b2c3264aa8805750846d070c5475b662e89d05727c0a1b07a12137eb11"
-                        },
-                        {
-                            "value": "0x1db303cde0cc6d069ed2018e7b373f2cdb104ecaa5eacd854ed95e0e8bcfbb5f"
-                        },
-                        {
-                            "value": "0x0643722d1811c56d8f664a29024b43d452870ca0da49a8c8079a4e8b3afe2441"
-                        },
-                        {
-                            "value": "0x08d7f5f9b6a126e4791f3ad415ab77dddc5c1fd75d9737fd6a3c4b476b020dcb"
-                        },
-                        {
-                            "value": "0x28abab2f4ebd7fb6fc77a8b5f743eaab4c1d5ad7781da8e4a0f020109ba8f7b3"
-                        },
-                        {
-                            "value": "0x10966a5a95d1fb71187025af34157068768839ebfd8a39cb25799d9003e8fe38"
-                        },
-                        {
-                            "value": "0x26ad4be30ca2f3f5a762f8d9e29731d8afab86e052de49089e26466d221b4217"
-                        },
-                        {
-                            "value": "0x02ce4196df38f8e4ba40d9638aacbcd8a769ad82b59a10127e0bff068df182ba"
-                        },
-                        {
-                            "value": "0x2ea4540330333650e1de53ca27a69edcc8e27e49368aa39367cc7c5d910fb194"
-                        },
-                        {
-                            "value": "0x2a950d6c990a49114ebb24fda0be841e688018802c341c41afdd4b9a45f595b7"
-                        },
-                        {
-                            "value": "0x1de8b570053b05d1f25f9f402b7ba40a8acc8e103e31090050aea86c34476f36"
-                        },
-                        {
-                            "value": "0x23f8fbaaaad3d80d512c7c0e61bd163645cf9cfaf8123834c6bad47ca5ad6399"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x2b269271b39772a678f407722dfd9945cb531223a3908edf4862dffdbe4e02ee"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x22c7193d81517510725d2b2485121827c5d6409b97eb3d23d4f6606217aa2b48"
-                },
-                "y": {
-                    "value": "0x275207c52e625cc123cb30e9ce18ec2963b9478f475f7d89f7b3ed1930415686"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x25eb43faf087b073127c0c78c9bff217db519dc4e341fa67c3bff39521fafaa0"
-                        },
-                        {
-                            "value": "0x1d11001a2c335416fd402e6f2320a36637e9716224dbd24c644e8d992a9937d2"
-                        },
-                        {
-                            "value": "0x022ed7d9821857ae10b56d3e6653f9d2d66c5830f37fd8f8fe919499fd5cd141"
-                        },
-                        {
-                            "value": "0x067ba58be138be7551ae282a31bdbc382611eb1ec1598e903f8f2c5b54c2ae7b"
-                        },
-                        {
-                            "value": "0x119475b2c3264aa8805750846d070c5475b662e89d05727c0a1b07a12137eb11"
-                        },
-                        {
-                            "value": "0x1db303cde0cc6d069ed2018e7b373f2cdb104ecaa5eacd854ed95e0e8bcfbb5f"
-                        },
-                        {
-                            "value": "0x0643722d1811c56d8f664a29024b43d452870ca0da49a8c8079a4e8b3afe2441"
-                        },
-                        {
-                            "value": "0x08d7f5f9b6a126e4791f3ad415ab77dddc5c1fd75d9737fd6a3c4b476b020dcb"
-                        },
-                        {
-                            "value": "0x28abab2f4ebd7fb6fc77a8b5f743eaab4c1d5ad7781da8e4a0f020109ba8f7b3"
-                        },
-                        {
-                            "value": "0x10966a5a95d1fb71187025af34157068768839ebfd8a39cb25799d9003e8fe38"
-                        },
-                        {
-                            "value": "0x26ad4be30ca2f3f5a762f8d9e29731d8afab86e052de49089e26466d221b4217"
-                        },
-                        {
-                            "value": "0x02ce4196df38f8e4ba40d9638aacbcd8a769ad82b59a10127e0bff068df182ba"
-                        },
-                        {
-                            "value": "0x2ea4540330333650e1de53ca27a69edcc8e27e49368aa39367cc7c5d910fb194"
-                        },
-                        {
-                            "value": "0x2a950d6c990a49114ebb24fda0be841e688018802c341c41afdd4b9a45f595b7"
-                        },
-                        {
-                            "value": "0x1de8b570053b05d1f25f9f402b7ba40a8acc8e103e31090050aea86c34476f36"
-                        },
-                        {
-                            "value": "0x23f8fbaaaad3d80d512c7c0e61bd163645cf9cfaf8123834c6bad47ca5ad6399"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x08e5c7ee1b8a38cabb682b937b0401ea4b3727a6b69558f52a89cdf087ad1306"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x22c7193d81517510725d2b2485121827c5d6409b97eb3d23d4f6606217aa2b48"
-                },
-                "y": {
-                    "value": "0x275207c52e625cc123cb30e9ce18ec2963b9478f475f7d89f7b3ed1930415686"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x09281fd13b026e16f8fbc689941062b0d6bbd535fda626b269ef78699a7467c2"
-                        },
-                        {
-                            "value": "0x0301f0f426b900cdc3104ce36c21c916a21e1d2821480870a498a7a915dca364"
-                        },
-                        {
-                            "value": "0x2d772b9ee0a6f032ec7a08268ee673a34ebfbc9a4a5d947a570374d1f762e6f6"
-                        },
-                        {
-                            "value": "0x241681a32c9efd5cbf44aaef7c816e3c8a09eeee0fae2913a8988f0d3df36470"
-                        },
-                        {
-                            "value": "0x2fba9623fda6de12e3d46dc86655aae912fed1a6e4e864f9a39e854098aab964"
-                        },
-                        {
-                            "value": "0x1f3a4f4b754ada3ee38d4f190fe772dadc419bc7114d6a032ea4cfe53b681d2e"
-                        },
-                        {
-                            "value": "0x00001858f89385829b929ac872a97abee329490838b0b0f0d76e429e07c3726a"
-                        },
-                        {
-                            "value": "0x2d164b5f5702693c772eec4088d9c40ce8a5ffe3fb51cc30f1c587b8d235ab5d"
-                        },
-                        {
-                            "value": "0x19fafa156b2097beaef098f1f4b4ad68504d52703d90d21c16bb9ca17d7547f8"
-                        },
-                        {
-                            "value": "0x2cc87c08c38eb1927bb5123b318bb9c133ca82a1f53225527373db4f3ef3bf5d"
-                        },
-                        {
-                            "value": "0x0c704b7263c687c03ae32713ea3b260d9d8218539d92f2928ffc8cecfec6ac40"
-                        },
-                        {
-                            "value": "0x23ea21065c46c605a69023577da80f480938e6d60628f727d89ea8ea8ad36bb6"
-                        },
-                        {
-                            "value": "0x30166b4126d88e5af867493fe778e242aec5d2df28bf893c8c9ab21ff5cd18a4"
-                        },
-                        {
-                            "value": "0x227f3a698689b09d45c6d5513f1326ce2511cf900e68f0db752aeda9e11f5ef7"
-                        },
-                        {
-                            "value": "0x1c2e4f4b08fbdb2ac7ba0a44458d84a187a38d16ed031001a11090f07d8e2561"
-                        },
-                        {
-                            "value": "0x23af931194fef8d2f872c0733b59441dbe9bbe0d764ed97b783cc9ed4ccd04eb"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x271afc05aa78364bd47bc2ca0e22e0bc228759e9ccdd5b2c2999d87a9eb60729"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x234473361e5bb22a37a02da065c0ccbeaf6d44c3820afe7ec594b3791e179705"
-                },
-                "y": {
-                    "value": "0x72d829adbddb62d6af633e6a660f11f75dea4701990f9c5fc50972f6a54aa0c"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x09281fd13b026e16f8fbc689941062b0d6bbd535fda626b269ef78699a7467c2"
-                        },
-                        {
-                            "value": "0x0301f0f426b900cdc3104ce36c21c916a21e1d2821480870a498a7a915dca364"
-                        },
-                        {
-                            "value": "0x2d772b9ee0a6f032ec7a08268ee673a34ebfbc9a4a5d947a570374d1f762e6f6"
-                        },
-                        {
-                            "value": "0x241681a32c9efd5cbf44aaef7c816e3c8a09eeee0fae2913a8988f0d3df36470"
-                        },
-                        {
-                            "value": "0x2fba9623fda6de12e3d46dc86655aae912fed1a6e4e864f9a39e854098aab964"
-                        },
-                        {
-                            "value": "0x1f3a4f4b754ada3ee38d4f190fe772dadc419bc7114d6a032ea4cfe53b681d2e"
-                        },
-                        {
-                            "value": "0x00001858f89385829b929ac872a97abee329490838b0b0f0d76e429e07c3726a"
-                        },
-                        {
-                            "value": "0x2d164b5f5702693c772eec4088d9c40ce8a5ffe3fb51cc30f1c587b8d235ab5d"
-                        },
-                        {
-                            "value": "0x19fafa156b2097beaef098f1f4b4ad68504d52703d90d21c16bb9ca17d7547f8"
-                        },
-                        {
-                            "value": "0x2cc87c08c38eb1927bb5123b318bb9c133ca82a1f53225527373db4f3ef3bf5d"
-                        },
-                        {
-                            "value": "0x0c704b7263c687c03ae32713ea3b260d9d8218539d92f2928ffc8cecfec6ac40"
-                        },
-                        {
-                            "value": "0x23ea21065c46c605a69023577da80f480938e6d60628f727d89ea8ea8ad36bb6"
-                        },
-                        {
-                            "value": "0x30166b4126d88e5af867493fe778e242aec5d2df28bf893c8c9ab21ff5cd18a4"
-                        },
-                        {
-                            "value": "0x227f3a698689b09d45c6d5513f1326ce2511cf900e68f0db752aeda9e11f5ef7"
-                        },
-                        {
-                            "value": "0x1c2e4f4b08fbdb2ac7ba0a44458d84a187a38d16ed031001a11090f07d8e2561"
-                        },
-                        {
-                            "value": "0x23af931194fef8d2f872c0733b59441dbe9bbe0d764ed97b783cc9ed4ccd04eb"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x04daca11b912394054c18cd4e83a625abffe0d9e2bb3c5c8126f1a4b83cd253f"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x234473361e5bb22a37a02da065c0ccbeaf6d44c3820afe7ec594b3791e179705"
-                },
-                "y": {
-                    "value": "0x72d829adbddb62d6af633e6a660f11f75dea4701990f9c5fc50972f6a54aa0c"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x06ccb417864f529990061d4e92dcaa0574b12ce900438688329abd9f2717ebe2"
-                        },
-                        {
-                            "value": "0x00f3d4c029499eb2128ed6d28c384536e11649e81c7f313ba2779a1ae87a764c"
-                        },
-                        {
-                            "value": "0x20dac075424ea2cad49a61fee47e720c9a7b63425bf88b6985995bf2b5f8d1b7"
-                        },
-                        {
-                            "value": "0x2b347eba498aecc00a9e2e9f047a35adced26a8d3dfa377b099f775235879c28"
-                        },
-                        {
-                            "value": "0x2a7280b93e6810a7cd6007f521e90d9c581f377a04474dc2e3ac4bdf326eafb0"
-                        },
-                        {
-                            "value": "0x09981f3516fd42812f82175ba7678ed4ddccfc4e7b45b53f96f13c7aa005be5b"
-                        },
-                        {
-                            "value": "0x00fa3e092c8e8fe96f4813437a17c110c186f85f66a1c8d27adef4957b30b267"
-                        },
-                        {
-                            "value": "0x089f7432f01c790c423deb22871e6315c1c9d26e6930ecce2824fc6c1b8db4c6"
-                        },
-                        {
-                            "value": "0x1fd70c1418949aab4c48142f21e703ed08b7068fe1a5d75015208dcac51be0f2"
-                        },
-                        {
-                            "value": "0x11a0af8f117fe0445f626ff2e3142b4b476df4f9f366b92f512c7c0b6cf0ae04"
-                        },
-                        {
-                            "value": "0x299f90885fff6bec0a490480c1b0fa715b5c781ccf39ac27768ce493b9ca31a5"
-                        },
-                        {
-                            "value": "0x1879f265c72f21029625740d85f4ae1d8b0ed2326f6d6fa89aef4c5e4bd4230f"
-                        },
-                        {
-                            "value": "0x1564e2c543fb895ee90380db7947dfceb5c31b9b5f24baf4efb0b1459838d368"
-                        },
-                        {
-                            "value": "0x1b6b86f9c2524d698ff49ef7d177a54d100382f7d8011beb272787fd3870658c"
-                        },
-                        {
-                            "value": "0x18772e48f3f35cb97853a0d8e8163708d28c8c8a5ac7f7af094864183e83a9e3"
-                        },
-                        {
-                            "value": "0x161c82b5edf64ccb8c77044bdd17bc12bb0231383e729e89d91351742587f35c"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x19eebedecda2ae4b32431888d642c5cc7847f560652c938c9760ac5449eeea41"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x6c289509103cb19067161c7eb3956dc9b7289ebc8ae47efa4eaac74cc95e568"
-                },
-                "y": {
-                    "value": "0x2071ad32b48002a3f62778fb57451c91c744ca9d0f837fa0fc96bd570898d8b2"
-                }
-            }
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x06ccb417864f529990061d4e92dcaa0574b12ce900438688329abd9f2717ebe2"
-                        },
-                        {
-                            "value": "0x00f3d4c029499eb2128ed6d28c384536e11649e81c7f313ba2779a1ae87a764c"
-                        },
-                        {
-                            "value": "0x20dac075424ea2cad49a61fee47e720c9a7b63425bf88b6985995bf2b5f8d1b7"
-                        },
-                        {
-                            "value": "0x2b347eba498aecc00a9e2e9f047a35adced26a8d3dfa377b099f775235879c28"
-                        },
-                        {
-                            "value": "0x2a7280b93e6810a7cd6007f521e90d9c581f377a04474dc2e3ac4bdf326eafb0"
-                        },
-                        {
-                            "value": "0x09981f3516fd42812f82175ba7678ed4ddccfc4e7b45b53f96f13c7aa005be5b"
-                        },
-                        {
-                            "value": "0x00fa3e092c8e8fe96f4813437a17c110c186f85f66a1c8d27adef4957b30b267"
-                        },
-                        {
-                            "value": "0x089f7432f01c790c423deb22871e6315c1c9d26e6930ecce2824fc6c1b8db4c6"
-                        },
-                        {
-                            "value": "0x1fd70c1418949aab4c48142f21e703ed08b7068fe1a5d75015208dcac51be0f2"
-                        },
-                        {
-                            "value": "0x11a0af8f117fe0445f626ff2e3142b4b476df4f9f366b92f512c7c0b6cf0ae04"
-                        },
-                        {
-                            "value": "0x299f90885fff6bec0a490480c1b0fa715b5c781ccf39ac27768ce493b9ca31a5"
-                        },
-                        {
-                            "value": "0x1879f265c72f21029625740d85f4ae1d8b0ed2326f6d6fa89aef4c5e4bd4230f"
-                        },
-                        {
-                            "value": "0x1564e2c543fb895ee90380db7947dfceb5c31b9b5f24baf4efb0b1459838d368"
-                        },
-                        {
-                            "value": "0x1b6b86f9c2524d698ff49ef7d177a54d100382f7d8011beb272787fd3870658c"
-                        },
-                        {
-                            "value": "0x18772e48f3f35cb97853a0d8e8163708d28c8c8a5ac7f7af094864183e83a9e3"
-                        },
-                        {
-                            "value": "0x161c82b5edf64ccb8c77044bdd17bc12bb0231383e729e89d91351742587f35c"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da"
-            },
-            "opening": {
-                "value": "0x01ad91ba86bac41e31b988163233331418b680ddb0258a95acf2fd32d22329fd"
-            },
-            "commitment": {"x":{"value":"0x6c289509103cb19067161c7eb3956dc9b7289ebc8ae47efa4eaac74cc95e568"},"y":{"value":"0x2071ad32b48002a3f62778fb57451c91c744ca9d0f837fa0fc96bd570898d8b2"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x09281fd13b026e16f8fbc689941062b0d6bbd535fda626b269ef78699a7467c2"
-                        },
-                        {
-                            "value": "0x0301f0f426b900cdc3104ce36c21c916a21e1d2821480870a498a7a915dca364"
-                        },
-                        {
-                            "value": "0x2d772b9ee0a6f032ec7a08268ee673a34ebfbc9a4a5d947a570374d1f762e6f6"
-                        },
-                        {
-                            "value": "0x241681a32c9efd5cbf44aaef7c816e3c8a09eeee0fae2913a8988f0d3df36470"
-                        },
-                        {
-                            "value": "0x2fba9623fda6de12e3d46dc86655aae912fed1a6e4e864f9a39e854098aab964"
-                        },
-                        {
-                            "value": "0x1f3a4f4b754ada3ee38d4f190fe772dadc419bc7114d6a032ea4cfe53b681d2e"
-                        },
-                        {
-                            "value": "0x00001858f89385829b929ac872a97abee329490838b0b0f0d76e429e07c3726a"
-                        },
-                        {
-                            "value": "0x2d164b5f5702693c772eec4088d9c40ce8a5ffe3fb51cc30f1c587b8d235ab5d"
-                        },
-                        {
-                            "value": "0x19fafa156b2097beaef098f1f4b4ad68504d52703d90d21c16bb9ca17d7547f8"
-                        },
-                        {
-                            "value": "0x2cc87c08c38eb1927bb5123b318bb9c133ca82a1f53225527373db4f3ef3bf5d"
-                        },
-                        {
-                            "value": "0x0c704b7263c687c03ae32713ea3b260d9d8218539d92f2928ffc8cecfec6ac40"
-                        },
-                        {
-                            "value": "0x23ea21065c46c605a69023577da80f480938e6d60628f727d89ea8ea8ad36bb6"
-                        },
-                        {
-                            "value": "0x30166b4126d88e5af867493fe778e242aec5d2df28bf893c8c9ab21ff5cd18a4"
-                        },
-                        {
-                            "value": "0x227f3a698689b09d45c6d5513f1326ce2511cf900e68f0db752aeda9e11f5ef7"
-                        },
-                        {
-                            "value": "0x1c2e4f4b08fbdb2ac7ba0a44458d84a187a38d16ed031001a11090f07d8e2561"
-                        },
-                        {
-                            "value": "0x23af931194fef8d2f872c0733b59441dbe9bbe0d764ed97b783cc9ed4ccd04eb"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125"
-            },
-            "opening": {
-                "value": "0x2912e54ff10738c9a5d153eeb805c3499374dc43c918e0bf50b650db5ff98733"
-            },
-            "commitment": {"x":{"value":"0x234473361e5bb22a37a02da065c0ccbeaf6d44c3820afe7ec594b3791e179705"},"y":{"value":"0x72d829adbddb62d6af633e6a660f11f75dea4701990f9c5fc50972f6a54aa0c"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x25eb43faf087b073127c0c78c9bff217db519dc4e341fa67c3bff39521fafaa0"
-                        },
-                        {
-                            "value": "0x1d11001a2c335416fd402e6f2320a36637e9716224dbd24c644e8d992a9937d2"
-                        },
-                        {
-                            "value": "0x022ed7d9821857ae10b56d3e6653f9d2d66c5830f37fd8f8fe919499fd5cd141"
-                        },
-                        {
-                            "value": "0x067ba58be138be7551ae282a31bdbc382611eb1ec1598e903f8f2c5b54c2ae7b"
-                        },
-                        {
-                            "value": "0x119475b2c3264aa8805750846d070c5475b662e89d05727c0a1b07a12137eb11"
-                        },
-                        {
-                            "value": "0x1db303cde0cc6d069ed2018e7b373f2cdb104ecaa5eacd854ed95e0e8bcfbb5f"
-                        },
-                        {
-                            "value": "0x0643722d1811c56d8f664a29024b43d452870ca0da49a8c8079a4e8b3afe2441"
-                        },
-                        {
-                            "value": "0x08d7f5f9b6a126e4791f3ad415ab77dddc5c1fd75d9737fd6a3c4b476b020dcb"
-                        },
-                        {
-                            "value": "0x28abab2f4ebd7fb6fc77a8b5f743eaab4c1d5ad7781da8e4a0f020109ba8f7b3"
-                        },
-                        {
-                            "value": "0x10966a5a95d1fb71187025af34157068768839ebfd8a39cb25799d9003e8fe38"
-                        },
-                        {
-                            "value": "0x26ad4be30ca2f3f5a762f8d9e29731d8afab86e052de49089e26466d221b4217"
-                        },
-                        {
-                            "value": "0x02ce4196df38f8e4ba40d9638aacbcd8a769ad82b59a10127e0bff068df182ba"
-                        },
-                        {
-                            "value": "0x2ea4540330333650e1de53ca27a69edcc8e27e49368aa39367cc7c5d910fb194"
-                        },
-                        {
-                            "value": "0x2a950d6c990a49114ebb24fda0be841e688018802c341c41afdd4b9a45f595b7"
-                        },
-                        {
-                            "value": "0x1de8b570053b05d1f25f9f402b7ba40a8acc8e103e31090050aea86c34476f36"
-                        },
-                        {
-                            "value": "0x23f8fbaaaad3d80d512c7c0e61bd163645cf9cfaf8123834c6bad47ca5ad6399"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125"
-            },
-            "opening": {
-                "value": "0x01fc0c271c7599cd7a0d4317363f2345ee8d1ea46faaf2092e4181c2b94d857b"
-            },
-            "commitment": {"x":{"value":"0x22c7193d81517510725d2b2485121827c5d6409b97eb3d23d4f6606217aa2b48"},"y":{"value":"0x275207c52e625cc123cb30e9ce18ec2963b9478f475f7d89f7b3ed1930415686"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x27bad031f6e5d63c6287744855e8ade0884815738c74c2cb0146042ba80f9dc1"
-                        },
-                        {
-                            "value": "0x0aedfd48d1d99352bddbae12766888014ce326c0184a49030f255bc402971c8e"
-                        },
-                        {
-                            "value": "0x1421f8d1f52f38eadad21dacba2c9c8ae2fa265be2b5cf56ecac1dc30e880614"
-                        },
-                        {
-                            "value": "0x2615ac9cfd366ea7c7b50c56fa3753c345533ddfaa1cfd23b7fdf6771010b3ae"
-                        },
-                        {
-                            "value": "0x055a53b13f4ef2982200bcee18cad82631591d7537e81f9f6d0d9af73919aca7"
-                        },
-                        {
-                            "value": "0x055992fb3e68a839041d15f16baee9aac780d3cc027c2650a8fa07d8c708ffa4"
-                        },
-                        {
-                            "value": "0x01288fca758908fd75be91359aae9947105255cb57e3737ba4cd2cb249b9568b"
-                        },
-                        {
-                            "value": "0x057b12a3c876f530ff3416b1f37b57888c294abfca1add3c80920e715ebd3dce"
-                        },
-                        {
-                            "value": "0x128bda5bfdc7fd9f0bcd7a4590e6367ac7d02e478e7fe7b4effcc682fee6ac4e"
-                        },
-                        {
-                            "value": "0x15fa52c718251448f4a7b5e5a51b8983626f542e76616ec2a97b51a9ca55acaa"
-                        },
-                        {
-                            "value": "0x2e1e139d30e7837e3a9c17b1cfabb68449abe4a71d09929789ba75a389477d5b"
-                        },
-                        {
-                            "value": "0x18d881eb1a3059a451819fc43526ad05f7144db79e00c502abb2999c9677e5eb"
-                        },
-                        {
-                            "value": "0x0497036ec879338b7800d9c8785fd34de9677ccba2b989725a258156fecaeddc"
-                        },
-                        {
-                            "value": "0x2a58721ef44e23f723b2f6f0c767346ee25de6a9ce3be5143c45bf02700f6067"
-                        },
-                        {
-                            "value": "0x241e67371586327ed2947f58dc70148a99a32ae01d5f67a82bba22edc0c67134"
-                        },
-                        {
-                            "value": "0x11fb89af7e2c3df6b15be924a02551ebb634e49577dd20c759a6da3a058acf9e"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125"
-            },
-            "opening": {
-                "value": "0x11bea2be37f4170fa49da99c65c6a139e07976c36cc5e35e2735ed5b11e8a86f"
-            },
-            "commitment": {"x":{"value":"0xd2b3853c2faafac946818a717533f3b12ab292173d52c1a9015cdf18ef87827"},"y":{"value":"0x21b7650147538e48bab652f15aece419695f7374c8e8bfae869451bb50f387ec"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        },
-                        {
-                            "value": "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x167e2486350b9d6096379aad44fdc662e020b922458f47bfeff7b825548ccc88"
-            },
-            "commitment": {"x":{"value":"0xf9cc629d0010671d7f755267acccfc8d5854f47d4e437ec84bddcc27b9f19d1"},"y":{"value":"0x199b1dcc7aff518a4e49c6393bcf847cc3fde52ae69e326dea0d1d901424552a"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x27517fbd56f85221e5c138a4493917cbb0aa2cbae2e6ab760727978833000001"
-                        },
-                        {
-                            "value": "0x2e2956f8332a2abea8eae65e83211a8cfd4c9c38c6ed5c09186cafec19009edf"
-                        },
-                        {
-                            "value": "0x2014447de15a99b6df03833e95f96ae1299c9ec6ff990b6e75fa3b3b04846a57"
-                        },
-                        {
-                            "value": "0x130034a5a3705c18e67b698f576257c783c3403058f57e9a359495efd00ce8cf"
-                        },
-                        {
-                            "value": "0x2144f5eefad21e1ca37ae273a4ee5b4a7eef137cbbeb1d198c9e59c37ef70364"
-                        },
-                        {
-                            "value": "0x11ded077258dd59f58ab8525c92955ebcb2b1905e676b2fe47ca20d6919e5e16"
-                        },
-                        {
-                            "value": "0x02b337de1c8c14f22ec9b9e2f96afef3652627366f8170a0a948dad4ac1bd5e8"
-                        },
-                        {
-                            "value": "0x152fae7ca9f4520815c46c7ae6996e0cd78f9e211ed4ffa8d8d48d83b3a445cd"
-                        },
-                        {
-                            "value": "0x0912ceb58a394e07d28f0d12384840917789bb8d96d2c51b3cba5e0bbd000000"
-                        },
-                        {
-                            "value": "0x023af77aae07756b0f655f57fe603dd02ae74c0fb2cc14882b7545a7d6ff6122"
-                        },
-                        {
-                            "value": "0x105009f4ffd70672d94cc277eb87ed7bfe9749817a206522cde7ba58eb7b95aa"
-                        },
-                        {
-                            "value": "0x1d6419cd3dc14410d1d4dc272a1f0095a470a81820c3f1f70e4d5fa41ff31732"
-                        },
-                        {
-                            "value": "0x0f1f5883e65f820d14d56342dc92fd12a944d4cbbdce5377b7439bd07108fc9d"
-                        },
-                        {
-                            "value": "0x1e857dfbbba3ca8a5fa4c090b85802715d08cf429342bd92fc17d4bd5e61a1eb"
-                        },
-                        {
-                            "value": "0x2db11694c4a58b3789868bd388165969c30dc1120a37fff09a991abf43e42a19"
-                        },
-                        {
-                            "value": "0x1b349ff6373d4e21a28bd93b9ae7ea5050a44a275ae470e86b0d68103c5bba34"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x2ce9cf1f952831ab654748c6bf472d5ac137b164c079a05eaa20485176e6d319"
-            },
-            "commitment": {"x":{"value":"0x10472018b5bfdcc76f3925ea4f660dc7167ef12c96fb70f686d0c1cf7791cde5"},"y":{"value":"0x358f44f7cb29a8d129dbe6b61fc1d921a903f1e9209abc137c7a6446c3ae38f"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8f"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        },
-                        {
-                            "value": "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x272ba02794f3cb184151a79e4441c7aa7a50b8adf272f508e38796c23389a82c"
-            },
-            "commitment": {"x":{"value":"0x365b8986f1c38476aa6479eea1b688244b4070413eb393efa5b06441ac2aeaa"},"y":{"value":"0x303ed0aaed99cb2848d844239ab4ab9a9191b86544edab860c42a2d4e504cf34"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x0640f831aa044d38fe46c45508516d98a6f118b1ab16de0c7f41963d5e3e3c65"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        },
-                        {
-                            "value": "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x2216922012e3bd8e54f70dc0cb070cbc74e00067d3315ab08314e24b98a7c8f2"
-            },
-            "commitment": {"x":{"value":"0x1af13f7dc79a97c1a690215e2ffd3d8386f682fe1a13bdb8588d2fbaa0161edc"},"y":{"value":"0x10f0c0ddf9db782e88deb3e49464292b1276b2b9ad29b5a25971c85fe0b8aa96"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x18038fb09dafe4561b7c81a4ddecb5a9fdec9905c914eb53873760ec477b6153"
-                        },
-                        {
-                            "value": "0x01330c7cbea5f36f17d3698ffdacd0e8d561fc0253004050c673cb4825a5d678"
-                        },
-                        {
-                            "value": "0x11bd06280c7c8a6daa71eb9d3b2c97f9f211a37a41798bc63f78d5af70135d20"
-                        },
-                        {
-                            "value": "0x021ebc7877f2b98917ec49b986e1a497743d0464e2e1cf787fcc843b013626bb"
-                        },
-                        {
-                            "value": "0x2965a7e65ce635bbab94a2fffae4c86626d67c0eb10d658380f782f08db31ef9"
-                        },
-                        {
-                            "value": "0x13d9914eeb3084263023150484b8da37654dc6d57f82afffca2739b48de541c3"
-                        },
-                        {
-                            "value": "0x150b22b022aca6d5eacd65a0435fe2b487242afc5df5b9a417a001d5a79554a0"
-                        },
-                        {
-                            "value": "0x1911d0efc0d670781ad228d1df69e12aa502675c2c2b0873421dc9f32f16364f"
-                        },
-                        {
-                            "value": "0x173bca2a5af56060d72e1cf66a4c15350c7a1d0985d14232e9c548bf83a8e270"
-                        },
-                        {
-                            "value": "0x1761ac780a2688e48980ee5f7bb6c6489891ad7207f1b53c9a9aecdf3ca68117"
-                        },
-                        {
-                            "value": "0x2af4468570b8b17c26c074b53131f4dab8f4abc05ac204dfee977cd8f2ec9c0e"
-                        },
-                        {
-                            "value": "0x29a949ffe203c1114c6cc31a6b99269932f7cd7340abbe797c0d6c99a7f802f1"
-                        },
-                        {
-                            "value": "0x2f93c69781f9dd1bcc42e4149107242b847da4d909a47893ebe85b9a1fe5700e"
-                        },
-                        {
-                            "value": "0x2a7dc0ef215246ec520423ffc5f6e6fa3d5c0144e341d3358dd64ce8e648afff"
-                        },
-                        {
-                            "value": "0x134ac81b3f8e47b083bd4a759f2e5be3ec6cdfc0d4b28794740f1a3096f24a6d"
-                        },
-                        {
-                            "value": "0x2115cec3e5a7af5c4f4829c80b9825c24f499de351535dc35cb607a47b85c1b7"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x0d4e76b700e0ccf22194dba6a70f03d24a1ced8e93a333d5b7e83535e4195c01"
-            },
-            "commitment": {"x":{"value":"0x9837455c613e5b0e0edd2a1d47f1efdee21eeeda00548f3686c733301e23da4"},"y":{"value":"0x2e2b7776741eb2214916eb80ae0982c32b02e57e83c51e8907b5ffeab048bf2d"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x28967ba8c313c600d17a4ddd20a4f32f49d6e1e9fcba5e5249324a66d96b4f5e"
-                        },
-                        {
-                            "value": "0x00a354bfcc60f6a39aa68e9a9fa36f4f2bc9322db22d4c76b20738f12376fa40"
-                        },
-                        {
-                            "value": "0x2d0e02c7383ab7a8d1dc324434cbc0efa7c7da0a5c10f1008c072ad9284c951b"
-                        },
-                        {
-                            "value": "0x295fc9ac7c7023fa3374d3df0959578ede07bc8e8e32a7d46b5928ac0f6051c7"
-                        },
-                        {
-                            "value": "0x2be457106435d313da2cbe5c1304c9b5eac6cef2e824ab55be7e094f779a7680"
-                        },
-                        {
-                            "value": "0x11d0a6eb25ba5944c820e99c5b6bfeacbaed201b58985a3e47ac129d746acb2d"
-                        },
-                        {
-                            "value": "0x10f99e36b6e6090fddea8d5f4048b35d3bf6c5f9b4b84f83c3f8695c1fc00a84"
-                        },
-                        {
-                            "value": "0x1269a9b9c8dd3f9f671c12f107a14cb0be65a15412dc8d8b0fb139184bfbd050"
-                        },
-                        {
-                            "value": "0x07cdd2ca1e1dda28e6d5f7d960dc652dde5d065e7cff123efaafab2d1694b0a3"
-                        },
-                        {
-                            "value": "0x180c8a641d5c9c5ecc993345d7012385aa929f610a2038d81f81daaa87ba4412"
-                        },
-                        {
-                            "value": "0x03564baba8f6e880e67413724cb5976d806c0e3e1da87f90b7dacabac7b36ae6"
-                        },
-                        {
-                            "value": "0x070484c664c17c2f84db71d7782800ce4a2c2bb9eb86c8bcd888cce7e09fae3a"
-                        },
-                        {
-                            "value": "0x047ff7627cfbcd15de23875a6e7c8ea73d6d19559194c53b8563ec4478658981"
-                        },
-                        {
-                            "value": "0x1e93a787bb7746e4f02f5c1a261559b06d46c82d21211652fc35e2f67b9534d4"
-                        },
-                        {
-                            "value": "0x1f6ab03c2a4b9719da65b8574138a4ffec3d224ec501210d7fe98c37d03ff57d"
-                        },
-                        {
-                            "value": "0x1dfaa4b91854608a513432c579e00bac69ce46f466dce3063430bc7ba4042fb1"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x0f8442c9f3ec7b7470dcbce83ba923dc83fb1bb28e524fcfd4012abb99d2cab2"
-            },
-            "commitment": {"x":{"value":"0x23e033260e2f2ed7dd27295a06d951fad7c1545a493f24e8d7f416ccc3c74670"},"y":{"value":"0x957c9d3b0c00ff783bc3357dd0b5cf891f49bc78f569126ba6e68bc394859ef"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x1f615c09076e36cec6b73da310b463828347b51b9e9974e8a81b062077548f09"
-                        },
-                        {
-                            "value": "0x01486375680eea6fc3a85823dfcd197786e698ced109f6b67e5e4b7215da08b5"
-                        },
-                        {
-                            "value": "0x037aa90da674af38268ed2f31dc3e710a15056f17e299751c5b04c08c70745bc"
-                        },
-                        {
-                            "value": "0x2f1bbf9df033d50aeb8c582ad2f78cc3f663caed5e7fd352e9139adf69631d3f"
-                        },
-                        {
-                            "value": "0x1f1024523b7e2ab8e444ab4342eb4783f2b36904cb7d4fc9cc89d9aebcb8a4c9"
-                        },
-                        {
-                            "value": "0x2ede108bc37f0bde8453e3259fdabb172f2852e292ddf42acfb7597f28ce7fd1"
-                        },
-                        {
-                            "value": "0x2ad79d128ed1b9078ffe409f5a8f0d5e03a60c35406c2e9dc875f100a8d66538"
-                        },
-                        {
-                            "value": "0x1c2185aa71f806854eb5f14ae1fb874e45eaf891c70cfd904c5e3e27572d647f"
-                        },
-                        {
-                            "value": "0x2b669394f456de8527a6733d5968b33832183cb941aafd5b821f4b146d29b5eb"
-                        },
-                        {
-                            "value": "0x1ef290e15b09f3f7b360569a3f5dfbf3099b5158a6b240c72bfae22a700a2583"
-                        },
-                        {
-                            "value": "0x2cd0e32fa58075c49f47f5d62f1ccf5a730c66107069547ec7adf8514f1d9961"
-                        },
-                        {
-                            "value": "0x02435c65a144dce7011af52c8bb7d13ba7df98d8b6a3dc749e2ad97047653ff4"
-                        },
-                        {
-                            "value": "0x15afcc6459a9173a3655635a693b5a8b90d355ea1c6f5bc303f64053458d3c88"
-                        },
-                        {
-                            "value": "0x234d4da6f81007d8fbbdc4ca041dfd7042b4d2c2b37703bb6ef1d2b1a64719bf"
-                        },
-                        {
-                            "value": "0x08576f2d1e32d8ce8bd2e71b5556b34147fef4f0b20f13379b3c1847244ab3dc"
-                        },
-                        {
-                            "value": "0x047503ee3fc5bcf4a401f7a5ef1f6b461a7304208882e61bac5913b563f5b42e"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x2f027ef35645ae4b15f229f4e6edf60cfe7166cc803fa1243fde06a9a0a67009"
-            },
-            "commitment": {"x":{"value":"0x108c4b342af988a9a1da9594fa34a4744e79ccce4b8ac04d7bda5294569808a3"},"y":{"value":"0x1a420c577e9605038605167a60cf192a637fc575cb2057268122a003cfbfc61"}}
-        },
-        {
-            "poly": {
-                "coefficients": {
-                    "coefficients": [
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        },
-                        {
-                            "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
-                        }
-                    ]
-                }
-            },
-            "point": {
-                "value": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6"
-            },
-            "opening": {
-                "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
-            },
-            "commitment": {
-                "x": {
-                    "value": "0x1"
-                },
-                "y": {
-                    "value": "0x2"
-                }
-            }
+  "prover_openings": [
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e172000015",
+            "0x12d62582906462c130f4ea4b800a85e9eb4f7f466d5bfa89ea8bf20deb857e75",
+            "0x24d3621acf7ac08f3ff2b1536911a5f55c73faa6ac631dc11419dde5d02fa4c3",
+            "0x266f277a8898dcbac4b1619077fd15d7cbea2cab246f1f963405b98fcc267aa1",
+            "0x060c89ce5c2634052bcdbb3cfc1599961851e0d3f772cdc7d66f3fa047f70371",
+            "0x156c4fe519d5f5230fbb7446f480a0625386582f64a5a96b70ce67ebeda2e08a",
+            "0x223a74e2b7a94291a2b3184a19ef58b1df6171d7daec0bf0b1d81cc3b5729d8e",
+            "0x2ba1af62d8a5586c97e3b9a88ae7c1b5b62381468bc2a5b77ca221dab0353b7b",
+            "0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000012",
+            "0x0f22af6b65f8136a0f5512232c8b93ec26b2d0fc013663a9943ea7d915d45ed0",
+            "0x05846289b590ab92b5a9fe123a3a92ba45ce0c915ba153e7705a0edb63c71fdd",
+            "0x0975b22f115b3aa88ffb637fcf46ae05a5851de94b98412a2332ad75e4aa12f1",
+            "0x244b3ad628e5381f557881c2b53b93bb6adb8a6b730f74b744f677412a08fcab",
+            "0x29637812b230d5062e425e23446999871bcdcd195aa3e07b4962d30a01daf0a5",
+            "0x1436635e85ae919fd850c3bd45c71f58cec45781108263895177e1a2f6969e12",
+            "0x054213d94fc9d0827668c9484e598821f7e65fbbbd3fd3b302b178926e228806"
+          ]
         }
-    ]
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x0fa13ccbca58eaacf3e0137cbaa3f09e0de199864589ed3b5d52513eb59012bb",
+      "commitment": {
+        "x": "0xd4c8829e6feb9ab9606917e970b944717cc4d9a74695dd4e7cc23b5888b6dce",
+        "y": "0x3a99ef4660a95515763e072043119fcbf6d3f3b709af6bf05b5c8b4d815a775"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x060c89ce5c263405370a08b6d0302b0ba5067d090f372e12287c3eb27e000003",
+            "0x3028c9344e30580ea8438e904895dd3aca99e1c6df3b1350af25b1d4ade4a57a",
+            "0x2a517e34acc241a2d74e670c1c87a3c89fb9647a6c280716ec20a7bd46cce6d5",
+            "0x1b368ad453cf5e33080841d7bae0a9d361d2e68b5064b035c0399f94e5b0c709",
+            "0x12259d6b14729c0e271bcff645092f863f16b80e0590c05793badbac4cce7331",
+            "0x0e2e8378d846e58ea5bf2f5d9d2b15ec6e089dbc279e7e73b8720ec69ca8daf3",
+            "0x2a45aa0d3f0d2460e04bcbf2a284939a713c0b7a196c7bf3cd85e41c023d22e8",
+            "0x29b017d8e7a9669ad6361e0a527678af4ba104241b73f98af9dce2a9f6f8d7eb",
+            "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e171fffffe",
+            "0x003b853e9301481b100cb72638eb7b225d9a06819a7e5d4094bc43bf421b5a87",
+            "0x0612d03e346f5e86e101deaa64f9b494887a83ce0d91697a57c14dd6a933192c",
+            "0x152dc39e8d6241f6b04803dec6a0ae89c66101bd2954c05b83a855ff0a4f38f8",
+            "0x1e3eb107ccbf041b913475c03c7828d6e91d303a7428b039b02719e7a3318cd0",
+            "0x2235cafa08eaba9b12911658e4564270ba2b4a8c521af21d8b6fe6cd5357250e",
+            "0x061ea465a2247bc8d80479c3defcc4c2b6f7dcce604cf49d765c1177edc2dd19",
+            "0x06b43699f988398ee21a27ac2f0adfaddc92e4245e4577064a0512e9f9072816"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x1ca0efb9353dd426b7c7a7d4e5147967371203bd0076145a34c71b9007d15fca",
+      "commitment": {
+        "x": "0xe80af0f2dac74d170c3995fd07ffd5577918b748fe4ba0843fd2386ce9ae384",
+        "y": "0x58b31b773e7a0e22f1ef9d6bbcc154b3dfaec09ff6c78084c1ae5c150f6624d"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e172000015",
+            "0x12d62582906462c130f4ea4b800a85e9eb4f7f466d5bfa89ea8bf20deb857e75",
+            "0x24d3621acf7ac08f3ff2b1536911a5f55c73faa6ac631dc11419dde5d02fa4c3",
+            "0x266f277a8898dcbac4b1619077fd15d7cbea2cab246f1f963405b98fcc267aa1",
+            "0x060c89ce5c2634052bcdbb3cfc1599961851e0d3f772cdc7d66f3fa047f70371",
+            "0x156c4fe519d5f5230fbb7446f480a0625386582f64a5a96b70ce67ebeda2e08a",
+            "0x223a74e2b7a94291a2b3184a19ef58b1df6171d7daec0bf0b1d81cc3b5729d8e",
+            "0x2ba1af62d8a5586c97e3b9a88ae7c1b5b62381468bc2a5b77ca221dab0353b7b",
+            "0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000012",
+            "0x0f22af6b65f8136a0f5512232c8b93ec26b2d0fc013663a9943ea7d915d45ed0",
+            "0x05846289b590ab92b5a9fe123a3a92ba45ce0c915ba153e7705a0edb63c71fdd",
+            "0x0975b22f115b3aa88ffb637fcf46ae05a5851de94b98412a2332ad75e4aa12f1",
+            "0x244b3ad628e5381f557881c2b53b93bb6adb8a6b730f74b744f677412a08fcab",
+            "0x29637812b230d5062e425e23446999871bcdcd195aa3e07b4962d30a01daf0a5",
+            "0x1436635e85ae919fd850c3bd45c71f58cec45781108263895177e1a2f6969e12",
+            "0x054213d94fc9d0827668c9484e598821f7e65fbbbd3fd3b302b178926e228806"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x01df83543b4be0f49ba822a8067a75444a113d2cda81e8e541109ba09c6d0214",
+      "commitment": {
+        "x": "0xd4c8829e6feb9ab9606917e970b944717cc4d9a74695dd4e7cc23b5888b6dce",
+        "y": "0x3a99ef4660a95515763e072043119fcbf6d3f3b709af6bf05b5c8b4d815a775"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x2c17c0f5f77b48b6f8bb69a7cceac8da32489a140bb6ae30550fea98dcca2729",
+            "0x2482e87fb833258b7d6faf7180dac78821d421cb82737c2ca9c85544014bce0d",
+            "0x1cf5deb215f48e7edd15d1d845fd18c91ba0dda114d82471b96db592c501a135",
+            "0x19423f3a7cc9227f9e58cc469e2f2955d3226b29b7d61f4c99defb0755db6f27",
+            "0x141aec4bfe36cc59490b8eb64802803edfbfae97926a2afaa496ae6b96324d77",
+            "0x1e72408aadda81ddcd62a0b8ea8520f3d4951ba76e54590e7e647282126dc4de",
+            "0x132a255ed346ac9ba404d2061800dcb85146a33455191698b249d2412656695e",
+            "0x2ccbc43312750ff857bb20a53bb64dcd6eeb14f53b65313ae1d0feee0675d890",
+            "0x1616c186407bb6a2d4ce1647f92b42852c0f917cc185d76777e3b40b5e5bbae3",
+            "0x05ba6117e26437f6619d1b925f6dfc54226ad706ad734bc779dbfe3f9bd44e58",
+            "0x190710278d14025ccee750f5bf641d17ee04e59f6b3953e727be90897dc3eeab",
+            "0x0637fc3a4e5dcfa006a90c08321c77605239cec29b20648153a62a3cd7a2d83a",
+            "0x2dd226c45e7f23db94e0297daba673c35d005a41ce53596382c763a811b7e18b",
+            "0x1d45324a309410209f1ce9db95cf0b06cce476aca282c08b8a8324d6e3f9a4de",
+            "0x0ee0a9cc83d1650822f0e3f02350d71273a3b713e12d684dbb7df68224fe2575",
+            "0x2528b264054f1dd1142113f6267b53de862afe9194195d4f23c9d38d375a2a37"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x1a1ba62baa824efaa4befc327a860d549b0f21345dee287d700942d3802f2777",
+      "commitment": {
+        "x": "0x16ad53c6cb565e23a435f06849c1fca80d7dd87de0c25d2a37012543b01bc77",
+        "y": "0xfdcfdd9560c81de5141f9b51b95d3639e2a9eabb093eda4ed5934e24c3775e4"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x2c17c0f5f77b48b6f8bb69a7cceac8da32489a140bb6ae30550fea98dcca2729",
+            "0x2482e87fb833258b7d6faf7180dac78821d421cb82737c2ca9c85544014bce0d",
+            "0x1cf5deb215f48e7edd15d1d845fd18c91ba0dda114d82471b96db592c501a135",
+            "0x19423f3a7cc9227f9e58cc469e2f2955d3226b29b7d61f4c99defb0755db6f27",
+            "0x141aec4bfe36cc59490b8eb64802803edfbfae97926a2afaa496ae6b96324d77",
+            "0x1e72408aadda81ddcd62a0b8ea8520f3d4951ba76e54590e7e647282126dc4de",
+            "0x132a255ed346ac9ba404d2061800dcb85146a33455191698b249d2412656695e",
+            "0x2ccbc43312750ff857bb20a53bb64dcd6eeb14f53b65313ae1d0feee0675d890",
+            "0x1616c186407bb6a2d4ce1647f92b42852c0f917cc185d76777e3b40b5e5bbae3",
+            "0x05ba6117e26437f6619d1b925f6dfc54226ad706ad734bc779dbfe3f9bd44e58",
+            "0x190710278d14025ccee750f5bf641d17ee04e59f6b3953e727be90897dc3eeab",
+            "0x0637fc3a4e5dcfa006a90c08321c77605239cec29b20648153a62a3cd7a2d83a",
+            "0x2dd226c45e7f23db94e0297daba673c35d005a41ce53596382c763a811b7e18b",
+            "0x1d45324a309410209f1ce9db95cf0b06cce476aca282c08b8a8324d6e3f9a4de",
+            "0x0ee0a9cc83d1650822f0e3f02350d71273a3b713e12d684dbb7df68224fe2575",
+            "0x2528b264054f1dd1142113f6267b53de862afe9194195d4f23c9d38d375a2a37"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x190fbeaa37659963b02ba989785b4a104ad2fffa6acdc7fed55a04d374b4039b",
+      "commitment": {
+        "x": "0x16ad53c6cb565e23a435f06849c1fca80d7dd87de0c25d2a37012543b01bc77",
+        "y": "0xfdcfdd9560c81de5141f9b51b95d3639e2a9eabb093eda4ed5934e24c3775e4"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x1b26aab418970af02bb4af272fa0f9103e0cb0e470f9fadcd375129953e79cba",
+            "0x192ca548746879a2863b41d25a72cfc763927b9d3d583b68479c2288186f03bd",
+            "0x2717b21eb04ef5ca7374496840db2a3606fb643edcefa5cf63c6f2d58bf4fd8e",
+            "0x1f24d818f62ea18fb0b7c7c9fa8088f721f7f2d0707a94602a61aa93fcb4123d",
+            "0x12d5f438cf33400c2d5fda136e0d3401ae591d1c66c2af6adc95ed5db8f7f8da",
+            "0x05bd91f33bcfa11b1c99e42d0633c450726b52de7f0fff9e09ac8b58eb50d808",
+            "0x1ebe483c4a8bed2c78b7f8f2505672822ffb2b7895d73d582d37ceb1f3f2173e",
+            "0x007fc35853678a45f868ed4842c6a75edf1e65835eac914814c64548f361aa45",
+            "0x13a443a76de74dc5daea5da806164fdd8ba1a081559d3e59da45710bfc71c8b1",
+            "0x2ac155a1ca4ef56592ba2d7d627f54be553e944622e48164d26a15acecad32d2",
+            "0x016878006aa738f94a09b59a928ef7d9d3982ea95d4b51e46a22752e11c58a5c",
+            "0x184d567b0a6eb2dc34fa5c71e956a5153e579570f841cd31620c455e58477a62",
+            "0x2e7405b321d54798e75f654199090a08ef72689729eaae6eef48dd1a82e94392",
+            "0x13ce04db3756a33530548baab13824336b5a5415222f8b3547440a05fe76fbb9",
+            "0x2484a997019dcbbb597364e56bd57ff4576abe166671c10956dde4cfe0c1f4c8",
+            "0x169ed0d157e029e19579426f0c02fbca0ba4c370f83cca396ae61d28bc69e885"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x2af01d0655e6a2b4495ab0eb0901d601c410de4c6c43dc958a59c408655e5609",
+      "commitment": {
+        "x": "0x477698b841d60ab1dfa466a9ccde627778106ae7ccfcde75247b2a256f0b740",
+        "y": "0xa5a2dc0da5660baf57695de3da9c489f927b6ad08b63798bb596441dd794830"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x1b26aab418970af02bb4af272fa0f9103e0cb0e470f9fadcd375129953e79cba",
+            "0x192ca548746879a2863b41d25a72cfc763927b9d3d583b68479c2288186f03bd",
+            "0x2717b21eb04ef5ca7374496840db2a3606fb643edcefa5cf63c6f2d58bf4fd8e",
+            "0x1f24d818f62ea18fb0b7c7c9fa8088f721f7f2d0707a94602a61aa93fcb4123d",
+            "0x12d5f438cf33400c2d5fda136e0d3401ae591d1c66c2af6adc95ed5db8f7f8da",
+            "0x05bd91f33bcfa11b1c99e42d0633c450726b52de7f0fff9e09ac8b58eb50d808",
+            "0x1ebe483c4a8bed2c78b7f8f2505672822ffb2b7895d73d582d37ceb1f3f2173e",
+            "0x007fc35853678a45f868ed4842c6a75edf1e65835eac914814c64548f361aa45",
+            "0x13a443a76de74dc5daea5da806164fdd8ba1a081559d3e59da45710bfc71c8b1",
+            "0x2ac155a1ca4ef56592ba2d7d627f54be553e944622e48164d26a15acecad32d2",
+            "0x016878006aa738f94a09b59a928ef7d9d3982ea95d4b51e46a22752e11c58a5c",
+            "0x184d567b0a6eb2dc34fa5c71e956a5153e579570f841cd31620c455e58477a62",
+            "0x2e7405b321d54798e75f654199090a08ef72689729eaae6eef48dd1a82e94392",
+            "0x13ce04db3756a33530548baab13824336b5a5415222f8b3547440a05fe76fbb9",
+            "0x2484a997019dcbbb597364e56bd57ff4576abe166671c10956dde4cfe0c1f4c8",
+            "0x169ed0d157e029e19579426f0c02fbca0ba4c370f83cca396ae61d28bc69e885"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x1850f63235f10a13262e3ba222bda97c8fde7afccbe0f6a5e9d962ea456a2149",
+      "commitment": {
+        "x": "0x477698b841d60ab1dfa466a9ccde627778106ae7ccfcde75247b2a256f0b740",
+        "y": "0xa5a2dc0da5660baf57695de3da9c489f927b6ad08b63798bb596441dd794830"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x01560814b583224327802eef8c1d73d84fa58fbf72903b46153e5b84462bccb4",
+            "0x0610cf7bec53d014f83ea169eac90120525c86dad94026151cb0b929dbfde72a",
+            "0x05b4516754b7b214bb4d655888459cb980c1fccb34aec28f0745f777dff6acb5",
+            "0x10de1cd9c0cef832dd63a8d651097ac7c2ec3ae1f96e68e698ad69831fc8db01",
+            "0x2e559d894d46842b037ceab67292482d588990d22fe8462318f899f50fbba7ac",
+            "0x0c32262afba90bf5411c761c595e7fffde2c72a5d1a69cb44302a2b9ae455570",
+            "0x2ae377c49a9b57aef48f4e8a220fc08bba34a989729e441949d874b3495d410d",
+            "0x2cb2e6a7815ab3ead9bb73355878010cb6c2b3865b0c7576f1ea44cc1bb5e169",
+            "0x2c2e45ea36cff436d89262869af053228777559c786232e9469cff017b4553dd",
+            "0x2203981d714298588c1db7ee545574b556cdd5518ff696267b977162f1f69e96",
+            "0x1c055e3f95c67aa5275524f8377cd756877d8e7b055f2ac0f95165c395094c08",
+            "0x2f41fc9f6ec4754443405f688630fec8952d8cb35b33571b077e56765bf9d5b7",
+            "0x06b0ef59aae4136f30c249b0d55cd5e4b4fd0f151c4108a0b01589a7d0cd5ee8",
+            "0x0d55a330d9fe6fb51e14257ef62ea5c94dd4b3db085cd95cf4edde8f5debebc1",
+            "0x29e1f7b3a7081867034e4c12b71d1cad98c4bd2672bb40a7a109d1a7c1854bd4",
+            "0x2b76f84395a5bd0aa75348656b2533970584b8c55106763300e523f5f7830641"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x021920c3c93e6a2e03fa1c53ffa1cade0bff5d83143357d01ca57d74d0d87ec9",
+      "commitment": {
+        "x": "0x27dd27bd64c2a6d5cd7e0a85c4c024711ee51e42665eaa9b36ee6a757faeacb7",
+        "y": "0xefceabfdcfdba04d109a9de2368ad6440ce70ed2e004d008f7ae9d12939e09d"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x01560814b583224327802eef8c1d73d84fa58fbf72903b46153e5b84462bccb4",
+            "0x0610cf7bec53d014f83ea169eac90120525c86dad94026151cb0b929dbfde72a",
+            "0x05b4516754b7b214bb4d655888459cb980c1fccb34aec28f0745f777dff6acb5",
+            "0x10de1cd9c0cef832dd63a8d651097ac7c2ec3ae1f96e68e698ad69831fc8db01",
+            "0x2e559d894d46842b037ceab67292482d588990d22fe8462318f899f50fbba7ac",
+            "0x0c32262afba90bf5411c761c595e7fffde2c72a5d1a69cb44302a2b9ae455570",
+            "0x2ae377c49a9b57aef48f4e8a220fc08bba34a989729e441949d874b3495d410d",
+            "0x2cb2e6a7815ab3ead9bb73355878010cb6c2b3865b0c7576f1ea44cc1bb5e169",
+            "0x2c2e45ea36cff436d89262869af053228777559c786232e9469cff017b4553dd",
+            "0x2203981d714298588c1db7ee545574b556cdd5518ff696267b977162f1f69e96",
+            "0x1c055e3f95c67aa5275524f8377cd756877d8e7b055f2ac0f95165c395094c08",
+            "0x2f41fc9f6ec4754443405f688630fec8952d8cb35b33571b077e56765bf9d5b7",
+            "0x06b0ef59aae4136f30c249b0d55cd5e4b4fd0f151c4108a0b01589a7d0cd5ee8",
+            "0x0d55a330d9fe6fb51e14257ef62ea5c94dd4b3db085cd95cf4edde8f5debebc1",
+            "0x29e1f7b3a7081867034e4c12b71d1cad98c4bd2672bb40a7a109d1a7c1854bd4",
+            "0x2b76f84395a5bd0aa75348656b2533970584b8c55106763300e523f5f7830641"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x1850e36381c7815fe57548db8e5870b80591159a5d5fec87f987a55c40034302",
+      "commitment": {
+        "x": "0x27dd27bd64c2a6d5cd7e0a85c4c024711ee51e42665eaa9b36ee6a757faeacb7",
+        "y": "0xefceabfdcfdba04d109a9de2368ad6440ce70ed2e004d008f7ae9d12939e09d"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x23b6be73de9d4d13b1c910543033f2b710cda13085433997193e210b27d1f263",
+            "0x1a001b7d2c12d1ad390e46c75a2a9987c64d37d0c752667463d622c9de304695",
+            "0x159dd595aba9326ab79ee29e377b406d66beae9dbe7d85f766bb50599bbeb8b2",
+            "0x1f96c632dd3c844d8345188b9aa2e1ee637fe49aba0ed7975d968fd4f930eefa",
+            "0x1b36f04ec15725d6ecab1fcb25a6ea51acbf6f1de9a52706d0fb12b0701ab01b",
+            "0x020b267c4795e87212e1cccce20efb78a5a17d051d31d530f27d9e0ed520d5de",
+            "0x01166b11f6762098417a8b521c113d3a30ce3a5a6a80668cf22c67a9b24237b0",
+            "0x15b702e7696d35482428983f71ea99c64f8ebe5b282ea0e8f6b774b245eb3780",
+            "0x0d1b42be204a62ab857dd6bb9ab026260f741671beda5d97e0e172a10051de49",
+            "0x19321af2193aceae389d158591853bf82e7d2fca7ab86a54a8472ca2354a808d",
+            "0x13fabadbef9e4a7b10f55a03c835c4fef599c73d814c0a3952aa544888844903",
+            "0x011938f3c213d0f5a1473dd9535a7906feaa50737c6cc6ed358206ca1fe641d4",
+            "0x10ed356906e94396f26102b56c67c32a996ad53acaa4ab0fe6942374201d36b1",
+            "0x07aff53fd5f4425b02cb7a7f8a17e7a3913d838a0cad92366907bf839c101ecb",
+            "0x125d7019aa002bd0807ebdaf5e1b9e97f96f525e15868e0dfa4316126171beb4",
+            "0x26ae3e4d97508cc7d0d2fcf61f11fa400f9fa2faeda37673661133df0ca48b77"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x1c927a2ab0d78f73bd243a32266e1165d14ebe4f4950aa487c53d090104e5b09",
+      "commitment": {
+        "x": "0x1c30dbdea5181f79dadfdc2195bf45e077f5fcd47c1621058ae5c8a5684f004c",
+        "y": "0x28bbabd833d7b5d594236352611e7a6b5e6d03dd592b7d551573391cf8d79cf8"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x23b6be73de9d4d13b1c910543033f2b710cda13085433997193e210b27d1f263",
+            "0x1a001b7d2c12d1ad390e46c75a2a9987c64d37d0c752667463d622c9de304695",
+            "0x159dd595aba9326ab79ee29e377b406d66beae9dbe7d85f766bb50599bbeb8b2",
+            "0x1f96c632dd3c844d8345188b9aa2e1ee637fe49aba0ed7975d968fd4f930eefa",
+            "0x1b36f04ec15725d6ecab1fcb25a6ea51acbf6f1de9a52706d0fb12b0701ab01b",
+            "0x020b267c4795e87212e1cccce20efb78a5a17d051d31d530f27d9e0ed520d5de",
+            "0x01166b11f6762098417a8b521c113d3a30ce3a5a6a80668cf22c67a9b24237b0",
+            "0x15b702e7696d35482428983f71ea99c64f8ebe5b282ea0e8f6b774b245eb3780",
+            "0x0d1b42be204a62ab857dd6bb9ab026260f741671beda5d97e0e172a10051de49",
+            "0x19321af2193aceae389d158591853bf82e7d2fca7ab86a54a8472ca2354a808d",
+            "0x13fabadbef9e4a7b10f55a03c835c4fef599c73d814c0a3952aa544888844903",
+            "0x011938f3c213d0f5a1473dd9535a7906feaa50737c6cc6ed358206ca1fe641d4",
+            "0x10ed356906e94396f26102b56c67c32a996ad53acaa4ab0fe6942374201d36b1",
+            "0x07aff53fd5f4425b02cb7a7f8a17e7a3913d838a0cad92366907bf839c101ecb",
+            "0x125d7019aa002bd0807ebdaf5e1b9e97f96f525e15868e0dfa4316126171beb4",
+            "0x26ae3e4d97508cc7d0d2fcf61f11fa400f9fa2faeda37673661133df0ca48b77"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x2a9025d9b99336a05ea2e946ddf222aeb1213f9eb9a4e500021abd259c9ce4a3",
+      "commitment": {
+        "x": "0x1c30dbdea5181f79dadfdc2195bf45e077f5fcd47c1621058ae5c8a5684f004c",
+        "y": "0x28bbabd833d7b5d594236352611e7a6b5e6d03dd592b7d551573391cf8d79cf8"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x01560814b583224327802eef8c1d73d84fa58fbf72903b46153e5b84462bccb4",
+            "0x0610cf7bec53d014f83ea169eac90120525c86dad94026151cb0b929dbfde72a",
+            "0x05b4516754b7b214bb4d655888459cb980c1fccb34aec28f0745f777dff6acb5",
+            "0x10de1cd9c0cef832dd63a8d651097ac7c2ec3ae1f96e68e698ad69831fc8db01",
+            "0x2e559d894d46842b037ceab67292482d588990d22fe8462318f899f50fbba7ac",
+            "0x0c32262afba90bf5411c761c595e7fffde2c72a5d1a69cb44302a2b9ae455570",
+            "0x2ae377c49a9b57aef48f4e8a220fc08bba34a989729e441949d874b3495d410d",
+            "0x2cb2e6a7815ab3ead9bb73355878010cb6c2b3865b0c7576f1ea44cc1bb5e169",
+            "0x2c2e45ea36cff436d89262869af053228777559c786232e9469cff017b4553dd",
+            "0x2203981d714298588c1db7ee545574b556cdd5518ff696267b977162f1f69e96",
+            "0x1c055e3f95c67aa5275524f8377cd756877d8e7b055f2ac0f95165c395094c08",
+            "0x2f41fc9f6ec4754443405f688630fec8952d8cb35b33571b077e56765bf9d5b7",
+            "0x06b0ef59aae4136f30c249b0d55cd5e4b4fd0f151c4108a0b01589a7d0cd5ee8",
+            "0x0d55a330d9fe6fb51e14257ef62ea5c94dd4b3db085cd95cf4edde8f5debebc1",
+            "0x29e1f7b3a7081867034e4c12b71d1cad98c4bd2672bb40a7a109d1a7c1854bd4",
+            "0x2b76f84395a5bd0aa75348656b2533970584b8c55106763300e523f5f7830641"
+          ]
+        }
+      },
+      "point": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125",
+      "opening": "0x1772fb9a8e183147338a84957333e344f9ee953cc5b60c61e816ff09cf3c7a8e",
+      "commitment": {
+        "x": "0x27dd27bd64c2a6d5cd7e0a85c4c024711ee51e42665eaa9b36ee6a757faeacb7",
+        "y": "0xefceabfdcfdba04d109a9de2368ad6440ce70ed2e004d008f7ae9d12939e09d"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x1b26aab418970af02bb4af272fa0f9103e0cb0e470f9fadcd375129953e79cba",
+            "0x192ca548746879a2863b41d25a72cfc763927b9d3d583b68479c2288186f03bd",
+            "0x2717b21eb04ef5ca7374496840db2a3606fb643edcefa5cf63c6f2d58bf4fd8e",
+            "0x1f24d818f62ea18fb0b7c7c9fa8088f721f7f2d0707a94602a61aa93fcb4123d",
+            "0x12d5f438cf33400c2d5fda136e0d3401ae591d1c66c2af6adc95ed5db8f7f8da",
+            "0x05bd91f33bcfa11b1c99e42d0633c450726b52de7f0fff9e09ac8b58eb50d808",
+            "0x1ebe483c4a8bed2c78b7f8f2505672822ffb2b7895d73d582d37ceb1f3f2173e",
+            "0x007fc35853678a45f868ed4842c6a75edf1e65835eac914814c64548f361aa45",
+            "0x13a443a76de74dc5daea5da806164fdd8ba1a081559d3e59da45710bfc71c8b1",
+            "0x2ac155a1ca4ef56592ba2d7d627f54be553e944622e48164d26a15acecad32d2",
+            "0x016878006aa738f94a09b59a928ef7d9d3982ea95d4b51e46a22752e11c58a5c",
+            "0x184d567b0a6eb2dc34fa5c71e956a5153e579570f841cd31620c455e58477a62",
+            "0x2e7405b321d54798e75f654199090a08ef72689729eaae6eef48dd1a82e94392",
+            "0x13ce04db3756a33530548baab13824336b5a5415222f8b3547440a05fe76fbb9",
+            "0x2484a997019dcbbb597364e56bd57ff4576abe166671c10956dde4cfe0c1f4c8",
+            "0x169ed0d157e029e19579426f0c02fbca0ba4c370f83cca396ae61d28bc69e885"
+          ]
+        }
+      },
+      "point": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125",
+      "opening": "0x2e8be5374a7e38c58fd45f0b7cd736114fda48180be4c8bac5d8d7826b1f1afd",
+      "commitment": {
+        "x": "0x477698b841d60ab1dfa466a9ccde627778106ae7ccfcde75247b2a256f0b740",
+        "y": "0xa5a2dc0da5660baf57695de3da9c489f927b6ad08b63798bb596441dd794830"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x2c17c0f5f77b48b6f8bb69a7cceac8da32489a140bb6ae30550fea98dcca2729",
+            "0x2482e87fb833258b7d6faf7180dac78821d421cb82737c2ca9c85544014bce0d",
+            "0x1cf5deb215f48e7edd15d1d845fd18c91ba0dda114d82471b96db592c501a135",
+            "0x19423f3a7cc9227f9e58cc469e2f2955d3226b29b7d61f4c99defb0755db6f27",
+            "0x141aec4bfe36cc59490b8eb64802803edfbfae97926a2afaa496ae6b96324d77",
+            "0x1e72408aadda81ddcd62a0b8ea8520f3d4951ba76e54590e7e647282126dc4de",
+            "0x132a255ed346ac9ba404d2061800dcb85146a33455191698b249d2412656695e",
+            "0x2ccbc43312750ff857bb20a53bb64dcd6eeb14f53b65313ae1d0feee0675d890",
+            "0x1616c186407bb6a2d4ce1647f92b42852c0f917cc185d76777e3b40b5e5bbae3",
+            "0x05ba6117e26437f6619d1b925f6dfc54226ad706ad734bc779dbfe3f9bd44e58",
+            "0x190710278d14025ccee750f5bf641d17ee04e59f6b3953e727be90897dc3eeab",
+            "0x0637fc3a4e5dcfa006a90c08321c77605239cec29b20648153a62a3cd7a2d83a",
+            "0x2dd226c45e7f23db94e0297daba673c35d005a41ce53596382c763a811b7e18b",
+            "0x1d45324a309410209f1ce9db95cf0b06cce476aca282c08b8a8324d6e3f9a4de",
+            "0x0ee0a9cc83d1650822f0e3f02350d71273a3b713e12d684dbb7df68224fe2575",
+            "0x2528b264054f1dd1142113f6267b53de862afe9194195d4f23c9d38d375a2a37"
+          ]
+        }
+      },
+      "point": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125",
+      "opening": "0x23fc00efe984c5098fc8228923773907fe7da84caa1c1bbee1f3609d8b86b696",
+      "commitment": {
+        "x": "0x16ad53c6cb565e23a435f06849c1fca80d7dd87de0c25d2a37012543b01bc77",
+        "y": "0xfdcfdd9560c81de5141f9b51b95d3639e2a9eabb093eda4ed5934e24c3775e4"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e172000015",
+            "0x12d62582906462c130f4ea4b800a85e9eb4f7f466d5bfa89ea8bf20deb857e75",
+            "0x24d3621acf7ac08f3ff2b1536911a5f55c73faa6ac631dc11419dde5d02fa4c3",
+            "0x266f277a8898dcbac4b1619077fd15d7cbea2cab246f1f963405b98fcc267aa1",
+            "0x060c89ce5c2634052bcdbb3cfc1599961851e0d3f772cdc7d66f3fa047f70371",
+            "0x156c4fe519d5f5230fbb7446f480a0625386582f64a5a96b70ce67ebeda2e08a",
+            "0x223a74e2b7a94291a2b3184a19ef58b1df6171d7daec0bf0b1d81cc3b5729d8e",
+            "0x2ba1af62d8a5586c97e3b9a88ae7c1b5b62381468bc2a5b77ca221dab0353b7b",
+            "0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000012",
+            "0x0f22af6b65f8136a0f5512232c8b93ec26b2d0fc013663a9943ea7d915d45ed0",
+            "0x05846289b590ab92b5a9fe123a3a92ba45ce0c915ba153e7705a0edb63c71fdd",
+            "0x0975b22f115b3aa88ffb637fcf46ae05a5851de94b98412a2332ad75e4aa12f1",
+            "0x244b3ad628e5381f557881c2b53b93bb6adb8a6b730f74b744f677412a08fcab",
+            "0x29637812b230d5062e425e23446999871bcdcd195aa3e07b4962d30a01daf0a5",
+            "0x1436635e85ae919fd850c3bd45c71f58cec45781108263895177e1a2f6969e12",
+            "0x054213d94fc9d0827668c9484e598821f7e65fbbbd3fd3b302b178926e228806"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x0fa13ccbca58eaacf3e0137cbaa3f09e0de199864589ed3b5d52513eb59012bb",
+      "commitment": {
+        "x": "0xd4c8829e6feb9ab9606917e970b944717cc4d9a74695dd4e7cc23b5888b6dce",
+        "y": "0x3a99ef4660a95515763e072043119fcbf6d3f3b709af6bf05b5c8b4d815a775"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x060c89ce5c263405370a08b6d0302b0ba5067d090f372e12287c3eb27e000003",
+            "0x3028c9344e30580ea8438e904895dd3aca99e1c6df3b1350af25b1d4ade4a57a",
+            "0x2a517e34acc241a2d74e670c1c87a3c89fb9647a6c280716ec20a7bd46cce6d5",
+            "0x1b368ad453cf5e33080841d7bae0a9d361d2e68b5064b035c0399f94e5b0c709",
+            "0x12259d6b14729c0e271bcff645092f863f16b80e0590c05793badbac4cce7331",
+            "0x0e2e8378d846e58ea5bf2f5d9d2b15ec6e089dbc279e7e73b8720ec69ca8daf3",
+            "0x2a45aa0d3f0d2460e04bcbf2a284939a713c0b7a196c7bf3cd85e41c023d22e8",
+            "0x29b017d8e7a9669ad6361e0a527678af4ba104241b73f98af9dce2a9f6f8d7eb",
+            "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e171fffffe",
+            "0x003b853e9301481b100cb72638eb7b225d9a06819a7e5d4094bc43bf421b5a87",
+            "0x0612d03e346f5e86e101deaa64f9b494887a83ce0d91697a57c14dd6a933192c",
+            "0x152dc39e8d6241f6b04803dec6a0ae89c66101bd2954c05b83a855ff0a4f38f8",
+            "0x1e3eb107ccbf041b913475c03c7828d6e91d303a7428b039b02719e7a3318cd0",
+            "0x2235cafa08eaba9b12911658e4564270ba2b4a8c521af21d8b6fe6cd5357250e",
+            "0x061ea465a2247bc8d80479c3defcc4c2b6f7dcce604cf49d765c1177edc2dd19",
+            "0x06b43699f988398ee21a27ac2f0adfaddc92e4245e4577064a0512e9f9072816"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x1ca0efb9353dd426b7c7a7d4e5147967371203bd0076145a34c71b9007d15fca",
+      "commitment": {
+        "x": "0xe80af0f2dac74d170c3995fd07ffd5577918b748fe4ba0843fd2386ce9ae384",
+        "y": "0x58b31b773e7a0e22f1ef9d6bbcc154b3dfaec09ff6c78084c1ae5c150f6624d"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x2a57c4a4850b6c2481463cffb1512d51832d6b3f6a82427f1b65b6e172000015",
+            "0x12d62582906462c130f4ea4b800a85e9eb4f7f466d5bfa89ea8bf20deb857e75",
+            "0x24d3621acf7ac08f3ff2b1536911a5f55c73faa6ac631dc11419dde5d02fa4c3",
+            "0x266f277a8898dcbac4b1619077fd15d7cbea2cab246f1f963405b98fcc267aa1",
+            "0x060c89ce5c2634052bcdbb3cfc1599961851e0d3f772cdc7d66f3fa047f70371",
+            "0x156c4fe519d5f5230fbb7446f480a0625386582f64a5a96b70ce67ebeda2e08a",
+            "0x223a74e2b7a94291a2b3184a19ef58b1df6171d7daec0bf0b1d81cc3b5729d8e",
+            "0x2ba1af62d8a5586c97e3b9a88ae7c1b5b62381468bc2a5b77ca221dab0353b7b",
+            "0x0c19139cb84c680a6e14116da06056174a0cfa121e6e5c2450f87d64fc000012",
+            "0x0f22af6b65f8136a0f5512232c8b93ec26b2d0fc013663a9943ea7d915d45ed0",
+            "0x05846289b590ab92b5a9fe123a3a92ba45ce0c915ba153e7705a0edb63c71fdd",
+            "0x0975b22f115b3aa88ffb637fcf46ae05a5851de94b98412a2332ad75e4aa12f1",
+            "0x244b3ad628e5381f557881c2b53b93bb6adb8a6b730f74b744f677412a08fcab",
+            "0x29637812b230d5062e425e23446999871bcdcd195aa3e07b4962d30a01daf0a5",
+            "0x1436635e85ae919fd850c3bd45c71f58cec45781108263895177e1a2f6969e12",
+            "0x054213d94fc9d0827668c9484e598821f7e65fbbbd3fd3b302b178926e228806"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x01df83543b4be0f49ba822a8067a75444a113d2cda81e8e541109ba09c6d0214",
+      "commitment": {
+        "x": "0xd4c8829e6feb9ab9606917e970b944717cc4d9a74695dd4e7cc23b5888b6dce",
+        "y": "0x3a99ef4660a95515763e072043119fcbf6d3f3b709af6bf05b5c8b4d815a775"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x27bad031f6e5d63c6287744855e8ade0884815738c74c2cb0146042ba80f9dc1",
+            "0x0aedfd48d1d99352bddbae12766888014ce326c0184a49030f255bc402971c8e",
+            "0x1421f8d1f52f38eadad21dacba2c9c8ae2fa265be2b5cf56ecac1dc30e880614",
+            "0x2615ac9cfd366ea7c7b50c56fa3753c345533ddfaa1cfd23b7fdf6771010b3ae",
+            "0x055a53b13f4ef2982200bcee18cad82631591d7537e81f9f6d0d9af73919aca7",
+            "0x055992fb3e68a839041d15f16baee9aac780d3cc027c2650a8fa07d8c708ffa4",
+            "0x01288fca758908fd75be91359aae9947105255cb57e3737ba4cd2cb249b9568b",
+            "0x057b12a3c876f530ff3416b1f37b57888c294abfca1add3c80920e715ebd3dce",
+            "0x128bda5bfdc7fd9f0bcd7a4590e6367ac7d02e478e7fe7b4effcc682fee6ac4e",
+            "0x15fa52c718251448f4a7b5e5a51b8983626f542e76616ec2a97b51a9ca55acaa",
+            "0x2e1e139d30e7837e3a9c17b1cfabb68449abe4a71d09929789ba75a389477d5b",
+            "0x18d881eb1a3059a451819fc43526ad05f7144db79e00c502abb2999c9677e5eb",
+            "0x0497036ec879338b7800d9c8785fd34de9677ccba2b989725a258156fecaeddc",
+            "0x2a58721ef44e23f723b2f6f0c767346ee25de6a9ce3be5143c45bf02700f6067",
+            "0x241e67371586327ed2947f58dc70148a99a32ae01d5f67a82bba22edc0c67134",
+            "0x11fb89af7e2c3df6b15be924a02551ebb634e49577dd20c759a6da3a058acf9e"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x11e368174b8acccfbdfa3df69075bbfc0a755a0b1e8b75eed1af049a4454c091",
+      "commitment": {
+        "x": "0xd2b3853c2faafac946818a717533f3b12ab292173d52c1a9015cdf18ef87827",
+        "y": "0x21b7650147538e48bab652f15aece419695f7374c8e8bfae869451bb50f387ec"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x27bad031f6e5d63c6287744855e8ade0884815738c74c2cb0146042ba80f9dc1",
+            "0x0aedfd48d1d99352bddbae12766888014ce326c0184a49030f255bc402971c8e",
+            "0x1421f8d1f52f38eadad21dacba2c9c8ae2fa265be2b5cf56ecac1dc30e880614",
+            "0x2615ac9cfd366ea7c7b50c56fa3753c345533ddfaa1cfd23b7fdf6771010b3ae",
+            "0x055a53b13f4ef2982200bcee18cad82631591d7537e81f9f6d0d9af73919aca7",
+            "0x055992fb3e68a839041d15f16baee9aac780d3cc027c2650a8fa07d8c708ffa4",
+            "0x01288fca758908fd75be91359aae9947105255cb57e3737ba4cd2cb249b9568b",
+            "0x057b12a3c876f530ff3416b1f37b57888c294abfca1add3c80920e715ebd3dce",
+            "0x128bda5bfdc7fd9f0bcd7a4590e6367ac7d02e478e7fe7b4effcc682fee6ac4e",
+            "0x15fa52c718251448f4a7b5e5a51b8983626f542e76616ec2a97b51a9ca55acaa",
+            "0x2e1e139d30e7837e3a9c17b1cfabb68449abe4a71d09929789ba75a389477d5b",
+            "0x18d881eb1a3059a451819fc43526ad05f7144db79e00c502abb2999c9677e5eb",
+            "0x0497036ec879338b7800d9c8785fd34de9677ccba2b989725a258156fecaeddc",
+            "0x2a58721ef44e23f723b2f6f0c767346ee25de6a9ce3be5143c45bf02700f6067",
+            "0x241e67371586327ed2947f58dc70148a99a32ae01d5f67a82bba22edc0c67134",
+            "0x11fb89af7e2c3df6b15be924a02551ebb634e49577dd20c759a6da3a058acf9e"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x0bf644932135dc0354b7894bcce618471838a3c81224399d962da14d3c5ce060",
+      "commitment": {
+        "x": "0xd2b3853c2faafac946818a717533f3b12ab292173d52c1a9015cdf18ef87827",
+        "y": "0x21b7650147538e48bab652f15aece419695f7374c8e8bfae869451bb50f387ec"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x25eb43faf087b073127c0c78c9bff217db519dc4e341fa67c3bff39521fafaa0",
+            "0x1d11001a2c335416fd402e6f2320a36637e9716224dbd24c644e8d992a9937d2",
+            "0x022ed7d9821857ae10b56d3e6653f9d2d66c5830f37fd8f8fe919499fd5cd141",
+            "0x067ba58be138be7551ae282a31bdbc382611eb1ec1598e903f8f2c5b54c2ae7b",
+            "0x119475b2c3264aa8805750846d070c5475b662e89d05727c0a1b07a12137eb11",
+            "0x1db303cde0cc6d069ed2018e7b373f2cdb104ecaa5eacd854ed95e0e8bcfbb5f",
+            "0x0643722d1811c56d8f664a29024b43d452870ca0da49a8c8079a4e8b3afe2441",
+            "0x08d7f5f9b6a126e4791f3ad415ab77dddc5c1fd75d9737fd6a3c4b476b020dcb",
+            "0x28abab2f4ebd7fb6fc77a8b5f743eaab4c1d5ad7781da8e4a0f020109ba8f7b3",
+            "0x10966a5a95d1fb71187025af34157068768839ebfd8a39cb25799d9003e8fe38",
+            "0x26ad4be30ca2f3f5a762f8d9e29731d8afab86e052de49089e26466d221b4217",
+            "0x02ce4196df38f8e4ba40d9638aacbcd8a769ad82b59a10127e0bff068df182ba",
+            "0x2ea4540330333650e1de53ca27a69edcc8e27e49368aa39367cc7c5d910fb194",
+            "0x2a950d6c990a49114ebb24fda0be841e688018802c341c41afdd4b9a45f595b7",
+            "0x1de8b570053b05d1f25f9f402b7ba40a8acc8e103e31090050aea86c34476f36",
+            "0x23f8fbaaaad3d80d512c7c0e61bd163645cf9cfaf8123834c6bad47ca5ad6399"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x2b269271b39772a678f407722dfd9945cb531223a3908edf4862dffdbe4e02ee",
+      "commitment": {
+        "x": "0x22c7193d81517510725d2b2485121827c5d6409b97eb3d23d4f6606217aa2b48",
+        "y": "0x275207c52e625cc123cb30e9ce18ec2963b9478f475f7d89f7b3ed1930415686"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x25eb43faf087b073127c0c78c9bff217db519dc4e341fa67c3bff39521fafaa0",
+            "0x1d11001a2c335416fd402e6f2320a36637e9716224dbd24c644e8d992a9937d2",
+            "0x022ed7d9821857ae10b56d3e6653f9d2d66c5830f37fd8f8fe919499fd5cd141",
+            "0x067ba58be138be7551ae282a31bdbc382611eb1ec1598e903f8f2c5b54c2ae7b",
+            "0x119475b2c3264aa8805750846d070c5475b662e89d05727c0a1b07a12137eb11",
+            "0x1db303cde0cc6d069ed2018e7b373f2cdb104ecaa5eacd854ed95e0e8bcfbb5f",
+            "0x0643722d1811c56d8f664a29024b43d452870ca0da49a8c8079a4e8b3afe2441",
+            "0x08d7f5f9b6a126e4791f3ad415ab77dddc5c1fd75d9737fd6a3c4b476b020dcb",
+            "0x28abab2f4ebd7fb6fc77a8b5f743eaab4c1d5ad7781da8e4a0f020109ba8f7b3",
+            "0x10966a5a95d1fb71187025af34157068768839ebfd8a39cb25799d9003e8fe38",
+            "0x26ad4be30ca2f3f5a762f8d9e29731d8afab86e052de49089e26466d221b4217",
+            "0x02ce4196df38f8e4ba40d9638aacbcd8a769ad82b59a10127e0bff068df182ba",
+            "0x2ea4540330333650e1de53ca27a69edcc8e27e49368aa39367cc7c5d910fb194",
+            "0x2a950d6c990a49114ebb24fda0be841e688018802c341c41afdd4b9a45f595b7",
+            "0x1de8b570053b05d1f25f9f402b7ba40a8acc8e103e31090050aea86c34476f36",
+            "0x23f8fbaaaad3d80d512c7c0e61bd163645cf9cfaf8123834c6bad47ca5ad6399"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x08e5c7ee1b8a38cabb682b937b0401ea4b3727a6b69558f52a89cdf087ad1306",
+      "commitment": {
+        "x": "0x22c7193d81517510725d2b2485121827c5d6409b97eb3d23d4f6606217aa2b48",
+        "y": "0x275207c52e625cc123cb30e9ce18ec2963b9478f475f7d89f7b3ed1930415686"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x09281fd13b026e16f8fbc689941062b0d6bbd535fda626b269ef78699a7467c2",
+            "0x0301f0f426b900cdc3104ce36c21c916a21e1d2821480870a498a7a915dca364",
+            "0x2d772b9ee0a6f032ec7a08268ee673a34ebfbc9a4a5d947a570374d1f762e6f6",
+            "0x241681a32c9efd5cbf44aaef7c816e3c8a09eeee0fae2913a8988f0d3df36470",
+            "0x2fba9623fda6de12e3d46dc86655aae912fed1a6e4e864f9a39e854098aab964",
+            "0x1f3a4f4b754ada3ee38d4f190fe772dadc419bc7114d6a032ea4cfe53b681d2e",
+            "0x00001858f89385829b929ac872a97abee329490838b0b0f0d76e429e07c3726a",
+            "0x2d164b5f5702693c772eec4088d9c40ce8a5ffe3fb51cc30f1c587b8d235ab5d",
+            "0x19fafa156b2097beaef098f1f4b4ad68504d52703d90d21c16bb9ca17d7547f8",
+            "0x2cc87c08c38eb1927bb5123b318bb9c133ca82a1f53225527373db4f3ef3bf5d",
+            "0x0c704b7263c687c03ae32713ea3b260d9d8218539d92f2928ffc8cecfec6ac40",
+            "0x23ea21065c46c605a69023577da80f480938e6d60628f727d89ea8ea8ad36bb6",
+            "0x30166b4126d88e5af867493fe778e242aec5d2df28bf893c8c9ab21ff5cd18a4",
+            "0x227f3a698689b09d45c6d5513f1326ce2511cf900e68f0db752aeda9e11f5ef7",
+            "0x1c2e4f4b08fbdb2ac7ba0a44458d84a187a38d16ed031001a11090f07d8e2561",
+            "0x23af931194fef8d2f872c0733b59441dbe9bbe0d764ed97b783cc9ed4ccd04eb"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x271afc05aa78364bd47bc2ca0e22e0bc228759e9ccdd5b2c2999d87a9eb60729",
+      "commitment": {
+        "x": "0x234473361e5bb22a37a02da065c0ccbeaf6d44c3820afe7ec594b3791e179705",
+        "y": "0x72d829adbddb62d6af633e6a660f11f75dea4701990f9c5fc50972f6a54aa0c"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x09281fd13b026e16f8fbc689941062b0d6bbd535fda626b269ef78699a7467c2",
+            "0x0301f0f426b900cdc3104ce36c21c916a21e1d2821480870a498a7a915dca364",
+            "0x2d772b9ee0a6f032ec7a08268ee673a34ebfbc9a4a5d947a570374d1f762e6f6",
+            "0x241681a32c9efd5cbf44aaef7c816e3c8a09eeee0fae2913a8988f0d3df36470",
+            "0x2fba9623fda6de12e3d46dc86655aae912fed1a6e4e864f9a39e854098aab964",
+            "0x1f3a4f4b754ada3ee38d4f190fe772dadc419bc7114d6a032ea4cfe53b681d2e",
+            "0x00001858f89385829b929ac872a97abee329490838b0b0f0d76e429e07c3726a",
+            "0x2d164b5f5702693c772eec4088d9c40ce8a5ffe3fb51cc30f1c587b8d235ab5d",
+            "0x19fafa156b2097beaef098f1f4b4ad68504d52703d90d21c16bb9ca17d7547f8",
+            "0x2cc87c08c38eb1927bb5123b318bb9c133ca82a1f53225527373db4f3ef3bf5d",
+            "0x0c704b7263c687c03ae32713ea3b260d9d8218539d92f2928ffc8cecfec6ac40",
+            "0x23ea21065c46c605a69023577da80f480938e6d60628f727d89ea8ea8ad36bb6",
+            "0x30166b4126d88e5af867493fe778e242aec5d2df28bf893c8c9ab21ff5cd18a4",
+            "0x227f3a698689b09d45c6d5513f1326ce2511cf900e68f0db752aeda9e11f5ef7",
+            "0x1c2e4f4b08fbdb2ac7ba0a44458d84a187a38d16ed031001a11090f07d8e2561",
+            "0x23af931194fef8d2f872c0733b59441dbe9bbe0d764ed97b783cc9ed4ccd04eb"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x04daca11b912394054c18cd4e83a625abffe0d9e2bb3c5c8126f1a4b83cd253f",
+      "commitment": {
+        "x": "0x234473361e5bb22a37a02da065c0ccbeaf6d44c3820afe7ec594b3791e179705",
+        "y": "0x72d829adbddb62d6af633e6a660f11f75dea4701990f9c5fc50972f6a54aa0c"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x06ccb417864f529990061d4e92dcaa0574b12ce900438688329abd9f2717ebe2",
+            "0x00f3d4c029499eb2128ed6d28c384536e11649e81c7f313ba2779a1ae87a764c",
+            "0x20dac075424ea2cad49a61fee47e720c9a7b63425bf88b6985995bf2b5f8d1b7",
+            "0x2b347eba498aecc00a9e2e9f047a35adced26a8d3dfa377b099f775235879c28",
+            "0x2a7280b93e6810a7cd6007f521e90d9c581f377a04474dc2e3ac4bdf326eafb0",
+            "0x09981f3516fd42812f82175ba7678ed4ddccfc4e7b45b53f96f13c7aa005be5b",
+            "0x00fa3e092c8e8fe96f4813437a17c110c186f85f66a1c8d27adef4957b30b267",
+            "0x089f7432f01c790c423deb22871e6315c1c9d26e6930ecce2824fc6c1b8db4c6",
+            "0x1fd70c1418949aab4c48142f21e703ed08b7068fe1a5d75015208dcac51be0f2",
+            "0x11a0af8f117fe0445f626ff2e3142b4b476df4f9f366b92f512c7c0b6cf0ae04",
+            "0x299f90885fff6bec0a490480c1b0fa715b5c781ccf39ac27768ce493b9ca31a5",
+            "0x1879f265c72f21029625740d85f4ae1d8b0ed2326f6d6fa89aef4c5e4bd4230f",
+            "0x1564e2c543fb895ee90380db7947dfceb5c31b9b5f24baf4efb0b1459838d368",
+            "0x1b6b86f9c2524d698ff49ef7d177a54d100382f7d8011beb272787fd3870658c",
+            "0x18772e48f3f35cb97853a0d8e8163708d28c8c8a5ac7f7af094864183e83a9e3",
+            "0x161c82b5edf64ccb8c77044bdd17bc12bb0231383e729e89d91351742587f35c"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x19eebedecda2ae4b32431888d642c5cc7847f560652c938c9760ac5449eeea41",
+      "commitment": {
+        "x": "0x6c289509103cb19067161c7eb3956dc9b7289ebc8ae47efa4eaac74cc95e568",
+        "y": "0x2071ad32b48002a3f62778fb57451c91c744ca9d0f837fa0fc96bd570898d8b2"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x06ccb417864f529990061d4e92dcaa0574b12ce900438688329abd9f2717ebe2",
+            "0x00f3d4c029499eb2128ed6d28c384536e11649e81c7f313ba2779a1ae87a764c",
+            "0x20dac075424ea2cad49a61fee47e720c9a7b63425bf88b6985995bf2b5f8d1b7",
+            "0x2b347eba498aecc00a9e2e9f047a35adced26a8d3dfa377b099f775235879c28",
+            "0x2a7280b93e6810a7cd6007f521e90d9c581f377a04474dc2e3ac4bdf326eafb0",
+            "0x09981f3516fd42812f82175ba7678ed4ddccfc4e7b45b53f96f13c7aa005be5b",
+            "0x00fa3e092c8e8fe96f4813437a17c110c186f85f66a1c8d27adef4957b30b267",
+            "0x089f7432f01c790c423deb22871e6315c1c9d26e6930ecce2824fc6c1b8db4c6",
+            "0x1fd70c1418949aab4c48142f21e703ed08b7068fe1a5d75015208dcac51be0f2",
+            "0x11a0af8f117fe0445f626ff2e3142b4b476df4f9f366b92f512c7c0b6cf0ae04",
+            "0x299f90885fff6bec0a490480c1b0fa715b5c781ccf39ac27768ce493b9ca31a5",
+            "0x1879f265c72f21029625740d85f4ae1d8b0ed2326f6d6fa89aef4c5e4bd4230f",
+            "0x1564e2c543fb895ee90380db7947dfceb5c31b9b5f24baf4efb0b1459838d368",
+            "0x1b6b86f9c2524d698ff49ef7d177a54d100382f7d8011beb272787fd3870658c",
+            "0x18772e48f3f35cb97853a0d8e8163708d28c8c8a5ac7f7af094864183e83a9e3",
+            "0x161c82b5edf64ccb8c77044bdd17bc12bb0231383e729e89d91351742587f35c"
+          ]
+        }
+      },
+      "point": "0x1feddb41613d5151f64a23db20a3f4479d3645f9d4e7ea92ff3b7798e63359da",
+      "opening": "0x01ad91ba86bac41e31b988163233331418b680ddb0258a95acf2fd32d22329fd",
+      "commitment": {
+        "x": "0x6c289509103cb19067161c7eb3956dc9b7289ebc8ae47efa4eaac74cc95e568",
+        "y": "0x2071ad32b48002a3f62778fb57451c91c744ca9d0f837fa0fc96bd570898d8b2"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x09281fd13b026e16f8fbc689941062b0d6bbd535fda626b269ef78699a7467c2",
+            "0x0301f0f426b900cdc3104ce36c21c916a21e1d2821480870a498a7a915dca364",
+            "0x2d772b9ee0a6f032ec7a08268ee673a34ebfbc9a4a5d947a570374d1f762e6f6",
+            "0x241681a32c9efd5cbf44aaef7c816e3c8a09eeee0fae2913a8988f0d3df36470",
+            "0x2fba9623fda6de12e3d46dc86655aae912fed1a6e4e864f9a39e854098aab964",
+            "0x1f3a4f4b754ada3ee38d4f190fe772dadc419bc7114d6a032ea4cfe53b681d2e",
+            "0x00001858f89385829b929ac872a97abee329490838b0b0f0d76e429e07c3726a",
+            "0x2d164b5f5702693c772eec4088d9c40ce8a5ffe3fb51cc30f1c587b8d235ab5d",
+            "0x19fafa156b2097beaef098f1f4b4ad68504d52703d90d21c16bb9ca17d7547f8",
+            "0x2cc87c08c38eb1927bb5123b318bb9c133ca82a1f53225527373db4f3ef3bf5d",
+            "0x0c704b7263c687c03ae32713ea3b260d9d8218539d92f2928ffc8cecfec6ac40",
+            "0x23ea21065c46c605a69023577da80f480938e6d60628f727d89ea8ea8ad36bb6",
+            "0x30166b4126d88e5af867493fe778e242aec5d2df28bf893c8c9ab21ff5cd18a4",
+            "0x227f3a698689b09d45c6d5513f1326ce2511cf900e68f0db752aeda9e11f5ef7",
+            "0x1c2e4f4b08fbdb2ac7ba0a44458d84a187a38d16ed031001a11090f07d8e2561",
+            "0x23af931194fef8d2f872c0733b59441dbe9bbe0d764ed97b783cc9ed4ccd04eb"
+          ]
+        }
+      },
+      "point": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125",
+      "opening": "0x2912e54ff10738c9a5d153eeb805c3499374dc43c918e0bf50b650db5ff98733",
+      "commitment": {
+        "x": "0x234473361e5bb22a37a02da065c0ccbeaf6d44c3820afe7ec594b3791e179705",
+        "y": "0x72d829adbddb62d6af633e6a660f11f75dea4701990f9c5fc50972f6a54aa0c"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x25eb43faf087b073127c0c78c9bff217db519dc4e341fa67c3bff39521fafaa0",
+            "0x1d11001a2c335416fd402e6f2320a36637e9716224dbd24c644e8d992a9937d2",
+            "0x022ed7d9821857ae10b56d3e6653f9d2d66c5830f37fd8f8fe919499fd5cd141",
+            "0x067ba58be138be7551ae282a31bdbc382611eb1ec1598e903f8f2c5b54c2ae7b",
+            "0x119475b2c3264aa8805750846d070c5475b662e89d05727c0a1b07a12137eb11",
+            "0x1db303cde0cc6d069ed2018e7b373f2cdb104ecaa5eacd854ed95e0e8bcfbb5f",
+            "0x0643722d1811c56d8f664a29024b43d452870ca0da49a8c8079a4e8b3afe2441",
+            "0x08d7f5f9b6a126e4791f3ad415ab77dddc5c1fd75d9737fd6a3c4b476b020dcb",
+            "0x28abab2f4ebd7fb6fc77a8b5f743eaab4c1d5ad7781da8e4a0f020109ba8f7b3",
+            "0x10966a5a95d1fb71187025af34157068768839ebfd8a39cb25799d9003e8fe38",
+            "0x26ad4be30ca2f3f5a762f8d9e29731d8afab86e052de49089e26466d221b4217",
+            "0x02ce4196df38f8e4ba40d9638aacbcd8a769ad82b59a10127e0bff068df182ba",
+            "0x2ea4540330333650e1de53ca27a69edcc8e27e49368aa39367cc7c5d910fb194",
+            "0x2a950d6c990a49114ebb24fda0be841e688018802c341c41afdd4b9a45f595b7",
+            "0x1de8b570053b05d1f25f9f402b7ba40a8acc8e103e31090050aea86c34476f36",
+            "0x23f8fbaaaad3d80d512c7c0e61bd163645cf9cfaf8123834c6bad47ca5ad6399"
+          ]
+        }
+      },
+      "point": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125",
+      "opening": "0x01fc0c271c7599cd7a0d4317363f2345ee8d1ea46faaf2092e4181c2b94d857b",
+      "commitment": {
+        "x": "0x22c7193d81517510725d2b2485121827c5d6409b97eb3d23d4f6606217aa2b48",
+        "y": "0x275207c52e625cc123cb30e9ce18ec2963b9478f475f7d89f7b3ed1930415686"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x27bad031f6e5d63c6287744855e8ade0884815738c74c2cb0146042ba80f9dc1",
+            "0x0aedfd48d1d99352bddbae12766888014ce326c0184a49030f255bc402971c8e",
+            "0x1421f8d1f52f38eadad21dacba2c9c8ae2fa265be2b5cf56ecac1dc30e880614",
+            "0x2615ac9cfd366ea7c7b50c56fa3753c345533ddfaa1cfd23b7fdf6771010b3ae",
+            "0x055a53b13f4ef2982200bcee18cad82631591d7537e81f9f6d0d9af73919aca7",
+            "0x055992fb3e68a839041d15f16baee9aac780d3cc027c2650a8fa07d8c708ffa4",
+            "0x01288fca758908fd75be91359aae9947105255cb57e3737ba4cd2cb249b9568b",
+            "0x057b12a3c876f530ff3416b1f37b57888c294abfca1add3c80920e715ebd3dce",
+            "0x128bda5bfdc7fd9f0bcd7a4590e6367ac7d02e478e7fe7b4effcc682fee6ac4e",
+            "0x15fa52c718251448f4a7b5e5a51b8983626f542e76616ec2a97b51a9ca55acaa",
+            "0x2e1e139d30e7837e3a9c17b1cfabb68449abe4a71d09929789ba75a389477d5b",
+            "0x18d881eb1a3059a451819fc43526ad05f7144db79e00c502abb2999c9677e5eb",
+            "0x0497036ec879338b7800d9c8785fd34de9677ccba2b989725a258156fecaeddc",
+            "0x2a58721ef44e23f723b2f6f0c767346ee25de6a9ce3be5143c45bf02700f6067",
+            "0x241e67371586327ed2947f58dc70148a99a32ae01d5f67a82bba22edc0c67134",
+            "0x11fb89af7e2c3df6b15be924a02551ebb634e49577dd20c759a6da3a058acf9e"
+          ]
+        }
+      },
+      "point": "0x25aca9a399b1284f8cbbdc0428e87d584e064bc8656d2e0a7388180efa910125",
+      "opening": "0x11bea2be37f4170fa49da99c65c6a139e07976c36cc5e35e2735ed5b11e8a86f",
+      "commitment": {
+        "x": "0xd2b3853c2faafac946818a717533f3b12ab292173d52c1a9015cdf18ef87827",
+        "y": "0x21b7650147538e48bab652f15aece419695f7374c8e8bfae869451bb50f387ec"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001",
+            "0x1b386c209eabea1777ad2736a8d8c1b4669d32a8c4784f51b62f1a2337000001"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x167e2486350b9d6096379aad44fdc662e020b922458f47bfeff7b825548ccc88",
+      "commitment": {
+        "x": "0xf9cc629d0010671d7f755267acccfc8d5854f47d4e437ec84bddcc27b9f19d1",
+        "y": "0x199b1dcc7aff518a4e49c6393bcf847cc3fde52ae69e326dea0d1d901424552a"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x27517fbd56f85221e5c138a4493917cbb0aa2cbae2e6ab760727978833000001",
+            "0x2e2956f8332a2abea8eae65e83211a8cfd4c9c38c6ed5c09186cafec19009edf",
+            "0x2014447de15a99b6df03833e95f96ae1299c9ec6ff990b6e75fa3b3b04846a57",
+            "0x130034a5a3705c18e67b698f576257c783c3403058f57e9a359495efd00ce8cf",
+            "0x2144f5eefad21e1ca37ae273a4ee5b4a7eef137cbbeb1d198c9e59c37ef70364",
+            "0x11ded077258dd59f58ab8525c92955ebcb2b1905e676b2fe47ca20d6919e5e16",
+            "0x02b337de1c8c14f22ec9b9e2f96afef3652627366f8170a0a948dad4ac1bd5e8",
+            "0x152fae7ca9f4520815c46c7ae6996e0cd78f9e211ed4ffa8d8d48d83b3a445cd",
+            "0x0912ceb58a394e07d28f0d12384840917789bb8d96d2c51b3cba5e0bbd000000",
+            "0x023af77aae07756b0f655f57fe603dd02ae74c0fb2cc14882b7545a7d6ff6122",
+            "0x105009f4ffd70672d94cc277eb87ed7bfe9749817a206522cde7ba58eb7b95aa",
+            "0x1d6419cd3dc14410d1d4dc272a1f0095a470a81820c3f1f70e4d5fa41ff31732",
+            "0x0f1f5883e65f820d14d56342dc92fd12a944d4cbbdce5377b7439bd07108fc9d",
+            "0x1e857dfbbba3ca8a5fa4c090b85802715d08cf429342bd92fc17d4bd5e61a1eb",
+            "0x2db11694c4a58b3789868bd388165969c30dc1120a37fff09a991abf43e42a19",
+            "0x1b349ff6373d4e21a28bd93b9ae7ea5050a44a275ae470e86b0d68103c5bba34"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x2ce9cf1f952831ab654748c6bf472d5ac137b164c079a05eaa20485176e6d319",
+      "commitment": {
+        "x": "0x10472018b5bfdcc76f3925ea4f660dc7167ef12c96fb70f686d0c1cf7791cde5",
+        "y": "0x358f44f7cb29a8d129dbe6b61fc1d921a903f1e9209abc137c7a6446c3ae38f"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8f",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+            "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x272ba02794f3cb184151a79e4441c7aa7a50b8adf272f508e38796c23389a82c",
+      "commitment": {
+        "x": "0x365b8986f1c38476aa6479eea1b688244b4070413eb393efa5b06441ac2aeaa",
+        "y": "0x303ed0aaed99cb2848d844239ab4ab9a9191b86544edab860c42a2d4e504cf34"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x0640f831aa044d38fe46c45508516d98a6f118b1ab16de0c7f41963d5e3e3c65",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+            "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x2216922012e3bd8e54f70dc0cb070cbc74e00067d3315ab08314e24b98a7c8f2",
+      "commitment": {
+        "x": "0x1af13f7dc79a97c1a690215e2ffd3d8386f682fe1a13bdb8588d2fbaa0161edc",
+        "y": "0x10f0c0ddf9db782e88deb3e49464292b1276b2b9ad29b5a25971c85fe0b8aa96"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x18038fb09dafe4561b7c81a4ddecb5a9fdec9905c914eb53873760ec477b6153",
+            "0x01330c7cbea5f36f17d3698ffdacd0e8d561fc0253004050c673cb4825a5d678",
+            "0x11bd06280c7c8a6daa71eb9d3b2c97f9f211a37a41798bc63f78d5af70135d20",
+            "0x021ebc7877f2b98917ec49b986e1a497743d0464e2e1cf787fcc843b013626bb",
+            "0x2965a7e65ce635bbab94a2fffae4c86626d67c0eb10d658380f782f08db31ef9",
+            "0x13d9914eeb3084263023150484b8da37654dc6d57f82afffca2739b48de541c3",
+            "0x150b22b022aca6d5eacd65a0435fe2b487242afc5df5b9a417a001d5a79554a0",
+            "0x1911d0efc0d670781ad228d1df69e12aa502675c2c2b0873421dc9f32f16364f",
+            "0x173bca2a5af56060d72e1cf66a4c15350c7a1d0985d14232e9c548bf83a8e270",
+            "0x1761ac780a2688e48980ee5f7bb6c6489891ad7207f1b53c9a9aecdf3ca68117",
+            "0x2af4468570b8b17c26c074b53131f4dab8f4abc05ac204dfee977cd8f2ec9c0e",
+            "0x29a949ffe203c1114c6cc31a6b99269932f7cd7340abbe797c0d6c99a7f802f1",
+            "0x2f93c69781f9dd1bcc42e4149107242b847da4d909a47893ebe85b9a1fe5700e",
+            "0x2a7dc0ef215246ec520423ffc5f6e6fa3d5c0144e341d3358dd64ce8e648afff",
+            "0x134ac81b3f8e47b083bd4a759f2e5be3ec6cdfc0d4b28794740f1a3096f24a6d",
+            "0x2115cec3e5a7af5c4f4829c80b9825c24f499de351535dc35cb607a47b85c1b7"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x0d4e76b700e0ccf22194dba6a70f03d24a1ced8e93a333d5b7e83535e4195c01",
+      "commitment": {
+        "x": "0x9837455c613e5b0e0edd2a1d47f1efdee21eeeda00548f3686c733301e23da4",
+        "y": "0x2e2b7776741eb2214916eb80ae0982c32b02e57e83c51e8907b5ffeab048bf2d"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x28967ba8c313c600d17a4ddd20a4f32f49d6e1e9fcba5e5249324a66d96b4f5e",
+            "0x00a354bfcc60f6a39aa68e9a9fa36f4f2bc9322db22d4c76b20738f12376fa40",
+            "0x2d0e02c7383ab7a8d1dc324434cbc0efa7c7da0a5c10f1008c072ad9284c951b",
+            "0x295fc9ac7c7023fa3374d3df0959578ede07bc8e8e32a7d46b5928ac0f6051c7",
+            "0x2be457106435d313da2cbe5c1304c9b5eac6cef2e824ab55be7e094f779a7680",
+            "0x11d0a6eb25ba5944c820e99c5b6bfeacbaed201b58985a3e47ac129d746acb2d",
+            "0x10f99e36b6e6090fddea8d5f4048b35d3bf6c5f9b4b84f83c3f8695c1fc00a84",
+            "0x1269a9b9c8dd3f9f671c12f107a14cb0be65a15412dc8d8b0fb139184bfbd050",
+            "0x07cdd2ca1e1dda28e6d5f7d960dc652dde5d065e7cff123efaafab2d1694b0a3",
+            "0x180c8a641d5c9c5ecc993345d7012385aa929f610a2038d81f81daaa87ba4412",
+            "0x03564baba8f6e880e67413724cb5976d806c0e3e1da87f90b7dacabac7b36ae6",
+            "0x070484c664c17c2f84db71d7782800ce4a2c2bb9eb86c8bcd888cce7e09fae3a",
+            "0x047ff7627cfbcd15de23875a6e7c8ea73d6d19559194c53b8563ec4478658981",
+            "0x1e93a787bb7746e4f02f5c1a261559b06d46c82d21211652fc35e2f67b9534d4",
+            "0x1f6ab03c2a4b9719da65b8574138a4ffec3d224ec501210d7fe98c37d03ff57d",
+            "0x1dfaa4b91854608a513432c579e00bac69ce46f466dce3063430bc7ba4042fb1"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x0f8442c9f3ec7b7470dcbce83ba923dc83fb1bb28e524fcfd4012abb99d2cab2",
+      "commitment": {
+        "x": "0x23e033260e2f2ed7dd27295a06d951fad7c1545a493f24e8d7f416ccc3c74670",
+        "y": "0x957c9d3b0c00ff783bc3357dd0b5cf891f49bc78f569126ba6e68bc394859ef"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x1f615c09076e36cec6b73da310b463828347b51b9e9974e8a81b062077548f09",
+            "0x01486375680eea6fc3a85823dfcd197786e698ced109f6b67e5e4b7215da08b5",
+            "0x037aa90da674af38268ed2f31dc3e710a15056f17e299751c5b04c08c70745bc",
+            "0x2f1bbf9df033d50aeb8c582ad2f78cc3f663caed5e7fd352e9139adf69631d3f",
+            "0x1f1024523b7e2ab8e444ab4342eb4783f2b36904cb7d4fc9cc89d9aebcb8a4c9",
+            "0x2ede108bc37f0bde8453e3259fdabb172f2852e292ddf42acfb7597f28ce7fd1",
+            "0x2ad79d128ed1b9078ffe409f5a8f0d5e03a60c35406c2e9dc875f100a8d66538",
+            "0x1c2185aa71f806854eb5f14ae1fb874e45eaf891c70cfd904c5e3e27572d647f",
+            "0x2b669394f456de8527a6733d5968b33832183cb941aafd5b821f4b146d29b5eb",
+            "0x1ef290e15b09f3f7b360569a3f5dfbf3099b5158a6b240c72bfae22a700a2583",
+            "0x2cd0e32fa58075c49f47f5d62f1ccf5a730c66107069547ec7adf8514f1d9961",
+            "0x02435c65a144dce7011af52c8bb7d13ba7df98d8b6a3dc749e2ad97047653ff4",
+            "0x15afcc6459a9173a3655635a693b5a8b90d355ea1c6f5bc303f64053458d3c88",
+            "0x234d4da6f81007d8fbbdc4ca041dfd7042b4d2c2b37703bb6ef1d2b1a64719bf",
+            "0x08576f2d1e32d8ce8bd2e71b5556b34147fef4f0b20f13379b3c1847244ab3dc",
+            "0x047503ee3fc5bcf4a401f7a5ef1f6b461a7304208882e61bac5913b563f5b42e"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x2f027ef35645ae4b15f229f4e6edf60cfe7166cc803fa1243fde06a9a0a67009",
+      "commitment": {
+        "x": "0x108c4b342af988a9a1da9594fa34a4744e79ccce4b8ac04d7bda5294569808a3",
+        "y": "0x1a420c577e9605038605167a60cf192a637fc575cb2057268122a003cfbfc61"
+      }
+    },
+    {
+      "poly": {
+        "coefficients": {
+          "coefficients": [
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "point": "0x1878ab885c4eeb02752b8e5e37413b6ac4095ece8af445a9f105912aba6091a6",
+      "opening": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "commitment": {
+        "x": "0x1",
+        "y": "0x2"
+      }
+    }
+  ]
 }

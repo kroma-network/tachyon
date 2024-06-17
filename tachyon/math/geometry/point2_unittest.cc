@@ -55,7 +55,7 @@ TEST(Point2Test, Copyable) {
 
 TEST(Point2Test, JsonValueConverter) {
   Point2GF7 expected_point(GF7(1), GF7(2));
-  std::string expected_json = R"({"x":{"value":"0x1"},"y":{"value":"0x2"}})";
+  std::string expected_json = R"({"x":"0x1","y":"0x2"})";
 
   Point2GF7 p;
   std::string error;
