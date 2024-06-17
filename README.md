@@ -29,7 +29,7 @@ Symbol Definitions:
 | ------------ | ------------------ | ------------------ |
 | BabyBear     | :heavy_check_mark: | :heavy_check_mark: |
 | BinaryFields | :heavy_check_mark: | :heavy_check_mark: |
-| Goldilocks   | :heavy_check_mark: | :x:                |
+| Goldilocks   | :heavy_check_mark: | :heavy_check_mark: |
 | Mersenne-31  | :heavy_check_mark: | :heavy_check_mark: |
 | KoalaBear    | :heavy_check_mark: | :heavy_check_mark: |
 
@@ -47,8 +47,8 @@ Symbol Definitions:
 
 |          | CPU                | GPU |
 | -------- | ------------------ | --- |
-| GWC      | :heavy_check_mark: | 🏗️  |
-| SHPlonk  | :heavy_check_mark: | 🏗️  |
+| GWC      | :heavy_check_mark: | :x: |
+| SHPlonk  | :heavy_check_mark: | :x: |
 | FRI      | :heavy_check_mark: | :x: |
 | Pedersen | :heavy_check_mark: | :x: |
 
