@@ -169,6 +169,9 @@ template <typename T>
 class Copyable<
     T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
  public:
+  using value_type = typename T::value_type;
+  using BigInt = typename T::BigIntTy;
+
   static bool s_allow_value_greater_than_or_equal_to_modulus;
   static bool s_is_in_montgomery;
 
@@ -178,16 +181,23 @@ class Copyable<
         return buffer->Write(prime_field.value());
       }
     }
-    return buffer->Write(prime_field.ToBigInt());
+    if constexpr (T::Config::kModulusBits <= 32) {
+      if constexpr (T::Config::kUseMontgomery) {
+        return buffer->Write(T::Config::FromMontgomery(prime_field.value()));
+      } else {
+        return buffer->Write(prime_field.value());
+      }
+    } else {
+      return buffer->Write(prime_field.ToBigInt());
+    }
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer, T* prime_field) {
-    using BigInt = typename T::BigIntTy;
-    BigInt v;
+    value_type v;
     if (!buffer.Read(&v)) return false;
     if (s_allow_value_greater_than_or_equal_to_modulus) {
-      if (v >= BigInt(T::Config::kModulus)) {
-        v = v.Mod(BigInt(T::Config::kModulus));
+      if (v >= T::Config::kModulus) {
+        v %= T::Config::kModulus;
       }
     }
     if constexpr (T::Config::kUseMontgomery) {
@@ -196,13 +206,16 @@ class Copyable<
         return true;
       }
     }
-    *prime_field = T::FromBigInt(v);
+    *prime_field = T(v);
     return true;
   }
 
   static size_t EstimateSize(const T& prime_field) {
-    using BigInt = typename T::BigIntTy;
-    return BigInt::kLimbNums * sizeof(uint64_t);
+    if constexpr (T::Config::kModulusBits <= 32) {
+      return sizeof(uint32_t);
+    } else {
+      return BigInt::kLimbNums * sizeof(uint64_t);
+    }
   }
 };
 
