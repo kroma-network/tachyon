@@ -82,6 +82,15 @@ TEST_F(JsonTest, LoadAndParseJson) {
   EXPECT_EQ(simple_data, expected_simple_data_);
 }
 
+TEST_F(JsonTest, ParseInvalidJson) {
+  // missing key
+  std::string json = R"({})";
+  SimpleData simple_data;
+  std::string error;
+  ASSERT_FALSE(ParseJson(json, &simple_data, &error));
+  EXPECT_EQ(error, "\"message\" key is not found");
+}
+
 TEST_F(JsonTest, WriteToJson) {
   std::string json = WriteToJson(expected_simple_data_);
   EXPECT_EQ(

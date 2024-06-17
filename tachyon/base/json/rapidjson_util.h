@@ -306,8 +306,12 @@ void AddJsonElement(rapidjson::Value& json_value, std::string_view key,
 template <typename T>
 bool ParseJsonElement(const rapidjson::Value& json_value, std::string_view key,
                       T* value, std::string* error) {
-  return RapidJsonValueConverter<T>::To(json_value[key.data()], key, value,
-                                        error);
+  auto it = json_value.FindMember(key.data());
+  if (it == json_value.MemberEnd()) {
+    *error = absl::Substitute("\"$0\" key is not found", key);
+    return false;
+  }
+  return RapidJsonValueConverter<T>::To(it->value, key, value, error);
 }
 
 }  // namespace tachyon::base
