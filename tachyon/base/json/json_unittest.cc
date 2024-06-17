@@ -74,7 +74,7 @@ class RapidJsonValueConverter<SimpleData> {
 TEST_F(JsonTest, LoadAndParseJson) {
   SimpleData simple_data;
   std::string error;
-  EXPECT_TRUE(
+  ASSERT_TRUE(
       LoadAndParseJson(FilePath("tachyon/base/json/test/simple_data.json"),
                        &simple_data, &error));
   EXPECT_TRUE(error.empty());
