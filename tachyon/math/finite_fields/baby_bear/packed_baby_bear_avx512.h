@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include "tachyon/export.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
 #include "tachyon/math/finite_fields/packed_prime_field_base.h"
 
@@ -22,13 +23,16 @@ struct PackedPrimeFieldTraits<PackedBabyBearAVX512> {
   constexpr static size_t N = 16;
 };
 
-class PackedBabyBearAVX512 : public PackedPrimeFieldBase<PackedBabyBearAVX512> {
+class TACHYON_EXPORT PackedBabyBearAVX512 final
+    : public PackedPrimeFieldBase<PackedBabyBearAVX512> {
  public:
   using PrimeField = BabyBear;
 
   constexpr static size_t N = 16;
 
   PackedBabyBearAVX512() = default;
+  // NOTE(chokobole): This is needed by Eigen matrix.
+  explicit PackedBabyBearAVX512(uint32_t value);
   PackedBabyBearAVX512(const PackedBabyBearAVX512& other) = default;
   PackedBabyBearAVX512& operator=(const PackedBabyBearAVX512& other) = default;
   PackedBabyBearAVX512(PackedBabyBearAVX512&& other) = default;

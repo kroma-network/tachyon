@@ -40,6 +40,11 @@ __m512i Mul(__m512i lhs, __m512i rhs) {
 
 }  // namespace
 
+PackedKoalaBearAVX512::PackedKoalaBearAVX512(uint32_t value) {
+  __m512i vector = _mm512_set1_epi32(KoalaBear::Config::ToMontgomery(value));
+  _mm512_storeu_si512(values_.data(), vector);
+}
+
 // static
 void PackedKoalaBearAVX512::Init() {
   kP = _mm512_set1_epi32(KoalaBear::Config::kModulus);

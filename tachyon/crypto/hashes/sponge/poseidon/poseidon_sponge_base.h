@@ -69,7 +69,7 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
   }
 
   // Absorbs everything in |elements|, this does not end in an absorbing.
-  void AbsorbInternal(size_t rate_start_index, const std::vector<F>& elements) {
+  void AbsorbInternal(size_t rate_start_index, absl::Span<const F> elements) {
     Derived& derived = static_cast<Derived&>(*this);
     auto& config = derived.config;
     auto& state = derived.state;
@@ -134,9 +134,15 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
   // CryptographicSponge methods
   template <typename T>
   bool Absorb(const T& input) {
+    if constexpr (std::is_constructible_v<absl::Span<const F>, T>) {
+      return Absorb(absl::Span<const F>(input));
+    }
     std::vector<F> elements;
     if (!SerializeToFieldElements(input, &elements)) return false;
+    return Absorb(absl::MakeConstSpan(elements));
+  }
 
+  bool Absorb(absl::Span<const F> input) {
     Derived& derived = static_cast<Derived&>(*this);
     auto& config = derived.config;
     auto& state = derived.state;
@@ -148,12 +154,12 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
           Permute();
           absorb_index = 0;
         }
-        AbsorbInternal(absorb_index, elements);
+        AbsorbInternal(absorb_index, input);
         return true;
       }
       case DuplexSpongeMode::Type::kSqueezing: {
         Permute();
-        AbsorbInternal(0, elements);
+        AbsorbInternal(0, input);
         return true;
       }
     }

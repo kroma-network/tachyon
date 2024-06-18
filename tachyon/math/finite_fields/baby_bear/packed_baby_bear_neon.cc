@@ -44,6 +44,11 @@ uint32x4_t Mul(uint32x4_t lhs, uint32x4_t rhs) {
 
 }  // namespace
 
+PackedBabyBearNeon::PackedBabyBearNeon(uint32_t value) {
+  uint32x4_t vector = vdupq_n_u32(BabyBear::Config::ToMontgomery(value));
+  vst1q_u32(reinterpret_cast<uint32_t*>(values_.data()), vector);
+}
+
 // static
 void PackedBabyBearNeon::Init() {
   kP = vdupq_n_u32(BabyBear::Config::kModulus);

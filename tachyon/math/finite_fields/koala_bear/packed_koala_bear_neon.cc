@@ -44,6 +44,11 @@ uint32x4_t Mul(uint32x4_t lhs, uint32x4_t rhs) {
 
 }  // namespace
 
+PackedKoalaBearNeon::PackedKoalaBearNeon(uint32_t value) {
+  uint32x4_t vector = vdupq_n_u32(KoalaBear::Config::ToMontgomery(value));
+  vst1q_u32(reinterpret_cast<uint32_t*>(values_.data()), vector);
+}
+
 // static
 void PackedKoalaBearNeon::Init() {
   kP = vdupq_n_u32(KoalaBear::Config::kModulus);

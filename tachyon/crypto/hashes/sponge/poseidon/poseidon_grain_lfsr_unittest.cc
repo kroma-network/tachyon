@@ -8,6 +8,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
+#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {
@@ -88,6 +89,55 @@ TEST_F(PoseidonGrainLFSRTest, GrainLFSRConsistency) {
             *math::bls12_381::Fr::FromDecString(
                 "17250718238509906485015112994867732544602358855445377986727968022920517907825"));
   // clang-format on
+}
+
+namespace {
+
+class PackedPoseidonGrainLFSRTest
+    : public math::FiniteFieldTest<math::PackedBabyBear> {
+ public:
+  void SetUp() override {
+    default_config_.is_sbox_an_inverse = false;
+    default_config_.prime_num_bits = 31;
+    default_config_.state_len = 3;
+    default_config_.num_full_rounds = 8;
+    default_config_.num_partial_rounds = 31;
+  }
+
+ protected:
+  PoseidonGrainLFSRConfig default_config_;
+};
+
+}  // namespace
+
+TEST_F(PackedPoseidonGrainLFSRTest, GetBits) {
+  PoseidonGrainLFSR<math::PackedBabyBear> packed_lfsr(default_config_);
+
+  std::bitset<31> packed_bits = packed_lfsr.GetBits(31);
+  ASSERT_EQ(packed_bits.size(), 31);
+
+  PoseidonGrainLFSR<math::BabyBear> lfsr(default_config_);
+
+  std::bitset<31> bits = lfsr.GetBits(31);
+  ASSERT_EQ(bits.size(), 31);
+  EXPECT_EQ(packed_bits, bits);
+}
+
+TEST_F(PackedPoseidonGrainLFSRTest, GetFieldElementsModP) {
+  PoseidonGrainLFSR<math::PackedBabyBear> packed_lfsr(default_config_);
+  PoseidonGrainLFSR<math::BabyBear> lfsr(default_config_);
+
+  EXPECT_EQ(packed_lfsr.GetFieldElementsModP(1)[0],
+            math::PackedBabyBear::Broadcast(lfsr.GetFieldElementsModP(1)[0]));
+}
+
+TEST_F(PackedPoseidonGrainLFSRTest, GetFieldElementsRejectionSampling) {
+  PoseidonGrainLFSR<math::PackedBabyBear> packed_lfsr(default_config_);
+  PoseidonGrainLFSR<math::BabyBear> lfsr(default_config_);
+
+  EXPECT_EQ(packed_lfsr.GetFieldElementsRejectionSampling(1)[0],
+            math::PackedBabyBear::Broadcast(
+                lfsr.GetFieldElementsRejectionSampling(1)[0]));
 }
 
 }  // namespace tachyon::crypto

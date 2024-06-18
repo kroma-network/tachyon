@@ -12,7 +12,8 @@
 #elif ARCH_CPU_ARM64
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_neon.h"
 #endif
-#endif
+#include "tachyon/math/finite_fields/finite_field_traits.h"
+#include "tachyon/math/matrix/prime_field_num_traits.h"
 
 namespace tachyon::math {
 
@@ -26,6 +27,37 @@ using PackedBabyBear = PackedBabyBearAVX2;
 using PackedBabyBear = PackedBabyBearNeon;
 #endif
 
+template <>
+struct FiniteFieldTraits<PackedBabyBear> {
+  static constexpr bool kIsPrimeField = true;
+  static constexpr bool kIsPackedPrimeField = true;
+  static constexpr bool kIsExtensionField = false;
+
+  using PrimeField = BabyBear;
+  using Config = BabyBear::Config;
+};
+
 }  // namespace tachyon::math
+
+namespace Eigen {
+
+template <>
+struct NumTraits<tachyon::math::PackedBabyBear>
+    : GenericNumTraits<tachyon::math::PackedBabyBear> {
+  using PrimeField = tachyon::math::BabyBear;
+  constexpr static size_t N = tachyon::math::PackedBabyBear::N;
+
+  enum {
+    IsInteger = 1,
+    IsSigned = 0,
+    IsComplex = 0,
+    RequireInitialization = 1,
+    ReadCost = CostCalculator<PrimeField>::ComputeReadCost() * N,
+    AddCost = CostCalculator<PrimeField>::ComputeAddCost() * N,
+    MulCost = CostCalculator<PrimeField>::ComputeMulCost() * N,
+  };
+};
+
+}  // namespace Eigen
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_BABY_BEAR_PACKED_BABY_BEAR_H_

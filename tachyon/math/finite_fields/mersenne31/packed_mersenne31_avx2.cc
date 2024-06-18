@@ -158,6 +158,11 @@ __m256i Mul(__m256i lhs, __m256i rhs) {
 
 }  // namespace
 
+PackedMersenne31AVX2::PackedMersenne31AVX2(uint32_t value) {
+  __m256i vector = _mm256_set1_epi32(value);
+  _mm256_storeu_si256(reinterpret_cast<__m256i_u*>(values_.data()), vector);
+}
+
 // static
 void PackedMersenne31AVX2::Init() {
   kP = _mm256_set1_epi32(Mersenne31::Config::kModulus);

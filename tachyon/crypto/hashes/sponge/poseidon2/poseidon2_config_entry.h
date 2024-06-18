@@ -13,15 +13,15 @@
 
 namespace tachyon::crypto {
 
-template <typename PrimeField>
+template <typename F>
 struct Poseidon2Config;
 
 // An entry in the Poseidon config
 struct TACHYON_EXPORT Poseidon2ConfigEntry : public PoseidonConfigEntryBase {
   using PoseidonConfigEntryBase::PoseidonConfigEntryBase;
 
-  template <typename PrimeField>
-  Poseidon2Config<PrimeField> ToPoseidon2Config() const;
+  template <typename F>
+  Poseidon2Config<F> ToPoseidon2Config() const;
 };
 
 }  // namespace tachyon::crypto

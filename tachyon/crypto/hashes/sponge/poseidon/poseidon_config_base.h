@@ -12,15 +12,14 @@
 #include <utility>
 
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/crypto/hashes/sponge/sponge_config.h"
 #include "tachyon/math/matrix/matrix_types.h"
 
 namespace tachyon {
 namespace crypto {
 
-template <typename PrimeField>
-struct PoseidonConfigBase {
-  using F = PrimeField;
-
+template <typename F>
+struct PoseidonConfigBase : public SpongeConfig {
   // Number of rounds in a full-round operation.
   size_t full_rounds = 0;
 
@@ -32,34 +31,23 @@ struct PoseidonConfigBase {
 
   // Additive Round Keys added before each MDS matrix application to make it an
   // affine shift. They are indexed by |ark[round_num][state_element_index]|.
-  math::Matrix<PrimeField> ark;
-
-  // The rate (in terms of number of field elements).
-  // See https://iacr.org/archive/eurocrypt2008/49650180/49650180.pdf
-  size_t rate = 0;
-
-  // The capacity (in terms of number of field elements).
-  size_t capacity = 0;
+  math::Matrix<F> ark;
 
   PoseidonConfigBase() = default;
   PoseidonConfigBase(size_t full_rounds, size_t partial_rounds, uint64_t alpha,
-                     const math::Matrix<PrimeField>& ark, size_t rate,
-                     size_t capacity)
-      : full_rounds(full_rounds),
+                     const math::Matrix<F>& ark, size_t rate, size_t capacity)
+      : SpongeConfig(rate, capacity),
+        full_rounds(full_rounds),
         partial_rounds(partial_rounds),
         alpha(alpha),
-        ark(ark),
-        rate(rate),
-        capacity(capacity) {}
+        ark(ark) {}
   PoseidonConfigBase(size_t full_rounds, size_t partial_rounds, uint64_t alpha,
-                     math::Matrix<PrimeField>&& ark, size_t rate,
-                     size_t capacity)
-      : full_rounds(full_rounds),
+                     math::Matrix<F>&& ark, size_t rate, size_t capacity)
+      : SpongeConfig(rate, capacity),
+        full_rounds(full_rounds),
         partial_rounds(partial_rounds),
         alpha(alpha),
-        ark(std::move(ark)),
-        rate(rate),
-        capacity(capacity) {}
+        ark(std::move(ark)) {}
 
   virtual ~PoseidonConfigBase() = default;
 
@@ -69,9 +57,10 @@ struct PoseidonConfigBase {
   }
 
   bool operator==(const PoseidonConfigBase& other) const {
-    return full_rounds == other.full_rounds &&
+    return SpongeConfig::operator==(other) &&
+           full_rounds == other.full_rounds &&
            partial_rounds == other.partial_rounds && alpha == other.alpha &&
-           ark == other.ark && rate == other.rate && capacity == other.capacity;
+           ark == other.ark;
   }
   bool operator!=(const PoseidonConfigBase& other) const {
     return !operator==(other);
@@ -82,39 +71,39 @@ struct PoseidonConfigBase {
 
 namespace base {
 
-template <typename PrimeField>
-class Copyable<crypto::PoseidonConfigBase<PrimeField>> {
+template <typename F>
+class Copyable<crypto::PoseidonConfigBase<F>> {
  public:
-  static bool WriteTo(const crypto::PoseidonConfigBase<PrimeField>& config,
+  static bool WriteTo(const crypto::PoseidonConfigBase<F>& config,
                       Buffer* buffer) {
+    if (!Copyable<crypto::SpongeConfig>::WriteTo(config, buffer)) return false;
     return buffer->WriteMany(config.full_rounds, config.partial_rounds,
-                             config.alpha, config.ark, config.rate,
-                             config.capacity);
+                             config.alpha, config.ark);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::PoseidonConfigBase<PrimeField>* config) {
+                       crypto::PoseidonConfigBase<F>* config) {
+    if (!Copyable<crypto::SpongeConfig>::ReadFrom(buffer, config)) return false;
+
     size_t full_rounds;
     size_t partial_rounds;
     uint64_t alpha;
-    math::Matrix<PrimeField> ark;
-    size_t rate;
-    size_t capacity;
-    if (!buffer.ReadMany(&full_rounds, &partial_rounds, &alpha, &ark, &rate,
-                         &capacity)) {
+    math::Matrix<F> ark;
+    if (!buffer.ReadMany(&full_rounds, &partial_rounds, &alpha, &ark)) {
       return false;
     }
 
-    *config = {full_rounds,    partial_rounds, alpha,
-               std::move(ark), rate,           capacity};
+    config->full_rounds = full_rounds;
+    config->partial_rounds = partial_rounds;
+    config->alpha = alpha;
+    config->ark = std::move(ark);
     return true;
   }
 
-  static size_t EstimateSize(
-      const crypto::PoseidonConfigBase<PrimeField>& config) {
-    return base::EstimateSize(config.full_rounds, config.partial_rounds,
-                              config.alpha, config.ark, config.rate,
-                              config.capacity);
+  static size_t EstimateSize(const crypto::PoseidonConfigBase<F>& config) {
+    return Copyable<crypto::SpongeConfig>::EstimateSize(config) +
+           base::EstimateSize(config.full_rounds, config.partial_rounds,
+                              config.alpha, config.ark);
   }
 };
 

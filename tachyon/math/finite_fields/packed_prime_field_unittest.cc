@@ -72,6 +72,8 @@ TYPED_TEST(PackedPrimeFieldTest, Broadcast) {
   for (size_t i = 0; i < PackedPrimeField::N; ++i) {
     EXPECT_EQ(f[i], r);
   }
+
+  EXPECT_EQ(f, PackedPrimeField(r.ToBigInt()[0]));
 }
 
 TYPED_TEST(PackedPrimeFieldTest, Random) {
@@ -106,7 +108,7 @@ TYPED_TEST(PackedPrimeFieldTest, Add) {
   for (auto& test : tests) {
     PackedPrimeField c = test.a + test.b;
     for (size_t i = 0; i < PackedPrimeField::N; ++i) {
-      ASSERT_EQ(c[i], test.a[i] + test.b[i]);
+      EXPECT_EQ(c[i], test.a[i] + test.b[i]);
     }
     test.a += test.b;
     for (size_t i = 0; i < PackedPrimeField::N; ++i) {
@@ -133,7 +135,7 @@ TYPED_TEST(PackedPrimeFieldTest, Sub) {
   for (auto& test : tests) {
     PackedPrimeField c = test.a - test.b;
     for (size_t i = 0; i < PackedPrimeField::N; ++i) {
-      ASSERT_EQ(c[i], test.a[i] - test.b[i]);
+      EXPECT_EQ(c[i], test.a[i] - test.b[i]);
     }
     test.a -= test.b;
     for (size_t i = 0; i < PackedPrimeField::N; ++i) {
@@ -158,7 +160,7 @@ TYPED_TEST(PackedPrimeFieldTest, Negate) {
   for (auto& test : tests) {
     PackedPrimeField c = -test.a;
     for (size_t i = 0; i < PackedPrimeField::N; ++i) {
-      ASSERT_EQ(c[i], -test.a[i]);
+      EXPECT_EQ(c[i], -test.a[i]);
     }
     test.a.NegateInPlace();
     for (size_t i = 0; i < PackedPrimeField::N; ++i) {
@@ -187,11 +189,42 @@ TYPED_TEST(PackedPrimeFieldTest, Mul) {
   for (auto& test : tests) {
     PackedPrimeField c = test.a * test.b;
     for (size_t i = 0; i < PackedPrimeField::N; ++i) {
-      ASSERT_EQ(c[i], test.a[i] * test.b[i]);
+      EXPECT_EQ(c[i], test.a[i] * test.b[i]);
     }
     test.a *= test.b;
     for (size_t i = 0; i < PackedPrimeField::N; ++i) {
       EXPECT_EQ(c[i], test.a[i]);
+    }
+  }
+}
+
+TYPED_TEST(PackedPrimeFieldTest, Inverse) {
+  using PackedPrimeField = TypeParam;
+
+  PackedPrimeField a = PackedPrimeField::Random();
+  PackedPrimeField zero = PackedPrimeField::Zero();
+
+  struct {
+    PackedPrimeField a;
+  } tests[] = {
+      {a},
+      {zero},
+  };
+
+  for (auto& test : tests) {
+    std::optional<PackedPrimeField> c = test.a.Inverse();
+    if (test.a.IsZero()) {
+      for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+        EXPECT_TRUE((*c)[i].IsZero());
+      }
+    } else {
+      for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+        EXPECT_EQ((*c)[i], test.a[i].Inverse());
+      }
+    }
+    ASSERT_TRUE(test.a.InverseInPlace());
+    for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+      EXPECT_EQ((*c)[i], test.a[i]);
     }
   }
 }

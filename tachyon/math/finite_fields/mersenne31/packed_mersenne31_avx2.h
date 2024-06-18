@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include "tachyon/export.h"
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 #include "tachyon/math/finite_fields/packed_prime_field_base.h"
 
@@ -22,13 +23,16 @@ struct PackedPrimeFieldTraits<PackedMersenne31AVX2> {
   constexpr static size_t N = 8;
 };
 
-class PackedMersenne31AVX2 : public PackedPrimeFieldBase<PackedMersenne31AVX2> {
+class TACHYON_EXPORT PackedMersenne31AVX2 final
+    : public PackedPrimeFieldBase<PackedMersenne31AVX2> {
  public:
   using PrimeField = Mersenne31;
 
   constexpr static size_t N = PackedPrimeFieldTraits<PackedMersenne31AVX2>::N;
 
   PackedMersenne31AVX2() = default;
+  // NOTE(chokobole): This is needed by Eigen matrix.
+  explicit PackedMersenne31AVX2(uint32_t value);
   PackedMersenne31AVX2(const PackedMersenne31AVX2& other) = default;
   PackedMersenne31AVX2& operator=(const PackedMersenne31AVX2& other) = default;
   PackedMersenne31AVX2(PackedMersenne31AVX2&& other) = default;
