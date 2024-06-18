@@ -9,6 +9,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
@@ -168,9 +169,7 @@ tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_gwc_prover_commit(
     const tachyon_halo2_bn254_gwc_prover* prover,
     const tachyon_bn254_univariate_dense_polynomial* poly) {
   return reinterpret_cast<const ProverImpl*>(prover)->Commit(
-      reinterpret_cast<const PCS::Domain::DensePoly&>(*poly)
-          .coefficients()
-          .coefficients());
+      c::base::native_cast(*poly).coefficients().coefficients());
 }
 
 tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_gwc_prover_commit_lagrange(
