@@ -6,8 +6,10 @@
 #ifndef TACHYON_ZK_LOOKUP_LOG_DERIVATIVE_HALO2_PROVER_H_
 #define TACHYON_ZK_LOOKUP_LOG_DERIVATIVE_HALO2_PROVER_H_
 
+#include <atomic>
 #include <vector>
 
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
@@ -18,10 +20,48 @@
 
 namespace tachyon::zk::lookup::log_derivative_halo2 {
 
+template <typename BigInt>
+struct TableEvalWithIndex {
+  RowIndex index;
+  BigInt eval;
+
+  TableEvalWithIndex() = default;
+  TableEvalWithIndex(RowIndex index, const BigInt& eval)
+      : index(index), eval(eval) {}
+
+  bool operator<(const TableEvalWithIndex& other) const {
+    return eval < other.eval;
+  }
+};
+
+template <typename BigInt>
+struct ComputeMPolysTempStorage {
+  std::vector<TableEvalWithIndex<BigInt>> sorted_table_with_indices;
+  std::vector<std::atomic<size_t>> m_values_atomic;
+
+  explicit ComputeMPolysTempStorage(size_t usable_rows)
+      : sorted_table_with_indices(usable_rows), m_values_atomic(usable_rows) {
+    OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
+      m_values_atomic[i] = 0;
+    }
+  }
+};
+
+template <typename F>
+struct GrandSumPolysTempStorage {
+  std::vector<F> inputs_log_derivatives;
+  std::vector<F> table_log_derivatives;
+
+  explicit GrandSumPolysTempStorage(size_t usable_rows)
+      : inputs_log_derivatives(usable_rows),
+        table_log_derivatives(usable_rows) {}
+};
+
 template <typename Poly, typename Evals>
 class Prover {
  public:
   using F = typename Poly::Field;
+  using BigInt = typename F::BigIntTy;
 
   const std::vector<std::vector<Evals>>& compressed_inputs_vec() const {
     return compressed_inputs_vec_;
@@ -45,8 +85,9 @@ class Prover {
   template <typename PCS>
   static void BatchComputeMPolys(std::vector<Prover>& lookup_provers,
                                  ProverBase<PCS>* prover) {
+    ComputeMPolysTempStorage<BigInt> storage(prover->GetUsableRows());
     for (Prover& lookup_prover : lookup_provers) {
-      lookup_prover.ComputeMPolys(prover);
+      lookup_prover.ComputeMPolys(prover, storage);
     }
   }
 
@@ -63,8 +104,9 @@ class Prover {
   template <typename PCS>
   static void BatchCreateGrandSumPolys(std::vector<Prover>& lookup_provers,
                                        ProverBase<PCS>* prover, const F& beta) {
+    GrandSumPolysTempStorage<F> storage(prover->GetUsableRows());
     for (Prover& lookup_prover : lookup_provers) {
-      lookup_prover.CreateGrandSumPolys(prover, beta);
+      lookup_prover.CreateGrandSumPolys(prover, beta, storage);
     }
   }
 
@@ -119,10 +161,11 @@ class Prover {
   template <typename PCS>
   static BlindedPolynomial<Poly, Evals> ComputeMPoly(
       ProverBase<PCS>* prover, const std::vector<Evals>& compressed_inputs,
-      const Evals& compressed_table);
+      const Evals& compressed_table, ComputeMPolysTempStorage<BigInt>& storage);
 
   template <typename PCS>
-  void ComputeMPolys(ProverBase<PCS>* prover);
+  void ComputeMPolys(ProverBase<PCS>* prover,
+                     ComputeMPolysTempStorage<BigInt>& storage);
 
   static void ComputeLogDerivatives(const Evals& evals, const F& beta,
                                     std::vector<F>& ret);
@@ -131,10 +174,12 @@ class Prover {
   static BlindedPolynomial<Poly, Evals> CreateGrandSumPoly(
       ProverBase<PCS>* prover, const Evals& m_values,
       const std::vector<Evals>& compressed_inputs,
-      const Evals& compressed_table, const F& beta);
+      const Evals& compressed_table, const F& beta,
+      GrandSumPolysTempStorage<F>& storage);
 
   template <typename PCS>
-  void CreateGrandSumPolys(ProverBase<PCS>* prover, const F& beta);
+  void CreateGrandSumPolys(ProverBase<PCS>* prover, const F& beta,
+                           GrandSumPolysTempStorage<F>& storage);
 
   template <typename Domain>
   void TransformEvalsToPoly(const Domain* domain);
