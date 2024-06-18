@@ -50,7 +50,8 @@ struct GenerationConfig : public build::CcWriter {
                        std::string_view fq_or_fq2) const;
   int GeneratePointSrc(std::string_view g1_or_g2,
                        std::string_view fq_or_fq2) const;
-  int GeneratePointTraitsHdr(std::string_view g1_or_g2) const;
+  int GeneratePointTraitsHdr(std::string_view g1_or_g2,
+                             std::string_view fq_or_fq2) const;
   int GenerateG1Hdr() const;
   int GenerateG1Src() const;
   int GenerateG1TraitsHdr() const;
@@ -226,13 +227,10 @@ int GenerationConfig::GenerateG2Src() const {
   return GeneratePointSrc("g2", "fq2");
 }
 
-int GenerationConfig::GeneratePointTraitsHdr(std::string_view g1_or_g2) const {
+int GenerationConfig::GeneratePointTraitsHdr(std::string_view g1_or_g2,
+                                             std::string_view fq_or_fq2) const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(point_traits_hdr_tpl_path, &tpl_content));
-
-  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
-  RemoveOptionalLines(tpl_lines, "IsG2", g1_or_g2 == "g2");
-  tpl_content = absl::StrJoin(tpl_lines, "\n");
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {
@@ -240,16 +238,18 @@ int GenerationConfig::GeneratePointTraitsHdr(std::string_view g1_or_g2) const {
                        {"%{type}", type},
                        {"%{g1_or_g2}", g1_or_g2},
                        {"%{G1_or_G2}", base::CapitalizeASCII(g1_or_g2)},
+                       {"%{fq_or_fq2}", fq_or_fq2},
+                       {"%{Fq_or_Fq2}", base::CapitalizeASCII(fq_or_fq2)},
                    });
   return WriteHdr(content, false);
 }
 
 int GenerationConfig::GenerateG1TraitsHdr() const {
-  return GeneratePointTraitsHdr("g1");
+  return GeneratePointTraitsHdr("g1", "fq");
 }
 
 int GenerationConfig::GenerateG2TraitsHdr() const {
-  return GeneratePointTraitsHdr("g2");
+  return GeneratePointTraitsHdr("g2", "fq2");
 }
 
 int GenerationConfig::GenerateMSMHdr() const {
