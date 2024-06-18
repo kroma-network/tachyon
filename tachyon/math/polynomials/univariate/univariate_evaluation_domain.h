@@ -308,7 +308,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // Return the filter polynomial of |*this| with respect to |subdomain|.
   // Assumes that |subdomain| is contained within |*this|.
   //
-  // Panics if |subdomain| is not contained within |*this|.
+  // Crashes if |subdomain| is not contained within |*this|.
   constexpr DensePoly GetFilterPolynomial(
       const UnivariateEvaluationDomain& subdomain) const {
     SparsePoly domain_vanishing_poly =
