@@ -5,6 +5,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -39,7 +40,7 @@ void tachyon_halo2_bn254_argument_data_add_advice_column(
     tachyon_halo2_bn254_argument_data* data, size_t circuit_idx,
     tachyon_bn254_univariate_evaluations* column) {
   reinterpret_cast<Data*>(data)->advice_columns_vec()[circuit_idx].push_back(
-      std::move(reinterpret_cast<Evals&>(*column)));
+      std::move(c::base::native_cast(*column)));
   tachyon_bn254_univariate_evaluations_destroy(column);
 }
 
@@ -68,7 +69,7 @@ void tachyon_halo2_bn254_argument_data_add_instance_column(
     tachyon_halo2_bn254_argument_data* data, size_t circuit_idx,
     tachyon_bn254_univariate_evaluations* column) {
   reinterpret_cast<Data*>(data)->instance_columns_vec()[circuit_idx].push_back(
-      std::move(reinterpret_cast<Evals&>(*column)));
+      std::move(c::base::native_cast(*column)));
   tachyon_bn254_univariate_evaluations_destroy(column);
 }
 

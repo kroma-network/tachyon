@@ -6,6 +6,7 @@
 
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -43,7 +44,7 @@ TEST_F(UnivariateEvaluationDomainTest, EmptyEvals) {
       reinterpret_cast<Domain*>(domain_)->Zero<Domain::Evals>();
   tachyon_bn254_univariate_evaluations* evals =
       tachyon_bn254_univariate_evaluation_domain_empty_evals(domain_);
-  EXPECT_EQ(cpp_evals, reinterpret_cast<Domain::Evals&>(*evals));
+  EXPECT_EQ(cpp_evals, c::base::native_cast(*evals));
   tachyon_bn254_univariate_evaluations_destroy(evals);
 }
 
@@ -71,17 +72,15 @@ TEST_F(UnivariateEvaluationDomainTest, FFT) {
       tachyon_bn254_univariate_evaluation_domain_fft(domain_,
                                                      c::base::c_cast(&poly));
   EXPECT_EQ(Domain::Create(kDegree + 1)->FFT(std::move(poly)),
-            reinterpret_cast<Domain::Evals&>(*evals));
+            c::base::native_cast(*evals));
   tachyon_bn254_univariate_evaluations_destroy(evals);
 }
 
 TEST_F(UnivariateEvaluationDomainTest, IFFT) {
   Domain::Evals evals = Domain::Evals::Random(kDegree);
   tachyon_bn254_univariate_dense_polynomial* poly =
-      tachyon_bn254_univariate_evaluation_domain_ifft(
-          domain_,
-          reinterpret_cast<const tachyon_bn254_univariate_evaluations*>(
-              &evals));
+      tachyon_bn254_univariate_evaluation_domain_ifft(domain_,
+                                                      c::base::c_cast(&evals));
   EXPECT_EQ(Domain::Create(kDegree + 1)->IFFT(std::move(evals)),
             c::base::native_cast(*poly));
   tachyon_bn254_univariate_dense_polynomial_destroy(poly);

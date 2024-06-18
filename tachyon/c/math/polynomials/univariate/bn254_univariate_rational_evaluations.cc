@@ -6,15 +6,17 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
-using namespace tachyon::math;
+using namespace tachyon;
 
-using Evals = UnivariateEvaluations<bn254::Fr, tachyon::c::math::kMaxDegree>;
-using RationalEvals = UnivariateEvaluations<RationalField<bn254::Fr>,
-                                            tachyon::c::math::kMaxDegree>;
+using Evals = math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
+using RationalEvals =
+    math::UnivariateEvaluations<math::RationalField<math::bn254::Fr>,
+                                c::math::kMaxDegree>;
 
 tachyon_bn254_univariate_rational_evaluations*
 tachyon_bn254_univariate_rational_evaluations_create() {
@@ -45,7 +47,7 @@ void tachyon_bn254_univariate_rational_evaluations_set_zero(
     tachyon_bn254_univariate_rational_evaluations* evals, size_t i) {
   // NOTE(chokobole): Boundary check is the responsibility of API callers.
   reinterpret_cast<RationalEvals&>(*evals).at(i) =
-      RationalField<bn254::Fr>::Zero();
+      math::RationalField<math::bn254::Fr>::Zero();
 }
 
 void tachyon_bn254_univariate_rational_evaluations_set_trivial(
@@ -53,7 +55,7 @@ void tachyon_bn254_univariate_rational_evaluations_set_trivial(
     const tachyon_bn254_fr* numerator) {
   // NOTE(chokobole): Boundary check is the responsibility of API callers.
   reinterpret_cast<RationalEvals&>(*evals).at(i) =
-      RationalField<bn254::Fr>(tachyon::c::base::native_cast(*numerator));
+      math::RationalField<math::bn254::Fr>(c::base::native_cast(*numerator));
 }
 
 void tachyon_bn254_univariate_rational_evaluations_set_rational(
@@ -61,8 +63,8 @@ void tachyon_bn254_univariate_rational_evaluations_set_rational(
     const tachyon_bn254_fr* numerator, const tachyon_bn254_fr* denominator) {
   // NOTE(chokobole): Boundary check is the responsibility of API callers.
   reinterpret_cast<RationalEvals&>(*evals).at(i) = {
-      tachyon::c::base::native_cast(*numerator),
-      tachyon::c::base::native_cast(*denominator),
+      c::base::native_cast(*numerator),
+      c::base::native_cast(*denominator),
   };
 }
 
@@ -71,9 +73,9 @@ tachyon_bn254_univariate_rational_evaluations_batch_evaluate(
     const tachyon_bn254_univariate_rational_evaluations* rational_evals) {
   const RationalEvals& cpp_rational_eval =
       reinterpret_cast<const RationalEvals&>(*rational_evals);
-  std::vector<bn254::Fr> cpp_values(cpp_rational_eval.NumElements());
-  CHECK(RationalField<bn254::Fr>::BatchEvaluate(cpp_rational_eval.evaluations(),
-                                                &cpp_values));
+  std::vector<math::bn254::Fr> cpp_values(cpp_rational_eval.NumElements());
+  CHECK(math::RationalField<math::bn254::Fr>::BatchEvaluate(
+      cpp_rational_eval.evaluations(), &cpp_values));
   Evals* cpp_evals = new Evals(Evals(std::move(cpp_values)));
-  return reinterpret_cast<tachyon_bn254_univariate_evaluations*>(cpp_evals);
+  return c::base::c_cast(cpp_evals);
 }

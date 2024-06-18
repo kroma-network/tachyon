@@ -10,6 +10,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
@@ -176,7 +177,7 @@ tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_shplonk_prover_commit_lagrange(
     const tachyon_halo2_bn254_shplonk_prover* prover,
     const tachyon_bn254_univariate_evaluations* evals) {
   return reinterpret_cast<const ProverImpl*>(prover)->CommitLagrange(
-      reinterpret_cast<const PCS::Domain::Evals&>(*evals).evaluations());
+      c::base::native_cast(*evals).evaluations());
 }
 
 void tachyon_halo2_bn254_shplonk_prover_set_rng_state(

@@ -8,6 +8,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -97,7 +98,7 @@ TEST_F(UnivariateRationalEvaluationsTest, BatchEvaluate) {
   std::vector<bn254::Fr> values;
   values.resize(rational_values.size());
   CHECK(RationalField<bn254::Fr>::BatchEvaluate(rational_values, &values));
-  EXPECT_EQ(reinterpret_cast<Evals&>(*evaluated).evaluations(), values);
+  EXPECT_EQ(c::base::native_cast(*evaluated).evaluations(), values);
 }
 
 }  // namespace tachyon::math
