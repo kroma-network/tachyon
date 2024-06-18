@@ -49,6 +49,18 @@ std::u16string ToUpperASCII(std::u16string_view str) {
   return internal::ToUpperASCIIImpl(str);
 }
 
+std::string CapitalizeASCII(std::string_view str) {
+  std::string ret = std::string(str);
+  if (!str.empty()) ret[0] = ToUpperASCII(str[0]);
+  return ret;
+}
+
+std::u16string CapitalizeASCII(std::u16string_view str) {
+  std::u16string ret = std::u16string(str);
+  if (!str.empty()) ret[0] = ToUpperASCII(str[0]);
+  return ret;
+}
+
 const std::string& EmptyString() {
   static const NoDestructor<std::string> s;
   return *s;

@@ -213,7 +213,7 @@ int GenerationConfig::GeneratePointSrc(std::string_view g1_or_g2,
       tpl_content, {{"%{header_dir_name}", c::math::GetLocation(type)},
                     {"%{type}", type},
                     {"%{g1_or_g2}", g1_or_g2},
-                    {"%{G1_or_G2}", base::ToUpperASCII(g1_or_g2)},
+                    {"%{G1_or_G2}", base::CapitalizeASCII(g1_or_g2)},
                     {"%{fq_or_fq2}", fq_or_fq2}});
   return WriteSrc(content);
 }
@@ -239,7 +239,7 @@ int GenerationConfig::GeneratePointTraitsHdr(std::string_view g1_or_g2) const {
                        {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{type}", type},
                        {"%{g1_or_g2}", g1_or_g2},
-                       {"%{G1_or_G2}", base::ToUpperASCII(g1_or_g2)},
+                       {"%{G1_or_G2}", base::CapitalizeASCII(g1_or_g2)},
                    });
   return WriteHdr(content, false);
 }
