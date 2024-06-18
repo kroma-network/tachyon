@@ -4,6 +4,7 @@
 
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -82,7 +83,7 @@ void tachyon_halo2_bn254_argument_data_add_instance_poly(
     tachyon_halo2_bn254_argument_data* data, size_t circuit_idx,
     tachyon_bn254_univariate_dense_polynomial* poly) {
   reinterpret_cast<Data*>(data)->instance_polys_vec()[circuit_idx].push_back(
-      std::move(reinterpret_cast<Poly&>(*poly)));
+      std::move(c::base::native_cast(*poly)));
   tachyon_bn254_univariate_dense_polynomial_destroy(poly);
 }
 

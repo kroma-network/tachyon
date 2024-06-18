@@ -13,6 +13,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g2_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g2_point_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/test/bn254_halo2_params_data.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
@@ -95,10 +96,8 @@ TEST_P(GWCProverTest, Getters) {
 
 TEST_P(GWCProverTest, Commit) {
   PCS::Domain::DensePoly poly = PCS::Domain::DensePoly::Random(5);
-  tachyon_bn254_g1_jacobian* point = tachyon_halo2_bn254_gwc_prover_commit(
-      prover_,
-      reinterpret_cast<const tachyon_bn254_univariate_dense_polynomial*>(
-          &poly));
+  tachyon_bn254_g1_jacobian* point =
+      tachyon_halo2_bn254_gwc_prover_commit(prover_, c::base::c_cast(&poly));
   EXPECT_EQ(
       (reinterpret_cast<Prover<PCS, LS>*>(prover_)->Commit(poly).ToJacobian()),
       c::base::native_cast(*point));
