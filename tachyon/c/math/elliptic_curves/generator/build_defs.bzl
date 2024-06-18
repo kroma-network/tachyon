@@ -4,13 +4,14 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
 def _generate_ec_point_impl(ctx):
     prime_field_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:prime_field.h.tpl)", [ctx.attr.prime_field_hdr_tpl_path])
     prime_field_src_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:prime_field.cc.tpl)", [ctx.attr.prime_field_src_tpl_path])
-    prime_field_traits_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:prime_field_traits.h.tpl)", [ctx.attr.prime_field_traits_hdr_tpl_path])
+    prime_field_type_traits_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:prime_field_type_traits.h.tpl)", [ctx.attr.prime_field_type_traits_hdr_tpl_path])
     ext_field_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:ext_field.h.tpl)", [ctx.attr.ext_field_hdr_tpl_path])
     ext_field_src_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:ext_field.cc.tpl)", [ctx.attr.ext_field_src_tpl_path])
-    ext_field_traits_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:ext_field_traits.h.tpl)", [ctx.attr.ext_field_traits_hdr_tpl_path])
+    ext_field_type_traits_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:ext_field_type_traits.h.tpl)", [ctx.attr.ext_field_type_traits_hdr_tpl_path])
     point_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:point.h.tpl)", [ctx.attr.point_hdr_tpl_path])
     point_src_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:point.cc.tpl)", [ctx.attr.point_src_tpl_path])
     point_traits_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:point_traits.h.tpl)", [ctx.attr.point_traits_hdr_tpl_path])
+    point_type_traits_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:point_type_traits.h.tpl)", [ctx.attr.point_type_traits_hdr_tpl_path])
     msm_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:msm.h.tpl)", [ctx.attr.msm_hdr_tpl_path])
     msm_src_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:msm.cc.tpl)", [ctx.attr.msm_src_tpl_path])
     msm_gpu_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:msm_gpu.h.tpl)", [ctx.attr.msm_gpu_hdr_tpl_path])
@@ -26,13 +27,14 @@ def _generate_ec_point_impl(ctx):
         "--has_specialized_g1_msm_kernels=%s" % (ctx.attr.has_specialized_g1_msm_kernels),
         "--prime_field_hdr_tpl_path=%s" % (prime_field_hdr_tpl_path),
         "--prime_field_src_tpl_path=%s" % (prime_field_src_tpl_path),
-        "--prime_field_traits_hdr_tpl_path=%s" % (prime_field_traits_hdr_tpl_path),
+        "--prime_field_type_traits_hdr_tpl_path=%s" % (prime_field_type_traits_hdr_tpl_path),
         "--ext_field_hdr_tpl_path=%s" % (ext_field_hdr_tpl_path),
         "--ext_field_src_tpl_path=%s" % (ext_field_src_tpl_path),
-        "--ext_field_traits_hdr_tpl_path=%s" % (ext_field_traits_hdr_tpl_path),
+        "--ext_field_type_traits_hdr_tpl_path=%s" % (ext_field_type_traits_hdr_tpl_path),
         "--point_hdr_tpl_path=%s" % (point_hdr_tpl_path),
         "--point_src_tpl_path=%s" % (point_src_tpl_path),
         "--point_traits_hdr_tpl_path=%s" % (point_traits_hdr_tpl_path),
+        "--point_type_traits_hdr_tpl_path=%s" % (point_type_traits_hdr_tpl_path),
         "--msm_hdr_tpl_path=%s" % (msm_hdr_tpl_path),
         "--msm_src_tpl_path=%s" % (msm_src_tpl_path),
         "--msm_gpu_hdr_tpl_path=%s" % (msm_gpu_hdr_tpl_path),
@@ -43,13 +45,14 @@ def _generate_ec_point_impl(ctx):
         inputs = [
             ctx.files.prime_field_hdr_tpl_path[0],
             ctx.files.prime_field_src_tpl_path[0],
-            ctx.files.prime_field_traits_hdr_tpl_path[0],
+            ctx.files.prime_field_type_traits_hdr_tpl_path[0],
             ctx.files.ext_field_hdr_tpl_path[0],
             ctx.files.ext_field_src_tpl_path[0],
-            ctx.files.ext_field_traits_hdr_tpl_path[0],
+            ctx.files.ext_field_type_traits_hdr_tpl_path[0],
             ctx.files.point_hdr_tpl_path[0],
             ctx.files.point_src_tpl_path[0],
             ctx.files.point_traits_hdr_tpl_path[0],
+            ctx.files.point_type_traits_hdr_tpl_path[0],
             ctx.files.msm_hdr_tpl_path[0],
             ctx.files.msm_src_tpl_path[0],
             ctx.files.msm_gpu_hdr_tpl_path[0],
@@ -81,9 +84,9 @@ generate_ec_point = rule(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:prime_field.cc.tpl"),
         ),
-        "prime_field_traits_hdr_tpl_path": attr.label(
+        "prime_field_type_traits_hdr_tpl_path": attr.label(
             allow_single_file = True,
-            default = Label("@kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:prime_field_traits.h.tpl"),
+            default = Label("@kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:prime_field_type_traits.h.tpl"),
         ),
         "ext_field_hdr_tpl_path": attr.label(
             allow_single_file = True,
@@ -93,9 +96,9 @@ generate_ec_point = rule(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:ext_field.cc.tpl"),
         ),
-        "ext_field_traits_hdr_tpl_path": attr.label(
+        "ext_field_type_traits_hdr_tpl_path": attr.label(
             allow_single_file = True,
-            default = Label("@kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:ext_field_traits.h.tpl"),
+            default = Label("@kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:ext_field_type_traits.h.tpl"),
         ),
         "point_hdr_tpl_path": attr.label(
             allow_single_file = True,
@@ -108,6 +111,10 @@ generate_ec_point = rule(
         "point_traits_hdr_tpl_path": attr.label(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:point_traits.h.tpl"),
+        ),
+        "point_type_traits_hdr_tpl_path": attr.label(
+            allow_single_file = True,
+            default = Label("@kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:point_type_traits.h.tpl"),
         ),
         "msm_hdr_tpl_path": attr.label(
             allow_single_file = True,
@@ -158,17 +165,19 @@ def generate_ec_points(
         ("gen_fq6_src", "fq6.cc", 6, 2),
         ("gen_fq12_hdr", "fq12.h", 12, 6),
         ("gen_fq12_src", "fq12.cc", 12, 6),
-        ("gen_fq2_traits_hdr", "fq2_traits.h", 2, 1),
-        ("gen_fq6_traits_hdr", "fq6_traits.h", 6, 2),
-        ("gen_fq12_traits_hdr", "fq12_traits.h", 12, 6),
+        ("gen_fq2_type_traits_hdr", "fq2_type_traits.h", 2, 1),
+        ("gen_fq6_type_traits_hdr", "fq6_type_traits.h", 6, 2),
+        ("gen_fq12_type_traits_hdr", "fq12_type_traits.h", 12, 6),
         ("gen_g1_hdr", "g1.h", 0, 0),
         ("gen_g1_src", "g1.cc", 0, 0),
         ("gen_g2_hdr", "g2.h", 0, 0),
         ("gen_g2_src", "g2.cc", 0, 0),
-        ("gen_fq_traits", "fq_traits.h", 0, 0),
-        ("gen_fr_traits", "fr_traits.h", 0, 0),
+        ("gen_fq_type_traits", "fq_type_traits.h", 0, 0),
+        ("gen_fr_type_traits", "fr_type_traits.h", 0, 0),
         ("gen_g1_point_traits", "g1_point_traits.h", 0, 0),
         ("gen_g2_point_traits", "g2_point_traits.h", 0, 0),
+        ("gen_g1_point_type_traits", "g1_point_type_traits.h", 0, 0),
+        ("gen_g2_point_type_traits", "g2_point_type_traits.h", 0, 0),
         ("gen_msm_hdr", "msm.h", 0, 0),
         ("gen_msm_src", "msm.cc", 0, 0),
         ("gen_msm_gpu_hdr", "msm_gpu.h", 0, 0),
@@ -189,7 +198,7 @@ def generate_ec_points(
         name = "fq",
         hdrs = [
             "fq.h",
-            "fq_traits.h",
+            "fq_type_traits.h",
         ],
         srcs = ["fq.cc"],
         deps = g1_deps + [
@@ -202,7 +211,7 @@ def generate_ec_points(
         name = "fr",
         hdrs = [
             "fr.h",
-            "fr_traits.h",
+            "fr_type_traits.h",
         ],
         srcs = ["fr.cc"],
         deps = g1_deps + [
@@ -215,7 +224,7 @@ def generate_ec_points(
         name = "fq2",
         hdrs = [
             "fq2.h",
-            "fq2_traits.h",
+            "fq2_type_traits.h",
         ],
         srcs = ["fq2.cc"],
         deps = fq2_deps + [":fq"],
@@ -225,7 +234,7 @@ def generate_ec_points(
         name = "fq6",
         hdrs = [
             "fq6.h",
-            "fq6_traits.h",
+            "fq6_type_traits.h",
         ],
         srcs = ["fq6.cc"],
         deps = fq6_deps + [":fq2"],
@@ -235,7 +244,7 @@ def generate_ec_points(
         name = "fq12",
         hdrs = [
             "fq12.h",
-            "fq12_traits.h",
+            "fq12_type_traits.h",
         ],
         srcs = ["fq12.cc"],
         deps = fq12_deps + [":fq6"],
@@ -246,12 +255,13 @@ def generate_ec_points(
         hdrs = [
             "g1.h",
             "g1_point_traits.h",
+            "g1_point_type_traits.h",
         ],
         srcs = ["g1.cc"],
         deps = [
             ":fq",
             ":fr",
-            "//tachyon/c/math/elliptic_curves:point_conversions",
+            "//tachyon/c/math/elliptic_curves:point_traits_forward",
         ],
     )
 
@@ -260,12 +270,13 @@ def generate_ec_points(
         hdrs = [
             "g2.h",
             "g2_point_traits.h",
+            "g2_point_type_traits.h",
         ],
         srcs = ["g2.cc"],
         deps = g2_deps + [
             ":fq2",
             ":fr",
-            "//tachyon/c/math/elliptic_curves:point_conversions",
+            "//tachyon/c/math/elliptic_curves:point_traits_forward",
         ],
     )
 

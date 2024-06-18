@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"

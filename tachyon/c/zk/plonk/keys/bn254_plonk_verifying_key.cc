@@ -1,6 +1,6 @@
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_verifying_key.h"
 
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 

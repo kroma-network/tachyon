@@ -4,10 +4,9 @@
 #include <tuple>
 
 #include "tachyon/base/console/console_stream.h"
+#include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
-#include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
-#include "tachyon/math/elliptic_curves/point_conversions.h"
 
 namespace tachyon::c::math {
 
@@ -44,7 +43,7 @@ CRetPoint* DoMSM(MSMApi<Point>& msm_api, const CPoint* bases,
                         &bucket));
   auto ret = tachyon::math::ConvertPoint<RetPoint>(bucket);
   CRetPoint* cret = new CRetPoint();
-  ToCPoint3(ret, cret);
+  *cret = c::base::c_cast(ret);
   return cret;
 }
 

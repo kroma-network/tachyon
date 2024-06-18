@@ -37,7 +37,7 @@ tachyon_cc_library(
     deps = [
         ":msm_input_provider",
         "//tachyon/base/console",
-        "//tachyon/c/math/elliptic_curves:point_conversions",
+        "//tachyon/c/base:type_traits_forward",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
     ],
 )
@@ -51,7 +51,7 @@ tachyon_cc_library(
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/console",
         "//tachyon/base/files:file_util",
-        "//tachyon/c/math/elliptic_curves:point_conversions",
+        "//tachyon/c/base:type_traits_forward",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm_gpu",

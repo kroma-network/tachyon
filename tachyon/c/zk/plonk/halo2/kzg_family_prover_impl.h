@@ -8,6 +8,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/logging.h"
+#include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/c/zk/plonk/halo2/prover_impl_base.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
@@ -46,8 +47,7 @@ class KZGFamilyProverImpl : public ProverImplBase<PCS, LS> {
     absl::Span<const AffinePoint> bases_span(
         bases.data(), std::min(bases.size(), scalars.size()));
     CHECK(msm.Run(bases_span, scalars, &bucket));
-    JacobianPoint* ret = new JacobianPoint(bucket.ToJacobian());
-    return reinterpret_cast<CJacobianPoint*>(ret);
+    return base::c_cast(new JacobianPoint(bucket.ToJacobian()));
   }
 };
 

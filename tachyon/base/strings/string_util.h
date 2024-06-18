@@ -42,6 +42,11 @@ TACHYON_EXPORT std::u16string ToLowerASCII(std::u16string_view str);
 TACHYON_EXPORT std::string ToUpperASCII(std::string_view str);
 TACHYON_EXPORT std::u16string ToUpperASCII(std::u16string_view str);
 
+// Capitalize the given string. Non-ASCII bytes (or UTF-16 code units in
+// `std::u16string_view`) are permitted but will be unmodified.
+TACHYON_EXPORT std::string CapitalizeASCII(std::string_view str);
+TACHYON_EXPORT std::u16string CapitalizeASCII(std::u16string_view str);
+
 // Like strcasecmp for ASCII case-insensitive comparisons only. Returns:
 //   -1  (a < b)
 //    0  (a == b)

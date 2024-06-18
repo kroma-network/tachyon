@@ -15,5 +15,5 @@ struct TypeTraits<tachyon::math::%{type}::%{Suffix}> {
   using CType = tachyon_%{type}_%{suffix};
 };
 
-}  // namespace tachyon::cc::math
+}  // namespace tachyon::c::base
 // clang-format on

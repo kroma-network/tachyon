@@ -15,6 +15,7 @@
 #include "tachyon/base/functional/functor_traits.h"
 #include "tachyon/base/time/time.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 
 namespace tachyon {
@@ -74,12 +75,10 @@ class FFTRunner {
       std::unique_ptr<F> ret;
       if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
         const F omega_inv = domains_[i]->group_gen_inv();
-        ret.reset(reinterpret_cast<F*>(
-            fn(reinterpret_cast<const tachyon_bn254_fr*>(
-                   (*polys_)[i].evaluations().data()),
-               (*polys_)[i].Degree(),
-               reinterpret_cast<const tachyon_bn254_fr*>(&omega_inv),
-               exponents[i], &duration_in_us)));
+        ret.reset(c::base::native_cast(
+            fn(c::base::c_cast((*polys_)[i].evaluations().data()),
+               (*polys_)[i].Degree(), c::base::c_cast(&omega_inv), exponents[i],
+               &duration_in_us)));
         std::vector<F> res_vec(ret.get(), ret.get() + (*polys_)[i].Degree());
         results->emplace_back(
             typename RetPoly::Coefficients(std::move(res_vec)));
@@ -87,12 +86,10 @@ class FFTRunner {
       } else if constexpr (std::is_same_v<PolyOrEvals,
                                           typename Domain::DensePoly>) {
         const F omega = domains_[i]->group_gen();
-        ret.reset(reinterpret_cast<F*>(
-            fn(reinterpret_cast<const tachyon_bn254_fr*>(
-                   (*polys_)[i].coefficients().coefficients().data()),
-               (*polys_)[i].Degree(),
-               reinterpret_cast<const tachyon_bn254_fr*>(&omega), exponents[i],
-               &duration_in_us)));
+        ret.reset(c::base::native_cast(fn(
+            c::base::c_cast((*polys_)[i].coefficients().coefficients().data()),
+            (*polys_)[i].Degree(), c::base::c_cast(&omega), exponents[i],
+            &duration_in_us)));
         std::vector<F> res_vec(ret.get(), ret.get() + (*polys_)[i].Degree());
         results->emplace_back(std::move(res_vec));
       }

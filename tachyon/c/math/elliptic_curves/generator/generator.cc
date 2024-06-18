@@ -15,13 +15,14 @@ namespace tachyon {
 struct GenerationConfig : public build::CcWriter {
   base::FilePath prime_field_hdr_tpl_path;
   base::FilePath prime_field_src_tpl_path;
-  base::FilePath prime_field_traits_hdr_tpl_path;
+  base::FilePath prime_field_type_traits_hdr_tpl_path;
   base::FilePath ext_field_hdr_tpl_path;
   base::FilePath ext_field_src_tpl_path;
-  base::FilePath ext_field_traits_hdr_tpl_path;
+  base::FilePath ext_field_type_traits_hdr_tpl_path;
   base::FilePath point_hdr_tpl_path;
   base::FilePath point_src_tpl_path;
   base::FilePath point_traits_hdr_tpl_path;
+  base::FilePath point_type_traits_hdr_tpl_path;
   base::FilePath msm_hdr_tpl_path;
   base::FilePath msm_src_tpl_path;
   base::FilePath msm_gpu_hdr_tpl_path;
@@ -36,27 +37,32 @@ struct GenerationConfig : public build::CcWriter {
 
   int GeneratePrimeFieldHdr(std::string_view suffix) const;
   int GeneratePrimeFieldSrc(std::string_view suffix) const;
-  int GeneratePrimeFieldTraitsHdr(std::string_view suffix) const;
+  int GeneratePrimeFieldTypeTraitsHdr(std::string_view suffix) const;
   int GenerateFqHdr() const;
   int GenerateFqSrc() const;
-  int GenerateFqTraitsHdr() const;
+  int GenerateFqTypeTraitsHdr() const;
   int GenerateFrHdr() const;
   int GenerateFrSrc() const;
-  int GenerateFrTraitsHdr() const;
+  int GenerateFrTypeTraitsHdr() const;
   int GenerateExtFieldHdr() const;
   int GenerateExtFieldSrc() const;
-  int GenerateExtFieldTraitsHdr() const;
+  int GenerateExtFieldTypeTraitsHdr() const;
   int GeneratePointHdr(std::string_view g1_or_g2,
-                       std::string_view base_field) const;
+                       std::string_view fq_or_fq2) const;
   int GeneratePointSrc(std::string_view g1_or_g2,
-                       std::string_view base_field_trait_header) const;
-  int GeneratePointTraitsHdr(std::string_view g1_or_g2) const;
+                       std::string_view fq_or_fq2) const;
+  int GeneratePointTraitsHdr(std::string_view g1_or_g2,
+                             std::string_view fq_or_fq2) const;
+  int GeneratePointTypeTraitsHdr(std::string_view g1_or_g2,
+                                 std::string_view fq_or_fq2) const;
   int GenerateG1Hdr() const;
   int GenerateG1Src() const;
   int GenerateG1TraitsHdr() const;
+  int GenerateG1TypeTraitsHdr() const;
   int GenerateG2Hdr() const;
   int GenerateG2Src() const;
   int GenerateG2TraitsHdr() const;
+  int GenerateG2TypeTraitsHdr() const;
   int GenerateMSMHdr() const;
   int GenerateMSMSrc() const;
   int GenerateMSMGpuHdr() const;
@@ -91,10 +97,11 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   return WriteSrc(content);
 }
 
-int GenerationConfig::GeneratePrimeFieldTraitsHdr(
+int GenerationConfig::GeneratePrimeFieldTypeTraitsHdr(
     std::string_view suffix) const {
   std::string tpl_content;
-  CHECK(base::ReadFileToString(prime_field_traits_hdr_tpl_path, &tpl_content));
+  CHECK(base::ReadFileToString(prime_field_type_traits_hdr_tpl_path,
+                               &tpl_content));
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {
@@ -114,8 +121,8 @@ int GenerationConfig::GenerateFqSrc() const {
   return GeneratePrimeFieldSrc("fq");
 }
 
-int GenerationConfig::GenerateFqTraitsHdr() const {
-  return GeneratePrimeFieldTraitsHdr("fq");
+int GenerationConfig::GenerateFqTypeTraitsHdr() const {
+  return GeneratePrimeFieldTypeTraitsHdr("fq");
 }
 
 int GenerationConfig::GenerateFrHdr() const {
@@ -126,8 +133,8 @@ int GenerationConfig::GenerateFrSrc() const {
   return GeneratePrimeFieldSrc("fr");
 }
 
-int GenerationConfig::GenerateFrTraitsHdr() const {
-  return GeneratePrimeFieldTraitsHdr("fr");
+int GenerationConfig::GenerateFrTypeTraitsHdr() const {
+  return GeneratePrimeFieldTypeTraitsHdr("fr");
 }
 
 int GenerationConfig::GenerateExtFieldHdr() const {
@@ -167,9 +174,10 @@ int GenerationConfig::GenerateExtFieldSrc() const {
   return WriteSrc(content);
 }
 
-int GenerationConfig::GenerateExtFieldTraitsHdr() const {
+int GenerationConfig::GenerateExtFieldTypeTraitsHdr() const {
   std::string tpl_content;
-  CHECK(base::ReadFileToString(ext_field_traits_hdr_tpl_path, &tpl_content));
+  CHECK(
+      base::ReadFileToString(ext_field_type_traits_hdr_tpl_path, &tpl_content));
 
   std::string content = absl::StrReplaceAll(
       tpl_content,
@@ -182,7 +190,7 @@ int GenerationConfig::GenerateExtFieldTraitsHdr() const {
 }
 
 int GenerationConfig::GeneratePointHdr(std::string_view g1_or_g2,
-                                       std::string_view base_field) const {
+                                       std::string_view fq_or_fq2) const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(point_hdr_tpl_path, &tpl_content));
 
@@ -190,7 +198,7 @@ int GenerationConfig::GeneratePointHdr(std::string_view g1_or_g2,
       tpl_content, {{"%{header_dir_name}", c::math::GetLocation(type)},
                     {"%{type}", type},
                     {"%{g1_or_g2}", g1_or_g2},
-                    {"%{base_field}", base_field}});
+                    {"%{fq_or_fq2}", fq_or_fq2}});
   return WriteHdr(content, true);
 }
 
@@ -202,8 +210,8 @@ int GenerationConfig::GenerateG2Hdr() const {
   return GeneratePointHdr("g2", "fq2");
 }
 
-int GenerationConfig::GeneratePointSrc(
-    std::string_view g1_or_g2, std::string_view base_field_trait_header) const {
+int GenerationConfig::GeneratePointSrc(std::string_view g1_or_g2,
+                                       std::string_view fq_or_fq2) const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(point_src_tpl_path, &tpl_content));
 
@@ -211,43 +219,66 @@ int GenerationConfig::GeneratePointSrc(
       tpl_content, {{"%{header_dir_name}", c::math::GetLocation(type)},
                     {"%{type}", type},
                     {"%{g1_or_g2}", g1_or_g2},
-                    {"%{G1_or_G2}", base::ToUpperASCII(g1_or_g2)},
-                    {"%{base_field_trait_header}", base_field_trait_header}});
+                    {"%{G1_or_G2}", base::CapitalizeASCII(g1_or_g2)},
+                    {"%{fq_or_fq2}", fq_or_fq2}});
   return WriteSrc(content);
 }
 
 int GenerationConfig::GenerateG1Src() const {
-  return GeneratePointSrc("g1", "fq_traits.h");
+  return GeneratePointSrc("g1", "fq");
 }
 
 int GenerationConfig::GenerateG2Src() const {
-  return GeneratePointSrc("g2", "fq2_traits.h");
+  return GeneratePointSrc("g2", "fq2");
 }
 
-int GenerationConfig::GeneratePointTraitsHdr(std::string_view g1_or_g2) const {
+int GenerationConfig::GeneratePointTraitsHdr(std::string_view g1_or_g2,
+                                             std::string_view fq_or_fq2) const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(point_traits_hdr_tpl_path, &tpl_content));
-
-  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
-  RemoveOptionalLines(tpl_lines, "IsG2", g1_or_g2 == "g2");
-  tpl_content = absl::StrJoin(tpl_lines, "\n");
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{type}", type},
                        {"%{g1_or_g2}", g1_or_g2},
-                       {"%{G1_or_G2}", base::ToUpperASCII(g1_or_g2)},
+                       {"%{G1_or_G2}", base::CapitalizeASCII(g1_or_g2)},
+                       {"%{fq_or_fq2}", fq_or_fq2},
+                       {"%{Fq_or_Fq2}", base::CapitalizeASCII(fq_or_fq2)},
                    });
   return WriteHdr(content, false);
 }
 
 int GenerationConfig::GenerateG1TraitsHdr() const {
-  return GeneratePointTraitsHdr("g1");
+  return GeneratePointTraitsHdr("g1", "fq");
 }
 
 int GenerationConfig::GenerateG2TraitsHdr() const {
-  return GeneratePointTraitsHdr("g2");
+  return GeneratePointTraitsHdr("g2", "fq2");
+}
+
+int GenerationConfig::GeneratePointTypeTraitsHdr(
+    std::string_view g1_or_g2, std::string_view fq_or_fq2) const {
+  std::string tpl_content;
+  CHECK(base::ReadFileToString(point_type_traits_hdr_tpl_path, &tpl_content));
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
+                       {"%{type}", type},
+                       {"%{g1_or_g2}", g1_or_g2},
+                       {"%{G1_or_G2}", base::CapitalizeASCII(g1_or_g2)},
+                       {"%{Fq_or_Fq2}", base::CapitalizeASCII(fq_or_fq2)},
+                   });
+  return WriteHdr(content, false);
+}
+
+int GenerationConfig::GenerateG1TypeTraitsHdr() const {
+  return GeneratePointTypeTraitsHdr("g1", "fq");
+}
+
+int GenerationConfig::GenerateG2TypeTraitsHdr() const {
+  return GeneratePointTypeTraitsHdr("g2", "fq2");
 }
 
 int GenerationConfig::GenerateMSMHdr() const {
@@ -331,8 +362,9 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::FilePathFlag>(&config.prime_field_src_tpl_path)
       .set_long_name("--prime_field_src_tpl_path")
       .set_required();
-  parser.AddFlag<base::FilePathFlag>(&config.prime_field_traits_hdr_tpl_path)
-      .set_long_name("--prime_field_traits_hdr_tpl_path")
+  parser
+      .AddFlag<base::FilePathFlag>(&config.prime_field_type_traits_hdr_tpl_path)
+      .set_long_name("--prime_field_type_traits_hdr_tpl_path")
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.ext_field_hdr_tpl_path)
       .set_long_name("--ext_field_hdr_tpl_path")
@@ -340,8 +372,8 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::FilePathFlag>(&config.ext_field_src_tpl_path)
       .set_long_name("--ext_field_src_tpl_path")
       .set_required();
-  parser.AddFlag<base::FilePathFlag>(&config.ext_field_traits_hdr_tpl_path)
-      .set_long_name("--ext_field_traits_hdr_tpl_path")
+  parser.AddFlag<base::FilePathFlag>(&config.ext_field_type_traits_hdr_tpl_path)
+      .set_long_name("--ext_field_type_traits_hdr_tpl_path")
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.point_hdr_tpl_path)
       .set_long_name("--point_hdr_tpl_path")
@@ -351,6 +383,9 @@ int RealMain(int argc, char** argv) {
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.point_traits_hdr_tpl_path)
       .set_long_name("--point_traits_hdr_tpl_path")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.point_type_traits_hdr_tpl_path)
+      .set_long_name("--point_type_traits_hdr_tpl_path")
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.msm_hdr_tpl_path)
       .set_long_name("--msm_hdr_tpl_path")
@@ -378,32 +413,37 @@ int RealMain(int argc, char** argv) {
     return config.GenerateFqHdr();
   } else if (base::EndsWith(config.out.value(), "fq.cc")) {
     return config.GenerateFqSrc();
-  } else if (base::EndsWith(config.out.value(), "fq_traits.h")) {
-    return config.GenerateFqTraitsHdr();
+  } else if (base::EndsWith(config.out.value(), "fq_type_traits.h")) {
+    return config.GenerateFqTypeTraitsHdr();
   } else if (base::EndsWith(config.out.value(), "fr.h")) {
     return config.GenerateFrHdr();
   } else if (base::EndsWith(config.out.value(), "fr.cc")) {
     return config.GenerateFrSrc();
-  } else if (base::EndsWith(config.out.value(), "fr_traits.h")) {
-    return config.GenerateFrTraitsHdr();
+  } else if (base::EndsWith(config.out.value(), "fr_type_traits.h")) {
+    return config.GenerateFrTypeTraitsHdr();
   } else if (base::EndsWith(config.out.value(), ext_field_name + ".h")) {
     return config.GenerateExtFieldHdr();
   } else if (base::EndsWith(config.out.value(), ext_field_name + ".cc")) {
     return config.GenerateExtFieldSrc();
-  } else if (base::EndsWith(config.out.value(), ext_field_name + "_traits.h")) {
-    return config.GenerateExtFieldTraitsHdr();
+  } else if (base::EndsWith(config.out.value(),
+                            ext_field_name + "_type_traits.h")) {
+    return config.GenerateExtFieldTypeTraitsHdr();
   } else if (base::EndsWith(config.out.value(), "g1.h")) {
     return config.GenerateG1Hdr();
   } else if (base::EndsWith(config.out.value(), "g1.cc")) {
     return config.GenerateG1Src();
   } else if (base::EndsWith(config.out.value(), "g1_point_traits.h")) {
     return config.GenerateG1TraitsHdr();
+  } else if (base::EndsWith(config.out.value(), "g1_point_type_traits.h")) {
+    return config.GenerateG1TypeTraitsHdr();
   } else if (base::EndsWith(config.out.value(), "g2.h")) {
     return config.GenerateG2Hdr();
   } else if (base::EndsWith(config.out.value(), "g2.cc")) {
     return config.GenerateG2Src();
   } else if (base::EndsWith(config.out.value(), "g2_point_traits.h")) {
     return config.GenerateG2TraitsHdr();
+  } else if (base::EndsWith(config.out.value(), "g2_point_type_traits.h")) {
+    return config.GenerateG2TypeTraitsHdr();
   } else if (base::EndsWith(config.out.value(), "msm.h")) {
     return config.GenerateMSMHdr();
   } else if (base::EndsWith(config.out.value(), "msm.cc")) {

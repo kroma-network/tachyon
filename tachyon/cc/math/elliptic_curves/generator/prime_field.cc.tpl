@@ -1,5 +1,5 @@
 // clang-format off
-#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{suffix}_traits.h"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{suffix}_type_traits.h"
 
 namespace tachyon::cc::math::%{type} {
 

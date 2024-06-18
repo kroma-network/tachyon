@@ -3,10 +3,10 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/bits.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fq_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fq_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_test.h"
-#include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
@@ -43,22 +43,20 @@ TEST_F(MSMTest, MSMPoint2) {
         base::CreateVector(t.bases.size(), [&t](size_t i) {
           return Point2<bn254::Fq>(t.bases[i].x(), t.bases[i].y());
         });
-    ret.reset(tachyon_bn254_g1_point2_msm(
-        msm_, reinterpret_cast<const tachyon_bn254_g1_point2*>(bases.data()),
-        reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
-        t.scalars.size()));
-    EXPECT_EQ(c::math::ToJacobianPoint(*ret), t.answer.ToJacobian());
+    ret.reset(tachyon_bn254_g1_point2_msm(msm_, c::base::c_cast(bases.data()),
+                                          c::base::c_cast(t.scalars.data()),
+                                          t.scalars.size()));
+    EXPECT_EQ(c::base::native_cast(*ret), t.answer.ToJacobian());
   }
 }
 
 TEST_F(MSMTest, MSMG1Affine) {
   for (const VariableBaseMSMTestSet<bn254::G1AffinePoint>& t : test_sets_) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
-    ret.reset(tachyon_bn254_g1_affine_msm(
-        msm_, reinterpret_cast<const tachyon_bn254_g1_affine*>(t.bases.data()),
-        reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
-        t.scalars.size()));
-    EXPECT_EQ(c::math::ToJacobianPoint(*ret), t.answer.ToJacobian());
+    ret.reset(tachyon_bn254_g1_affine_msm(msm_, c::base::c_cast(t.bases.data()),
+                                          c::base::c_cast(t.scalars.data()),
+                                          t.scalars.size()));
+    EXPECT_EQ(c::base::native_cast(*ret), t.answer.ToJacobian());
   }
 }
 

@@ -9,7 +9,7 @@
  */
 
 #include "tachyon/c/export.h"
-#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{base_field}.h"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{fq_or_fq2}.h"
 
 /**
  * @struct tachyon_%{type}_%{g1_or_g2}_affine
@@ -20,8 +20,8 @@
  * @example affine_point.cc
  */
 struct tachyon_%{type}_%{g1_or_g2}_affine {
-  tachyon_%{type}_%{base_field} x;
-  tachyon_%{type}_%{base_field} y;
+  tachyon_%{type}_%{fq_or_fq2} x;
+  tachyon_%{type}_%{fq_or_fq2} y;
 };
 
 /**
@@ -34,9 +34,9 @@ struct tachyon_%{type}_%{g1_or_g2}_affine {
  * @example projective_point.cc
  */
 struct tachyon_%{type}_%{g1_or_g2}_projective {
-  tachyon_%{type}_%{base_field} x;
-  tachyon_%{type}_%{base_field} y;
-  tachyon_%{type}_%{base_field} z;
+  tachyon_%{type}_%{fq_or_fq2} x;
+  tachyon_%{type}_%{fq_or_fq2} y;
+  tachyon_%{type}_%{fq_or_fq2} z;
 };
 
 /**
@@ -48,9 +48,9 @@ struct tachyon_%{type}_%{g1_or_g2}_projective {
  * @example jacobian_point.cc
  */
 struct tachyon_%{type}_%{g1_or_g2}_jacobian {
-  tachyon_%{type}_%{base_field} x;
-  tachyon_%{type}_%{base_field} y;
-  tachyon_%{type}_%{base_field} z;
+  tachyon_%{type}_%{fq_or_fq2} x;
+  tachyon_%{type}_%{fq_or_fq2} y;
+  tachyon_%{type}_%{fq_or_fq2} z;
 };
 
 /**
@@ -62,10 +62,10 @@ struct tachyon_%{type}_%{g1_or_g2}_jacobian {
  * @example point_xyzz.cc
  */
 struct tachyon_%{type}_%{g1_or_g2}_xyzz {
-  tachyon_%{type}_%{base_field} x;
-  tachyon_%{type}_%{base_field} y;
-  tachyon_%{type}_%{base_field} zz;
-  tachyon_%{type}_%{base_field} zzz;
+  tachyon_%{type}_%{fq_or_fq2} x;
+  tachyon_%{type}_%{fq_or_fq2} y;
+  tachyon_%{type}_%{fq_or_fq2} zz;
+  tachyon_%{type}_%{fq_or_fq2} zzz;
 };
 
 /**
@@ -76,8 +76,8 @@ struct tachyon_%{type}_%{g1_or_g2}_xyzz {
  * and the point is known not to be at infinity.
  */
 struct tachyon_%{type}_%{g1_or_g2}_point2 {
-  tachyon_%{type}_%{base_field} x;
-  tachyon_%{type}_%{base_field} y;
+  tachyon_%{type}_%{fq_or_fq2} x;
+  tachyon_%{type}_%{fq_or_fq2} y;
 };
 
 /**
@@ -88,9 +88,9 @@ struct tachyon_%{type}_%{g1_or_g2}_point2 {
  * a third coordinate is necessary for the calculations.
  */
 struct tachyon_%{type}_%{g1_or_g2}_point3 {
-  tachyon_%{type}_%{base_field} x;
-  tachyon_%{type}_%{base_field} y;
-  tachyon_%{type}_%{base_field} z;
+  tachyon_%{type}_%{fq_or_fq2} x;
+  tachyon_%{type}_%{fq_or_fq2} y;
+  tachyon_%{type}_%{fq_or_fq2} z;
 };
 
 /**
@@ -101,10 +101,10 @@ struct tachyon_%{type}_%{g1_or_g2}_point3 {
  * efficient computation, such as certain multi-scalar multiplication techniques.
  */
 struct tachyon_%{type}_%{g1_or_g2}_point4 {
-  tachyon_%{type}_%{base_field} x;
-  tachyon_%{type}_%{base_field} y;
-  tachyon_%{type}_%{base_field} z;
-  tachyon_%{type}_%{base_field} w;
+  tachyon_%{type}_%{fq_or_fq2} x;
+  tachyon_%{type}_%{fq_or_fq2} y;
+  tachyon_%{type}_%{fq_or_fq2} z;
+  tachyon_%{type}_%{fq_or_fq2} w;
 };
 
 %{extern_c_front}

@@ -1,6 +1,6 @@
 // clang-format off
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fq%{degree}_traits.h"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fq%{degree}_type_traits.h"
 
 tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_zero() {
   using namespace tachyon::c::base;

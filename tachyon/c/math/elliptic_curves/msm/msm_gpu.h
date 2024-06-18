@@ -9,9 +9,9 @@
 #include "tachyon/base/console/console_stream.h"
 #include "tachyon/base/environment.h"
 #include "tachyon/base/files/file_util.h"
+#include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/c/math/elliptic_curves/msm/algorithm.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
-#include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
@@ -112,7 +112,7 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
   CHECK(
       msm_api.msm->Run(msm_api.d_bases, msm_api.d_scalars, aligned_size, &ret));
   CRetPoint* cret = new CRetPoint();
-  ToCPoint3(ret, cret);
+  *cret = c::base::c_cast(ret);
 
   if (msm_api.log_msm) {
     // NOTE(chokobole): This should be replaced with VLOG().

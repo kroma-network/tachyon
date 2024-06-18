@@ -16,7 +16,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/time/time.h"
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
 
@@ -56,7 +56,7 @@ class PoseidonBenchmarkRunner {
       ret.reset(fn(&duration_in_us));
       reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
     }
-    return *reinterpret_cast<Field*>(ret.get());
+    return *c::base::native_cast(ret.get());
   }
 
  private:

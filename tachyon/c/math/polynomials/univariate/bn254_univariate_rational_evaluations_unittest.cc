@@ -6,7 +6,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"

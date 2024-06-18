@@ -7,6 +7,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/geometry/point2.h"
 
@@ -38,8 +39,7 @@ class MSMInputProvider {
       OPENMP_PARALLEL_FOR(size_t i = 0; i < aligned_size; ++i) {
         if (i < size) {
           bases_owned_[i] = reinterpret_cast<const AffinePoint*>(bases_in)[i];
-          scalars_owned_[i] =
-              reinterpret_cast<const ScalarField*>(scalars_in)[i];
+          scalars_owned_[i] = base::native_cast(scalars_in)[i];
         } else {
           bases_owned_[i] = AffinePoint::Zero();
           scalars_owned_[i] = ScalarField::Zero();
@@ -50,8 +50,7 @@ class MSMInputProvider {
     } else {
       bases_ = absl::MakeConstSpan(
           reinterpret_cast<const AffinePoint*>(bases_in), size);
-      scalars_ = absl::MakeConstSpan(
-          reinterpret_cast<const ScalarField*>(scalars_in), size);
+      scalars_ = absl::MakeConstSpan(base::native_cast(scalars_in), size);
     }
   }
 

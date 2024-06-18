@@ -1,5 +1,6 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations.h"
 
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -35,5 +36,5 @@ void tachyon_bn254_univariate_evaluations_set_value(
     const tachyon_bn254_fr* value) {
   // NOTE(chokobole): Boundary check is the responsibility of API callers.
   reinterpret_cast<Evals&>(*evals).at(i) =
-      reinterpret_cast<const bn254::Fr&>(*value);
+      tachyon::c::base::native_cast(*value);
 }

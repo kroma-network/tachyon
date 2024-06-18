@@ -10,6 +10,7 @@
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
 // clang-format on
 #include "tachyon/base/time/time.h"
+#include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/base/semigroups.h"
 
@@ -47,11 +48,10 @@ class MSMRunner {
     for (size_t i = 0; i < point_nums.size(); ++i) {
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CRetPoint> ret;
-      ret.reset(fn(msm, reinterpret_cast<const CPoint*>(bases_->data()),
-                   reinterpret_cast<const CScalarField*>(scalars_->data()),
-                   point_nums[i]));
+      ret.reset(fn(msm, c::base::c_cast(bases_->data()),
+                   c::base::c_cast(scalars_->data()), point_nums[i]));
       reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
-      results->push_back(*reinterpret_cast<RetPoint*>(ret.get()));
+      results->push_back(*c::base::native_cast(ret.get()));
     }
   }
 
@@ -61,11 +61,11 @@ class MSMRunner {
     for (size_t i = 0; i < point_nums.size(); ++i) {
       std::unique_ptr<CRetPoint> ret;
       uint64_t duration_in_us;
-      ret.reset(fn(reinterpret_cast<const CPoint*>(bases_->data()),
-                   reinterpret_cast<const CScalarField*>(scalars_->data()),
-                   point_nums[i], &duration_in_us));
+      ret.reset(fn(c::base::c_cast(bases_->data()),
+                   c::base::c_cast(scalars_->data()), point_nums[i],
+                   &duration_in_us));
       reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
-      results->push_back(*reinterpret_cast<RetPoint*>(ret.get()));
+      results->push_back(*c::base::native_cast(ret.get()));
     }
   }
 
