@@ -60,9 +60,9 @@ class FFTRunner {
       ret.reset(fn(
           reinterpret_cast<const tachyon_bn254_univariate_evaluation_domain*>(
               domains_[i].get()),
-          reinterpret_cast<CPolyOrEvals>(&poly)));
+          c::base::c_cast(&poly)));
       reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
-      results->push_back(*reinterpret_cast<RetPoly*>(ret.get()));
+      results->push_back(*c::base::native_cast(ret.get()));
     }
   }
 

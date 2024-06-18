@@ -4,10 +4,8 @@
 
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
-#include "tachyon/c/math/polynomials/constants.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
-#include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
 namespace tachyon::math {
 
@@ -21,7 +19,7 @@ class UnivariateEvaluationsTest : public FiniteFieldTest<bn254::Fr> {
 
   void SetUp() override {
     Evals* cpp_evals = new Evals(Evals::Random(kDegree));
-    evals_ = reinterpret_cast<tachyon_bn254_univariate_evaluations*>(cpp_evals);
+    evals_ = c::base::c_cast(cpp_evals);
   }
 
   void TearDown() override {
@@ -38,9 +36,9 @@ TEST_F(UnivariateEvaluationsTest, Clone) {
   tachyon_bn254_univariate_evaluations* evals_clone =
       tachyon_bn254_univariate_evaluations_clone(evals_);
   // NOTE(chokobole): It's safe to access since we created |kDegree| |evals_|.
-  reinterpret_cast<Evals&>(*evals_).at(0) += bn254::Fr::One();
-  EXPECT_NE((reinterpret_cast<Evals&>(*evals_))[0],
-            (reinterpret_cast<Evals&>(*evals_clone))[0]);
+  c::base::native_cast(*evals_).at(0) += bn254::Fr::One();
+  EXPECT_NE((c::base::native_cast(*evals_))[0],
+            (c::base::native_cast(*evals_clone))[0]);
   tachyon_bn254_univariate_evaluations_destroy(evals_clone);
 }
 
@@ -53,7 +51,7 @@ TEST_F(UnivariateEvaluationsTest, SetValue) {
   const tachyon_bn254_fr& value = c::base::c_cast(cpp_value);
   tachyon_bn254_univariate_evaluations_set_value(evals_, 0, &value);
   // NOTE(chokobole): It's safe to access since we created |kDegree| |evals_|.
-  EXPECT_EQ(reinterpret_cast<Evals&>(*evals_)[0], cpp_value);
+  EXPECT_EQ(c::base::native_cast(*evals_)[0], cpp_value);
 }
 
 }  // namespace tachyon::math
