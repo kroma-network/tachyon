@@ -84,7 +84,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     // Since Frobenius coefficients on the towered extensions are
     // indexed w.r.t. to |BasePrimeField|, we need to calculate the correct
     // index.
-    //  NOTE(chokobole): This assumes that |BaseField::ExtensionDegree()|
+    // NOTE(chokobole): This assumes that |BaseField::ExtensionDegree()|
     // never overflows even on 32 bit machine.
     size_t index_multiplier = size_t{BaseField::ExtensionDegree()};
     Derived self_to_p = static_cast<const Derived&>(*this);
