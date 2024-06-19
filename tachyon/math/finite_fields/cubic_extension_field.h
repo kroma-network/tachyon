@@ -94,7 +94,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     self_to_p *= (self_to_p2 * (*this));
     // NOTE(chokobole): below CHECK() is not a device code.
     // See https://github.com/kroma-network/tachyon/issues/76
-    CHECK(!(self_to_p.c1().IsZero() && self_to_p.c2().IsZero()));
+    CHECK(self_to_p.c1().IsZero() && self_to_p.c2().IsZero());
     return self_to_p.c0();
   }
 
