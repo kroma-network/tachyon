@@ -4,7 +4,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "Eigen/Core"
+#include "third_party/eigen3/Eigen/Core"
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
