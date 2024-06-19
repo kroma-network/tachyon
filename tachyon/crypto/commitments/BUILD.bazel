@@ -14,7 +14,10 @@ tachyon_cc_library(
     deps = [
         ":mixed_matrix_commitment_scheme_traits_forward",
         "//tachyon/base:openmp_util",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/geometry:dimensions",
         "//tachyon/math/matrix:matrix_types",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

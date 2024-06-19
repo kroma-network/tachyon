@@ -92,4 +92,51 @@ TEST_F(FieldMerkleTreeMMCSTest, Commit) {
   }
 }
 
+TEST_F(FieldMerkleTreeMMCSTest, CommitAndVerify) {
+  struct Config {
+    size_t num;
+    math::Dimensions dimensions;
+  };
+
+  struct {
+    std::vector<Config> configs;
+    size_t index;
+  } tests[] = {
+      {{{4, {8, 1000}}, {5, {8, 70}}, {6, {8, 8}}}, 6},
+      {{{1, {1, 32}},
+        {1, {2, 32}},
+        {1, {3, 32}},
+        {1, {4, 32}},
+        {1, {5, 32}},
+        {1, {6, 32}},
+        {1, {7, 32}},
+        {1, {8, 32}},
+        {1, {9, 32}},
+        {1, {10, 32}}},
+       17},
+  };
+
+  for (const auto& test : tests) {
+    std::vector<math::RowMajorMatrix<F>> matrices;
+    std::vector<math::Dimensions> dimensions_vec;
+    for (size_t i = 0; i < test.configs.size(); ++i) {
+      math::Dimensions dimensions = test.configs[i].dimensions;
+      for (size_t j = 0; j < test.configs[i].num; ++j) {
+        matrices.push_back(math::RowMajorMatrix<F>::Random(dimensions.height,
+                                                           dimensions.width));
+        dimensions_vec.push_back(dimensions);
+      }
+    }
+
+    std::array<F, kChunk> commitment;
+    ASSERT_TRUE(mmcs_->Commit(std::move(matrices), &commitment));
+
+    std::vector<std::vector<F>> openings;
+    std::vector<std::array<F, kChunk>> proof;
+    ASSERT_TRUE(mmcs_->CreateOpeningProof(test.index, &openings, &proof));
+    ASSERT_TRUE(mmcs_->VerifyOpeningProof(commitment, dimensions_vec,
+                                          test.index, openings, proof));
+  }
+}
+
 }  // namespace tachyon::crypto
