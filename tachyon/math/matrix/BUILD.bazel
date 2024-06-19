@@ -15,6 +15,7 @@ tachyon_cc_library(
     name = "matrix_types",
     hdrs = ["matrix_types.h"],
     deps = [
+        ":prime_field_num_traits",
         "//tachyon/base/buffer:copyable",
         "//tachyon/math/finite_fields:prime_field_base",
         "@eigen_archive//:eigen3",
@@ -49,7 +50,6 @@ tachyon_cc_unittest(
     deps = [
         ":matrix_types",
         ":matrix_utils",
-        ":prime_field_num_traits",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/finite_fields/baby_bear:packed_baby_bear",
         "//tachyon/math/finite_fields/test:finite_field_test",

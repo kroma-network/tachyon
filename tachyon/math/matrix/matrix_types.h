@@ -132,4 +132,6 @@ struct scalar_random_op<
 
 }  // namespace Eigen::internal
 
+#include "tachyon/math/matrix/prime_field_num_traits.h"
+
 #endif  // TACHYON_MATH_MATRIX_MATRIX_TYPES_H_

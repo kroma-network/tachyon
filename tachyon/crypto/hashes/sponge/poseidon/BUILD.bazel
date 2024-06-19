@@ -59,7 +59,6 @@ tachyon_cc_library(
         "//tachyon/math/base:big_int",
         "//tachyon/math/finite_fields:finite_field_traits",
         "//tachyon/math/matrix:matrix_types",
-        "//tachyon/math/matrix:prime_field_num_traits",
     ],
 )
 
