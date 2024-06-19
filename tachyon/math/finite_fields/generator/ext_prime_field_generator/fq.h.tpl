@@ -11,15 +11,12 @@ class %{class}Config {
   using BaseField = _BaseField;
   using BasePrimeField = %{base_prime_field};
   using FrobeniusCoefficient = %{frobenius_coefficient};
-%{if FrobeniusCoefficient2}
-  using FrobeniusCoefficient2 = %{frobenius_coefficient};
-%{endif FrobeniusCoefficient2}
 
   // TODO(chokobole): Make them constexpr.
   static BaseField kNonResidue;
   static FrobeniusCoefficient kFrobeniusCoeffs[%{frobenius_coeffs_size}];
 %{if FrobeniusCoefficient2}
-  static FrobeniusCoefficient2 kFrobeniusCoeffs2[%{frobenius_coeffs_size}];
+  static FrobeniusCoefficient kFrobeniusCoeffs2[%{frobenius_coeffs_size}];
 %{endif FrobeniusCoefficient2}
 
   constexpr static bool kNonResidueIsMinusOne = %{non_residue_is_minus_one};
