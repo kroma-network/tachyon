@@ -21,7 +21,9 @@ tachyon_cc_library(
     hdrs = ["field_merkle_tree_mmcs.h"],
     deps = [
         ":field_merkle_tree",
+        "//tachyon/base:bits",
         "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme",
+        "@pdqsort",
     ],
 )
 
