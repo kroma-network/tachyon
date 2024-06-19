@@ -1,0 +1,26 @@
+diff --git a/Eigen/src/Core/Random.h b/Eigen/src/Core/Random.h
+index fab6889dc..f2df7b1f5 100644
+--- a/Eigen/src/Core/Random.h
++++ b/Eigen/src/Core/Random.h
+@@ -16,7 +16,7 @@ namespace Eigen {
+ 
+ namespace internal {
+ 
+-template<typename Scalar> struct scalar_random_op {
++template<typename Scalar, typename SFINAE> struct scalar_random_op {
+   inline const Scalar operator() () const { return random<Scalar>(); }
+ };
+ 
+diff --git a/Eigen/src/Core/util/ForwardDeclarations.h b/Eigen/src/Core/util/ForwardDeclarations.h
+index 8963019a9..4d2d77182 100644
+--- a/Eigen/src/Core/util/ForwardDeclarations.h
++++ b/Eigen/src/Core/util/ForwardDeclarations.h
+@@ -198,7 +198,7 @@ template<typename Scalar> struct scalar_inverse_op;
+ template<typename Scalar> struct scalar_square_op;
+ template<typename Scalar> struct scalar_cube_op;
+ template<typename Scalar, typename NewType> struct scalar_cast_op;
+-template<typename Scalar> struct scalar_random_op;
++template<typename Scalar, typename SFINAE = void> struct scalar_random_op;
+ template<typename Scalar> struct scalar_constant_op;
+ template<typename Scalar> struct scalar_identity_op;
+ template<typename Scalar> struct scalar_sign_op;

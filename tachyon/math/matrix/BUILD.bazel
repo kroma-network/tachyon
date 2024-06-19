@@ -16,6 +16,7 @@ tachyon_cc_library(
     hdrs = ["matrix_types.h"],
     deps = [
         "//tachyon/base/buffer:copyable",
+        "//tachyon/math/finite_fields:prime_field_base",
         "@eigen_archive//:eigen3",
     ],
 )

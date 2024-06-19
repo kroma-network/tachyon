@@ -17,4 +17,5 @@ def repo():
         sha256 = EIGEN_SHA256,
         strip_prefix = "eigen-{commit}".format(commit = EIGEN_COMMIT),
         urls = tf_mirror_urls("https://gitlab.com/libeigen/eigen/-/archive/{commit}/eigen-{commit}.tar.gz".format(commit = EIGEN_COMMIT)),
+        patch_file = ["@kroma_network_tachyon//third_party/eigen3:add_sfinae_to_scalar_random_op.patch"],
     )

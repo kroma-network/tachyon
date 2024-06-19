@@ -1,11 +1,13 @@
 #ifndef TACHYON_MATH_MATRIX_MATRIX_TYPES_H_
 #define TACHYON_MATH_MATRIX_MATRIX_TYPES_H_
 
+#include <type_traits>
 #include <utility>
 
 #include "Eigen/Core"
 
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon {
 namespace math {
@@ -108,5 +110,16 @@ class Copyable<Eigen::DiagonalMatrix<Field, Size, MaxSize>> {
 
 }  // namespace base
 }  // namespace tachyon
+
+namespace Eigen::internal {
+
+template <typename T>
+struct scalar_random_op<
+    T,
+    std::enable_if_t<std::is_base_of_v<tachyon::math::PrimeFieldBase<T>, T>>> {
+  inline const T operator()() const { return T::Random(); }
+};
+
+}  // namespace Eigen::internal
 
 #endif  // TACHYON_MATH_MATRIX_MATRIX_TYPES_H_
