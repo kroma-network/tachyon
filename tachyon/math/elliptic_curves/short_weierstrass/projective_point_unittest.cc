@@ -256,8 +256,7 @@ TEST_F(ProjectivePointTest, Copyable) {
 
 TEST_F(ProjectivePointTest, JsonValueConverter) {
   test::ProjectivePoint expected_point(GF7(1), GF7(2), GF7(3));
-  std::string expected_json =
-      R"({"x":{"value":"0x1"},"y":{"value":"0x2"},"z":{"value":"0x3"}})";
+  std::string expected_json = R"({"x":1,"y":2,"z":3})";
 
   test::ProjectivePoint p;
   std::string error;

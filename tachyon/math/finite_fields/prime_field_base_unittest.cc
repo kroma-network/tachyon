@@ -114,11 +114,15 @@ TYPED_TEST(PrimeFieldBaseTest, JsonValueConverter) {
   using F = TypeParam;
 
   F expected_point(3);
-  std::string expected_json = R"({"value":"0x3"})";
+  std::string expected_json = R"("0x3")";
 
   F p;
   std::string error;
-  ASSERT_TRUE(base::ParseJson(expected_json, &p, &error));
+
+  rapidjson::Document document;
+  document.Parse(expected_json.data(), expected_json.length());
+  base::RapidJsonValueConverter<F>::To(document, "", &p, &error);
+
   ASSERT_TRUE(error.empty());
   EXPECT_EQ(p, expected_point);
 
