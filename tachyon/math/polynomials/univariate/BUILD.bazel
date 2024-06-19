@@ -25,6 +25,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "naive_batch_fft",
+    hdrs = ["naive_batch_fft.h"],
+    deps = [
+        ":two_adic_subgroup",
+        "//tachyon/base:bits",
+    ],
+)
+
+tachyon_cc_library(
     name = "radix2_evaluation_domain",
     hdrs = ["radix2_evaluation_domain.h"],
     deps = [
