@@ -16,7 +16,6 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
-#include "tachyon/math/geometry/point2.h"
 
 namespace tachyon {
 namespace math {
