@@ -28,12 +28,19 @@ tachyon_cc_library(
     name = "radix2_evaluation_domain",
     hdrs = ["radix2_evaluation_domain.h"],
     deps = [
+        ":two_adic_subgroup",
         ":univariate_evaluation_domain",
+        "//tachyon/base:bits",
+        "//tachyon/base:openmp_util",
         "//tachyon/base:parallelize",
         "//tachyon/base/containers:container_util",
+        "//tachyon/math/finite_fields:packed_prime_field_base",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/math/matrix:matrix_utils",
         "@com_google_absl//absl/memory",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",
+        "@eigen_archive//:eigen3",
     ],
 )
 
