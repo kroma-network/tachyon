@@ -112,7 +112,8 @@ int GenerationConfig::GenerateConfigHdr() const {
   }
 
   replacements["%{frobenius_coefficient}"] =
-      (degree == 4 || (degree == 6 && base_field_degree == 3) || degree == 12)
+      ((degree == 4 && base_field_degree == 2) ||
+       (degree == 6 && base_field_degree == 3) || degree == 12)
           ? "typename BaseField::BaseField"
           : "BaseField";
 
@@ -122,7 +123,9 @@ int GenerationConfig::GenerateConfigHdr() const {
   std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
 
   RemoveOptionalLines(tpl_lines, "FrobeniusCoefficient2",
-                      degree_over_base_field == 3);
+                      degree_over_base_field >= 3);
+  RemoveOptionalLines(tpl_lines, "FrobeniusCoefficient3",
+                      degree_over_base_field >= 4);
 
   tpl_content = absl::StrJoin(tpl_lines, "\n");
   std::string content = absl::StrReplaceAll(tpl_content, replacements);
