@@ -87,11 +87,11 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     //  NOTE(chokobole): This assumes that |BaseField::ExtensionDegree()|
     // never overflows even on 32 bit machine.
     size_t index_multiplier = size_t{BaseField::ExtensionDegree()};
-    CubicExtensionField self_to_p = *this;
+    Derived self_to_p = static_cast<const Derived&>(*this);
     self_to_p.FrobeniusMapInPlace(index_multiplier);
-    CubicExtensionField self_to_p2 = *this;
+    Derived self_to_p2 = static_cast<const Derived&>(*this);
     self_to_p2.FrobeniusMapInPlace(2 * index_multiplier);
-    self_to_p *= (self_to_p2 * (*this));
+    self_to_p *= (self_to_p2 * static_cast<const Derived&>(*this));
     // NOTE(chokobole): below CHECK() is not a device code.
     // See https://github.com/kroma-network/tachyon/issues/76
     CHECK(self_to_p.c1().IsZero() && self_to_p.c2().IsZero());
