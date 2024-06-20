@@ -21,7 +21,6 @@ rust::Vec<T> ConvertCppContainerToRustVec(const Container& container) {
 
 template <typename Container, typename UnaryOp,
           typename FunctorTraits = base::internal::MakeFunctorTraits<UnaryOp>,
-          typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
           typename T = base::container_value_t<Container>>
 rust::Vec<ReturnType> ConvertCppContainerToRustVec(const Container& container,
