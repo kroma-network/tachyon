@@ -8,6 +8,7 @@
 
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/cubic_extension_field.h"
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 
 namespace tachyon::math {
 
@@ -92,6 +93,15 @@ class Fp3 final : public CubicExtensionField<Fp3<Config>> {
 
 #undef SET_FROBENIUS_COEFF2
   }
+};
+
+template <typename Config>
+struct ExtensionFieldTraits<Fp3<Config>> {
+  constexpr static uint32_t kDegreeOverBaseField = 3;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 3;
+
+  using BaseField = typename Fp3<Config>::BaseField;
+  using BasePrimeField = typename Fp3<Config>::BasePrimeField;
 };
 
 }  // namespace tachyon::math

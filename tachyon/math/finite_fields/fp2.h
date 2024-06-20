@@ -6,6 +6,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_FP2_H_
 #define TACHYON_MATH_FINITE_FIELDS_FP2_H_
 
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
 
 namespace tachyon::math {
@@ -41,6 +42,15 @@ class Fp2 final : public QuadraticExtensionField<Fp2<Config>> {
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
     Config::kFrobeniusCoeffs[1] = -FrobeniusCoefficient::One();
   }
+};
+
+template <typename Config>
+struct ExtensionFieldTraits<Fp2<Config>> {
+  constexpr static uint32_t kDegreeOverBaseField = 2;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 2;
+
+  using BaseField = typename Fp2<Config>::BaseField;
+  using BasePrimeField = typename Fp2<Config>::BasePrimeField;
 };
 
 }  // namespace tachyon::math

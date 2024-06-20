@@ -20,6 +20,7 @@
 #include "tachyon/base/json/json.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/finite_field.h"
 #include "tachyon/math/finite_fields/legendre_symbol.h"
 #include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
@@ -165,6 +166,16 @@ template <typename T>
 struct PackedPrimeFieldTraits<
     T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
   using PackedPrimeField = T;
+};
+
+template <typename T>
+struct ExtensionFieldTraits<
+    T, std::enable_if_t<std::is_base_of_v<PrimeFieldBase<T>, T>>> {
+  constexpr static uint32_t kDegreeOverBaseField = 1;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 1;
+
+  using BaseField = T;
+  using BasePrimeField = T;
 };
 
 }  // namespace math

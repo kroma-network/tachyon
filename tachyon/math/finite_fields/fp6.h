@@ -10,6 +10,7 @@
 
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/cubic_extension_field.h"
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
 
 namespace tachyon::math {
@@ -381,6 +382,15 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     this->c2_ = std::move(t2);
     return *this;
   }
+};
+
+template <typename Config>
+struct ExtensionFieldTraits<Fp6<Config>> {
+  constexpr static uint32_t kDegreeOverBaseField = Config::kDegreeOverBaseField;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 6;
+
+  using BaseField = typename Fp6<Config>::BaseField;
+  using BasePrimeField = typename Fp6<Config>::BasePrimeField;
 };
 
 }  // namespace tachyon::math
