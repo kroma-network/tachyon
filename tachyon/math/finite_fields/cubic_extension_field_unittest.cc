@@ -35,6 +35,14 @@ TEST_F(CubicExtensionFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
+TEST_F(CubicExtensionFieldTest, Norm) {
+  constexpr static uint32_t kModulus = GF7::Config::kModulus;
+  GF7_3 r = GF7_3::Random();
+  GF7_3 r_to_p = r.Pow(kModulus);
+  GF7_3 r_to_p2 = r_to_p.Pow(kModulus);
+  EXPECT_EQ(r.Norm(), (r * r_to_p * r_to_p2).c0());
+}
+
 TEST_F(CubicExtensionFieldTest, EqualityOperators) {
   GF7_3 f(GF7(3), GF7(4), GF7(5));
   GF7_3 f2(GF7(4), GF7(4), GF7(5));
