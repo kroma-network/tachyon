@@ -228,7 +228,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
 
   // MultiplicativeSemigroup methods
   constexpr Derived Mul(const Derived& other) const {
-    Derived ret;
+    Derived ret{};
     DoMul(*static_cast<const Derived*>(this), other, ret);
     return ret;
   }
@@ -255,7 +255,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   constexpr Derived SquareImpl() const {
-    Derived ret;
+    Derived ret{};
     DoSquareImpl(*static_cast<const Derived*>(this), ret);
     return ret;
   }
@@ -268,7 +268,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
 
   // MultiplicativeGroup methods
   constexpr std::optional<Derived> Inverse() const {
-    Derived ret;
+    Derived ret{};
     if (LIKELY(DoInverse(*static_cast<const Derived*>(this), ret))) return ret;
     LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
     return std::nullopt;

@@ -18,7 +18,7 @@ struct TACHYON_EXPORT MSMCtx {
 
   template <typename ScalarField>
   constexpr static MSMCtx CreateDefault(size_t size) {
-    MSMCtx ctx;
+    MSMCtx ctx{};
     ctx.window_bits = ComputeWindowsBits(size);
     ctx.window_count = ComputeWindowsCount<ScalarField>(ctx.window_bits);
     ctx.size = size;

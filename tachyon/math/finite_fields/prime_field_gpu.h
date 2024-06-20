@@ -60,7 +60,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   constexpr static PrimeFieldGpu Zero() { return PrimeFieldGpu(); }
 
   constexpr static PrimeFieldGpu One() {
-    PrimeFieldGpu ret;
+    PrimeFieldGpu ret{};
     ret.value_ = GetOne();
     return ret;
   }
@@ -95,7 +95,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   }
 
   constexpr static PrimeFieldGpu FromMontgomery(const BigInt<N>& mont) {
-    PrimeFieldGpu ret;
+    PrimeFieldGpu ret{};
     ret.value_ = mont;
     return ret;
   }
@@ -201,7 +201,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
 
   // AdditiveSemigroup methods
   __device__ constexpr PrimeFieldGpu Add(const PrimeFieldGpu& other) const {
-    PrimeFieldGpu ret;
+    PrimeFieldGpu ret{};
     AddLimbs<false>(value_, other.value_, ret.value_);
     return Clamp(ret);
   }
@@ -214,7 +214,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
 
   // AdditiveGroup methods
   __device__ constexpr PrimeFieldGpu Sub(const PrimeFieldGpu& other) const {
-    PrimeFieldGpu ret;
+    PrimeFieldGpu ret{};
     uint64_t carry = SubLimbs<true>(value_, other.value_, ret.value_);
     if (carry == 0) return ret;
     AddLimbs<false>(ret.value_, GetModulus(), ret.value_);
@@ -229,7 +229,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   }
 
   __device__ constexpr PrimeFieldGpu Negate() const {
-    PrimeFieldGpu ret;
+    PrimeFieldGpu ret{};
     SubLimbs<false>(GetModulus(), value_, ret.value_);
     return ret;
   }
@@ -246,7 +246,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     // Forces us to think more carefully about the last carry bit if we use a
     // modulus with fewer than 2 leading zeroes of slack.
     static_assert(!(Config::kModulus[N - 1] >> 62));
-    PrimeFieldGpu ret;
+    PrimeFieldGpu ret{};
     MulLimbs(value_, other.value_, ret.value_);
     return Clamp(ret);
   }
@@ -264,7 +264,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
 
   // MultiplicativeGroup methods
   __device__ constexpr std::optional<PrimeFieldGpu> Inverse() const {
-    PrimeFieldGpu ret;
+    PrimeFieldGpu ret{};
     if (UNLIKELY(!DoInverse(*this, ret))) {
       // TODO(ashjeong): add CUDA error logging
       return std::nullopt;

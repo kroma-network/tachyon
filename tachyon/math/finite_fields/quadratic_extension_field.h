@@ -191,7 +191,7 @@ class QuadraticExtensionField
 
   // MultiplicativeSemigroup methods
   constexpr Derived Mul(const Derived& other) const {
-    Derived ret;
+    Derived ret{};
     DoMul(*static_cast<const Derived*>(this), other, ret);
     return ret;
   }
@@ -216,7 +216,7 @@ class QuadraticExtensionField
   }
 
   constexpr Derived SquareImpl() const {
-    Derived ret;
+    Derived ret{};
     DoSquareImpl(*static_cast<const Derived*>(this), ret);
     return ret;
   }
@@ -229,7 +229,7 @@ class QuadraticExtensionField
 
   // MultiplicativeGroup methods
   constexpr std::optional<Derived> Inverse() const {
-    Derived ret;
+    Derived ret{};
     if (LIKELY(DoInverse(*static_cast<const Derived*>(this), ret))) {
       return ret;
     }

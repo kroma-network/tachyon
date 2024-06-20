@@ -53,7 +53,7 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
 
   constexpr static PrimeField Zero() { return PrimeField(); }
   constexpr static PrimeField One() {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = Config::kOne;
     return ret;
   }
@@ -87,7 +87,7 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
   }
 
   constexpr static PrimeField FromMontgomery(const uint32_t value) {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = value;
     return ret;
   }
@@ -142,7 +142,7 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
 
   // AdditiveSemigroup methods
   constexpr PrimeField Add(PrimeField other) const {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = Config::AddMod(value_, other.value_);
     return ret;
   }
@@ -154,7 +154,7 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
 
   // AdditiveGroup methods
   constexpr PrimeField Sub(PrimeField other) const {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = Config::SubMod(value_, other.value_);
     return ret;
   }
@@ -165,7 +165,7 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
   }
 
   constexpr PrimeField Negate() const {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = Config::SubMod(0, value_);
     return ret;
   }
@@ -177,7 +177,7 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
 
   // MultiplicativeSemigroup methods
   constexpr PrimeField Mul(PrimeField other) const {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = Config::FromMontgomery(uint64_t{value_} * other.value_);
     return ret;
   }
