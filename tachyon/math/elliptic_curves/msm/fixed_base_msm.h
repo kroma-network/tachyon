@@ -149,7 +149,7 @@ class FixedBaseMSM {
     if constexpr (std::is_same_v<AddResult, Point>) {
       window_base = base;
     } else {
-      window_base = math::ConvertPoint<AddResult>(base);
+      window_base = ConvertPoint<AddResult>(base);
     }
     unsigned int window_bits = ctx_.window_bits;
     unsigned int window_count = ctx_.window_count;

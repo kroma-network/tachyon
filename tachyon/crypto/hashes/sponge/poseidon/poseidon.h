@@ -31,22 +31,15 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
   // Sponge Config
   PoseidonConfig<F> config;
 
-  SpongeState<F> state;
-
   PoseidonSponge() = default;
-  explicit PoseidonSponge(const PoseidonConfig<F>& config)
-      : config(config), state(config.rate + config.capacity) {}
-  PoseidonSponge(const PoseidonConfig<F>& config, const SpongeState<F>& state)
-      : config(config), state(state) {}
-  PoseidonSponge(const PoseidonConfig<F>& config, SpongeState<F>&& state)
-      : config(config), state(std::move(state)) {}
+  explicit PoseidonSponge(const PoseidonConfig<F>& config) : config(config) {}
 
   // PoseidonSpongeBase methods
-  void ApplyARK(Eigen::Index round_number, bool) {
+  void ApplyARK(SpongeState<F>& state, Eigen::Index round_number, bool) const {
     state.elements += config.ark.row(round_number);
   }
 
-  void ApplyMix(bool) {
+  void ApplyMix(SpongeState<F>& state, bool) const {
     // NOTE (chokobole): Eigen matrix multiplication has a computational
     // overhead unlike naive matrix multiplication.
     //
@@ -84,7 +77,7 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
   }
 
   bool operator==(const PoseidonSponge& other) const {
-    return config == other.config && state == other.state;
+    return config == other.config;
   }
   bool operator!=(const PoseidonSponge& other) const {
     return !operator==(other);
@@ -106,23 +99,22 @@ class Copyable<crypto::PoseidonSponge<F>> {
  public:
   static bool WriteTo(const crypto::PoseidonSponge<F>& poseidon,
                       Buffer* buffer) {
-    return buffer->WriteMany(poseidon.config, poseidon.state);
+    return buffer->WriteMany(poseidon.config);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        crypto::PoseidonSponge<F>* poseidon) {
     crypto::PoseidonConfig<F> config;
-    crypto::SpongeState<F> state;
-    if (!buffer.ReadMany(&config, &state)) {
+    if (!buffer.ReadMany(&config)) {
       return false;
     }
 
-    *poseidon = {std::move(config), std::move(state)};
+    *poseidon = crypto::PoseidonSponge<F>(std::move(config));
     return true;
   }
 
   static size_t EstimateSize(const crypto::PoseidonSponge<F>& poseidon) {
-    return base::EstimateSize(poseidon.config, poseidon.state);
+    return base::EstimateSize(poseidon.config);
   }
 };
 

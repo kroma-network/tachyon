@@ -98,6 +98,5 @@ tachyon_cc_unittest(
         "//tachyon/math/finite_fields/mersenne31",
         "//tachyon/math/finite_fields/mersenne31:packed_mersenne31",
         "//tachyon/math/finite_fields/test:finite_field_test",
-        "//tachyon/math/matrix:prime_field_num_traits",
     ],
 )

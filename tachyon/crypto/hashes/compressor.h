@@ -15,7 +15,8 @@ class Compressor {
   template <typename T>
   auto Compress(const T& input) const {
     const Derived& derived = static_cast<const Derived&>(*this);
-    return derived.DoCompress(input);
+    auto state = derived.CreateEmptyState();
+    return derived.DoCompress(state, input);
   }
 };
 

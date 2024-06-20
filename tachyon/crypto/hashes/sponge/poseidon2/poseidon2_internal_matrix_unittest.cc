@@ -10,7 +10,6 @@
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 #include "tachyon/math/finite_fields/mersenne31/packed_mersenne31.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
-#include "tachyon/math/matrix/prime_field_num_traits.h"
 
 namespace tachyon::crypto {
 
@@ -27,8 +26,8 @@ TYPED_TEST_SUITE(Poseidon2InternalMatrixTest, FieldTypes);
 TYPED_TEST(Poseidon2InternalMatrixTest, ApplyHorizen) {
   using F = TypeParam;
 
-  math::Vector<F> diagonal_minus_one_vec{
-      {F::Random() - F::One(), F::Random() - F::One(), F::Random() - F::One()}};
+  math::Vector<F> diagonal_minus_one_vec =
+      math::Vector<F>::Random(3) - math::Vector<F>::Constant(3, F::One());
 
   math::Matrix<F> matrix{
       {diagonal_minus_one_vec[0] + F::One(), F::One(), F::One()},
@@ -36,7 +35,7 @@ TYPED_TEST(Poseidon2InternalMatrixTest, ApplyHorizen) {
       {F::One(), F::One(), diagonal_minus_one_vec[2] + F::One()},
   };
 
-  math::Vector<F> state{{F::Random(), F::Random(), F::Random()}};
+  math::Vector<F> state = math::Vector<F>::Random(3);
   math::Vector<F> state2 = state;
   Poseidon2HorizenInternalMatrix<F>::Apply(state2, diagonal_minus_one_vec);
   EXPECT_EQ(matrix * state, state2);

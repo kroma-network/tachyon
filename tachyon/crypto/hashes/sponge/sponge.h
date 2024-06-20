@@ -12,6 +12,7 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/hashes/sponge/duplex_sponge_mode.h"
+#include "tachyon/crypto/hashes/sponge/sponge_state.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::crypto {
@@ -129,15 +130,16 @@ class FieldBasedCryptographicSponge : public CryptographicSponge<Derived> {
   // Squeeze |sizes.size()| field elements from the sponge.
   // where the |i|-th element of the output has |sizes[i]|.
   std::vector<NativeField> SqueezeNativeFieldElementsWithSizes(
+      SpongeState<NativeField>& state,
       const std::vector<FieldElementSize>& sizes) {
     bool all_full_size =
         std::all_of(sizes.begin(), sizes.end(),
                     [](const FieldElementSize& size) { return size.IsFull(); });
     Derived* derived = static_cast<Derived*>(this);
     if (all_full_size) {
-      return derived->SqueezeNativeFieldElements(sizes.size());
+      return derived->SqueezeNativeFieldElements(state, sizes.size());
     } else {
-      return derived->SqueezeFieldElementsWithSizesDefaultImpl(sizes);
+      return derived->SqueezeFieldElementsWithSizesDefaultImpl(state, sizes);
     }
   }
 };

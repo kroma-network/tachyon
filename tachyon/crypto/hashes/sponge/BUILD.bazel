@@ -22,6 +22,7 @@ tachyon_cc_library(
     hdrs = ["sponge.h"],
     deps = [
         ":duplex_sponge_mode",
+        ":sponge_state",
         "//tachyon/base:logging",
         "//tachyon/base/buffer:copyable",
         "//tachyon/math/finite_fields:finite_field_traits",

@@ -15,7 +15,8 @@ class Hasher {
   template <typename T>
   auto Hash(const T& input) const {
     const Derived& derived = static_cast<const Derived&>(*this);
-    return derived.DoHash(input);
+    auto state = derived.CreateEmptyState();
+    return derived.DoHash(state, input);
   }
 };
 

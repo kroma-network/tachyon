@@ -10,7 +10,6 @@
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 #include "tachyon/math/finite_fields/mersenne31/packed_mersenne31.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
-#include "tachyon/math/matrix/prime_field_num_traits.h"
 
 namespace tachyon::crypto {
 

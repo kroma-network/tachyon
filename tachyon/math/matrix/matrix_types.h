@@ -1,11 +1,13 @@
 #ifndef TACHYON_MATH_MATRIX_MATRIX_TYPES_H_
 #define TACHYON_MATH_MATRIX_MATRIX_TYPES_H_
 
+#include <type_traits>
 #include <utility>
 
 #include "Eigen/Core"
 
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon {
 namespace math {
@@ -13,6 +15,16 @@ namespace math {
 template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
           int Options = 0, int MaxRows = Rows, int MaxCols = Cols>
 using Matrix = Eigen::Matrix<Field, Rows, Cols, Options, MaxRows, MaxCols>;
+
+template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
+          int MaxRows = Rows, int MaxCols = Cols>
+using ColMajorMatrix =
+    Eigen::Matrix<Field, Rows, Cols, Eigen::ColMajor, MaxRows, MaxCols>;
+
+template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
+          int MaxRows = Rows, int MaxCols = Cols>
+using RowMajorMatrix =
+    Eigen::Matrix<Field, Rows, Cols, Eigen::RowMajor, MaxRows, MaxCols>;
 
 template <typename Field, int Size = Eigen::Dynamic, int MaxSize = Size>
 using DiagonalMatrix = Eigen::DiagonalMatrix<Field, Size, MaxSize>;
@@ -108,5 +120,18 @@ class Copyable<Eigen::DiagonalMatrix<Field, Size, MaxSize>> {
 
 }  // namespace base
 }  // namespace tachyon
+
+namespace Eigen::internal {
+
+template <typename T>
+struct scalar_random_op<
+    T,
+    std::enable_if_t<std::is_base_of_v<tachyon::math::PrimeFieldBase<T>, T>>> {
+  inline const T operator()() const { return T::Random(); }
+};
+
+}  // namespace Eigen::internal
+
+#include "tachyon/math/matrix/prime_field_num_traits.h"
 
 #endif  // TACHYON_MATH_MATRIX_MATRIX_TYPES_H_

@@ -3,7 +3,6 @@
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
-#include "tachyon/math/matrix/prime_field_num_traits.h"
 
 namespace tachyon::math {
 

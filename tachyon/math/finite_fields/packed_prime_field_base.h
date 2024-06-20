@@ -8,6 +8,7 @@
 #include <string>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/functional/callback.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
 
@@ -17,6 +18,7 @@ template <typename Derived>
 class PackedPrimeFieldBase : public Field<Derived> {
  public:
   using PrimeField = typename PackedPrimeFieldTraits<Derived>::PrimeField;
+  using Generator = base::RepeatingCallback<PrimeField(size_t)>;
 
   constexpr static size_t N = PackedPrimeFieldTraits<Derived>::N;
 
@@ -24,6 +26,14 @@ class PackedPrimeFieldBase : public Field<Derived> {
     Derived ret;
     for (size_t i = 0; i < N; ++i) {
       ret.values_[i] = PrimeField::Random();
+    }
+    return ret;
+  }
+
+  static Derived From(Generator generator) {
+    Derived ret;
+    for (size_t i = 0; i < N; ++i) {
+      ret.values_[i] = generator.Run(i);
     }
     return ret;
   }

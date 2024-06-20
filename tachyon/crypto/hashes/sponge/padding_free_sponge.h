@@ -29,25 +29,28 @@ class PaddingFreeSponge final
  private:
   friend class Hasher<PaddingFreeSponge<Derived, Rate, Out>>;
 
+  SpongeState<F> CreateEmptyState() const {
+    return SpongeState<F>(derived_.config);
+  }
+
   template <typename T>
-  std::array<F, Out> DoHash(const T& input) const {
-    auto& state = derived_.state;
+  std::array<F, Out> DoHash(SpongeState<F>& state, const T& input) const {
     for (size_t i = 0; i < std::size(input); i += Rate) {
       for (size_t j = 0; j < Rate; ++j) {
         if (i + j < std::size(input)) {
           state[j] = input[i + j];
         }
       }
-      derived_.Permute();
+      derived_.Permute(state);
     }
     std::array<F, Out> ret;
     for (size_t i = 0; i < Out; ++i) {
-      ret[i] = state[i];
+      ret[i] = std::move(state[i]);
     }
     return ret;
   }
 
-  mutable Derived derived_;
+  Derived derived_;
 };
 
 }  // namespace tachyon::crypto

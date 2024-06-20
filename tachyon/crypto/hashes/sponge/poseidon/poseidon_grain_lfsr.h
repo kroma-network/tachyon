@@ -12,7 +12,6 @@
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 #include "tachyon/math/matrix/matrix_types.h"
-#include "tachyon/math/matrix/prime_field_num_traits.h"
 
 namespace tachyon::crypto {
 

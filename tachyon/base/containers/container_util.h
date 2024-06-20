@@ -34,8 +34,8 @@ std::vector<T> CreateRangedVector(T start, T end, T step = 1) {
 
 template <typename Generator,
           typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
-          typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
           typename ArgList = internal::ExtractArgs<RunType>,
           size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 0>* = nullptr>
@@ -49,8 +49,8 @@ std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
 
 template <typename Generator,
           typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
-          typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
           typename ArgList = internal::ExtractArgs<RunType>,
           size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 1>* = nullptr>
@@ -68,8 +68,8 @@ std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
 
 template <typename Iterator, typename UnaryOp,
           typename FunctorTraits = internal::MakeFunctorTraits<UnaryOp>,
-          typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
           typename ArgList = internal::ExtractArgs<RunType>,
           size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 1>* = nullptr>
@@ -83,8 +83,8 @@ std::vector<ReturnType> Map(Iterator begin, Iterator end, UnaryOp&& op) {
 
 template <typename Iterator, typename UnaryOp,
           typename FunctorTraits = internal::MakeFunctorTraits<UnaryOp>,
-          typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
           typename ArgList = internal::ExtractArgs<RunType>,
           size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 2>* = nullptr>
@@ -271,6 +271,51 @@ std::vector<size_t> FindIndicesIf(const Container& container, UnaryOp&& op) {
 template <typename Container>
 void Shuffle(Container& container) {
   absl::c_shuffle(container, GetAbslBitGen());
+}
+
+template <typename T, size_t N>
+const std::vector<T> ArrayToVector(const T (&arr)[N]) {
+  return std::vector<T>(std::begin(arr), std::end(arr));
+}
+
+template <typename T, size_t N, size_t M>
+std::vector<std::vector<T>> Array2DToVector2D(const T (&arr)[N][M]) {
+  std::vector<std::vector<T>> vec;
+  vec.reserve(N);
+  for (const auto& inner_array : arr) {
+    vec.emplace_back(std::begin(inner_array), std::end(inner_array));
+  }
+  return vec;
+}
+
+template <size_t N, typename Generator,
+          typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>,
+          std::enable_if_t<ArgNum == 0>* = nullptr>
+std::array<ReturnType, N> CreateArray(Generator&& generator) {
+  std::array<ReturnType, N> ret;
+  for (size_t i = 0; i < N; ++i) {
+    ret[i] = generator();
+  }
+  return ret;
+}
+
+template <size_t N, typename Generator,
+          typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>,
+          std::enable_if_t<ArgNum == 1>* = nullptr>
+std::array<ReturnType, N> CreateArray(Generator&& generator) {
+  std::array<ReturnType, N> ret;
+  for (size_t i = 0; i < N; ++i) {
+    ret[i] = generator(i);
+  }
+  return ret;
 }
 
 }  // namespace tachyon::base

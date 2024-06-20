@@ -68,21 +68,21 @@ PackedKoalaBearAVX2 PackedKoalaBearAVX2::Broadcast(const PrimeField& value) {
 
 PackedKoalaBearAVX2 PackedKoalaBearAVX2::Add(
     const PackedKoalaBearAVX2& other) const {
-  return FromVector(tachyon::math::Add(ToVector(*this), ToVector(other)));
+  return FromVector(math::Add(ToVector(*this), ToVector(other)));
 }
 
 PackedKoalaBearAVX2 PackedKoalaBearAVX2::Sub(
     const PackedKoalaBearAVX2& other) const {
-  return FromVector(tachyon::math::Sub(ToVector(*this), ToVector(other)));
+  return FromVector(math::Sub(ToVector(*this), ToVector(other)));
 }
 
 PackedKoalaBearAVX2 PackedKoalaBearAVX2::Negate() const {
-  return FromVector(tachyon::math::Negate(ToVector(*this)));
+  return FromVector(math::Negate(ToVector(*this)));
 }
 
 PackedKoalaBearAVX2 PackedKoalaBearAVX2::Mul(
     const PackedKoalaBearAVX2& other) const {
-  return FromVector(tachyon::math::Mul(ToVector(*this), ToVector(other)));
+  return FromVector(math::Mul(ToVector(*this), ToVector(other)));
 }
 
 }  // namespace tachyon::math

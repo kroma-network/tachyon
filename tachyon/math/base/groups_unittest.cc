@@ -75,7 +75,7 @@ TEST(GroupsTest, InverseOverride) {
 }
 
 TEST(GroupsTest, BatchInverse) {
-  math::GF7::Init();
+  GF7::Init();
 #if defined(TACHYON_HAS_OPENMP)
   size_t size = size_t{1} << (static_cast<size_t>(omp_get_max_threads()) /
                               GF7::kParallelBatchInverseDivisorThreshold);

@@ -69,21 +69,21 @@ PackedKoalaBearAVX512 PackedKoalaBearAVX512::Broadcast(
 
 PackedKoalaBearAVX512 PackedKoalaBearAVX512::Add(
     const PackedKoalaBearAVX512& other) const {
-  return FromVector(tachyon::math::Add(ToVector(*this), ToVector(other)));
+  return FromVector(math::Add(ToVector(*this), ToVector(other)));
 }
 
 PackedKoalaBearAVX512 PackedKoalaBearAVX512::Sub(
     const PackedKoalaBearAVX512& other) const {
-  return FromVector(tachyon::math::Sub(ToVector(*this), ToVector(other)));
+  return FromVector(math::Sub(ToVector(*this), ToVector(other)));
 }
 
 PackedKoalaBearAVX512 PackedKoalaBearAVX512::Negate() const {
-  return FromVector(tachyon::math::Negate(ToVector(*this)));
+  return FromVector(math::Negate(ToVector(*this)));
 }
 
 PackedKoalaBearAVX512 PackedKoalaBearAVX512::Mul(
     const PackedKoalaBearAVX512& other) const {
-  return FromVector(tachyon::math::Mul(ToVector(*this), ToVector(other)));
+  return FromVector(math::Mul(ToVector(*this), ToVector(other)));
 }
 
 }  // namespace tachyon::math
