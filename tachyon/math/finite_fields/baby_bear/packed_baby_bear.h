@@ -37,6 +37,11 @@ struct FiniteFieldTraits<PackedBabyBear> {
   using Config = BabyBear::Config;
 };
 
+template <>
+struct PackedPrimeFieldTraits<BabyBear> {
+  using PackedPrimeField = PackedBabyBear;
+};
+
 }  // namespace tachyon::math
 
 namespace Eigen {

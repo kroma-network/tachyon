@@ -147,6 +147,7 @@ tachyon_cc_library(
     deps = [
         ":finite_field",
         ":legendre_symbol",
+        ":packed_prime_field_traits_forward",
         ":prime_field_util",
         "//tachyon/base:bits",
         "//tachyon/base/json",
