@@ -36,6 +36,13 @@ TEST_F(QuadraticExtensionFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
+TEST_F(QuadraticExtensionFieldTest, Norm) {
+  constexpr static uint32_t kModulus = GF7::Config::kModulus;
+  GF7_2 r = GF7_2::Random();
+  GF7_2 r_to_p = r.Pow(kModulus);
+  EXPECT_EQ(r.Norm(), (r * r_to_p).c0());
+}
+
 TEST_F(QuadraticExtensionFieldTest, ConjugateInPlace) {
   GF7_2 f = GF7_2::Random();
   GF7_2 f2 = f;
