@@ -122,7 +122,6 @@ def generate_fp4s(
     _generate_ext_prime_fields(
         name = name,
         degree = 4,
-        base_field_degree = 2,
         ext_prime_field_deps = ["//tachyon/math/finite_fields:fp4"],
         **kwargs
     )
