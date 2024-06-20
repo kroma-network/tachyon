@@ -61,7 +61,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   constexpr static PrimeField Zero() { return PrimeField(); }
 
   constexpr static PrimeField One() {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = Config::kOne;
     return ret;
   }
@@ -96,7 +96,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   }
 
   constexpr static PrimeField FromMontgomery(const BigInt<N>& mont) {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = mont;
     return ret;
   }
@@ -167,7 +167,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
 
   // AdditiveSemigroup methods
   constexpr PrimeField Add(const PrimeField& other) const {
-    PrimeField ret;
+    PrimeField ret{};
     uint64_t carry = 0;
     ret.value_ = value_.Add(other.value_, carry);
     BigInt<N>::template Clamp<Config::kModulusHasSpareBit>(Config::kModulus,
@@ -184,7 +184,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   }
 
   constexpr PrimeField DoubleImpl() const {
-    PrimeField ret;
+    PrimeField ret{};
     uint64_t carry = 0;
     ret.value_ = value_.MulBy2(carry);
     BigInt<N>::template Clamp<Config::kModulusHasSpareBit>(Config::kModulus,
@@ -202,7 +202,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
 
   // AdditiveGroup methods
   constexpr PrimeField Sub(const PrimeField& other) const {
-    PrimeField ret;
+    PrimeField ret{};
     if (other.value_ > value_) {
       ret.value_ = value_.Add(Config::kModulus);
       ret.value_.SubInPlace(other.value_);
@@ -221,7 +221,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   }
 
   constexpr PrimeField Negate() const {
-    PrimeField ret;
+    PrimeField ret{};
     if (!IsZero()) {
       ret.value_ = Config::kModulus;
       ret.value_.SubInPlace(value_);
@@ -241,7 +241,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   // TODO(chokobole): Support bigendian.
   // MultiplicativeSemigroup methods
   constexpr PrimeField Mul(const PrimeField& other) const {
-    PrimeField ret;
+    PrimeField ret{};
     if constexpr (Config::kCanUseNoCarryMulOptimization) {
       DoFastMul(*this, other, ret);
     } else {
@@ -263,7 +263,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
     if (N == 1) {
       return Mul(*this);
     }
-    PrimeField ret;
+    PrimeField ret{};
     DoSquareImpl(*this, ret);
     return ret;
   }
@@ -278,7 +278,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
 
   // MultiplicativeGroup methods
   constexpr std::optional<PrimeField> Inverse() const {
-    PrimeField ret;
+    PrimeField ret{};
     if (LIKELY(value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
             Config::kModulus, Config::kMontgomeryR2, ret.value_))) {
       return ret;

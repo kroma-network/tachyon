@@ -65,7 +65,7 @@ class JacobianPoint<
 
   constexpr static std::optional<JacobianPoint> CreateFromX(const BaseField& x,
                                                             bool pick_odd) {
-    JacobianPoint point;
+    JacobianPoint point{};
     if (!Curve::GetPointFromX(x, pick_odd, &point)) return std::nullopt;
     return point;
   }

@@ -103,7 +103,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
 
   // Returns the maximum representable value for BigInt.
   constexpr static BigInt Max() {
-    BigInt ret;
+    BigInt ret{};
     for (uint64_t& limb : ret.limbs) {
       limb = std::numeric_limits<uint64_t>::max();
     }
@@ -112,7 +112,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
 
   // Generate a random BigInt between [0, |max|).
   constexpr static BigInt Random(const BigInt& max = Max()) {
-    BigInt ret;
+    BigInt ret{};
     for (size_t i = 0; i < N; ++i) {
       ret[i] = base::Uniform(base::Range<uint64_t>::All());
     }
@@ -141,7 +141,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   template <size_t BitNums = kBitNums>
   constexpr static BigInt FromBitsLE(const std::bitset<BitNums>& bits) {
     static_assert(BitNums <= kBitNums);
-    BigInt ret;
+    BigInt ret{};
     size_t bit_idx = 0;
     size_t limb_idx = 0;
     std::bitset<kLimbBitNums> limb_bits;
@@ -167,7 +167,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   template <size_t BitNums = kBitNums>
   constexpr static BigInt FromBitsBE(const std::bitset<BitNums>& bits) {
     static_assert(BitNums <= kBitNums);
-    BigInt ret;
+    BigInt ret{};
     std::bitset<kLimbBitNums> limb_bits;
     size_t bit_idx = 0;
     size_t limb_idx = 0;
@@ -196,7 +196,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   // ordering.
   template <typename ByteContainer>
   constexpr static BigInt FromBytesLE(const ByteContainer& bytes) {
-    BigInt ret;
+    BigInt ret{};
     size_t byte_idx = 0;
     size_t limb_idx = 0;
     uint64_t limb = 0;
@@ -224,7 +224,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   // ordering.
   template <typename ByteContainer>
   constexpr static BigInt FromBytesBE(const ByteContainer& bytes) {
-    BigInt ret;
+    BigInt ret{};
     size_t byte_idx = 0;
     size_t limb_idx = 0;
     uint64_t limb = 0;
@@ -446,7 +446,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   constexpr BigInt operator&(const BigInt& other) const {
-    BigInt ret;
+    BigInt ret{};
     if constexpr (N == 1) {
       ret[0] = limbs[0] & other[0];
     } else if constexpr (N == 2) {
@@ -471,7 +471,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   constexpr BigInt operator|(const BigInt& other) const {
-    BigInt ret;
+    BigInt ret{};
     if constexpr (N == 1) {
       ret[0] = limbs[0] | other[0];
     } else if constexpr (N == 2) {
@@ -496,7 +496,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   constexpr BigInt operator^(const BigInt& other) const {
-    BigInt ret;
+    BigInt ret{};
     if constexpr (N == 1) {
       ret[0] = limbs[0] ^ other[0];
     } else if constexpr (N == 2) {
@@ -548,7 +548,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   constexpr BigInt Add(const BigInt& other, uint64_t& carry) const {
-    BigInt ret;
+    BigInt ret{};
     DoAdd(*this, other, carry, ret);
     return ret;
   }
@@ -569,7 +569,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   constexpr BigInt Sub(const BigInt& other, uint64_t& borrow) const {
-    BigInt ret;
+    BigInt ret{};
     DoSub(*this, other, borrow, ret);
     return ret;
   }
@@ -590,7 +590,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   constexpr BigInt MulBy2(uint64_t& carry) const {
-    BigInt ret;
+    BigInt ret{};
     DoMulBy2(*this, carry, ret);
     return ret;
   }

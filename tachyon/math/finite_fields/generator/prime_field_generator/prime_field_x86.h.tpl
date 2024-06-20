@@ -56,7 +56,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   constexpr static PrimeField Zero() { return PrimeField(); }
 
   constexpr static PrimeField One() {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = Config::kOne;
     return ret;
   }
@@ -89,7 +89,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   }
 
   constexpr static PrimeField FromMontgomery(const BigInt<N>& big_int) {
-    PrimeField ret;
+    PrimeField ret{};
     ret.value_ = big_int;
     return ret;
   }
@@ -157,7 +157,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
 
   // AdditiveSemigroup methods
   constexpr PrimeField Add(const PrimeField& other) const {
-    PrimeField ret;
+    PrimeField ret{};
     %{prefix}_rawAdd(ret.value_.limbs, value_.limbs, other.value_.limbs);
     return ret;
   }
@@ -169,7 +169,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
 
   // AdditiveGroup methods
   constexpr PrimeField Sub(const PrimeField& other) const {
-    PrimeField ret;
+    PrimeField ret{};
     %{prefix}_rawSub(ret.value_.limbs, value_.limbs, other.value_.limbs);
     return ret;
   }
@@ -180,7 +180,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   }
 
   constexpr PrimeField Negate() const {
-    PrimeField ret;
+    PrimeField ret{};
     %{prefix}_rawNeg(ret.value_.limbs, value_.limbs);
     return ret;
   }
@@ -193,7 +193,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   // TODO(chokobole): Support bigendian.
   // MultiplicativeSemigroup methods
   constexpr PrimeField Mul(const PrimeField& other) const {
-    PrimeField ret;
+    PrimeField ret{};
     %{prefix}_rawMMul(ret.value_.limbs, value_.limbs, other.value_.limbs);
     return ret;
   }
@@ -204,7 +204,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   }
 
   constexpr PrimeField Square() const {
-    PrimeField ret;
+    PrimeField ret{};
     %{prefix}_rawMSquare(ret.value_.limbs, value_.limbs);
     return ret;
   }
@@ -216,7 +216,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
 
   // MultiplicativeGroup methods
   constexpr std::optional<PrimeField> Inverse() const {
-    PrimeField ret;
+    PrimeField ret{};
     if (LIKELY(value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
             Config::kModulus, Config::kMontgomeryR2, ret.value_))) {
       return ret;

@@ -61,7 +61,7 @@ class AffinePoint<
 
   constexpr static std::optional<AffinePoint> CreateFromX(const BaseField& x,
                                                           bool pick_odd) {
-    AffinePoint point;
+    AffinePoint point{};
     if (!Curve::GetPointFromX(x, pick_odd, &point)) return std::nullopt;
     return point;
   }
