@@ -33,9 +33,9 @@ using MyHasher = PaddingFreeSponge<Poseidon2, kRate, kChunk>;
 using MyPackedHasher = PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
 using MyCompressor = TruncatedPermutation<Poseidon2, kChunk, kN>;
 using MyPackedCompressor = TruncatedPermutation<PackedPoseidon2, kChunk, kN>;
-using Tree = FieldMerkleTree<PackedF, kChunk>;
-using MMCS = FieldMerkleTreeMMCS<PackedF, MyHasher, MyPackedHasher,
-                                 MyCompressor, MyPackedCompressor, kChunk>;
+using Tree = FieldMerkleTree<F, kChunk>;
+using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
+                                 MyPackedCompressor, kChunk>;
 
 namespace {
 
