@@ -34,8 +34,8 @@ std::vector<T> CreateRangedVector(T start, T end, T step = 1) {
 
 template <typename Generator,
           typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
-          typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
           typename ArgList = internal::ExtractArgs<RunType>,
           size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 0>* = nullptr>
@@ -49,8 +49,8 @@ std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
 
 template <typename Generator,
           typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
-          typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
           typename ArgList = internal::ExtractArgs<RunType>,
           size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 1>* = nullptr>
@@ -68,8 +68,8 @@ std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
 
 template <typename Iterator, typename UnaryOp,
           typename FunctorTraits = internal::MakeFunctorTraits<UnaryOp>,
-          typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
           typename ArgList = internal::ExtractArgs<RunType>,
           size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 1>* = nullptr>
@@ -83,8 +83,8 @@ std::vector<ReturnType> Map(Iterator begin, Iterator end, UnaryOp&& op) {
 
 template <typename Iterator, typename UnaryOp,
           typename FunctorTraits = internal::MakeFunctorTraits<UnaryOp>,
-          typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
           typename ArgList = internal::ExtractArgs<RunType>,
           size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 2>* = nullptr>

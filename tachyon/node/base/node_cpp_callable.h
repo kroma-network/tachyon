@@ -122,8 +122,8 @@ class NodeCppCallable {
  public:
   template <typename Functor,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Functor>,
-            typename RunType = typename FunctorTraits::RunType,
             typename ReturnType = typename FunctorTraits::ReturnType,
+            typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::ExtractArgs<RunType>,
             std::enable_if_t<!std::is_same<ReturnType, void>::value>* = nullptr>
   static Napi::Value Call(const Napi::CallbackInfo& info) {
@@ -136,8 +136,8 @@ class NodeCppCallable {
 
   template <typename Functor,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Functor>,
-            typename RunType = typename FunctorTraits::RunType,
             typename ReturnType = typename FunctorTraits::ReturnType,
+            typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::ExtractArgs<RunType>,
             std::enable_if_t<std::is_same<ReturnType, void>::value>* = nullptr>
   static void Call(const Napi::CallbackInfo& info) {
@@ -150,8 +150,8 @@ class NodeCppCallable {
 
   template <typename Functor,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Functor>,
-            typename RunType = typename FunctorTraits::RunType,
             typename ReturnType = typename FunctorTraits::ReturnType,
+            typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::ExtractArgs<RunType>>
   static std::unique_ptr<base::CppValue> CallConstructor(
       const Napi::CallbackInfo& info, NodeCppConstructorData* data) {
@@ -162,8 +162,8 @@ class NodeCppCallable {
 
   template <typename Functor, typename Class,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Functor>,
-            typename RunType = typename FunctorTraits::RunType,
             typename ReturnType = typename FunctorTraits::ReturnType,
+            typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::DropTypeListItem<
                 1, base::internal::ExtractArgs<RunType>>,
             std::enable_if_t<!std::is_same<ReturnType, void>::value>* = nullptr>
@@ -181,8 +181,8 @@ class NodeCppCallable {
 
   template <typename Functor, typename Class,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Functor>,
-            typename RunType = typename FunctorTraits::RunType,
             typename ReturnType = typename FunctorTraits::ReturnType,
+            typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::DropTypeListItem<
                 1, base::internal::ExtractArgs<RunType>>,
             std::enable_if_t<std::is_same<ReturnType, void>::value>* = nullptr>
@@ -293,8 +293,8 @@ class NodeCppCallable {
  private:
   template <typename Functor, typename Tuple,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Functor>,
-            typename RunType = typename FunctorTraits::RunType,
             typename ReturnType = typename FunctorTraits::ReturnType,
+            typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::ExtractArgs<RunType>>
   static ReturnType CallHelper(Functor&& f, Tuple&& args) {
     return DoCall(std::forward<Functor>(f), std::forward<Tuple>(args),
@@ -304,8 +304,8 @@ class NodeCppCallable {
 
   template <typename Functor, typename Tuple, size_t... Is,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Functor>,
-            typename RunType = typename FunctorTraits::RunType,
             typename ReturnType = typename FunctorTraits::ReturnType,
+            typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::ExtractArgs<RunType>>
   static ReturnType DoCall(Functor&& f, Tuple&& args,
                            std::index_sequence<Is...>) {
@@ -316,8 +316,8 @@ class NodeCppCallable {
 
   template <typename Functor, typename Class, typename Tuple,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Functor>,
-            typename RunType = typename FunctorTraits::RunType,
             typename ReturnType = typename FunctorTraits::ReturnType,
+            typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::DropTypeListItem<
                 1, base::internal::ExtractArgs<RunType>>>
   static ReturnType CallHelper(Functor&& f, Class* cls, Tuple&& args) {
@@ -328,8 +328,8 @@ class NodeCppCallable {
 
   template <typename Functor, typename Class, typename Tuple, size_t... Is,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Functor>,
-            typename RunType = typename FunctorTraits::RunType,
             typename ReturnType = typename FunctorTraits::ReturnType,
+            typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::DropTypeListItem<
                 1, base::internal::ExtractArgs<RunType>>>
   static ReturnType DoCall(Functor&& f, Class* cls, Tuple&& args,
