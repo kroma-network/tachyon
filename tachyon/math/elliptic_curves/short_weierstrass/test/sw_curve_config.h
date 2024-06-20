@@ -48,10 +48,10 @@ template <typename BaseField, typename ScalarField>
 Point2<BaseField> SWCurveConfig<BaseField, ScalarField>::kGenerator;
 
 using G1Curve = SWCurve<SWCurveConfig<GF7, GF7>>;
-using AffinePoint = math::AffinePoint<G1Curve>;
-using ProjectivePoint = math::ProjectivePoint<G1Curve>;
-using JacobianPoint = math::JacobianPoint<G1Curve>;
-using PointXYZZ = math::PointXYZZ<G1Curve>;
+using AffinePoint = AffinePoint<G1Curve>;
+using ProjectivePoint = ProjectivePoint<G1Curve>;
+using JacobianPoint = JacobianPoint<G1Curve>;
+using PointXYZZ = PointXYZZ<G1Curve>;
 
 }  // namespace test
 }  // namespace tachyon::math

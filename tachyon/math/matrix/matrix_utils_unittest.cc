@@ -13,9 +13,8 @@ namespace tachyon::math {
 class MatrixUtilsTest : public FiniteFieldTest<GF7> {};
 
 TEST_F(MatrixUtilsTest, Circulant) {
-  math::Matrix<GF7> circulant =
-      math::MakeCirculant(math::Vector<GF7>{{GF7(2), GF7(3), GF7(4)}});
-  math::Matrix<GF7> expected{{
+  Matrix<GF7> circulant = MakeCirculant(Vector<GF7>{{GF7(2), GF7(3), GF7(4)}});
+  Matrix<GF7> expected{{
       {GF7(2), GF7(4), GF7(3)},
       {GF7(3), GF7(2), GF7(4)},
       {GF7(4), GF7(3), GF7(2)},

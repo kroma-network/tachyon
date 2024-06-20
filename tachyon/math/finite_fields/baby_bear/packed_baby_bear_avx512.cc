@@ -66,21 +66,21 @@ PackedBabyBearAVX512 PackedBabyBearAVX512::Broadcast(const PrimeField& value) {
 
 PackedBabyBearAVX512 PackedBabyBearAVX512::Add(
     const PackedBabyBearAVX512& other) const {
-  return FromVector(tachyon::math::Add(ToVector(*this), ToVector(other)));
+  return FromVector(math::Add(ToVector(*this), ToVector(other)));
 }
 
 PackedBabyBearAVX512 PackedBabyBearAVX512::Sub(
     const PackedBabyBearAVX512& other) const {
-  return FromVector(tachyon::math::Sub(ToVector(*this), ToVector(other)));
+  return FromVector(math::Sub(ToVector(*this), ToVector(other)));
 }
 
 PackedBabyBearAVX512 PackedBabyBearAVX512::Negate() const {
-  return FromVector(tachyon::math::Negate(ToVector(*this)));
+  return FromVector(math::Negate(ToVector(*this)));
 }
 
 PackedBabyBearAVX512 PackedBabyBearAVX512::Mul(
     const PackedBabyBearAVX512& other) const {
-  return FromVector(tachyon::math::Mul(ToVector(*this), ToVector(other)));
+  return FromVector(math::Mul(ToVector(*this), ToVector(other)));
 }
 
 }  // namespace tachyon::math

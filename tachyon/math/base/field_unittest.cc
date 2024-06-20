@@ -7,7 +7,7 @@ namespace tachyon::math {
 
 namespace {
 
-class FieldTest : public FiniteFieldTest<math::GF7> {};
+class FieldTest : public FiniteFieldTest<GF7> {};
 
 }  // namespace
 

@@ -16,7 +16,7 @@ namespace tachyon::math {
 
 // TODO(chokobole): Consider bigendian.
 std::string MpzClassToString(const mpz_class& m) {
-  size_t limb_size = math::gmp::GetLimbSize(m);
+  size_t limb_size = gmp::GetLimbSize(m);
   if (limb_size == 0) {
     return "UINT64_C(0)";
   }
@@ -24,14 +24,13 @@ std::string MpzClassToString(const mpz_class& m) {
   std::vector<std::string> ret;
   ret.reserve(limb_size);
   for (size_t i = 0; i < limb_size; ++i) {
-    ret.push_back(
-        absl::Substitute("UINT64_C($0)", math::gmp::GetLimbConstRef(m, i)));
+    ret.push_back(absl::Substitute("UINT64_C($0)", gmp::GetLimbConstRef(m, i)));
   }
   return absl::StrJoin(ret, ", ");
 }
 
 std::string MpzClassToMontString(const mpz_class& v, const mpz_class& m) {
-  size_t limb_size = math::gmp::GetLimbSize(m);
+  size_t limb_size = gmp::GetLimbSize(m);
   switch (limb_size) {
     case 1:
       return MpzClassToMontString<1>(v, m);
@@ -59,10 +58,10 @@ std::string MpzClassToMontString(const mpz_class& v, const mpz_class& m) {
 std::string GenerateFastMultiplication(int64_t value) {
   CHECK_NE(value, 0);
   bool is_negative = value < 0;
-  math::BigInt<1> scalar(is_negative ? -value : value);
-  auto it = math::BitIteratorBE<math::BigInt<1>>::begin(&scalar, true);
+  BigInt<1> scalar(is_negative ? -value : value);
+  auto it = BitIteratorBE<BigInt<1>>::begin(&scalar, true);
   ++it;
-  auto end = math::BitIteratorBE<math::BigInt<1>>::end(&scalar);
+  auto end = BitIteratorBE<BigInt<1>>::end(&scalar);
   std::stringstream ss;
   while (it != end) {
     ss << ".DoubleInPlace()";
