@@ -32,7 +32,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
   static_assert(Config::kDegreeOverBaseField == 2);
   static_assert(BaseField::ExtensionDegree() == 6);
 
-  constexpr static uint64_t kDegreeOverBasePrimeField = 12;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 12;
 
   static void Init() {
     using BaseFieldConfig = typename BaseField::Config;

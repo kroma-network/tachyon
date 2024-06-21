@@ -33,7 +33,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
 
   static_assert(BaseField::ExtensionDegree() == 3);
 
-  constexpr static uint64_t kDegreeOverBasePrimeField = 6;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 6;
 
   static void Init() {
     using BaseFieldConfig = typename BaseField::Config;
@@ -228,7 +228,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
 
   static_assert(BaseField::ExtensionDegree() == 2);
 
-  constexpr static uint64_t kDegreeOverBasePrimeField = 6;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 6;
 
   static void Init() {
     Config::Init();

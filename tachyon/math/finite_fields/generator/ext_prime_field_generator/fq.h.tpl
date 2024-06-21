@@ -23,8 +23,8 @@ class %{class}Config {
 %{endif FrobeniusCoefficient3}
 
   constexpr static bool kNonResidueIsMinusOne = %{non_residue_is_minus_one};
-  constexpr static uint64_t kDegreeOverBaseField = %{degree_over_base_field};
-  constexpr static uint64_t kDegreeOverBasePrimeField = %{degree_over_base_prime_field};
+  constexpr static uint32_t kDegreeOverBaseField = %{degree_over_base_field};
+  constexpr static uint32_t kDegreeOverBasePrimeField = %{degree_over_base_prime_field};
 
   static BaseField MulByNonResidue(const BaseField& v) {
 %{mul_by_non_residue_code}
