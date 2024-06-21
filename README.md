@@ -29,7 +29,7 @@ Symbol Definitions:
 | ------------ | ------------------ | ------------------ |
 | BabyBear     | :heavy_check_mark: | :heavy_check_mark: |
 | BinaryFields | :heavy_check_mark: | :heavy_check_mark: |
-| Goldilocks   | :heavy_check_mark: | :x:                |
+| Goldilocks   | :heavy_check_mark: | :heavy_check_mark: |
 | Mersenne-31  | :heavy_check_mark: | :heavy_check_mark: |
 | KoalaBear    | :heavy_check_mark: | :heavy_check_mark: |
 
@@ -47,8 +47,8 @@ Symbol Definitions:
 
 |          | CPU                | GPU |
 | -------- | ------------------ | --- |
-| GWC      | :heavy_check_mark: | 🏗️  |
-| SHPlonk  | :heavy_check_mark: | 🏗️  |
+| GWC      | :heavy_check_mark: | :x: |
+| SHPlonk  | :heavy_check_mark: | :x: |
 | FRI      | :heavy_check_mark: | :x: |
 | Pedersen | :heavy_check_mark: | :x: |
 
@@ -82,9 +82,9 @@ Symbol Definitions:
 ## Roadmap
 
 - [x] 2024Q1 - Enable producing the [zkEVM](https://github.com/kroma-network/zkevm-circuits) proof.
-- [ ] 2024Q2 - Replace Halo2 with Tachyon in [Kroma](https://kroma.network/) mainnet.
-- [ ] 2024Q3 - Implement Halo2 GPU.
-- [ ] 2024Q4 - Implement Halo2 Folding Scheme.
+- [x] 2024Q2 - Replace Halo2 with Tachyon in [Kroma](https://kroma.network/) mainnet.
+- [ ] 2024Q3a - Implement and optimize Plonky3 in Tachyon.
+- [ ] 2024Q3b - Replace zkEVM with [SP1](https://github.com/succinctlabs/sp1) zkVM in [Kroma](https://kroma.network/) mainnet.
 
 ## Prerequisites
 
