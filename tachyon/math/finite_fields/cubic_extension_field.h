@@ -123,6 +123,19 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   constexpr const BaseField& c1() const { return c1_; }
   constexpr const BaseField& c2() const { return c2_; }
 
+  constexpr const BaseField& operator[](size_t index) const {
+    switch (index) {
+      case 0:
+        return c0_;
+      case 1:
+        return c1_;
+      case 2:
+        return c2_;
+    }
+    NOTREACHED();
+    return c0_;
+  }
+
   constexpr bool operator==(const Derived& other) const {
     return c0_ == other.c0_ && c1_ == other.c1_ && c2_ == other.c2_;
   }

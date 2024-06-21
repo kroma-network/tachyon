@@ -107,6 +107,17 @@ class QuadraticExtensionField
   constexpr const BaseField& c0() const { return c0_; }
   constexpr const BaseField& c1() const { return c1_; }
 
+  constexpr const BaseField& operator[](size_t index) const {
+    switch (index) {
+      case 0:
+        return c0_;
+      case 1:
+        return c1_;
+    }
+    NOTREACHED();
+    return c0_;
+  }
+
   constexpr bool operator==(const Derived& other) const {
     return c0_ == other.c0_ && c1_ == other.c1_;
   }
