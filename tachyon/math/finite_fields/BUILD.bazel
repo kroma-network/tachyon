@@ -54,7 +54,11 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "finite_field_traits",
     hdrs = ["finite_field_traits.h"],
-    deps = [":finite_field_forwards"],
+    deps = [
+        ":finite_field_forwards",
+        "//tachyon/math/matrix:cost_calculator_forward",
+        "@eigen_archive//:eigen3",
+    ],
 )
 
 tachyon_cc_library(

@@ -1,7 +1,12 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_FINITE_FIELD_TRAITS_H_
 #define TACHYON_MATH_FINITE_FIELDS_FINITE_FIELD_TRAITS_H_
 
+#include <stdint.h>
+
+#include "third_party/eigen3/Eigen/Core"
+
 #include "tachyon/math/finite_fields/finite_field_forwards.h"
+#include "tachyon/math/matrix/cost_calculator_forward.h"
 
 namespace tachyon::math {
 
@@ -95,5 +100,32 @@ struct FiniteFieldTraits<Fp12<_Config>> {
 };
 
 }  // namespace tachyon::math
+
+namespace Eigen {
+
+template <typename F>
+struct NumTraits<
+    F, std::enable_if_t<tachyon::math::FiniteFieldTraits<F>::kIsExtensionField>>
+    : GenericNumTraits<F> {
+  using BasePrimeField = typename F::BasePrimeField;
+  constexpr static uint32_t kDegreeOverBasePrimeField =
+      F::kDegreeOverBasePrimeField;
+
+  enum {
+    IsInteger = 1,
+    IsSigned = 0,
+    IsComplex = 0,
+    RequireInitialization = 1,
+    ReadCost =
+        tachyon::math::CostCalculator<BasePrimeField>::ComputeReadCost() *
+        kDegreeOverBasePrimeField,
+    AddCost = tachyon::math::CostCalculator<BasePrimeField>::ComputeAddCost() *
+              kDegreeOverBasePrimeField,
+    MulCost = tachyon::math::CostCalculator<BasePrimeField>::ComputeMulCost() *
+              kDegreeOverBasePrimeField,
+  };
+};
+
+}  // namespace Eigen
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_FINITE_FIELD_TRAITS_H_
