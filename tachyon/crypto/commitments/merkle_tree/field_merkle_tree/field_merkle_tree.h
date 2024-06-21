@@ -156,12 +156,8 @@ class FieldMerkleTree {
             }
           } else {
             for (size_t i = 0; i < chunk.size(); ++i) {
-              size_t row = start + i;
-              chunk[i] = hasher.Hash(base::FlatMap(
-                  tallest_matrices, [row](const math::RowMajorMatrix<F>* m) {
-                    return base::CreateVector(
-                        m->cols(), [m, row](size_t i) { return (*m)(row, i); });
-                  }));
+              chunk[i] = hasher.Hash(
+                  GetRowAsPrimeFieldVector(tallest_matrices, start + i));
             }
           }
         });
@@ -223,12 +219,8 @@ class FieldMerkleTree {
                   prev_layer[2 * (start + i) + 1],
               };
               inputs[0] = compressor.Compress(inputs);
-              size_t row = start + i;
-              inputs[1] = hasher.Hash(base::FlatMap(
-                  matrices_to_inject, [row](const math::RowMajorMatrix<F>* m) {
-                    return base::CreateVector(
-                        m->cols(), [m, row](size_t i) { return (*m)(row, i); });
-                  }));
+              inputs[1] = hasher.Hash(
+                  GetRowAsPrimeFieldVector(matrices_to_inject, start + i));
               chunk[i] = compressor.Compress(inputs);
             }
           }
@@ -295,6 +287,32 @@ class FieldMerkleTree {
           }
         });
     return ret;
+  }
+
+  static std::vector<PrimeField> GetRowAsPrimeFieldVector(
+      absl::Span<const math::RowMajorMatrix<F>*> matrices, size_t row) {
+    return base::FlatMap(matrices, [row](const math::RowMajorMatrix<F>* m) {
+      if constexpr (math::FiniteFieldTraits<F>::kIsExtensionField) {
+        static_assert(
+            math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField ==
+            math::ExtensionFieldTraits<F>::kDegreeOverBaseField);
+        std::vector<PrimeField> ret;
+        ret.reserve(m->cols() *
+                    math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField);
+        for (size_t i = 0; m->cols(); ++i) {
+          const F& element = (*m)(row, i);
+          for (size_t j = 0;
+               j < math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField;
+               ++j) {
+            ret.push_back(element[j]);
+          }
+        }
+        return ret;
+      } else {
+        return base::CreateVector(m->cols(),
+                                  [m, row](size_t i) { return (*m)(row, i); });
+      }
+    });
   }
 
   std::vector<math::RowMajorMatrix<F>> leaves_;

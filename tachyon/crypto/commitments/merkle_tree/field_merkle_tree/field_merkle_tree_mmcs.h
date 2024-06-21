@@ -128,9 +128,8 @@ class FieldMerkleTreeMMCS final
         absl::bit_ceil(remaining_dimensions_list.front().height);
     size_t next_layer_size = CountLayers(next_layer, remaining_dimensions_list);
     remaining_dimensions_list.remove_prefix(next_layer_size);
-    Digest root = hasher_.Hash(
-        base::FlatMap(remaining_opened_values.subspan(0, next_layer_size),
-                      [](const std::vector<F>& fields) { return fields; }));
+    Digest root = hasher_.Hash(GetOpenedValuesAsPrimeFieldVectors(
+        remaining_opened_values, next_layer_size));
     remaining_opened_values.remove_prefix(next_layer_size);
 
     for (const Digest& sibling : proof) {
@@ -146,9 +145,8 @@ class FieldMerkleTreeMMCS final
         remaining_dimensions_list.remove_prefix(next_layer_size);
 
         inputs[0] = std::move(root);
-        inputs[1] = hasher_.Hash(
-            base::FlatMap(remaining_opened_values.subspan(0, next_layer_size),
-                          [](const std::vector<F>& fields) { return fields; }));
+        inputs[1] = hasher_.Hash(GetOpenedValuesAsPrimeFieldVectors(
+            remaining_opened_values, next_layer_size));
         remaining_opened_values.remove_prefix(next_layer_size);
 
         root = compressor_.Compress(inputs);
@@ -171,6 +169,39 @@ class FieldMerkleTreeMMCS final
       }
     }
     return ret;
+  }
+
+  static std::vector<PrimeField> GetOpenedValuesAsPrimeFieldVectors(
+      absl::Span<const std::vector<F>> opened_values, size_t next_layer_size) {
+    if constexpr (math::FiniteFieldTraits<F>::kIsExtensionField) {
+      static_assert(math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField ==
+                    math::ExtensionFieldTraits<F>::kDegreeOverBaseField);
+      absl::Span<const std::vector<F>> sub_opened_values =
+          opened_values.subspan(0, next_layer_size);
+      size_t size =
+          std::accumulate(sub_opened_values.begin(), sub_opened_values.end(), 0,
+                          [](size_t acc, const std::vector<F>& fields) {
+                            return acc + fields.size();
+                          });
+      std::vector<PrimeField> ret;
+      ret.reserve(size *
+                  math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField);
+      for (size_t i = 0; i < sub_opened_values.size(); ++i) {
+        const std::vector<F>& elements = sub_opened_values[i];
+        for (size_t j = 0; j < elements.size(); ++j) {
+          const F& element = elements[j];
+          for (size_t k = 0;
+               k < math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField;
+               ++k) {
+            ret.push_back(element[k]);
+          }
+        }
+      }
+      return ret;
+    } else {
+      return base::FlatMap(opened_values.subspan(0, next_layer_size),
+                           [](const std::vector<F>& fields) { return fields; });
+    }
   }
 
   FieldMerkleTree<F, N> field_merkle_tree_;

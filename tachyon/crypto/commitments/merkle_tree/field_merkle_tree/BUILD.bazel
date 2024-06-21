@@ -3,6 +3,12 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "extension_field_merkle_tree_mmcs",
+    hdrs = ["extension_field_merkle_tree_mmcs.h"],
+    deps = ["//tachyon/crypto/commitments:mixed_matrix_commitment_scheme"],
+)
+
+tachyon_cc_library(
     name = "field_merkle_tree",
     hdrs = ["field_merkle_tree.h"],
     deps = [
@@ -33,15 +39,18 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "field_merkle_tree_unittests",
     srcs = [
+        "extension_field_merkle_tree_mmcs_unittest.cc",
         "field_merkle_tree_mmcs_unittest.cc",
         "field_merkle_tree_unittest.cc",
     ],
     deps = [
+        ":extension_field_merkle_tree_mmcs",
         ":field_merkle_tree_mmcs",
         "//tachyon/crypto/hashes/sponge:padding_free_sponge",
         "//tachyon/crypto/hashes/sponge:truncated_permutation",
         "//tachyon/crypto/hashes/sponge/poseidon2",
         "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_plonky3_external_matrix",
+        "//tachyon/math/finite_fields/baby_bear:baby_bear4",
         "//tachyon/math/finite_fields/baby_bear:packed_baby_bear",
         "//tachyon/math/finite_fields/baby_bear:poseidon2",
         "//tachyon/math/finite_fields/test:finite_field_test",
