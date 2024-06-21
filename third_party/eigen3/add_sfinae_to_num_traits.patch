@@ -1,0 +1,48 @@
+diff --git a/Eigen/src/Core/NumTraits.h b/Eigen/src/Core/NumTraits.h
+index ff33aa6fb..89ba2bc0e 100644
+--- a/Eigen/src/Core/NumTraits.h
++++ b/Eigen/src/Core/NumTraits.h
+@@ -151,7 +151,7 @@ EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC Tgt bit_cast(const Src& src) {
+   * \li quiet_NaN function returning a non-signaling "not-a-number", if available.
+   */
+ 
+-template<typename T> struct GenericNumTraits
++template<typename T, typename SFINAE = void> struct GenericNumTraits
+ {
+   enum {
+     IsInteger = std::numeric_limits<T>::is_integer,
+@@ -227,7 +227,7 @@ template<typename T> struct GenericNumTraits
+   }
+ };
+ 
+-template<typename T> struct NumTraits : GenericNumTraits<T>
++template<typename T, typename SFINAE> struct NumTraits : GenericNumTraits<T>
+ {};
+ 
+ template<> struct NumTraits<float>
+diff --git a/Eigen/src/Core/util/ForwardDeclarations.h b/Eigen/src/Core/util/ForwardDeclarations.h
+index 4d2d77182..feacdcfe4 100644
+--- a/Eigen/src/Core/util/ForwardDeclarations.h
++++ b/Eigen/src/Core/util/ForwardDeclarations.h
+@@ -44,7 +44,7 @@ template< typename T> struct evaluator;
+ 
+ } // end namespace internal
+ 
+-template<typename T> struct NumTraits;
++template<typename T, typename SFINAE> struct NumTraits;
+ 
+ template<typename Derived> struct EigenBase;
+ template<typename Derived> class DenseBase;
+diff --git a/Eigen/src/Core/util/Meta.h b/Eigen/src/Core/util/Meta.h
+index a192aac87..bf87eaaea 100644
+--- a/Eigen/src/Core/util/Meta.h
++++ b/Eigen/src/Core/util/Meta.h
+@@ -409,7 +409,7 @@ struct aligned_storage {
+ 
+ } // end namespace internal
+ 
+-template<typename T> struct NumTraits;
++template<typename T, typename SFINAE = void> struct NumTraits;
+ 
+ namespace numext {
+ 

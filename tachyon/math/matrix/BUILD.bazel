@@ -44,7 +44,7 @@ tachyon_cc_library(
     hdrs = ["prime_field_num_traits.h"],
     deps = [
         ":cost_calculator_forward",
-        "//tachyon/math/finite_fields:finite_field_forwards",
+        "//tachyon/math/finite_fields:prime_field_base",
         "@eigen_archive//:eigen3",
     ],
 )
