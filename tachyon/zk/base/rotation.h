@@ -17,8 +17,8 @@
 
 namespace tachyon::zk {
 
-// NOTE(lightscale-luke): Rotation class is copyable, assignable, and occupy 32
-// bits per instance. Prefer to pass them by value.
+// NOTE(lightscale-luke): Rotation class is copyable, assignable, and occupies
+// 32 bits per instance. Prefer to pass them by value.
 class TACHYON_EXPORT Rotation {
  public:
   Rotation() = default;

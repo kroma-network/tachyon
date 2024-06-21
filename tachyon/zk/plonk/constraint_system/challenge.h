@@ -15,7 +15,7 @@
 
 namespace tachyon::zk::plonk {
 
-// NOTE(dongchangYoo): Challenge class is copyable, assignable, and occupy 72
+// NOTE(dongchangYoo): Challenge class is copyable, assignable, and occupies 72
 // bits per instance. Prefer to pass them by value.
 class TACHYON_EXPORT Challenge {
  public:

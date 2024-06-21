@@ -19,7 +19,7 @@
 
 namespace tachyon::zk::plonk {
 
-// NOTE(lightscale-luke): Phase class is copyable, assignable, and occupy 8
+// NOTE(lightscale-luke): Phase class is copyable, assignable, and occupies 8
 // bits per instance. Prefer to pass them by value.
 class TACHYON_EXPORT Phase {
  public:
