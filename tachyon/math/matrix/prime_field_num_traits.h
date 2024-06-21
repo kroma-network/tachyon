@@ -6,19 +6,16 @@
 #include "third_party/eigen3/Eigen/Core"
 
 #include "tachyon/math/finite_fields/finite_field_forwards.h"
+#include "tachyon/math/matrix/cost_calculator_forward.h"
 
-namespace Eigen {
-
-template <typename Config>
-struct CostCalculator;
+namespace tachyon::math {
 
 template <typename Config>
-struct CostCalculator<tachyon::math::PrimeField<Config>> {
-  constexpr static size_t kLimbNums =
-      tachyon::math::PrimeField<Config>::kLimbNums;
+struct CostCalculator<PrimeField<Config>> {
+  constexpr static size_t kLimbNums = PrimeField<Config>::kLimbNums;
   using NumTraitsType =
-      std::conditional_t<Config::kModulusBits <= 32, NumTraits<uint32_t>,
-                         NumTraits<uint64_t>>;
+      std::conditional_t<Config::kModulusBits <= 32, Eigen::NumTraits<uint32_t>,
+                         Eigen::NumTraits<uint64_t>>;
 
   constexpr static int ComputeReadCost() {
     return static_cast<int>(kLimbNums * NumTraitsType::ReadCost);
@@ -34,6 +31,10 @@ struct CostCalculator<tachyon::math::PrimeField<Config>> {
   }
 };
 
+}  // namespace tachyon::math
+
+namespace Eigen {
+
 template <typename Config>
 struct NumTraits<tachyon::math::PrimeField<Config>>
     : GenericNumTraits<tachyon::math::PrimeField<Config>> {
@@ -42,12 +43,12 @@ struct NumTraits<tachyon::math::PrimeField<Config>>
     IsSigned = 0,
     IsComplex = 0,
     RequireInitialization = 1,
-    ReadCost =
-        CostCalculator<tachyon::math::PrimeField<Config>>::ComputeReadCost(),
-    AddCost =
-        CostCalculator<tachyon::math::PrimeField<Config>>::ComputeAddCost(),
-    MulCost =
-        CostCalculator<tachyon::math::PrimeField<Config>>::ComputeMulCost(),
+    ReadCost = tachyon::math::CostCalculator<
+        tachyon::math::PrimeField<Config>>::ComputeReadCost(),
+    AddCost = tachyon::math::CostCalculator<
+        tachyon::math::PrimeField<Config>>::ComputeAddCost(),
+    MulCost = tachyon::math::CostCalculator<
+        tachyon::math::PrimeField<Config>>::ComputeMulCost(),
   };
 };
 

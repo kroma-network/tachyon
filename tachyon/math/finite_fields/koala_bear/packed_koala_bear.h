@@ -57,9 +57,9 @@ struct NumTraits<tachyon::math::PackedKoalaBear>
     IsSigned = 0,
     IsComplex = 0,
     RequireInitialization = 1,
-    ReadCost = CostCalculator<PrimeField>::ComputeReadCost() * N,
-    AddCost = CostCalculator<PrimeField>::ComputeAddCost() * N,
-    MulCost = CostCalculator<PrimeField>::ComputeMulCost() * N,
+    ReadCost = tachyon::math::CostCalculator<PrimeField>::ComputeReadCost() * N,
+    AddCost = tachyon::math::CostCalculator<PrimeField>::ComputeAddCost() * N,
+    MulCost = tachyon::math::CostCalculator<PrimeField>::ComputeMulCost() * N,
   };
 };
 

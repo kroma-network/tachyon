@@ -3,6 +3,11 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "cost_calculator_forward",
+    hdrs = ["cost_calculator_forward.h"],
+)
+
+tachyon_cc_library(
     name = "gmp_num_traits",
     hdrs = ["gmp_num_traits.h"],
     deps = [
@@ -38,6 +43,7 @@ tachyon_cc_library(
     name = "prime_field_num_traits",
     hdrs = ["prime_field_num_traits.h"],
     deps = [
+        ":cost_calculator_forward",
         "//tachyon/math/finite_fields:finite_field_forwards",
         "@eigen_archive//:eigen3",
     ],
