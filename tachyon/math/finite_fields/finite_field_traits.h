@@ -12,6 +12,7 @@ namespace tachyon::math {
 
 template <typename T>
 struct FiniteFieldTraits {
+  static constexpr bool kIsFiniteField = false;
   static constexpr bool kIsPrimeField = false;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = false;
@@ -19,6 +20,7 @@ struct FiniteFieldTraits {
 
 template <typename _Config>
 struct FiniteFieldTraits<BinaryField<_Config>> {
+  static constexpr bool kIsFiniteField = true;
   static constexpr bool kIsPrimeField = false;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = true;
@@ -28,6 +30,7 @@ struct FiniteFieldTraits<BinaryField<_Config>> {
 
 template <typename _Config>
 struct FiniteFieldTraits<PrimeField<_Config>> {
+  static constexpr bool kIsFiniteField = true;
   static constexpr bool kIsPrimeField = true;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = false;
@@ -38,6 +41,7 @@ struct FiniteFieldTraits<PrimeField<_Config>> {
 
 template <typename _Config>
 struct FiniteFieldTraits<PrimeFieldGpu<_Config>> {
+  static constexpr bool kIsFiniteField = true;
   static constexpr bool kIsPrimeField = true;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = false;
@@ -47,6 +51,7 @@ struct FiniteFieldTraits<PrimeFieldGpu<_Config>> {
 
 template <typename _Config>
 struct FiniteFieldTraits<PrimeFieldGpuDebug<_Config>> {
+  static constexpr bool kIsFiniteField = true;
   static constexpr bool kIsPrimeField = true;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = false;
@@ -56,6 +61,7 @@ struct FiniteFieldTraits<PrimeFieldGpuDebug<_Config>> {
 
 template <typename _Config>
 struct FiniteFieldTraits<Fp2<_Config>> {
+  static constexpr bool kIsFiniteField = true;
   static constexpr bool kIsPrimeField = false;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = true;
@@ -65,6 +71,7 @@ struct FiniteFieldTraits<Fp2<_Config>> {
 
 template <typename _Config>
 struct FiniteFieldTraits<Fp3<_Config>> {
+  static constexpr bool kIsFiniteField = true;
   static constexpr bool kIsPrimeField = false;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = true;
@@ -74,6 +81,7 @@ struct FiniteFieldTraits<Fp3<_Config>> {
 
 template <typename _Config>
 struct FiniteFieldTraits<Fp4<_Config>> {
+  static constexpr bool kIsFiniteField = true;
   static constexpr bool kIsPrimeField = false;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = true;
@@ -83,6 +91,7 @@ struct FiniteFieldTraits<Fp4<_Config>> {
 
 template <typename _Config>
 struct FiniteFieldTraits<Fp6<_Config>> {
+  static constexpr bool kIsFiniteField = true;
   static constexpr bool kIsPrimeField = false;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = true;
@@ -92,6 +101,7 @@ struct FiniteFieldTraits<Fp6<_Config>> {
 
 template <typename _Config>
 struct FiniteFieldTraits<Fp12<_Config>> {
+  static constexpr bool kIsFiniteField = true;
   static constexpr bool kIsPrimeField = false;
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = true;

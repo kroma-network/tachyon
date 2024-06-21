@@ -22,7 +22,7 @@ tachyon_cc_library(
     deps = [
         ":prime_field_num_traits",
         "//tachyon/base/buffer:copyable",
-        "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/finite_fields:finite_field_traits",
         "@eigen_archive//:eigen3",
     ],
 )

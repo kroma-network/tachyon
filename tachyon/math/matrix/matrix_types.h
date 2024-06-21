@@ -7,7 +7,7 @@
 #include "third_party/eigen3/Eigen/Core"
 
 #include "tachyon/base/buffer/copyable.h"
-#include "tachyon/math/finite_fields/prime_field_base.h"
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon {
 namespace math {
@@ -125,8 +125,7 @@ namespace Eigen::internal {
 
 template <typename T>
 struct scalar_random_op<
-    T,
-    std::enable_if_t<std::is_base_of_v<tachyon::math::PrimeFieldBase<T>, T>>> {
+    T, std::enable_if_t<tachyon::math::FiniteFieldTraits<T>::kIsFiniteField>> {
   inline const T operator()() const { return T::Random(); }
 };
 
