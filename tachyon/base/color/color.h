@@ -26,7 +26,7 @@ TACHYON_EXPORT extern const RgbaIndexes kBgrIndexes;
 TACHYON_EXPORT extern const RgbaIndexes kBgraIndexes;
 TACHYON_EXPORT extern const RgbaIndexes kArgbIndexes;
 
-// Rgba class is copyable, assignable, and occupy 32-bits per instance.
+// Rgba class is copyable, assignable, and occupies 32-bits per instance.
 // As a result, prefer passing them by value:
 //   void MyFunction(Rgba arg);
 // If circumstances require, you may also pass by const reference:
