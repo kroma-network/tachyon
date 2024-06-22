@@ -7,6 +7,7 @@
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_rational_evaluations_type_traits.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -62,7 +63,7 @@ TEST_F(UnivariateEvaluationDomainTest, EmptyRationalEvals) {
       reinterpret_cast<Domain*>(domain_)->Zero<RationalEvals>();
   tachyon_bn254_univariate_rational_evaluations* evals =
       tachyon_bn254_univariate_evaluation_domain_empty_rational_evals(domain_);
-  EXPECT_EQ(cpp_evals, reinterpret_cast<RationalEvals&>(*evals));
+  EXPECT_EQ(cpp_evals, c::base::native_cast(*evals));
   tachyon_bn254_univariate_rational_evaluations_destroy(evals);
 }
 
