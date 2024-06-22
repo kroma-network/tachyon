@@ -9,7 +9,7 @@
 #include "benchmark/fft/simple_fft_benchmark_reporter.h"
 // clang-format on
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
-#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
