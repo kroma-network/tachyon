@@ -5,6 +5,7 @@
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_rational_evaluations_type_traits.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
@@ -46,9 +47,8 @@ tachyon_bn254_univariate_evaluation_domain_empty_poly(
 tachyon_bn254_univariate_rational_evaluations*
 tachyon_bn254_univariate_evaluation_domain_empty_rational_evals(
     const tachyon_bn254_univariate_evaluation_domain* domain) {
-  return reinterpret_cast<tachyon_bn254_univariate_rational_evaluations*>(
-      new RationalEvals(
-          reinterpret_cast<const Domain*>(domain)->Zero<RationalEvals>()));
+  return c::base::c_cast(new RationalEvals(
+      reinterpret_cast<const Domain*>(domain)->Zero<RationalEvals>()));
 }
 
 tachyon_bn254_univariate_evaluations*
