@@ -10,6 +10,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
@@ -162,8 +163,7 @@ tachyon_bn254_blinder* tachyon_halo2_bn254_gwc_prover_get_blinder(
 const tachyon_bn254_univariate_evaluation_domain*
 tachyon_halo2_bn254_gwc_prover_get_domain(
     const tachyon_halo2_bn254_gwc_prover* prover) {
-  return reinterpret_cast<const tachyon_bn254_univariate_evaluation_domain*>(
-      reinterpret_cast<const ProverImpl*>(prover)->domain());
+  return c::base::c_cast(reinterpret_cast<const ProverImpl*>(prover)->domain());
 }
 
 tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_gwc_prover_commit(

@@ -57,10 +57,7 @@ class FFTRunner {
       PolyOrEvals poly = (*polys_)[i];
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CRetPoly> ret;
-      ret.reset(fn(
-          reinterpret_cast<const tachyon_bn254_univariate_evaluation_domain*>(
-              domains_[i].get()),
-          c::base::c_cast(&poly)));
+      ret.reset(fn(c::base::c_cast(domains_[i].get()), c::base::c_cast(&poly)));
       reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
       results->push_back(*c::base::native_cast(ret.get()));
     }

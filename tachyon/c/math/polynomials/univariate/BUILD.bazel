@@ -36,11 +36,15 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bn254_univariate_evaluation_domain",
     srcs = ["bn254_univariate_evaluation_domain.cc"],
-    hdrs = ["bn254_univariate_evaluation_domain.h"],
+    hdrs = [
+        "bn254_univariate_evaluation_domain.h",
+        "bn254_univariate_evaluation_domain_type_traits.h",
+    ],
     deps = [
         ":bn254_univariate_dense_polynomial",
         ":bn254_univariate_evaluations",
         ":bn254_univariate_rational_evaluations",
+        "//tachyon/c/base:type_traits_forward",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
