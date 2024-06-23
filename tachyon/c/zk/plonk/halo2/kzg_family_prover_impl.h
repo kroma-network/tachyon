@@ -29,11 +29,11 @@ class KZGFamilyProverImpl : public ProverImplBase<PCS, LS> {
 
   using ProverImplBase<PCS, LS>::ProverImplBase;
 
-  CJacobianPoint* Commit(const std::vector<ScalarField>& scalars) const {
+  CJacobianPoint* CommitRaw(const std::vector<ScalarField>& scalars) const {
     return DoMSM(this->pcs_.GetG1PowersOfTau(), scalars);
   }
 
-  CJacobianPoint* CommitLagrange(
+  CJacobianPoint* CommitLagrangeRaw(
       const std::vector<ScalarField>& scalars) const {
     return DoMSM(this->pcs_.GetG1PowersOfTauLagrange(), scalars);
   }

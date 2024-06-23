@@ -169,14 +169,14 @@ tachyon_halo2_bn254_gwc_prover_get_domain(
 tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_gwc_prover_commit(
     const tachyon_halo2_bn254_gwc_prover* prover,
     const tachyon_bn254_univariate_dense_polynomial* poly) {
-  return reinterpret_cast<const ProverImpl*>(prover)->Commit(
+  return reinterpret_cast<const ProverImpl*>(prover)->CommitRaw(
       c::base::native_cast(*poly).coefficients().coefficients());
 }
 
 tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_gwc_prover_commit_lagrange(
     const tachyon_halo2_bn254_gwc_prover* prover,
     const tachyon_bn254_univariate_evaluations* evals) {
-  return reinterpret_cast<const ProverImpl*>(prover)->CommitLagrange(
+  return reinterpret_cast<const ProverImpl*>(prover)->CommitLagrangeRaw(
       c::base::native_cast(*evals).evaluations());
 }
 
