@@ -24,8 +24,12 @@ filegroup(
 tachyon_cc_library(
     name = "bn254_argument_data",
     srcs = ["bn254_argument_data.cc"],
-    hdrs = ["bn254_argument_data.h"],
+    hdrs = [
+        "bn254_argument_data.h",
+        "bn254_argument_data_type_traits.h",
+    ],
     deps = [
+        "//tachyon/c/base:type_traits_forward",
         "//tachyon/c/math/polynomials:constants",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluations",
