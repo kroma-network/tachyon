@@ -14,7 +14,6 @@
 // clang-format on
 #include "tachyon/base/functional/functor_traits.h"
 #include "tachyon/base/time/time.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 

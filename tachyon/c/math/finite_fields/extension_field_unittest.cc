@@ -1,14 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fq12.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq12_type_traits.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fq2.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq2_type_traits.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fq6.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq6_type_traits.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fq12.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fq2.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fq6.h"
 
 namespace tachyon {
 namespace {
