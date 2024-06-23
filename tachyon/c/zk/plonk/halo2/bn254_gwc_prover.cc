@@ -14,6 +14,7 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/c/zk/base/bn254_blinder_type_traits.h"
 #include "tachyon/c/zk/plonk/constraint_system/bn254_constraint_system_type_traits.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_argument_data_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
@@ -32,7 +33,6 @@ using PCS = c::zk::plonk::halo2::bn254::GWCPCS;
 using LS = c::zk::plonk::halo2::bn254::LS;
 using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS, LS>;
 using ProvingKey = c::zk::plonk::ProvingKeyImplBase<LS>;
-using Data = zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;
 
 tachyon_halo2_bn254_gwc_prover*
 tachyon_halo2_bn254_gwc_prover_create_from_unsafe_setup(
@@ -248,7 +248,7 @@ void tachyon_halo2_bn254_gwc_prover_create_proof(
     tachyon_halo2_bn254_gwc_prover* prover, tachyon_bn254_plonk_proving_key* pk,
     tachyon_halo2_bn254_argument_data* data) {
   reinterpret_cast<ProverImpl*>(prover)->CreateProof(
-      reinterpret_cast<ProvingKey&>(*pk), reinterpret_cast<Data*>(data));
+      reinterpret_cast<ProvingKey&>(*pk), c::base::native_cast(data));
 }
 
 void tachyon_halo2_bn254_gwc_prover_get_proof(
