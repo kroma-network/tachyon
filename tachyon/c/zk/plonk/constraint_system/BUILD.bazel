@@ -15,10 +15,14 @@ filegroup(
 tachyon_cc_library(
     name = "bn254_constraint_system",
     srcs = ["bn254_constraint_system.cc"],
-    hdrs = ["bn254_constraint_system.h"],
+    hdrs = [
+        "bn254_constraint_system.h",
+        "bn254_constraint_system_type_traits.h",
+    ],
     deps = [
         ":column_key",
         "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
         "//tachyon/zk/plonk/constraint_system",
     ],
 )
