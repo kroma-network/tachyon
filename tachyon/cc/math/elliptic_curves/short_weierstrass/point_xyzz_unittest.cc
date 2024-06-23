@@ -4,7 +4,6 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/cc/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
 namespace tachyon::cc::math {
 
