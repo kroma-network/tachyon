@@ -8,20 +8,18 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/verifier_impl.h"
+#include "tachyon/c/zk/plonk/keys/bn254_plonk_verifying_key_type_traits.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/sha256_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
-#include "tachyon/zk/plonk/keys/verifying_key.h"
 
 using namespace tachyon;
 
 using PCS = c::zk::plonk::halo2::bn254::GWCPCS;
 using LS = c::zk::plonk::halo2::bn254::LS;
 using Verifier = c::zk::plonk::halo2::VerifierImpl<PCS, LS>;
-using VKey =
-    zk::plonk::VerifyingKey<math::bn254::Fr, math::bn254::G1AffinePoint>;
 
 tachyon_halo2_bn254_gwc_verifier*
 tachyon_halo2_bn254_gwc_verifier_create_from_params(
@@ -78,7 +76,7 @@ bool tachyon_halo2_bn254_gwc_verifier_verify_proof(
     const tachyon_bn254_plonk_verifying_key* vkey,
     tachyon_halo2_bn254_instance_columns_vec* instance_columns_vec) {
   bool ret = reinterpret_cast<Verifier*>(verifier)->VerifyProof(
-      reinterpret_cast<const VKey&>(*vkey),
+      c::base::native_cast(*vkey),
       reinterpret_cast<std::vector<std::vector<std::vector<math::bn254::Fr>>>&>(
           *instance_columns_vec));
   tachyon_halo2_bn254_instance_columns_vec_destroy(instance_columns_vec);

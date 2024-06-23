@@ -1,6 +1,7 @@
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key.h"
 
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_type_traits.h"
+#include "tachyon/c/zk/plonk/keys/bn254_plonk_verifying_key_type_traits.h"
 
 using namespace tachyon;
 
@@ -27,6 +28,5 @@ const tachyon_bn254_plonk_verifying_key*
 tachyon_bn254_plonk_proving_key_get_verifying_key(
     const tachyon_bn254_plonk_proving_key* pk) {
   const PKeyImpl* pkey = c::base::native_cast(pk);
-  return reinterpret_cast<const tachyon_bn254_plonk_verifying_key*>(
-      &pkey->verifying_key());
+  return c::base::c_cast(&pkey->verifying_key());
 }
