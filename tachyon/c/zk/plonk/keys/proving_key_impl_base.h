@@ -24,6 +24,7 @@ class ProvingKeyImplBase : public tachyon::zk::plonk::ProvingKey<LS> {
   using F = typename LS::Field;
   using C = typename LS::Commitment;
 
+  ProvingKeyImplBase() = default;
   ProvingKeyImplBase(absl::Span<const uint8_t> state, bool read_only_vk)
       : read_only_vk_(read_only_vk) {
     std::string_view pk_str;

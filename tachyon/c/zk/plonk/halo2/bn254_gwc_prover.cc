@@ -17,7 +17,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_argument_data_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_prover_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
-#include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
+#include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_type_traits.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
@@ -244,7 +244,7 @@ void tachyon_halo2_bn254_gwc_prover_set_extended_domain(
 void tachyon_halo2_bn254_gwc_prover_create_proof(
     tachyon_halo2_bn254_gwc_prover* prover, tachyon_bn254_plonk_proving_key* pk,
     tachyon_halo2_bn254_argument_data* data) {
-  c::base::native_cast(prover)->CreateProof(reinterpret_cast<ProvingKey&>(*pk),
+  c::base::native_cast(prover)->CreateProof(c::base::native_cast(*pk),
                                             c::base::native_cast(data));
 }
 
@@ -262,6 +262,5 @@ void tachyon_halo2_bn254_gwc_prover_get_proof(
 void tachyon_halo2_bn254_gwc_prover_set_transcript_repr(
     const tachyon_halo2_bn254_gwc_prover* prover,
     tachyon_bn254_plonk_proving_key* pk) {
-  reinterpret_cast<ProvingKey*>(pk)->SetTranscriptRepr(
-      c::base::native_cast(*prover));
+  c::base::native_cast(pk)->SetTranscriptRepr(c::base::native_cast(*prover));
 }
