@@ -74,29 +74,19 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bn254_gwc_verifier",
     srcs = ["bn254_gwc_verifier.cc"],
-    hdrs = ["bn254_gwc_verifier.h"],
-    deps = [
-        ":bn254_gwc_pcs",
-        ":bn254_instance_columns_vec",
-        ":bn254_ls",
-        ":bn254_transcript",
-        ":verifier_impl",
-        "//tachyon/c/zk/plonk/keys:bn254_plonk_verifying_key",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
-    ],
-)
-
-tachyon_cc_library(
-    name = "bn254_gwc_verifier_type_traits",
     hdrs = [
         "bn254_gwc_verifier.h",
         "bn254_gwc_verifier_type_traits.h",
     ],
     deps = [
         ":bn254_gwc_pcs",
+        ":bn254_instance_columns_vec",
         ":bn254_ls",
+        ":bn254_transcript",
         ":verifier_impl",
         "//tachyon/c/base:type_traits_forward",
+        "//tachyon/c/zk/plonk/keys:bn254_plonk_verifying_key",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
 )
 
