@@ -16,6 +16,7 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
+#include "tachyon/c/zk/base/bn254_blinder_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/test/bn254_halo2_params_data.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
@@ -81,7 +82,7 @@ TEST_P(SHPlonkProverTest, Getters) {
   EXPECT_EQ(tachyon_halo2_bn254_shplonk_prover_get_k(prover_), k_);
   EXPECT_EQ(tachyon_halo2_bn254_shplonk_prover_get_n(prover_), size_t{1} << k_);
   EXPECT_EQ(tachyon_halo2_bn254_shplonk_prover_get_blinder(prover_),
-            reinterpret_cast<const tachyon_bn254_blinder*>(
+            c::base::c_cast(
                 &(reinterpret_cast<Prover<PCS, LS>*>(prover_)->blinder())));
   EXPECT_EQ(
       tachyon_halo2_bn254_shplonk_prover_get_domain(prover_),
