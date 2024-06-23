@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_instance_columns_vec_type_traits.h"
 
 using namespace tachyon;
@@ -34,5 +35,5 @@ void tachyon_halo2_bn254_instance_columns_vec_add_values(
     tachyon_halo2_bn254_instance_columns_vec* data, size_t circuit_idx,
     size_t column_idx, const tachyon_bn254_fr* value) {
   c::base::native_cast(*data)[circuit_idx][column_idx].push_back(
-      reinterpret_cast<const math::bn254::Fr&>(*value));
+      c::base::native_cast(*value));
 }
