@@ -4,10 +4,8 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
-#include "tachyon/c/zk/plonk/halo2/verifier_impl.h"
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_verifying_key_type_traits.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
@@ -27,7 +25,7 @@ tachyon_halo2_bn254_shplonk_verifier_create_from_params(
     size_t params_len, const uint8_t* proof, size_t proof_len) {
   math::bn254::BN254Curve::Init();
 
-  return reinterpret_cast<tachyon_halo2_bn254_shplonk_verifier*>(new Verifier(
+  return c::base::c_cast(new Verifier(
       [transcript_type, k, params, params_len, proof, proof_len]() {
         PCS pcs;
         base::ReadOnlyBuffer read_buf(params, params_len);
@@ -68,14 +66,14 @@ tachyon_halo2_bn254_shplonk_verifier_create_from_params(
 
 void tachyon_halo2_bn254_shplonk_verifier_destroy(
     tachyon_halo2_bn254_shplonk_verifier* verifier) {
-  delete reinterpret_cast<Verifier*>(verifier);
+  delete c::base::native_cast(verifier);
 }
 
 bool tachyon_halo2_bn254_shplonk_verifier_verify_proof(
     tachyon_halo2_bn254_shplonk_verifier* verifier,
     const tachyon_bn254_plonk_verifying_key* vkey,
     tachyon_halo2_bn254_instance_columns_vec* instance_columns_vec) {
-  bool ret = reinterpret_cast<Verifier*>(verifier)->VerifyProof(
+  bool ret = c::base::native_cast(verifier)->VerifyProof(
       c::base::native_cast(*vkey),
       reinterpret_cast<std::vector<std::vector<std::vector<math::bn254::Fr>>>&>(
           *instance_columns_vec));
