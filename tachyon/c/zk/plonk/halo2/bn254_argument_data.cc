@@ -50,7 +50,7 @@ void tachyon_halo2_bn254_argument_data_add_advice_blind(
     tachyon_halo2_bn254_argument_data* data, size_t circuit_idx,
     const tachyon_bn254_fr* value) {
   c::base::native_cast(data)->advice_blinds_vec()[circuit_idx].push_back(
-      reinterpret_cast<const math::bn254::Fr&>(*value));
+      c::base::native_cast(*value));
 }
 
 void tachyon_halo2_bn254_argument_data_reserve_instance_columns(

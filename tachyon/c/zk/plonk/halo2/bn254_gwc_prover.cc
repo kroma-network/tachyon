@@ -9,6 +9,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g2_point_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
@@ -148,8 +149,7 @@ size_t tachyon_halo2_bn254_gwc_prover_get_n(
 
 const tachyon_bn254_g2_affine* tachyon_halo2_bn254_gwc_prover_get_s_g2(
     const tachyon_halo2_bn254_gwc_prover* prover) {
-  return reinterpret_cast<const tachyon_bn254_g2_affine*>(
-      &(c::base::native_cast(prover)->pcs().SG2()));
+  return c::base::c_cast(&(c::base::native_cast(prover)->pcs().SG2()));
 }
 
 tachyon_bn254_blinder* tachyon_halo2_bn254_gwc_prover_get_blinder(
