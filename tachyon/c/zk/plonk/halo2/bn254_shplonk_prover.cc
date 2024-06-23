@@ -12,6 +12,7 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
+#include "tachyon/c/zk/base/bn254_blinder_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
@@ -156,8 +157,7 @@ const tachyon_bn254_g2_affine* tachyon_halo2_bn254_shplonk_prover_get_s_g2(
 
 tachyon_bn254_blinder* tachyon_halo2_bn254_shplonk_prover_get_blinder(
     tachyon_halo2_bn254_shplonk_prover* prover) {
-  return reinterpret_cast<tachyon_bn254_blinder*>(
-      &(reinterpret_cast<ProverImpl*>(prover)->blinder()));
+  return c::base::c_cast(&(reinterpret_cast<ProverImpl*>(prover)->blinder()));
 }
 
 const tachyon_bn254_univariate_evaluation_domain*
