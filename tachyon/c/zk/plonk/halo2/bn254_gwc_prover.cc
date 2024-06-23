@@ -13,6 +13,7 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/c/zk/base/bn254_blinder_type_traits.h"
+#include "tachyon/c/zk/plonk/constraint_system/bn254_constraint_system_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
@@ -29,7 +30,6 @@ using namespace tachyon;
 
 using PCS = c::zk::plonk::halo2::bn254::GWCPCS;
 using LS = c::zk::plonk::halo2::bn254::LS;
-using CS = zk::plonk::ConstraintSystem<PCS::Field>;
 using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS, LS>;
 using ProvingKey = c::zk::plonk::ProvingKeyImplBase<LS>;
 using Data = zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;
@@ -238,7 +238,7 @@ void tachyon_halo2_bn254_gwc_prover_set_extended_domain(
       tachyon_bn254_plonk_proving_key_get_verifying_key(pk);
   const tachyon_bn254_plonk_constraint_system* cs =
       tachyon_bn254_plonk_verifying_key_get_constraint_system(vk);
-  uint32_t extended_k = reinterpret_cast<const CS*>(cs)->ComputeExtendedK(
+  uint32_t extended_k = c::base::native_cast(cs)->ComputeExtendedK(
       reinterpret_cast<const ProverImpl*>(prover)->pcs().K());
   reinterpret_cast<ProverImpl*>(prover)->set_extended_domain(
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
