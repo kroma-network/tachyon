@@ -154,29 +154,19 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bn254_shplonk_verifier",
     srcs = ["bn254_shplonk_verifier.cc"],
-    hdrs = ["bn254_shplonk_verifier.h"],
+    hdrs = [
+        "bn254_shplonk_verifier.h",
+        "bn254_shplonk_verifier_type_traits.h",
+    ],
     deps = [
         ":bn254_instance_columns_vec",
         ":bn254_ls",
         ":bn254_shplonk_pcs",
         ":bn254_transcript",
         ":verifier_impl",
+        "//tachyon/c/base:type_traits_forward",
         "//tachyon/c/zk/plonk/keys:bn254_plonk_verifying_key",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
-    ],
-)
-
-tachyon_cc_library(
-    name = "bn254_shplonk_verifier_type_traits",
-    hdrs = [
-        "bn254_shplonk_verifier.h",
-        "bn254_shplonk_verifier_type_traits.h",
-    ],
-    deps = [
-        ":bn254_ls",
-        ":bn254_shplonk_pcs",
-        ":verifier_impl",
-        "//tachyon/c/base:type_traits_forward",
     ],
 )
 
@@ -290,7 +280,6 @@ tachyon_cc_binary(
     srcs = ["verifier_replay.cc"],
     deps = [
         ":bn254_shplonk_verifier",
-        ":bn254_shplonk_verifier_type_traits",
         "//tachyon/base:logging",
         "//tachyon/base/console",
         "//tachyon/base/files:file_path_flag",
