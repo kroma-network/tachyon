@@ -93,8 +93,14 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bn254_instance_columns_vec",
     srcs = ["bn254_instance_columns_vec.cc"],
-    hdrs = ["bn254_instance_columns_vec.h"],
-    deps = ["//tachyon/c/math/elliptic_curves/bn/bn254:fr"],
+    hdrs = [
+        "bn254_instance_columns_vec.h",
+        "bn254_instance_columns_vec_type_traits.h",
+    ],
+    deps = [
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+    ],
 )
 
 tachyon_cc_library(

@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/c/zk/plonk/halo2/bn254_instance_columns_vec_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_verifying_key_type_traits.h"
@@ -74,9 +75,7 @@ bool tachyon_halo2_bn254_shplonk_verifier_verify_proof(
     const tachyon_bn254_plonk_verifying_key* vkey,
     tachyon_halo2_bn254_instance_columns_vec* instance_columns_vec) {
   bool ret = c::base::native_cast(verifier)->VerifyProof(
-      c::base::native_cast(*vkey),
-      reinterpret_cast<std::vector<std::vector<std::vector<math::bn254::Fr>>>&>(
-          *instance_columns_vec));
+      c::base::native_cast(*vkey), c::base::native_cast(*instance_columns_vec));
   tachyon_halo2_bn254_instance_columns_vec_destroy(instance_columns_vec);
   return ret;
 }
