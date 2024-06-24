@@ -1,11 +1,14 @@
 #ifndef TACHYON_MATH_MATRIX_MATRIX_UTILS_H_
 #define TACHYON_MATH_MATRIX_MATRIX_UTILS_H_
 
+#include <utility>
 #include <vector>
 
 #include "third_party/eigen3/Eigen/Core"
 
+#include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
 
 namespace tachyon::math {
@@ -75,6 +78,50 @@ std::vector<PackedPrimeField> PackRowVertically(
       return matrix((row + i) % matrix.rows(), col);
     });
   });
+}
+
+// Expands a |Eigen::MatrixBase|'s rows from |rows| to |rows|^(|added_bits|),
+// moving values from row |i| to row |i|^(|added_bits|). All new entries are set
+// to |F::Zero()|.
+template <typename Derived>
+void ExpandInPlaceWithZeroPad(Eigen::MatrixBase<Derived>& mat,
+                              size_t added_bits) {
+  if (added_bits == 0) {
+    return;
+  }
+
+  Eigen::Index original_rows = mat.rows();
+  Eigen::Index new_rows = mat.rows() << added_bits;
+  Eigen::Index cols = mat.cols();
+
+  Derived padded = Derived::Zero(new_rows, cols);
+
+  OPENMP_PARALLEL_FOR(Eigen::Index row = 0; row < original_rows; ++row) {
+    Eigen::Index padded_row_index = row << added_bits;
+    // TODO(ashjeong): Check if moved properly
+    padded.row(padded_row_index) = std::move(mat.row(row));
+  }
+  mat = std::move(padded);
+}
+
+// Swaps rows of a |Eigen::MatrixBase| such that each row is changed to the row
+// accessed with the reversed bits of the current index. Crashes if the number
+// of rows is not a power of two.
+template <typename Derived>
+void ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
+  size_t rows = static_cast<size_t>(mat.rows());
+  if (rows == 0) {
+    return;
+  }
+  CHECK(base::bits::IsPowerOfTwo(rows));
+  size_t log_n = base::bits::Log2Ceiling(rows);
+
+  OPENMP_PARALLEL_FOR(size_t row = 1; row < rows; ++row) {
+    size_t ridx = base::bits::BitRev(row) >> (sizeof(size_t) * 8 - log_n);
+    if (row < ridx) {
+      mat.row(row).swap(mat.row(ridx));
+    }
+  }
 }
 
 }  // namespace tachyon::math
