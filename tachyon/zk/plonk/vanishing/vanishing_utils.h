@@ -57,13 +57,13 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
 
   // Compute the evaluations of t(X) = Xⁿ - 1 in the coset evaluation domain.
   // We don't have to compute all of them, because it will repeat.
-  const size_t t_evaluations_size = size_t{1}
-                                    << (extended_domain->log_size_of_group() -
-                                        domain->log_size_of_group());
+  const size_t kTEvaluationsSize = size_t{1}
+                                   << (extended_domain->log_size_of_group() -
+                                       domain->log_size_of_group());
   // |coset_gen_pow_n| = w'ⁿ where w' is generator of extended domain.
   const F coset_gen_pow_n = extended_domain->group_gen().Pow(domain->size());
   const F zeta_pow_n = zeta.Pow(domain->size());
-  std::vector<F> t_evaluations(t_evaluations_size);
+  std::vector<F> t_evaluations(kTEvaluationsSize);
   // |t_evaluations| = [ζⁿ - 1, ζⁿ * w'ⁿ - 1, ζⁿ * w'²ⁿ - 1, ...]
   base::Parallelize(t_evaluations, [&coset_gen_pow_n, &zeta_pow_n](
                                        absl::Span<F> chunk, size_t chunk_offset,
