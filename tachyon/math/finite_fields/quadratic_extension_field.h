@@ -281,7 +281,7 @@ class QuadraticExtensionField
     //   = a.c0 * b.c0 + a.c1 * b.c1 * x² + (a.c0 * b.c1 + a.c1 * b.c0) * x
     //   = a.c0 * b.c0 + a.c1 * b.c1 * q + (a.c0 * b.c1 + a.c1 * b.c0) * x
     //   = (a.c0 * b.c0 + a.c1 * b.c1 * q, a.c0 * b.c1 + a.c1 * b.c0)
-    // Where q is Config::kNonResidue.
+    // where q is |Config::kNonResidue|.
     // clang-format on
     if constexpr (ExtensionDegree() == 2) {
       BaseField c0;
@@ -325,7 +325,7 @@ class QuadraticExtensionField
     //            = c0² + c1² * x² + 2 * c0 * c1 * x
     //            = c0² + c1² * q + 2 * c0 * c1 * x
     //            = (c0² + c1² * q, 2 * c0 * c1)
-    // Where q is Config::kNonResidue.
+    // where q is |Config::kNonResidue|.
     // When q = -1, we can re-use intermediate additions to improve performance.
 
     // v0 = c0 - c1

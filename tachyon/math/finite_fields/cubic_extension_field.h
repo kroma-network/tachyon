@@ -304,7 +304,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     //   = (a.c0 * b.c0 + (a.c1 * b.c2 + a.c2 * b.c1) * q,
     //     a.c0 * b.c1 + a.c1 * b.c0 + a.c2 * b.c2 * q,
     //     a.c0 * b.c2 + a.c1 * b.c1 + a.c2 * b.c0)
-    // Where q is Config::kNonResidue.
+    // where q is |Config::kNonResidue|.
 
     // See https://eprint.iacr.org/2006/471.pdf
     // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (Karatsuba)
@@ -338,7 +338,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     //   = c0² + 2 * c1 * c2 * x³ + 2 * c0 * c1 * x + c2² * x⁴ + (c1² + 2 * c0 * c2) * x²
     //   = c0² + 2 * c1 * c2 * q + (2 * c0 * c1  + c2² * q) * x + (c1² + 2 * c0 * c2) * x²
     //   = (c0² + 2 * c1 * c2 * q, 2 * c0 * c1  + c2² * q, c1² + 2 * c0 * c2)
-    // Where q is Config::kNonResidue.
+    // where q is |Config::kNonResidue|.
 
     // See https://eprint.iacr.org/2006/471.pdf
     // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (CH-SQR2)
