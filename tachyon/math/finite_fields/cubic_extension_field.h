@@ -75,24 +75,23 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return 3 * BaseField::ExtensionDegree();
   }
 
-  // Calculate the norm of an element with respect to the base field
-  // |BaseField|. The norm maps an element |a| in the extension field
-  // Fqᵐ to an element in the |BaseField| Fq.
-  // |a.Norm() = a * a^q * a^q²|
+  // Calculate the norm of an element with respect to |BaseField|.
+  // The norm maps an element |a| in the extension field Fqᵐ to an element
+  // in the |BaseField| Fq. |a.Norm() = a * a^q * a^q²|
   constexpr BaseField Norm() const {
-    // w.r.t to |BaseField|, we need the 0th, 1st & 2nd powers of q
+    // w.r.t to |BaseField|, we need the 0th, 1st & 2nd powers of q.
     // Since Frobenius coefficients on the towered extensions are
     // indexed w.r.t. to |BasePrimeField|, we need to calculate the correct
     // index.
     // NOTE(chokobole): This assumes that |BaseField::ExtensionDegree()|
-    // never overflows even on 32 bit machine.
+    // never overflows even on a 32-bit machine.
     size_t index_multiplier = size_t{BaseField::ExtensionDegree()};
     Derived self_to_p = static_cast<const Derived&>(*this);
     self_to_p.FrobeniusMapInPlace(index_multiplier);
     Derived self_to_p2 = static_cast<const Derived&>(*this);
     self_to_p2.FrobeniusMapInPlace(2 * index_multiplier);
     self_to_p *= (self_to_p2 * static_cast<const Derived&>(*this));
-    // NOTE(chokobole): below CHECK() is not a device code.
+    // NOTE(chokobole): The |CHECK()| below is not device code.
     // See https://github.com/kroma-network/tachyon/issues/76
     CHECK(self_to_p.c1().IsZero() && self_to_p.c2().IsZero());
     return self_to_p.c0();
