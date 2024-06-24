@@ -123,14 +123,14 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   // Convert a decimal string to a BigInt.
-  constexpr static std::optional<BigInt> FromDecString(std::string_view str) {
+  static std::optional<BigInt> FromDecString(std::string_view str) {
     BigInt ret;
     if (!internal::StringToLimbs(str, ret.limbs, N)) return std::nullopt;
     return ret;
   }
 
   // Convert a hexadecimal string to a BigInt.
-  constexpr static std::optional<BigInt> FromHexString(std::string_view str) {
+  static std::optional<BigInt> FromHexString(std::string_view str) {
     BigInt ret;
     if (!(internal::HexStringToLimbs(str, ret.limbs, N))) return std::nullopt;
     return ret;
