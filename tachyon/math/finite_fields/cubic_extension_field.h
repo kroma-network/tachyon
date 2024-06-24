@@ -49,16 +49,16 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   static Derived FromBasePrimeFields(
       absl::Span<const BasePrimeField> prime_fields) {
     CHECK_EQ(prime_fields.size(), ExtensionDegree());
-    constexpr size_t base_field_degree = BaseField::ExtensionDegree();
-    if constexpr (base_field_degree == 1) {
+    constexpr size_t kBaseFieldDegree = BaseField::ExtensionDegree();
+    if constexpr (kBaseFieldDegree == 1) {
       return Derived(prime_fields[0], prime_fields[1], prime_fields[2]);
     } else {
       BaseField c0 = BaseField::FromBasePrimeFields(
-          prime_fields.subspan(0, base_field_degree));
+          prime_fields.subspan(0, kBaseFieldDegree));
       BaseField c1 = BaseField::FromBasePrimeFields(
-          prime_fields.subspan(base_field_degree, base_field_degree));
+          prime_fields.subspan(kBaseFieldDegree, kBaseFieldDegree));
       BaseField c2 = BaseField::FromBasePrimeFields(
-          prime_fields.subspan(2 * base_field_degree, base_field_degree));
+          prime_fields.subspan(2 * kBaseFieldDegree, kBaseFieldDegree));
       return Derived(std::move(c0), std::move(c1), std::move(c2));
     }
   }
