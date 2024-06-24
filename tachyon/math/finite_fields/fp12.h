@@ -24,7 +24,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
   using Fp2 = typename Fp6::BaseField;
 
   using CpuField = Fp12<Config>;
-  // TODO(chokobole): Implements Fp12Gpu
+  // TODO(chokobole): Implement Fp12Gpu
   using GpuField = Fp12<Config>;
 
   using QuadraticExtensionField<Fp12<Config>>::QuadraticExtensionField;
@@ -36,7 +36,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
 
   static void Init() {
     using BaseFieldConfig = typename BaseField::Config;
-    // x⁶ = q = BaseFieldConfig::kNonResidue
+    // x⁶ = q = |BaseFieldConfig::kNonResidue|
 
     Config::Init();
 
@@ -107,33 +107,33 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
 
 #undef SET_EXP_GMP
 
-    // kFrobeniusCoeffs[0] = q^((P⁰ - 1) / 6)
+    // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 6)
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
 #define SET_FROBENIUS_COEFF(d)                \
   BigInt<d * N> exp##d;                       \
   gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
   Config::kFrobeniusCoeffs[d] = BaseFieldConfig::kNonResidue.Pow(exp##d)
-    // kFrobeniusCoeffs[1] = q^(exp₁) = q^((P¹ - 1) / 6)
+    // |kFrobeniusCoeffs[1]| = q^(exp₁) = q^((P¹ - 1) / 6)
     SET_FROBENIUS_COEFF(1);
-    // kFrobeniusCoeffs[2] = q^(exp₂) = q^((P² - 1) / 6)
+    // |kFrobeniusCoeffs[2]| = q^(exp₂) = q^((P² - 1) / 6)
     SET_FROBENIUS_COEFF(2);
-    // kFrobeniusCoeffs[3] = q^(exp₃) = q^((P³ - 1) / 6)
+    // |kFrobeniusCoeffs[3]| = q^(exp₃) = q^((P³ - 1) / 6)
     SET_FROBENIUS_COEFF(3);
-    // kFrobeniusCoeffs[4] = q^(exp₄) = q^((P⁴ - 1) / 6)
+    // |kFrobeniusCoeffs[4]| = q^(exp₄) = q^((P⁴ - 1) / 6)
     SET_FROBENIUS_COEFF(4);
-    // kFrobeniusCoeffs[5] = q^(exp₅) = q^((P⁵ - 1) / 6)
+    // |kFrobeniusCoeffs[5]| = q^(exp₅) = q^((P⁵ - 1) / 6)
     SET_FROBENIUS_COEFF(5);
-    // kFrobeniusCoeffs[6] = q^(exp₆) = q^((P⁶ - 1) / 6)
+    // |kFrobeniusCoeffs[6]| = q^(exp₆) = q^((P⁶ - 1) / 6)
     SET_FROBENIUS_COEFF(6);
-    // kFrobeniusCoeffs[7] = q^(exp₇) = q^((P⁷ - 1) / 6)
+    // |kFrobeniusCoeffs[7]| = q^(exp₇) = q^((P⁷ - 1) / 6)
     SET_FROBENIUS_COEFF(7);
-    // kFrobeniusCoeffs[8] = q^(exp₈) = q^((P⁸ - 1) / 6)
+    // |kFrobeniusCoeffs[8]| = q^(exp₈) = q^((P⁸ - 1) / 6)
     SET_FROBENIUS_COEFF(8);
-    // kFrobeniusCoeffs[9] = q^(exp₉) = q^((P⁹ - 1) / 6)
+    // |kFrobeniusCoeffs[9]| = q^(exp₉) = q^((P⁹ - 1) / 6)
     SET_FROBENIUS_COEFF(9);
-    // kFrobeniusCoeffs[10] = q^(exp₁₀) = q^((P¹⁰ - 1) / 6)
+    // |kFrobeniusCoeffs[10]| = q^(exp₁₀) = q^((P¹⁰ - 1) / 6)
     SET_FROBENIUS_COEFF(10);
-    // kFrobeniusCoeffs[11] = q^(exp₁₁) = q^((P¹¹ - 1) / 6)
+    // |kFrobeniusCoeffs[11]| = q^(exp₁₁) = q^((P¹¹ - 1) / 6)
     SET_FROBENIUS_COEFF(11);
 
 #undef SET_FROBENIUS_COEFF

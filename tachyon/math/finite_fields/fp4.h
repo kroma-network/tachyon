@@ -19,7 +19,7 @@ class Fp4 final : public QuadraticExtensionField<Fp4<Config>> {
   using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
   using CpuField = Fp4<Config>;
-  // TODO(chokobole): Implements Fp4Gpu
+  // TODO(chokobole): Implement Fp4Gpu
   using GpuField = Fp4<Config>;
 
   using QuadraticExtensionField<Fp4<Config>>::QuadraticExtensionField;
@@ -31,7 +31,7 @@ class Fp4 final : public QuadraticExtensionField<Fp4<Config>> {
 
   static void Init() {
     using BaseFieldConfig = typename BaseField::Config;
-    // x⁴ = q = BaseFieldConfig::kNonResidue
+    // x⁴ = q = |BaseFieldConfig::kNonResidue|
 
     Config::Init();
 
@@ -71,18 +71,18 @@ class Fp4 final : public QuadraticExtensionField<Fp4<Config>> {
 
 #undef SET_EXP_GMP
 
-    // kFrobeniusCoeffs[0] = q^((P⁰ - 1) / 4) = 1
+    // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 4) = 1
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
 #define SET_FROBENIUS_COEFF(d)                \
   BigInt<d * N> exp##d;                       \
   gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
   Config::kFrobeniusCoeffs[d] = BaseFieldConfig::kNonResidue.Pow(exp##d)
 
-    // kFrobeniusCoeffs[1] = q^(exp₁) = q^((P¹ - 1) / 4) = ω
+    // |kFrobeniusCoeffs[1]| = q^(exp₁) = q^((P¹ - 1) / 4) = ω
     SET_FROBENIUS_COEFF(1);
-    // kFrobeniusCoeffs[2] = q^(exp₂) = q^((P² - 1) / 4)
+    // |kFrobeniusCoeffs[2]| = q^(exp₂) = q^((P² - 1) / 4)
     SET_FROBENIUS_COEFF(2);
-    // kFrobeniusCoeffs[3] = q^(exp₃) = q^((P³ - 1) / 4)
+    // |kFrobeniusCoeffs[3]| = q^(exp₃) = q^((P³ - 1) / 4)
     SET_FROBENIUS_COEFF(3);
 
 #undef SET_FROBENIUS_COEFF

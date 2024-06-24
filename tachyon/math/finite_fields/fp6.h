@@ -26,7 +26,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
   using Fp3 = BaseField;
 
   using CpuField = Fp6<Config>;
-  // TODO(chokobole): Implements Fp6Gpu
+  // TODO(chokobole): Implement Fp6Gpu
   using GpuField = Fp6<Config>;
 
   using QuadraticExtensionField<Fp6<Config>>::QuadraticExtensionField;
@@ -37,7 +37,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
 
   static void Init() {
     using BaseFieldConfig = typename BaseField::Config;
-    // x⁶ = q = BaseFieldConfig::kNonResidue
+    // x⁶ = q = |BaseFieldConfig::kNonResidue|
 
     Config::Init();
 
@@ -84,22 +84,22 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
 
 #undef SET_EXP_GMP
 
-    // kFrobeniusCoeffs[0] = q^((P⁰ - 1) / 6) = 1
+    // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 6) = 1
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
 #define SET_FROBENIUS_COEFF(d)                \
   BigInt<d * N> exp##d;                       \
   gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
   Config::kFrobeniusCoeffs[d] = BaseFieldConfig::kNonResidue.Pow(exp##d)
 
-    // kFrobeniusCoeffs[1] = q^(exp₁) = q^((P¹ - 1) / 6) = ω
+    // |kFrobeniusCoeffs[1]| = q^(exp₁) = q^((P¹ - 1) / 6) = ω
     SET_FROBENIUS_COEFF(1);
-    // kFrobeniusCoeffs[2] = q^(exp₂) = q^((P² - 1) / 6)
+    // |kFrobeniusCoeffs[2]| = q^(exp₂) = q^((P² - 1) / 6)
     SET_FROBENIUS_COEFF(2);
-    // kFrobeniusCoeffs[3] = q^(exp₃) = q^((P³ - 1) / 6)
+    // |kFrobeniusCoeffs[3]| = q^(exp₃) = q^((P³ - 1) / 6)
     SET_FROBENIUS_COEFF(3);
-    // kFrobeniusCoeffs[4] = q^(exp₄) = q^((P⁴ - 1) / 6)
+    // |kFrobeniusCoeffs[4]| = q^(exp₄) = q^((P⁴ - 1) / 6)
     SET_FROBENIUS_COEFF(4);
-    // kFrobeniusCoeffs[5] = q^(exp₅) = q^((P⁵ - 1) / 6)
+    // |kFrobeniusCoeffs[5]| = q^(exp₅) = q^((P⁵ - 1) / 6)
     SET_FROBENIUS_COEFF(5);
 
 #undef SET_FROBENIUS_COEFF
@@ -221,7 +221,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
   using Fp2 = BaseField;
 
   using CpuField = Fp6<Config>;
-  // TODO(chokobole): Implements Fp6Gpu
+  // TODO(chokobole): Implement Fp6Gpu
   using GpuField = Fp6<Config>;
 
   using CubicExtensionField<Fp6<Config>>::CubicExtensionField;
@@ -232,7 +232,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
 
   static void Init() {
     Config::Init();
-    // x³ = q = Config::kNonResidue
+    // x³ = q = |Config::kNonResidue|
 
     // αᴾ = (α₀ + α₁x + α₂x²)ᴾ
     //    = α₀ᴾ + α₁ᴾxᴾ + α₂ᴾx²ᴾ
@@ -278,22 +278,22 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
 
 #undef SET_EXP_GMP
 
-    // kFrobeniusCoeffs[0] = q^((P⁰ - 1) / 3)
+    // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 3)
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
 #define SET_FROBENIUS_COEFF(d)                \
   BigInt<d * N> exp##d;                       \
   gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
   Config::kFrobeniusCoeffs[d] = Config::kNonResidue.Pow(exp##d)
 
-    // kFrobeniusCoeffs[1] = q^(exp₁) = q^((P¹ - 1) / 3)
+    // |kFrobeniusCoeffs[1]| = q^(exp₁) = q^((P¹ - 1) / 3)
     SET_FROBENIUS_COEFF(1);
-    // kFrobeniusCoeffs[2] = q^(exp₂) = q^((P² - 1) / 3)
+    // |kFrobeniusCoeffs[2]| = q^(exp₂) = q^((P² - 1) / 3)
     SET_FROBENIUS_COEFF(2);
-    // kFrobeniusCoeffs[3] = q^(exp₃) = q^((P³ - 1) / 3)
+    // |kFrobeniusCoeffs[3]| = q^(exp₃) = q^((P³ - 1) / 3)
     SET_FROBENIUS_COEFF(3);
-    // kFrobeniusCoeffs[4] = q^(exp₄) = q^((P⁴ - 1) / 3)
+    // |kFrobeniusCoeffs[4]| = q^(exp₄) = q^((P⁴ - 1) / 3)
     SET_FROBENIUS_COEFF(4);
-    // kFrobeniusCoeffs[5] = q^(exp₅) = q^((P⁵ - 1) / 3)
+    // |kFrobeniusCoeffs[5]| = q^(exp₅) = q^((P⁵ - 1) / 3)
     SET_FROBENIUS_COEFF(5);
 
 #undef SET_FROBENIUS_COEFF
