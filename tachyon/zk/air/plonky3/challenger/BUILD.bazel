@@ -29,11 +29,25 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "hash_challenger",
+    hdrs = ["hash_challenger.h"],
+    deps = [
+        ":challenger",
+        "//tachyon/base/containers:container_util",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "challenger_unittests",
-    srcs = ["duplex_challenger_unittest.cc"],
+    srcs = [
+        "duplex_challenger_unittest.cc",
+        "hash_challenger_unittest.cc",
+    ],
     deps = [
         ":duplex_challenger",
+        ":hash_challenger",
+        "//tachyon/crypto/hashes/sponge:padding_free_sponge",
         "//tachyon/crypto/hashes/sponge/poseidon2",
         "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_plonky3_external_matrix",
         "//tachyon/math/finite_fields/baby_bear:poseidon2",
