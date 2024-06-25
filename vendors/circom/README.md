@@ -46,7 +46,7 @@ bazel build -c opt --config macos_x86_64 //:prover_main
 bazel-bin/prover_main -h
 Usage:
 
-bazel-bin/prover_main zkey wtns proof public [OPTIONS]
+bazel-bin/prover_main zkey wtns proof public -n [OPTIONS]
 
 Positional arguments:
 
@@ -54,6 +54,8 @@ zkey                The path to zkey file
 wtns                The path to wtns file
 proof               The path to proof json
 public              The path to public json
+n                   The number of times to run the proof generation
+
 
 Optional arguments:
 
