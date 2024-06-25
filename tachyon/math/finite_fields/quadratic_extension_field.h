@@ -112,7 +112,7 @@ class QuadraticExtensionField
   }
 
   constexpr bool operator!=(const Derived& other) const {
-    return c0_ != other.c0_ || c1_ != other.c1_;
+    return !operator==(other);
   }
 
   constexpr bool operator<(const Derived& other) const {
@@ -126,13 +126,11 @@ class QuadraticExtensionField
   }
 
   constexpr bool operator<=(const Derived& other) const {
-    if (c1_ == other.c1_) return c0_ <= other.c0_;
-    return c1_ <= other.c1_;
+    return !operator>(other);
   }
 
   constexpr bool operator>=(const Derived& other) const {
-    if (c1_ == other.c1_) return c0_ >= other.c0_;
-    return c1_ >= other.c1_;
+    return !operator<(other);
   }
 
   // AdditiveSemigroup methods
