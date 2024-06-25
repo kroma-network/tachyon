@@ -31,13 +31,13 @@ bazel build --@kroma_network_tachyon//:has_openmp -c opt --config linux //:prove
 ### MacOS arm64
 
 ```shell
-bazel build -c opt --config macos_arm64 //:prover_main
+bazel build --@kroma_network_tachyon//:has_openmp -c opt --config macos_arm64 //:prover_main
 ```
 
 ### MacOS x64
 
 ```shell
-bazel build -c opt --config macos_x86_64 //:prover_main
+bazel build --@kroma_network_tachyon//:has_openmp -c opt --config macos_x86_64 //:prover_main
 ```
 
 ## How to run
