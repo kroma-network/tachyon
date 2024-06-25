@@ -3,6 +3,7 @@
 
 #include "tachyon/export.h"
 #include "tachyon/build/build_config.h"
+#include "tachyon/math/base/big_int.h"
 
 namespace %{namespace} {
 
@@ -61,6 +62,10 @@ class TACHYON_EXPORT %{class}Config {
 
   constexpr static uint32_t ToMontgomery(uint32_t v) {
     return (uint64_t{v} << 32) % kModulus;
+  }
+
+  constexpr static uint32_t ToMontgomery(uint64_t v) {
+    return static_cast<uint32_t>(((tachyon::math::BigInt<2>(v) << 32) % tachyon::math::BigInt<2>(kModulus))[0]);
   }
 
   constexpr static uint32_t FromMontgomery(uint64_t v) {
