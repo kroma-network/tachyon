@@ -60,8 +60,8 @@ TYPED_TEST(CirclePointTest, EqualityOperators) {
 
   CirclePoint p(BaseField::Random(), BaseField::Random());
   CirclePoint p2(BaseField::Random(), BaseField::Random());
-  EXPECT_TRUE(p == p);
-  EXPECT_TRUE(p != p2);
+  EXPECT_EQ(p, p);
+  EXPECT_NE(p, p2);
 }
 
 TYPED_TEST(CirclePointTest, Conjugate) {
