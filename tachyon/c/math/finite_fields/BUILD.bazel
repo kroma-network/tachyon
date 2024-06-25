@@ -1,5 +1,12 @@
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_unittest")
 
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "finite_fields_hdrs",
+    srcs = ["//tachyon/c/math/finite_fields/baby_bear:baby_bear_hdrs"],
+)
+
 tachyon_cc_unittest(
     name = "extension_field_unittests",
     srcs = ["extension_field_unittest.cc"],
