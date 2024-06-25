@@ -128,7 +128,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   constexpr bool operator!=(const Derived& other) const {
-    return c0_ != other.c0_ || c1_ != other.c1_ || c2_ != other.c2_;
+    return !operator==(other);
   }
 
   constexpr bool operator<(const Derived& other) const {
@@ -148,19 +148,11 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   constexpr bool operator<=(const Derived& other) const {
-    if (c2_ == other.c2_) {
-      if (c1_ == other.c1_) return c0_ <= other.c0_;
-      return c1_ <= other.c1_;
-    }
-    return c2_ <= other.c2_;
+    return !operator>(other);
   }
 
   constexpr bool operator>=(const Derived& other) const {
-    if (c2_ == other.c2_) {
-      if (c1_ == other.c1_) return c0_ >= other.c0_;
-      return c1_ >= other.c1_;
-    }
-    return c2_ >= other.c2_;
+    return !operator<(other);
   }
 
   // AdditiveSemigroup methods
