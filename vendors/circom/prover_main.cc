@@ -12,6 +12,7 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/r1cs/groth16/prove.h"
 #include "tachyon/zk/r1cs/groth16/verify.h"
+#include "tachyon/base/time/time.h"
 
 namespace tachyon {
 
@@ -62,7 +63,6 @@ void CreateProof(const base::FilePath& zkey_path,
     proving_key = std::move(*zkey).TakeProvingKey().ToNativeProvingKey();
     constraint_matrices = std::move(*zkey).TakeConstraintMatrices().ToNative();
   }
-
   std::unique_ptr<Wtns<F>> wtns = ParseWtns<F>(witness_path);
   CHECK(wtns);
 
@@ -116,6 +116,7 @@ int RealMain(int argc, char** argv) {
   Curve curve;
   bool no_zk = false;
   bool verify = false;
+  size_t num_runs;
   parser.AddFlag<base::FilePathFlag>(&zkey_path)
       .set_name("zkey")
       .set_help("The path to zkey file");
@@ -138,26 +139,48 @@ int RealMain(int argc, char** argv) {
       .set_help(
           "Verify the proof. By default verify is disabled. Use this flag "
           "to verify the proof with the public inputs.");
+  parser.AddFlag<base::Flag<size_t>>(&num_runs)
+      .set_short_name("-n")
+      .set_long_name("--num_runs")
+      .set_default_value(1)
+      .set_required()
+      .set_help("The number of times to run the proof generation");
 
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {
     tachyon_cerr << error << std::endl;
     return 1;
   }
-
-  switch (curve) {
-    case Curve::kBN254:
-      circom::CreateProof<math::bn254::BN254Curve>(
-          zkey_path, witness_path, proof_path, public_path, no_zk, verify);
-      break;
-    case Curve::kBLS12_381:
-      circom::CreateProof<math::bls12_381::BLS12_381Curve>(
-          zkey_path, witness_path, proof_path, public_path, no_zk, verify);
-      break;
+  if (num_runs == 0) {
+    tachyon_cerr << "num_runs should be positive" << std::endl;
+    return 1;
   }
+base::TimeDelta total_time;
+base::TimeDelta max_time;
+  for (size_t i = 0; i < num_runs; ++i) {
+    base::TimeTicks start = base::TimeTicks::Now();
+      switch (curve) {
+        case Curve::kBN254:
+          circom::CreateProof<math::bn254::BN254Curve>(
+              zkey_path, witness_path, proof_path, public_path, no_zk, verify);
+          break;
+        case Curve::kBLS12_381:
+          circom::CreateProof<math::bls12_381::BLS12_381Curve>(
+              zkey_path, witness_path, proof_path, public_path, no_zk, verify);
+          break;
+    }
+    base::TimeDelta end = base::TimeDelta::Now();
+    base::TimeDelta time_taken = end - start;
+    total_time += time_taken;
+    max_time = std::max(max_time, time_taken);
+    std::cout << "Run " << (i + 1) << ", Time Taken: " << time_taken << std::endl;
+  }
+
+  base::TimeDelta avg_time = total_time / num_runs;
+  std::cout << "Average Time Taken: " << avg_time <<  std::endl;
+  std::cout << "Maximum Time Taken: " << max_time <<  std::endl;
+
   return 0;
 }
-
 }  // namespace tachyon
-
 int main(int argc, char** argv) { return tachyon::RealMain(argc, argv); }
