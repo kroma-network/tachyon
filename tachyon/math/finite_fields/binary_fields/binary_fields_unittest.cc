@@ -79,10 +79,10 @@ TYPED_TEST(BinaryFieldsTest, ComparisonOperator) {
   if constexpr (BinaryField::Config::kModulusBits > 3) {
     BinaryField f(3);
     BinaryField f2(4);
-    EXPECT_TRUE(f < f2);
-    EXPECT_TRUE(f <= f2);
-    EXPECT_FALSE(f > f2);
-    EXPECT_FALSE(f >= f2);
+    EXPECT_LT(f, f2);
+    EXPECT_LE(f, f2);
+    EXPECT_GT(f2, f);
+    EXPECT_GE(f2, f);
   } else {
     GTEST_SKIP() << "Modulus is too small";
   }
