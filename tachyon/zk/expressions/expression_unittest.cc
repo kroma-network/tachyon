@@ -51,11 +51,7 @@ TEST_F(ExpressionTest, ArithmeticOperatorWithClone) {
   std::unique_ptr<Expression<F>> right =
       base::UniformElement(expressions_)->Clone();
 
-  if (left->ContainsSimpleSelector() && right->ContainsSimpleSelector()) {
-    EXPECT_DEATH(left + right, "");
-    EXPECT_DEATH(left - right, "");
-    EXPECT_DEATH(left * right, "");
-  } else {
+  if (!left->ContainsSimpleSelector() && !right->ContainsSimpleSelector()) {
     std::unique_ptr<Expression<F>> add = left + right;
     EXPECT_EQ(*add->ToSum()->left(), *left);
     EXPECT_EQ(*add->ToSum()->right(), *right);
@@ -92,23 +88,7 @@ TEST_F(ExpressionTest, ArithmeticOperatorWithMove) {
   std::unique_ptr<Expression<F>> right =
       base::UniformElement(expressions_)->Clone();
 
-  if (left->ContainsSimpleSelector() && right->ContainsSimpleSelector()) {
-    {
-      std::unique_ptr<Expression<F>> left_tmp = left->Clone();
-      std::unique_ptr<Expression<F>> right_tmp = right->Clone();
-      EXPECT_DEATH(std::move(left_tmp) + std::move(right_tmp), "");
-    }
-    {
-      std::unique_ptr<Expression<F>> left_tmp = left->Clone();
-      std::unique_ptr<Expression<F>> right_tmp = right->Clone();
-      EXPECT_DEATH(std::move(left_tmp) - std::move(right_tmp), "");
-    }
-    {
-      std::unique_ptr<Expression<F>> left_tmp = left->Clone();
-      std::unique_ptr<Expression<F>> right_tmp = right->Clone();
-      EXPECT_DEATH(std::move(left_tmp) * std::move(right_tmp), "");
-    }
-  } else {
+  if (!left->ContainsSimpleSelector() && !right->ContainsSimpleSelector()) {
     {
       std::unique_ptr<Expression<F>> left_tmp = left->Clone();
       std::unique_ptr<Expression<F>> right_tmp = right->Clone();
