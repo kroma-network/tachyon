@@ -74,8 +74,8 @@ TYPED_TEST(PrimeFieldGeneratorTest, EqualityOperators) {
   using PrimeField = TypeParam;
   PrimeField f(3);
   PrimeField f2(4);
-  EXPECT_TRUE(f == f);
-  EXPECT_TRUE(f != f2);
+  EXPECT_EQ(f, f);
+  EXPECT_NE(f, f2);
 }
 
 TYPED_TEST(PrimeFieldGeneratorTest, ComparisonOperator) {

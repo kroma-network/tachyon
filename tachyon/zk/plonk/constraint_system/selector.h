@@ -23,7 +23,7 @@ namespace tachyon::zk::plonk {
 template <typename F>
 class Region;
 
-// NOTE(dongchangYoo): Selector class is copyable, assignable, and occupy 65
+// NOTE(dongchangYoo): Selector class is copyable, assignable, and occupies 65
 // bits per instance. Prefer to pass them by value.
 class TACHYON_EXPORT Selector {
  public:

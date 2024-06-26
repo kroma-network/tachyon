@@ -52,24 +52,24 @@ TEST_F(JacobianPointTest, EqualityOperators) {
     SCOPED_TRACE("p.IsZero() && p2.IsZero()");
     test::JacobianPoint p(GF7(1), GF7(2), GF7(0));
     test::JacobianPoint p2(GF7(3), GF7(4), GF7(0));
-    EXPECT_TRUE(p == p2);
-    EXPECT_TRUE(p2 == p);
+    EXPECT_EQ(p, p2);
+    EXPECT_EQ(p2, p);
   }
 
   {
     SCOPED_TRACE("!p.IsZero() && p2.IsZero()");
     test::JacobianPoint p(GF7(1), GF7(2), GF7(1));
     test::JacobianPoint p2(GF7(3), GF7(4), GF7(0));
-    EXPECT_TRUE(p != p2);
-    EXPECT_TRUE(p2 != p);
+    EXPECT_NE(p, p2);
+    EXPECT_NE(p2, p);
   }
 
   {
     SCOPED_TRACE("other");
     test::JacobianPoint p(GF7(1), GF7(2), GF7(3));
     test::JacobianPoint p2(GF7(1), GF7(2), GF7(3));
-    EXPECT_TRUE(p == p2);
-    EXPECT_TRUE(p2 == p);
+    EXPECT_EQ(p, p2);
+    EXPECT_EQ(p2, p);
   }
 }
 

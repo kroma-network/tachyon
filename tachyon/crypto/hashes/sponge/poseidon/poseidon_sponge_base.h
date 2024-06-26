@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include "Eigen/Core"
+#include "third_party/eigen3/Eigen/Core"
 
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/hashes/prime_field_serializable.h"

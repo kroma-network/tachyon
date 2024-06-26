@@ -45,8 +45,8 @@ TEST_F(AffinePointTest, Random) {
 TEST_F(AffinePointTest, EqualityOperators) {
   test::AffinePoint p(GF7(1), GF7(2));
   test::AffinePoint p2(GF7(3), GF7(4));
-  EXPECT_TRUE(p == p);
-  EXPECT_TRUE(p != p2);
+  EXPECT_EQ(p, p);
+  EXPECT_NE(p, p2);
 }
 
 TEST_F(AffinePointTest, AdditiveGroupOperators) {

@@ -3,7 +3,7 @@
 
 namespace tachyon::crypto {
 
-template <typename C>
+template <typename VCS>
 struct VectorCommitmentSchemeTraits;
 
 }  // namespace tachyon::crypto

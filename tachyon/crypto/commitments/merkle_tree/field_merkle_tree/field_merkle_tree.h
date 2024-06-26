@@ -30,6 +30,8 @@ class FieldMerkleTree {
   using Digest = std::array<PrimeField, N>;
   using PackedDigest = std::array<PackedPrimeField, N>;
 
+  FieldMerkleTree() = default;
+
   template <typename Hasher, typename PackedHasher, typename Compressor,
             typename PackedCompressor>
   static FieldMerkleTree Build(

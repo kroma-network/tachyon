@@ -47,15 +47,13 @@ TEST_F(QuadraticExtensionFieldTest, ConjugateInPlace) {
 TEST_F(QuadraticExtensionFieldTest, EqualityOperators) {
   GF7_2 f(GF7(3), GF7(4));
   GF7_2 f2(GF7(4), GF7(4));
-  EXPECT_FALSE(f == f2);
-  EXPECT_TRUE(f != f2);
+  EXPECT_NE(f, f2);
 
   GF7_2 f3(GF7(4), GF7(3));
-  EXPECT_FALSE(f2 == f3);
-  EXPECT_TRUE(f2 != f3);
+  EXPECT_NE(f2, f3);
 
   GF7_2 f4(GF7(4), GF7(4));
-  EXPECT_TRUE(f2 == f4);
+  EXPECT_EQ(f2, f4);
 }
 
 TEST_F(QuadraticExtensionFieldTest, ComparisonOperator) {
