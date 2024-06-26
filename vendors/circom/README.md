@@ -46,7 +46,7 @@ bazel build --@kroma_network_tachyon//:has_openmp -c opt --config macos_x86_64 /
 bazel-bin/prover_main -h
 Usage:
 
-bazel-bin/prover_main zkey wtns proof public -n [OPTIONS]
+bazel-bin/prover_main zkey wtns proof public [OPTIONS]
 
 Positional arguments:
 
