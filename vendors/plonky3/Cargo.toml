@@ -1,0 +1,31 @@
+[package]
+name = "tachyon_plonky3"
+version = "0.0.1"
+authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
+edition = "2021"
+rust-version = "1.56.1"
+description = """
+Plonky3 unittest based on tachyon
+"""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/kroma-network/tachyon"
+readme = "README.md"
+categories = ["cryptography"]
+keywords = ["tachyon", "plonky3", "proofs", "zkp", "zkSNARKs"]
+publish = false
+
+[dependencies]
+cxx = "1.0"
+p3-baby-bear = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+p3-challenger = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+p3-field = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+p3-poseidon2 = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+p3-symmetric = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+tachyon_rs = { path = "../../tachyon/rs" }
+
+[dev-dependencies]
+zkhash = { git = "https://github.com/HorizenLabs/poseidon2" }
+
+[features]
+default = []
+gpu = []
