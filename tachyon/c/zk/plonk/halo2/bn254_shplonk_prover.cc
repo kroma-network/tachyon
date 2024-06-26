@@ -9,15 +9,19 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g2_point_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
+#include "tachyon/c/zk/base/bn254_blinder_type_traits.h"
+#include "tachyon/c/zk/plonk/constraint_system/bn254_constraint_system_type_traits.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_argument_data_type_traits.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
-#include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
-#include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
+#include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_type_traits.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
-#include "tachyon/zk/plonk/halo2/prover.h"
 #include "tachyon/zk/plonk/halo2/sha256_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 
@@ -25,10 +29,8 @@ using namespace tachyon;
 
 using PCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
 using LS = c::zk::plonk::halo2::bn254::LS;
-using CS = zk::plonk::ConstraintSystem<PCS::Field>;
 using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS, LS>;
 using ProvingKey = c::zk::plonk::ProvingKeyImplBase<LS>;
-using Data = zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;
 
 tachyon_halo2_bn254_shplonk_prover*
 tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
@@ -77,7 +79,7 @@ tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
         return prover;
       },
       transcript_type);
-  return reinterpret_cast<tachyon_halo2_bn254_shplonk_prover*>(prover);
+  return c::base::c_cast(prover);
 }
 
 tachyon_halo2_bn254_shplonk_prover*
@@ -127,70 +129,65 @@ tachyon_halo2_bn254_shplonk_prover_create_from_params(uint8_t transcript_type,
         return prover;
       },
       transcript_type);
-  return reinterpret_cast<tachyon_halo2_bn254_shplonk_prover*>(prover);
+  return c::base::c_cast(prover);
 }
 
 void tachyon_halo2_bn254_shplonk_prover_destroy(
     tachyon_halo2_bn254_shplonk_prover* prover) {
-  delete reinterpret_cast<ProverImpl*>(prover);
+  delete c::base::native_cast(prover);
 }
 
 uint32_t tachyon_halo2_bn254_shplonk_prover_get_k(
     const tachyon_halo2_bn254_shplonk_prover* prover) {
-  return reinterpret_cast<const ProverImpl*>(prover)->pcs().K();
+  return c::base::native_cast(prover)->pcs().K();
 }
 
 size_t tachyon_halo2_bn254_shplonk_prover_get_n(
     const tachyon_halo2_bn254_shplonk_prover* prover) {
-  return reinterpret_cast<const ProverImpl*>(prover)->pcs().N();
+  return c::base::native_cast(prover)->pcs().N();
 }
 
 const tachyon_bn254_g2_affine* tachyon_halo2_bn254_shplonk_prover_get_s_g2(
     const tachyon_halo2_bn254_shplonk_prover* prover) {
-  return reinterpret_cast<const tachyon_bn254_g2_affine*>(
-      &(reinterpret_cast<const ProverImpl*>(prover)->pcs().SG2()));
+  return c::base::c_cast(&(c::base::native_cast(prover)->pcs().SG2()));
 }
 
 tachyon_bn254_blinder* tachyon_halo2_bn254_shplonk_prover_get_blinder(
     tachyon_halo2_bn254_shplonk_prover* prover) {
-  return reinterpret_cast<tachyon_bn254_blinder*>(
-      &(reinterpret_cast<ProverImpl*>(prover)->blinder()));
+  return c::base::c_cast(&(c::base::native_cast(prover)->blinder()));
 }
 
 const tachyon_bn254_univariate_evaluation_domain*
 tachyon_halo2_bn254_shplonk_prover_get_domain(
     const tachyon_halo2_bn254_shplonk_prover* prover) {
-  return reinterpret_cast<const tachyon_bn254_univariate_evaluation_domain*>(
-      reinterpret_cast<const ProverImpl*>(prover)->domain());
+  return c::base::c_cast(c::base::native_cast(prover)->domain());
 }
 
 tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_shplonk_prover_commit(
     const tachyon_halo2_bn254_shplonk_prover* prover,
     const tachyon_bn254_univariate_dense_polynomial* poly) {
-  return reinterpret_cast<const ProverImpl*>(prover)->Commit(
-      reinterpret_cast<const PCS::Domain::DensePoly&>(*poly)
-          .coefficients()
-          .coefficients());
+  return c::base::native_cast(prover)->CommitRaw(
+      c::base::native_cast(*poly).coefficients().coefficients());
 }
 
 tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_shplonk_prover_commit_lagrange(
     const tachyon_halo2_bn254_shplonk_prover* prover,
     const tachyon_bn254_univariate_evaluations* evals) {
-  return reinterpret_cast<const ProverImpl*>(prover)->CommitLagrange(
-      reinterpret_cast<const PCS::Domain::Evals&>(*evals).evaluations());
+  return c::base::native_cast(prover)->CommitLagrangeRaw(
+      c::base::native_cast(*evals).evaluations());
 }
 
 void tachyon_halo2_bn254_shplonk_prover_set_rng_state(
     tachyon_halo2_bn254_shplonk_prover* prover, const uint8_t* state,
     size_t state_len) {
-  reinterpret_cast<ProverImpl*>(prover)->SetRngState(
+  c::base::native_cast(prover)->SetRngState(
       absl::Span<const uint8_t>(state, state_len));
 }
 
 void tachyon_halo2_bn254_shplonk_prover_set_transcript_state(
     tachyon_halo2_bn254_shplonk_prover* prover, const uint8_t* state,
     size_t state_len) {
-  ProverImpl* prover_impl = reinterpret_cast<ProverImpl*>(prover);
+  ProverImpl* prover_impl = c::base::native_cast(prover);
   uint8_t transcript_type = prover_impl->transcript_type();
   base::Uint8VectorBuffer write_buf;
   switch (static_cast<zk::plonk::halo2::TranscriptType>(transcript_type)) {
@@ -238,9 +235,9 @@ void tachyon_halo2_bn254_shplonk_prover_set_extended_domain(
       tachyon_bn254_plonk_proving_key_get_verifying_key(pk);
   const tachyon_bn254_plonk_constraint_system* cs =
       tachyon_bn254_plonk_verifying_key_get_constraint_system(vk);
-  uint32_t extended_k = reinterpret_cast<const CS*>(cs)->ComputeExtendedK(
-      reinterpret_cast<const ProverImpl*>(prover)->pcs().K());
-  reinterpret_cast<ProverImpl*>(prover)->set_extended_domain(
+  uint32_t extended_k = c::base::native_cast(cs)->ComputeExtendedK(
+      c::base::native_cast(prover)->pcs().K());
+  c::base::native_cast(prover)->set_extended_domain(
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
 }
 
@@ -248,15 +245,15 @@ void tachyon_halo2_bn254_shplonk_prover_create_proof(
     tachyon_halo2_bn254_shplonk_prover* prover,
     tachyon_bn254_plonk_proving_key* pk,
     tachyon_halo2_bn254_argument_data* data) {
-  reinterpret_cast<ProverImpl*>(prover)->CreateProof(
-      reinterpret_cast<ProvingKey&>(*pk), reinterpret_cast<Data*>(data));
+  c::base::native_cast(prover)->CreateProof(c::base::native_cast(*pk),
+                                            c::base::native_cast(data));
 }
 
 void tachyon_halo2_bn254_shplonk_prover_get_proof(
     const tachyon_halo2_bn254_shplonk_prover* prover, uint8_t* proof,
     size_t* proof_len) {
   const crypto::TranscriptWriter<PCS::Commitment>* transcript =
-      reinterpret_cast<const ProverImpl*>(prover)->GetWriter();
+      c::base::native_cast(prover)->GetWriter();
   const std::vector<uint8_t>& buffer = transcript->buffer().owned_buffer();
   *proof_len = buffer.size();
   if (proof == nullptr) return;
@@ -266,6 +263,5 @@ void tachyon_halo2_bn254_shplonk_prover_get_proof(
 void tachyon_halo2_bn254_shplonk_prover_set_transcript_repr(
     const tachyon_halo2_bn254_shplonk_prover* prover,
     tachyon_bn254_plonk_proving_key* pk) {
-  reinterpret_cast<ProvingKey*>(pk)->SetTranscriptRepr(
-      reinterpret_cast<const ProverImpl&>(*prover));
+  c::base::native_cast(pk)->SetTranscriptRepr(c::base::native_cast(*prover));
 }

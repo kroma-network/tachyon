@@ -3,7 +3,6 @@
 #include "tachyon/base/optional.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/cc/math/elliptic_curves/bn/bn254/fr.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 
 namespace tachyon::cc::math {
 

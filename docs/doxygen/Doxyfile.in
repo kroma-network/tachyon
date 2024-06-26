@@ -1004,34 +1004,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = ${TACHYON_SOURCE_DIR}/c/base/type_traits_forward.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/bn/bn254/g1_test.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/generator/generator_util.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/point_conversions.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/point_traits_forward.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/msm/algorithm.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/msm/msm.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/msm/msm_gpu.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/msm/msm_input_provider.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/polynomials/constants.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/constraint_system/column_type.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/test/bn254_halo2_params_data.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/bn254_gwc_pcs.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/bn254_gwc_prover_type_traits.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/bn254_gwc_verifier_type_traits.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/bn254_shplonk_pcs.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/bn254_shplonk_prover_type_traits.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/bn254_shplonk_verifier_type_traits.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/buffer_reader.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/constants.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/kzg_family_prover_impl.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/prover_impl_base.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/halo2/verifier_impl.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h \
-                         ${TACHYON_SOURCE_DIR}/c/zk/plonk/keys/proving_key_impl_base.h \
-                         ${TACHYON_SOURCE_DIR}/c/api.h \
-                         ${TACHYON_SOURCE_DIR}/c/export.h \
-                         ${TACHYON_BINARY_DIR}/tachyon/c/version_generated.h \
+EXCLUDE                =
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

@@ -5,13 +5,10 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
-#include "tachyon/c/math/polynomials/constants.h"
-#include "tachyon/math/base/rational_field.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_rational_evaluations_type_traits.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
-#include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
 namespace tachyon::math {
 
@@ -28,8 +25,7 @@ class UnivariateRationalEvaluationsTest : public FiniteFieldTest<bn254::Fr> {
   void SetUp() override {
     RationalEvals* cpp_evals =
         new RationalEvals(RationalEvals::Random(kDegree));
-    evals_ = reinterpret_cast<tachyon_bn254_univariate_rational_evaluations*>(
-        cpp_evals);
+    evals_ = c::base::c_cast(cpp_evals);
   }
 
   void TearDown() override {
@@ -46,10 +42,9 @@ TEST_F(UnivariateRationalEvaluationsTest, Clone) {
   tachyon_bn254_univariate_rational_evaluations* evals_clone =
       tachyon_bn254_univariate_rational_evaluations_clone(evals_);
   // NOTE(chokobole): It's safe to access since we created |kDegree| |evals_|.
-  reinterpret_cast<RationalEvals&>(*evals_).at(0) +=
-      RationalField<bn254::Fr>::One();
-  EXPECT_NE((reinterpret_cast<RationalEvals&>(*evals_))[0],
-            (reinterpret_cast<RationalEvals&>(*evals_clone))[0]);
+  c::base::native_cast(*evals_).at(0) += RationalField<bn254::Fr>::One();
+  EXPECT_NE((c::base::native_cast(*evals_))[0],
+            (c::base::native_cast(*evals_clone))[0]);
   tachyon_bn254_univariate_rational_evaluations_destroy(evals_clone);
 }
 
@@ -60,7 +55,7 @@ TEST_F(UnivariateRationalEvaluationsTest, Len) {
 
 TEST_F(UnivariateRationalEvaluationsTest, SetZero) {
   tachyon_bn254_univariate_rational_evaluations_set_zero(evals_, 0);
-  EXPECT_TRUE(reinterpret_cast<RationalEvals&>(*evals_)[0].IsZero());
+  EXPECT_TRUE(c::base::native_cast(*evals_)[0].IsZero());
 }
 
 TEST_F(UnivariateRationalEvaluationsTest, SetTrivial) {
@@ -69,7 +64,7 @@ TEST_F(UnivariateRationalEvaluationsTest, SetTrivial) {
   const tachyon_bn254_fr& numerator = c::base::c_cast(expected.numerator());
   tachyon_bn254_univariate_rational_evaluations_set_trivial(evals_, 0,
                                                             &numerator);
-  EXPECT_EQ(reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
+  EXPECT_EQ(c::base::native_cast(*evals_)[0], expected);
 }
 
 TEST_F(UnivariateRationalEvaluationsTest, SetRational) {
@@ -78,7 +73,7 @@ TEST_F(UnivariateRationalEvaluationsTest, SetRational) {
   const tachyon_bn254_fr& denominator = c::base::c_cast(expected.denominator());
   tachyon_bn254_univariate_rational_evaluations_set_rational(
       evals_, 0, &numerator, &denominator);
-  EXPECT_EQ(reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
+  EXPECT_EQ(c::base::native_cast(*evals_)[0], expected);
 }
 
 TEST_F(UnivariateRationalEvaluationsTest, BatchEvaluate) {
@@ -97,7 +92,7 @@ TEST_F(UnivariateRationalEvaluationsTest, BatchEvaluate) {
   std::vector<bn254::Fr> values;
   values.resize(rational_values.size());
   CHECK(RationalField<bn254::Fr>::BatchEvaluate(rational_values, &values));
-  EXPECT_EQ(reinterpret_cast<Evals&>(*evaluated).evaluations(), values);
+  EXPECT_EQ(c::base::native_cast(*evaluated).evaluations(), values);
 }
 
 }  // namespace tachyon::math
