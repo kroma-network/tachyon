@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Eigen/Core"
+#include "third_party/eigen3/Eigen/Core"
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"

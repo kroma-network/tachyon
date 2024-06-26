@@ -30,8 +30,8 @@ TEST(Point4Test, Construct) {
 TEST(Point4Test, EqualityOperators) {
   Point4GF7 point(GF7(1), GF7(2), GF7(3), GF7(4));
   Point4GF7 point2(GF7(4), GF7(5), GF7(6), GF7(0));
-  EXPECT_TRUE(point == point);
-  EXPECT_TRUE(point != point2);
+  EXPECT_EQ(point, point);
+  EXPECT_NE(point, point2);
 }
 
 TEST(Point4Test, ToString) {

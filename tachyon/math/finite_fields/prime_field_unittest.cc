@@ -67,8 +67,8 @@ TYPED_TEST(PrimeFieldTest, EqualityOperators) {
 
   F f(3);
   F f2(4);
-  EXPECT_TRUE(f == f);
-  EXPECT_TRUE(f != f2);
+  EXPECT_EQ(f, f);
+  EXPECT_NE(f, f2);
 }
 
 TYPED_TEST(PrimeFieldTest, ComparisonOperator) {
@@ -76,10 +76,10 @@ TYPED_TEST(PrimeFieldTest, ComparisonOperator) {
 
   F f(3);
   F f2(4);
-  EXPECT_TRUE(f < f2);
-  EXPECT_TRUE(f <= f2);
-  EXPECT_FALSE(f > f2);
-  EXPECT_FALSE(f >= f2);
+  EXPECT_LT(f, f2);
+  EXPECT_LE(f, f2);
+  EXPECT_GT(f2, f);
+  EXPECT_GE(f2, f);
 }
 
 TYPED_TEST(PrimeFieldTest, AdditiveOperators) {

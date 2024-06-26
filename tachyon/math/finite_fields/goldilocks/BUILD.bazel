@@ -1,6 +1,7 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("//bazel:tachyon.bzl", "if_has_avx512", "if_x86_64")
 load("//bazel:tachyon_cc.bzl", "tachyon_asm_prime_field_defines", "tachyon_cc_library", "tachyon_cc_unittest")
+load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp2s")
 load(
     "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
     "SMALL_SUBGROUP_ADICITY",
@@ -38,6 +39,16 @@ generate_large_fft_prime_fields(
     subgroup_generator = ":" + SUBGROUP_GENERATOR,
     # NOTE(chokobole): Polygon's Goldilocks doesn't use montgomery reduction by default.
     use_montgomery = if_x86_64(False, True),
+)
+
+generate_fp2s(
+    name = "goldilocks2",
+    base_field = "Goldilocks",
+    base_field_hdr = "tachyon/math/finite_fields/goldilocks/goldilocks.h",
+    class_name = "Goldilocks2",
+    namespace = "tachyon::math",
+    non_residue = ["7"],
+    deps = [":goldilocks"],
 )
 
 tachyon_cc_library(

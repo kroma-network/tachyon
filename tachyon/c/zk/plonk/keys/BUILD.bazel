@@ -18,10 +18,14 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bn254_plonk_proving_key",
     srcs = ["bn254_plonk_proving_key.cc"],
-    hdrs = ["bn254_plonk_proving_key.h"],
+    hdrs = [
+        "bn254_plonk_proving_key.h",
+        "bn254_plonk_proving_key_type_traits.h",
+    ],
     deps = [
         ":bn254_plonk_proving_key_impl",
         ":bn254_plonk_verifying_key",
+        "//tachyon/c/base:type_traits_forward",
     ],
 )
 
@@ -38,8 +42,12 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bn254_plonk_verifying_key",
     srcs = ["bn254_plonk_verifying_key.cc"],
-    hdrs = ["bn254_plonk_verifying_key.h"],
+    hdrs = [
+        "bn254_plonk_verifying_key.h",
+        "bn254_plonk_verifying_key_type_traits.h",
+    ],
     deps = [
+        "//tachyon/c/base:type_traits_forward",
         "//tachyon/c/zk/plonk/constraint_system:bn254_constraint_system",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",

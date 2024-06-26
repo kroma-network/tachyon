@@ -16,7 +16,6 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
-#include "tachyon/math/geometry/point2.h"
 
 namespace tachyon {
 namespace math {
@@ -48,14 +47,14 @@ class QuadraticExtensionField
   static Derived FromBasePrimeFields(
       absl::Span<const BasePrimeField> prime_fields) {
     CHECK_EQ(prime_fields.size(), ExtensionDegree());
-    constexpr size_t base_field_degree = BaseField::ExtensionDegree();
-    if constexpr (base_field_degree == 1) {
+    constexpr size_t kBaseFieldDegree = BaseField::ExtensionDegree();
+    if constexpr (kBaseFieldDegree == 1) {
       return Derived(prime_fields[0], prime_fields[1]);
     } else {
       BaseField c0 = BaseField::FromBasePrimeFields(
-          prime_fields.subspan(0, base_field_degree));
+          prime_fields.subspan(0, kBaseFieldDegree));
       BaseField c1 = BaseField::FromBasePrimeFields(
-          prime_fields.subspan(base_field_degree));
+          prime_fields.subspan(kBaseFieldDegree));
       return Derived(std::move(c0), std::move(c1));
     }
   }
@@ -113,7 +112,7 @@ class QuadraticExtensionField
   }
 
   constexpr bool operator!=(const Derived& other) const {
-    return c0_ != other.c0_ || c1_ != other.c1_;
+    return !operator==(other);
   }
 
   constexpr bool operator<(const Derived& other) const {
@@ -127,13 +126,11 @@ class QuadraticExtensionField
   }
 
   constexpr bool operator<=(const Derived& other) const {
-    if (c1_ == other.c1_) return c0_ <= other.c0_;
-    return c1_ <= other.c1_;
+    return !operator>(other);
   }
 
   constexpr bool operator>=(const Derived& other) const {
-    if (c1_ == other.c1_) return c0_ >= other.c0_;
-    return c1_ >= other.c1_;
+    return !operator<(other);
   }
 
   // AdditiveSemigroup methods
@@ -192,7 +189,7 @@ class QuadraticExtensionField
 
   // MultiplicativeSemigroup methods
   constexpr Derived Mul(const Derived& other) const {
-    Derived ret;
+    Derived ret{};
     DoMul(*static_cast<const Derived*>(this), other, ret);
     return ret;
   }
@@ -217,7 +214,7 @@ class QuadraticExtensionField
   }
 
   constexpr Derived SquareImpl() const {
-    Derived ret;
+    Derived ret{};
     DoSquareImpl(*static_cast<const Derived*>(this), ret);
     return ret;
   }
@@ -230,7 +227,7 @@ class QuadraticExtensionField
 
   // MultiplicativeGroup methods
   constexpr std::optional<Derived> Inverse() const {
-    Derived ret;
+    Derived ret{};
     if (LIKELY(DoInverse(*static_cast<const Derived*>(this), ret))) {
       return ret;
     }
@@ -282,7 +279,7 @@ class QuadraticExtensionField
     //   = a.c0 * b.c0 + a.c1 * b.c1 * x² + (a.c0 * b.c1 + a.c1 * b.c0) * x
     //   = a.c0 * b.c0 + a.c1 * b.c1 * q + (a.c0 * b.c1 + a.c1 * b.c0) * x
     //   = (a.c0 * b.c0 + a.c1 * b.c1 * q, a.c0 * b.c1 + a.c1 * b.c0)
-    // Where q is Config::kNonResidue.
+    // where q is |Config::kNonResidue|.
     // clang-format on
     if constexpr (ExtensionDegree() == 2) {
       BaseField c0;
@@ -326,7 +323,7 @@ class QuadraticExtensionField
     //            = c0² + c1² * x² + 2 * c0 * c1 * x
     //            = c0² + c1² * q + 2 * c0 * c1 * x
     //            = (c0² + c1² * q, 2 * c0 * c1)
-    // Where q is Config::kNonResidue.
+    // where q is |Config::kNonResidue|.
     // When q = -1, we can re-use intermediate additions to improve performance.
 
     // v0 = c0 - c1

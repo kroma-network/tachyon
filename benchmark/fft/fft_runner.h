@@ -14,7 +14,6 @@
 // clang-format on
 #include "tachyon/base/functional/functor_traits.h"
 #include "tachyon/base/time/time.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 
@@ -57,12 +56,9 @@ class FFTRunner {
       PolyOrEvals poly = (*polys_)[i];
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CRetPoly> ret;
-      ret.reset(fn(
-          reinterpret_cast<const tachyon_bn254_univariate_evaluation_domain*>(
-              domains_[i].get()),
-          reinterpret_cast<CPolyOrEvals>(&poly)));
+      ret.reset(fn(c::base::c_cast(domains_[i].get()), c::base::c_cast(&poly)));
       reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
-      results->push_back(*reinterpret_cast<RetPoly*>(ret.get()));
+      results->push_back(*c::base::native_cast(ret.get()));
     }
   }
 

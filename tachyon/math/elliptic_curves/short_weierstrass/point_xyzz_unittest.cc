@@ -53,24 +53,24 @@ TEST_F(PointXYZZTest, EqualityOperators) {
     SCOPED_TRACE("p.IsZero() && p2.IsZero()");
     test::PointXYZZ p(GF7(1), GF7(2), GF7(0), GF7(0));
     test::PointXYZZ p2(GF7(3), GF7(4), GF7(0), GF7(0));
-    EXPECT_TRUE(p == p2);
-    EXPECT_TRUE(p2 == p);
+    EXPECT_EQ(p, p2);
+    EXPECT_EQ(p2, p);
   }
 
   {
     SCOPED_TRACE("!p.IsZero() && p2.IsZero()");
     test::PointXYZZ p(GF7(1), GF7(2), GF7(1), GF7(0));
     test::PointXYZZ p2(GF7(3), GF7(4), GF7(0), GF7(0));
-    EXPECT_TRUE(p != p2);
-    EXPECT_TRUE(p2 != p);
+    EXPECT_NE(p, p2);
+    EXPECT_NE(p2, p);
   }
 
   {
     SCOPED_TRACE("other");
     test::PointXYZZ p(GF7(1), GF7(2), GF7(2), GF7(6));
     test::PointXYZZ p2(GF7(1), GF7(2), GF7(2), GF7(6));
-    EXPECT_TRUE(p == p2);
-    EXPECT_TRUE(p2 == p);
+    EXPECT_EQ(p, p2);
+    EXPECT_EQ(p2, p);
   }
 }
 

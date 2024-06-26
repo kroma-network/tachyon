@@ -3,7 +3,6 @@
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fr_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm.h"
-#include "tachyon/math/elliptic_curves/%{header_dir_name}/g1.h"
 
 struct tachyon_%{type}_g1_msm : public tachyon::c::math::MSMApi<tachyon::math::%{type}::G1AffinePoint> {
   using tachyon::c::math::MSMApi<tachyon::math::%{type}::G1AffinePoint>::MSMApi;

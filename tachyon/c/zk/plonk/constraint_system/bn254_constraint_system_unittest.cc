@@ -2,9 +2,8 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/c/zk/plonk/constraint_system/bn254_constraint_system_type_traits.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
-#include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 
 namespace tachyon::zk::plonk {
 
@@ -12,9 +11,7 @@ namespace {
 
 class ConstraintSystemTest : public math::FiniteFieldTest<math::bn254::Fr> {
  public:
-  void SetUp() override {
-    cs_ = reinterpret_cast<tachyon_bn254_plonk_constraint_system*>(&cpp_cs_);
-  }
+  void SetUp() override { cs_ = c::base::c_cast(&cpp_cs_); }
 
  protected:
   ConstraintSystem<math::bn254::Fr> cpp_cs_;

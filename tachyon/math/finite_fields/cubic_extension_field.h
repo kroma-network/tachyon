@@ -16,7 +16,6 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
-#include "tachyon/math/geometry/point3.h"
 
 namespace tachyon {
 namespace math {
@@ -50,16 +49,16 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   static Derived FromBasePrimeFields(
       absl::Span<const BasePrimeField> prime_fields) {
     CHECK_EQ(prime_fields.size(), ExtensionDegree());
-    constexpr size_t base_field_degree = BaseField::ExtensionDegree();
-    if constexpr (base_field_degree == 1) {
+    constexpr size_t kBaseFieldDegree = BaseField::ExtensionDegree();
+    if constexpr (kBaseFieldDegree == 1) {
       return Derived(prime_fields[0], prime_fields[1], prime_fields[2]);
     } else {
       BaseField c0 = BaseField::FromBasePrimeFields(
-          prime_fields.subspan(0, base_field_degree));
+          prime_fields.subspan(0, kBaseFieldDegree));
       BaseField c1 = BaseField::FromBasePrimeFields(
-          prime_fields.subspan(base_field_degree, base_field_degree));
+          prime_fields.subspan(kBaseFieldDegree, kBaseFieldDegree));
       BaseField c2 = BaseField::FromBasePrimeFields(
-          prime_fields.subspan(2 * base_field_degree, base_field_degree));
+          prime_fields.subspan(2 * kBaseFieldDegree, kBaseFieldDegree));
       return Derived(std::move(c0), std::move(c1), std::move(c2));
     }
   }
@@ -76,26 +75,25 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return 3 * BaseField::ExtensionDegree();
   }
 
-  // Calculate the norm of an element with respect to the base field
-  // |BaseField|. The norm maps an element |a| in the extension field
-  // Fqᵐ to an element in the |BaseField| Fq.
-  // |a.Norm() = a * a^q * a^q²|
+  // Calculate the norm of an element with respect to |BaseField|.
+  // The norm maps an element |a| in the extension field Fqᵐ to an element
+  // in the |BaseField| Fq. |a.Norm() = a * a^q * a^q²|
   constexpr BaseField Norm() const {
-    // w.r.t to |BaseField|, we need the 0th, 1st & 2nd powers of q
+    // w.r.t to |BaseField|, we need the 0th, 1st & 2nd powers of q.
     // Since Frobenius coefficients on the towered extensions are
     // indexed w.r.t. to |BasePrimeField|, we need to calculate the correct
     // index.
-    //  NOTE(chokobole): This assumes that |BaseField::ExtensionDegree()|
-    // never overflows even on 32 bit machine.
+    // NOTE(chokobole): This assumes that |BaseField::ExtensionDegree()|
+    // never overflows even on a 32-bit machine.
     size_t index_multiplier = size_t{BaseField::ExtensionDegree()};
-    CubicExtensionField self_to_p = *this;
+    Derived self_to_p = static_cast<const Derived&>(*this);
     self_to_p.FrobeniusMapInPlace(index_multiplier);
-    CubicExtensionField self_to_p2 = *this;
+    Derived self_to_p2 = static_cast<const Derived&>(*this);
     self_to_p2.FrobeniusMapInPlace(2 * index_multiplier);
-    self_to_p *= (self_to_p2 * (*this));
-    // NOTE(chokobole): below CHECK() is not a device code.
+    self_to_p *= (self_to_p2 * static_cast<const Derived&>(*this));
+    // NOTE(chokobole): The |CHECK()| below is not device code.
     // See https://github.com/kroma-network/tachyon/issues/76
-    CHECK(!(self_to_p.c1().IsZero() && self_to_p.c2().IsZero()));
+    CHECK(self_to_p.c1().IsZero() && self_to_p.c2().IsZero());
     return self_to_p.c0();
   }
 
@@ -130,7 +128,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   constexpr bool operator!=(const Derived& other) const {
-    return c0_ != other.c0_ || c1_ != other.c1_ || c2_ != other.c2_;
+    return !operator==(other);
   }
 
   constexpr bool operator<(const Derived& other) const {
@@ -150,19 +148,11 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   constexpr bool operator<=(const Derived& other) const {
-    if (c2_ == other.c2_) {
-      if (c1_ == other.c1_) return c0_ <= other.c0_;
-      return c1_ <= other.c1_;
-    }
-    return c2_ <= other.c2_;
+    return !operator>(other);
   }
 
   constexpr bool operator>=(const Derived& other) const {
-    if (c2_ == other.c2_) {
-      if (c1_ == other.c1_) return c0_ >= other.c0_;
-      return c1_ >= other.c1_;
-    }
-    return c2_ >= other.c2_;
+    return !operator<(other);
   }
 
   // AdditiveSemigroup methods
@@ -229,7 +219,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
 
   // MultiplicativeSemigroup methods
   constexpr Derived Mul(const Derived& other) const {
-    Derived ret;
+    Derived ret{};
     DoMul(*static_cast<const Derived*>(this), other, ret);
     return ret;
   }
@@ -256,7 +246,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   constexpr Derived SquareImpl() const {
-    Derived ret;
+    Derived ret{};
     DoSquareImpl(*static_cast<const Derived*>(this), ret);
     return ret;
   }
@@ -269,7 +259,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
 
   // MultiplicativeGroup methods
   constexpr std::optional<Derived> Inverse() const {
-    Derived ret;
+    Derived ret{};
     if (LIKELY(DoInverse(*static_cast<const Derived*>(this), ret))) return ret;
     LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
     return std::nullopt;
@@ -305,7 +295,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     //   = (a.c0 * b.c0 + (a.c1 * b.c2 + a.c2 * b.c1) * q,
     //     a.c0 * b.c1 + a.c1 * b.c0 + a.c2 * b.c2 * q,
     //     a.c0 * b.c2 + a.c1 * b.c1 + a.c2 * b.c0)
-    // Where q is Config::kNonResidue.
+    // where q is |Config::kNonResidue|.
 
     // See https://eprint.iacr.org/2006/471.pdf
     // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (Karatsuba)
@@ -339,7 +329,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     //   = c0² + 2 * c1 * c2 * x³ + 2 * c0 * c1 * x + c2² * x⁴ + (c1² + 2 * c0 * c2) * x²
     //   = c0² + 2 * c1 * c2 * q + (2 * c0 * c1  + c2² * q) * x + (c1² + 2 * c0 * c2) * x²
     //   = (c0² + 2 * c1 * c2 * q, 2 * c0 * c1  + c2² * q, c1² + 2 * c0 * c2)
-    // Where q is Config::kNonResidue.
+    // where q is |Config::kNonResidue|.
 
     // See https://eprint.iacr.org/2006/471.pdf
     // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (CH-SQR2)

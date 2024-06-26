@@ -149,7 +149,7 @@ class MultilinearDenseEvaluations {
   // NOTE(chokobole): This creates a polynomial that contains |F::Zero()| up to
   // |degree| + 1.
   constexpr static MultilinearDenseEvaluations Zero(size_t degree) {
-    MultilinearDenseEvaluations ret;
+    MultilinearDenseEvaluations ret{};
     ret.evaluations_ = std::vector<F>(size_t{1} << degree);
     return ret;
   }

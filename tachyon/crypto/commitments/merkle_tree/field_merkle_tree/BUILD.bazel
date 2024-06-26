@@ -16,11 +16,25 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cc_unittest(
-    name = "field_merkle_tree_unittests",
-    srcs = ["field_merkle_tree_unittest.cc"],
+tachyon_cc_library(
+    name = "field_merkle_tree_mmcs",
+    hdrs = ["field_merkle_tree_mmcs.h"],
     deps = [
         ":field_merkle_tree",
+        "//tachyon/base:bits",
+        "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme",
+        "@pdqsort",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "field_merkle_tree_unittests",
+    srcs = [
+        "field_merkle_tree_mmcs_unittest.cc",
+        "field_merkle_tree_unittest.cc",
+    ],
+    deps = [
+        ":field_merkle_tree_mmcs",
         "//tachyon/crypto/hashes/sponge:padding_free_sponge",
         "//tachyon/crypto/hashes/sponge:truncated_permutation",
         "//tachyon/crypto/hashes/sponge/poseidon2",

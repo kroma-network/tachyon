@@ -74,12 +74,27 @@ class RapidJsonValueConverter<SimpleData> {
 TEST_F(JsonTest, LoadAndParseJson) {
   SimpleData simple_data;
   std::string error;
-  EXPECT_TRUE(
+  ASSERT_TRUE(
       LoadAndParseJson(FilePath("tachyon/base/json/test/simple_data.json"),
                        &simple_data, &error));
   EXPECT_TRUE(error.empty());
 
   EXPECT_EQ(simple_data, expected_simple_data_);
+}
+
+TEST_F(JsonTest, ParseInvalidJson) {
+  // missing key
+  std::string json = R"({})";
+  SimpleData simple_data;
+  std::string error;
+  ASSERT_FALSE(ParseJson(json, &simple_data, &error));
+  EXPECT_EQ(error, "\"message\" key is not found");
+
+  // invalid value
+  json = R"({"message":3})";
+  ASSERT_FALSE(ParseJson(json, &simple_data, &error));
+  EXPECT_EQ(error,
+            "\"message\" expects type \"string\" but type \"number\" comes");
 }
 
 TEST_F(JsonTest, WriteToJson) {

@@ -23,7 +23,7 @@ using namespace math;
 using F = bn254::Fr;
 using Curve = math::bn254::BN254Curve;
 
-constexpr size_t MaxDegree = (size_t{1} << 16) - 1;
+constexpr size_t kMaxDegree = (size_t{1} << 16) - 1;
 
 void CheckPublicInput(const std::vector<uint8_t>& in,
                       absl::Span<const F> public_inputs) {
@@ -59,7 +59,7 @@ int RealMain(int argc, char** argv) {
   Curve::Init();
 
   std::vector<std::unique_ptr<Runner<Curve>>> runners;
-  runners.push_back(std::make_unique<TachyonRunner<Curve, MaxDegree>>(
+  runners.push_back(std::make_unique<TachyonRunner<Curve, kMaxDegree>>(
       base::FilePath("benchmark/sha256_512_cpp/sha256_512.dat")));
   runners.push_back(std::make_unique<RapidsnarkRunner<Curve, AltBn128::Engine>>(
       base::FilePath("benchmark/sha256_512_verification_key.json")));
@@ -75,8 +75,8 @@ int RealMain(int argc, char** argv) {
     runner->LoadZkey(base::FilePath("benchmark/sha256_512.zkey"));
 
     if (i == 0) {
-      TachyonRunner<Curve, MaxDegree>* tachyon_runner =
-          reinterpret_cast<TachyonRunner<Curve, MaxDegree>*>(runner.get());
+      TachyonRunner<Curve, kMaxDegree>* tachyon_runner =
+          reinterpret_cast<TachyonRunner<Curve, kMaxDegree>*>(runner.get());
 
       WitnessLoader<F>& witness_loader = tachyon_runner->witness_loader();
 

@@ -257,13 +257,13 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FFTCorrectness) {
   using DensePoly = typename Domain::DensePoly;
   using Evals = typename Domain::Evals;
 
-  // NOTE(TomTaehoonKim): |degree| is set to 2⁵ -1 for default, but for the
+  // NOTE(TomTaehoonKim): |kDegree| is set to 2⁵ -1 for default, but for the
   // |Radix2EvaluationDomain| test with openmp, it is updated to
   // |Radix2EvaluationDomain::kDefaultMinNumChunksForCompaction| - 1.
-  size_t log_degree = 5;
-  size_t degree = (size_t{1} << log_degree) - 1;
-  DensePoly rand_poly = DensePoly::Random(degree);
-  for (size_t log_domain_size = log_degree; log_domain_size < log_degree + 2;
+  const size_t kLogDegree = 5;
+  const size_t kDegree = (size_t{1} << kLogDegree) - 1;
+  DensePoly rand_poly = DensePoly::Random(kDegree);
+  for (size_t log_domain_size = kLogDegree; log_domain_size < kLogDegree + 2;
        ++log_domain_size) {
     size_t domain_size = size_t{1} << log_domain_size;
     this->TestDomains(
@@ -287,10 +287,10 @@ TYPED_TEST(UnivariateEvaluationDomainTest, DegreeAwareFFTCorrectness) {
   using Evals = typename Domain::Evals;
 
   if constexpr (std::is_same_v<F, bls12_381::Fr>) {
-    const size_t log_degree = 5;
-    const size_t degree = (size_t{1} << log_degree) - 1;
-    DensePoly rand_poly = DensePoly::Random(degree);
-    size_t domain_size = (degree + 1) * Domain::kDegreeAwareFFTThresholdFactor;
+    const size_t kLogDegree = 5;
+    const size_t kDegree = (size_t{1} << kLogDegree) - 1;
+    DensePoly rand_poly = DensePoly::Random(kDegree);
+    size_t domain_size = (kDegree + 1) * Domain::kDegreeAwareFFTThresholdFactor;
     this->TestDomains(domain_size, [domain_size,
                                     &rand_poly](const BaseDomain& d) {
       Evals deg_aware_fft_evals = d.FFT(rand_poly);

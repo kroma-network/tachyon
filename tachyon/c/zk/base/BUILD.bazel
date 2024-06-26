@@ -10,9 +10,13 @@ filegroup(
 tachyon_cc_library(
     name = "bn254_blinder",
     srcs = ["bn254_blinder.cc"],
-    hdrs = ["bn254_blinder.h"],
+    hdrs = [
+        "bn254_blinder.h",
+        "bn254_blinder_type_traits.h",
+    ],
     deps = [
         "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/zk/base:blinder",
     ],

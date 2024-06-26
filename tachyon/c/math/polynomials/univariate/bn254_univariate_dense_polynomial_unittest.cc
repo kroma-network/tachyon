@@ -2,10 +2,8 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/c/math/polynomials/constants.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
-#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
 
@@ -19,8 +17,7 @@ class UnivariateDensePolynomialTest : public FiniteFieldTest<bn254::Fr> {
 
   void SetUp() override {
     Poly* cpp_poly = new Poly(Poly::Random(kDegree));
-    poly_ =
-        reinterpret_cast<tachyon_bn254_univariate_dense_polynomial*>(cpp_poly);
+    poly_ = c::base::c_cast(cpp_poly);
   }
 
   void TearDown() override {
@@ -34,14 +31,14 @@ class UnivariateDensePolynomialTest : public FiniteFieldTest<bn254::Fr> {
 }  // namespace
 
 TEST_F(UnivariateDensePolynomialTest, Clone) {
-  if (reinterpret_cast<Poly&>(*poly_).NumElements() > 0) {
+  if (c::base::native_cast(*poly_).NumElements() > 0) {
     tachyon_bn254_univariate_dense_polynomial* poly_clone =
         tachyon_bn254_univariate_dense_polynomial_clone(poly_);
     // NOTE(chokobole): It's safe to access since we checked |NumElements()| is
     // greater than 0.
-    reinterpret_cast<Poly&>(*poly_).at(0) += bn254::Fr::One();
-    EXPECT_NE((reinterpret_cast<Poly&>(*poly_))[0],
-              (reinterpret_cast<Poly&>(*poly_clone))[0]);
+    c::base::native_cast(*poly_).at(0) += bn254::Fr::One();
+    EXPECT_NE((c::base::native_cast(*poly_))[0],
+              (c::base::native_cast(*poly_clone))[0]);
     tachyon_bn254_univariate_dense_polynomial_destroy(poly_clone);
   } else {
     GTEST_SKIP() << "This test assumes that the coefficient for the 0th degree "
