@@ -5,6 +5,7 @@ package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "zk_hdrs",
     srcs = [
+        "//tachyon/c/zk/air:air_hdrs",
         "//tachyon/c/zk/base:base_hdrs",
         "//tachyon/c/zk/plonk:plonk_hdrs",
     ],
