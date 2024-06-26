@@ -21,7 +21,7 @@ class Fp2;
 template <typename Config>
 class Fp3;
 
-template <typename Config>
+template <typename Config, typename SFINAE = void>
 class Fp4;
 
 template <typename Config, typename SFINAE = void>

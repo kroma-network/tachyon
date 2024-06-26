@@ -18,6 +18,9 @@ class %{class}Config {
 %{if FrobeniusCoefficient2}
   static FrobeniusCoefficient kFrobeniusCoeffs2[%{frobenius_coeffs_size}];
 %{endif FrobeniusCoefficient2}
+%{if FrobeniusCoefficient3}
+  static FrobeniusCoefficient kFrobeniusCoeffs3[%{frobenius_coeffs_size}];
+%{endif FrobeniusCoefficient3}
 
   constexpr static bool kNonResidueIsMinusOne = %{non_residue_is_minus_one};
   constexpr static uint64_t kDegreeOverBaseField = %{degree_over_base_field};
@@ -42,6 +45,10 @@ typename %{class}Config<BaseField>::FrobeniusCoefficient %{class}Config<BaseFiel
 template <typename BaseField>
 typename %{class}Config<BaseField>::FrobeniusCoefficient %{class}Config<BaseField>::kFrobeniusCoeffs2[%{frobenius_coeffs_size}];
 %{endif FrobeniusCoefficient2}
+%{if FrobeniusCoefficient3}
+template <typename BaseField>
+typename %{class}Config<BaseField>::FrobeniusCoefficient %{class}Config<BaseField>::kFrobeniusCoeffs3[%{frobenius_coeffs_size}];
+%{endif FrobeniusCoefficient3}
 using %{class} = Fp%{degree}<%{class}Config<%{base_field}>>;
 
 }  // namespace %{namespace}
