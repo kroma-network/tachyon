@@ -82,10 +82,10 @@ TYPED_TEST(PrimeFieldGeneratorTest, ComparisonOperator) {
   using PrimeField = TypeParam;
   PrimeField f(3);
   PrimeField f2(4);
-  EXPECT_TRUE(f < f2);
-  EXPECT_TRUE(f <= f2);
-  EXPECT_FALSE(f > f2);
-  EXPECT_FALSE(f >= f2);
+  EXPECT_LT(f, f2);
+  EXPECT_LE(f, f2);
+  EXPECT_GT(f2, f);
+  EXPECT_GE(f2, f);
 }
 
 TYPED_TEST(PrimeFieldGeneratorTest, AdditiveGroupOperators) {

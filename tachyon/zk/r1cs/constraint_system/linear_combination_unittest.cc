@@ -138,11 +138,12 @@ TEST_F(LinearCombinationTest, ScalarMul) {
 }
 
 TEST_F(LinearCombinationTest, BinarySearch) {
-  const size_t size = 10;
-  std::vector<Term<F>> terms = base::CreateVector(
-      size, [](size_t i) { return Term<F>(F(1), Variable::Instance(i << 1)); });
+  const size_t kSize = 10;
+  std::vector<Term<F>> terms = base::CreateVector(kSize, [](size_t i) {
+    return Term<F>(F(1), Variable::Instance(i << 1));
+  });
   LinearCombination<F> lc(std::move(terms));
-  for (size_t i = 0; i < (size << 1); ++i) {
+  for (size_t i = 0; i < (kSize << 1); ++i) {
     size_t index;
     if (i % 2 == 0) {
       ASSERT_TRUE(lc.BinarySearch(Variable::Instance(i), &index));

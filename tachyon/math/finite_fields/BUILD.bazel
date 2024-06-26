@@ -16,7 +16,6 @@ tachyon_cc_library(
         ":cyclotomic_multiplicative_subgroup",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/json",
-        "//tachyon/math/geometry:point3",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
     ],
@@ -73,6 +72,7 @@ tachyon_cc_library(
     hdrs = ["fp4.h"],
     deps = [
         ":quadratic_extension_field",
+        ":quartic_extension_field",
         "//tachyon/math/base/gmp:gmp_util",
     ],
 )
@@ -231,7 +231,18 @@ tachyon_cc_library(
         ":cyclotomic_multiplicative_subgroup",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/json",
-        "//tachyon/math/geometry:point2",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
+    name = "quartic_extension_field",
+    hdrs = ["quartic_extension_field.h"],
+    deps = [
+        ":cyclotomic_multiplicative_subgroup",
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/base/json",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
     ],
@@ -277,6 +288,7 @@ tachyon_cc_unittest(
         "prime_field_generator_unittest.cc",
         "prime_field_unittest.cc",
         "quadratic_extension_field_unittest.cc",
+        "quartic_extension_field_unittest.cc",
     ] + select({
         "@platforms//cpu:x86_64": ["packed_prime_field_unittest.cc"],
         "@platforms//cpu:aarch64": ["packed_prime_field_unittest.cc"],
@@ -303,6 +315,7 @@ tachyon_cc_unittest(
         "//tachyon/math/elliptic_curves/secp/secp256k1:fq",
         "//tachyon/math/elliptic_curves/secp/secp256k1:fr",
         "//tachyon/math/finite_fields/baby_bear",
+        "//tachyon/math/finite_fields/baby_bear:baby_bear4",
         "//tachyon/math/finite_fields/binary_fields",
         "//tachyon/math/finite_fields/goldilocks:goldilocks_prime_field",
         "//tachyon/math/finite_fields/koala_bear",

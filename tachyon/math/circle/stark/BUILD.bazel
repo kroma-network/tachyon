@@ -48,6 +48,7 @@ generate_fp2s(
 generate_fp4s(
     name = "fq4",
     base_field = "Fq2",
+    base_field_degree = 2,
     base_field_hdr = "tachyon/math/circle/stark/fq2.h",
     class_name = "Fq4",
     namespace = "tachyon::math::stark",

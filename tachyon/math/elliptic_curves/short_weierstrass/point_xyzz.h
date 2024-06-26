@@ -69,7 +69,7 @@ class PointXYZZ<_Curve,
 
   constexpr static std::optional<PointXYZZ> CreateFromX(const BaseField& x,
                                                         bool pick_odd) {
-    PointXYZZ point;
+    PointXYZZ point{};
     if (!Curve::GetPointFromX(x, pick_odd, &point)) return std::nullopt;
     return point;
   }

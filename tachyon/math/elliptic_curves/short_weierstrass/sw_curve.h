@@ -47,8 +47,8 @@ class SWCurve {
   template <typename Point>
   constexpr static bool GetPointFromX(const BaseField& x, bool pick_odd,
                                       Point* point) {
-    BaseField even_y;
-    BaseField odd_y;
+    BaseField even_y{};
+    BaseField odd_y{};
     if (!GetYsFromX(x, &even_y, &odd_y)) return false;
     if constexpr (std::is_same_v<Point, AffinePoint>) {
       *point = AffinePoint(x, pick_odd ? odd_y : even_y);

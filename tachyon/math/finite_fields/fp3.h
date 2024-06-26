@@ -19,7 +19,7 @@ class Fp3 final : public CubicExtensionField<Fp3<Config>> {
   using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
   using CpuField = Fp3<Config>;
-  // TODO(chokobole): Implements Fp3Gpu
+  // TODO(chokobole): Implement Fp3Gpu
   using GpuField = Fp3<Config>;
 
   using CubicExtensionField<Fp3<Config>>::CubicExtensionField;
@@ -31,7 +31,7 @@ class Fp3 final : public CubicExtensionField<Fp3<Config>> {
 
   static void Init() {
     Config::Init();
-    // x³ = q = Config::kNonResidue
+    // x³ = q = |Config::kNonResidue|
 
     // αᴾ = (α₀ + α₁x + α₂x²)ᴾ
     //    = α₀ᴾ + α₁ᴾxᴾ + α₂ᴾx²ᴾ
@@ -65,16 +65,16 @@ class Fp3 final : public CubicExtensionField<Fp3<Config>> {
 
 #undef SET_EXP_GMP
 
-    // kFrobeniusCoeffs[0] = q^((P⁰ - 1) / 3) = 1
+    // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 3) = 1
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
 #define SET_FROBENIUS_COEFF(d)                \
   BigInt<d * N> exp##d;                       \
   gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
   Config::kFrobeniusCoeffs[d] = Config::kNonResidue.Pow(exp##d)
 
-    // kFrobeniusCoeffs[1] = q^(exp₁) = q^((P¹ - 1) / 3) = ω
+    // |kFrobeniusCoeffs[1]| = q^(exp₁) = q^((P¹ - 1) / 3) = ω
     SET_FROBENIUS_COEFF(1);
-    // kFrobeniusCoeffs[2] = q^(exp₂) = q^((P² - 1) / 3)
+    // |kFrobeniusCoeffs[2]| = q^(exp₂) = q^((P² - 1) / 3)
     SET_FROBENIUS_COEFF(2);
 
 #undef SET_FROBENIUS_COEFF

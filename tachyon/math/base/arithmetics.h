@@ -62,7 +62,7 @@ ALWAYS_INLINE SubResult<uint32_t> SubWithBorrow(uint32_t a, uint32_t b,
 ALWAYS_INLINE constexpr MulResult<uint32_t> MulAddWithCarry(
     uint32_t a, uint32_t b, uint32_t c, uint32_t carry = 0) {
   uint64_t tmp = uint64_t{a} + uint64_t{b} * uint64_t{c} + uint64_t{carry};
-  MulResult<uint32_t> result;
+  MulResult<uint32_t> result{};
   result.lo = static_cast<uint32_t>(tmp);
   result.hi = static_cast<uint32_t>(tmp >> 32);
   return result;

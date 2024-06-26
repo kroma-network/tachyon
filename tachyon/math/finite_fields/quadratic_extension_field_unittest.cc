@@ -36,6 +36,13 @@ TEST_F(QuadraticExtensionFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
+TEST_F(QuadraticExtensionFieldTest, Norm) {
+  constexpr static uint32_t kModulus = GF7::Config::kModulus;
+  GF7_2 r = GF7_2::Random();
+  GF7_2 r_to_p = r.Pow(kModulus);
+  EXPECT_EQ(r.Norm(), (r * r_to_p).c0());
+}
+
 TEST_F(QuadraticExtensionFieldTest, ConjugateInPlace) {
   GF7_2 f = GF7_2::Random();
   GF7_2 f2 = f;
@@ -59,17 +66,17 @@ TEST_F(QuadraticExtensionFieldTest, EqualityOperators) {
 TEST_F(QuadraticExtensionFieldTest, ComparisonOperator) {
   GF7_2 f(GF7(3), GF7(4));
   GF7_2 f2(GF7(4), GF7(4));
-  EXPECT_TRUE(f < f2);
-  EXPECT_TRUE(f <= f2);
-  EXPECT_FALSE(f > f2);
-  EXPECT_FALSE(f >= f2);
+  EXPECT_LT(f, f2);
+  EXPECT_LE(f, f2);
+  EXPECT_GT(f2, f);
+  EXPECT_GE(f2, f);
 
   GF7_2 f3(GF7(4), GF7(3));
   GF7_2 f4(GF7(4), GF7(4));
-  EXPECT_TRUE(f3 < f4);
-  EXPECT_TRUE(f3 <= f4);
-  EXPECT_FALSE(f3 > f4);
-  EXPECT_FALSE(f3 >= f4);
+  EXPECT_LT(f3, f4);
+  EXPECT_LE(f3, f4);
+  EXPECT_GT(f4, f3);
+  EXPECT_GE(f4, f3);
 }
 
 TEST_F(QuadraticExtensionFieldTest, AdditiveOperators) {

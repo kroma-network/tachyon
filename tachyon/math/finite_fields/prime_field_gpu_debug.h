@@ -57,13 +57,13 @@ class PrimeFieldGpuDebug final
   constexpr static PrimeFieldGpuDebug Zero() { return PrimeFieldGpuDebug(); }
 
   constexpr static PrimeFieldGpuDebug One() {
-    PrimeFieldGpuDebug ret;
+    PrimeFieldGpuDebug ret{};
     ret.value_ = Config::kOne;
     return ret;
   }
 
   static PrimeFieldGpuDebug Random() {
-    PrimeFieldGpuDebug ret;
+    PrimeFieldGpuDebug ret{};
     ret.value_ = PrimeField<Config>::Random().value();
     return ret;
   }
@@ -94,7 +94,7 @@ class PrimeFieldGpuDebug final
   }
 
   constexpr static PrimeFieldGpuDebug FromMontgomery(const BigInt<N>& mont) {
-    PrimeFieldGpuDebug ret;
+    PrimeFieldGpuDebug ret{};
     ret.value_ = mont;
     return ret;
   }
@@ -170,7 +170,7 @@ class PrimeFieldGpuDebug final
 
   // AdditiveSemigroup methods
   constexpr PrimeFieldGpuDebug Add(const PrimeFieldGpuDebug& other) const {
-    PrimeFieldGpuDebug ret;
+    PrimeFieldGpuDebug ret{};
     AddLimbs<false>(value_, other.value_, ret.value_);
     return Clamp(ret);
   }
@@ -183,7 +183,7 @@ class PrimeFieldGpuDebug final
 
   // AdditiveGroup methods
   constexpr PrimeFieldGpuDebug Sub(const PrimeFieldGpuDebug& other) const {
-    PrimeFieldGpuDebug ret;
+    PrimeFieldGpuDebug ret{};
     uint64_t carry = SubLimbs<true>(value_, other.value_, ret.value_);
     if (carry == 0) return ret;
     AddLimbs<false>(ret.value_, Config::kModulus, ret.value_);
@@ -198,7 +198,7 @@ class PrimeFieldGpuDebug final
   }
 
   constexpr PrimeFieldGpuDebug Negate() const {
-    PrimeFieldGpuDebug ret;
+    PrimeFieldGpuDebug ret{};
     SubLimbs<false>(Config::kModulus, value_, ret.value_);
     return ret;
   }
@@ -215,7 +215,7 @@ class PrimeFieldGpuDebug final
     // Forces us to think more carefully about the last carry bit if we use a
     // modulus with fewer than 2 leading zeroes of slack.
     static_assert(!(Config::kModulus[N - 1] >> 62));
-    PrimeFieldGpuDebug ret;
+    PrimeFieldGpuDebug ret{};
     MulLimbs(value_, other.value_, ret.value_);
     return Clamp(ret);
   }
@@ -234,7 +234,7 @@ class PrimeFieldGpuDebug final
   // MultiplicativeGroup methods
   // TODO(chokobole): Share codes with PrimeField and PrimeFieldGpu.
   constexpr std::optional<PrimeFieldGpuDebug> Inverse() const {
-    PrimeFieldGpuDebug ret;
+    PrimeFieldGpuDebug ret{};
     if (LIKELY(DoInverse(*this, ret))) return ret;
     LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
     return std::nullopt;

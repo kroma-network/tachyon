@@ -18,7 +18,7 @@ class Fp2 final : public QuadraticExtensionField<Fp2<Config>> {
   using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
   using CpuField = Fp2<Config>;
-  // TODO(chokobole): Implements Fp2Gpu
+  // TODO(chokobole): Implement Fp2Gpu
   using GpuField = Fp2<Config>;
 
   using QuadraticExtensionField<Fp2<Config>>::QuadraticExtensionField;

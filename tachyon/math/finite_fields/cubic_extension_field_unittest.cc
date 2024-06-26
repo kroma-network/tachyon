@@ -35,6 +35,14 @@ TEST_F(CubicExtensionFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
+TEST_F(CubicExtensionFieldTest, Norm) {
+  constexpr static uint32_t kModulus = GF7::Config::kModulus;
+  GF7_3 r = GF7_3::Random();
+  GF7_3 r_to_p = r.Pow(kModulus);
+  GF7_3 r_to_p2 = r_to_p.Pow(kModulus);
+  EXPECT_EQ(r.Norm(), (r * r_to_p * r_to_p2).c0());
+}
+
 TEST_F(CubicExtensionFieldTest, EqualityOperators) {
   GF7_3 f(GF7(3), GF7(4), GF7(5));
   GF7_3 f2(GF7(4), GF7(4), GF7(5));
@@ -53,24 +61,24 @@ TEST_F(CubicExtensionFieldTest, EqualityOperators) {
 TEST_F(CubicExtensionFieldTest, ComparisonOperator) {
   GF7_3 f(GF7(3), GF7(4), GF7(5));
   GF7_3 f2(GF7(4), GF7(4), GF7(5));
-  EXPECT_TRUE(f < f2);
-  EXPECT_TRUE(f <= f2);
-  EXPECT_FALSE(f > f2);
-  EXPECT_FALSE(f >= f2);
+  EXPECT_LT(f, f2);
+  EXPECT_LE(f, f2);
+  EXPECT_GT(f2, f);
+  EXPECT_GE(f2, f);
 
   GF7_3 f3(GF7(4), GF7(3), GF7(5));
   GF7_3 f4(GF7(3), GF7(4), GF7(5));
-  EXPECT_TRUE(f3 < f4);
-  EXPECT_TRUE(f3 <= f4);
-  EXPECT_FALSE(f3 > f4);
-  EXPECT_FALSE(f3 >= f4);
+  EXPECT_LT(f3, f4);
+  EXPECT_LE(f3, f4);
+  EXPECT_GT(f4, f3);
+  EXPECT_GE(f4, f3);
 
   GF7_3 f5(GF7(4), GF7(5), GF7(3));
   GF7_3 f6(GF7(3), GF7(2), GF7(5));
-  EXPECT_TRUE(f5 < f6);
-  EXPECT_TRUE(f5 <= f6);
-  EXPECT_FALSE(f5 > f6);
-  EXPECT_FALSE(f5 >= f6);
+  EXPECT_LT(f5, f6);
+  EXPECT_LE(f5, f6);
+  EXPECT_GT(f6, f5);
+  EXPECT_GE(f6, f5);
 }
 
 TEST_F(CubicExtensionFieldTest, AdditiveOperators) {

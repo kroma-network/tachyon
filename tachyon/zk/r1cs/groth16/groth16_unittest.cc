@@ -14,7 +14,7 @@ namespace {
 using F = math::bn254::Fr;
 using Curve = math::bn254::BN254Curve;
 
-constexpr size_t MaxDegree = 31;
+constexpr size_t kMaxDegree = 31;
 
 class Groth16Test : public testing::Test {
  public:
@@ -28,10 +28,10 @@ TEST_F(Groth16Test, ProveAndVerify) {
   ToxicWaste<Curve> toxic_waste = ToxicWaste<Curve>::RandomWithoutX();
   ProvingKey<Curve> pk;
   bool loaded =
-      pk.Load<MaxDegree, QuadraticArithmeticProgram<F>>(toxic_waste, circuit);
+      pk.Load<kMaxDegree, QuadraticArithmeticProgram<F>>(toxic_waste, circuit);
   ASSERT_TRUE(loaded);
   Proof<Curve> proof =
-      CreateProofWithReductionZK<MaxDegree, QuadraticArithmeticProgram<F>>(
+      CreateProofWithReductionZK<kMaxDegree, QuadraticArithmeticProgram<F>>(
           circuit, pk);
   PreparedVerifyingKey<Curve> pvk =
       std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
