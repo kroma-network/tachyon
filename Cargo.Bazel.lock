@@ -1,5 +1,5 @@
 {
-  "checksum": "853b2cf13595a1408d379fe3fcbd30ef5448741c1f0db2261c49088d7ca2d3da",
+  "checksum": "1666b1aa30573a353246937756b70a156983fbecc1af25219af53f7318bd151e",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -12525,9 +12525,9 @@
       "version": "0.1.0",
       "repository": {
         "Git": {
-          "remote": "https://github.com/Plonky3/Plonky3.git",
+          "remote": "https://github.com/kroma-network/Plonky3.git",
           "commitish": {
-            "Rev": "3b5265f9d5af36534a46caebf0617595cfb42c5a"
+            "Rev": "3b5265f"
           },
           "strip_prefix": "baby-bear"
         }
@@ -13310,9 +13310,9 @@
       "version": "0.1.0",
       "repository": {
         "Git": {
-          "remote": "https://github.com/Plonky3/Plonky3.git",
+          "remote": "https://github.com/kroma-network/Plonky3.git",
           "commitish": {
-            "Rev": "3b5265f9d5af36534a46caebf0617595cfb42c5a"
+            "Rev": "3b5265f"
           },
           "strip_prefix": "mds"
         }
@@ -13450,9 +13450,9 @@
       "version": "0.1.0",
       "repository": {
         "Git": {
-          "remote": "https://github.com/Plonky3/Plonky3.git",
+          "remote": "https://github.com/kroma-network/Plonky3.git",
           "commitish": {
-            "Rev": "3b5265f9d5af36534a46caebf0617595cfb42c5a"
+            "Rev": "3b5265f"
           },
           "strip_prefix": "poseidon2"
         }
@@ -20381,6 +20381,75 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "tachyon_plonky3 0.0.1": {
+      "name": "tachyon_plonky3",
+      "version": "0.0.1",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tachyon_plonky3",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "tachyon_plonky3",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "default"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "cxx 1.0.122",
+              "target": "cxx"
+            },
+            {
+              "id": "p3-baby-bear 0.1.0",
+              "target": "p3_baby_bear"
+            },
+            {
+              "id": "p3-challenger 0.1.0",
+              "target": "p3_challenger"
+            },
+            {
+              "id": "p3-field 0.1.0",
+              "target": "p3_field"
+            },
+            {
+              "id": "p3-poseidon2 0.1.0",
+              "target": "p3_poseidon2"
+            },
+            {
+              "id": "p3-symmetric 0.1.0",
+              "target": "p3_symmetric"
+            }
+          ],
+          "selects": {}
+        },
+        "deps_dev": {
+          "common": [
+            {
+              "id": "zkhash 0.2.0",
+              "target": "zkhash"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "tachyon_rs 0.0.1": {
       "name": "tachyon_rs",
       "version": "0.0.1",
@@ -25028,6 +25097,7 @@
     "horizen_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/horizen",
     "plonky3_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/plonky3",
     "tachyon_halo2 0.0.1": "vendors/halo2",
+    "tachyon_plonky3 0.0.1": "vendors/plonky3",
     "tachyon_rs 0.0.1": "tachyon/rs",
     "tachyon_sp1 0.0.1": "vendors/sp1"
   },
