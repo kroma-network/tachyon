@@ -270,7 +270,7 @@ class MixedRadixEvaluationDomain
       for (size_t k = 0; k < n; k += 2 * m) {
         F w = F::One();
         for (size_t j = 0; j < m; ++j) {
-          UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn(
+          UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
               a.at(k + j), a.at((k + m) + j), w);
           w *= w_m;
         }

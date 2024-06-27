@@ -188,7 +188,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnInOut;
     } else {
       static_assert(Order == FFTOrder::kOutIn);
-      fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn;
+      fn = UnivariateEvaluationDomain<F,
+                                      MaxDegree>::template ButterflyFnOutIn<F>;
     }
 
     // Each butterfly cluster uses 2 * |gap| positions.
