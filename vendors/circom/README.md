@@ -54,6 +54,7 @@ zkey                The path to zkey file
 wtns                The path to wtns file
 proof               The path to proof json
 public              The path to public json
+n                   The number of times to run the proof generation
 
 Optional arguments:
 
