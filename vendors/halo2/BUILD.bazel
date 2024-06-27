@@ -171,6 +171,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "bn254_proving_key",
+    srcs = ["src/bn254_proving_key.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
     name = "bn254_rational_evals",
     srcs = ["src/bn254_rational_evals.cc"],
     deps = [
@@ -200,15 +209,6 @@ tachyon_cc_library(
         ":bn254_rational_evals",
         "//tachyon/base/buffer",
         "//tachyon/rs/base:rust_vec",
-    ],
-)
-
-tachyon_cc_library(
-    name = "bn254_proving_key",
-    srcs = ["src/bn254_proving_key.cc"],
-    deps = [
-        ":bn254_api_hdrs",
-        ":bn254_cxx_bridge/include",
     ],
 )
 
