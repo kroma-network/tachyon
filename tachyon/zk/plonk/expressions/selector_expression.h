@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_EXPRESSIONS_SELECTOR_EXPRESSION_H_
-#define TACHYON_ZK_EXPRESSIONS_SELECTOR_EXPRESSION_H_
+#ifndef TACHYON_ZK_PLONK_EXPRESSIONS_SELECTOR_EXPRESSION_H_
+#define TACHYON_ZK_PLONK_EXPRESSIONS_SELECTOR_EXPRESSION_H_
 
 #include <memory>
 #include <string>
@@ -16,17 +16,20 @@
 #include "tachyon/zk/expressions/expression.h"
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
+
+template <typename F>
+class ExpressionFactory;
 
 template <typename F>
 class SelectorExpression : public Expression<F> {
  public:
   static std::unique_ptr<SelectorExpression> CreateForTesting(
-      plonk::Selector selector) {
+      Selector selector) {
     return absl::WrapUnique(new SelectorExpression(selector));
   }
 
-  plonk::Selector selector() const { return selector_; }
+  Selector selector() const { return selector_; }
 
   // Expression methods
   size_t Degree() const override { return 1; }
@@ -43,10 +46,6 @@ class SelectorExpression : public Expression<F> {
                             selector_.ToString());
   }
 
-  void WriteIdentifier(std::ostream& out) const override {
-    out << "selector[" << selector_.index() << "]";
-  }
-
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const SelectorExpression* selector = other.ToSelector();
@@ -56,12 +55,12 @@ class SelectorExpression : public Expression<F> {
  private:
   friend class ExpressionFactory<F>;
 
-  explicit SelectorExpression(plonk::Selector selector)
+  explicit SelectorExpression(Selector selector)
       : Expression<F>(ExpressionType::kSelector), selector_(selector) {}
 
-  plonk::Selector selector_;
+  Selector selector_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
-#endif  // TACHYON_ZK_EXPRESSIONS_SELECTOR_EXPRESSION_H_
+#endif  // TACHYON_ZK_PLONK_EXPRESSIONS_SELECTOR_EXPRESSION_H_

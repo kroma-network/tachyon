@@ -6,7 +6,7 @@
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
-#include "tachyon/zk/expressions/expression_factory.h"
+#include "tachyon/zk/plonk/expressions/expression_factory.h"
 
 namespace tachyon::zk::plonk {
 

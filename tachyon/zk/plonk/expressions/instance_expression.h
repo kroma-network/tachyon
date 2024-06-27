@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_EXPRESSIONS_INSTANCE_EXPRESSION_H_
-#define TACHYON_ZK_EXPRESSIONS_INSTANCE_EXPRESSION_H_
+#ifndef TACHYON_ZK_PLONK_EXPRESSIONS_INSTANCE_EXPRESSION_H_
+#define TACHYON_ZK_PLONK_EXPRESSIONS_INSTANCE_EXPRESSION_H_
 
 #include <memory>
 #include <string>
@@ -15,17 +15,20 @@
 #include "tachyon/zk/expressions/expression.h"
 #include "tachyon/zk/plonk/constraint_system/query.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
+
+template <typename F>
+class ExpressionFactory;
 
 template <typename F>
 class InstanceExpression : public Expression<F> {
  public:
   static std::unique_ptr<InstanceExpression> CreateForTesting(
-      const plonk::InstanceQuery& query) {
+      const InstanceQuery& query) {
     return absl::WrapUnique(new InstanceExpression(query));
   }
 
-  const plonk::InstanceQuery& query() const { return query_; }
+  const InstanceQuery& query() const { return query_; }
 
   // Expression methods
   size_t Degree() const override { return 1; }
@@ -42,11 +45,6 @@ class InstanceExpression : public Expression<F> {
                             query_.ToString());
   }
 
-  void WriteIdentifier(std::ostream& out) const override {
-    out << "instance[" << query_.column().index() << "]["
-        << query_.rotation().value() << "]";
-  }
-
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const InstanceExpression* instance = other.ToInstance();
@@ -56,12 +54,12 @@ class InstanceExpression : public Expression<F> {
  private:
   friend class ExpressionFactory<F>;
 
-  explicit InstanceExpression(const plonk::InstanceQuery& query)
+  explicit InstanceExpression(const InstanceQuery& query)
       : Expression<F>(ExpressionType::kInstance), query_(query) {}
 
-  plonk::InstanceQuery query_;
+  InstanceQuery query_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
-#endif  // TACHYON_ZK_EXPRESSIONS_INSTANCE_EXPRESSION_H_
+#endif  // TACHYON_ZK_PLONK_EXPRESSIONS_INSTANCE_EXPRESSION_H_

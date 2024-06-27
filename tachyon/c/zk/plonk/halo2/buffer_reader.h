@@ -295,24 +295,27 @@ class BufferReader<std::unique_ptr<tachyon::zk::Expression<F>>> {
   static std::unique_ptr<tachyon::zk::Expression<F>> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
     uint8_t kind = BufferReader<uint8_t>::Read(buffer);
+    // NOTE(batzor): this switch statement is hardcoded to be compliant with
+    // halo2 rust implementation.
+    // https://github.com/kroma-network/halo2/blob/4ad135/halo2_proofs/src/plonk/circuit.rs#L993
     switch (kind) {
       case 0:
         return tachyon::zk::ExpressionFactory<F>::Constant(
             BufferReader<F>::Read(buffer));
       case 1:
-        return tachyon::zk::ExpressionFactory<F>::Selector(
+        return tachyon::zk::plonk::ExpressionFactory<F>::Selector(
             BufferReader<tachyon::zk::plonk::Selector>::Read(buffer));
       case 2:
-        return tachyon::zk::ExpressionFactory<F>::Fixed(
+        return tachyon::zk::plonk::ExpressionFactory<F>::Fixed(
             BufferReader<tachyon::zk::plonk::FixedQuery>::Read(buffer));
       case 3:
-        return tachyon::zk::ExpressionFactory<F>::Advice(
+        return tachyon::zk::plonk::ExpressionFactory<F>::Advice(
             BufferReader<tachyon::zk::plonk::AdviceQuery>::Read(buffer));
       case 4:
-        return tachyon::zk::ExpressionFactory<F>::Instance(
+        return tachyon::zk::plonk::ExpressionFactory<F>::Instance(
             BufferReader<tachyon::zk::plonk::InstanceQuery>::Read(buffer));
       case 5:
-        return tachyon::zk::ExpressionFactory<F>::Challenge(
+        return tachyon::zk::plonk::ExpressionFactory<F>::Challenge(
             BufferReader<tachyon::zk::plonk::Challenge>::Read(buffer));
       case 6:
         return tachyon::zk::ExpressionFactory<F>::Negated(

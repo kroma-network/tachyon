@@ -8,16 +8,12 @@
 #define TACHYON_ZK_EXPRESSIONS_EXPRESSION_H_
 
 #include <memory>
-#include <optional>
-#include <sstream>
 #include <string>
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/base/ref.h"
 #include "tachyon/zk/expressions/expression_type.h"
-#include "tachyon/zk/plonk/constraint_system/selector.h"
 
 namespace tachyon::zk {
 
@@ -30,6 +26,19 @@ class Evaluator;
 template <typename F>
 class ConstantExpression;
 
+template <typename F>
+class NegatedExpression;
+
+template <typename F>
+class SumExpression;
+
+template <typename F>
+class ProductExpression;
+
+template <typename F>
+class ScaledExpression;
+
+namespace plonk {
 template <typename F>
 class SelectorExpression;
 
@@ -44,18 +53,7 @@ class InstanceExpression;
 
 template <typename F>
 class ChallengeExpression;
-
-template <typename F>
-class NegatedExpression;
-
-template <typename F>
-class SumExpression;
-
-template <typename F>
-class ProductExpression;
-
-template <typename F>
-class ScaledExpression;
+}  // namespace plonk
 
 // A Expression represents a polynomial.
 template <typename F>
@@ -74,14 +72,6 @@ class Expression {
 
   virtual std::unique_ptr<Expression> Clone() const = 0;
 
-  virtual void WriteIdentifier(std::ostream& out) const = 0;
-
-  std::string Identifier() const {
-    std::ostringstream ss;
-    WriteIdentifier(ss);
-    return ss.str();
-  }
-
   virtual bool operator==(const Expression& other) const {
     return type_ == other.type_;
   }
@@ -91,22 +81,12 @@ class Expression {
     return ExpressionFactory<F>::Negated(Clone());
   }
 
-  // Returns whether or not this expression contains a simple selector.
-  bool ContainsSimpleSelector() const;
-
-  // Extracts a simple selector from this gate, if present.
-  std::optional<plonk::Selector> ExtractSimpleSelector() const;
-
   static std::vector<std::unique_ptr<Expression>> CloneExpressions(
       const std::vector<std::unique_ptr<Expression>>& expressions) {
     return base::CreateVector(expressions.size(), [&expressions](size_t i) {
       return expressions[i]->Clone();
     });
   }
-
-  std::unique_ptr<Expression<F>> ReplaceSelectors(
-      const std::vector<base::Ref<const Expression<F>>>& replacements,
-      bool must_be_non_simple) const;
 
   template <typename Evaluated>
   Evaluated Evaluate(Evaluator<F, Evaluated>* evaluator) const {
@@ -125,17 +105,29 @@ class Expression {
   }
 
   DEFINE_CONVERSION_METHOD(Constant)
-  DEFINE_CONVERSION_METHOD(Selector)
-  DEFINE_CONVERSION_METHOD(Fixed)
-  DEFINE_CONVERSION_METHOD(Advice)
-  DEFINE_CONVERSION_METHOD(Instance)
-  DEFINE_CONVERSION_METHOD(Challenge)
   DEFINE_CONVERSION_METHOD(Negated)
   DEFINE_CONVERSION_METHOD(Sum)
   DEFINE_CONVERSION_METHOD(Product)
   DEFINE_CONVERSION_METHOD(Scaled)
 
 #undef DEFINE_CONVERSION_METHOD
+
+#define DEFINE_NAMESPACED_CONVERSION_METHOD(ns, type)         \
+  ns::type##Expression<F>* To##type() {                       \
+    CHECK_EQ(type_, ExpressionType::k##type);                 \
+    return static_cast<ns::type##Expression<F>*>(this);       \
+  }                                                           \
+                                                              \
+  const ns::type##Expression<F>* To##type() const {           \
+    CHECK_EQ(type_, ExpressionType::k##type);                 \
+    return static_cast<const ns::type##Expression<F>*>(this); \
+  }
+  DEFINE_NAMESPACED_CONVERSION_METHOD(plonk, Selector)
+  DEFINE_NAMESPACED_CONVERSION_METHOD(plonk, Fixed)
+  DEFINE_NAMESPACED_CONVERSION_METHOD(plonk, Advice)
+  DEFINE_NAMESPACED_CONVERSION_METHOD(plonk, Instance)
+  DEFINE_NAMESPACED_CONVERSION_METHOD(plonk, Challenge)
+#undef DEFINE_NAMESPACED_CONVERSION_METHOD
 
  protected:
   explicit Expression(ExpressionType type) : type_(type) {}

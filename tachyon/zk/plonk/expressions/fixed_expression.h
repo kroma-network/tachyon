@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_EXPRESSIONS_FIXED_EXPRESSION_H_
-#define TACHYON_ZK_EXPRESSIONS_FIXED_EXPRESSION_H_
+#ifndef TACHYON_ZK_PLONK_EXPRESSIONS_FIXED_EXPRESSION_H_
+#define TACHYON_ZK_PLONK_EXPRESSIONS_FIXED_EXPRESSION_H_
 
 #include <memory>
 #include <string>
@@ -15,17 +15,20 @@
 #include "tachyon/zk/expressions/expression.h"
 #include "tachyon/zk/plonk/constraint_system/query.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
+
+template <typename F>
+class ExpressionFactory;
 
 template <typename F>
 class FixedExpression : public Expression<F> {
  public:
   static std::unique_ptr<FixedExpression> CreateForTesting(
-      const plonk::FixedQuery& query) {
+      const FixedQuery& query) {
     return absl::WrapUnique(new FixedExpression(query));
   }
 
-  const plonk::FixedQuery& query() const { return query_; }
+  const FixedQuery& query() const { return query_; }
 
   // Expression methods
   size_t Degree() const override { return 1; }
@@ -42,11 +45,6 @@ class FixedExpression : public Expression<F> {
                             query_.ToString());
   }
 
-  void WriteIdentifier(std::ostream& out) const override {
-    out << "fixed[" << query_.column().index() << "]["
-        << query_.rotation().value() << "]";
-  }
-
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const FixedExpression* fixed = other.ToFixed();
@@ -56,12 +54,12 @@ class FixedExpression : public Expression<F> {
  private:
   friend class ExpressionFactory<F>;
 
-  explicit FixedExpression(const plonk::FixedQuery& query)
+  explicit FixedExpression(const FixedQuery& query)
       : Expression<F>(ExpressionType::kFixed), query_(query) {}
 
-  plonk::FixedQuery query_;
+  FixedQuery query_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
-#endif  // TACHYON_ZK_EXPRESSIONS_FIXED_EXPRESSION_H_
+#endif  // TACHYON_ZK_PLONK_EXPRESSIONS_FIXED_EXPRESSION_H_

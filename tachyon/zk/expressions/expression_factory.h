@@ -12,19 +12,11 @@
 
 #include "absl/memory/memory.h"
 
-#include "tachyon/zk/expressions/advice_expression.h"
-#include "tachyon/zk/expressions/challenge_expression.h"
 #include "tachyon/zk/expressions/constant_expression.h"
-#include "tachyon/zk/expressions/evaluator/selector_replacer.h"
-#include "tachyon/zk/expressions/evaluator/simple_selector_extractor.h"
-#include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/expressions/expression.h"
-#include "tachyon/zk/expressions/fixed_expression.h"
-#include "tachyon/zk/expressions/instance_expression.h"
 #include "tachyon/zk/expressions/negated_expression.h"
 #include "tachyon/zk/expressions/product_expression.h"
 #include "tachyon/zk/expressions/scaled_expression.h"
-#include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
 
 namespace tachyon::zk {
@@ -36,26 +28,6 @@ class ExpressionFactory {
 
   static std::unique_ptr<Expr> Constant(const F& value) {
     return absl::WrapUnique(new ConstantExpression<F>(value));
-  }
-
-  static std::unique_ptr<Expr> Selector(plonk::Selector selector) {
-    return absl::WrapUnique(new SelectorExpression<F>(selector));
-  }
-
-  static std::unique_ptr<Expr> Fixed(const plonk::FixedQuery& query) {
-    return absl::WrapUnique(new FixedExpression<F>(query));
-  }
-
-  static std::unique_ptr<Expr> Advice(const plonk::AdviceQuery& query) {
-    return absl::WrapUnique(new AdviceExpression<F>(query));
-  }
-
-  static std::unique_ptr<Expr> Instance(const plonk::InstanceQuery& query) {
-    return absl::WrapUnique(new InstanceExpression<F>(query));
-  }
-
-  static std::unique_ptr<Expr> Challenge(plonk::Challenge challenge) {
-    return absl::WrapUnique(new ChallengeExpression<F>(challenge));
   }
 
   static std::unique_ptr<Expr> Negated(std::unique_ptr<Expr> value) {
@@ -90,8 +62,6 @@ std::unique_ptr<Expression<F>> operator+(
 template <typename F>
 std::unique_ptr<Expression<F>> operator+(std::unique_ptr<Expression<F>>&& lhs,
                                          std::unique_ptr<Expression<F>>&& rhs) {
-  CHECK(!(lhs->ContainsSimpleSelector() && rhs->ContainsSimpleSelector()))
-      << "attempted to use a simple selector in an addition";
   return ExpressionFactory<F>::Sum(std::move(lhs), std::move(rhs));
 }
 
@@ -105,8 +75,6 @@ std::unique_ptr<Expression<F>> operator-(
 template <typename F>
 std::unique_ptr<Expression<F>> operator-(std::unique_ptr<Expression<F>>&& lhs,
                                          std::unique_ptr<Expression<F>>&& rhs) {
-  CHECK(!(lhs->ContainsSimpleSelector() && rhs->ContainsSimpleSelector()))
-      << "attempted to use a simple selector in a subtraction";
   return ExpressionFactory<F>::Sum(std::move(lhs), operator-(std::move(rhs)));
 }
 
@@ -120,8 +88,6 @@ std::unique_ptr<Expression<F>> operator*(
 template <typename F>
 std::unique_ptr<Expression<F>> operator*(std::unique_ptr<Expression<F>>&& lhs,
                                          std::unique_ptr<Expression<F>>&& rhs) {
-  CHECK(!(lhs->ContainsSimpleSelector() && rhs->ContainsSimpleSelector()))
-      << "attempted to use a simple selector in a production";
   return ExpressionFactory<F>::Product(std::move(lhs), std::move(rhs));
 }
 

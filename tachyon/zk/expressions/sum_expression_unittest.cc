@@ -5,7 +5,6 @@
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/zk/expressions/constant_expression.h"
-#include "tachyon/zk/expressions/selector_expression.h"
 
 namespace tachyon::zk {
 
@@ -16,8 +15,8 @@ class SumExpressionTest : public math::FiniteFieldTest<F> {};
 TEST_F(SumExpressionTest, DegreeComplexity) {
   std::unique_ptr<ConstantExpression<F>> left =
       ConstantExpression<F>::CreateForTesting(F::One());
-  std::unique_ptr<SelectorExpression<F>> right =
-      SelectorExpression<F>::CreateForTesting(plonk::Selector::Simple(1));
+  std::unique_ptr<ConstantExpression<F>> right =
+      ConstantExpression<F>::CreateForTesting(F::One());
 
   size_t left_degree = left->Degree();
   uint64_t left_complexity = left->Complexity();

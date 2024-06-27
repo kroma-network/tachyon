@@ -2,16 +2,20 @@
 
 #include <memory>
 
-#include "tachyon/zk/expressions/evaluator/test/evaluator_test.h"
-#include "tachyon/zk/expressions/expression_factory.h"
+#include "tachyon/zk/plonk/expressions/evaluator/test/evaluator_test.h"
+#include "tachyon/zk/plonk/expressions/expression_factory.h"
 
 namespace tachyon::zk::lookup {
 
 namespace {
 
+constexpr size_t kMaxDegree = 5;
+
+using GF7 = math::GF7;
+using Evals = math::UnivariateEvaluations<GF7, kMaxDegree>;
 using Expr = std::unique_ptr<Expression<GF7>>;
 
-class ProvingEvaluatorTest : public EvaluatorTest {
+class ProvingEvaluatorTest : public plonk::EvaluatorTest {
  public:
   void SetUp() override {
     std::vector<GF7> evaluations;
@@ -46,7 +50,8 @@ TEST_F(ProvingEvaluatorTest, Constant) {
 }
 
 TEST_F(ProvingEvaluatorTest, Selector) {
-  Expr expr = ExpressionFactory<GF7>::Selector(plonk::Selector::Simple(1));
+  Expr expr =
+      plonk::ExpressionFactory<GF7>::Selector(plonk::Selector::Simple(1));
   EXPECT_DEATH(proving_evaluator_->Evaluate(expr.get()), "");
 }
 
@@ -70,7 +75,7 @@ TEST_F(ProvingEvaluatorTest, Fixed) {
     RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7& expected = fixed_columns_[test.column_index][row_index];
-    Expr expr = ExpressionFactory<GF7>::Fixed(query);
+    Expr expr = plonk::ExpressionFactory<GF7>::Fixed(query);
     GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, expected);
   }
@@ -97,7 +102,7 @@ TEST_F(ProvingEvaluatorTest, Advice) {
     RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7& expected = advice_columns_[test.column_index][row_index];
-    Expr expr = ExpressionFactory<GF7>::Advice(query);
+    Expr expr = plonk::ExpressionFactory<GF7>::Advice(query);
     GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, expected);
   }
@@ -123,7 +128,7 @@ TEST_F(ProvingEvaluatorTest, Instance) {
     RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7& expected = instance_columns_[test.column_index][row_index];
-    Expr expr = ExpressionFactory<GF7>::Instance(query);
+    Expr expr = plonk::ExpressionFactory<GF7>::Instance(query);
     GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, expected);
   }
@@ -131,8 +136,8 @@ TEST_F(ProvingEvaluatorTest, Instance) {
 
 TEST_F(ProvingEvaluatorTest, Challenges) {
   for (size_t i = 0; i < challenges_.size(); ++i) {
-    Expr expr =
-        ExpressionFactory<GF7>::Challenge(plonk::Challenge(i, plonk::Phase(0)));
+    Expr expr = plonk::ExpressionFactory<GF7>::Challenge(
+        plonk::Challenge(i, plonk::Phase(0)));
     GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
     GF7 expected = challenges_[i];
     EXPECT_EQ(evaluated, expected);

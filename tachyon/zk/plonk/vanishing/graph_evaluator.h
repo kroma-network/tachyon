@@ -12,17 +12,17 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/zk/expressions/advice_expression.h"
-#include "tachyon/zk/expressions/challenge_expression.h"
 #include "tachyon/zk/expressions/constant_expression.h"
 #include "tachyon/zk/expressions/evaluator.h"
-#include "tachyon/zk/expressions/fixed_expression.h"
-#include "tachyon/zk/expressions/instance_expression.h"
 #include "tachyon/zk/expressions/negated_expression.h"
 #include "tachyon/zk/expressions/product_expression.h"
 #include "tachyon/zk/expressions/scaled_expression.h"
-#include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
+#include "tachyon/zk/plonk/expressions/advice_expression.h"
+#include "tachyon/zk/plonk/expressions/challenge_expression.h"
+#include "tachyon/zk/plonk/expressions/fixed_expression.h"
+#include "tachyon/zk/plonk/expressions/instance_expression.h"
+#include "tachyon/zk/plonk/expressions/selector_expression.h"
 #include "tachyon/zk/plonk/vanishing/calculation.h"
 
 namespace tachyon::zk::plonk {
@@ -49,7 +49,7 @@ struct TACHYON_EXPORT CalculationInfo {
 };
 
 template <typename F>
-class GraphEvaluator : public Evaluator<F, ValueSource> {
+class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
  public:
   GraphEvaluator() = default;
 

@@ -29,7 +29,6 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/row_types.h"
-#include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/lookup/type.h"
 #include "tachyon/zk/plonk/constraint_system/constraint.h"
@@ -38,6 +37,10 @@
 #include "tachyon/zk/plonk/constraint_system/query.h"
 #include "tachyon/zk/plonk/constraint_system/selector_compressor.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cells.h"
+#include "tachyon/zk/plonk/expressions/evaluator/identifier.h"
+#include "tachyon/zk/plonk/expressions/evaluator/selector_replacer.h"
+#include "tachyon/zk/plonk/expressions/evaluator/simple_selector_extractor.h"
+#include "tachyon/zk/plonk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/plonk/keys/c_proving_key_impl_base_forward.h"
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
@@ -207,7 +210,7 @@ class ConstraintSystem {
     switch (lookup_type_) {
       case lookup::Type::kHalo2: {
         for (const lookup::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
-          CHECK(!pair.input()->ContainsSimpleSelector())
+          CHECK(!ContainsSimpleSelector(pair.input().get()))
               << "expression containing simple selector "
                  "supplied to lookup argument";
         }
@@ -222,7 +225,7 @@ class ConstraintSystem {
         table_expressions.reserve(pairs.size());
 
         for (lookup::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
-          CHECK(!pair.input()->ContainsSimpleSelector())
+          CHECK(!ContainsSimpleSelector(pair.input().get()))
               << "expression containing simple selector "
                  "supplied to lookup argument";
 
@@ -444,7 +447,8 @@ class ConstraintSystem {
     std::vector<size_t> degrees(selectors.size(), size_t{0});
     for (const Gate<F>& gate : gates_) {
       for (const std::unique_ptr<Expression<F>>& expression : gate.polys()) {
-        std::optional<Selector> selector = expression->ExtractSimpleSelector();
+        std::optional<Selector> selector =
+            ExtractSimpleSelector(expression.get());
         if (selector.has_value()) {
           degrees[selector->index()] =
               std::max(degrees[selector->index()], expression->Degree());
@@ -482,7 +486,8 @@ class ConstraintSystem {
 
     for (Gate<F>& gate : gates_) {
       for (std::unique_ptr<Expression<F>>& expression : gate.polys()) {
-        expression = expression->ReplaceSelectors(selector_replacements, false);
+        expression =
+            ReplaceSelectors(expression.get(), selector_replacements, false);
       }
     }
     for (lookup::Argument<F>& lookup : lookups_) {
@@ -490,12 +495,13 @@ class ConstraintSystem {
            lookup.inputs_expressions()) {
         for (std::unique_ptr<Expression<F>>& expression : input_expressions) {
           expression =
-              expression->ReplaceSelectors(selector_replacements, true);
+              ReplaceSelectors(expression.get(), selector_replacements, true);
         }
       }
       for (std::unique_ptr<Expression<F>>& expression :
            lookup.table_expressions()) {
-        expression = expression->ReplaceSelectors(selector_replacements, true);
+        expression =
+            ReplaceSelectors(expression.get(), selector_replacements, true);
       }
     }
 
@@ -721,7 +727,7 @@ class ConstraintSystem {
       std::vector<std::unique_ptr<Expression<F>>>&& table_expressions) {
     std::stringstream table_expressions_ss;
     for (const std::unique_ptr<Expression<F>>& expr : table_expressions) {
-      table_expressions_ss << expr->Identifier();
+      table_expressions_ss << Identifier(expr.get());
     }
 
     std::string table_expressions_identifier = table_expressions_ss.str();

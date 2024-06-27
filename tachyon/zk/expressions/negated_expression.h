@@ -47,12 +47,6 @@ class NegatedExpression : public Expression<F> {
                             expr_->ToString());
   }
 
-  void WriteIdentifier(std::ostream& out) const override {
-    out << "(-";
-    expr_->WriteIdentifier(out);
-    out << ")";
-  }
-
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const NegatedExpression* negated = other.ToNegated();

@@ -14,6 +14,14 @@ std::string_view ExpressionTypeToString(ExpressionType type) {
   switch (type) {
     case ExpressionType::kConstant:
       return "Constant";
+    case ExpressionType::kNegated:
+      return "Negated";
+    case ExpressionType::kSum:
+      return "Sum";
+    case ExpressionType::kProduct:
+      return "Product";
+    case ExpressionType::kScaled:
+      return "Scaled";
     case ExpressionType::kSelector:
       return "Selector";
     case ExpressionType::kFixed:
@@ -24,14 +32,6 @@ std::string_view ExpressionTypeToString(ExpressionType type) {
       return "Instance";
     case ExpressionType::kChallenge:
       return "Challenge";
-    case ExpressionType::kNegated:
-      return "Negated";
-    case ExpressionType::kSum:
-      return "Sum";
-    case ExpressionType::kProduct:
-      return "Product";
-    case ExpressionType::kScaled:
-      return "Scaled";
   }
   NOTREACHED();
   return "";

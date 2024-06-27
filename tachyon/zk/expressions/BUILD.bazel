@@ -3,27 +3,6 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "advice_expression",
-    hdrs = ["advice_expression.h"],
-    deps = [
-        ":expression",
-        "//tachyon/zk/plonk/constraint_system:query",
-        "@com_google_absl//absl/memory",
-    ],
-)
-
-tachyon_cc_library(
-    name = "challenge_expression",
-    hdrs = ["challenge_expression.h"],
-    deps = [
-        ":expression",
-        "//tachyon/zk/plonk/constraint_system:challenge",
-        "@com_google_absl//absl/memory",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-tachyon_cc_library(
     name = "constant_expression",
     hdrs = ["constant_expression.h"],
     deps = [
@@ -44,9 +23,7 @@ tachyon_cc_library(
     hdrs = ["expression.h"],
     deps = [
         ":expression_type",
-        "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/plonk/constraint_system:selector",
     ],
 )
 
@@ -54,19 +31,11 @@ tachyon_cc_library(
     name = "expression_factory",
     hdrs = ["expression_factory.h"],
     deps = [
-        ":advice_expression",
-        ":challenge_expression",
         ":constant_expression",
-        ":fixed_expression",
-        ":instance_expression",
         ":negated_expression",
         ":product_expression",
         ":scaled_expression",
-        ":selector_expression",
         ":sum_expression",
-        "//tachyon/zk/expressions/evaluator:selector_replacer",
-        "//tachyon/zk/expressions/evaluator:simple_selector_extractor",
-        "//tachyon/zk/expressions/evaluator:simple_selector_finder",
     ],
 )
 
@@ -75,26 +44,6 @@ tachyon_cc_library(
     srcs = ["expression_type.cc"],
     hdrs = ["expression_type.h"],
     deps = ["//tachyon/base:logging"],
-)
-
-tachyon_cc_library(
-    name = "fixed_expression",
-    hdrs = ["fixed_expression.h"],
-    deps = [
-        ":expression",
-        "//tachyon/zk/plonk/constraint_system:query",
-        "@com_google_absl//absl/memory",
-    ],
-)
-
-tachyon_cc_library(
-    name = "instance_expression",
-    hdrs = ["instance_expression.h"],
-    deps = [
-        ":expression",
-        "//tachyon/zk/plonk/constraint_system:query",
-        "@com_google_absl//absl/memory",
-    ],
 )
 
 tachyon_cc_library(
@@ -128,16 +77,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "selector_expression",
-    hdrs = ["selector_expression.h"],
-    deps = [
-        ":expression",
-        "@com_google_absl//absl/memory",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-tachyon_cc_library(
     name = "sum_expression",
     hdrs = ["sum_expression.h"],
     deps = [
@@ -150,16 +89,11 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "expression_unittests",
     srcs = [
-        "advice_expression_unittest.cc",
-        "challenge_expression_unittest.cc",
         "constant_expression_unittest.cc",
         "expression_unittest.cc",
-        "fixed_expression_unittest.cc",
-        "instance_expression_unittest.cc",
         "negated_expression_unittest.cc",
         "product_expression_unittest.cc",
         "scaled_expression_unittest.cc",
-        "selector_expression_unittest.cc",
         "sum_expression_unittest.cc",
     ],
     deps = [

@@ -3,16 +3,36 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "selector_replacer",
-    hdrs = ["selector_replacer.h"],
+    name = "identifier",
+    hdrs = ["identifier.h"],
     deps = [
         "//tachyon/base:logging",
+        "//tachyon/zk/expressions:constant_expression",
         "//tachyon/zk/expressions:evaluator",
         "//tachyon/zk/expressions:negated_expression",
         "//tachyon/zk/expressions:product_expression",
         "//tachyon/zk/expressions:scaled_expression",
-        "//tachyon/zk/expressions:selector_expression",
         "//tachyon/zk/expressions:sum_expression",
+        "//tachyon/zk/plonk/expressions:advice_expression",
+        "//tachyon/zk/plonk/expressions:challenge_expression",
+        "//tachyon/zk/plonk/expressions:fixed_expression",
+        "//tachyon/zk/plonk/expressions:instance_expression",
+        "//tachyon/zk/plonk/expressions:selector_expression",
+    ],
+)
+
+tachyon_cc_library(
+    name = "selector_replacer",
+    hdrs = ["selector_replacer.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base:ref",
+        "//tachyon/zk/expressions:evaluator",
+        "//tachyon/zk/expressions:negated_expression",
+        "//tachyon/zk/expressions:product_expression",
+        "//tachyon/zk/expressions:scaled_expression",
+        "//tachyon/zk/expressions:sum_expression",
+        "//tachyon/zk/plonk/expressions:selector_expression",
     ],
 )
 
@@ -21,7 +41,7 @@ tachyon_cc_library(
     hdrs = ["simple_selector_extractor.h"],
     deps = [
         "//tachyon/zk/expressions:evaluator",
-        "//tachyon/zk/expressions:selector_expression",
+        "//tachyon/zk/plonk/expressions:selector_expression",
     ],
 )
 
@@ -33,8 +53,8 @@ tachyon_cc_library(
         "//tachyon/zk/expressions:negated_expression",
         "//tachyon/zk/expressions:product_expression",
         "//tachyon/zk/expressions:scaled_expression",
-        "//tachyon/zk/expressions:selector_expression",
         "//tachyon/zk/expressions:sum_expression",
+        "//tachyon/zk/plonk/expressions:selector_expression",
     ],
 )
 
@@ -49,7 +69,7 @@ tachyon_cc_unittest(
         ":selector_replacer",
         ":simple_selector_extractor",
         ":simple_selector_finder",
-        "//tachyon/zk/expressions:expression_factory",
-        "//tachyon/zk/expressions/evaluator/test:evaluator_test",
+        "//tachyon/zk/plonk/expressions:expression_factory",
+        "//tachyon/zk/plonk/expressions/evaluator/test:evaluator_test",
     ],
 )
