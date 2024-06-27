@@ -15,7 +15,6 @@
 #include "tachyon/zk/expressions/advice_expression.h"
 #include "tachyon/zk/expressions/challenge_expression.h"
 #include "tachyon/zk/expressions/constant_expression.h"
-#include "tachyon/zk/expressions/evaluator/selector_replacer.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_extractor.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/expressions/expression.h"

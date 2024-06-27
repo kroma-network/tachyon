@@ -15,7 +15,6 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/base/ref.h"
 #include "tachyon/zk/expressions/expression_type.h"
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 
@@ -103,10 +102,6 @@ class Expression {
       return expressions[i]->Clone();
     });
   }
-
-  std::unique_ptr<Expression<F>> ReplaceSelectors(
-      const std::vector<base::Ref<const Expression<F>>>& replacements,
-      bool must_be_non_simple) const;
 
   template <typename Evaluated>
   Evaluated Evaluate(Evaluator<F, Evaluated>* evaluator) const {

@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/ref.h"
 #include "tachyon/zk/expressions/evaluator.h"
 #include "tachyon/zk/expressions/negated_expression.h"
 #include "tachyon/zk/expressions/product_expression.h"
@@ -21,67 +22,52 @@
 namespace tachyon::zk {
 
 template <typename F>
-class SelectorsReplacer : public Evaluator<F, std::unique_ptr<Expression<F>>> {
- public:
-  SelectorsReplacer(
-      const std::vector<base::Ref<const Expression<F>>>& replacements,
-      bool must_be_non_simple)
-      : replacements_(replacements), must_be_non_simple_(must_be_non_simple) {}
-
-  // Evaluator methods
-  std::unique_ptr<Expression<F>> Evaluate(const Expression<F>* input) override {
-    switch (input->type()) {
-      case ExpressionType::kConstant:
-      case ExpressionType::kFixed:
-      case ExpressionType::kAdvice:
-      case ExpressionType::kInstance:
-      case ExpressionType::kChallenge:
-        return input->Clone();
-      case ExpressionType::kSelector: {
-        plonk::Selector selector = input->ToSelector()->selector();
-        if (must_be_non_simple_) {
-          // Simple selectors are prohibited from appearing in
-          // expressions in the lookup argument by |ConstraintSystem|.
-          if (selector.is_simple()) {
-            LOG(DFATAL) << "Simple selector found in lookup argument";
-          }
-        }
-        return replacements_[selector.index()]->Clone();
-      }
-      case ExpressionType::kNegated:
-        return ExpressionFactory<F>::Negated(
-            Evaluate(input->ToNegated()->expr()));
-      case ExpressionType::kSum: {
-        const SumExpression<F>* sum = input->ToSum();
-        return ExpressionFactory<F>::Sum(Evaluate(sum->left()),
-                                         Evaluate(sum->right()));
-      }
-      case ExpressionType::kProduct: {
-        const ProductExpression<F>* product = input->ToProduct();
-        return ExpressionFactory<F>::Product(Evaluate(product->left()),
-                                             Evaluate(product->right()));
-      }
-      case ExpressionType::kScaled: {
-        const ScaledExpression<F>* scaled = input->ToScaled();
-        return ExpressionFactory<F>::Scaled(Evaluate(scaled->expr()),
-                                            scaled->scale());
-      }
-    }
-    NOTREACHED();
-    return nullptr;
-  }
-
- private:
-  const std::vector<base::Ref<const Expression<F>>>& replacements_;
-  const bool must_be_non_simple_;
-};
-
-template <typename F>
-std::unique_ptr<Expression<F>> Expression<F>::ReplaceSelectors(
+std::unique_ptr<Expression<F>> ReplaceSelectors(
+    const Expression<F>* input,
     const std::vector<base::Ref<const Expression<F>>>& replacements,
-    bool must_be_non_simple) const {
-  SelectorsReplacer<F> replacer(replacements, must_be_non_simple);
-  return Evaluate(&replacer);
+    bool must_be_non_simple) {
+  switch (input->type()) {
+    case ExpressionType::kConstant:
+    case ExpressionType::kFixed:
+    case ExpressionType::kAdvice:
+    case ExpressionType::kInstance:
+    case ExpressionType::kChallenge:
+      return input->Clone();
+    case ExpressionType::kSelector: {
+      plonk::Selector selector = input->ToSelector()->selector();
+      if (must_be_non_simple) {
+        // Simple selectors are prohibited from appearing in
+        // expressions in the lookup argument by |ConstraintSystem|.
+        if (selector.is_simple()) {
+          LOG(DFATAL) << "Simple selector found in lookup argument";
+        }
+      }
+      return replacements[selector.index()]->Clone();
+    }
+    case ExpressionType::kNegated:
+      return ExpressionFactory<F>::Negated(ReplaceSelectors(
+          input->ToNegated()->expr(), replacements, must_be_non_simple));
+    case ExpressionType::kSum: {
+      const SumExpression<F>* sum = input->ToSum();
+      return ExpressionFactory<F>::Sum(
+          ReplaceSelectors(sum->left(), replacements, must_be_non_simple),
+          ReplaceSelectors(sum->right(), replacements, must_be_non_simple));
+    }
+    case ExpressionType::kProduct: {
+      const ProductExpression<F>* product = input->ToProduct();
+      return ExpressionFactory<F>::Product(
+          ReplaceSelectors(product->left(), replacements, must_be_non_simple),
+          ReplaceSelectors(product->right(), replacements, must_be_non_simple));
+    }
+    case ExpressionType::kScaled: {
+      const ScaledExpression<F>* scaled = input->ToScaled();
+      return ExpressionFactory<F>::Scaled(
+          ReplaceSelectors(scaled->expr(), replacements, must_be_non_simple),
+          scaled->scale());
+    }
+  }
+  NOTREACHED();
+  return nullptr;
 }
 
 }  // namespace tachyon::zk

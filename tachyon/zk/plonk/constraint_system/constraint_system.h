@@ -29,6 +29,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/row_types.h"
+#include "tachyon/zk/expressions/evaluator/selector_replacer.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/lookup/type.h"
@@ -482,7 +483,8 @@ class ConstraintSystem {
 
     for (Gate<F>& gate : gates_) {
       for (std::unique_ptr<Expression<F>>& expression : gate.polys()) {
-        expression = expression->ReplaceSelectors(selector_replacements, false);
+        expression =
+            ReplaceSelectors(expression.get(), selector_replacements, false);
       }
     }
     for (lookup::Argument<F>& lookup : lookups_) {
@@ -490,12 +492,13 @@ class ConstraintSystem {
            lookup.inputs_expressions()) {
         for (std::unique_ptr<Expression<F>>& expression : input_expressions) {
           expression =
-              expression->ReplaceSelectors(selector_replacements, true);
+              ReplaceSelectors(expression.get(), selector_replacements, true);
         }
       }
       for (std::unique_ptr<Expression<F>>& expression :
            lookup.table_expressions()) {
-        expression = expression->ReplaceSelectors(selector_replacements, true);
+        expression =
+            ReplaceSelectors(expression.get(), selector_replacements, true);
       }
     }
 
