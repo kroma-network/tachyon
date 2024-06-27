@@ -1,0 +1,56 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "expression_factory",
+    hdrs = ["expression_factory.h"],
+    deps = [
+        ":first_row_expression",
+        ":last_row_expression",
+        ":transition_expression",
+        ":variable_expression",
+        "//tachyon/zk/expressions:expression_factory",
+        "@com_google_absl//absl/memory",
+    ],
+)
+
+tachyon_cc_library(
+    name = "first_row_expression",
+    hdrs = ["first_row_expression.h"],
+    deps = [
+        "//tachyon/zk/expressions:expression",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "last_row_expression",
+    hdrs = ["last_row_expression.h"],
+    deps = [
+        "//tachyon/zk/expressions:expression",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "transition_expression",
+    hdrs = ["transition_expression.h"],
+    deps = [
+        "//tachyon/zk/expressions:expression",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "variable_expression",
+    hdrs = ["variable_expression.h"],
+    deps = [
+        "//tachyon/zk/expressions:expression",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/strings",
+    ],
+)
