@@ -15,64 +15,56 @@
 namespace tachyon::zk {
 
 template <typename F>
-class SimpleSelectorExtractor
-    : public Evaluator<F, std::optional<plonk::Selector>> {
- public:
-  // Evaluator methods
-  std::optional<plonk::Selector> Evaluate(const Expression<F>* input) override {
-    auto op = [](const std::optional<plonk::Selector>& left,
-                 const std::optional<plonk::Selector>& right)
-        -> std::optional<plonk::Selector> {
-      CHECK(!(left.has_value() && right.has_value()))
-          << "two simple selectors cannot be in the same expression";
-      if (left.has_value()) return left;
-      if (right.has_value()) return right;
-      return std::nullopt;
-    };
-
-    switch (input->type()) {
-      case ExpressionType::kConstant:
-        return std::nullopt;
-      case ExpressionType::kSelector: {
-        plonk::Selector selector = input->ToSelector()->selector();
-        if (selector.is_simple()) {
-          return selector;
-        }
-        return std::nullopt;
-      }
-      case ExpressionType::kFixed:
-        return std::nullopt;
-      case ExpressionType::kAdvice:
-        return std::nullopt;
-      case ExpressionType::kInstance:
-        return std::nullopt;
-      case ExpressionType::kChallenge:
-        return std::nullopt;
-      case ExpressionType::kNegated: {
-        return Evaluate(input->ToNegated()->expr());
-      }
-      case ExpressionType::kSum: {
-        const SumExpression<F>* sum = input->ToSum();
-        return op(Evaluate(sum->left()), Evaluate(sum->right()));
-      }
-      case ExpressionType::kProduct: {
-        const ProductExpression<F>* product = input->ToProduct();
-        return op(Evaluate(product->left()), Evaluate(product->right()));
-      }
-      case ExpressionType::kScaled: {
-        const ScaledExpression<F>* scaled = input->ToScaled();
-        return Evaluate(scaled->expr());
-      }
-    }
-    NOTREACHED();
+std::optional<plonk::Selector> ExtractSimpleSelector(
+    const Expression<F>* input) {
+  auto op = [](const std::optional<plonk::Selector>& left,
+               const std::optional<plonk::Selector>& right)
+      -> std::optional<plonk::Selector> {
+    CHECK(!(left.has_value() && right.has_value()))
+        << "two simple selectors cannot be in the same expression";
+    if (left.has_value()) return left;
+    if (right.has_value()) return right;
     return std::nullopt;
-  }
-};
+  };
 
-template <typename F>
-std::optional<plonk::Selector> Expression<F>::ExtractSimpleSelector() const {
-  SimpleSelectorExtractor<F> extractor;
-  return Evaluate(&extractor);
+  switch (input->type()) {
+    case ExpressionType::kConstant:
+      return std::nullopt;
+    case ExpressionType::kSelector: {
+      plonk::Selector selector = input->ToSelector()->selector();
+      if (selector.is_simple()) {
+        return selector;
+      }
+      return std::nullopt;
+    }
+    case ExpressionType::kFixed:
+      return std::nullopt;
+    case ExpressionType::kAdvice:
+      return std::nullopt;
+    case ExpressionType::kInstance:
+      return std::nullopt;
+    case ExpressionType::kChallenge:
+      return std::nullopt;
+    case ExpressionType::kNegated: {
+      return ExtractSimpleSelector(input->ToNegated()->expr());
+    }
+    case ExpressionType::kSum: {
+      const SumExpression<F>* sum = input->ToSum();
+      return op(ExtractSimpleSelector(sum->left()),
+                ExtractSimpleSelector(sum->right()));
+    }
+    case ExpressionType::kProduct: {
+      const ProductExpression<F>* product = input->ToProduct();
+      return op(ExtractSimpleSelector(product->left()),
+                ExtractSimpleSelector(product->right()));
+    }
+    case ExpressionType::kScaled: {
+      const ScaledExpression<F>* scaled = input->ToScaled();
+      return ExtractSimpleSelector(scaled->expr());
+    }
+  }
+  NOTREACHED();
+  return std::nullopt;
 }
 
 }  // namespace tachyon::zk

@@ -30,6 +30,7 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/row_types.h"
 #include "tachyon/zk/expressions/evaluator/selector_replacer.h"
+#include "tachyon/zk/expressions/evaluator/simple_selector_extractor.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/lookup/type.h"
@@ -445,7 +446,8 @@ class ConstraintSystem {
     std::vector<size_t> degrees(selectors.size(), size_t{0});
     for (const Gate<F>& gate : gates_) {
       for (const std::unique_ptr<Expression<F>>& expression : gate.polys()) {
-        std::optional<Selector> selector = expression->ExtractSimpleSelector();
+        std::optional<Selector> selector =
+            ExtractSimpleSelector(expression.get());
         if (selector.has_value()) {
           degrees[selector->index()] =
               std::max(degrees[selector->index()], expression->Degree());

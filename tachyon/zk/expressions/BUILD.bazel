@@ -63,7 +63,6 @@ tachyon_cc_library(
         ":scaled_expression",
         ":selector_expression",
         ":sum_expression",
-        "//tachyon/zk/expressions/evaluator:simple_selector_extractor",
     ],
 )
 

@@ -8,7 +8,6 @@
 #define TACHYON_ZK_EXPRESSIONS_EXPRESSION_H_
 
 #include <memory>
-#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -89,9 +88,6 @@ class Expression {
   std::unique_ptr<Expression> operator-() const {
     return ExpressionFactory<F>::Negated(Clone());
   }
-
-  // Extracts a simple selector from this gate, if present.
-  std::optional<plonk::Selector> ExtractSimpleSelector() const;
 
   static std::vector<std::unique_ptr<Expression>> CloneExpressions(
       const std::vector<std::unique_ptr<Expression>>& expressions) {
