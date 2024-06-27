@@ -29,6 +29,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/row_types.h"
+#include "tachyon/zk/expressions/evaluator/identifier.h"
 #include "tachyon/zk/expressions/evaluator/selector_replacer.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_extractor.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
@@ -726,7 +727,7 @@ class ConstraintSystem {
       std::vector<std::unique_ptr<Expression<F>>>&& table_expressions) {
     std::stringstream table_expressions_ss;
     for (const std::unique_ptr<Expression<F>>& expr : table_expressions) {
-      table_expressions_ss << expr->Identifier();
+      table_expressions_ss << Identifier(expr.get());
     }
 
     std::string table_expressions_identifier = table_expressions_ss.str();

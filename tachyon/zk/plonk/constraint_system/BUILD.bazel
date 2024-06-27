@@ -42,6 +42,7 @@ tachyon_cc_library(
         "//tachyon/base/functional:callback",
         "//tachyon/base/strings:string_util",
         "//tachyon/zk/base:row_types",
+        "//tachyon/zk/expressions/evaluator:identifier",
         "//tachyon/zk/expressions/evaluator:selector_replacer",
         "//tachyon/zk/expressions/evaluator:simple_selector_extractor",
         "//tachyon/zk/expressions/evaluator:simple_selector_finder",
