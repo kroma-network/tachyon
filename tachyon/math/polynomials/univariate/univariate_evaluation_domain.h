@@ -308,7 +308,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // Return the filter polynomial of |*this| with respect to |subdomain|.
   // Assumes that |subdomain| is contained within |*this|.
   //
-  // Panics if |subdomain| is not contained within |*this|.
+  // Crashes if |subdomain| is not contained within |*this|.
   constexpr DensePoly GetFilterPolynomial(
       const UnivariateEvaluationDomain& subdomain) const {
     SparsePoly domain_vanishing_poly =
@@ -458,10 +458,11 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   //             | c₀ * ω⁰ + c₁ * ω³ + c₂ * ω⁶ + c₃ * ω⁹ |
   // Note that the coefficients are out of order the evaluations are in order(should be swapped before).
   // clang-format on
-  constexpr static void ButterflyFnOutIn(F& lo, F& hi, const F& root) {
+  template <typename FTy>
+  constexpr static void ButterflyFnOutIn(FTy& lo, FTy& hi, const FTy& root) {
     hi *= root;
 
-    F neg = lo - hi;
+    FTy neg = lo - hi;
 
     lo += hi;
 

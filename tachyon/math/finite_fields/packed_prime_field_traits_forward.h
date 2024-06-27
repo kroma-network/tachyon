@@ -3,7 +3,7 @@
 
 namespace tachyon::math {
 
-template <typename T>
+template <typename T, typename SFINAE = void>
 struct PackedPrimeFieldTraits;
 
 }  // namespace tachyon::math

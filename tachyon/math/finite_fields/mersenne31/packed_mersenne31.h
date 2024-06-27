@@ -37,6 +37,11 @@ struct FiniteFieldTraits<PackedMersenne31> {
   using Config = Mersenne31::Config;
 };
 
+template <>
+struct PackedPrimeFieldTraits<Mersenne31> {
+  using PackedPrimeField = PackedMersenne31;
+};
+
 }  // namespace tachyon::math
 
 namespace Eigen {

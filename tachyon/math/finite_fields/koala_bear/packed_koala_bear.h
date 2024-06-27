@@ -37,6 +37,11 @@ struct FiniteFieldTraits<PackedKoalaBear> {
   using Config = KoalaBear::Config;
 };
 
+template <>
+struct PackedPrimeFieldTraits<KoalaBear> {
+  using PackedPrimeField = PackedKoalaBear;
+};
+
 }  // namespace tachyon::math
 
 namespace Eigen {

@@ -25,15 +25,40 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "naive_batch_fft",
+    hdrs = ["naive_batch_fft.h"],
+    deps = [
+        ":two_adic_subgroup",
+        "//tachyon/base:bits",
+    ],
+)
+
+tachyon_cc_library(
     name = "radix2_evaluation_domain",
     hdrs = ["radix2_evaluation_domain.h"],
     deps = [
+        ":two_adic_subgroup",
         ":univariate_evaluation_domain",
+        "//tachyon/base:bits",
+        "//tachyon/base:openmp_util",
         "//tachyon/base:parallelize",
         "//tachyon/base/containers:container_util",
+        "//tachyon/math/finite_fields:packed_prime_field_base",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/math/matrix:matrix_utils",
         "@com_google_absl//absl/memory",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",
+        "@eigen_archive//:eigen3",
+    ],
+)
+
+tachyon_cc_library(
+    name = "two_adic_subgroup",
+    hdrs = ["two_adic_subgroup.h"],
+    deps = [
+        "//tachyon/base:optional",
+        "//tachyon/math/matrix:matrix_types",
     ],
 )
 
@@ -118,6 +143,7 @@ tachyon_cc_unittest(
     name = "univariate_unittests",
     srcs = [
         "lagrange_interpolation_unittest.cc",
+        "radix2_evaluation_domain_unittest.cc",
         "univariate_dense_polynomial_unittest.cc",
         "univariate_evaluation_domain_unittest.cc",
         "univariate_evaluations_unittest.cc",
@@ -126,6 +152,7 @@ tachyon_cc_unittest(
     deps = [
         ":lagrange_interpolation",
         ":mixed_radix_evaluation_domain",
+        ":naive_batch_fft",
         ":radix2_evaluation_domain",
         ":univariate_polynomial",
         "//tachyon/base:optional",
@@ -136,6 +163,8 @@ tachyon_cc_unittest(
         "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/elliptic_curves/bn/bn384_small_two_adicity:fq",
+        "//tachyon/math/finite_fields/baby_bear:packed_baby_bear",
+        "//tachyon/math/finite_fields/koala_bear:packed_koala_bear",
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
         "@com_google_absl//absl/hash:hash_testing",

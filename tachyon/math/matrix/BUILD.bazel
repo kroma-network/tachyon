@@ -26,6 +26,8 @@ tachyon_cc_library(
     name = "matrix_utils",
     hdrs = ["matrix_utils.h"],
     deps = [
+        "//tachyon/base:bits",
+        "//tachyon/base:openmp_util",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/finite_fields:packed_prime_field_traits_forward",
         "@eigen_archive//:eigen3",

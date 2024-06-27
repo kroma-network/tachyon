@@ -406,7 +406,7 @@ class ConstraintSystem {
   // Creates a new gate.
   //
   // A gate is required to contain polynomial constraints. This method will
-  // panic if |constrain| returns an empty iterator.
+  // crash if |constrain| returns an empty iterator.
   void CreateGate(std::string_view name, ConstrainCallback constrain) {
     VirtualCells cells(this);
     std::vector<Constraint<F>> constraints = std::move(constrain).Run(cells);

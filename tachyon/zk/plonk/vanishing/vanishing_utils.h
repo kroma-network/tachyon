@@ -111,7 +111,7 @@ void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
 // This takes us from the extended evaluation domain and gets us the quotient
 // polynomial coefficients.
 //
-// This function will panic if the provided vector is not the correct length.
+// This function will crash if the provided vector is not the correct length.
 template <typename F, typename ExtendedPoly, typename ExtendedEvals,
           typename ExtendedDomain>
 ExtendedPoly ExtendedToCoeff(ExtendedEvals&& evals,

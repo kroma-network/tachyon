@@ -29,7 +29,7 @@ class Assignment {
 
   // Creates a new region and enters into it.
   //
-  // Panics if we are currently in a region (if |ExitRegion()| was not called).
+  // Crashes if we are currently in a region (if |ExitRegion()| was not called).
   //
   // Not intended for downstream consumption; use |Layouter::AssignRegion()|
   // instead.
@@ -43,7 +43,7 @@ class Assignment {
 
   // Exits the current region.
   //
-  // Panics if we are not currently in a region (if |EnterRegion()| was not
+  // Crashes if we are not currently in a region (if |EnterRegion()| was not
   // called).
   //
   // Not intended for downstream consumption; use |Layouter::AssignRegion()|
