@@ -208,7 +208,7 @@ class ConstraintSystem {
     switch (lookup_type_) {
       case lookup::Type::kHalo2: {
         for (const lookup::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
-          CHECK(!pair.input()->ContainsSimpleSelector())
+          CHECK(!ContainsSimpleSelector(pair.input().get()))
               << "expression containing simple selector "
                  "supplied to lookup argument";
         }
@@ -223,7 +223,7 @@ class ConstraintSystem {
         table_expressions.reserve(pairs.size());
 
         for (lookup::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
-          CHECK(!pair.input()->ContainsSimpleSelector())
+          CHECK(!ContainsSimpleSelector(pair.input().get()))
               << "expression containing simple selector "
                  "supplied to lookup argument";
 

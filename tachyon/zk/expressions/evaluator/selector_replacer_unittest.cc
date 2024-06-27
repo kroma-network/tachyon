@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/expressions/evaluator/test/evaluator_test.h"
 #include "tachyon/zk/expressions/expression_factory.h"
 
@@ -107,7 +108,7 @@ TEST_F(SelectorReplacerTest, Sum) {
   GF7 b = GF7::Random();
   Expr expr = ExpressionFactory<GF7>::Sum(ExpressionFactory<GF7>::Constant(a),
                                           ExpressionFactory<GF7>::Constant(b));
-  EXPECT_FALSE(expr->ContainsSimpleSelector());
+  EXPECT_FALSE(ContainsSimpleSelector(expr.get()));
 }
 
 TEST_F(SelectorReplacerTest, Product) {

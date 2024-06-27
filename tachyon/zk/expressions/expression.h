@@ -90,9 +90,6 @@ class Expression {
     return ExpressionFactory<F>::Negated(Clone());
   }
 
-  // Returns whether or not this expression contains a simple selector.
-  bool ContainsSimpleSelector() const;
-
   // Extracts a simple selector from this gate, if present.
   std::optional<plonk::Selector> ExtractSimpleSelector() const;
 

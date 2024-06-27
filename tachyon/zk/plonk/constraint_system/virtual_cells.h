@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/expressions/expression_factory.h"
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cell.h"
@@ -93,7 +94,7 @@ class VirtualCells {
       const lookup::Pair<std::unique_ptr<Expression<F>>, LookupTableColumn>&
           pair,
       Rotation at) {
-    CHECK(!pair.input()->ContainsSimpleSelector())
+    CHECK(!ContainsSimpleSelector(pair.input().get()))
         << "expression containing simple selector supplied to lookup argument";
 
     return QueryFixed(pair.table().column(), at);

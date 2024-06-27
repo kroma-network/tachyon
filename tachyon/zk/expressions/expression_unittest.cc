@@ -3,6 +3,7 @@
 #include "tachyon/base/random.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
+#include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/expressions/expression_factory.h"
 
 namespace tachyon::zk {
@@ -51,7 +52,8 @@ TEST_F(ExpressionTest, ArithmeticOperatorWithClone) {
   std::unique_ptr<Expression<F>> right =
       base::UniformElement(expressions_)->Clone();
 
-  if (!left->ContainsSimpleSelector() && !right->ContainsSimpleSelector()) {
+  if (!ContainsSimpleSelector(left.get()) &&
+      !ContainsSimpleSelector(right.get())) {
     std::unique_ptr<Expression<F>> add = left + right;
     EXPECT_EQ(*add->ToSum()->left(), *left);
     EXPECT_EQ(*add->ToSum()->right(), *right);
@@ -88,7 +90,8 @@ TEST_F(ExpressionTest, ArithmeticOperatorWithMove) {
   std::unique_ptr<Expression<F>> right =
       base::UniformElement(expressions_)->Clone();
 
-  if (!left->ContainsSimpleSelector() && !right->ContainsSimpleSelector()) {
+  if (!ContainsSimpleSelector(left.get()) &&
+      !ContainsSimpleSelector(right.get())) {
     {
       std::unique_ptr<Expression<F>> left_tmp = left->Clone();
       std::unique_ptr<Expression<F>> right_tmp = right->Clone();
