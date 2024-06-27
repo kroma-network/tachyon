@@ -63,6 +63,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "ls_type",
+    hdrs = ["ls_type.h"],
+    deps = [
+        "//tachyon/base/flag",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
     name = "pcs_type",
     hdrs = ["pcs_type.h"],
     deps = [
