@@ -44,16 +44,6 @@ class ProvingEvaluator
 
   // Evaluator methods
   Field Evaluate(const Expression<Field>* input) override {
-    class ScopedIdxIncrement {
-     public:
-      explicit ScopedIdxIncrement(ProvingEvaluator* evaluator)
-          : evaluator(evaluator) {}
-      ~ScopedIdxIncrement() { ++evaluator->idx_; }
-
-     private:
-      // not owned
-      ProvingEvaluator* const evaluator;
-    };
     switch (input->type()) {
       case ExpressionType::kConstant:
         return input->ToConstant()->value();
