@@ -1,6 +1,16 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "constraint_system",
+    hdrs = ["constraint_system.h"],
+    deps = [
+        ":variable",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/zk/air/expressions:air_evaluator",
+    ],
+)
 
 tachyon_cc_library(
     name = "variable",
@@ -9,5 +19,16 @@ tachyon_cc_library(
         "//tachyon:export",
         "//tachyon/base:logging",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "air_unittests",
+    srcs = ["constraint_system_unittest.cc"],
+    deps = [
+        ":constraint_system",
+        "//tachyon/math/finite_fields/test:finite_field_test",
+        "//tachyon/math/finite_fields/test:gf7",
+        "//tachyon/zk/air/expressions:expression_factory",
     ],
 )
