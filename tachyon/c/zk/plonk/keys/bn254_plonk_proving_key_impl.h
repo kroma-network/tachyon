@@ -8,7 +8,7 @@
 
 namespace tachyon::c::zk::plonk::bn254 {
 
-using LS = c::zk::plonk::halo2::bn254::LS;
+using LS = c::zk::plonk::halo2::bn254::Halo2LS;
 
 class ProvingKeyImpl : public ProvingKeyImplBase<LS> {
  public:

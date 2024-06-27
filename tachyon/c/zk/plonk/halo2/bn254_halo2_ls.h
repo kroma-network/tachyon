@@ -14,7 +14,7 @@ using Poly = tachyon::math::UnivariateDensePolynomial<tachyon::math::bn254::Fr,
 using Evals = tachyon::math::UnivariateEvaluations<tachyon::math::bn254::Fr,
                                                    c::math::kMaxDegree>;
 using Commitment = tachyon::math::bn254::G1AffinePoint;
-using LS = tachyon::zk::lookup::halo2::Scheme<Poly, Evals, Commitment>;
+using Halo2LS = tachyon::zk::lookup::halo2::Scheme<Poly, Evals, Commitment>;
 
 }  // namespace tachyon::c::zk::plonk::halo2::bn254
 

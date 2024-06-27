@@ -28,7 +28,7 @@
 using namespace tachyon;
 
 using PCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
-using LS = c::zk::plonk::halo2::bn254::LS;
+using LS = c::zk::plonk::halo2::bn254::Halo2LS;
 using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS, LS>;
 using ProvingKey = c::zk::plonk::ProvingKeyImplBase<LS>;
 

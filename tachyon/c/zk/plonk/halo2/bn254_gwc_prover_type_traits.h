@@ -11,7 +11,7 @@ namespace tachyon::c::base {
 
 template <>
 struct TypeTraits<zk::plonk::halo2::KZGFamilyProverImpl<
-    zk::plonk::halo2::bn254::GWCPCS, zk::plonk::halo2::bn254::LS>> {
+    zk::plonk::halo2::bn254::GWCPCS, zk::plonk::halo2::bn254::Halo2LS>> {
   using CType = tachyon_halo2_bn254_gwc_prover;
 };
 
@@ -19,7 +19,7 @@ template <>
 struct TypeTraits<tachyon_halo2_bn254_gwc_prover> {
   using NativeType =
       zk::plonk::halo2::KZGFamilyProverImpl<zk::plonk::halo2::bn254::GWCPCS,
-                                            zk::plonk::halo2::bn254::LS>;
+                                            zk::plonk::halo2::bn254::Halo2LS>;
 };
 
 }  // namespace tachyon::c::base

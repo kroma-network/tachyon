@@ -17,7 +17,7 @@
 using namespace tachyon;
 
 using PCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
-using LS = c::zk::plonk::halo2::bn254::LS;
+using LS = c::zk::plonk::halo2::bn254::Halo2LS;
 using Verifier = c::zk::plonk::halo2::VerifierImpl<PCS, LS>;
 
 tachyon_halo2_bn254_shplonk_verifier*

@@ -17,7 +17,7 @@
 using namespace tachyon;
 
 using PCS = c::zk::plonk::halo2::bn254::GWCPCS;
-using LS = c::zk::plonk::halo2::bn254::LS;
+using LS = c::zk::plonk::halo2::bn254::Halo2LS;
 using Verifier = c::zk::plonk::halo2::VerifierImpl<PCS, LS>;
 
 tachyon_halo2_bn254_gwc_verifier*
