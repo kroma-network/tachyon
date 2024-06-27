@@ -124,6 +124,18 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "bn254_log_derivative_halo2_ls",
+    hdrs = ["bn254_log_derivative_halo2_ls.h"],
+    deps = [
+        "//tachyon/c/math/polynomials:constants",
+        "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
+        "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/lookup/log_derivative_halo2:scheme",
+    ],
+)
+
+tachyon_cc_library(
     name = "bn254_shplonk_pcs",
     hdrs = ["bn254_shplonk_pcs.h"],
     deps = [
