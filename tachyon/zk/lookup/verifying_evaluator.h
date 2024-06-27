@@ -7,18 +7,18 @@
 #ifndef TACHYON_ZK_LOOKUP_VERIFYING_EVALUATOR_H_
 #define TACHYON_ZK_LOOKUP_VERIFYING_EVALUATOR_H_
 
-#include "tachyon/zk/expressions/advice_expression.h"
-#include "tachyon/zk/expressions/challenge_expression.h"
 #include "tachyon/zk/expressions/constant_expression.h"
 #include "tachyon/zk/expressions/evaluator.h"
-#include "tachyon/zk/expressions/fixed_expression.h"
-#include "tachyon/zk/expressions/instance_expression.h"
 #include "tachyon/zk/expressions/negated_expression.h"
 #include "tachyon/zk/expressions/product_expression.h"
 #include "tachyon/zk/expressions/scaled_expression.h"
-#include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
 #include "tachyon/zk/plonk/base/multi_phase_evaluations.h"
+#include "tachyon/zk/plonk/expressions/advice_expression.h"
+#include "tachyon/zk/plonk/expressions/challenge_expression.h"
+#include "tachyon/zk/plonk/expressions/fixed_expression.h"
+#include "tachyon/zk/plonk/expressions/instance_expression.h"
+#include "tachyon/zk/plonk/expressions/selector_expression.h"
 
 namespace tachyon::zk::lookup {
 
@@ -39,25 +39,26 @@ class VerifyingEvaluator : public Evaluator<F, F> {
         break;
 
       case ExpressionType::kFixed: {
-        const FixedExpression<F>* fixed_expr = input->ToFixed();
+        const plonk::FixedExpression<F>* fixed_expr = input->ToFixed();
         const plonk::FixedQuery& query = fixed_expr->query();
         return data_.fixed_evals[query.index()];
       }
 
       case ExpressionType::kAdvice: {
-        const AdviceExpression<F>* advice_expr = input->ToAdvice();
+        const plonk::AdviceExpression<F>* advice_expr = input->ToAdvice();
         const plonk::AdviceQuery& query = advice_expr->query();
         return data_.advice_evals[query.index()];
       }
 
       case ExpressionType::kInstance: {
-        const InstanceExpression<F>* instance_expr = input->ToInstance();
+        const plonk::InstanceExpression<F>* instance_expr = input->ToInstance();
         const plonk::InstanceQuery& query = instance_expr->query();
         return data_.instance_evals[query.index()];
       }
 
       case ExpressionType::kChallenge: {
-        const ChallengeExpression<F>* challenge_expr = input->ToChallenge();
+        const plonk::ChallengeExpression<F>* challenge_expr =
+            input->ToChallenge();
         plonk::Challenge challenge = challenge_expr->challenge();
         return data_.challenges[challenge.index()];
       }

@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_EXPRESSIONS_CHALLENGE_EXPRESSION_H_
-#define TACHYON_ZK_EXPRESSIONS_CHALLENGE_EXPRESSION_H_
+#ifndef TACHYON_ZK_PLONK_EXPRESSIONS_CHALLENGE_EXPRESSION_H_
+#define TACHYON_ZK_PLONK_EXPRESSIONS_CHALLENGE_EXPRESSION_H_
 
 #include <memory>
 #include <string>
@@ -17,17 +17,20 @@
 #include "tachyon/zk/expressions/expression.h"
 #include "tachyon/zk/plonk/constraint_system/challenge.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
+
+template <typename F>
+class ExpressionFactory;
 
 template <typename F>
 class ChallengeExpression : public Expression<F> {
  public:
   static std::unique_ptr<ChallengeExpression> CreateForTesting(
-      plonk::Challenge challenge) {
+      Challenge challenge) {
     return absl::WrapUnique(new ChallengeExpression(challenge));
   }
 
-  plonk::Challenge challenge() const { return challenge_; }
+  Challenge challenge() const { return challenge_; }
 
   // Expression methods
   size_t Degree() const override { return 0; }
@@ -53,12 +56,12 @@ class ChallengeExpression : public Expression<F> {
  private:
   friend class ExpressionFactory<F>;
 
-  explicit ChallengeExpression(plonk::Challenge challenge)
+  explicit ChallengeExpression(Challenge challenge)
       : Expression<F>(ExpressionType::kChallenge), challenge_(challenge) {}
 
-  plonk::Challenge challenge_;
+  Challenge challenge_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
-#endif  // TACHYON_ZK_EXPRESSIONS_CHALLENGE_EXPRESSION_H_
+#endif  // TACHYON_ZK_PLONK_EXPRESSIONS_CHALLENGE_EXPRESSION_H_

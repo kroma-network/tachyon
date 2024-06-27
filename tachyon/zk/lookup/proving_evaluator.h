@@ -11,18 +11,18 @@
 
 #include "absl/types/span.h"
 
-#include "tachyon/zk/expressions/advice_expression.h"
-#include "tachyon/zk/expressions/challenge_expression.h"
 #include "tachyon/zk/expressions/constant_expression.h"
 #include "tachyon/zk/expressions/evaluator.h"
-#include "tachyon/zk/expressions/fixed_expression.h"
-#include "tachyon/zk/expressions/instance_expression.h"
 #include "tachyon/zk/expressions/negated_expression.h"
 #include "tachyon/zk/expressions/product_expression.h"
 #include "tachyon/zk/expressions/scaled_expression.h"
-#include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
+#include "tachyon/zk/plonk/expressions/advice_expression.h"
+#include "tachyon/zk/plonk/expressions/challenge_expression.h"
+#include "tachyon/zk/plonk/expressions/fixed_expression.h"
+#include "tachyon/zk/plonk/expressions/instance_expression.h"
+#include "tachyon/zk/plonk/expressions/selector_expression.h"
 
 namespace tachyon::zk::lookup {
 
@@ -63,21 +63,22 @@ class ProvingEvaluator
         break;
 
       case ExpressionType::kFixed: {
-        const FixedExpression<Field>* fixed_expr = input->ToFixed();
+        const plonk::FixedExpression<Field>* fixed_expr = input->ToFixed();
         const plonk::FixedQuery& query = fixed_expr->query();
         const Evals& evals = table_.GetFixedColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
 
       case ExpressionType::kAdvice: {
-        const AdviceExpression<Field>* advice_expr = input->ToAdvice();
+        const plonk::AdviceExpression<Field>* advice_expr = input->ToAdvice();
         const plonk::AdviceQuery& query = advice_expr->query();
         const Evals& evals = table_.GetAdviceColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
 
       case ExpressionType::kInstance: {
-        const InstanceExpression<Field>* instance_expr = input->ToInstance();
+        const plonk::InstanceExpression<Field>* instance_expr =
+            input->ToInstance();
         const plonk::InstanceQuery& query = instance_expr->query();
         const Evals& evals =
             table_.GetInstanceColumns()[query.column().index()];

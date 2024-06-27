@@ -1,12 +1,12 @@
-#include "tachyon/zk/expressions/evaluator/selector_replacer.h"
+#include "tachyon/zk/plonk/expressions/evaluator/selector_replacer.h"
 
 #include <memory>
 
-#include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
-#include "tachyon/zk/expressions/evaluator/test/evaluator_test.h"
-#include "tachyon/zk/expressions/expression_factory.h"
+#include "tachyon/zk/plonk/expressions/evaluator/simple_selector_finder.h"
+#include "tachyon/zk/plonk/expressions/evaluator/test/evaluator_test.h"
+#include "tachyon/zk/plonk/expressions/expression_factory.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 using Expr = std::unique_ptr<Expression<GF7>>;
 
@@ -19,12 +19,12 @@ TEST_F(SelectorReplacerTest, Constant) {
 }
 
 TEST_F(SelectorReplacerTest, Selector) {
-  Expr expr = ExpressionFactory<GF7>::Selector(plonk::Selector::Simple(1));
+  Expr expr = ExpressionFactory<GF7>::Selector(Selector::Simple(1));
   std::vector<std::unique_ptr<Expression<GF7>>> owned_replacements;
   owned_replacements.push_back(
-      ExpressionFactory<GF7>::Selector(plonk::Selector::Simple(2)));
+      ExpressionFactory<GF7>::Selector(Selector::Simple(2)));
   owned_replacements.push_back(
-      ExpressionFactory<GF7>::Selector(plonk::Selector::Complex(3)));
+      ExpressionFactory<GF7>::Selector(Selector::Complex(3)));
   std::vector<base::Ref<const Expression<GF7>>> replacements;
   replacements.emplace_back(owned_replacements[0].get());
   replacements.emplace_back(owned_replacements[1].get());
@@ -33,7 +33,7 @@ TEST_F(SelectorReplacerTest, Selector) {
   EXPECT_EQ(*ReplaceSelectors(expr.get(), replacements, false),
             *replacements[1]);
 
-  expr = ExpressionFactory<GF7>::Selector(plonk::Selector::Complex(1));
+  expr = ExpressionFactory<GF7>::Selector(Selector::Complex(1));
   EXPECT_EQ(*ReplaceSelectors(expr.get(), replacements, false),
             *replacements[1]);
 }
@@ -48,8 +48,8 @@ TEST_F(SelectorReplacerTest, Fixed) {
   };
 
   for (const auto& test : tests) {
-    plonk::FixedQuery query(1, Rotation(test.rotation),
-                            plonk::FixedColumnKey(test.column_index));
+    FixedQuery query(1, Rotation(test.rotation),
+                     FixedColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     EXPECT_EQ(*expr, *ReplaceSelectors(expr.get(), {}, false));
   }
@@ -65,9 +65,8 @@ TEST_F(SelectorReplacerTest, Advice) {
   };
 
   for (const auto& test : tests) {
-    plonk::AdviceQuery query(
-        1, Rotation(test.rotation),
-        plonk::AdviceColumnKey(test.column_index, plonk::Phase(0)));
+    AdviceQuery query(1, Rotation(test.rotation),
+                      AdviceColumnKey(test.column_index, Phase(0)));
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     EXPECT_EQ(*expr, *ReplaceSelectors(expr.get(), {}, false));
   }
@@ -83,16 +82,15 @@ TEST_F(SelectorReplacerTest, Instance) {
   };
 
   for (const auto& test : tests) {
-    plonk::InstanceQuery query(1, Rotation(test.rotation),
-                               plonk::InstanceColumnKey(test.column_index));
+    InstanceQuery query(1, Rotation(test.rotation),
+                        InstanceColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     EXPECT_EQ(*expr, *ReplaceSelectors(expr.get(), {}, false));
   }
 }
 
 TEST_F(SelectorReplacerTest, Challenges) {
-  Expr expr =
-      ExpressionFactory<GF7>::Challenge(plonk::Challenge(1, plonk::Phase(0)));
+  Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(1, Phase(0)));
   EXPECT_EQ(*expr, *ReplaceSelectors(expr.get(), {}, false));
 }
 
@@ -127,4 +125,4 @@ TEST_F(SelectorReplacerTest, Scaled) {
   EXPECT_EQ(*expr, *ReplaceSelectors(expr.get(), {}, false));
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

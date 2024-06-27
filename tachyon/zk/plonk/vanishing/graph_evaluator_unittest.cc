@@ -3,8 +3,8 @@
 #include <memory>
 
 #include "tachyon/base/random.h"
-#include "tachyon/zk/expressions/evaluator/test/evaluator_test.h"
-#include "tachyon/zk/expressions/expression_factory.h"
+#include "tachyon/zk/plonk/expressions/evaluator/test/evaluator_test.h"
+#include "tachyon/zk/plonk/expressions/expression_factory.h"
 
 namespace tachyon::zk::plonk {
 

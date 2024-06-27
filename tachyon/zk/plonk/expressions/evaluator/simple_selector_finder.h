@@ -4,17 +4,17 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_EXPRESSIONS_EVALUATOR_SIMPLE_SELECTOR_FINDER_H_
-#define TACHYON_ZK_EXPRESSIONS_EVALUATOR_SIMPLE_SELECTOR_FINDER_H_
+#ifndef TACHYON_ZK_PLONK_EXPRESSIONS_EVALUATOR_SIMPLE_SELECTOR_FINDER_H_
+#define TACHYON_ZK_PLONK_EXPRESSIONS_EVALUATOR_SIMPLE_SELECTOR_FINDER_H_
 
 #include "tachyon/zk/expressions/evaluator.h"
 #include "tachyon/zk/expressions/negated_expression.h"
 #include "tachyon/zk/expressions/product_expression.h"
 #include "tachyon/zk/expressions/scaled_expression.h"
-#include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
+#include "tachyon/zk/plonk/expressions/selector_expression.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 bool ContainsSimpleSelector(const Expression<F>* input) {
@@ -52,6 +52,6 @@ bool ContainsSimpleSelector(const Expression<F>* input) {
   return false;
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
-#endif  // TACHYON_ZK_EXPRESSIONS_EVALUATOR_SIMPLE_SELECTOR_FINDER_H_
+#endif  // TACHYON_ZK_PLONK_EXPRESSIONS_EVALUATOR_SIMPLE_SELECTOR_FINDER_H_

@@ -5,10 +5,10 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
-#include "tachyon/zk/expressions/expression_factory.h"
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cell.h"
+#include "tachyon/zk/plonk/expressions/evaluator/simple_selector_finder.h"
+#include "tachyon/zk/plonk/expressions/expression_factory.h"
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 
 namespace tachyon::zk::plonk {

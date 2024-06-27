@@ -15,16 +15,16 @@
 namespace tachyon::zk {
 
 enum class ExpressionType {
-  kConstant,
-  kSelector,
-  kFixed,
-  kAdvice,
-  kInstance,
-  kChallenge,
-  kNegated,
-  kSum,
-  kProduct,
-  kScaled
+  kConstant = 1,
+  kNegated = 2,
+  kSum = 3,
+  kProduct = 4,
+  kScaled = 5,
+  kSelector = 21,
+  kFixed = 22,
+  kAdvice = 23,
+  kInstance = 24,
+  kChallenge = 25,
 };
 
 TACHYON_EXPORT std::string_view ExpressionTypeToString(ExpressionType type);
