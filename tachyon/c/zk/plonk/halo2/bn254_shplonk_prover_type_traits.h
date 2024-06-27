@@ -2,7 +2,7 @@
 #define TACHYON_C_ZK_PLONK_HALO2_BN254_SHPLONK_PROVER_TYPE_TRAITS_H_
 
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_halo2_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"

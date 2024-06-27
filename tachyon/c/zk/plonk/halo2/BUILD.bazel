@@ -57,7 +57,7 @@ tachyon_cc_library(
     deps = [
         ":bn254_argument_data",
         ":bn254_gwc_pcs",
-        ":bn254_ls",
+        ":bn254_halo2_ls",
         ":bn254_transcript",
         ":kzg_family_prover_impl",
         "//tachyon/c/base:type_traits_forward",
@@ -80,8 +80,8 @@ tachyon_cc_library(
     ],
     deps = [
         ":bn254_gwc_pcs",
+        ":bn254_halo2_ls",
         ":bn254_instance_columns_vec",
-        ":bn254_ls",
         ":bn254_transcript",
         ":verifier_impl",
         "//tachyon/c/base:type_traits_forward",
@@ -112,8 +112,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "bn254_ls",
-    hdrs = ["bn254_ls.h"],
+    name = "bn254_halo2_ls",
+    hdrs = ["bn254_halo2_ls.h"],
     deps = [
         "//tachyon/c/math/polynomials:constants",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
@@ -142,7 +142,7 @@ tachyon_cc_library(
     ],
     deps = [
         ":bn254_argument_data",
-        ":bn254_ls",
+        ":bn254_halo2_ls",
         ":bn254_shplonk_pcs",
         ":bn254_transcript",
         ":kzg_family_prover_impl",
@@ -165,8 +165,8 @@ tachyon_cc_library(
         "bn254_shplonk_verifier_type_traits.h",
     ],
     deps = [
+        ":bn254_halo2_ls",
         ":bn254_instance_columns_vec",
-        ":bn254_ls",
         ":bn254_shplonk_pcs",
         ":bn254_transcript",
         ":verifier_impl",

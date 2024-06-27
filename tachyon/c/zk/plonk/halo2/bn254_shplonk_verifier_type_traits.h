@@ -2,7 +2,7 @@
 #define TACHYON_C_ZK_PLONK_HALO2_BN254_SHPLONK_VERIFIER_TYPE_TRAITS_H_
 
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_halo2_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier.h"
 #include "tachyon/c/zk/plonk/halo2/verifier_impl.h"

@@ -1,7 +1,7 @@
 #ifndef TACHYON_C_ZK_PLONK_KEYS_BN254_PLONK_PROVING_KEY_IMPL_H_
 #define TACHYON_C_ZK_PLONK_KEYS_BN254_PLONK_PROVING_KEY_IMPL_H_
 
-#include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_halo2_ls.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"

@@ -35,7 +35,7 @@ tachyon_cc_library(
     deps = [
         ":proving_key_impl_base",
         "//tachyon/c/math/polynomials:constants",
-        "//tachyon/c/zk/plonk/halo2:bn254_ls",
+        "//tachyon/c/zk/plonk/halo2:bn254_halo2_ls",
     ],
 )
 

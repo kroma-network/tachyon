@@ -4,7 +4,7 @@
 #include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_verifier.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_halo2_ls.h"
 #include "tachyon/c/zk/plonk/halo2/verifier_impl.h"
 
 namespace tachyon::c::base {
