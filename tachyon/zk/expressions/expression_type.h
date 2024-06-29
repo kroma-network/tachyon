@@ -25,6 +25,10 @@ enum class ExpressionType {
   kAdvice = 23,
   kInstance = 24,
   kChallenge = 25,
+  kFirstRow = 31,
+  kLastRow = 32,
+  kTransition = 33,
+  kVariable = 34,
 };
 
 TACHYON_EXPORT std::string_view ExpressionTypeToString(ExpressionType type);

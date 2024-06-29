@@ -98,6 +98,13 @@ class RustDebugStringifier<zk::Expression<F>> {
                          .Field(scaled->scale())
                          .Finish();
       }
+      case zk::ExpressionType::kFirstRow:
+      case zk::ExpressionType::kLastRow:
+      case zk::ExpressionType::kTransition:
+      case zk::ExpressionType::kVariable:
+        NOTREACHED() << "AIR expression "
+                     << ExpressionTypeToString(expression.type())
+                     << " is not allowed in Halo2!";
     }
     NOTREACHED();
     return os;
