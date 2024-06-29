@@ -65,6 +65,12 @@ std::unique_ptr<Expression<F>> ReplaceSelectors(
           ReplaceSelectors(scaled->expr(), replacements, must_be_non_simple),
           scaled->scale());
     }
+    case ExpressionType::kFirstRow:
+    case ExpressionType::kLastRow:
+    case ExpressionType::kTransition:
+    case ExpressionType::kVariable:
+      NOTREACHED() << "AIR expression " << ExpressionTypeToString(input->type())
+                   << " is not allowed in plonk!";
   }
   NOTREACHED();
   return nullptr;

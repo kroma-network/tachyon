@@ -73,6 +73,13 @@ class VerifyingEvaluator : public Evaluator<F, F> {
         const ScaledExpression<F>* scaled_expr = input->ToScaled();
         return Evaluate(scaled_expr->expr()) * scaled_expr->scale();
       }
+      case ExpressionType::kFirstRow:
+      case ExpressionType::kLastRow:
+      case ExpressionType::kTransition:
+      case ExpressionType::kVariable:
+        NOTREACHED() << "AIR expression "
+                     << ExpressionTypeToString(input->type())
+                     << " is not allowed in lookup!";
     }
     NOTREACHED();
     return F::Zero();

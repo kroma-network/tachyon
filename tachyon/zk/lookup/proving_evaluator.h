@@ -86,6 +86,13 @@ class ProvingEvaluator
         const ScaledExpression<Field>* scaled = input->ToScaled();
         return Evaluate(scaled->expr()) * scaled->scale();
       }
+      case ExpressionType::kFirstRow:
+      case ExpressionType::kLastRow:
+      case ExpressionType::kTransition:
+      case ExpressionType::kVariable:
+        NOTREACHED() << "AIR expression "
+                     << ExpressionTypeToString(input->type())
+                     << " is not allowed in lookup!";
     }
     NOTREACHED();
     return Field::Zero();
