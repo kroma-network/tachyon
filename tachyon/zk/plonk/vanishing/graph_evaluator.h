@@ -80,10 +80,8 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
     switch (input->type()) {
       case ExpressionType::kConstant:
         return AddConstant(input->ToConstant()->value());
-
       case ExpressionType::kSelector:
         break;
-
       case ExpressionType::kFixed: {
         const FixedExpression<F>* expr = input->ToFixed();
         const FixedQuery& query = expr->query();
@@ -91,7 +89,6 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
         return AddCalculation(Calculation::Store(
             ValueSource::Fixed(query.column().index(), rotation_index)));
       }
-
       case ExpressionType::kAdvice: {
         const AdviceExpression<F>* expr = input->ToAdvice();
         const AdviceQuery& query = expr->query();
@@ -99,7 +96,6 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
         return AddCalculation(Calculation::Store(
             ValueSource::Advice(query.column().index(), rotation_index)));
       }
-
       case ExpressionType::kInstance: {
         const InstanceExpression<F>* expr = input->ToInstance();
         const InstanceQuery& query = expr->query();
@@ -107,14 +103,12 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
         return AddCalculation(Calculation::Store(
             ValueSource::Instance(query.column().index(), rotation_index)));
       }
-
       case ExpressionType::kChallenge: {
         const ChallengeExpression<F>* expr = input->ToChallenge();
         Challenge challenge = expr->challenge();
         return AddCalculation(
             Calculation::Store(ValueSource::Challenge(challenge.index())));
       }
-
       case ExpressionType::kNegated: {
         const NegatedExpression<F>* expr = input->ToNegated();
         if (expr->expr()->type() == ExpressionType::kConstant) {
@@ -126,7 +120,6 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
         }
         return AddCalculation(Calculation::Negate(result));
       }
-
       case ExpressionType::kSum: {
         const SumExpression<F>* sum = input->ToSum();
         ValueSource left_result = AddExpression(sum->left());
@@ -160,7 +153,6 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
           }
         }
       }
-
       case ExpressionType::kProduct: {
         const ProductExpression<F>* product = input->ToProduct();
         ValueSource left_result = AddExpression(product->left());
@@ -189,7 +181,6 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
           }
         }
       }
-
       case ExpressionType::kScaled: {
         const ScaledExpression<F>* scaled = input->ToScaled();
         const F& scale = scaled->scale();

@@ -47,25 +47,21 @@ class ProvingEvaluator
     switch (input->type()) {
       case ExpressionType::kConstant:
         return input->ToConstant()->value();
-
       case ExpressionType::kSelector:
         NOTREACHED() << "virtual selectors are removed during optimization";
         break;
-
       case ExpressionType::kFixed: {
         const plonk::FixedExpression<Field>* fixed_expr = input->ToFixed();
         const plonk::FixedQuery& query = fixed_expr->query();
         const Evals& evals = table_.GetFixedColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
-
       case ExpressionType::kAdvice: {
         const plonk::AdviceExpression<Field>* advice_expr = input->ToAdvice();
         const plonk::AdviceQuery& query = advice_expr->query();
         const Evals& evals = table_.GetAdviceColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
-
       case ExpressionType::kInstance: {
         const plonk::InstanceExpression<Field>* instance_expr =
             input->ToInstance();
@@ -76,20 +72,16 @@ class ProvingEvaluator
       }
       case ExpressionType::kChallenge:
         return table_.challenges()[input->ToChallenge()->challenge().index()];
-
       case ExpressionType::kNegated:
         return -Evaluate(input->ToNegated()->expr());
-
       case ExpressionType::kSum: {
         const SumExpression<Field>* sum = input->ToSum();
         return Evaluate(sum->left()) + Evaluate(sum->right());
       }
-
       case ExpressionType::kProduct: {
         const ProductExpression<Field>* product = input->ToProduct();
         return Evaluate(product->left()) * Evaluate(product->right());
       }
-
       case ExpressionType::kScaled: {
         const ScaledExpression<Field>* scaled = input->ToScaled();
         return Evaluate(scaled->expr()) * scaled->scale();
