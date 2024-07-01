@@ -140,6 +140,20 @@ void ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
   }
 }
 
+// Returns a vector of size |num_chunks| that holds submatrices with
+// |num_chunks| amount of rows of a given matrix |evals| using vertical
+// striding.
+template <typename Derived>
+std::vector<Eigen::Block<Derived>> SplitEvals(
+    size_t num_chunks, Eigen::MatrixBase<Derived>& evals) {
+  Eigen::Index total_span = evals.rows() - num_chunks + 1;
+  Eigen::Index num_cols = evals.cols();
+  return base::CreateVector(num_chunks,
+                            [&evals, total_span, num_cols](size_t i) {
+                              return evals.block(i, 0, total_span, num_cols);
+                            });
+}
+
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_MATRIX_MATRIX_UTILS_H_
