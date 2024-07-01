@@ -95,4 +95,12 @@ TEST_F(MatrixPackingTest, PackRowVerticallyWithExtensionField) {
   }
 }
 
+TEST_F(MatrixPackingTest, SplitEvals) {
+  Matrix<BabyBear> matrix = Matrix<BabyBear>::Random(10, 10);
+  std::vector<Eigen::Block<Matrix<BabyBear>>> result = SplitEvals(4, matrix);
+  for (size_t i = 0; i < result.size(); ++i) {
+    EXPECT_EQ(result[i], matrix.block(i, 0, 7, matrix.cols()));
+  }
+}
+
 }  // namespace tachyon::math
