@@ -97,12 +97,12 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    size_t log_h = this->log_size_of_group_;
-    mid_ = log_h / 2;
+    size_t log_n = this->log_size_of_group_;
+    mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
     ReverseMatrixIndexBits(mat);
-    RunParallelRowChunks(mat, roots_vec_[log_h - 1], packed_roots_vec_[0]);
+    RunParallelRowChunks(mat, roots_vec_[log_n - 1], packed_roots_vec_[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
     ReverseMatrixIndexBits(mat);
@@ -116,8 +116,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    size_t log_h = this->log_size_of_group_;
-    mid_ = log_h / 2;
+    size_t log_n = this->log_size_of_group_;
+    mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
     ReverseMatrixIndexBits(mat);
@@ -148,11 +148,11 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     CHECK(base::bits::IsPowerOfTwo(rows));
     std::unique_ptr<Radix2EvaluationDomain> domain =
         Radix2EvaluationDomain<F>::Create(rows);
-    log_h = domain->log_size_of_group_;
-    mid_ = log_h / 2;
+    log_n = domain->log_size_of_group_;
+    mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
-    domain->RunParallelRowChunks(mat, domain->roots_vec_[log_h - 1],
+    domain->RunParallelRowChunks(mat, domain->roots_vec_[log_n - 1],
                                  domain->packed_roots_vec_[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
