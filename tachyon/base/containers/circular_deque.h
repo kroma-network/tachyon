@@ -651,7 +651,7 @@ class circular_deque {
     // SEE BELOW VERSION if you change this. The code is mostly the same.
     if (count > size()) {
       // This could be slightly more efficient but expanding a queue with
-      // identical elements are unusual and the extra computations of emplacing
+      // identical elements is unusual and the extra computations of emplacing
       // one-by-one will typically be small relative to calling the constructor
       // for every item.
       ExpandCapacityIfNecessary(count - size());
