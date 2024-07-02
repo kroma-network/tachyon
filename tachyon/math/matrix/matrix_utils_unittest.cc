@@ -1,7 +1,5 @@
 #include "tachyon/math/matrix/matrix_utils.h"
 
-#include "tachyon/base/strings/string_util.h"
-#include "tachyon/build/build_config.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
