@@ -31,6 +31,10 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   // NOTE(chokobole): This is needed by Eigen matrix.
   template <typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
   constexpr explicit CubicExtensionField(T value) : c0_(value) {}
+  constexpr explicit CubicExtensionField(const BaseField& c0)
+      : c0_(c0), c1_(0), c2_(0) {}
+  constexpr explicit CubicExtensionField(BaseField&& c0)
+      : c0_(std::move(c0)), c1_(0), c2_(0) {}
   constexpr CubicExtensionField(const BaseField& c0, const BaseField& c1,
                                 const BaseField& c2)
       : c0_(c0), c1_(c1), c2_(c2) {}
@@ -76,6 +80,12 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
 
   constexpr static uint64_t ExtensionDegree() {
     return 3 * BaseField::ExtensionDegree();
+  }
+
+  constexpr static void GetRootOfUnity(size_t log_n, Derived& a) {
+    for (size_t i = 0; i < log_n; ++i) {
+      a.SquareInPlace();
+    }
   }
 
   // Calculate the norm of an element with respect to |BaseField|.
