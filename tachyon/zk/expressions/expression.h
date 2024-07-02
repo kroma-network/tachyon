@@ -55,6 +55,20 @@ template <typename F>
 class ChallengeExpression;
 }  // namespace plonk
 
+namespace air {
+template <typename F>
+class FirstRowExpression;
+
+template <typename F>
+class LastRowExpression;
+
+template <typename F>
+class TransitionExpression;
+
+template <typename F>
+class VariableExpression;
+}  // namespace air
+
 // A Expression represents a polynomial.
 template <typename F>
 class Expression {
@@ -127,6 +141,10 @@ class Expression {
   DEFINE_NAMESPACED_CONVERSION_METHOD(plonk, Advice)
   DEFINE_NAMESPACED_CONVERSION_METHOD(plonk, Instance)
   DEFINE_NAMESPACED_CONVERSION_METHOD(plonk, Challenge)
+  DEFINE_NAMESPACED_CONVERSION_METHOD(air, FirstRow)
+  DEFINE_NAMESPACED_CONVERSION_METHOD(air, LastRow)
+  DEFINE_NAMESPACED_CONVERSION_METHOD(air, Transition)
+  DEFINE_NAMESPACED_CONVERSION_METHOD(air, Variable)
 #undef DEFINE_NAMESPACED_CONVERSION_METHOD
 
  protected:

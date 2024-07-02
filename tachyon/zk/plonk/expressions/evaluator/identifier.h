@@ -76,6 +76,12 @@ std::string Identifier(const Expression<F>* input) {
       ss << "selector[" << selector->selector().index() << "]";
       return ss.str();
     }
+    case ExpressionType::kFirstRow:
+    case ExpressionType::kLastRow:
+    case ExpressionType::kTransition:
+    case ExpressionType::kVariable:
+      NOTREACHED() << "AIR expression " << ExpressionTypeToString(input->type())
+                   << " is not allowed in plonk!";
   }
   NOTREACHED();
   return "";

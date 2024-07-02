@@ -32,6 +32,14 @@ std::string_view ExpressionTypeToString(ExpressionType type) {
       return "Instance";
     case ExpressionType::kChallenge:
       return "Challenge";
+    case ExpressionType::kFirstRow:
+      return "FirstRow";
+    case ExpressionType::kLastRow:
+      return "LastRow";
+    case ExpressionType::kTransition:
+      return "Transition";
+    case ExpressionType::kVariable:
+      return "Variable";
   }
   NOTREACHED();
   return "";
