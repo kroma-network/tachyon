@@ -23,6 +23,9 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS, LS> {
   using Commitment = typename PCS::Commitment;
   using Callback = tachyon::base::OnceCallback<Base()>;
 
+  ProverImplBase(Base&& base, uint8_t transcript_type)
+      : Base(std::move(base)), transcript_type_(transcript_type) {}
+
   ProverImplBase(Callback callback, uint8_t transcript_type)
       : Base(std::move(callback).Run()), transcript_type_(transcript_type) {
     std::string_view pcs_params_str;
