@@ -176,12 +176,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   // UnivariateEvaluationDomain methods
   constexpr void DoFFT(Evals& evals) const override {
-    if (evals.evaluations_.size() * kDegreeAwareFFTThresholdFactor <=
-        this->size_) {
-      DegreeAwareFFTInPlace(evals);
-    } else {
-      InOrderFFTInPlace(evals);
-    }
+    DegreeAwareFFTInPlace(evals);
   }
 
   // UnivariateEvaluationDomain methods
@@ -214,7 +209,11 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t duplicity_of_initials = size_t{1} << (log_n - log_d);
     evals.evaluations_.resize(n, F::Zero());
     this->SwapElements(evals, num_coeffs, log_n);
-    if (duplicity_of_initials > 1) {
+    size_t start_gap = 1;
+    // NOTE(GideokKim): |base::ParallelizeByChunkSize(container, chunk_size,
+    // callback)| is not called when |duplicity_of_initials| is 2 or 3. Since we
+    // have not benchmarked this case, it is called only when it is 4 or higher.
+    if (duplicity_of_initials >= kDegreeAwareFFTThresholdFactor) {
       base::ParallelizeByChunkSize(evals.evaluations_, duplicity_of_initials,
                                    [](absl::Span<F> chunk) {
                                      const F& v = chunk[0];
@@ -222,8 +221,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
                                        chunk[j] = v;
                                      }
                                    });
+      start_gap = duplicity_of_initials;
     }
-    size_t start_gap = duplicity_of_initials;
     OutInHelper(evals, start_gap);
   }
 
