@@ -25,9 +25,9 @@ namespace tachyon::base {
 
 class FilePath;
 
-// ProcessHandle is a platform specific type which represents the underlying OS
+// ProcessHandle is a platform specific type that represents the underlying OS
 // handle to a process.
-// ProcessId is a number which identifies the process in the OS.
+// ProcessId is a number that identifies the process in the OS.
 #if BUILDFLAG(IS_WIN)
 typedef HANDLE ProcessHandle;
 typedef DWORD ProcessId;

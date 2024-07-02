@@ -71,7 +71,7 @@ We use `VLOG` messages in our code to show us the progress of the current runnin
 
 1. `VLOG(1)` FYI - FOR YOUR INFORMATION
 
-    Provides insight to basic information of the current process. Examples include:
+    Provides insight into basic information of the current process. Examples include:
   
       - Proving schemes/elliptic curves/parameters currently in use
       - Time between steps of processes

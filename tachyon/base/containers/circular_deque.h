@@ -1091,7 +1091,7 @@ class circular_deque {
   // Danger, the buffer_.capacity() is the "internal capacity" which is
   // capacity() + 1 since there is an extra item to indicate the end. Otherwise
   // being completely empty and completely full are indistinguishable (begin ==
-  // end). We could add a separate flag to avoid it, but that adds significant
+  // end). We could add a separate flag to avoid it, but that adds a significant
   // extra complexity since every computation will have to check for it. Always
   // keeping one extra unused element in the buffer makes iterator computations
   // much simpler.
