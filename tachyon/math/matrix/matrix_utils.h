@@ -9,6 +9,8 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 #include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
 
 namespace tachyon::math {
@@ -73,11 +75,25 @@ std::vector<PackedPrimeField*> PackRowHorizontally(
 template <typename PackedPrimeField, typename Derived>
 std::vector<PackedPrimeField> PackRowVertically(
     const Eigen::MatrixBase<Derived>& matrix, size_t row) {
-  return base::CreateVector(matrix.cols(), [row, &matrix](size_t col) {
-    return PackedPrimeField::From([row, col, &matrix](size_t i) {
-      return matrix((row + i) % matrix.rows(), col);
+  using Scalar = typename Eigen::internal::traits<Derived>::Scalar;
+  if constexpr (FiniteFieldTraits<Scalar>::kIsExtensionField) {
+    size_t num =
+        matrix.cols() * ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
+    return base::CreateVector(num, [row, &matrix](size_t n) {
+      size_t col = n / ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
+      size_t idx =
+          n - col * ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
+      return PackedPrimeField::From([row, col, idx, &matrix](size_t i) {
+        return matrix((row + i) % matrix.rows(), col)[idx];
+      });
     });
-  });
+  } else {
+    return base::CreateVector(matrix.cols(), [row, &matrix](size_t col) {
+      return PackedPrimeField::From([row, col, &matrix](size_t i) {
+        return matrix((row + i) % matrix.rows(), col);
+      });
+    });
+  }
 }
 
 // Expands a |Eigen::MatrixBase|'s rows from |rows| to |rows|^(|added_bits|),

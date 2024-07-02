@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "tachyon/math/base/gmp/gmp_util.h"
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
 
 namespace tachyon::math {
@@ -32,7 +33,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
   static_assert(Config::kDegreeOverBaseField == 2);
   static_assert(BaseField::ExtensionDegree() == 6);
 
-  constexpr static uint64_t kDegreeOverBasePrimeField = 12;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 12;
 
   static void Init() {
     using BaseFieldConfig = typename BaseField::Config;
@@ -357,6 +358,15 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
       }
     }
   }
+};
+
+template <typename Config>
+struct ExtensionFieldTraits<Fp12<Config>> {
+  constexpr static uint32_t kDegreeOverBaseField = Config::kDegreeOverBaseField;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 12;
+
+  using BaseField = typename Fp12<Config>::BaseField;
+  using BasePrimeField = typename Fp12<Config>::BasePrimeField;
 };
 
 }  // namespace tachyon::math

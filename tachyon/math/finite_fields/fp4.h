@@ -7,6 +7,7 @@
 #define TACHYON_MATH_FINITE_FIELDS_FP4_H_
 
 #include "tachyon/math/base/gmp/gmp_util.h"
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
 #include "tachyon/math/finite_fields/quartic_extension_field.h"
 
@@ -29,7 +30,7 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
   static_assert(Config::kDegreeOverBaseField == 2);
   static_assert(BaseField::ExtensionDegree() == 2);
 
-  constexpr static uint64_t kDegreeOverBasePrimeField = 4;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 4;
 
   static void Init() {
     using BaseFieldConfig = typename BaseField::Config;
@@ -108,7 +109,7 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 4>> final
   static_assert(Config::kDegreeOverBaseField == 4);
   static_assert(BaseField::ExtensionDegree() == 1);
 
-  constexpr static uint64_t kDegreeOverBasePrimeField = 4;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 4;
 
   static void Init() {
     Config::Init();
@@ -197,6 +198,15 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 4>> final
 
 #undef SET_FROBENIUS_COEFF3
   }
+};
+
+template <typename Config>
+struct ExtensionFieldTraits<Fp4<Config>> {
+  constexpr static uint32_t kDegreeOverBaseField = Config::kDegreeOverBaseField;
+  constexpr static uint32_t kDegreeOverBasePrimeField = 4;
+
+  using BaseField = typename Fp4<Config>::BaseField;
+  using BasePrimeField = typename Fp4<Config>::BasePrimeField;
 };
 
 }  // namespace tachyon::math

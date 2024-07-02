@@ -3,6 +3,11 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "cost_calculator_forward",
+    hdrs = ["cost_calculator_forward.h"],
+)
+
+tachyon_cc_library(
     name = "gmp_num_traits",
     hdrs = ["gmp_num_traits.h"],
     deps = [
@@ -17,7 +22,7 @@ tachyon_cc_library(
     deps = [
         ":prime_field_num_traits",
         "//tachyon/base/buffer:copyable",
-        "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/finite_fields:finite_field_traits",
         "@eigen_archive//:eigen3",
     ],
 )
@@ -29,6 +34,8 @@ tachyon_cc_library(
         "//tachyon/base:bits",
         "//tachyon/base:openmp_util",
         "//tachyon/base/containers:container_util",
+        "//tachyon/math/finite_fields:extension_field_traits_forward",
+        "//tachyon/math/finite_fields:finite_field_traits",
         "//tachyon/math/finite_fields:packed_prime_field_traits_forward",
         "@eigen_archive//:eigen3",
     ],
@@ -38,7 +45,8 @@ tachyon_cc_library(
     name = "prime_field_num_traits",
     hdrs = ["prime_field_num_traits.h"],
     deps = [
-        "//tachyon/math/finite_fields:finite_field_forwards",
+        ":cost_calculator_forward",
+        "//tachyon/math/finite_fields:prime_field_base",
         "@eigen_archive//:eigen3",
     ],
 )
@@ -53,6 +61,7 @@ tachyon_cc_unittest(
         ":matrix_types",
         ":matrix_utils",
         "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/math/finite_fields/baby_bear:baby_bear4",
         "//tachyon/math/finite_fields/baby_bear:packed_baby_bear",
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",

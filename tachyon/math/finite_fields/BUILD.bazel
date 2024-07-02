@@ -32,6 +32,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "extension_field_traits_forward",
+    hdrs = ["extension_field_traits_forward.h"],
+)
+
+tachyon_cc_library(
     name = "finite_field",
     hdrs = ["finite_field.h"],
     deps = [
@@ -49,13 +54,20 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "finite_field_traits",
     hdrs = ["finite_field_traits.h"],
-    deps = [":finite_field_forwards"],
+    deps = [
+        ":finite_field_forwards",
+        "//tachyon/math/matrix:cost_calculator_forward",
+        "@eigen_archive//:eigen3",
+    ],
 )
 
 tachyon_cc_library(
     name = "fp2",
     hdrs = ["fp2.h"],
-    deps = [":quadratic_extension_field"],
+    deps = [
+        ":extension_field_traits_forward",
+        ":quadratic_extension_field",
+    ],
 )
 
 tachyon_cc_library(
@@ -63,6 +75,7 @@ tachyon_cc_library(
     hdrs = ["fp3.h"],
     deps = [
         ":cubic_extension_field",
+        ":extension_field_traits_forward",
         "//tachyon/math/base/gmp:gmp_util",
     ],
 )
@@ -71,6 +84,7 @@ tachyon_cc_library(
     name = "fp4",
     hdrs = ["fp4.h"],
     deps = [
+        ":extension_field_traits_forward",
         ":quadratic_extension_field",
         ":quartic_extension_field",
         "//tachyon/math/base/gmp:gmp_util",
@@ -82,6 +96,7 @@ tachyon_cc_library(
     hdrs = ["fp6.h"],
     deps = [
         ":cubic_extension_field",
+        ":extension_field_traits_forward",
         ":quadratic_extension_field",
         "//tachyon/math/base/gmp:gmp_util",
     ],
@@ -91,6 +106,7 @@ tachyon_cc_library(
     name = "fp12",
     hdrs = ["fp12.h"],
     deps = [
+        ":extension_field_traits_forward",
         ":quadratic_extension_field",
         "//tachyon/math/base/gmp:gmp_util",
     ],
@@ -145,6 +161,7 @@ tachyon_cc_library(
     name = "prime_field_base",
     hdrs = ["prime_field_base.h"],
     deps = [
+        ":extension_field_traits_forward",
         ":finite_field",
         ":legendre_symbol",
         ":packed_prime_field_traits_forward",

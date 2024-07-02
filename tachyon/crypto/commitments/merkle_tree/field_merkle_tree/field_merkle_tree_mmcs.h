@@ -6,6 +6,7 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FIELD_MERKLE_TREE_FIELD_MERKLE_TREE_MMCS_H_
 #define TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FIELD_MERKLE_TREE_FIELD_MERKLE_TREE_MMCS_H_
 
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -16,17 +17,21 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree.h"
 #include "tachyon/crypto/commitments/mixed_matrix_commitment_scheme.h"
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::crypto {
 
-template <typename PackedPrimeField, typename Hasher, typename PackedHasher,
+template <typename F, typename Hasher, typename PackedHasher,
           typename Compressor, typename PackedCompressor, size_t N>
 class FieldMerkleTreeMMCS final
-    : public MixedMatrixCommitmentScheme<
-          FieldMerkleTreeMMCS<PackedPrimeField, Hasher, PackedHasher,
-                              Compressor, PackedCompressor, N>> {
+    : public MixedMatrixCommitmentScheme<FieldMerkleTreeMMCS<
+          F, Hasher, PackedHasher, Compressor, PackedCompressor, N>> {
  public:
-  using PrimeField = typename PackedPrimeField::PrimeField;
+  using PrimeField =
+      std::conditional_t<math::FiniteFieldTraits<F>::kIsExtensionField,
+                         typename math::ExtensionFieldTraits<F>::BasePrimeField,
+                         F>;
   using Commitment = std::array<PrimeField, N>;
   using Digest = Commitment;
   using Proof = std::vector<Digest>;
@@ -46,7 +51,7 @@ class FieldMerkleTreeMMCS final
         compressor_(std::move(compressor)),
         packed_compressor_(std::move(packed_compressor)) {}
 
-  const FieldMerkleTree<PackedPrimeField, N>& field_merkle_tree() const {
+  const FieldMerkleTree<F, N>& field_merkle_tree() const {
     return field_merkle_tree_;
   }
   const Hasher& hasher() const { return hasher_; }
@@ -58,33 +63,31 @@ class FieldMerkleTreeMMCS final
 
  private:
   friend class MixedMatrixCommitmentScheme<FieldMerkleTreeMMCS<
-      PackedPrimeField, Hasher, PackedHasher, Compressor, PackedCompressor, N>>;
+      F, Hasher, PackedHasher, Compressor, PackedCompressor, N>>;
 
-  [[nodiscard]] bool DoCommit(
-      std::vector<math::RowMajorMatrix<PrimeField>>&& matrices,
-      Commitment* result) {
-    field_merkle_tree_ = FieldMerkleTree<PackedPrimeField, N>::Build(
-        hasher_, packed_hasher_, compressor_, packed_compressor_,
-        std::move(matrices));
+  [[nodiscard]] bool DoCommit(std::vector<math::RowMajorMatrix<F>>&& matrices,
+                              Commitment* result) {
+    field_merkle_tree_ =
+        FieldMerkleTree<F, N>::Build(hasher_, packed_hasher_, compressor_,
+                                     packed_compressor_, std::move(matrices));
     *result = field_merkle_tree_.GetRoot();
     return true;
   }
 
-  const std::vector<math::RowMajorMatrix<PrimeField>>& DoGetMatrices() const {
+  const std::vector<math::RowMajorMatrix<F>>& DoGetMatrices() const {
     return field_merkle_tree_.leaves();
   }
 
-  [[nodiscard]] bool DoCreateOpeningProof(
-      size_t index, std::vector<std::vector<PrimeField>>* openings,
-      Proof* proof) const {
+  [[nodiscard]] bool DoCreateOpeningProof(size_t index,
+                                          std::vector<std::vector<F>>* openings,
+                                          Proof* proof) const {
     size_t max_row_size = this->GetMaxRowSize();
     size_t log_max_row_size = base::bits::Log2Ceiling(max_row_size);
 
     // TODO(chokobole): Is it able to be parallelized?
     *openings = base::Map(
         field_merkle_tree_.leaves(),
-        [log_max_row_size,
-         index](const math::RowMajorMatrix<PrimeField>& matrix) {
+        [log_max_row_size, index](const math::RowMajorMatrix<F>& matrix) {
           size_t log_row_size =
               base::bits::Log2Ceiling(static_cast<size_t>(matrix.rows()));
           size_t bits_reduced = log_max_row_size - log_row_size;
@@ -107,7 +110,7 @@ class FieldMerkleTreeMMCS final
   [[nodiscard]] bool DoVerifyOpeningProof(
       const Commitment& commitment,
       absl::Span<const math::Dimensions> dimensions_list, size_t index,
-      absl::Span<const std::vector<PrimeField>> opened_values,
+      absl::Span<const std::vector<F>> opened_values,
       const Proof& proof) const {
     std::vector<math::Dimensions> sorted_dimensions_list(
         dimensions_list.begin(), dimensions_list.end());
@@ -118,16 +121,15 @@ class FieldMerkleTreeMMCS final
             });
     absl::Span<const math::Dimensions> remaining_dimensions_list =
         absl::MakeConstSpan(sorted_dimensions_list);
-    absl::Span<const std::vector<PrimeField>> remaining_opened_values =
+    absl::Span<const std::vector<F>> remaining_opened_values =
         absl::MakeConstSpan(opened_values);
 
     size_t next_layer =
         absl::bit_ceil(remaining_dimensions_list.front().height);
     size_t next_layer_size = CountLayers(next_layer, remaining_dimensions_list);
     remaining_dimensions_list.remove_prefix(next_layer_size);
-    Digest root = hasher_.Hash(base::FlatMap(
-        remaining_opened_values.subspan(0, next_layer_size),
-        [](const std::vector<PrimeField>& fields) { return fields; }));
+    Digest root = hasher_.Hash(GetOpenedValuesAsPrimeFieldVectors(
+        remaining_opened_values, next_layer_size));
     remaining_opened_values.remove_prefix(next_layer_size);
 
     for (const Digest& sibling : proof) {
@@ -143,9 +145,8 @@ class FieldMerkleTreeMMCS final
         remaining_dimensions_list.remove_prefix(next_layer_size);
 
         inputs[0] = std::move(root);
-        inputs[1] = hasher_.Hash(base::FlatMap(
-            remaining_opened_values.subspan(0, next_layer_size),
-            [](const std::vector<PrimeField>& fields) { return fields; }));
+        inputs[1] = hasher_.Hash(GetOpenedValuesAsPrimeFieldVectors(
+            remaining_opened_values, next_layer_size));
         remaining_opened_values.remove_prefix(next_layer_size);
 
         root = compressor_.Compress(inputs);
@@ -170,21 +171,58 @@ class FieldMerkleTreeMMCS final
     return ret;
   }
 
-  FieldMerkleTree<PackedPrimeField, N> field_merkle_tree_;
+  static std::vector<PrimeField> GetOpenedValuesAsPrimeFieldVectors(
+      absl::Span<const std::vector<F>> opened_values, size_t next_layer_size) {
+    if constexpr (math::FiniteFieldTraits<F>::kIsExtensionField) {
+      static_assert(math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField ==
+                    math::ExtensionFieldTraits<F>::kDegreeOverBaseField);
+      absl::Span<const std::vector<F>> sub_opened_values =
+          opened_values.subspan(0, next_layer_size);
+      size_t size =
+          std::accumulate(sub_opened_values.begin(), sub_opened_values.end(), 0,
+                          [](size_t acc, const std::vector<F>& fields) {
+                            return acc + fields.size();
+                          });
+      std::vector<PrimeField> ret;
+      ret.reserve(size *
+                  math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField);
+      for (size_t i = 0; i < sub_opened_values.size(); ++i) {
+        const std::vector<F>& elements = sub_opened_values[i];
+        for (size_t j = 0; j < elements.size(); ++j) {
+          const F& element = elements[j];
+          for (size_t k = 0;
+               k < math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField;
+               ++k) {
+            ret.push_back(element[k]);
+          }
+        }
+      }
+      return ret;
+    } else {
+      return base::FlatMap(opened_values.subspan(0, next_layer_size),
+                           [](const std::vector<F>& fields) { return fields; });
+    }
+  }
+
+  FieldMerkleTree<F, N> field_merkle_tree_;
   Hasher hasher_;
   PackedHasher packed_hasher_;
   Compressor compressor_;
   PackedCompressor packed_compressor_;
 };
 
-template <typename PackedPrimeField, typename Hasher, typename PackedHasher,
+template <typename F, typename Hasher, typename PackedHasher,
           typename Compressor, typename PackedCompressor, size_t N>
 struct MixedMatrixCommitmentSchemeTraits<FieldMerkleTreeMMCS<
-    PackedPrimeField, Hasher, PackedHasher, Compressor, PackedCompressor, N>> {
+    F, Hasher, PackedHasher, Compressor, PackedCompressor, N>> {
  public:
-  using Field = typename PackedPrimeField::PrimeField;
-  using Commitment = std::array<Field, N>;
-  using Proof = std::vector<std::array<Field, N>>;
+  using Field = F;
+  using PrimeField =
+      std::conditional_t<math::FiniteFieldTraits<F>::kIsExtensionField,
+                         typename math::ExtensionFieldTraits<F>::BasePrimeField,
+                         F>;
+  using Commitment = std::array<PrimeField, N>;
+  using Proof = std::vector<std::array<PrimeField, N>>;
 };
 
 }  // namespace tachyon::crypto

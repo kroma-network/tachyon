@@ -9,6 +9,7 @@
 #include <stddef.h>
 
 #include <array>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -18,15 +19,23 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
+#include "tachyon/math/finite_fields/finite_field_traits.h"
+#include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
 
 namespace tachyon::crypto {
 
-template <typename PackedPrimeField, size_t N>
+template <typename F, size_t N>
 class FieldMerkleTree {
  public:
-  using PrimeField = typename PackedPrimeField::PrimeField;
+  using PrimeField =
+      std::conditional_t<math::FiniteFieldTraits<F>::kIsExtensionField,
+                         typename math::ExtensionFieldTraits<F>::BasePrimeField,
+                         F>;
+  using PackedPrimeField =
+      typename math::PackedPrimeFieldTraits<PrimeField>::PackedPrimeField;
   using Digest = std::array<PrimeField, N>;
   using PackedDigest = std::array<PackedPrimeField, N>;
 
@@ -34,23 +43,22 @@ class FieldMerkleTree {
 
   template <typename Hasher, typename PackedHasher, typename Compressor,
             typename PackedCompressor>
-  static FieldMerkleTree Build(
-      const Hasher& hasher, const PackedHasher& packed_hasher,
-      const Compressor& compressor, const PackedCompressor& packed_compressor,
-      std::vector<math::RowMajorMatrix<PrimeField>>&& leaves) {
+  static FieldMerkleTree Build(const Hasher& hasher,
+                               const PackedHasher& packed_hasher,
+                               const Compressor& compressor,
+                               const PackedCompressor& packed_compressor,
+                               std::vector<math::RowMajorMatrix<F>>&& leaves) {
     CHECK(!leaves.empty());
 
-    std::vector<const math::RowMajorMatrix<PrimeField>*> sorted_leaves =
-        base::Map(leaves, [](const math::RowMajorMatrix<PrimeField>& matrix) {
-          return &matrix;
-        });
+    std::vector<const math::RowMajorMatrix<F>*> sorted_leaves = base::Map(
+        leaves, [](const math::RowMajorMatrix<F>& matrix) { return &matrix; });
     // TODO(chokobole): Use https://github.com/timsort/cpp-TimSort or
     // https://github.com/sebawild/powersort for better performance.
-    std::stable_sort(sorted_leaves.begin(), sorted_leaves.end(),
-                     [](const math::RowMajorMatrix<PrimeField>* a,
-                        const math::RowMajorMatrix<PrimeField>* b) {
-                       return a->rows() > b->rows();
-                     });
+    std::stable_sort(
+        sorted_leaves.begin(), sorted_leaves.end(),
+        [](const math::RowMajorMatrix<F>* a, const math::RowMajorMatrix<F>* b) {
+          return a->rows() > b->rows();
+        });
 
 #if DCHECK_IS_ON()
     {
@@ -73,9 +81,9 @@ class FieldMerkleTree {
         break;
       }
     }
-    absl::Span<const math::RowMajorMatrix<PrimeField>*> tallest_matrices =
+    absl::Span<const math::RowMajorMatrix<F>*> tallest_matrices =
         absl::MakeSpan(sorted_leaves.data(), first_layer_size);
-    absl::Span<const math::RowMajorMatrix<PrimeField>*> remaining_leaves =
+    absl::Span<const math::RowMajorMatrix<F>*> remaining_leaves =
         absl::MakeSpan(sorted_leaves.data() + first_layer_size,
                        sorted_leaves.size() - first_layer_size);
 
@@ -95,7 +103,7 @@ class FieldMerkleTree {
           break;
         }
       }
-      absl::Span<const math::RowMajorMatrix<PrimeField>*> matrices_to_inject;
+      absl::Span<const math::RowMajorMatrix<F>*> matrices_to_inject;
       if (next_layer_size > 0) {
         matrices_to_inject = remaining_leaves.subspan(0, next_layer_size);
         remaining_leaves.remove_prefix(next_layer_size);
@@ -108,9 +116,7 @@ class FieldMerkleTree {
     return {std::move(leaves), std::move(digest_layers)};
   }
 
-  const std::vector<math::RowMajorMatrix<PrimeField>>& leaves() const {
-    return leaves_;
-  }
+  const std::vector<math::RowMajorMatrix<F>>& leaves() const { return leaves_; }
   const std::vector<std::vector<Digest>>& digest_layers() const {
     return digest_layers_;
   }
@@ -118,14 +124,14 @@ class FieldMerkleTree {
   const Digest& GetRoot() const { return digest_layers_.back()[0]; }
 
  private:
-  FieldMerkleTree(std::vector<math::RowMajorMatrix<PrimeField>>&& leaves,
+  FieldMerkleTree(std::vector<math::RowMajorMatrix<F>>&& leaves,
                   std::vector<std::vector<Digest>>&& digest_layers)
       : leaves_(std::move(leaves)), digest_layers_(std::move(digest_layers)) {}
 
   template <typename Hasher, typename PackedHasher>
   static std::vector<Digest> CreateFirstDigestLayer(
       const Hasher& hasher, const PackedHasher& packed_hasher,
-      absl::Span<const math::RowMajorMatrix<PrimeField>*> tallest_matrices) {
+      absl::Span<const math::RowMajorMatrix<F>*> tallest_matrices) {
     size_t max_rows = static_cast<size_t>(tallest_matrices[0]->rows());
     size_t max_rows_padded = absl::bit_ceil(max_rows);
 
@@ -138,8 +144,7 @@ class FieldMerkleTree {
           size_t start = chunk_offset * chunk_size;
           if (chunk.size() == chunk_size) {
             std::vector<PackedPrimeField> packed_prime_fields = base::FlatMap(
-                tallest_matrices,
-                [start](const math::RowMajorMatrix<PrimeField>* m) {
+                tallest_matrices, [start](const math::RowMajorMatrix<F>* m) {
                   return math::PackRowVertically<PackedPrimeField>(*m, start);
                 });
             PackedDigest packed_digest =
@@ -151,13 +156,8 @@ class FieldMerkleTree {
             }
           } else {
             for (size_t i = 0; i < chunk.size(); ++i) {
-              size_t row = start + i;
-              chunk[i] = hasher.Hash(base::FlatMap(
-                  tallest_matrices,
-                  [row](const math::RowMajorMatrix<PrimeField>* m) {
-                    return base::CreateVector(
-                        m->cols(), [m, row](size_t i) { return (*m)(row, i); });
-                  }));
+              chunk[i] = hasher.Hash(
+                  GetRowAsPrimeFieldVector(tallest_matrices, start + i));
             }
           }
         });
@@ -170,7 +170,7 @@ class FieldMerkleTree {
       const Hasher& hasher, const PackedHasher& packed_hasher,
       const Compressor& compressor, const PackedCompressor& packed_compressor,
       const std::vector<Digest>& prev_layer,
-      absl::Span<const math::RowMajorMatrix<PrimeField>*> matrices_to_inject) {
+      absl::Span<const math::RowMajorMatrix<F>*> matrices_to_inject) {
     if (matrices_to_inject.empty())
       return Compress(compressor, packed_compressor, prev_layer);
 
@@ -202,8 +202,7 @@ class FieldMerkleTree {
             };
             inputs[0] = packed_compressor.Compress(inputs);
             std::vector<PackedPrimeField> packed_prime_fields = base::FlatMap(
-                matrices_to_inject,
-                [start](const math::RowMajorMatrix<PrimeField>* m) {
+                matrices_to_inject, [start](const math::RowMajorMatrix<F>* m) {
                   return math::PackRowVertically<PackedPrimeField>(*m, start);
                 });
             inputs[1] = packed_hasher.Hash(packed_prime_fields);
@@ -220,13 +219,8 @@ class FieldMerkleTree {
                   prev_layer[2 * (start + i) + 1],
               };
               inputs[0] = compressor.Compress(inputs);
-              size_t row = start + i;
-              inputs[1] = hasher.Hash(base::FlatMap(
-                  matrices_to_inject,
-                  [row](const math::RowMajorMatrix<PrimeField>* m) {
-                    return base::CreateVector(
-                        m->cols(), [m, row](size_t i) { return (*m)(row, i); });
-                  }));
+              inputs[1] = hasher.Hash(
+                  GetRowAsPrimeFieldVector(matrices_to_inject, start + i));
               chunk[i] = compressor.Compress(inputs);
             }
           }
@@ -295,7 +289,33 @@ class FieldMerkleTree {
     return ret;
   }
 
-  std::vector<math::RowMajorMatrix<PrimeField>> leaves_;
+  static std::vector<PrimeField> GetRowAsPrimeFieldVector(
+      absl::Span<const math::RowMajorMatrix<F>*> matrices, size_t row) {
+    return base::FlatMap(matrices, [row](const math::RowMajorMatrix<F>* m) {
+      if constexpr (math::FiniteFieldTraits<F>::kIsExtensionField) {
+        static_assert(
+            math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField ==
+            math::ExtensionFieldTraits<F>::kDegreeOverBaseField);
+        std::vector<PrimeField> ret;
+        ret.reserve(m->cols() *
+                    math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField);
+        for (size_t i = 0; m->cols(); ++i) {
+          const F& element = (*m)(row, i);
+          for (size_t j = 0;
+               j < math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField;
+               ++j) {
+            ret.push_back(element[j]);
+          }
+        }
+        return ret;
+      } else {
+        return base::CreateVector(m->cols(),
+                                  [m, row](size_t i) { return (*m)(row, i); });
+      }
+    });
+  }
+
+  std::vector<math::RowMajorMatrix<F>> leaves_;
   std::vector<std::vector<Digest>> digest_layers_;
 };
 

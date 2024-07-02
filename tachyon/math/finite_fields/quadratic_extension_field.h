@@ -29,6 +29,9 @@ class QuadraticExtensionField
   using BasePrimeField = typename Config::BasePrimeField;
 
   constexpr QuadraticExtensionField() = default;
+  // NOTE(chokobole): This is needed by Eigen matrix.
+  template <typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
+  constexpr explicit QuadraticExtensionField(T value) : c0_(value) {}
   constexpr QuadraticExtensionField(const BaseField& c0, const BaseField& c1)
       : c0_(c0), c1_(c1) {}
   constexpr QuadraticExtensionField(BaseField&& c0, BaseField&& c1)
@@ -106,6 +109,17 @@ class QuadraticExtensionField
 
   constexpr const BaseField& c0() const { return c0_; }
   constexpr const BaseField& c1() const { return c1_; }
+
+  constexpr const BaseField& operator[](size_t index) const {
+    switch (index) {
+      case 0:
+        return c0_;
+      case 1:
+        return c1_;
+    }
+    NOTREACHED();
+    return c0_;
+  }
 
   constexpr bool operator==(const Derived& other) const {
     return c0_ == other.c0_ && c1_ == other.c1_;

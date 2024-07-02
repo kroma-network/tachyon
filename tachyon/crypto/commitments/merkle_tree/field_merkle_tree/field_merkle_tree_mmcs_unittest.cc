@@ -33,9 +33,9 @@ using MyHasher = PaddingFreeSponge<Poseidon2, kRate, kChunk>;
 using MyPackedHasher = PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
 using MyCompressor = TruncatedPermutation<Poseidon2, kChunk, kN>;
 using MyPackedCompressor = TruncatedPermutation<PackedPoseidon2, kChunk, kN>;
-using Tree = FieldMerkleTree<PackedF, kChunk>;
-using MMCS = FieldMerkleTreeMMCS<PackedF, MyHasher, MyPackedHasher,
-                                 MyCompressor, MyPackedCompressor, kChunk>;
+using Tree = FieldMerkleTree<F, kChunk>;
+using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
+                                 MyPackedCompressor, kChunk>;
 
 namespace {
 
@@ -53,8 +53,9 @@ class FieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
             15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
     PackedPoseidon2 packed_sponge(packed_config);
     MyPackedHasher packed_hasher(packed_sponge);
-    MyPackedCompressor packed_compressor(packed_sponge);
-    mmcs_.reset(new MMCS(hasher, packed_hasher, compressor, packed_compressor));
+    MyPackedCompressor packed_compressor(std::move(packed_sponge));
+    mmcs_.reset(new MMCS(std::move(hasher), std::move(packed_hasher),
+                         std::move(compressor), std::move(packed_compressor)));
   }
 
  protected:

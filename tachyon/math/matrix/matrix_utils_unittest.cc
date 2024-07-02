@@ -1,6 +1,6 @@
 #include "tachyon/math/matrix/matrix_utils.h"
 
-#include "tachyon/base/strings/string_util.h"
+#include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
@@ -63,7 +63,7 @@ TEST_F(MatrixPackingTest, PackRowHorizontally) {
   }
 }
 
-TEST_F(MatrixPackingTest, PackRowVertically) {
+TEST_F(MatrixPackingTest, PackRowVerticallyWithPrimeField) {
   constexpr size_t N = PackedBabyBear::N;
   constexpr size_t R = 3;
 
@@ -74,6 +74,23 @@ TEST_F(MatrixPackingTest, PackRowVertically) {
   for (size_t i = 0; i < packed_values.size(); ++i) {
     for (size_t j = 0; j < N; ++j) {
       EXPECT_EQ(packed_values[i][j], matrix((R + j) % matrix.rows(), i));
+    }
+  }
+}
+
+TEST_F(MatrixPackingTest, PackRowVerticallyWithExtensionField) {
+  constexpr size_t N = PackedBabyBear::N;
+  constexpr size_t R = 3;
+
+  Matrix<BabyBear4> matrix = Matrix<BabyBear4>::Random(N, N);
+  std::vector<PackedBabyBear> packed_values =
+      PackRowVertically<PackedBabyBear>(matrix, R);
+  ASSERT_EQ(packed_values.size(), 4 * N);
+  for (size_t i = 0; i < packed_values.size(); ++i) {
+    for (size_t j = 0; j < N; ++j) {
+      size_t col = i / 4;
+      size_t idx = i % 4;
+      EXPECT_EQ(packed_values[i][j], matrix((R + j) % matrix.rows(), col)[idx]);
     }
   }
 }

@@ -23,6 +23,9 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   using BasePrimeField = typename Config::BasePrimeField;
 
   constexpr QuarticExtensionField() = default;
+  // NOTE(chokobole): This is needed by Eigen matrix.
+  template <typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
+  constexpr explicit QuarticExtensionField(T value) : c0_(value) {}
   constexpr QuarticExtensionField(const BaseField& c0, const BaseField& c1,
                                   const BaseField& c2, const BaseField& c3)
       : c0_(c0), c1_(c1), c2_(c2), c3_(c3) {}
@@ -139,6 +142,21 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   constexpr const BaseField& c1() const { return c1_; }
   constexpr const BaseField& c2() const { return c2_; }
   constexpr const BaseField& c3() const { return c3_; }
+
+  constexpr const BaseField& operator[](size_t index) const {
+    switch (index) {
+      case 0:
+        return c0_;
+      case 1:
+        return c1_;
+      case 2:
+        return c2_;
+      case 3:
+        return c3_;
+    }
+    NOTREACHED();
+    return c0_;
+  }
 
   constexpr bool operator==(const Derived& other) const {
     return c0_ == other.c0_ && c1_ == other.c1_ && c2_ == other.c2_ &&
