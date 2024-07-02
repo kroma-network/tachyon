@@ -85,7 +85,7 @@ class MixedRadixEvaluationDomain
   }
 
   // UnivariateEvaluationDomain methods
-  constexpr void DoFFT(Evals& evals) const override {
+  CONSTEXPR_IF_NOT_OPENMP void DoFFT(Evals& evals) const override {
     if (!this->offset_.IsOne()) {
       Base::DistributePowers(evals, this->offset_);
     }

@@ -175,12 +175,12 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   // UnivariateEvaluationDomain methods
-  constexpr void DoFFT(Evals& evals) const override {
+  CONSTEXPR_IF_NOT_OPENMP void DoFFT(Evals& evals) const override {
     DegreeAwareFFTInPlace(evals);
   }
 
   // UnivariateEvaluationDomain methods
-  constexpr void DoIFFT(DensePoly& poly) const override {
+  CONSTEXPR_IF_NOT_OPENMP void DoIFFT(DensePoly& poly) const override {
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     InOrderIFFTInPlace(poly);
     poly.coefficients_.RemoveHighDegreeZeros();
@@ -189,7 +189,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // Degree aware FFT that runs in O(n log d) instead of O(n log n).
   // Implementation copied from libiop. (See
   // https://github.com/arkworks-rs/algebra/blob/master/poly/src/domain/radix2/fft.rs#L28)
-  constexpr void DegreeAwareFFTInPlace(Evals& evals) const {
+  CONSTEXPR_IF_NOT_OPENMP void DegreeAwareFFTInPlace(Evals& evals) const {
     if (!this->offset_.IsOne()) {
       Base::DistributePowers(evals, this->offset_);
     }
@@ -240,7 +240,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // Handles doing an IFFT with handling of being in order and out of order.
   // The results here must all be divided by |poly|, which is left up to the
   // caller to do.
-  constexpr void IFFTHelperInPlace(DensePoly& poly) const {
+  CONSTEXPR_IF_NOT_OPENMP void IFFTHelperInPlace(DensePoly& poly) const {
     InOutHelper(poly);
     uint32_t log_n = this->log_size_of_group_;
     this->SwapElements(poly, poly.coefficients_.coefficients_.size(), log_n);
@@ -343,7 +343,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
   }
 
-  constexpr void InOutHelper(DensePoly& poly) const {
+  CONSTEXPR_IF_NOT_OPENMP void InOutHelper(DensePoly& poly) const {
     size_t gap = poly.coefficients_.coefficients_.size() / 2;
     size_t idx = 0;
     while (gap > 0) {
@@ -352,7 +352,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
   }
 
-  constexpr void OutInHelper(Evals& evals, size_t start_gap) const {
+  CONSTEXPR_IF_NOT_OPENMP void OutInHelper(Evals& evals,
+                                           size_t start_gap) const {
     size_t gap = start_gap;
     size_t idx = base::bits::SafeLog2Ceiling(start_gap);
     while (gap < evals.evaluations_.size()) {
