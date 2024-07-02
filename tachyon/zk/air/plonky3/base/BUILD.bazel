@@ -16,3 +16,15 @@ tachyon_cc_library(
         "@com_google_absl//absl/types:span",
     ],
 )
+
+tachyon_cc_library(
+    name = "two_adic_multiplicative_coset",
+    hdrs = ["two_adic_multiplicative_coset.h"],
+    deps = [
+        "//tachyon/base:bits",
+        "//tachyon/base:optional",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/polynomials/univariate:radix2_evaluation_domain",
+        "//tachyon/zk/air/plonky3/base:lagrange_selectors",
+    ],
+)
