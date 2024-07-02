@@ -1,0 +1,13 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "multi_field32_conversions",
+    hdrs = ["multi_field32_conversions.h"],
+    deps = [
+        "//tachyon/base/containers:adapters",
+        "//tachyon/build:build_config",
+        "@com_google_absl//absl/types:span",
+    ],
+)
