@@ -162,6 +162,10 @@ H AbslHashValue(H h, const F& prime_field) {
   return h;
 }
 
+// NOTE(ashjeong): Base prime fields with no packed field version have their
+// packed prime field type defaulted as themselves to ensure prime field
+// standardization. See how it is used in
+// tachyon/math/polynomials/univariate/radix2_evaluation_domain.h.
 template <typename T>
 struct PackedPrimeFieldTraits<
     T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
