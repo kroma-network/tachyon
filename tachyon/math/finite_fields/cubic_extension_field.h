@@ -78,6 +78,12 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return 3 * BaseField::ExtensionDegree();
   }
 
+  constexpr static void GetRootOfUnity(size_t log_n, Derived& a) {
+    for (size_t i = 0; i < log_n; ++i) {
+      a.SquareInPlace();
+    }
+  }
+
   // Calculate the norm of an element with respect to |BaseField|.
   // The norm maps an element |a| in the extension field Fqᵐ to an element
   // in the |BaseField| Fq. |a.Norm() = a * a^q * a^q²|

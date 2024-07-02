@@ -70,6 +70,12 @@ class QuadraticExtensionField
     return 2 * BaseField::ExtensionDegree();
   }
 
+  constexpr static void GetRootOfUnity(size_t log_n, Derived& a) {
+    for (size_t i = 0; i < log_n; ++i) {
+      a.SquareInPlace();
+    }
+  }
+
   constexpr Derived Conjugate() const {
     return {
         c0_,
