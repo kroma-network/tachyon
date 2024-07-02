@@ -63,6 +63,19 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "two_adic_multiplicative_coset",
+    hdrs = ["two_adic_multiplicative_coset.h"],
+    deps = [
+        ":univariate_evaluation_domain",
+        "//tachyon/base:bits",
+        "//tachyon/base:optional",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/base:lagrange_selectors",
+        "//tachyon/math/matrix:matrix_types",
+    ],
+)
+
+tachyon_cc_library(
     name = "univariate_evaluation_domain",
     hdrs = ["univariate_evaluation_domain.h"],
     deps = [
