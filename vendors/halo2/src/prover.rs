@@ -9,7 +9,7 @@ use crate::bn254::{
     AdviceSingle, Evals, InstanceSingle, ProvingKey as TachyonProvingKey, RationalEvals,
     TachyonProver, TranscriptWriteState,
 };
-use crate::xor_shift_rng::XORShiftRng as TachyonXORShiftRng;
+use crate::xor_shift_rng::RngState;
 use ff::Field;
 use halo2_proofs::{
     circuit::Value,
@@ -25,6 +25,7 @@ use halo2curves::{
     group::{prime::PrimeCurveAffine, Curve},
     CurveAffine,
 };
+use rand_core::RngCore;
 
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
@@ -37,12 +38,13 @@ pub fn create_proof<
     E: EncodedChallenge<Scheme::Curve>,
     T: TranscriptWriteState<Scheme::Curve, E>,
     ConcreteCircuit: Circuit<Scheme::Scalar>,
+    R: RngCore + RngState,
 >(
     prover: &mut P,
     pk: &mut TachyonProvingKey<Scheme::Curve>,
     circuits: &[ConcreteCircuit],
     instances: &[&[&[Scheme::Scalar]]],
-    mut rng: TachyonXORShiftRng,
+    mut rng: R,
     transcript: &mut T,
 ) -> Result<(), Error> {
     for instance in instances.iter() {
