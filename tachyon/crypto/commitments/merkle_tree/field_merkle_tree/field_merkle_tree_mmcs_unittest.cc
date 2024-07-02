@@ -53,8 +53,9 @@ class FieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
             15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
     PackedPoseidon2 packed_sponge(packed_config);
     MyPackedHasher packed_hasher(packed_sponge);
-    MyPackedCompressor packed_compressor(packed_sponge);
-    mmcs_.reset(new MMCS(hasher, packed_hasher, compressor, packed_compressor));
+    MyPackedCompressor packed_compressor(std::move(packed_sponge));
+    mmcs_.reset(new MMCS(std::move(hasher), std::move(packed_hasher),
+                         std::move(compressor), std::move(packed_compressor)));
   }
 
  protected:
