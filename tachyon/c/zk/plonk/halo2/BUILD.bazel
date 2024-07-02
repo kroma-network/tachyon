@@ -68,6 +68,7 @@ tachyon_cc_library(
         "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/base/commitments:gwc_extension",
+        "//tachyon/zk/plonk/halo2:ls_type",
     ],
 )
 
@@ -166,6 +167,7 @@ tachyon_cc_library(
         "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/base/commitments:shplonk_extension",
+        "//tachyon/zk/plonk/halo2:ls_type",
     ],
 )
 
@@ -299,7 +301,7 @@ tachyon_cc_binary(
         "//tachyon/base/files:file_util",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
-        "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key_impl",
+        "//tachyon/c/zk/plonk/keys:proving_key_impl",
         "//tachyon/zk/plonk/halo2:constants",
         "//tachyon/zk/plonk/halo2:transcript_type",
     ],
@@ -331,7 +333,7 @@ tachyon_cc_binary(
         "//tachyon/base/files:file_util",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
-        "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key_impl",
+        "//tachyon/c/zk/plonk/keys:proving_key_impl",
         "//tachyon/zk/plonk/halo2:transcript_type",
     ],
 )

@@ -11,7 +11,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
-#include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h"
+#include "tachyon/c/zk/plonk/keys/proving_key_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
@@ -27,7 +27,8 @@ using ArgumentData =
 template <typename PCS, typename LS>
 using Prover = KZGFamilyProverImpl<PCS, LS>;
 
-using ProvingKey = plonk::bn254::ProvingKeyImpl;
+template <typename LS>
+using ProvingKey = plonk::ProvingKeyImpl<LS>;
 
 template <typename PCS>
 ArgumentData<PCS> DeserializeArgumentData(
@@ -59,10 +60,11 @@ void CreateProof(CProver* c_prover, const std::vector<uint8_t>& pk_bytes,
                  const std::vector<uint8_t>& transcript_state_bytes) {
   using NativeProver = typename base::TypeTraits<CProver>::NativeType;
   using PCS = typename NativeProver::PCS;
+  using LS = typename NativeProver::LS;
 
   NativeProver* prover = base::native_cast(c_prover);
   std::cout << "deserializing proving key" << std::endl;
-  ProvingKey pk(pk_bytes, /*read_only_vk=*/false);
+  ProvingKey<LS> pk(pk_bytes, /*read_only_vk=*/false);
   std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(

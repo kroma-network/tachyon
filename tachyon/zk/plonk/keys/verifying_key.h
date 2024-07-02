@@ -20,7 +20,7 @@
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key_forward.h"
 #include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
-#include "tachyon/zk/plonk/keys/c_proving_key_impl_base_forward.h"
+#include "tachyon/zk/plonk/keys/c_proving_key_impl_forward.h"
 #include "tachyon/zk/plonk/keys/key.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
@@ -73,7 +73,7 @@ class VerifyingKey : public Key {
   template <typename LS>
   friend class ProvingKey;
   template <typename LS>
-  friend class c::zk::plonk::ProvingKeyImplBase;
+  friend class c::zk::plonk::ProvingKeyImpl;
 
   template <typename PCS, typename Evals, typename RationalEvals>
   bool DoLoad(Entity<PCS>* entity,

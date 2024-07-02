@@ -8,7 +8,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier_type_traits.h"
-#include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h"
+#include "tachyon/c/zk/plonk/keys/proving_key_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 #include "tachyon/zk/plonk/halo2/verifier.h"
@@ -21,7 +21,8 @@ constexpr uint8_t kProof[] = {
 namespace tachyon {
 namespace c::zk::plonk::halo2::bn254 {
 
-using ProvingKey = plonk::bn254::ProvingKeyImpl;
+template <typename LS>
+using ProvingKey = plonk::ProvingKeyImpl<LS>;
 
 template <typename PCS, typename LS>
 using Verifier = tachyon::zk::plonk::halo2::Verifier<PCS, LS>;
@@ -40,10 +41,11 @@ template <typename CVerifier>
 bool VerifyProof(CVerifier* c_verifier, const std::vector<uint8_t>& pk_bytes) {
   using NativeVerifier = typename base::TypeTraits<CVerifier>::NativeType;
   using PCS = typename NativeVerifier::PCS;
+  using LS = typename NativeVerifier::LS;
 
   NativeVerifier* verifier = base::native_cast(c_verifier);
   std::cout << "deserializing proving key" << std::endl;
-  ProvingKey pk(pk_bytes, /*read_only_vk=*/true);
+  ProvingKey<LS> pk(pk_bytes, /*read_only_vk=*/true);
   std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(

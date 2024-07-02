@@ -41,7 +41,7 @@
 #include "tachyon/zk/plonk/expressions/evaluator/selector_replacer.h"
 #include "tachyon/zk/plonk/expressions/evaluator/simple_selector_extractor.h"
 #include "tachyon/zk/plonk/expressions/evaluator/simple_selector_finder.h"
-#include "tachyon/zk/plonk/keys/c_proving_key_impl_base_forward.h"
+#include "tachyon/zk/plonk/keys/c_proving_key_impl_forward.h"
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
@@ -716,7 +716,7 @@ class ConstraintSystem {
 
  private:
   template <typename LS>
-  friend class c::zk::plonk::ProvingKeyImplBase;
+  friend class c::zk::plonk::ProvingKeyImpl;
 
   FRIEND_TEST(ConstraintSystemTest, Lookup);
   FRIEND_TEST(ConstraintSystemTest, LookupAny);

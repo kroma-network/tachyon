@@ -18,24 +18,13 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bn254_plonk_proving_key",
     srcs = ["bn254_plonk_proving_key.cc"],
-    hdrs = [
-        "bn254_plonk_proving_key.h",
-        "bn254_plonk_proving_key_type_traits.h",
-    ],
+    hdrs = ["bn254_plonk_proving_key.h"],
     deps = [
-        ":bn254_plonk_proving_key_impl",
         ":bn254_plonk_verifying_key",
-        "//tachyon/c/base:type_traits_forward",
-    ],
-)
-
-tachyon_cc_library(
-    name = "bn254_plonk_proving_key_impl",
-    hdrs = ["bn254_plonk_proving_key_impl.h"],
-    deps = [
-        ":proving_key_impl_base",
-        "//tachyon/c/math/polynomials:constants",
+        ":proving_key_impl",
         "//tachyon/c/zk/plonk/halo2:bn254_halo2_ls",
+        "//tachyon/c/zk/plonk/halo2:bn254_log_derivative_halo2_ls",
+        "//tachyon/zk/plonk/halo2:ls_type",
     ],
 )
 
@@ -62,8 +51,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "proving_key_impl_base",
-    hdrs = ["proving_key_impl_base.h"],
+    name = "proving_key_impl",
+    hdrs = ["proving_key_impl.h"],
     deps = [
         "//tachyon/base:environment",
         "//tachyon/base:logging",
@@ -84,6 +73,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":bn254_plonk_proving_key",
+        "//tachyon/c/zk/plonk/halo2:constants",
         "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )

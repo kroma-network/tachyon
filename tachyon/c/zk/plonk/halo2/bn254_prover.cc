@@ -22,7 +22,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
-#include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_type_traits.h"
+#include "tachyon/c/zk/plonk/keys/proving_key_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/ls_type.h"
@@ -42,7 +42,7 @@ using LogDerivativeHalo2LS = c::zk::plonk::halo2::bn254::LogDerivativeHalo2LS;
 template <typename PCS, typename LS>
 using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS, LS>;
 template <typename LS>
-using ProvingKey = c::zk::plonk::ProvingKeyImplBase<LS>;
+using ProvingKey = c::zk::plonk::ProvingKeyImpl<LS>;
 
 namespace {
 
@@ -250,12 +250,6 @@ void GetProof(NativeProver* prover, uint8_t* proof, size_t* proof_len) {
   *proof_len = buffer.size();
   if (proof == nullptr) return;
   memcpy(proof, buffer.data(), buffer.size());
-}
-
-template <typename NativeProver>
-void SetTranscriptRepr(NativeProver* prover,
-                       tachyon_bn254_plonk_proving_key* pk) {
-  c::base::native_cast(pk)->SetTranscriptRepr(*prover);
 }
 
 }  // namespace
@@ -501,7 +495,8 @@ void tachyon_halo2_bn254_prover_create_proof(
         case zk::plonk::halo2::LSType::kHalo2: {
           CreateProof(
               reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover->extra),
-              reinterpret_cast<zk::plonk::ProvingKey<Halo2LS>*>(pk), data);
+              reinterpret_cast<zk::plonk::ProvingKey<Halo2LS>*>(pk->extra),
+              data);
           return;
         }
         case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
@@ -509,7 +504,7 @@ void tachyon_halo2_bn254_prover_create_proof(
               reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
                   prover->extra),
               reinterpret_cast<zk::plonk::ProvingKey<LogDerivativeHalo2LS>*>(
-                  pk),
+                  pk->extra),
               data);
           return;
         }
@@ -521,7 +516,8 @@ void tachyon_halo2_bn254_prover_create_proof(
         case zk::plonk::halo2::LSType::kHalo2: {
           CreateProof(
               reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(prover->extra),
-              reinterpret_cast<zk::plonk::ProvingKey<Halo2LS>*>(pk), data);
+              reinterpret_cast<zk::plonk::ProvingKey<Halo2LS>*>(pk->extra),
+              data);
           return;
         }
         case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
@@ -529,7 +525,7 @@ void tachyon_halo2_bn254_prover_create_proof(
               reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
                   prover->extra),
               reinterpret_cast<zk::plonk::ProvingKey<LogDerivativeHalo2LS>*>(
-                  pk),
+                  pk->extra),
               data);
           return;
         }
@@ -549,5 +545,43 @@ void tachyon_halo2_bn254_prover_get_proof(
 void tachyon_halo2_bn254_prover_set_transcript_repr(
     const tachyon_halo2_bn254_prover* prover,
     tachyon_bn254_plonk_proving_key* pk) {
-  INVOKE_ENTITY(SetTranscriptRepr, pk);
+  switch (static_cast<zk::plonk::halo2::PCSType>(prover->pcs_type)) {
+    case zk::plonk::halo2::PCSType::kGWC: {
+      switch (static_cast<zk::plonk::halo2::LSType>(prover->ls_type)) {
+        case zk::plonk::halo2::LSType::kHalo2: {
+          reinterpret_cast<c::zk::plonk::ProvingKeyImpl<Halo2LS>*>(pk->extra)
+              ->SetTranscriptRepr(
+                  *reinterpret_cast<zk::Entity<GWCPCS>*>(prover->extra));
+          return;
+        }
+        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+          reinterpret_cast<c::zk::plonk::ProvingKeyImpl<LogDerivativeHalo2LS>*>(
+              pk->extra)
+              ->SetTranscriptRepr(
+                  *reinterpret_cast<zk::Entity<GWCPCS>*>(prover->extra));
+          return;
+        }
+      }
+      break;
+    }
+    case zk::plonk::halo2::PCSType::kSHPlonk: {
+      switch (static_cast<zk::plonk::halo2::LSType>(prover->ls_type)) {
+        case zk::plonk::halo2::LSType::kHalo2: {
+          reinterpret_cast<c::zk::plonk::ProvingKeyImpl<Halo2LS>*>(pk->extra)
+              ->SetTranscriptRepr(
+                  *reinterpret_cast<zk::Entity<SHPlonkPCS>*>(prover->extra));
+          return;
+        }
+        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+          reinterpret_cast<c::zk::plonk::ProvingKeyImpl<LogDerivativeHalo2LS>*>(
+              pk->extra)
+              ->SetTranscriptRepr(
+                  *reinterpret_cast<zk::Entity<SHPlonkPCS>*>(prover->extra));
+          return;
+        }
+      }
+      break;
+    }
+  }
+  NOTREACHED();
 }
