@@ -32,6 +32,10 @@ class QuadraticExtensionField
   // NOTE(chokobole): This is needed by Eigen matrix.
   template <typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
   constexpr explicit QuadraticExtensionField(T value) : c0_(value) {}
+  constexpr explicit QuadraticExtensionField(const BaseField& c0)
+      : c0_(c0), c1_(BaseField::Zero()) {}
+  constexpr explicit QuadraticExtensionField(BaseField&& c0)
+      : c0_(std::move(c0)), c1_(BaseField::Zero()) {}
   constexpr QuadraticExtensionField(const BaseField& c0, const BaseField& c1)
       : c0_(c0), c1_(c1) {}
   constexpr QuadraticExtensionField(BaseField&& c0, BaseField&& c1)
