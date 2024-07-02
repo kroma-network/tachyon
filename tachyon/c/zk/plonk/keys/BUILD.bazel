@@ -45,12 +45,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "endian_auto_reset",
-    hdrs = ["endian_auto_reset.h"],
-    deps = ["//tachyon/base/buffer"],
-)
-
-tachyon_cc_library(
     name = "proving_key_impl",
     hdrs = ["proving_key_impl.h"],
     deps = [
