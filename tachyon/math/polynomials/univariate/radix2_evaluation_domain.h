@@ -199,7 +199,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     uint32_t log_d = base::bits::SafeLog2Ceiling(num_coeffs);
     // When the polynomial is of size k * |coset|, for k < 2ⁱ, the first i
     // iterations of Cooley-Tukey are easily predictable. This is because they
-    // will be combining g(w²) + wh(w²), but g or h will always refer to a
+    // will be combining g(ω²) + ω * h(ω²), but g or h will always refer to a
     // coefficient that is 0. Therefore those first i rounds have the effect
     // of copying the evaluations into more locations, so we handle this in
     // initialization, and reduce the number of loops that are performing
