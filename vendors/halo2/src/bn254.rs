@@ -19,6 +19,8 @@ use tachyon_rs::math::elliptic_curves::bn::bn254::{
     G2AffinePoint as G2AffinePointImpl,
 };
 
+use crate::consts::PCSType;
+
 pub struct G1MSM;
 pub struct G1MSMGpu;
 pub struct G1JacobianPoint(pub G1JacobianPointImpl);
@@ -119,10 +121,7 @@ pub mod ffi {
         fn num_challenges(&self) -> usize;
         fn num_instance_columns(&self) -> usize;
         fn phases(&self) -> Vec<u8>;
-        // TODO(chokobole): In this way, we need to add `transcript_repr_xxx` as more prover comes.
-        // We need to figure out how to make them a single method.
-        fn transcript_repr_gwc(self: Pin<&mut ProvingKey>, prover: &GWCProver) -> Box<Fr>;
-        fn transcript_repr_shplonk(self: Pin<&mut ProvingKey>, prover: &SHPlonkProver) -> Box<Fr>;
+        fn transcript_repr(self: Pin<&mut ProvingKey>, prover: &Prover) -> Box<Fr>;
     }
 
     unsafe extern "C++" {
@@ -159,16 +158,24 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
-        include!("vendors/halo2/include/bn254_gwc_prover.h");
+        include!("vendors/halo2/include/bn254_prover.h");
 
-        type GWCProver;
+        type Prover;
 
-        fn new_gwc_prover(transcript_type: u8, k: u32, s: &Fr) -> UniquePtr<GWCProver>;
-        fn new_gwc_prover_from_params(
+        fn new_prover(
+            pcs_type: u8,
+            ls_type: u8,
+            transcript_type: u8,
+            k: u32,
+            s: &Fr,
+        ) -> UniquePtr<Prover>;
+        fn new_prover_from_params(
+            pcs_type: u8,
+            ls_type: u8,
             transcript_type: u8,
             k: u32,
             params: &[u8],
-        ) -> UniquePtr<GWCProver>;
+        ) -> UniquePtr<Prover>;
         fn k(&self) -> u32;
         fn n(&self) -> u64;
         fn s_g2(&self) -> &G2AffinePoint;
@@ -182,54 +189,17 @@ pub mod ffi {
             rational_evals: &[UniquePtr<RationalEvals>],
             evals: &mut [UniquePtr<Evals>],
         );
-        fn set_rng(self: Pin<&mut GWCProver>, state: &[u8]);
-        fn set_transcript(self: Pin<&mut GWCProver>, state: &[u8]);
-        fn set_extended_domain(self: Pin<&mut GWCProver>, pk: &ProvingKey);
+        fn set_rng(self: Pin<&mut Prover>, state: &[u8]);
+        fn set_transcript(self: Pin<&mut Prover>, state: &[u8]);
+        fn set_extended_domain(self: Pin<&mut Prover>, pk: &ProvingKey);
         fn create_proof(
-            self: Pin<&mut GWCProver>,
+            self: Pin<&mut Prover>,
             key: Pin<&mut ProvingKey>,
             instance_singles: &mut [InstanceSingle],
             advice_singles: &mut [AdviceSingle],
             challenges: &[Fr],
         );
-        fn get_proof(self: &GWCProver) -> Vec<u8>;
-    }
-
-    unsafe extern "C++" {
-        include!("vendors/halo2/include/bn254_shplonk_prover.h");
-
-        type SHPlonkProver;
-
-        fn new_shplonk_prover(transcript_type: u8, k: u32, s: &Fr) -> UniquePtr<SHPlonkProver>;
-        fn new_shplonk_prover_from_params(
-            transcript_type: u8,
-            k: u32,
-            params: &[u8],
-        ) -> UniquePtr<SHPlonkProver>;
-        fn k(&self) -> u32;
-        fn n(&self) -> u64;
-        fn s_g2(&self) -> &G2AffinePoint;
-        fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
-        fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
-        fn empty_evals(&self) -> UniquePtr<Evals>;
-        fn empty_rational_evals(&self) -> UniquePtr<RationalEvals>;
-        fn ifft(&self, evals: &Evals) -> UniquePtr<Poly>;
-        fn batch_evaluate(
-            &self,
-            rational_evals: &[UniquePtr<RationalEvals>],
-            evals: &mut [UniquePtr<Evals>],
-        );
-        fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
-        fn set_transcript(self: Pin<&mut SHPlonkProver>, state: &[u8]);
-        fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &ProvingKey);
-        fn create_proof(
-            self: Pin<&mut SHPlonkProver>,
-            key: Pin<&mut ProvingKey>,
-            instance_singles: &mut [InstanceSingle],
-            advice_singles: &mut [AdviceSingle],
-            challenges: &[Fr],
-        );
-        fn get_proof(self: &SHPlonkProver) -> Vec<u8>;
+        fn get_proof(self: &Prover) -> Vec<u8>;
     }
 }
 
@@ -632,24 +602,13 @@ impl<C: CurveAffine> ProvingKey<C> {
     }
 
     // pk.vk.transcript_repr
-    pub fn transcript_repr_gwc<Scheme: CommitmentScheme>(
+    pub fn transcript_repr<Scheme: CommitmentScheme, P: TachyonProver<Scheme>>(
         &mut self,
-        prover: &GWCProver<Scheme>,
+        prover: &P,
     ) -> C::Scalar {
         *unsafe {
             std::mem::transmute::<_, Box<C::Scalar>>(
-                self.inner.pin_mut().transcript_repr_gwc(&prover.inner),
-            )
-        }
-    }
-
-    pub fn transcript_repr_shplonk<Scheme: CommitmentScheme>(
-        &mut self,
-        prover: &SHPlonkProver<Scheme>,
-    ) -> C::Scalar {
-        *unsafe {
-            std::mem::transmute::<_, Box<C::Scalar>>(
-                self.inner.pin_mut().transcript_repr_shplonk(&prover.inner),
+                self.inner.pin_mut().transcript_repr(prover.inner()),
             )
         }
     }
@@ -739,6 +698,8 @@ impl Poly {
 pub trait TachyonProver<Scheme: CommitmentScheme> {
     const QUERY_INSTANCE: bool;
 
+    fn inner(&self) -> &ffi::Prover;
+
     fn k(&self) -> u32;
 
     fn n(&self) -> u64;
@@ -777,22 +738,38 @@ pub trait TachyonProver<Scheme: CommitmentScheme> {
 }
 
 pub struct GWCProver<Scheme: CommitmentScheme> {
-    inner: cxx::UniquePtr<ffi::GWCProver>,
+    inner: cxx::UniquePtr<ffi::Prover>,
     _marker: PhantomData<Scheme>,
 }
 
 impl<Scheme: CommitmentScheme> GWCProver<Scheme> {
-    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> GWCProver<Scheme> {
+    pub fn new(
+        ls_type: u8,
+        transcript_type: u8,
+        k: u32,
+        s: &halo2curves::bn256::Fr,
+    ) -> GWCProver<Scheme> {
         let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
         GWCProver {
-            inner: ffi::new_gwc_prover(transcript_type, k, cpp_s),
+            inner: ffi::new_prover(PCSType::GWC as u8, ls_type, transcript_type, k, cpp_s),
             _marker: PhantomData,
         }
     }
 
-    pub fn from_params(transcript_type: u8, k: u32, params: &[u8]) -> GWCProver<Scheme> {
+    pub fn from_params(
+        ls_type: u8,
+        transcript_type: u8,
+        k: u32,
+        params: &[u8],
+    ) -> GWCProver<Scheme> {
         GWCProver {
-            inner: ffi::new_gwc_prover_from_params(transcript_type, k, params),
+            inner: ffi::new_prover_from_params(
+                PCSType::GWC as u8,
+                ls_type,
+                transcript_type,
+                k,
+                params,
+            ),
             _marker: PhantomData,
         }
     }
@@ -801,6 +778,10 @@ impl<Scheme: CommitmentScheme> GWCProver<Scheme> {
 impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
     const QUERY_INSTANCE: bool = true;
 
+    fn inner(&self) -> &ffi::Prover {
+        &self.inner
+    }
+
     fn k(&self) -> u32 {
         self.inner.k()
     }
@@ -885,27 +866,43 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
         &self,
         pk: &mut ProvingKey<<Scheme as CommitmentScheme>::Curve>,
     ) -> Scheme::Scalar {
-        pk.transcript_repr_gwc(self)
+        pk.transcript_repr(self)
     }
 }
 
 pub struct SHPlonkProver<Scheme: CommitmentScheme> {
-    inner: cxx::UniquePtr<ffi::SHPlonkProver>,
+    inner: cxx::UniquePtr<ffi::Prover>,
     _marker: PhantomData<Scheme>,
 }
 
 impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
-    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver<Scheme> {
+    pub fn new(
+        ls_type: u8,
+        transcript_type: u8,
+        k: u32,
+        s: &halo2curves::bn256::Fr,
+    ) -> SHPlonkProver<Scheme> {
         let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
         SHPlonkProver {
-            inner: ffi::new_shplonk_prover(transcript_type, k, cpp_s),
+            inner: ffi::new_prover(PCSType::SHPlonk as u8, ls_type, transcript_type, k, cpp_s),
             _marker: PhantomData,
         }
     }
 
-    pub fn from_params(transcript_type: u8, k: u32, params: &[u8]) -> SHPlonkProver<Scheme> {
+    pub fn from_params(
+        ls_type: u8,
+        transcript_type: u8,
+        k: u32,
+        params: &[u8],
+    ) -> SHPlonkProver<Scheme> {
         SHPlonkProver {
-            inner: ffi::new_shplonk_prover_from_params(transcript_type, k, params),
+            inner: ffi::new_prover_from_params(
+                PCSType::SHPlonk as u8,
+                ls_type,
+                transcript_type,
+                k,
+                params,
+            ),
             _marker: PhantomData,
         }
     }
@@ -914,6 +911,10 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
 impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
     const QUERY_INSTANCE: bool = false;
 
+    fn inner(&self) -> &ffi::Prover {
+        &self.inner
+    }
+
     fn k(&self) -> u32 {
         self.inner.k()
     }
@@ -998,6 +999,6 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
         &self,
         pk: &mut ProvingKey<<Scheme as CommitmentScheme>::Curve>,
     ) -> Scheme::Scalar {
-        pk.transcript_repr_shplonk(self)
+        pk.transcript_repr(self)
     }
 }

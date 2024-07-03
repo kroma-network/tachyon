@@ -11,10 +11,8 @@ filegroup(
     name = "halo2_hdrs",
     srcs = [
         "bn254_argument_data.h",
-        "bn254_gwc_prover.h",
         "bn254_gwc_verifier.h",
         "bn254_instance_columns_vec.h",
-        "bn254_shplonk_prover.h",
         "bn254_shplonk_verifier.h",
         "bn254_transcript.h",
         "constants.h",
@@ -48,31 +46,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "bn254_gwc_prover",
-    srcs = ["bn254_gwc_prover.cc"],
-    hdrs = [
-        "bn254_gwc_prover.h",
-        "bn254_gwc_prover_type_traits.h",
-    ],
-    deps = [
-        ":bn254_argument_data",
-        ":bn254_gwc_pcs",
-        ":bn254_halo2_ls",
-        ":bn254_transcript",
-        ":kzg_family_prover_impl",
-        "//tachyon/c/base:type_traits_forward",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g2",
-        "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
-        "//tachyon/c/zk/base:bn254_blinder",
-        "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/base/commitments:gwc_extension",
-        "//tachyon/zk/plonk/halo2:ls_type",
-    ],
-)
-
-tachyon_cc_library(
     name = "bn254_gwc_verifier",
     srcs = ["bn254_gwc_verifier.cc"],
     hdrs = [
@@ -93,10 +66,7 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "bn254_halo2",
-    deps = [
-        ":bn254_gwc_prover",
-        ":bn254_shplonk_prover",
-    ],
+    deps = [":bn254_prover"],
 )
 
 tachyon_cc_library(
@@ -143,31 +113,6 @@ tachyon_cc_library(
         "//tachyon/c/math/polynomials:constants",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/base/commitments:shplonk_extension",
-    ],
-)
-
-tachyon_cc_library(
-    name = "bn254_shplonk_prover",
-    srcs = ["bn254_shplonk_prover.cc"],
-    hdrs = [
-        "bn254_shplonk_prover.h",
-        "bn254_shplonk_prover_type_traits.h",
-    ],
-    deps = [
-        ":bn254_argument_data",
-        ":bn254_halo2_ls",
-        ":bn254_shplonk_pcs",
-        ":bn254_transcript",
-        ":kzg_family_prover_impl",
-        "//tachyon/c/base:type_traits_forward",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g2",
-        "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
-        "//tachyon/c/zk/base:bn254_blinder",
-        "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/base/commitments:shplonk_extension",
-        "//tachyon/zk/plonk/halo2:ls_type",
     ],
 )
 
@@ -294,7 +239,7 @@ tachyon_cc_binary(
     name = "prover_replay",
     srcs = ["prover_replay.cc"],
     deps = [
-        ":bn254_shplonk_prover",
+        ":bn254_prover",
         "//tachyon/base:logging",
         "//tachyon/base/console",
         "//tachyon/base/files:file_path_flag",
@@ -303,6 +248,8 @@ tachyon_cc_binary(
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/zk/plonk/keys:proving_key_impl",
         "//tachyon/zk/plonk/halo2:constants",
+        "//tachyon/zk/plonk/halo2:ls_type",
+        "//tachyon/zk/plonk/halo2:pcs_type",
         "//tachyon/zk/plonk/halo2:transcript_type",
     ],
 )
@@ -343,15 +290,11 @@ tachyon_cc_unittest(
     # NOTE(chokobole): Timeout time increased due to CI.
     timeout = "moderate",
     srcs = [
-        "bn254_gwc_prover_unittest.cc",
         "bn254_prover_unittest.cc",
-        "bn254_shplonk_prover_unittest.cc",
         "bn254_transcript_unittest.cc",
     ],
     deps = [
-        ":bn254_gwc_prover",
         ":bn254_prover",
-        ":bn254_shplonk_prover",
         "//tachyon/c/crypto/random:rng",
         "//tachyon/c/zk/plonk/halo2/test:bn254_halo2_params_data",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:fr",
