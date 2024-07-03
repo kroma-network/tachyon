@@ -174,12 +174,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     return absl::WrapUnique(new Radix2EvaluationDomain(*this));
   }
 
-  // UnivariateEvaluationDomain methods
   CONSTEXPR_IF_NOT_OPENMP void DoFFT(Evals& evals) const override {
     DegreeAwareFFTInPlace(evals);
   }
 
-  // UnivariateEvaluationDomain methods
   CONSTEXPR_IF_NOT_OPENMP void DoIFFT(DensePoly& poly) const override {
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     InOrderIFFTInPlace(poly);
