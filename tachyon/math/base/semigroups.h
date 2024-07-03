@@ -184,6 +184,14 @@ class MultiplicativeSemigroup {
     return ret;
   }
 
+  constexpr auto ExpPowOfTwo(uint32_t log_n) const {
+    G val = *static_cast<const G*>(this);
+    for (size_t i = 0; i < log_n; ++i) {
+      val.SquareInPlace();
+    }
+    return val;
+  }
+
  private:
   constexpr static size_t kDefaultParallelThreshold = 1024;
 
