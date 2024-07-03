@@ -34,7 +34,7 @@ class FlagValueTraits<zk::plonk::halo2::TranscriptType> {
     if (input == "blake2b") {
       *value = zk::plonk::halo2::TranscriptType::kBlake2b;
     } else {
-      *reason = absl::Substitute("Unknown test set: $0", input);
+      *reason = absl::Substitute("Unknown transcript type: $0", input);
       return false;
     }
     return true;
