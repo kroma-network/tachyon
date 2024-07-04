@@ -40,11 +40,11 @@ extern "C" {
  *
  * @param transcript_type The type of transcript used in the proof.
  * @param k The circuit size parameter.
- * @param params Pointer to the verifier parameters.
+ * @param params A pointer to the verifier parameters.
  * @param params_len The length of the parameters array.
- * @param proof Pointer to the proof to be verified.
+ * @param proof A pointer to the proof to be verified.
  * @param proof_len The length of the proof.
- * @return Pointer to the newly created GWC verifier instance.
+ * @return A pointer to the newly created GWC verifier instance.
  */
 TACHYON_C_EXPORT tachyon_halo2_bn254_gwc_verifier*
 tachyon_halo2_bn254_gwc_verifier_create_from_params(
@@ -54,7 +54,7 @@ tachyon_halo2_bn254_gwc_verifier_create_from_params(
 /**
  * @brief Destroys a GWC verifier instance, freeing its resources.
  *
- * @param verifier Pointer to the GWC verifier to destroy.
+ * @param verifier A pointer to the GWC verifier to destroy.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_verifier_destroy(
     tachyon_halo2_bn254_gwc_verifier* verifier);
@@ -66,11 +66,11 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_verifier_destroy(
  * verifying key and instance columns vector. Note that the instance columns
  * vector is destroyed after the call.
  *
- * @param verifier Pointer to the GWC verifier.
- * @param vkey Pointer to the verifying key against which the proof will be
+ * @param verifier A pointer to the GWC verifier.
+ * @param vkey A pointer to the verifying key against which the proof will be
  * checked.
- * @param instance_columns_vec Pointer to the vector of instance columns related
- * to the proof.
+ * @param instance_columns_vec A pointer to the vector of instance columns
+ * related to the proof.
  * @return True if the proof is valid, false otherwise.
  */
 TACHYON_C_EXPORT bool tachyon_halo2_bn254_gwc_verifier_verify_proof(

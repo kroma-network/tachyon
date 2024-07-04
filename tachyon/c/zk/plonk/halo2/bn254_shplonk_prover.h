@@ -65,7 +65,7 @@ tachyon_halo2_bn254_shplonk_prover_create_from_params(uint8_t transcript_type,
 /**
  * @brief Destroys a SHPLONK prover instance, freeing associated resources.
  *
- * @param prover Pointer to the SHPLONK prover instance to destroy.
+ * @param prover A pointer to the SHPLONK prover instance to destroy.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_destroy(
     tachyon_halo2_bn254_shplonk_prover* prover);
@@ -73,7 +73,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_destroy(
 /**
  * @brief Retrieves the security parameter k used by the prover.
  *
- * @param prover Pointer to the SHPLONK prover instance.
+ * @param prover A pointer to the SHPLONK prover instance.
  * @return The security parameter k.
  */
 TACHYON_C_EXPORT uint32_t tachyon_halo2_bn254_shplonk_prover_get_k(
@@ -82,7 +82,7 @@ TACHYON_C_EXPORT uint32_t tachyon_halo2_bn254_shplonk_prover_get_k(
 /**
  * @brief Retrieves the number of elements n in the evaluation domain.
  *
- * @param prover Pointer to the SHPLONK prover instance.
+ * @param prover A pointer to the SHPLONK prover instance.
  * @return The number of elements n in the evaluation domain.
  */
 TACHYON_C_EXPORT size_t tachyon_halo2_bn254_shplonk_prover_get_n(
@@ -91,8 +91,8 @@ TACHYON_C_EXPORT size_t tachyon_halo2_bn254_shplonk_prover_get_n(
 /**
  * @brief Retrieves the G2 group generator scaled by the secret scalar s.
  *
- * @param prover Pointer to the SHPLONK prover instance.
- * @return Pointer to the G2 group generator scaled by s.
+ * @param prover A pointer to the SHPLONK prover instance.
+ * @return A pointer to the G2 group generator scaled by s.
  */
 TACHYON_C_EXPORT const tachyon_bn254_g2_affine*
 tachyon_halo2_bn254_shplonk_prover_get_s_g2(
@@ -101,8 +101,8 @@ tachyon_halo2_bn254_shplonk_prover_get_s_g2(
 /**
  * @brief Retrieves the blinder instance used by the prover.
  *
- * @param prover Pointer to the SHPLONK prover instance.
- * @return Pointer to the blinder instance.
+ * @param prover A pointer to the SHPLONK prover instance.
+ * @return A pointer to the blinder instance.
  */
 TACHYON_C_EXPORT tachyon_bn254_blinder*
 tachyon_halo2_bn254_shplonk_prover_get_blinder(
@@ -111,8 +111,8 @@ tachyon_halo2_bn254_shplonk_prover_get_blinder(
 /**
  * @brief Retrieves the evaluation domain used by the prover.
  *
- * @param prover Pointer to the SHPLONK prover instance.
- * @return Pointer to the evaluation domain.
+ * @param prover A pointer to the SHPLONK prover instance.
+ * @return A pointer to the evaluation domain.
  */
 TACHYON_C_EXPORT const tachyon_bn254_univariate_evaluation_domain*
 tachyon_halo2_bn254_shplonk_prover_get_domain(
@@ -122,8 +122,8 @@ tachyon_halo2_bn254_shplonk_prover_get_domain(
  * @brief Commits to a univariate dense polynomial by computing its evaluation
  * at the SRS (Structured Reference String) points.
  *
- * @param prover Pointer to the SHPLONK prover instance.
- * @param poly Pointer to the univariate dense polynomial to commit to.
+ * @param prover A pointer to the SHPLONK prover instance.
+ * @param poly A pointer to the univariate dense polynomial to commit to.
  * @return The commitment to the polynomial, represented as a point in G1.
  */
 TACHYON_C_EXPORT tachyon_bn254_g1_jacobian*
@@ -136,8 +136,8 @@ tachyon_halo2_bn254_shplonk_prover_commit(
  * of unity. This function is particularly useful for committing to polynomials
  * represented in the evaluation domain.
  *
- * @param prover Pointer to the SHPLONK prover instance.
- * @param evals Pointer to the evaluations of the polynomial in Lagrange form.
+ * @param prover A pointer to the SHPLONK prover instance.
+ * @param evals A pointer to the evaluations of the polynomial in Lagrange form.
  * @return The commitment to the evaluations, represented as a point in G1.
  */
 TACHYON_C_EXPORT tachyon_bn254_g1_jacobian*
@@ -149,7 +149,7 @@ tachyon_halo2_bn254_shplonk_prover_commit_lagrange(
  * @brief Sets the internal random number generator (RNG) state for the prover.
  * This is used for deterministic randomness in the proving process.
  *
- * @param prover Pointer to the SHPLONK prover instance.
+ * @param prover A pointer to the SHPLONK prover instance.
  * @param state The RNG state to set.
  * @param state_len The length of the RNG state.
  */
@@ -161,7 +161,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_set_rng_state(
  * @brief Sets the state of the transcript used by the prover. This is part of
  * the public-coin protocol and is necessary for verifiable random functions.
  *
- * @param prover Pointer to the SHPLONK prover instance.
+ * @param prover A pointer to the SHPLONK prover instance.
  * @param state The transcript state to set.
  * @param state_len The length of the transcript state.
  */
@@ -172,8 +172,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_set_transcript_state(
 /**
  * @brief Sets the extended evaluation domain based on the provided proving key.
  *
- * @param prover Pointer to the SHPLONK prover instance.
- * @param pk Pointer to the proving key.
+ * @param prover A pointer to the SHPLONK prover instance.
+ * @param pk A pointer to the proving key.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_set_extended_domain(
     tachyon_halo2_bn254_shplonk_prover* prover,
@@ -182,9 +182,9 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_set_extended_domain(
 /**
  * @brief Generates a SHPLONK proof for the provided argument data.
  *
- * @param prover Pointer to the SHPLONK prover instance.
- * @param pk Pointer to the proving key.
- * @param data Pointer to the argument data.
+ * @param prover A pointer to the SHPLONK prover instance.
+ * @param pk A pointer to the proving key.
+ * @param data A pointer to the argument data.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_create_proof(
     tachyon_halo2_bn254_shplonk_prover* prover,
@@ -194,9 +194,9 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_create_proof(
 /**
  * @brief Retrieves the generated SHPLONK proof.
  *
- * @param prover Pointer to the SHPLONK prover instance.
+ * @param prover A pointer to the SHPLONK prover instance.
  * @param proof Buffer to store the proof.
- * @param proof_len Pointer to store the length of the proof.
+ * @param proof_len A pointer to store the length of the proof.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_get_proof(
     const tachyon_halo2_bn254_shplonk_prover* prover, uint8_t* proof,
@@ -207,8 +207,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_get_proof(
  * key. This is used for encoding the transcript in a specific way as defined by
  * the protocol.
  *
- * @param prover Pointer to the SHPLONK prover instance.
- * @param pk Pointer to the plonk proving key.
+ * @param prover A pointer to the SHPLONK prover instance.
+ * @param pk A pointer to the plonk proving key.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_set_transcript_repr(
     const tachyon_halo2_bn254_shplonk_prover* prover,

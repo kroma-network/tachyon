@@ -44,7 +44,7 @@ tachyon_halo2_bn254_shplonk_verifier_create_from_params(
 /**
  * @brief Destroys a SHPLONK verifier instance, freeing up any resources used.
  *
- * @param verifier Pointer to the SHPLONK verifier instance to be destroyed.
+ * @param verifier A pointer to the SHPLONK verifier instance to be destroyed.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_verifier_destroy(
     tachyon_halo2_bn254_shplonk_verifier* verifier);
@@ -56,10 +56,10 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_verifier_destroy(
  * Note: The instance_columns_vec is consumed and should not be used after
  * this call.
  *
- * @param verifier Pointer to the SHPLONK verifier instance.
- * @param vkey Pointer to the plonk verifying key used for the verification.
- * @param instance_columns_vec Pointer to the instance columns vector, providing
- * the public inputs necessary for the proof verification.
+ * @param verifier A pointer to the SHPLONK verifier instance.
+ * @param vkey A pointer to the plonk verifying key used for the verification.
+ * @param instance_columns_vec A pointer to the instance columns vector,
+ * providing the public inputs necessary for the proof verification.
  * @return True if the proof is valid, false otherwise.
  */
 TACHYON_C_EXPORT bool tachyon_halo2_bn254_shplonk_verifier_verify_proof(

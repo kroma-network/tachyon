@@ -33,7 +33,7 @@ extern "C" {
  * @brief Creates a new evaluation domain for a given number of coefficients.
  *
  * @param num_coeffs The number of coefficients in the domain.
- * @return Pointer to the newly created evaluation domain.
+ * @return A pointer to the newly created evaluation domain.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_evaluation_domain*
 tachyon_bn254_univariate_evaluation_domain_create(size_t num_coeffs);
@@ -41,7 +41,7 @@ tachyon_bn254_univariate_evaluation_domain_create(size_t num_coeffs);
 /**
  * @brief Destroys an evaluation domain, freeing its allocated resources.
  *
- * @param domain Pointer to the evaluation domain to destroy.
+ * @param domain A pointer to the evaluation domain to destroy.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_evaluation_domain_destroy(
     tachyon_bn254_univariate_evaluation_domain* domain);
@@ -50,8 +50,8 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_evaluation_domain_destroy(
  * @brief Creates an empty evaluations structure associated with the evaluation
  * domain.
  *
- * @param domain Pointer to the evaluation domain.
- * @return Pointer to the empty evaluations structure.
+ * @param domain A pointer to the evaluation domain.
+ * @return A pointer to the empty evaluations structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_evaluations*
 tachyon_bn254_univariate_evaluation_domain_empty_evals(
@@ -61,8 +61,8 @@ tachyon_bn254_univariate_evaluation_domain_empty_evals(
  * @brief Creates an empty dense polynomial associated with the evaluation
  * domain.
  *
- * @param domain Pointer to the evaluation domain.
- * @return Pointer to the empty dense polynomial.
+ * @param domain A pointer to the evaluation domain.
+ * @return A pointer to the empty dense polynomial.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_dense_polynomial*
 tachyon_bn254_univariate_evaluation_domain_empty_poly(
@@ -72,8 +72,8 @@ tachyon_bn254_univariate_evaluation_domain_empty_poly(
  * @brief Creates an empty rational evaluations structure associated with the
  * evaluation domain.
  *
- * @param domain Pointer to the evaluation domain.
- * @return Pointer to the empty rational evaluations structure.
+ * @param domain A pointer to the evaluation domain.
+ * @return A pointer to the empty rational evaluations structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_rational_evaluations*
 tachyon_bn254_univariate_evaluation_domain_empty_rational_evals(
@@ -83,9 +83,9 @@ tachyon_bn254_univariate_evaluation_domain_empty_rational_evals(
  * @brief Performs the Fast Fourier Transform (FFT) on a given polynomial within
  * the domain.
  *
- * @param domain Pointer to the evaluation domain.
- * @param poly Pointer to the polynomial to transform.
- * @return Pointer to the evaluations resulting from the FFT.
+ * @param domain A pointer to the evaluation domain.
+ * @param poly A pointer to the polynomial to transform.
+ * @return A pointer to the evaluations resulting from the FFT.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_evaluations*
 tachyon_bn254_univariate_evaluation_domain_fft(
@@ -97,9 +97,9 @@ tachyon_bn254_univariate_evaluation_domain_fft(
  * polynomial within the domain. Note that memory space in poly is altered
  * after this call.
  *
- * @param domain Pointer to the evaluation domain.
- * @param poly Pointer to the polynomial to transform.
- * @return Pointer to the evaluations resulting from the FFT.
+ * @param domain A pointer to the evaluation domain.
+ * @param poly A pointer to the polynomial to transform.
+ * @return A pointer to the evaluations resulting from the FFT.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_evaluations*
 tachyon_bn254_univariate_evaluation_domain_fft_inplace(
@@ -110,9 +110,10 @@ tachyon_bn254_univariate_evaluation_domain_fft_inplace(
  * @brief Performs the inverse Fast Fourier Transform (IFFT) on given
  * evaluations within the domain.
  *
- * @param domain Pointer to the evaluation domain.
- * @param evals Pointer to the evaluations to transform back into a polynomial.
- * @return Pointer to the dense polynomial resulting from the IFFT.
+ * @param domain A pointer to the evaluation domain.
+ * @param evals A pointer to the evaluations to transform back into a
+ * polynomial.
+ * @return A pointer to the dense polynomial resulting from the IFFT.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_dense_polynomial*
 tachyon_bn254_univariate_evaluation_domain_ifft(
@@ -124,9 +125,10 @@ tachyon_bn254_univariate_evaluation_domain_ifft(
  * evaluations within the domain. Note that memory space in evals is altered
  * after this call.
  *
- * @param domain Pointer to the evaluation domain.
- * @param evals Pointer to the evaluations to transform back into a polynomial.
- * @return Pointer to the dense polynomial resulting from the IFFT.
+ * @param domain A pointer to the evaluation domain.
+ * @param evals A pointer to the evaluations to transform back into a
+ * polynomial.
+ * @return A pointer to the dense polynomial resulting from the IFFT.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_dense_polynomial*
 tachyon_bn254_univariate_evaluation_domain_ifft_inplace(

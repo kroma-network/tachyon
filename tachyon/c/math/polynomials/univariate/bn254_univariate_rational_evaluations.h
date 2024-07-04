@@ -33,7 +33,7 @@ extern "C" {
  * Allocates and initializes a new structure for storing rational polynomial
  * evaluations.
  *
- * @return Pointer to the newly created rational evaluations structure.
+ * @return A pointer to the newly created rational evaluations structure.
  */
 
 TACHYON_C_EXPORT tachyon_bn254_univariate_rational_evaluations*
@@ -44,8 +44,8 @@ tachyon_bn254_univariate_rational_evaluations_create();
  *
  * Creates a deep copy of the given rational evaluations structure.
  *
- * @param evals Pointer to the rational evaluations structure to clone.
- * @return Pointer to the cloned rational evaluations structure.
+ * @param evals A pointer to the rational evaluations structure to clone.
+ * @return A pointer to the cloned rational evaluations structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_rational_evaluations*
 tachyon_bn254_univariate_rational_evaluations_clone(
@@ -56,7 +56,7 @@ tachyon_bn254_univariate_rational_evaluations_clone(
  *
  * Frees the memory allocated for a rational evaluations structure.
  *
- * @param evals Pointer to the rational evaluations structure to destroy.
+ * @param evals A pointer to the rational evaluations structure to destroy.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_destroy(
     tachyon_bn254_univariate_rational_evaluations* evals);
@@ -64,7 +64,7 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_destroy(
 /**
  * @brief Retrieves the length of the univariate rational evaluations structure.
  *
- * @param evals Pointer to the rational evaluations structure.
+ * @param evals A pointer to the rational evaluations structure.
  * @return The number of rational evaluations stored in the structure.
  */
 TACHYON_C_EXPORT size_t tachyon_bn254_univariate_rational_evaluations_len(
@@ -73,7 +73,7 @@ TACHYON_C_EXPORT size_t tachyon_bn254_univariate_rational_evaluations_len(
 /**
  * @brief Sets a specific index in the rational evaluations structure to zero.
  *
- * @param evals Pointer to the rational evaluations structure.
+ * @param evals A pointer to the rational evaluations structure.
  * @param i Index at which to set the value to zero.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_set_zero(
@@ -83,9 +83,9 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_set_zero(
  * @brief Sets a specific index in the rational evaluations structure to a
  * trivial value (numerator only).
  *
- * @param evals Pointer to the rational evaluations structure.
+ * @param evals A pointer to the rational evaluations structure.
  * @param i Index at which to set the value.
- * @param numerator Pointer to the numerator value.
+ * @param numerator A pointer to the numerator value.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_set_trivial(
     tachyon_bn254_univariate_rational_evaluations* evals, size_t i,
@@ -95,10 +95,10 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_set_trivial(
  * @brief Sets a specific index in the rational evaluations structure to a
  * rational value (numerator and denominator).
  *
- * @param evals Pointer to the rational evaluations structure.
+ * @param evals A pointer to the rational evaluations structure.
  * @param i Index at which to set the rational value.
- * @param numerator Pointer to the numerator value.
- * @param denominator Pointer to the denominator value.
+ * @param numerator A pointer to the numerator value.
+ * @param denominator A pointer to the denominator value.
  */
 TACHYON_C_EXPORT void
 tachyon_bn254_univariate_rational_evaluations_set_rational(
@@ -108,8 +108,8 @@ tachyon_bn254_univariate_rational_evaluations_set_rational(
 /**
  * @brief Performs a batch evaluation on the rational evaluations structure.
  *
- * @param evals Pointer to the rational evaluations structure to evaluate.
- * @return Pointer to the univariate evaluations resulting from the batch
+ * @param evals A pointer to the rational evaluations structure to evaluate.
+ * @return A pointer to the univariate evaluations resulting from the batch
  * evaluation.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_evaluations*

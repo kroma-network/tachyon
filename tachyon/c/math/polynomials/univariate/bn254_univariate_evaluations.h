@@ -31,7 +31,7 @@ extern "C" {
  *
  * Allocates and initializes a new structure for storing polynomial evaluations.
  *
- * @return Pointer to the newly created evaluations structure.
+ * @return A pointer to the newly created evaluations structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_evaluations*
 tachyon_bn254_univariate_evaluations_create();
@@ -41,8 +41,8 @@ tachyon_bn254_univariate_evaluations_create();
  *
  * Creates a deep copy of the given evaluations structure.
  *
- * @param evals Pointer to the evaluations structure to clone.
- * @return Pointer to the cloned evaluations structure.
+ * @param evals A pointer to the evaluations structure to clone.
+ * @return A pointer to the cloned evaluations structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_evaluations*
 tachyon_bn254_univariate_evaluations_clone(
@@ -53,7 +53,7 @@ tachyon_bn254_univariate_evaluations_clone(
  *
  * Frees the memory allocated for an evaluations structure.
  *
- * @param evals Pointer to the evaluations structure to destroy.
+ * @param evals A pointer to the evaluations structure to destroy.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_evaluations_destroy(
     tachyon_bn254_univariate_evaluations* evals);
@@ -61,7 +61,7 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_evaluations_destroy(
 /**
  * @brief Retrieves the length of the univariate evaluations structure.
  *
- * @param evals Pointer to the evaluations structure.
+ * @param evals A pointer to the evaluations structure.
  * @return The number of evaluations stored in the structure.
  */
 TACHYON_C_EXPORT size_t tachyon_bn254_univariate_evaluations_len(
@@ -70,9 +70,9 @@ TACHYON_C_EXPORT size_t tachyon_bn254_univariate_evaluations_len(
 /**
  * @brief Sets a value in the univariate evaluations structure.
  *
- * @param evals Pointer to the evaluations structure.
+ * @param evals A pointer to the evaluations structure.
  * @param i Index at which to set the value.
- * @param value Pointer to the value to set at index i.
+ * @param value A pointer to the value to set at index i.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_evaluations_set_value(
     tachyon_bn254_univariate_evaluations* evals, size_t i,

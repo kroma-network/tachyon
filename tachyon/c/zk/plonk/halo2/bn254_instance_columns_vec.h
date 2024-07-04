@@ -35,7 +35,7 @@ extern "C" {
  *
  * @param num_circuits The number of circuits for which to create instance
  * columns.
- * @return Pointer to the newly created instance columns vector.
+ * @return A pointer to the newly created instance columns vector.
  */
 TACHYON_C_EXPORT tachyon_halo2_bn254_instance_columns_vec*
 tachyon_halo2_bn254_instance_columns_vec_create(size_t num_circuits);
@@ -43,7 +43,7 @@ tachyon_halo2_bn254_instance_columns_vec_create(size_t num_circuits);
 /**
  * @brief Destroys an instance columns vector, freeing its resources.
  *
- * @param data Pointer to the instance columns vector to destroy.
+ * @param data A pointer to the instance columns vector to destroy.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_instance_columns_vec_destroy(
     tachyon_halo2_bn254_instance_columns_vec* data);
@@ -52,7 +52,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_instance_columns_vec_destroy(
  * @brief Resizes the number of columns for a specific circuit within the
  * vector.
  *
- * @param data Pointer to the instance columns vector.
+ * @param data A pointer to the instance columns vector.
  * @param circuit_idx Index of the circuit to resize.
  * @param num_columns The new number of columns for the specified circuit.
  */
@@ -64,7 +64,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_instance_columns_vec_resize_columns(
 /**
  * @brief Reserves space for values in a specific column of a circuit.
  *
- * @param data Pointer to the instance columns vector.
+ * @param data A pointer to the instance columns vector.
  * @param circuit_idx Index of the circuit containing the column.
  * @param column_idx Index of the column to reserve space in.
  * @param num_values The number of values to reserve space for.
@@ -76,10 +76,10 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_instance_columns_vec_reserve_values(
 /**
  * @brief Adds values to a specific column of a circuit.
  *
- * @param data Pointer to the instance columns vector.
+ * @param data A pointer to the instance columns vector.
  * @param circuit_idx Index of the circuit containing the column.
  * @param column_idx Index of the column to add values to.
- * @param value Pointer to the values to add.
+ * @param value A pointer to the values to add.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_instance_columns_vec_add_values(
     tachyon_halo2_bn254_instance_columns_vec* data, size_t circuit_idx,
