@@ -34,7 +34,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    22    | **1.22393**  | 2.18742  | 2.00827  | 1.99418  |
 |    23    | **2.34737**  | 4.34471  | 3.2081   | 3.62107  |
 
-![image](</benchmark/msm/MSM%20Benchmark(random,%20bellman_msm).png>)
+![image](/benchmark/msm/msm_benchmark_uniform_ubuntu_i9.png)
 
 ### On Mac M3 Pro
 
@@ -49,7 +49,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    22    | **2.276600** | 3.35888  | 3.274    | 3.68391  |
 |    23    | **4.191330** | 6.41272  | 5.86292  | 6.89936  |
 
-![image](</benchmark/msm/MSM%20Benchmark%20MacM3(random,%20bellman_msm).png>)
+![image](/benchmark/msm/msm_benchmark_uniform_mac_m3.png)
 
 ## Non-uniform points with bellman msm algorithm
 
@@ -70,7 +70,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    22    | **1.14408**  | 1.61699      | 1.29853  | 1.88522  |
 |    23    | **1.91659**  | 3.13911      | 2.16368  | 3.46701  |
 
-![image](</benchmark/msm/MSM%20Benchmark(non_uniform,%20bellman_msm).png>)
+![image](/benchmark/msm/msm_benchmark_non_uniform_ubuntu_i9.png)
 
 ### On Mac M3 Pro
 
@@ -85,4 +85,4 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    22    | **2.00677**  | 2.56     | 2.49532  | 3.55769  |
 |    23    | **4.02119**  | 5.2982   | 4.56454  | 7.11582  |
 
-![image](</benchmark/msm/MSM%20Benchmark%20MacM3(non_uniform,%20bellman_msm).png>)
+![image](/benchmark/msm/msm_benchmark_non_uniform_mac_m3.png)
