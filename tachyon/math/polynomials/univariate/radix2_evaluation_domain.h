@@ -180,7 +180,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
         this->size_) {
       DegreeAwareFFTInPlace(evals);
     } else {
-      evals.evaluations_.resize(this->size_, F::Zero());
       InOrderFFTInPlace(evals);
     }
   }
@@ -201,7 +200,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
     size_t n = this->size_;
     uint32_t log_n = this->log_size_of_group_;
-    size_t num_coeffs = absl::bit_ceil(evals.evaluations_.size());
+    size_t num_coeffs = evals.evaluations_.size();
     uint32_t log_d = base::bits::SafeLog2Ceiling(num_coeffs);
     // When the polynomial is of size k * |coset|, for k < 2ⁱ, the first i
     // iterations of Cooley-Tukey are easily predictable. This is because they
@@ -250,9 +249,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   constexpr void FFTHelperInPlace(Evals& evals) const {
-    uint32_t log_len = static_cast<uint32_t>(base::bits::Log2Ceiling(
-        static_cast<uint32_t>(evals.evaluations_.size())));
-    this->SwapElements(evals, evals.evaluations_.size() - 1, log_len);
+    size_t num_coeffs = evals.evaluations_.size();
+    uint32_t log_n = this->log_size_of_group_;
+    evals.evaluations_.resize(this->size_, F::Zero());
+    this->SwapElements(evals, num_coeffs, log_n);
     OutInHelper(evals, 1);
   }
 
@@ -261,10 +261,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // caller to do.
   constexpr void IFFTHelperInPlace(DensePoly& poly) const {
     InOutHelper(poly);
-    uint32_t log_len = static_cast<uint32_t>(base::bits::Log2Ceiling(
-        static_cast<uint32_t>(poly.coefficients_.coefficients_.size())));
-    this->SwapElements(poly, poly.coefficients_.coefficients_.size() - 1,
-                       log_len);
+    uint32_t log_n = this->log_size_of_group_;
+    this->SwapElements(poly, poly.coefficients_.coefficients_.size(), log_n);
   }
 
   template <FFTOrder Order, typename PolyOrEvals>
