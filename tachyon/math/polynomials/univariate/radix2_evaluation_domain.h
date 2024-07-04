@@ -176,12 +176,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   // UnivariateEvaluationDomain methods
   constexpr void DoFFT(Evals& evals) const override {
-    if (evals.evaluations_.size() * kDegreeAwareFFTThresholdFactor <=
-        this->size_) {
-      DegreeAwareFFTInPlace(evals);
-    } else {
-      InOrderFFTInPlace(evals);
-    }
+    DegreeAwareFFTInPlace(evals);
   }
 
   // UnivariateEvaluationDomain methods
@@ -214,7 +209,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t duplicity_of_initials = size_t{1} << (log_n - log_d);
     evals.evaluations_.resize(n, F::Zero());
     this->SwapElements(evals, num_coeffs, log_n);
-    if (duplicity_of_initials > 1) {
+    size_t start_gap = 1;
+    if (duplicity_of_initials >= kDegreeAwareFFTThresholdFactor) {
       base::ParallelizeByChunkSize(evals.evaluations_, duplicity_of_initials,
                                    [](absl::Span<F> chunk) {
                                      const F& v = chunk[0];
@@ -222,16 +218,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
                                        chunk[j] = v;
                                      }
                                    });
+      start_gap = duplicity_of_initials;
     }
-    size_t start_gap = duplicity_of_initials;
     OutInHelper(evals, start_gap);
-  }
-
-  constexpr void InOrderFFTInPlace(Evals& evals) const {
-    if (!this->offset_.IsOne()) {
-      Base::DistributePowers(evals, this->offset_);
-    }
-    FFTHelperInPlace(evals);
   }
 
   CONSTEXPR_IF_NOT_OPENMP void InOrderIFFTInPlace(DensePoly& poly) const {
@@ -246,14 +235,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       Base::DistributePowersAndMulByConst(poly, this->offset_inv_,
                                           this->size_inv_);
     }
-  }
-
-  constexpr void FFTHelperInPlace(Evals& evals) const {
-    size_t num_coeffs = evals.evaluations_.size();
-    uint32_t log_n = this->log_size_of_group_;
-    evals.evaluations_.resize(this->size_, F::Zero());
-    this->SwapElements(evals, num_coeffs, log_n);
-    OutInHelper(evals, 1);
   }
 
   // Handles doing an IFFT with handling of being in order and out of order.
