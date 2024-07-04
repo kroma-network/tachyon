@@ -34,7 +34,7 @@ bazel run --config halo2 -c opt --//:has_openmp --//:has_rtti --//:has_matplotli
 |    22    | **0.125954** | 0.177245     | 0.431237 | 0.188843 |
 |    23    | **0.297259** | 0.391987     | 0.835686 | 0.427426 |
 
-![image](/benchmark/fft/FFT%20Benchmark.png)
+![image](/benchmark/fft/fft_benchmark_ubuntu_i9.png)
 
 ### On Mac M3 Pro
 
@@ -49,7 +49,7 @@ bazel run --config halo2 -c opt --//:has_openmp --//:has_rtti --//:has_matplotli
 |    22    | **0.166863** | 0.179635     | 0.472941 | 0.386844 |
 |    23    | **0.347128** | 0.378249     | 0.970552 | 0.814043 |
 
-![image](/benchmark/fft/FFT%20Benchmark%20MacM3.png)
+![image](/benchmark/fft/fft_benchmark_mac_m3.png)
 
 ## IFFT
 
@@ -70,7 +70,7 @@ bazel run -c opt --config halo2 --//:has_openmp --//:has_rtti --//:has_matplotli
 |    22    | **0.140152** | 0.181124     | 0.415709 | 0.188011    |
 |    23    | **0.317353** | 0.400472     | 0.845031 | 0.407396    |
 
-![image](/benchmark/fft/IFFT%20Benchmark.png)
+![image](/benchmark/fft/ifft_benchmark_ubuntu_i9.png)
 
 ### On Mac M3 Pro
 
@@ -85,4 +85,4 @@ bazel run -c opt --config halo2 --//:has_openmp --//:has_rtti --//:has_matplotli
 |    22    | **0.170776** | 0.203109 | 0.488306 | 0.423618 |
 |    23    | **0.383255** | 0.454968 | 1.03129  | 0.881795 |
 
-![image](/benchmark/fft/IFFT%20Benchmark%20MacM3.png)
+![image](/benchmark/fft/ifft_benchmark_mac_m3.png)

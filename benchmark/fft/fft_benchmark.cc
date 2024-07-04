@@ -66,10 +66,13 @@ template <typename Domain, typename PolyOrEvals,
               std::is_same_v<PolyOrEvals, typename Domain::Evals>,
               typename Domain::DensePoly, typename Domain::Evals>>
 void Run(const FFTConfig& config) {
-  // NOTE(TomTaehoonKim): To remove code duplication, we named it as "(I)FFT
-  // Benchmark" in the code, but for the plots in benchmark.md, I used "FFT
-  // Benchmark" and "IFFT Benchmark" for better readability.
-  SimpleFFTBenchmarkReporter reporter("(I)FFT Benchmark", config.exponents());
+  std::string_view name;
+  if (config.run_ifft()) {
+    name = "IFFT Benchmark";
+  } else {
+    name = "FFT Benchmark";
+  }
+  SimpleFFTBenchmarkReporter reporter(name, config.exponents());
   for (const FFTConfig::Vendor vendor : config.vendors()) {
     reporter.AddVendor(FFTConfig::VendorToString(vendor));
   }

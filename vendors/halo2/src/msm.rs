@@ -90,7 +90,7 @@ mod test {
         let test_set = TestSet::create(n);
 
         let mut timer = Timer::new();
-        let mut msm = ffi::create_g1_msm_gpu(degree, 0);
+        let mut msm = ffi::create_g1_msm_gpu(degree);
         timer.end("init_msm_gpu");
 
         let expected = {

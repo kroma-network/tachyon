@@ -10,49 +10,29 @@
 #include "tachyon/base/environment.h"
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/c/math/elliptic_curves/msm/algorithm.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
-#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
+#include "tachyon/device/gpu/scoped_stream.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 
 namespace tachyon::c::math {
 
-template <typename GpuCurve>
+template <typename Point>
 struct MSMGpuApi {
-  using GpuAffinePoint = tachyon::math::AffinePoint<GpuCurve>;
-  using GpuScalarField = typename GpuAffinePoint::ScalarField;
-  using CpuCurve = typename GpuCurve::CpuCurve;
-  using CpuAffinePoint = tachyon::math::AffinePoint<CpuCurve>;
+  using Curve = typename Point::Curve;
 
   tachyon::device::gpu::ScopedMemPool mem_pool;
   tachyon::device::gpu::ScopedStream stream;
-  tachyon::device::gpu::GpuMemory<GpuAffinePoint> d_bases;
-  tachyon::device::gpu::GpuMemory<GpuScalarField> d_scalars;
-  MSMInputProvider<CpuAffinePoint> provider;
-  std::unique_ptr<tachyon::math::VariableBaseMSMGpu<GpuCurve>> msm;
+  MSMInputProvider<Point> provider;
+  std::unique_ptr<tachyon::math::VariableBaseMSMGpu<Point>> msm;
 
   std::string msm_gpu_input_dir;
   bool log_msm = false;
   size_t idx = 0;
 
-  MSMGpuApi(uint8_t degree, int algorithm_in) {
-    tachyon::math::MSMAlgorithmKind algorithm;
-    switch (algorithm_in) {
-      case TACHYON_MSM_ALGO_BELLMAN_MSM:
-        algorithm = tachyon::math::MSMAlgorithmKind::kBellmanMSM;
-        break;
-      case TACHYON_MSM_ALGO_CUZK:
-        algorithm = tachyon::math::MSMAlgorithmKind::kCUZK;
-        break;
-      default:
-        NOTREACHED() << "Not supported algorithm";
-    }
-
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
-
+  explicit MSMGpuApi(uint8_t degree) {
     {
       // NOTE(chokobole): This should be replaced with VLOG().
       // Currently, there's no way to delegate VLOG flags from rust side.
@@ -81,38 +61,31 @@ struct MSMGpuApi {
                                &mem_pool_threshold),
         "Failed to gpuMemPoolSetAttribute()");
 
-    uint64_t size = uint64_t{1} << degree;
-    d_bases = tachyon::device::gpu::GpuMemory<GpuAffinePoint>::Malloc(size);
-    d_scalars = tachyon::device::gpu::GpuMemory<GpuScalarField>::Malloc(size);
-
     stream = tachyon::device::gpu::CreateStream();
-    provider.set_needs_align(true);
-    msm.reset(new tachyon::math::VariableBaseMSMGpu<GpuCurve>(
-        algorithm, mem_pool.get(), stream.get()));
+    msm.reset(new tachyon::math::VariableBaseMSMGpu<Point>(mem_pool.get(),
+                                                           stream.get()));
   }
 };
 
-template <typename RetPoint, typename GpuCurve, typename CPoint,
+template <typename RetPoint, typename Point, typename CPoint,
           typename CScalarField,
           typename CRetPoint = typename PointTraits<RetPoint>::CCurvePoint,
-          typename CpuCurve = typename GpuCurve::CpuCurve>
-CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
+          typename Curve = typename Point::Curve>
+CRetPoint* DoMSMGpu(MSMGpuApi<Point>& msm_api, const CPoint* bases,
                     const CScalarField* scalars, size_t size) {
   msm_api.provider.Inject(bases, scalars, size);
 
-  size_t aligned_size = msm_api.provider.bases().size();
-  CHECK(msm_api.d_bases.CopyFrom(msm_api.provider.bases().data(),
-                                 tachyon::device::gpu::GpuMemoryType::kHost, 0,
-                                 aligned_size));
-  CHECK(msm_api.d_scalars.CopyFrom(msm_api.provider.scalars().data(),
-                                   tachyon::device::gpu::GpuMemoryType::kHost,
-                                   0, aligned_size));
-
-  RetPoint ret;
-  CHECK(
-      msm_api.msm->Run(msm_api.d_bases, msm_api.d_scalars, aligned_size, &ret));
+  tachyon::math::ProjectivePoint<Curve> ret;
+  CHECK(msm_api.msm->Run(msm_api.provider.bases(), msm_api.provider.scalars(),
+                         &ret));
   CRetPoint* cret = new CRetPoint();
-  *cret = c::base::c_cast(ret);
+  if constexpr (std::is_same_v<RetPoint,
+                               tachyon::math::ProjectivePoint<Curve>>) {
+    *cret = c::base::c_cast(ret);
+  } else {
+    RetPoint ret_tmp = tachyon::math::ConvertPoint<RetPoint>(ret);
+    *cret = c::base::c_cast(ret_tmp);
+  }
 
   if (msm_api.log_msm) {
     // NOTE(chokobole): This should be replaced with VLOG().

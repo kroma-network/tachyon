@@ -54,10 +54,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "variable_base_msm_gpu",
     hdrs = ["variable_base_msm_gpu.h"],
-    deps = [
-        "//tachyon/math/elliptic_curves/msm/algorithms/bellman:bellman_msm",
-        "//tachyon/math/elliptic_curves/msm/algorithms/cuzk",
-    ],
+    deps = ["//tachyon/math/elliptic_curves/msm/algorithms/icicle:icicle_msm"],
 )
 
 tachyon_cc_unittest(
@@ -83,10 +80,9 @@ tachyon_cuda_unittest(
     srcs = if_gpu_is_configured(["variable_base_msm_gpu_unittest.cc"]),
     deps = [
         ":variable_base_msm_gpu",
-        "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",
-        "//tachyon/math/elliptic_curves/msm/kernels/bellman:bn254_bellman_msm_kernels",
-        "//tachyon/math/elliptic_curves/msm/kernels/cuzk:bn254_cuzk_kernels",
+        "//tachyon/device/gpu:scoped_stream",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )

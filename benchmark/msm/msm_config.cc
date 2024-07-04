@@ -88,25 +88,6 @@ bool MSMConfig::Parse(int argc, char** argv,
             "Vendors to be benchmarked with. (supported vendors: arkworks, "
             "bellman, halo2)");
   }
-  if (options.include_algos) {
-    parser
-        .AddFlag<base::IntFlag>(
-            [this](std::string_view arg, std::string* reason) {
-              if (arg == "bellman_msm") {
-                algorithm_ = 0;
-                return true;
-              } else if (arg == "cuzk") {
-                algorithm_ = 1;
-                return true;
-              }
-              *reason = absl::Substitute("Not supported algorithm: $0", arg);
-              return false;
-            })
-        .set_long_name("--algo")
-        .set_help(
-            "Algorithms to be benchmarked with. (supported algorithms: "
-            "bellman_msm, cuzk)");
-  }
   {
     std::string error;
     if (!parser.Parse(argc, argv, &error)) {

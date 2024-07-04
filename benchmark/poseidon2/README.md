@@ -27,4 +27,4 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/p
 | 9          | 1e-05    | 3e-06   | 7e-06   |
 | avg        | 1.07e-05 | 3.6e-06 | 7.6e-06 |
 
-![image](/benchmark/poseidon2/Poseidon2%20Benchmark.png)
+![image](/benchmark/poseidon2/poseidon2_benchmark_ubuntu_i9.png)

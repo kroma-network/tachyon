@@ -35,7 +35,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/p
 |     9      | **9.9e-05**  | 0.000118  |
 |    avg     | **9.91e-05** | 0.0001183 |
 
-![image](/benchmark/poseidon/Poseidon%20Benchmark.png)
+![image](/benchmark/poseidon/poseidon_benchmark_ubuntu_i9.png)
 
 ## On Mac M3 Pro
 
@@ -53,4 +53,4 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/p
 |     9      | **0.000113**  | 0.000118  |
 |    avg     | **0.0001071** | 0.0001206 |
 
-![image](/benchmark/poseidon/Poseidon%20Benchmark%20MacM3.png)
+![image](/benchmark/poseidon/poseidon_benchmark_mac_m3.png)

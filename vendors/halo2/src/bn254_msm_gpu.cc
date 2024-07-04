@@ -5,9 +5,9 @@
 
 namespace tachyon::halo2_api::bn254 {
 
-rust::Box<G1MSMGpu> create_g1_msm_gpu(uint8_t degree, int algorithm) {
-  return rust::Box<G1MSMGpu>::from_raw(reinterpret_cast<G1MSMGpu*>(
-      tachyon_bn254_g1_create_msm_gpu(degree, algorithm)));
+rust::Box<G1MSMGpu> create_g1_msm_gpu(uint8_t degree) {
+  return rust::Box<G1MSMGpu>::from_raw(
+      reinterpret_cast<G1MSMGpu*>(tachyon_bn254_g1_create_msm_gpu(degree)));
 }
 
 void destroy_g1_msm_gpu(rust::Box<G1MSMGpu> msm) {

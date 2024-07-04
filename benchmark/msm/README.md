@@ -1,5 +1,7 @@
 # MSM Benchmark
 
+## CPU
+
 ```
 Run on 13th Gen Intel(R) Core(TM) i9-13900K (32 X 5500 MHz CPU s)
 CPU Caches:
@@ -15,13 +17,13 @@ CPU Caches:
   L2 Unified 4096 KiB (x12)
 ```
 
-## Random points with bellman msm algorithm
+### Uniform points
 
 ```shell
 bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2
 ```
 
-### On Intel i9-13900K
+#### On Intel i9-13900K
 
 | Exponent | Tachyon      | Arkworks | Bellman  | Halo2    |
 | :------: | ------------ | -------- | -------- | -------- |
@@ -34,9 +36,9 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    22    | **1.22393**  | 2.18742  | 2.00827  | 1.99418  |
 |    23    | **2.34737**  | 4.34471  | 3.2081   | 3.62107  |
 
-![image](</benchmark/msm/MSM%20Benchmark(random,%20bellman_msm).png>)
+![image](/benchmark/msm/msm_benchmark_uniform_ubuntu_i9.png)
 
-### On Mac M3 Pro
+#### On Mac M3 Pro
 
 | Exponent | Tachyon      | Arkworks | Bellman  | Halo2    |
 | :------: | ------------ | -------- | -------- | -------- |
@@ -49,15 +51,15 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    22    | **2.276600** | 3.35888  | 3.274    | 3.68391  |
 |    23    | **4.191330** | 6.41272  | 5.86292  | 6.89936  |
 
-![image](</benchmark/msm/MSM%20Benchmark%20MacM3(random,%20bellman_msm).png>)
+![image](/benchmark/msm/msm_benchmark_uniform_mac_m3.png)
 
-## Non-uniform points with bellman msm algorithm
+### Non-uniform points
 
 ```shell
 bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --test_set non_uniform
 ```
 
-### On Intel i9-13900K
+#### On Intel i9-13900K
 
 | Exponent | Tachyon      | Arkworks     | Bellman  | Halo2    |
 | :------: | ------------ | ------------ | -------- | -------- |
@@ -70,19 +72,55 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    22    | **1.14408**  | 1.61699      | 1.29853  | 1.88522  |
 |    23    | **1.91659**  | 3.13911      | 2.16368  | 3.46701  |
 
-![image](</benchmark/msm/MSM%20Benchmark(non_uniform,%20bellman_msm).png>)
+![image](/benchmark/msm/msm_benchmark_non_uniform_ubuntu_i9.png)
 
-### On Mac M3 Pro
+#### On Mac M3 Pro
 
-| Exponent | Tachyon      | Arkworks     | Bellman  | Halo2    |
-| :------: | ------------ | ------------ | -------- | -------- |
-|    16    | **0.040045** | 0.049862     | 0.083292 | 0.082423 |
-|    17    | **0.074318** | 0.091205     | 0.128679 | 0.157111 |
-|    18    | **0.140125** | 0.177842     | 0.232212 | 0.310648 |
-|    19    | **0.287691** | 0.330268     | 0.437016 | 0.535915 |
-|    20    | **0.55437**  | 0.651841     | 0.713282 | 1.01238  |
-|    21    | **1.01053**  | 1.36348      | 1.29945  | 1.75816  |
-|    22    | **2.00677**  | 2.56         | 2.49532  | 3.55769  |
-|    23    | **4.02119**  | 5.2982       | 4.56454  | 7.11582  |
+| Exponent | Tachyon      | Arkworks | Bellman  | Halo2    |
+| :------: | ------------ | -------- | -------- | -------- |
+|    16    | **0.040045** | 0.049862 | 0.083292 | 0.082423 |
+|    17    | **0.074318** | 0.091205 | 0.128679 | 0.157111 |
+|    18    | **0.140125** | 0.177842 | 0.232212 | 0.310648 |
+|    19    | **0.287691** | 0.330268 | 0.437016 | 0.535915 |
+|    20    | **0.55437**  | 0.651841 | 0.713282 | 1.01238  |
+|    21    | **1.01053**  | 1.36348  | 1.29945  | 1.75816  |
+|    22    | **2.00677**  | 2.56     | 2.49532  | 3.55769  |
+|    23    | **4.02119**  | 5.2982   | 4.56454  | 7.11582  |
 
-![image](</benchmark/msm/MSM%20Benchmark%20MacM3(non_uniform,%20bellman_msm).png>)
+![image](/benchmark/msm/msm_benchmark_non_uniform_mac_m3.png)
+
+## GPU
+
+### Uniform points
+
+#### On RTX-4090
+
+| Exponent | Tachyon  | Tachyon GPU |
+| :------: | -------- | ----------- |
+|    16    | 0.044828 | 0.02644     |
+|    17    | 0.070154 | 0.008896    |
+|    18    | 0.120668 | 0.015391    |
+|    19    | 0.191098 | 0.021299    |
+|    20    | 0.369561 | 0.032302    |
+|    21    | 0.675571 | 0.060279    |
+|    22    | 1.26675  | 0.166554    |
+|    23    | 2.41323  | 0.219751    |
+
+![image](/benchmark/msm/msm_benchmark_uniform_ubuntu_rtx_4090.png)
+
+### Non-uniform points
+
+#### On RTX-4090
+
+| Exponent | Tachyon  | Tachyon GPU |
+| :------: | -------- | ----------- |
+|    16    | 0.044986 | 0.025648    |
+|    17    | 0.061027 | 0.010882    |
+|    18    | 0.108204 | 0.012794    |
+|    19    | 0.182035 | 0.022456    |
+|    20    | 0.326646 | 0.033684    |
+|    21    | 0.589097 | 0.060135    |
+|    22    | 1.11816  | 0.169485    |
+|    23    | 2.11566  | 0.219624    |
+
+![image](/benchmark/msm/msm_benchmark_non_uniform_ubuntu_rtx_4090.png)

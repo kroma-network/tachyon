@@ -9,21 +9,10 @@ load(
 
 package(default_visibility = ["//visibility:public"])
 
-filegroup(
-    name = "msm_hdrs",
-    srcs = ["algorithm.h"],
-)
-
-tachyon_cc_library(
-    name = "algorithm",
-    hdrs = ["algorithm.h"],
-)
-
 tachyon_cc_library(
     name = "msm_input_provider",
     hdrs = ["msm_input_provider.h"],
     deps = [
-        "//tachyon/base:openmp_util",
         "//tachyon/c/math/elliptic_curves:point_traits_forward",
         "//tachyon/math/geometry:point2",
         "@com_google_absl//absl/numeric:bits",
@@ -46,7 +35,6 @@ tachyon_cc_library(
     name = "msm_gpu",
     hdrs = ["msm_gpu.h"],
     deps = [
-        ":algorithm",
         ":msm_input_provider",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/console",
@@ -54,6 +42,7 @@ tachyon_cc_library(
         "//tachyon/c/base:type_traits_forward",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_stream",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm_gpu",
     ],
 )

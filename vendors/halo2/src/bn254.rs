@@ -61,7 +61,7 @@ pub mod ffi {
             scalars: &[Fr],
         ) -> Box<G1JacobianPoint>;
         #[cfg(feature = "gpu")]
-        fn create_g1_msm_gpu(degree: u8, algorithm: i32) -> Box<G1MSMGpu>;
+        fn create_g1_msm_gpu(degree: u8) -> Box<G1MSMGpu>;
         #[cfg(feature = "gpu")]
         fn destroy_g1_msm_gpu(msm: Box<G1MSMGpu>);
         #[cfg(feature = "gpu")]
