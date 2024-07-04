@@ -15,7 +15,7 @@ CPU Caches:
   L2 Unified 4096 KiB (x12)
 ```
 
-## Random points with bellman msm algorithm
+## Uniform points
 
 ```shell
 bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2
@@ -51,7 +51,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 
 ![image](/benchmark/msm/msm_benchmark_uniform_mac_m3.png)
 
-## Non-uniform points with bellman msm algorithm
+## Non-uniform points
 
 ```shell
 bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --test_set non_uniform
