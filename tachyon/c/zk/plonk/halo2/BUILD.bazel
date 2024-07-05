@@ -66,7 +66,10 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "bn254_halo2",
-    deps = [":bn254_prover"],
+    deps = [
+        ":bn254_prover",
+        ":bn254_verifier",
+    ],
 )
 
 tachyon_cc_library(
