@@ -2448,6 +2448,20 @@ dependencies = [
 [[package]]
 name = "p3-baby-bear"
 version = "0.1.0"
+source = "git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f#3b5265f9d5af36534a46caebf0617595cfb42c5a"
+dependencies = [
+ "num-bigint 0.4.5",
+ "p3-field 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-mds 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-poseidon2 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-symmetric 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "rand 0.8.5",
+ "serde",
+]
+
+[[package]]
+name = "p3-baby-bear"
+version = "0.1.0"
 source = "git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a#3b5265f9d5af36534a46caebf0617595cfb42c5a"
 dependencies = [
  "num-bigint 0.4.5",
@@ -2767,6 +2781,20 @@ source = "git+https://github.com/Plonky3/Plonky3.git?rev=54069b1#54069b141e6f22a
 [[package]]
 name = "p3-mds"
 version = "0.1.0"
+source = "git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f#3b5265f9d5af36534a46caebf0617595cfb42c5a"
+dependencies = [
+ "itertools 0.12.1",
+ "p3-dft 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-field 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-matrix 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-symmetric 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-util 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "rand 0.8.5",
+]
+
+[[package]]
+name = "p3-mds"
+version = "0.1.0"
 source = "git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a#3b5265f9d5af36534a46caebf0617595cfb42c5a"
 dependencies = [
  "itertools 0.12.1",
@@ -2806,6 +2834,18 @@ dependencies = [
  "p3-util 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "serde",
  "tracing",
+]
+
+[[package]]
+name = "p3-poseidon2"
+version = "0.1.0"
+source = "git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f#3b5265f9d5af36534a46caebf0617595cfb42c5a"
+dependencies = [
+ "gcd",
+ "p3-field 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-mds 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-symmetric 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -3829,7 +3869,7 @@ dependencies = [
  "num-bigint 0.4.5",
  "num_cpus",
  "p3-air",
- "p3-baby-bear",
+ "p3-baby-bear 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-blake3",
  "p3-challenger 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-commit 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
@@ -3881,7 +3921,7 @@ source = "git+https://github.com/kroma-network/sp1.git?rev=353bf42#353bf429877bf
 dependencies = [
  "itertools 0.12.1",
  "lazy_static",
- "p3-baby-bear",
+ "p3-baby-bear 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-field 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-poseidon2 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-symmetric 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
@@ -3902,7 +3942,7 @@ dependencies = [
  "indicatif",
  "itertools 0.12.1",
  "num-bigint 0.4.5",
- "p3-baby-bear",
+ "p3-baby-bear 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-bn254-fr 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-challenger 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-commit 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
@@ -3937,7 +3977,7 @@ dependencies = [
  "bincode",
  "itertools 0.12.1",
  "p3-air",
- "p3-baby-bear",
+ "p3-baby-bear 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-bn254-fr 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-commit 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-field 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
@@ -3960,7 +4000,7 @@ dependencies = [
  "backtrace",
  "itertools 0.12.1",
  "p3-air",
- "p3-baby-bear",
+ "p3-baby-bear 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-bn254-fr 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-commit 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-field 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
@@ -3987,7 +4027,7 @@ dependencies = [
  "hashbrown 0.14.5",
  "itertools 0.12.1",
  "p3-air",
- "p3-baby-bear",
+ "p3-baby-bear 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-bn254-fr 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-challenger 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-commit 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
@@ -4029,7 +4069,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "log",
  "num-bigint 0.4.5",
- "p3-baby-bear",
+ "p3-baby-bear 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-field 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "rand 0.8.5",
  "serde",
@@ -4045,7 +4085,7 @@ source = "git+https://github.com/kroma-network/sp1.git?rev=353bf42#353bf429877bf
 dependencies = [
  "itertools 0.12.1",
  "p3-air",
- "p3-baby-bear",
+ "p3-baby-bear 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-challenger 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-commit 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
  "p3-dft 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=3b5265f9d5af36534a46caebf0617595cfb42c5a)",
@@ -4196,6 +4236,20 @@ dependencies = [
  "rand_xorshift",
  "sha2",
  "tachyon_rs",
+]
+
+[[package]]
+name = "tachyon_plonky3"
+version = "0.0.1"
+dependencies = [
+ "cxx",
+ "p3-baby-bear 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-challenger 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-field 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-poseidon2 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "p3-symmetric 0.1.0 (git+https://github.com/kroma-network/Plonky3.git?rev=3b5265f)",
+ "tachyon_rs",
+ "zkhash 0.2.0 (git+https://github.com/HorizenLabs/poseidon2)",
 ]
 
 [[package]]

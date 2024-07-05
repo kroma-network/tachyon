@@ -32,7 +32,7 @@ extern "C" {
  * Allocates and initializes a new univariate dense polynomial structure for use
  * in cryptographic algorithms.
  *
- * @return Pointer to the newly created polynomial structure.
+ * @return A pointer to the newly created polynomial structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_dense_polynomial*
 tachyon_bn254_univariate_dense_polynomial_create();
@@ -42,8 +42,8 @@ tachyon_bn254_univariate_dense_polynomial_create();
  *
  * Creates a deep copy of the given univariate dense polynomial.
  *
- * @param evals Pointer to the polynomial to be cloned.
- * @return Pointer to the cloned polynomial structure.
+ * @param evals A pointer to the polynomial to be cloned.
+ * @return A pointer to the cloned polynomial structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_dense_polynomial*
 tachyon_bn254_univariate_dense_polynomial_clone(
@@ -55,7 +55,7 @@ tachyon_bn254_univariate_dense_polynomial_clone(
  * Frees the memory allocated for a univariate dense polynomial structure,
  * effectively destroying it.
  *
- * @param evals Pointer to the polynomial to be destroyed.
+ * @param evals A pointer to the polynomial to be destroyed.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_dense_polynomial_destroy(
     tachyon_bn254_univariate_dense_polynomial* evals);

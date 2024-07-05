@@ -1,0 +1,6 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "plonky3_hdrs",
+    srcs = ["//tachyon/c/zk/air/plonky3/challenger:challenger_hdrs"],
+)

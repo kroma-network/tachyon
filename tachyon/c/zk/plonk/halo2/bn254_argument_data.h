@@ -39,7 +39,7 @@ extern "C" {
  * for a given number of circuits.
  *
  * @param num_circuits The number of circuits for which to create argument data.
- * @return Pointer to the newly created argument data structure.
+ * @return A pointer to the newly created argument data structure.
  */
 TACHYON_C_EXPORT tachyon_halo2_bn254_argument_data*
 tachyon_halo2_bn254_argument_data_create(size_t num_circuits);
@@ -49,7 +49,7 @@ tachyon_halo2_bn254_argument_data_create(size_t num_circuits);
  *
  * Frees the memory allocated for an argument data structure.
  *
- * @param data Pointer to the argument data structure to destroy.
+ * @param data A pointer to the argument data structure to destroy.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_destroy(
     tachyon_halo2_bn254_argument_data* data);
@@ -58,7 +58,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_destroy(
  * @brief Reserves space for a specified number of advice columns in a given
  * circuit.
  *
- * @param data Pointer to the argument data structure.
+ * @param data A pointer to the argument data structure.
  * @param circuit_idx The index of the circuit for which to reserve advice
  * columns.
  * @param num_columns The number of advice columns to reserve.
@@ -72,10 +72,10 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_reserve_advice_columns(
  * Note: The column object is consumed by this call and should not be used
  * afterwards.
  *
- * @param data Pointer to the argument data structure.
+ * @param data A pointer to the argument data structure.
  * @param circuit_idx The index of the circuit to which the advice column is
  * added.
- * @param column Pointer to the advice column evaluations to add.
+ * @param column A pointer to the advice column evaluations to add.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_advice_column(
     tachyon_halo2_bn254_argument_data* data, size_t circuit_idx,
@@ -85,7 +85,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_advice_column(
  * @brief Reserves space for a specified number of advice blinds in a given
  * circuit.
  *
- * @param data Pointer to the argument data structure.
+ * @param data A pointer to the argument data structure.
  * @param circuit_idx The index of the circuit for which to reserve advice
  * blinds.
  * @param num_blinds The number of advice blinds to reserve.
@@ -97,10 +97,10 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_reserve_advice_blinds(
 /**
  * @brief Adds an advice blind value to the argument data for a given circuit.
  *
- * @param data Pointer to the argument data structure.
+ * @param data A pointer to the argument data structure.
  * @param circuit_idx The index of the circuit to which the advice blind is
  * added.
- * @param value Pointer to the scalar field element representing the blind
+ * @param value A pointer to the scalar field element representing the blind
  * value.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_advice_blind(
@@ -111,7 +111,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_advice_blind(
  * @brief Reserves space for a specified number of instance columns in a given
  * circuit.
  *
- * @param data Pointer to the argument data structure.
+ * @param data A pointer to the argument data structure.
  * @param circuit_idx The index of the circuit for which to reserve instance
  * columns.
  * @param num_columns The number of instance columns to reserve.
@@ -126,10 +126,10 @@ tachyon_halo2_bn254_argument_data_reserve_instance_columns(
  * Note: The column object is consumed by this call and should not be used
  * afterwards.
  *
- * @param data Pointer to the argument data structure.
+ * @param data A pointer to the argument data structure.
  * @param circuit_idx The index of the circuit to which the instance column is
  * added.
- * @param column Pointer to the instance column evaluations to add.
+ * @param column A pointer to the instance column evaluations to add.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_instance_column(
     tachyon_halo2_bn254_argument_data* data, size_t circuit_idx,
@@ -139,7 +139,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_instance_column(
  * @brief Reserves space for a specified number of instance polynomials in a
  * given circuit.
  *
- * @param data Pointer to the argument data structure.
+ * @param data A pointer to the argument data structure.
  * @param circuit_idx The index of the circuit for which to reserve instance
  * polynomials.
  * @param num_polys The number of instance polynomials to reserve.
@@ -153,10 +153,10 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_reserve_instance_polys(
  * Note: The poly object is consumed by this call and should not be used
  * afterwards.
  *
- * @param data Pointer to the argument data structure.
+ * @param data A pointer to the argument data structure.
  * @param circuit_idx The index of the circuit to which the instance polynomial
  * is added.
- * @param poly Pointer to the instance polynomial to add.
+ * @param poly A pointer to the instance polynomial to add.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_instance_poly(
     tachyon_halo2_bn254_argument_data* data, size_t circuit_idx,
@@ -170,7 +170,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_instance_poly(
  * will be used in the proof construction or verification. Preallocating space
  * can improve efficiency and manage memory usage effectively.
  *
- * @param data Pointer to the argument data structure.
+ * @param data A pointer to the argument data structure.
  * @param num_challenges The number of challenges to reserve space for.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_reserve_challenges(
@@ -183,8 +183,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_reserve_challenges(
  * Challenges are essential elements in constructing and verifying Halo2 proofs,
  * providing randomness and contributing to the security of the protocol.
  *
- * @param data Pointer to the argument data structure.
- * @param value Pointer to the scalar field element representing the challenge
+ * @param data A pointer to the argument data structure.
+ * @param value A pointer to the scalar field element representing the challenge
  * value.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_challenge(

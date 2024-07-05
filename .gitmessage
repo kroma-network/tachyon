@@ -85,7 +85,7 @@ Related: #<issue number>
 #   │       │
 #   │       └─⫸ Commit Scope: base|benchmark|build|c(subscope)|cc(subscope)|
 #   │                         circom|crypto|device|examples|halo2|math|
-#   │                         node(subscope)|rs(subscope)|sp1|zk
+#   │                         node(subscope)|plonky3|rs(subscope)|sp1|zk
 #   │
 #   └─⫸ Commit Type: build|chore|ci|docs|feat|fix|perf|refac|style|test
 # ```

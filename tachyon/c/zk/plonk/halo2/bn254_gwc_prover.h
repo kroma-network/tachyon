@@ -56,9 +56,9 @@ tachyon_halo2_bn254_gwc_prover_create_from_unsafe_setup(
  *
  * @param transcript_type The type of transcript to be used.
  * @param k The circuit size parameter.
- * @param params Pointer to the parameters used for prover creation.
+ * @param params A pointer to the parameters used for prover creation.
  * @param params_len The length of the parameters array.
- * @return Pointer to the newly created GWC prover instance.
+ * @return A pointer to the newly created GWC prover instance.
  */
 TACHYON_C_EXPORT tachyon_halo2_bn254_gwc_prover*
 tachyon_halo2_bn254_gwc_prover_create_from_params(uint8_t transcript_type,
@@ -69,7 +69,7 @@ tachyon_halo2_bn254_gwc_prover_create_from_params(uint8_t transcript_type,
 /**
  * @brief Destroys a GWC prover instance, freeing its resources.
  *
- * @param prover Pointer to the GWC prover to destroy.
+ * @param prover A pointer to the GWC prover to destroy.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_destroy(
     tachyon_halo2_bn254_gwc_prover* prover);
@@ -80,7 +80,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_destroy(
  * This function returns the circuit size parameter 'k', which is crucial for
  * the setup and execution of the Halo2 protocol.
  *
- * @param prover Pointer to the GWC prover.
+ * @param prover A pointer to the GWC prover.
  * @return The 'k' parameter of the prover.
  */
 TACHYON_C_EXPORT uint32_t tachyon_halo2_bn254_gwc_prover_get_k(
@@ -89,7 +89,7 @@ TACHYON_C_EXPORT uint32_t tachyon_halo2_bn254_gwc_prover_get_k(
 /**
  * @brief Retrieves the number of circuits handled by the prover.
  *
- * @param prover Pointer to the GWC prover.
+ * @param prover A pointer to the GWC prover.
  * @return The number of circuits that the prover is configured to handle.
  */
 TACHYON_C_EXPORT size_t tachyon_halo2_bn254_gwc_prover_get_n(
@@ -98,8 +98,8 @@ TACHYON_C_EXPORT size_t tachyon_halo2_bn254_gwc_prover_get_n(
 /**
  * @brief Retrieves the G2 affine representation of the setup parameter s.
  *
- * @param prover Pointer to the GWC prover.
- * @return Pointer to the G2 affine representation of s.
+ * @param prover A pointer to the GWC prover.
+ * @return A pointer to the G2 affine representation of s.
  */
 TACHYON_C_EXPORT const tachyon_bn254_g2_affine*
 tachyon_halo2_bn254_gwc_prover_get_s_g2(
@@ -108,8 +108,8 @@ tachyon_halo2_bn254_gwc_prover_get_s_g2(
 /**
  * @brief Retrieves the blinder instance associated with the prover.
  *
- * @param prover Pointer to the GWC prover.
- * @return Pointer to the blinder used by the prover.
+ * @param prover A pointer to the GWC prover.
+ * @return A pointer to the blinder used by the prover.
  */
 TACHYON_C_EXPORT tachyon_bn254_blinder*
 tachyon_halo2_bn254_gwc_prover_get_blinder(
@@ -118,8 +118,8 @@ tachyon_halo2_bn254_gwc_prover_get_blinder(
 /**
  * @brief Retrieves the evaluation domain used by the prover.
  *
- * @param prover Pointer to the GWC prover.
- * @return Pointer to the evaluation domain used by the prover.
+ * @param prover A pointer to the GWC prover.
+ * @return A pointer to the evaluation domain used by the prover.
  */
 TACHYON_C_EXPORT const tachyon_bn254_univariate_evaluation_domain*
 tachyon_halo2_bn254_gwc_prover_get_domain(
@@ -131,8 +131,8 @@ tachyon_halo2_bn254_gwc_prover_get_domain(
  * This function generates a commitment to a given polynomial as part of the
  * proof generation process.
  *
- * @param prover Pointer to the GWC prover.
- * @param poly Pointer to the polynomial to commit.
+ * @param prover A pointer to the GWC prover.
+ * @param poly A pointer to the polynomial to commit.
  * @return A pointer to the commitment in the form of a G1 jacobian point.
  */
 TACHYON_C_EXPORT tachyon_bn254_g1_jacobian*
@@ -146,8 +146,8 @@ tachyon_halo2_bn254_gwc_prover_commit(
  * This function generates a commitment to the evaluations of a polynomial,
  * allowing for efficient handling of the polynomial in its evaluated form.
  *
- * @param prover Pointer to the GWC prover.
- * @param evals Pointer to the evaluations to commit.
+ * @param prover A pointer to the GWC prover.
+ * @param evals A pointer to the evaluations to commit.
  * @return A pointer to the commitment in the form of a G1 jacobian point.
  */
 TACHYON_C_EXPORT tachyon_bn254_g1_jacobian*
@@ -161,8 +161,8 @@ tachyon_halo2_bn254_gwc_prover_commit_lagrange(
  * Configures the internal RNG state, ensuring the reproducibility and security
  * of the random numbers used in the proof generation process.
  *
- * @param prover Pointer to the GWC prover.
- * @param state Pointer to the RNG state.
+ * @param prover A pointer to the GWC prover.
+ * @param state A pointer to the RNG state.
  * @param state_len Length of the RNG state array.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_set_rng_state(
@@ -175,8 +175,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_set_rng_state(
  * This is crucial for ensuring consistency and security across the entire proof
  * generation and verification process.
  *
- * @param prover Pointer to the GWC prover.
- * @param state Pointer to the transcript state.
+ * @param prover A pointer to the GWC prover.
+ * @param state A pointer to the transcript state.
  * @param state_len Length of the transcript state array.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_set_transcript_state(
@@ -190,8 +190,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_set_transcript_state(
  * necessary for certain types of proofs that require a larger evaluation
  * domain.
  *
- * @param prover Pointer to the GWC prover.
- * @param pk Pointer to the proving key that contains the extended domain.
+ * @param prover A pointer to the GWC prover.
+ * @param pk A pointer to the proving key that contains the extended domain.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_set_extended_domain(
     tachyon_halo2_bn254_gwc_prover* prover,
@@ -201,9 +201,9 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_set_extended_domain(
  * @brief Initiates the proof creation process using the prover, proving key,
  * and argument data.
  *
- * @param prover Pointer to the GWC prover.
- * @param pk Pointer to the proving key used for generating the proof.
- * @param data Pointer to the argument data required for the proof.
+ * @param prover A pointer to the GWC prover.
+ * @param pk A pointer to the proving key used for generating the proof.
+ * @param data A pointer to the argument data required for the proof.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_create_proof(
     tachyon_halo2_bn254_gwc_prover* prover, tachyon_bn254_plonk_proving_key* pk,
@@ -216,10 +216,10 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_create_proof(
  * length for the proof via proof_len. If the proof parameter is not NULL, the
  * function will fill it with the generated proof data.
  *
- * @param prover Pointer to the GWC prover that generated the proof.
- * @param proof Pointer to the buffer where the proof will be stored.
- * @param proof_len Pointer to a variable where the length of the proof will be
- * stored.
+ * @param prover A pointer to the GWC prover that generated the proof.
+ * @param proof A pointer to the buffer where the proof will be stored.
+ * @param proof_len A pointer to a variable where the length of the proof will
+ * be stored.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_get_proof(
     const tachyon_halo2_bn254_gwc_prover* prover, uint8_t* proof,
@@ -232,8 +232,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_get_proof(
  * This function configures how the prover should interpret the transcript,
  * impacting the format and structure of the generated proof.
  *
- * @param prover Pointer to the GWC prover.
- * @param pk Pointer to the proving key that dictates the transcript
+ * @param prover A pointer to the GWC prover.
+ * @param pk A pointer to the proving key that dictates the transcript
  * representation.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_gwc_prover_set_transcript_repr(

@@ -78,7 +78,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_transcript_writer_update(
  *
  * @param writer The transcript writer to finalize.
  * @param data Buffer to store the resulting hash.
- * @param data_len Pointer to store the length of the hash or the required
+ * @param data_len A pointer to store the length of the hash or the required
  * buffer size.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_transcript_writer_finalize(
@@ -106,7 +106,7 @@ TACHYON_C_EXPORT tachyon_bn254_fr tachyon_halo2_bn254_transcript_writer_squeeze(
  *
  * @param writer The transcript writer.
  * @param state Buffer to store the internal state.
- * @param state_len Pointer to store the length of the internal state or the
+ * @param state_len A pointer to store the length of the internal state or the
  * required buffer size.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_transcript_writer_get_state(

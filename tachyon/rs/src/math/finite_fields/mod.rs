@@ -1,3 +1,5 @@
+pub mod baby_bear;
+
 use crate::math::base::BigInt;
 use zeroize::Zeroize;
 
