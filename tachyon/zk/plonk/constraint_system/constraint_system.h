@@ -193,7 +193,7 @@ class ConstraintSystem {
           input_expressions.push_back(std::move(pair).TakeInput());
           table_expressions.push_back(std::move(table));
         }
-        CreateLookupsMap(name, std::move(input_expressions),
+        UpdateLookupsMap(name, std::move(input_expressions),
                          std::move(table_expressions));
         break;
       }
@@ -235,7 +235,7 @@ class ConstraintSystem {
           table_expressions.push_back(std::move(pair).TakeTable());
         }
 
-        CreateLookupsMap(name, std::move(input_expressions),
+        UpdateLookupsMap(name, std::move(input_expressions),
                          std::move(table_expressions));
         break;
       }
@@ -727,7 +727,7 @@ class ConstraintSystem {
   FRIEND_TEST(ConstraintSystemTest, Lookup);
   FRIEND_TEST(ConstraintSystemTest, LookupAny);
 
-  void CreateLookupsMap(
+  void UpdateLookupsMap(
       std::string_view name,
       std::vector<std::unique_ptr<Expression<F>>>&& input_expressions,
       std::vector<std::unique_ptr<Expression<F>>>&& table_expressions) {
