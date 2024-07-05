@@ -67,7 +67,7 @@ class ProvingKey : public Key {
   }
 
  private:
-  friend class c::zk::plonk::ProvingKeyImplBase<LS>;
+  friend class c::zk::plonk::ProvingKeyImpl<LS>;
 
   template <typename PCS, typename RationalEvals>
   bool DoLoad(ProverBase<PCS>* prover,

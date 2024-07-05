@@ -48,7 +48,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/expressions/evaluator:selector_replacer",
         "//tachyon/zk/plonk/expressions/evaluator:simple_selector_extractor",
         "//tachyon/zk/plonk/expressions/evaluator:simple_selector_finder",
-        "//tachyon/zk/plonk/keys:c_proving_key_impl_base_forward",
+        "//tachyon/zk/plonk/keys:c_proving_key_impl_forward",
         "//tachyon/zk/plonk/layout:lookup_table_column",
         "//tachyon/zk/plonk/permutation:permutation_argument",
         "//tachyon/zk/plonk/permutation:permutation_utils",

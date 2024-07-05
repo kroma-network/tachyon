@@ -1,5 +1,5 @@
-#ifndef VENDORS_HALO2_INCLUDE_BN254_SHPLONK_PROVER_H_
-#define VENDORS_HALO2_INCLUDE_BN254_SHPLONK_PROVER_H_
+#ifndef VENDORS_HALO2_INCLUDE_BN254_PROVER_H_
+#define VENDORS_HALO2_INCLUDE_BN254_PROVER_H_
 
 #include <stdint.h>
 
@@ -7,7 +7,7 @@
 
 #include "rust/cxx.h"
 
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_prover.h"
 
 namespace tachyon::halo2_api::bn254 {
 
@@ -21,16 +21,17 @@ class Evals;
 class RationalEvals;
 class Poly;
 
-class SHPlonkProver {
+class Prover {
  public:
-  SHPlonkProver(uint8_t transcript_type, uint32_t k, const Fr& s);
-  SHPlonkProver(uint8_t transcript_type, uint32_t k, const uint8_t* params,
-                size_t params_len);
-  SHPlonkProver(const SHPlonkProver& other) = delete;
-  SHPlonkProver& operator=(const SHPlonkProver& other) = delete;
-  ~SHPlonkProver();
+  Prover(uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+         const Fr& s);
+  Prover(uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+         const uint8_t* params, size_t params_len);
+  Prover(const Prover& other) = delete;
+  Prover& operator=(const Prover& other) = delete;
+  ~Prover();
 
-  const tachyon_halo2_bn254_shplonk_prover* prover() const { return prover_; }
+  const tachyon_halo2_bn254_prover* prover() const { return prover_; }
 
   uint32_t k() const;
   uint64_t n() const;
@@ -53,15 +54,17 @@ class SHPlonkProver {
   rust::Vec<uint8_t> get_proof() const;
 
  private:
-  tachyon_halo2_bn254_shplonk_prover* prover_;
+  tachyon_halo2_bn254_prover* prover_;
 };
 
-std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint8_t transcript_type,
-                                                  uint32_t k, const Fr& s);
+std::unique_ptr<Prover> new_prover(uint8_t pcs_type, uint8_t ls_type,
+                                   uint8_t transcript_type, uint32_t k,
+                                   const Fr& s);
 
-std::unique_ptr<SHPlonkProver> new_shplonk_prover_from_params(
-    uint8_t transcript_type, uint32_t k, rust::Slice<const uint8_t> params);
+std::unique_ptr<Prover> new_prover_from_params(
+    uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+    rust::Slice<const uint8_t> params);
 
 }  // namespace tachyon::halo2_api::bn254
 
-#endif  // VENDORS_HALO2_INCLUDE_BN254_SHPLONK_PROVER_H_
+#endif  // VENDORS_HALO2_INCLUDE_BN254_PROVER_H_

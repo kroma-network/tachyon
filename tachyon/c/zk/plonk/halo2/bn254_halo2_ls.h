@@ -1,5 +1,5 @@
-#ifndef TACHYON_C_ZK_PLONK_HALO2_BN254_LS_H_
-#define TACHYON_C_ZK_PLONK_HALO2_BN254_LS_H_
+#ifndef TACHYON_C_ZK_PLONK_HALO2_BN254_HALO2_LS_H_
+#define TACHYON_C_ZK_PLONK_HALO2_BN254_HALO2_LS_H_
 
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
@@ -14,8 +14,8 @@ using Poly = tachyon::math::UnivariateDensePolynomial<tachyon::math::bn254::Fr,
 using Evals = tachyon::math::UnivariateEvaluations<tachyon::math::bn254::Fr,
                                                    c::math::kMaxDegree>;
 using Commitment = tachyon::math::bn254::G1AffinePoint;
-using LS = tachyon::zk::lookup::halo2::Scheme<Poly, Evals, Commitment>;
+using Halo2LS = tachyon::zk::lookup::halo2::Scheme<Poly, Evals, Commitment>;
 
 }  // namespace tachyon::c::zk::plonk::halo2::bn254
 
-#endif  // TACHYON_C_ZK_PLONK_HALO2_BN254_LS_H_
+#endif  // TACHYON_C_ZK_PLONK_HALO2_BN254_HALO2_LS_H_

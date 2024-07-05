@@ -26,7 +26,7 @@ class KZGFamilyProverImpl;
 
 namespace halo2_api::bn254 {
 
-class GWCProver;
+class Prover;
 
 }  // namespace halo2_api::bn254
 
@@ -152,7 +152,7 @@ class GWCExtension final
  private:
   template <typename PCS, typename LS>
   friend class c::zk::plonk::halo2::KZGFamilyProverImpl;
-  friend class halo2_api::bn254::GWCProver;
+  friend class halo2_api::bn254::Prover;
   friend class base::Copyable<
       GWCExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
 

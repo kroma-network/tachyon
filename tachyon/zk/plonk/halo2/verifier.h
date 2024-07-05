@@ -33,7 +33,7 @@ class CircuitTest;
 
 namespace halo2 {
 
-template <typename PCS, typename LS>
+template <typename PCS, typename _LS>
 class Verifier : public VerifierBase<PCS> {
  public:
   using F = typename PCS::Field;
@@ -42,6 +42,7 @@ class Verifier : public VerifierBase<PCS> {
   using Poly = typename PCS::Poly;
   using Coefficients = typename Poly::Coefficients;
   using Opening = crypto::PolynomialOpening<Poly, Commitment>;
+  using LS = _LS;
   using LookupVerifier = typename LS::Verifier;
   using Proof = typename LS::Proof;
 

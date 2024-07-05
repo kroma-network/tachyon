@@ -22,7 +22,7 @@
 
 namespace tachyon::zk::plonk::halo2 {
 
-template <typename PCS, typename LS>
+template <typename PCS, typename _LS>
 class Prover : public ProverBase<PCS> {
  public:
   using F = typename PCS::Field;
@@ -32,6 +32,7 @@ class Prover : public ProverBase<PCS> {
   using ExtendedPoly = typename PCS::ExtendedPoly;
   using ExtendedEvals = typename PCS::ExtendedEvals;
   using Commitment = typename PCS::Commitment;
+  using LS = _LS;
   using LookupProver = typename LS::Prover;
 
   static Prover CreateFromRandomSeed(

@@ -1,5 +1,5 @@
-#ifndef TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_
-#define TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_
+#ifndef TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_H_
+#define TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_H_
 
 #include <stdint.h>
 
@@ -19,13 +19,13 @@
 namespace tachyon::c::zk::plonk {
 
 template <typename LS>
-class ProvingKeyImplBase : public tachyon::zk::plonk::ProvingKey<LS> {
+class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
  public:
   using F = typename LS::Field;
   using C = typename LS::Commitment;
 
-  ProvingKeyImplBase() = default;
-  ProvingKeyImplBase(absl::Span<const uint8_t> state, bool read_only_vk)
+  ProvingKeyImpl() = default;
+  ProvingKeyImpl(absl::Span<const uint8_t> state, bool read_only_vk)
       : read_only_vk_(read_only_vk) {
     std::string_view pk_str;
     if (tachyon::base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {
@@ -115,4 +115,4 @@ class ProvingKeyImplBase : public tachyon::zk::plonk::ProvingKey<LS> {
 
 }  // namespace tachyon::c::zk::plonk
 
-#endif  // TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_
+#endif  // TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_H_

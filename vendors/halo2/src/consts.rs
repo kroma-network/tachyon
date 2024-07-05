@@ -1,3 +1,13 @@
+pub enum PCSType {
+    GWC,
+    SHPlonk,
+}
+
+pub enum LSType {
+    Halo2,
+    LogDerivativeHalo2,
+}
+
 pub enum TranscriptType {
     Blake2b,
     Poseidon,

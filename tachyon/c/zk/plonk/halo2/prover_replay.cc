@@ -7,17 +7,26 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_halo2_ls.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_log_derivative_halo2_ls.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_prover.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
-#include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h"
+#include "tachyon/c/zk/plonk/keys/proving_key_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/ls_type.h"
+#include "tachyon/zk/plonk/halo2/pcs_type.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 namespace tachyon {
 namespace c::zk::plonk::halo2::bn254 {
+
+using GWCPCS = c::zk::plonk::halo2::bn254::GWCPCS;
+using SHPlonkPCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
+using Halo2LS = c::zk::plonk::halo2::bn254::Halo2LS;
+using LogDerivativeHalo2LS = c::zk::plonk::halo2::bn254::LogDerivativeHalo2LS;
 
 template <typename PCS>
 using ArgumentData =
@@ -27,7 +36,8 @@ using ArgumentData =
 template <typename PCS, typename LS>
 using Prover = KZGFamilyProverImpl<PCS, LS>;
 
-using ProvingKey = plonk::bn254::ProvingKeyImpl;
+template <typename LS>
+using ProvingKey = plonk::ProvingKeyImpl<LS>;
 
 template <typename PCS>
 ArgumentData<PCS> DeserializeArgumentData(
@@ -40,29 +50,45 @@ ArgumentData<PCS> DeserializeArgumentData(
   return arg_data;
 }
 
-template <typename CProver>
-void WriteParams(CProver* c_prover,
-                 const tachyon::base::FilePath& params_path) {
-  using NativeProver = typename base::TypeTraits<CProver>::NativeType;
-
-  NativeProver* prover = base::native_cast(c_prover);
+template <typename PCS>
+void WriteParams(const PCS& pcs, const tachyon::base::FilePath& params_path) {
   tachyon::base::Uint8VectorBuffer buffer;
-  CHECK(buffer.Grow(tachyon::base::EstimateSize(prover->pcs())));
-  CHECK(buffer.Write(prover->pcs()));
+  CHECK(buffer.Grow(tachyon::base::EstimateSize(pcs)));
+  CHECK(buffer.Write(pcs));
   CHECK(buffer.Done());
   CHECK(tachyon::base::WriteLargeFile(params_path, buffer.owned_buffer()));
 }
 
-template <typename CProver>
-void CreateProof(CProver* c_prover, const std::vector<uint8_t>& pk_bytes,
+void WriteParams(tachyon_halo2_bn254_prover* c_prover,
+                 const tachyon::base::FilePath& params_path) {
+  switch (static_cast<tachyon::zk::plonk::halo2::PCSType>(c_prover->pcs_type)) {
+    case tachyon::zk::plonk::halo2::PCSType::kGWC: {
+      WriteParams(
+          reinterpret_cast<tachyon::zk::Entity<GWCPCS>*>(c_prover->extra)
+              ->pcs(),
+          params_path);
+      break;
+    }
+    case tachyon::zk::plonk::halo2::PCSType::kSHPlonk: {
+      WriteParams(
+          reinterpret_cast<tachyon::zk::Entity<SHPlonkPCS>*>(c_prover->extra)
+              ->pcs(),
+          params_path);
+      break;
+    }
+  }
+}
+
+template <typename NativeProver>
+void CreateProof(NativeProver* prover, tachyon_halo2_bn254_prover* c_prover,
+                 const std::vector<uint8_t>& pk_bytes,
                  const std::vector<uint8_t>& arg_data_bytes,
                  const std::vector<uint8_t>& transcript_state_bytes) {
-  using NativeProver = typename base::TypeTraits<CProver>::NativeType;
   using PCS = typename NativeProver::PCS;
+  using LS = typename NativeProver::LS;
 
-  NativeProver* prover = base::native_cast(c_prover);
   std::cout << "deserializing proving key" << std::endl;
-  ProvingKey pk(pk_bytes, /*read_only_vk=*/false);
+  ProvingKey<LS> pk(pk_bytes, /*read_only_vk=*/false);
   std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(
@@ -70,13 +96,12 @@ void CreateProof(CProver* c_prover, const std::vector<uint8_t>& pk_bytes,
   prover->set_extended_domain(
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
 
-  if constexpr (std::is_same_v<CProver, tachyon_halo2_bn254_shplonk_prover>) {
-    tachyon_halo2_bn254_shplonk_prover_set_transcript_state(
-        c_prover, transcript_state_bytes.data(), transcript_state_bytes.size());
-  }
+  tachyon_halo2_bn254_prover_set_transcript_state(
+      c_prover, transcript_state_bytes.data(), transcript_state_bytes.size());
 
-  prover->SetRng(std::make_unique<crypto::XORShiftRNG>(
-      crypto::XORShiftRNG::FromSeed(tachyon::zk::plonk::halo2::kXORShiftSeed)));
+  prover->SetRng(std::make_unique<tachyon::crypto::XORShiftRNG>(
+      tachyon::crypto::XORShiftRNG::FromSeed(
+          tachyon::zk::plonk::halo2::kXORShiftSeed)));
 
   std::cout << "deserializing argument data" << std::endl;
   ArgumentData<PCS> arg_data = DeserializeArgumentData<PCS>(arg_data_bytes);
@@ -93,6 +118,53 @@ void CreateProof(CProver* c_prover, const std::vector<uint8_t>& pk_bytes,
   prover->blinder().set_blinding_factors(
       pk.verifying_key().constraint_system().ComputeBlindingFactors());
   prover->CreateProof(pk, &arg_data);
+}
+
+void CreateProof(tachyon_halo2_bn254_prover* c_prover,
+                 const std::vector<uint8_t>& pk_bytes,
+                 const std::vector<uint8_t>& arg_data_bytes,
+                 const std::vector<uint8_t>& transcript_state_bytes) {
+  switch (static_cast<tachyon::zk::plonk::halo2::PCSType>(c_prover->pcs_type)) {
+    case tachyon::zk::plonk::halo2::PCSType::kGWC: {
+      switch (
+          static_cast<tachyon::zk::plonk::halo2::LSType>(c_prover->ls_type)) {
+        case tachyon::zk::plonk::halo2::LSType::kHalo2: {
+          CreateProof(
+              reinterpret_cast<Prover<GWCPCS, Halo2LS>*>(c_prover->extra),
+              c_prover, pk_bytes, arg_data_bytes, transcript_state_bytes);
+          break;
+        }
+        case tachyon::zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+          CreateProof(reinterpret_cast<Prover<GWCPCS, LogDerivativeHalo2LS>*>(
+                          c_prover->extra),
+                      c_prover, pk_bytes, arg_data_bytes,
+                      transcript_state_bytes);
+          break;
+        }
+      }
+      break;
+    }
+    case tachyon::zk::plonk::halo2::PCSType::kSHPlonk: {
+      switch (
+          static_cast<tachyon::zk::plonk::halo2::LSType>(c_prover->ls_type)) {
+        case tachyon::zk::plonk::halo2::LSType::kHalo2: {
+          CreateProof(
+              reinterpret_cast<Prover<SHPlonkPCS, Halo2LS>*>(c_prover->extra),
+              c_prover, pk_bytes, arg_data_bytes, transcript_state_bytes);
+          break;
+        }
+        case tachyon::zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+          CreateProof(
+              reinterpret_cast<Prover<SHPlonkPCS, LogDerivativeHalo2LS>*>(
+                  c_prover->extra),
+              c_prover, pk_bytes, arg_data_bytes, transcript_state_bytes);
+          break;
+        }
+      }
+      break;
+    }
+  }
+  NOTREACHED();
 }
 
 }  // namespace c::zk::plonk::halo2::bn254
@@ -118,6 +190,8 @@ int RunMain(int argc, char** argv) {
     return 1;
   }
 
+  zk::plonk::halo2::PCSType pcs_type;
+  zk::plonk::halo2::LSType ls_type;
   zk::plonk::halo2::TranscriptType transcript_type;
   uint32_t k;
   std::string s_hex;
@@ -126,6 +200,14 @@ int RunMain(int argc, char** argv) {
   tachyon::base::FilePath arg_data_path;
   tachyon::base::FilePath transcript_state_path;
   tachyon::base::FlagParser parser;
+  parser.AddFlag<tachyon::base::Flag<zk::plonk::halo2::PCSType>>(&pcs_type)
+      .set_long_name("--pcs_type")
+      .set_required()
+      .set_help("PCS(Polynomial Commitment Scheme) type");
+  parser.AddFlag<tachyon::base::Flag<zk::plonk::halo2::LSType>>(&ls_type)
+      .set_long_name("--ls_type")
+      .set_required()
+      .set_help("LS(Lookup Scheme) type");
   parser
       .AddFlag<tachyon::base::Flag<zk::plonk::halo2::TranscriptType>>(
           &transcript_type)
@@ -185,7 +267,7 @@ int RunMain(int argc, char** argv) {
     return 1;
   }
 
-  tachyon_halo2_bn254_shplonk_prover* prover;
+  tachyon_halo2_bn254_prover* prover;
   std::optional<std::vector<uint8_t>> pcs_params_bytes;
   if (!pcs_params_path.empty()) {
     pcs_params_bytes = tachyon::base::ReadFileToBytes(pcs_params_path);
@@ -193,7 +275,8 @@ int RunMain(int argc, char** argv) {
 
   if (pcs_params_bytes.has_value()) {
     std::cout << "creating prover" << std::endl;
-    prover = tachyon_halo2_bn254_shplonk_prover_create_from_params(
+    prover = tachyon_halo2_bn254_prover_create_from_params(
+        static_cast<uint8_t>(pcs_type), static_cast<uint8_t>(ls_type),
         static_cast<uint8_t>(transcript_type), k, pcs_params_bytes->data(),
         pcs_params_bytes->size());
     std::cout << "done creating prover" << std::endl;
@@ -206,7 +289,8 @@ int RunMain(int argc, char** argv) {
     const tachyon_bn254_fr& s = c::base::c_cast(cpp_s);
 
     std::cout << "creating prover" << std::endl;
-    prover = tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
+    prover = tachyon_halo2_bn254_prover_create_from_unsafe_setup(
+        static_cast<uint8_t>(pcs_type), static_cast<uint8_t>(ls_type),
         static_cast<uint8_t>(transcript_type), k, &s);
     std::cout << "done creating prover" << std::endl;
     if (!pcs_params_path.empty()) {
@@ -220,10 +304,9 @@ int RunMain(int argc, char** argv) {
 
   std::vector<uint8_t> proof;
   size_t proof_size;
-  tachyon_halo2_bn254_shplonk_prover_get_proof(prover, nullptr, &proof_size);
+  tachyon_halo2_bn254_prover_get_proof(prover, nullptr, &proof_size);
   proof.resize(proof_size);
-  tachyon_halo2_bn254_shplonk_prover_get_proof(prover, proof.data(),
-                                               &proof_size);
+  tachyon_halo2_bn254_prover_get_proof(prover, proof.data(), &proof_size);
 
   std::cout << "proof: [";
   for (size_t i = 0; i < proof_size; ++i) {
@@ -234,7 +317,7 @@ int RunMain(int argc, char** argv) {
   }
   std::cout << "]" << std::endl;
 
-  tachyon_halo2_bn254_shplonk_prover_destroy(prover);
+  tachyon_halo2_bn254_prover_destroy(prover);
   return 0;
 }
 

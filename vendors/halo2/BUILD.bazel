@@ -17,15 +17,14 @@ tachyon_rust_library(
         ":bn254_blake2b_writer",
         ":bn254_cxx_bridge",
         ":bn254_evals",
-        ":bn254_gwc_prover",
         ":bn254_msm",
         ":bn254_msm_gpu",
         ":bn254_poly",
         ":bn254_poseidon_writer",
+        ":bn254_prover",
         ":bn254_proving_key",
         ":bn254_rational_evals",
         ":bn254_sha256_writer",
-        ":bn254_shplonk_prover",
         ":xor_shift_rng",
         ":xor_shift_rng_cxx_bridge",
         "//tachyon/rs:tachyon_rs",
@@ -77,22 +76,20 @@ tachyon_cc_library(
     hdrs = [
         "include/bn254_blake2b_writer.h",
         "include/bn254_evals.h",
-        "include/bn254_gwc_prover.h",
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
         "include/bn254_poly.h",
         "include/bn254_poseidon_writer.h",
+        "include/bn254_prover.h",
         "include/bn254_proving_key.h",
         "include/bn254_rational_evals.h",
         "include/bn254_sha256_writer.h",
-        "include/bn254_shplonk_prover.h",
     ],
     deps = [
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluations",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_rational_evaluations",
-        "//tachyon/c/zk/plonk/halo2:bn254_gwc_prover",
-        "//tachyon/c/zk/plonk/halo2:bn254_shplonk_prover",
+        "//tachyon/c/zk/plonk/halo2:bn254_prover",
         "//tachyon/c/zk/plonk/halo2:bn254_transcript",
         "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key",
         "@cxx.rs//:core",
@@ -115,20 +112,6 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
-    ],
-)
-
-tachyon_cc_library(
-    name = "bn254_gwc_prover",
-    srcs = ["src/bn254_gwc_prover.cc"],
-    deps = [
-        ":bn254_api_hdrs",
-        ":bn254_cxx_bridge/include",
-        ":bn254_evals",
-        ":bn254_poly",
-        ":bn254_rational_evals",
-        "//tachyon/base/buffer",
-        "//tachyon/rs/base:rust_vec",
     ],
 )
 
@@ -171,27 +154,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "bn254_rational_evals",
-    srcs = ["src/bn254_rational_evals.cc"],
-    deps = [
-        ":bn254_api_hdrs",
-        ":bn254_cxx_bridge/include",
-    ],
-)
-
-tachyon_cc_library(
-    name = "bn254_sha256_writer",
-    srcs = ["src/bn254_sha256_writer.cc"],
-    deps = [
-        ":bn254_api_hdrs",
-        ":bn254_cxx_bridge/include",
-        "//tachyon/base:logging",
-    ],
-)
-
-tachyon_cc_library(
-    name = "bn254_shplonk_prover",
-    srcs = ["src/bn254_shplonk_prover.cc"],
+    name = "bn254_prover",
+    srcs = ["src/bn254_prover.cc"],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
@@ -209,6 +173,25 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_rational_evals",
+    srcs = ["src/bn254_rational_evals.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_sha256_writer",
+    srcs = ["src/bn254_sha256_writer.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        "//tachyon/base:logging",
     ],
 )
 

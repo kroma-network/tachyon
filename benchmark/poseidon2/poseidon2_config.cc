@@ -15,7 +15,7 @@ class FlagValueTraits<Poseidon2Config::PrimeField> {
     if (input == "bn254_fr") {
       *value = Poseidon2Config::PrimeField::kBn254Fr;
     } else {
-      *reason = absl::Substitute("Unknown test set: $0", input);
+      *reason = absl::Substitute("Unknown prime field: $0", input);
       return false;
     }
     return true;
@@ -32,7 +32,7 @@ class FlagValueTraits<Poseidon2Config::Vendor> {
     } else if (input == "plonky3") {
       *value = Poseidon2Config::Vendor::kPlonky3;
     } else {
-      *reason = absl::Substitute("Unknown test set: $0", input);
+      *reason = absl::Substitute("Unknown vendor: $0", input);
       return false;
     }
     return true;
