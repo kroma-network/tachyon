@@ -272,7 +272,9 @@ export CXX=/usr/bin/clang++-15
 Make sure `CC` and `CXX` are properly updated to `clang-15` and `clang++-15`.
 These commands ensure that your build environment uses clang version 15 for compilation.
 
-### Build CUDA with rust toolchain
+### Build CUDA
+
+#### Set Action Environment Variable for Python
 
 You may run into the following problem:
 
@@ -283,9 +285,17 @@ error: linking with `external/local_config_cuda/crosstool/clang/bin/crosstool_wr
   = note: /usr/bin/env: 'python': No such file or directory
 ```
 
-If so, make your `python` point to the python interpreter.
+If you install `python` through [Anaconda](https://www.anaconda.com/), please include these lines in your `.bazelc.user`.
+
+```
+build:cuda --action_env=PATH=/opt/conda/bin
+build:cuda --host_action_env=PATH=/opt/conda/bin
+```
+
+Otherwise, install `python3` and make `python` point to it.
 
 ```shell
+sudo apt install python3
 sudo apt install python-is-python3
 ```
 
@@ -294,6 +304,21 @@ Additionally, please include these lines in your `.bazelc.user`.
 ```
 build:cuda --action_env=PATH=/usr/bin:/usr/local/bin
 build:cuda --host_action_env=PATH=/usr/bin:/usr/local/bin
+```
+
+#### Update CUDA [Compute Capabilities](https://developer.nvidia.com/cuda-gpus)
+
+You may run into the following problem:
+
+```shell
+Use --sandbox_debug to see verbose messages from the sandbox and retain the sandbox build root for debugging
+nvcc fatal   : Unsupported gpu architecture 'compute_35'
+```
+
+To solve this, please include these lines in your `.bazelc.user`.
+
+```
+build:cuda --action_env=TACHYON_CUDA_COMPUTE_CAPABILITIES="compute_52"
 ```
 
 ### Generate C API documents using Doxygen
