@@ -75,6 +75,8 @@ class ConstraintSystem {
 
   size_t num_instance_columns() const { return num_instance_columns_; }
 
+  size_t num_simple_selectors() const { return num_simple_selectors_; }
+
   size_t num_selectors() const { return num_selectors_; }
 
   size_t num_challenges() const { return num_challenges_; }
@@ -512,7 +514,10 @@ class ConstraintSystem {
   // expressions nor multiplied by other expressions containing simple
   // selectors. Also, simple selectors may not appear in lookup argument
   // inputs.
-  Selector CreateSimpleSelector() { return Selector::Simple(num_selectors_++); }
+  Selector CreateSimpleSelector() {
+    ++num_simple_selectors_;
+    return Selector::Simple(num_selectors_++);
+  }
 
   // Allocate a new complex selector that can appear anywhere
   // within expressions.
@@ -703,6 +708,7 @@ class ConstraintSystem {
     ss << "num_fixed_columns: " << num_fixed_columns_
        << ", num_advice_columns: " << num_advice_columns_
        << ", num_instance_columns: " << num_instance_columns_
+       << ", num_simple_selectors: " << num_simple_selectors_
        << ", num_selectors: " << num_selectors_
        << ", num_challenges: " << num_challenges_
        << ", degree: " << ComputeDegree()
@@ -818,6 +824,7 @@ class ConstraintSystem {
   size_t num_fixed_columns_ = 0;
   size_t num_advice_columns_ = 0;
   size_t num_instance_columns_ = 0;
+  size_t num_simple_selectors_ = 0;
   size_t num_selectors_ = 0;
   size_t num_challenges_ = 0;
 
