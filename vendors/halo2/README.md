@@ -88,7 +88,10 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
    +         GWCProver as TachyonGWCProver,
    +         TachyonProver,
    +     },
-   +     consts::TranscriptType,
+   +     consts::{
+   +         LSType,
+   +         TranscriptType,
+   +     },
    +     halo2curves::bn256::Bn256,
    +     poly::kzg::commitment::KZGCommitmentScheme,
    + }
@@ -100,6 +103,7 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
    +     params.write(&mut params_bytes).unwrap();
    +     drop(params);
    +     TachyonGWCProver::<KZGCommitmentScheme<Bn256>>::from_params(
+   +         LSType::Halo2 as u8,
    +         TranscriptType::Poseidon as u8,
    +         k,
    +         params_bytes.as_slice(),
