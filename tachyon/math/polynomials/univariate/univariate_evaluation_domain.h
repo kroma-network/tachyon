@@ -358,14 +358,14 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   }
 
   // Returns all the elements of the domain.
-  constexpr std::vector<F> GetElements() const {
+  CONSTEXPR_IF_NOT_OPENMP std::vector<F> GetElements() const {
     return F::GetSuccessivePowers(size_, group_gen_, offset_);
   }
 
   // Multiply the i-th element of |poly_or_evals| with |g|ⁱ.
   template <typename PolyOrEvals>
-  constexpr static void DistributePowers(PolyOrEvals& poly_or_evals,
-                                         const F& g) {
+  CONSTEXPR_IF_NOT_OPENMP static void DistributePowers(
+      PolyOrEvals& poly_or_evals, const F& g) {
     DistributePowersAndMulByConst(poly_or_evals, g, F::One());
   }
 

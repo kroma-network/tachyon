@@ -84,8 +84,7 @@ class MixedRadixEvaluationDomain
     return absl::WrapUnique(new MixedRadixEvaluationDomain(*this));
   }
 
-  // UnivariateEvaluationDomain methods
-  constexpr void DoFFT(Evals& evals) const override {
+  CONSTEXPR_IF_NOT_OPENMP void DoFFT(Evals& evals) const override {
     if (!this->offset_.IsOne()) {
       Base::DistributePowers(evals, this->offset_);
     }
@@ -93,7 +92,6 @@ class MixedRadixEvaluationDomain
     BestFFT(evals, this->group_gen_);
   }
 
-  // UnivariateEvaluationDomain methods
   CONSTEXPR_IF_NOT_OPENMP void DoIFFT(DensePoly& poly) const override {
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     BestFFT(poly, this->group_gen_inv_);
