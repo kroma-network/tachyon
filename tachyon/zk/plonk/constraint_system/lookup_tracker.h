@@ -22,6 +22,12 @@ struct LookupTracker {
       : name(std::string(name)), table(std::move(table)) {
     inputs.push_back(std::move(input));
   }
+  LookupTracker(std::string_view name,
+                std::vector<std::unique_ptr<Expression<F>>> table,
+                std::vector<std::vector<std::unique_ptr<Expression<F>>>> input)
+      : name(std::string(name)),
+        table(std::move(table)),
+        inputs(std::move(input)) {}
 };
 
 }  // namespace tachyon::zk::plonk
