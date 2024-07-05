@@ -4,9 +4,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "kroma_network_rules_circom",
-    sha256 = "53f91f916b56e8f3070f1a594b625866afafe53057222a02796bee6f06dfc349",
-    strip_prefix = "rules_circom-977a8c486949d86bd4099a4e85deca56a9e47233",
-    urls = ["https://github.com/kroma-network/rules_circom/archive/977a8c486949d86bd4099a4e85deca56a9e47233.tar.gz"],
+    sha256 = "184998343fae865126fe5a31e126b1f8259259fd2a80315ab21251c01625aaf6",
+    strip_prefix = "rules_circom-e1f9be5c03fa91f28f92a042f483c608ab4261c6",
+    urls = ["https://github.com/kroma-network/rules_circom/archive/e1f9be5c03fa91f28f92a042f483c608ab4261c6.tar.gz"],
 )
 
 load("@kroma_network_rules_circom//:rules_circom_deps.bzl", "rules_circom_deps")
