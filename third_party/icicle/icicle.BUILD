@@ -72,10 +72,6 @@ tachyon_cuda_library(
 
 tachyon_cuda_library(
     name = "curves",
-    srcs = if_gpu_is_configured([
-        "icicle/src/curves/extern.cu.cc",
-        "icicle/src/curves/extern_g2.cu.cc",
-    ]),
     include_prefix = "third_party/icicle/src",
     includes = ["icicle/src/curves"],
     strip_include_prefix = "icicle/src",
@@ -84,10 +80,6 @@ tachyon_cuda_library(
 
 tachyon_cuda_library(
     name = "fields",
-    srcs = if_gpu_is_configured([
-        "icicle/src/fields/extern.cu.cc",
-        "icicle/src/fields/extern_extension.cu.cc",
-    ]),
     include_prefix = "third_party/icicle/src",
     includes = ["icicle/src/fields"],
     strip_include_prefix = "icicle/src",
@@ -107,10 +99,6 @@ tachyon_cuda_library(
 
 tachyon_cuda_library(
     name = "msm",
-    srcs = if_gpu_is_configured([
-        "icicle/src/msm/extern.cu.cc",
-        "icicle/src/msm/extern_g2.cu.cc",
-    ]),
     hdrs = ["icicle/src/msm/msm.cu.cc"],
     include_prefix = "third_party/icicle/src",
     includes = ["icicle/src/msm"],
@@ -121,9 +109,6 @@ tachyon_cuda_library(
 tachyon_cuda_library(
     name = "ntt",
     srcs = if_gpu_is_configured([
-        "icicle/src/ntt/extern_ecntt.cu.cc",
-        "icicle/src/ntt/extern.cu.cc",
-        "icicle/src/ntt/extern_extension.cu.cc",
         "icicle/src/ntt/kernel_ntt.cu.cc",
     ]),
     hdrs = [
@@ -157,7 +142,6 @@ tachyon_cuda_library(
     name = "poseidon",
     srcs = if_gpu_is_configured([
         "icicle/src/poseidon/tree/merkle.cu.cc",
-        "icicle/src/poseidon/extern.cu.cc",
     ]),
     hdrs = [
         "icicle/src/poseidon/constants.cu.cc",
@@ -172,9 +156,6 @@ tachyon_cuda_library(
 
 tachyon_cuda_library(
     name = "poseidon2",
-    srcs = if_gpu_is_configured([
-        "icicle/src/poseidon2/extern.cu.cc",
-    ]),
     hdrs = [
         "icicle/src/poseidon2/constants.cu.cc",
         "icicle/src/poseidon2/kernels.cu.cc",
@@ -188,10 +169,6 @@ tachyon_cuda_library(
 
 tachyon_cuda_library(
     name = "vec_ops",
-    srcs = if_gpu_is_configured([
-        "icicle/src/vec_ops/extern_extension.cu.cc",
-        "icicle/src/vec_ops/extern.cu.cc",
-    ]),
     hdrs = ["icicle/src/vec_ops/vec_ops.cu.cc"],
     include_prefix = "third_party/icicle/src",
     includes = ["icicle/src/vec_ops"],
