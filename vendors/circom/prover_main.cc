@@ -152,6 +152,12 @@ int RealMain(int argc, char** argv) {
     tachyon_cerr << error << std::endl;
     return 1;
   }
+#if TACHYON_CUDA
+  if (curve == Curve::kBLS12_381) {
+    tachyon_cerr << "BLS12_381 curve is not supported on CUDA" << std::endl;
+    return 1;
+  }
+#endif
   if (num_runs == 0) {
     tachyon_cerr << "num_runs should be positive" << std::endl;
     return 1;
@@ -166,8 +172,10 @@ int RealMain(int argc, char** argv) {
             zkey_path, witness_path, proof_path, public_path, no_zk, verify);
         break;
       case Curve::kBLS12_381:
+#if !TACHYON_CUDA
         circom::CreateProof<math::bls12_381::BLS12_381Curve>(
             zkey_path, witness_path, proof_path, public_path, no_zk, verify);
+#endif
         break;
     }
     base::TimeDelta time_taken = base::TimeTicks::Now() - start;

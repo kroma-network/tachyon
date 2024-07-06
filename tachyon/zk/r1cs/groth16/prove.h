@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -20,11 +21,16 @@
 #include "tachyon/zk/r1cs/groth16/proof.h"
 #include "tachyon/zk/r1cs/groth16/proving_key.h"
 
+#if TACHYON_CUDA
+#include "tachyon/device/gpu/scoped_mem_pool.h"
+#include "tachyon/device/gpu/scoped_stream.h"
+#include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
+#endif
+
 namespace tachyon::zk::r1cs::groth16 {
 
-template <typename Bucket, typename AffinePoint, typename F>
-Bucket CalculateCoeff(math::VariableBaseMSM<AffinePoint>& msm,
-                      const Bucket& initial,
+template <typename MSM, typename Bucket, typename AffinePoint, typename F>
+Bucket CalculateCoeff(MSM& msm, const Bucket& initial,
                       absl::Span<const AffinePoint> query,
                       const AffinePoint& vk_param,
                       absl::Span<const F> assignments) {
@@ -46,11 +52,40 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
                                        absl::Span<const F> full_assignments) {
   using G1AffinePoint = typename Curve::G1Curve::AffinePoint;
   using G2AffinePoint = typename Curve::G2Curve::AffinePoint;
+
+#if TACHYON_CUDA
+  using G1Bucket = typename math::VariableBaseMSMGpu<G1AffinePoint>::Bucket;
+  using G2Bucket = typename math::VariableBaseMSMGpu<G2AffinePoint>::Bucket;
+
+  gpuMemPoolProps props = {gpuMemAllocationTypePinned,
+                           gpuMemHandleTypeNone,
+                           {gpuMemLocationTypeDevice, 0}};
+  device::gpu::ScopedMemPool mem_pool = device::gpu::CreateMemPool(&props);
+
+  uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
+  gpuError_t error = gpuMemPoolSetAttribute(
+      mem_pool.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
+  CHECK_EQ(error, gpuSuccess);
+  device::gpu::ScopedStream stream = device::gpu::CreateStream();
+
+  math::VariableBaseMSMGpu<G1AffinePoint> msm_g1(mem_pool.get(), stream.get());
+
+  device::gpu::ScopedMemPool mem_pool2 = device::gpu::CreateMemPool(&props);
+
+  error = gpuMemPoolSetAttribute(
+      mem_pool2.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
+  CHECK_EQ(error, gpuSuccess);
+  device::gpu::ScopedStream stream2 = device::gpu::CreateStream();
+
+  math::VariableBaseMSMGpu<G2AffinePoint> msm_g2(mem_pool2.get(),
+                                                 stream2.get());
+#else
   using G1Bucket = typename math::VariableBaseMSM<G1AffinePoint>::Bucket;
   using G2Bucket = typename math::VariableBaseMSM<G2AffinePoint>::Bucket;
 
   math::VariableBaseMSM<G1AffinePoint> msm_g1;
   math::VariableBaseMSM<G2AffinePoint> msm_g2;
+#endif
 
   // |witness_acc| = [Σᵢ₌ₗ₊₁..ₘ (β * aᵢ(x) + α * bᵢ(x) + cᵢ(x)) / δ]₁
   G1Bucket witness_acc;

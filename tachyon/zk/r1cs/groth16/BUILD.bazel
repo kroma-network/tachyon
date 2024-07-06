@@ -38,7 +38,10 @@ tachyon_cc_library(
         ":proof",
         ":proving_key",
         "//tachyon/base:optional",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_stream",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm_gpu",
         "//tachyon/zk/r1cs/constraint_system:qap_witness_map_result",
     ],
 )
