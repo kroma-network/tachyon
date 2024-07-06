@@ -49,10 +49,21 @@ class QuadraticArithmeticProgram {
     //        = 0                      (otherwise)
     // where x is |full_assignments|.
     // clang-format on
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < matrices.num_constraints; ++i) {
-      a[i] = zk::r1cs::EvaluateConstraint(matrices.a[i], full_assignments);
-      b[i] = zk::r1cs::EvaluateConstraint(matrices.b[i], full_assignments);
-      c[i] = a[i] * b[i];
+    OMP_PARALLEL {
+      OMP_FOR_NOWAIT
+      for (size_t i = 0; i < matrices.num_constraints; ++i) {
+        a[i] = zk::r1cs::EvaluateConstraint(matrices.a[i], full_assignments);
+      }
+
+      OMP_FOR_NOWAIT
+      for (size_t i = 0; i < matrices.num_constraints; ++i) {
+        b[i] = zk::r1cs::EvaluateConstraint(matrices.b[i], full_assignments);
+      }
+
+      OMP_FOR
+      for (size_t i = 0; i < matrices.num_constraints; ++i) {
+        c[i] = a[i] * b[i];
+      }
     }
 
     for (size_t i = matrices.num_constraints;
