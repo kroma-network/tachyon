@@ -82,7 +82,6 @@ tachyon_cuda_unittest(
         ":variable_base_msm_gpu",
         "//tachyon/device/gpu:scoped_mem_pool",
         "//tachyon/device/gpu:scoped_stream",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )

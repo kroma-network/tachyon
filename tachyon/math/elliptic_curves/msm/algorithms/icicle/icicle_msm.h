@@ -8,7 +8,10 @@
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/device/gpu/gpu_enums.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_bn254.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_bn254_g1.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_bn254_g2.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
 
 namespace tachyon::math {
@@ -45,35 +48,69 @@ class IcicleMSM {
   template <typename BaseContainer, typename ScalarContainer>
   [[nodiscard]] bool Run(const BaseContainer& cpu_bases,
                          const ScalarContainer& cpu_scalars,
-                         ProjectivePoint<Curve>* cpu_result) {
-#if FIELD_ID != BN254
-#error Only Bn254 is supported
-#endif
-
-    size_t bases_size = std::size(cpu_bases);
-    size_t scalars_size = std::size(cpu_scalars);
-
-    if (bases_size != scalars_size) {
-      LOG(ERROR) << "bases_size and scalars_size don't match";
-      return false;
-    }
-
-    ::bn254::projective_t ret;
-    gpuError_t error = tachyon_bn254_msm_cuda(
-        reinterpret_cast<const ::bn254::scalar_t*>(std::data(cpu_scalars)),
-        reinterpret_cast<const ::bn254::affine_t*>(std::data(cpu_bases)),
-        bases_size, *config_, &ret);
-    if (error != gpuSuccess) return false;
-    ret = ::bn254::projective_t::to_montgomery(ret);
-    *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(ret);
-    return true;
-  }
+                         ProjectivePoint<Curve>* cpu_result);
 
  private:
   gpuMemPool_t mem_pool_ = nullptr;
   gpuStream_t stream_ = nullptr;
   std::unique_ptr<::msm::MSMConfig> config_;
 };
+
+template <>
+template <typename BaseContainer, typename ScalarContainer>
+bool IcicleMSM<bn254::G1AffinePoint>::Run(const BaseContainer& cpu_bases,
+                                          const ScalarContainer& cpu_scalars,
+                                          ProjectivePoint<Curve>* cpu_result) {
+#if FIELD_ID != BN254
+#error Only Bn254 is supported
+#endif
+
+  size_t bases_size = std::size(cpu_bases);
+  size_t scalars_size = std::size(cpu_scalars);
+
+  if (bases_size != scalars_size) {
+    LOG(ERROR) << "bases_size and scalars_size don't match";
+    return false;
+  }
+
+  ::bn254::projective_t ret;
+  gpuError_t error = tachyon_bn254_g1_msm_cuda(
+      reinterpret_cast<const ::bn254::scalar_t*>(std::data(cpu_scalars)),
+      reinterpret_cast<const ::bn254::affine_t*>(std::data(cpu_bases)),
+      bases_size, *config_, &ret);
+  if (error != gpuSuccess) return false;
+  ret = ::bn254::projective_t::to_montgomery(ret);
+  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(ret);
+  return true;
+}
+
+template <>
+template <typename BaseContainer, typename ScalarContainer>
+bool IcicleMSM<bn254::G2AffinePoint>::Run(const BaseContainer& cpu_bases,
+                                          const ScalarContainer& cpu_scalars,
+                                          ProjectivePoint<Curve>* cpu_result) {
+#if FIELD_ID != BN254
+#error Only Bn254 is supported
+#endif
+
+  size_t bases_size = std::size(cpu_bases);
+  size_t scalars_size = std::size(cpu_scalars);
+
+  if (bases_size != scalars_size) {
+    LOG(ERROR) << "bases_size and scalars_size don't match";
+    return false;
+  }
+
+  ::bn254::g2_projective_t ret;
+  gpuError_t error = tachyon_bn254_g2_msm_cuda(
+      reinterpret_cast<const ::bn254::scalar_t*>(std::data(cpu_scalars)),
+      reinterpret_cast<const ::bn254::g2_affine_t*>(std::data(cpu_bases)),
+      bases_size, *config_, &ret);
+  if (error != gpuSuccess) return false;
+  ret = ::bn254::g2_projective_t::to_montgomery(ret);
+  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(ret);
+  return true;
+}
 
 }  // namespace tachyon::math
 
