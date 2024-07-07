@@ -5,6 +5,7 @@
 
 #include "third_party/icicle/include/fields/id.h"
 
+#include "tachyon/base/bit_cast.h"
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_bn254.h"
@@ -49,9 +50,6 @@ class IcicleMSM {
 #error Only Bn254 is supported
 #endif
 
-    using BaseField = typename Point::BaseField;
-    using BigInt = typename Point::BaseField::BigIntTy;
-
     size_t bases_size = std::size(cpu_bases);
     size_t scalars_size = std::size(cpu_scalars);
 
@@ -66,9 +64,8 @@ class IcicleMSM {
         reinterpret_cast<const ::bn254::affine_t*>(std::data(cpu_bases)),
         bases_size, *config_, &ret);
     if (error != gpuSuccess) return false;
-    *cpu_result = {BaseField(reinterpret_cast<const BigInt&>(ret.x)),
-                   BaseField(reinterpret_cast<const BigInt&>(ret.y)),
-                   BaseField(reinterpret_cast<const BigInt&>(ret.z))};
+    ret = ::bn254::projective_t::to_montgomery(ret);
+    *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(ret);
     return true;
   }
 
