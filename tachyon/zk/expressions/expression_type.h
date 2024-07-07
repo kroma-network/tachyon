@@ -20,11 +20,19 @@ enum class ExpressionType {
   kSum = 3,
   kProduct = 4,
   kScaled = 5,
+
+  // Used in PLONK
   kSelector = 21,
   kFixed = 22,
   kAdvice = 23,
   kInstance = 24,
   kChallenge = 25,
+
+  // Used in AIR
+  kFirstRow = 31,
+  kLastRow = 32,
+  kTransition = 33,
+  kVariable = 34,
 };
 
 TACHYON_EXPORT std::string_view ExpressionTypeToString(ExpressionType type);

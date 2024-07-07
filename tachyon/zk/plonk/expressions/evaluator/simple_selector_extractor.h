@@ -61,6 +61,12 @@ std::optional<Selector> ExtractSimpleSelector(const Expression<F>* input) {
       const ScaledExpression<F>* scaled = input->ToScaled();
       return ExtractSimpleSelector(scaled->expr());
     }
+    case ExpressionType::kFirstRow:
+    case ExpressionType::kLastRow:
+    case ExpressionType::kTransition:
+    case ExpressionType::kVariable:
+      NOTREACHED() << "AIR expression " << ExpressionTypeToString(input->type())
+                   << " is not allowed in plonk!";
   }
   NOTREACHED();
   return std::nullopt;

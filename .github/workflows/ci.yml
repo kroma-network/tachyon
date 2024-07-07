@@ -109,7 +109,7 @@ jobs:
 
       - name: Run cpplint
         if: github.event_name == 'pull_request'
-        run: git diff --name-only HEAD origin/${{ github.base_ref }} | xargs cpplint --filter=-legal/copyright,-whitespace/line_length,-build/namespaces,-runtime/references
+        run: git diff --name-status HEAD origin/${{ github.base_ref }} | cut -f 2,3 | xargs cpplint --filter=-legal/copyright,-whitespace/line_length,-build/namespaces,-runtime/references
 
       - name: Run clang-format lint
         uses: jidicula/clang-format-action@v4.11.0

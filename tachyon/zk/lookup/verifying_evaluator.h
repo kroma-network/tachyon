@@ -33,55 +33,53 @@ class VerifyingEvaluator : public Evaluator<F, F> {
     switch (input->type()) {
       case ExpressionType::kConstant:
         return input->ToConstant()->value();
-
       case ExpressionType::kSelector:
         NOTREACHED() << "virtual selectors are removed during optimization";
         break;
-
       case ExpressionType::kFixed: {
         const plonk::FixedExpression<F>* fixed_expr = input->ToFixed();
         const plonk::FixedQuery& query = fixed_expr->query();
         return data_.fixed_evals[query.index()];
       }
-
       case ExpressionType::kAdvice: {
         const plonk::AdviceExpression<F>* advice_expr = input->ToAdvice();
         const plonk::AdviceQuery& query = advice_expr->query();
         return data_.advice_evals[query.index()];
       }
-
       case ExpressionType::kInstance: {
         const plonk::InstanceExpression<F>* instance_expr = input->ToInstance();
         const plonk::InstanceQuery& query = instance_expr->query();
         return data_.instance_evals[query.index()];
       }
-
       case ExpressionType::kChallenge: {
         const plonk::ChallengeExpression<F>* challenge_expr =
             input->ToChallenge();
         plonk::Challenge challenge = challenge_expr->challenge();
         return data_.challenges[challenge.index()];
       }
-
       case ExpressionType::kNegated: {
         const NegatedExpression<F>* negated_expr = input->ToNegated();
         return -Evaluate(negated_expr->expr());
       }
-
       case ExpressionType::kSum: {
         const SumExpression<F>* sum_expr = input->ToSum();
         return Evaluate(sum_expr->left()) + Evaluate(sum_expr->right());
       }
-
       case ExpressionType::kProduct: {
         const ProductExpression<F>* product_expr = input->ToProduct();
         return Evaluate(product_expr->left()) * Evaluate(product_expr->right());
       }
-
       case ExpressionType::kScaled: {
         const ScaledExpression<F>* scaled_expr = input->ToScaled();
         return Evaluate(scaled_expr->expr()) * scaled_expr->scale();
       }
+      case ExpressionType::kFirstRow:
+      case ExpressionType::kLastRow:
+      case ExpressionType::kTransition:
+      case ExpressionType::kVariable:
+        NOTREACHED() << "AIR expression "
+                     << ExpressionTypeToString(input->type())
+                     << " is not allowed in lookup!";
     }
     NOTREACHED();
     return F::Zero();

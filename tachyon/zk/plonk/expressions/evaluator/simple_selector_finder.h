@@ -47,6 +47,12 @@ bool ContainsSimpleSelector(const Expression<F>* input) {
       const ScaledExpression<F>* scaled = input->ToScaled();
       return ContainsSimpleSelector(scaled->expr());
     }
+    case ExpressionType::kFirstRow:
+    case ExpressionType::kLastRow:
+    case ExpressionType::kTransition:
+    case ExpressionType::kVariable:
+      NOTREACHED() << "AIR expression " << ExpressionTypeToString(input->type())
+                   << " is not allowed in plonk!";
   }
   NOTREACHED();
   return false;
