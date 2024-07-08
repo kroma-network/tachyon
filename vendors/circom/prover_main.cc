@@ -153,17 +153,16 @@ TimeInfo CreateProof(const base::FilePath& zkey_path,
   time_info.prove = end - start;
   start = end;
 
-  zk::r1cs::groth16::PreparedVerifyingKey<Curve> prepared_verifying_key =
-      std::move(proving_key).TakeVerifyingKey().ToPreparedVerifyingKey();
   absl::Span<const F> public_inputs = full_assignments.subspan(
       1, constraint_matrices.num_instance_variables - 1);
   if (verify) {
+    zk::r1cs::groth16::PreparedVerifyingKey<Curve> prepared_verifying_key =
+        std::move(proving_key).TakeVerifyingKey().ToPreparedVerifyingKey();
     CHECK(zk::r1cs::groth16::VerifyProof(prepared_verifying_key, proof,
                                          public_inputs));
+    end = base::TimeTicks::Now();
+    time_info.verify = end - start;
   }
-
-  end = base::TimeTicks::Now();
-  time_info.verify = end - start;
 
   CHECK(WriteToJson(proof, proof_path));
   CHECK(WriteToJson(public_inputs, public_path));
