@@ -24,9 +24,13 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
   using F = typename LS::Field;
   using C = typename LS::Commitment;
 
-  ProvingKeyImpl() = default;
+  ProvingKeyImpl() {
+    this->verifying_key_.constraint_system_.set_lookup_type(LS::type);
+  }
   ProvingKeyImpl(absl::Span<const uint8_t> state, bool read_only_vk)
       : read_only_vk_(read_only_vk) {
+    this->verifying_key_.constraint_system_.set_lookup_type(LS::type);
+
     std::string_view pk_str;
     if (tachyon::base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {
       VLOG(1) << "Save pk to: " << pk_str;
