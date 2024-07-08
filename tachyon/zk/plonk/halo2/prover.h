@@ -121,6 +121,8 @@ class Prover : public ProverBase<PCS> {
 
   void CreateProof(ProvingKey<LS>& proving_key,
                    ArgumentData<Poly, Evals>* argument_data) {
+    CHECK_EQ(proving_key.verifying_key().constraint_system().lookup_type(),
+             LS::type);
     // NOTE(chokobole): This is an entry point fom Halo2 rust. So this is the
     // earliest time to log constraint system.
     VLOG(1) << "PCS name: " << this->pcs_.Name() << ", k: " << this->pcs_.K()
