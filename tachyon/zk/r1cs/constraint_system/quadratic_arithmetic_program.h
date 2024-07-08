@@ -26,19 +26,15 @@ namespace tachyon::zk::r1cs {
 template <typename F>
 F EvaluateConstraint(const std::vector<Cell<F>>& cells,
                      absl::Span<const F> assignments) {
-  std::vector<F> sums = base::ParallelizeMap(
-      cells, [assignments](absl::Span<const Cell<F>> chunk) {
-        F sum;
-        for (const Cell<F>& cell : chunk) {
-          if (cell.coefficient.IsOne()) {
-            sum += assignments[cell.index];
-          } else {
-            sum += assignments[cell.index] * cell.coefficient;
-          }
-        }
-        return sum;
-      });
-  return std::accumulate(sums.begin(), sums.end(), F::Zero(), std::plus<>());
+  F sum;
+  for (const Cell<F>& cell : cells) {
+    if (cell.coefficient.IsOne()) {
+      sum += assignments[cell.index];
+    } else {
+      sum += assignments[cell.index] * cell.coefficient;
+    }
+  }
+  return sum;
 }
 
 template <typename F>
@@ -142,10 +138,21 @@ class QuadraticArithmeticProgram {
     //        = 0                      (otherwise)
     // where x is |full_assignments|.
     // clang-format on
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < matrices.num_constraints; ++i) {
-      a[i] = EvaluateConstraint(matrices.a[i], full_assignments);
-      b[i] = EvaluateConstraint(matrices.b[i], full_assignments);
-      c[i] = EvaluateConstraint(matrices.c[i], full_assignments);
+    OMP_PARALLEL {
+      OMP_FOR_NOWAIT
+      for (size_t i = 0; i < matrices.num_constraints; ++i) {
+        a[i] = EvaluateConstraint(matrices.a[i], full_assignments);
+      }
+
+      OMP_FOR_NOWAIT
+      for (size_t i = 0; i < matrices.num_constraints; ++i) {
+        b[i] = EvaluateConstraint(matrices.b[i], full_assignments);
+      }
+
+      OMP_FOR
+      for (size_t i = 0; i < matrices.num_constraints; ++i) {
+        c[i] = EvaluateConstraint(matrices.c[i], full_assignments);
+      }
     }
 
     for (size_t i = matrices.num_constraints;

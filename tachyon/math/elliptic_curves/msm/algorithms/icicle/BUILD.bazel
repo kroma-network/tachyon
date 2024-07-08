@@ -4,9 +4,18 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cuda_library(
-    name = "icicle_msm_bn254",
-    srcs = if_cuda(["icicle_msm_bn254.cc"]),
-    hdrs = ["icicle_msm_bn254.h"],
+    name = "icicle_msm_bn254_g1",
+    srcs = if_cuda(["icicle_msm_bn254_g1.cc"]),
+    hdrs = ["icicle_msm_bn254_g1.h"],
+    deps = ["@icicle//:msm"] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
+
+tachyon_cuda_library(
+    name = "icicle_msm_bn254_g2",
+    srcs = if_cuda(["icicle_msm_bn254_g2.cc"]),
+    hdrs = ["icicle_msm_bn254_g2.h"],
     deps = ["@icicle//:msm"] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
@@ -16,9 +25,13 @@ tachyon_cuda_library(
     name = "icicle_msm",
     hdrs = ["icicle_msm.h"],
     deps = [
-        ":icicle_msm_bn254",
+        ":icicle_msm_bn254_g1",
+        ":icicle_msm_bn254_g2",
+        "//tachyon/base:bit_cast",
         "//tachyon/device/gpu:gpu_device_functions",
         "//tachyon/device/gpu:gpu_enums",
         "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/bn/bn254:g2",
     ],
 )

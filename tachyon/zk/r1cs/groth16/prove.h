@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -20,14 +21,19 @@
 #include "tachyon/zk/r1cs/groth16/proof.h"
 #include "tachyon/zk/r1cs/groth16/proving_key.h"
 
+#if TACHYON_CUDA
+#include "tachyon/device/gpu/scoped_mem_pool.h"
+#include "tachyon/device/gpu/scoped_stream.h"
+#include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
+#endif
+
 namespace tachyon::zk::r1cs::groth16 {
 
-template <typename Bucket, typename AffinePoint, typename F>
-Bucket CalculateCoeff(const Bucket& initial,
+template <typename MSM, typename Bucket, typename AffinePoint, typename F>
+Bucket CalculateCoeff(MSM& msm, const Bucket& initial,
                       absl::Span<const AffinePoint> query,
                       const AffinePoint& vk_param,
                       absl::Span<const F> assignments) {
-  math::VariableBaseMSM<AffinePoint> msm;
   Bucket acc;
   CHECK(msm.Run(query.subspan(1), assignments, &acc));
 
@@ -46,25 +52,55 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
                                        absl::Span<const F> full_assignments) {
   using G1AffinePoint = typename Curve::G1Curve::AffinePoint;
   using G2AffinePoint = typename Curve::G2Curve::AffinePoint;
+
+#if TACHYON_CUDA
+  using G1Bucket = typename math::VariableBaseMSMGpu<G1AffinePoint>::Bucket;
+  using G2Bucket = typename math::VariableBaseMSMGpu<G2AffinePoint>::Bucket;
+
+  gpuMemPoolProps props = {gpuMemAllocationTypePinned,
+                           gpuMemHandleTypeNone,
+                           {gpuMemLocationTypeDevice, 0}};
+  device::gpu::ScopedMemPool mem_pool = device::gpu::CreateMemPool(&props);
+
+  uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
+  gpuError_t error = gpuMemPoolSetAttribute(
+      mem_pool.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
+  CHECK_EQ(error, gpuSuccess);
+  device::gpu::ScopedStream stream = device::gpu::CreateStream();
+
+  math::VariableBaseMSMGpu<G1AffinePoint> msm_g1(mem_pool.get(), stream.get());
+
+  device::gpu::ScopedMemPool mem_pool2 = device::gpu::CreateMemPool(&props);
+
+  error = gpuMemPoolSetAttribute(
+      mem_pool2.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
+  CHECK_EQ(error, gpuSuccess);
+  device::gpu::ScopedStream stream2 = device::gpu::CreateStream();
+
+  math::VariableBaseMSMGpu<G2AffinePoint> msm_g2(mem_pool2.get(),
+                                                 stream2.get());
+#else
   using G1Bucket = typename math::VariableBaseMSM<G1AffinePoint>::Bucket;
   using G2Bucket = typename math::VariableBaseMSM<G2AffinePoint>::Bucket;
 
-  math::VariableBaseMSM<G1AffinePoint> msm;
+  math::VariableBaseMSM<G1AffinePoint> msm_g1;
+  math::VariableBaseMSM<G2AffinePoint> msm_g2;
+#endif
 
   // |witness_acc| = [Σᵢ₌ₗ₊₁..ₘ (β * aᵢ(x) + α * bᵢ(x) + cᵢ(x)) / δ]₁
   G1Bucket witness_acc;
-  CHECK(msm.Run(pk.l_g1_query(), witness_assignments, &witness_acc));
+  CHECK(msm_g1.Run(pk.l_g1_query(), witness_assignments, &witness_acc));
 
   // |h_acc| = [(h(x) * t(x)) / δ]₁
   G1Bucket h_acc;
   if (h_coefficients.size() > pk.h_g1_query().size()) {
     absl::Span<const F> h_coefficients_subspan =
         h_coefficients.subspan(0, h_coefficients.size() - 1);
-    CHECK(msm.Run(pk.h_g1_query(), h_coefficients_subspan, &h_acc));
+    CHECK(msm_g1.Run(pk.h_g1_query(), h_coefficients_subspan, &h_acc));
   } else {
     absl::Span<const G1AffinePoint> h_g1_query_subspan =
         absl::MakeConstSpan(pk.h_g1_query()).subspan(0, h_coefficients.size());
-    CHECK(msm.Run(h_g1_query_subspan, h_coefficients, &h_acc));
+    CHECK(msm_g1.Run(h_g1_query_subspan, h_coefficients, &h_acc));
   }
 
   G1Bucket ac_g1_bucket[2];
@@ -73,18 +109,18 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
   G1Bucket r_delta_g1_bucket = math::ConvertPoint<G1Bucket>(r * pk.delta_g1());
   // |ac_g1_bucket[0]| = [A]₁ = [α + Σᵢ₌₀..ₘ (xᵢ * aᵢ(x)) + rδ]₁
   // where x is |full_assignments|.
-  ac_g1_bucket[0] =
-      CalculateCoeff(r_delta_g1_bucket, absl::MakeConstSpan(pk.a_g1_query()),
-                     pk.verifying_key().alpha_g1(), full_assignments);
+  ac_g1_bucket[0] = CalculateCoeff(
+      msm_g1, r_delta_g1_bucket, absl::MakeConstSpan(pk.a_g1_query()),
+      pk.verifying_key().alpha_g1(), full_assignments);
 
   // |s_delta_g2_bucket| = [sδ]₂
   G2Bucket s_delta_g2_bucket =
       math::ConvertPoint<G2Bucket>(s * pk.verifying_key().delta_g2());
   // |b_g2_bucket| = [B]₂ = [β + Σᵢ₌₀..ₘ (xᵢ * bᵢ(x)) + sδ]₂
   // where x is |full_assignments|.
-  G2Bucket b_g2_bucket =
-      CalculateCoeff(s_delta_g2_bucket, absl::MakeConstSpan(pk.b_g2_query()),
-                     pk.verifying_key().beta_g2(), full_assignments);
+  G2Bucket b_g2_bucket = CalculateCoeff(
+      msm_g2, s_delta_g2_bucket, absl::MakeConstSpan(pk.b_g2_query()),
+      pk.verifying_key().beta_g2(), full_assignments);
 
   // |ac_g1_bucket[1]| = [As]₁
   ac_g1_bucket[1] = ac_g1_bucket[0] * s;
@@ -95,9 +131,9 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
         math::ConvertPoint<G1Bucket>(s * pk.delta_g1());
     // |b_g1_bucket| = [B]₁ = [β + Σᵢ₌₀..ₘ (xᵢ * bᵢ(x)) + sδ]₁
     // where x is |full_assignments|.
-    G1Bucket b_g1_bucket =
-        CalculateCoeff(s_delta_g1_bucket, absl::MakeConstSpan(pk.b_g1_query()),
-                       pk.beta_g1(), full_assignments);
+    G1Bucket b_g1_bucket = CalculateCoeff(msm_g1, s_delta_g1_bucket,
+                                          absl::MakeConstSpan(pk.b_g1_query()),
+                                          pk.beta_g1(), full_assignments);
     ac_g1_bucket[1] += (r * b_g1_bucket);
     ac_g1_bucket[1] -= (s * r_delta_g1_bucket);
   }
