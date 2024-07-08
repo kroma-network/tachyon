@@ -144,7 +144,6 @@ int RealMain(int argc, char** argv) {
       .set_short_name("-n")
       .set_long_name("--num_runs")
       .set_default_value(1)
-      .set_required()
       .set_help("The number of times to run the proof generation");
 
   std::string error;
