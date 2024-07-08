@@ -10,6 +10,7 @@ tachyon_cc_binary(
         "//circomlib/json:prime_field",
         "//circomlib/wtns",
         "//circomlib/zkey",
+        "@com_google_absl//absl/strings",
         "@kroma_network_tachyon//tachyon/base/console",
         "@kroma_network_tachyon//tachyon/base/files:file_path_flag",
         "@kroma_network_tachyon//tachyon/base/flag:flag_parser",
