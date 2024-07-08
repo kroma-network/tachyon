@@ -29,7 +29,6 @@ tachyon_cc_library(
         "//tachyon/zk/lookup/halo2:compress_expression",
         "//tachyon/zk/lookup/halo2:opening_point_set",
         "//tachyon/zk/plonk/base:multi_phase_ref_table",
-        "@pdqsort",
     ],
 )
 
