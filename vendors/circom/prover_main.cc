@@ -49,42 +49,23 @@ namespace circom {
 struct TimeInfo {
   base::TimeDelta parse_zkey;
   base::TimeDelta parse_wtns;
-  base::TimeDelta prove;
+  base::TimeDelta total_prove;
+  base::TimeDelta max_prove;
   base::TimeDelta verify;
+  size_t num_runs = 0;
 
-  static TimeInfo Max(const TimeInfo& a, const TimeInfo& b) {
-    return TimeInfo{
-        std::max(a.parse_zkey, b.parse_zkey),
-        std::max(a.parse_wtns, b.parse_wtns),
-        std::max(a.prove, b.prove),
-        std::max(a.verify, b.verify),
-    };
-  }
-
-  TimeInfo operator+(const TimeInfo& other) const {
-    return {
-        parse_zkey + other.parse_zkey,
-        parse_wtns + other.parse_wtns,
-        prove + other.prove,
-        verify + other.verify,
-    };
-  }
-
-  TimeInfo& operator+=(const TimeInfo& other) { return *this = *this + other; }
-
-  TimeInfo operator/(size_t num_runs) const {
-    return {
-        parse_zkey / num_runs,
-        parse_wtns / num_runs,
-        prove / num_runs,
-        verify / num_runs,
-    };
+  void AddProve(base::TimeDelta prove) {
+    ++num_runs;
+    total_prove += prove;
+    max_prove = std::max(prove, max_prove);
   }
 
   std::string ToString() const {
     return absl::Substitute(
-        "{Parse ZKey: $0 s, Parse Wtns: $1 s, Prove: $2 s, Verify: $3 s}",
-        parse_zkey.InSecondsF(), parse_wtns.InSecondsF(), prove.InSecondsF(),
+        "{Parse ZKey: $0 s, Parse Wtns: $1 s, Avg Prove: $2 s, Max Prove: $3 "
+        "s, Verify: $4 s}",
+        parse_zkey.InSecondsF(), parse_wtns.InSecondsF(),
+        (total_prove / num_runs).InSecondsF(), max_prove.InSecondsF(),
         verify.InSecondsF());
   }
 };
@@ -94,7 +75,7 @@ TimeInfo CreateProof(const base::FilePath& zkey_path,
                      const base::FilePath& witness_path,
                      const base::FilePath& proof_path,
                      const base::FilePath& public_path, bool no_zk,
-                     bool verify) {
+                     size_t num_runs, bool verify) {
   using F = typename Curve::G1Curve::ScalarField;
   using Domain = math::UnivariateEvaluationDomain<F, SIZE_MAX>;
 
@@ -123,35 +104,37 @@ TimeInfo CreateProof(const base::FilePath& zkey_path,
   time_info.parse_wtns = end - start;
   start = end;
 
-  absl::Span<const F> full_assignments = wtns->GetWitnesses();
-
-  std::unique_ptr<Domain> domain =
-      Domain::Create(constraint_matrices.num_constraints +
-                     constraint_matrices.num_instance_variables);
-  std::vector<F> h_evals =
-      QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
-          domain.get(), constraint_matrices, full_assignments);
-
   zk::r1cs::groth16::Proof<Curve> proof;
-  if (no_zk) {
-    proof = zk::r1cs::groth16::CreateProofWithAssignmentNoZK(
-        proving_key, absl::MakeConstSpan(h_evals),
-        full_assignments.subspan(
-            1, constraint_matrices.num_instance_variables - 1),
-        full_assignments.subspan(constraint_matrices.num_instance_variables),
-        full_assignments.subspan(1));
-  } else {
-    proof = zk::r1cs::groth16::CreateProofWithAssignmentZK(
-        proving_key, absl::MakeConstSpan(h_evals),
-        full_assignments.subspan(
-            1, constraint_matrices.num_instance_variables - 1),
-        full_assignments.subspan(constraint_matrices.num_instance_variables),
-        full_assignments.subspan(1));
-  }
+  absl::Span<const F> full_assignments = wtns->GetWitnesses();
+  for (size_t i = 0; i < num_runs; ++i) {
+    std::unique_ptr<Domain> domain =
+        Domain::Create(constraint_matrices.num_constraints +
+                       constraint_matrices.num_instance_variables);
+    std::vector<F> h_evals =
+        QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
+            domain.get(), constraint_matrices, full_assignments);
+    if (no_zk) {
+      proof = zk::r1cs::groth16::CreateProofWithAssignmentNoZK(
+          proving_key, absl::MakeConstSpan(h_evals),
+          full_assignments.subspan(
+              1, constraint_matrices.num_instance_variables - 1),
+          full_assignments.subspan(constraint_matrices.num_instance_variables),
+          full_assignments.subspan(1));
+    } else {
+      proof = zk::r1cs::groth16::CreateProofWithAssignmentZK(
+          proving_key, absl::MakeConstSpan(h_evals),
+          full_assignments.subspan(
+              1, constraint_matrices.num_instance_variables - 1),
+          full_assignments.subspan(constraint_matrices.num_instance_variables),
+          full_assignments.subspan(1));
+    }
 
-  end = base::TimeTicks::Now();
-  time_info.prove = end - start;
-  start = end;
+    end = base::TimeTicks::Now();
+    base::TimeDelta prove = end - start;
+    time_info.AddProve(prove);
+    start = end;
+    std::cout << "Time Taken for Prove: " << prove << std::endl;
+  }
 
   absl::Span<const F> public_inputs = full_assignments.subspan(
       1, constraint_matrices.num_instance_variables - 1);
@@ -224,31 +207,23 @@ int RealMain(int argc, char** argv) {
     tachyon_cerr << "num_runs should be positive" << std::endl;
     return 1;
   }
-  circom::TimeInfo total_time;
-  circom::TimeInfo max_time;
-  for (size_t i = 0; i < num_runs; ++i) {
-    circom::TimeInfo time_info;
-    switch (curve) {
-      case Curve::kBN254:
-        time_info = circom::CreateProof<math::bn254::BN254Curve>(
-            zkey_path, witness_path, proof_path, public_path, no_zk, verify);
-        break;
-      case Curve::kBLS12_381:
+  circom::TimeInfo time_info;
+  switch (curve) {
+    case Curve::kBN254:
+      time_info = circom::CreateProof<math::bn254::BN254Curve>(
+          zkey_path, witness_path, proof_path, public_path, no_zk, num_runs,
+          verify);
+      break;
+    case Curve::kBLS12_381:
 #if !TACHYON_CUDA
-        time_info = circom::CreateProof<math::bls12_381::BLS12_381Curve>(
-            zkey_path, witness_path, proof_path, public_path, no_zk, verify);
+      time_info = circom::CreateProof<math::bls12_381::BLS12_381Curve>(
+          zkey_path, witness_path, proof_path, public_path, no_zk, num_runs,
+          verify);
 #endif
-        break;
-    }
-    total_time += time_info;
-    max_time = circom::TimeInfo::Max(max_time, time_info);
-    std::cout << "Run " << (i + 1) << ", Time Taken: " << time_info.ToString()
-              << std::endl;
+      break;
   }
 
-  circom::TimeInfo avg_time = total_time / num_runs;
-  std::cout << "Average Time Taken: " << avg_time.ToString() << std::endl;
-  std::cout << "Maximum Time Taken: " << max_time.ToString() << std::endl;
+  std::cout << "Time Taken for All: " << time_info.ToString() << std::endl;
 
   return 0;
 }
