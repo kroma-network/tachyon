@@ -177,16 +177,9 @@ pub mod ffi {
 
         type Prover;
 
-        fn new_prover(
-            pcs_type: u8,
-            ls_type: u8,
-            transcript_type: u8,
-            k: u32,
-            s: &Fr,
-        ) -> UniquePtr<Prover>;
+        fn new_prover(pcs_type: u8, transcript_type: u8, k: u32, s: &Fr) -> UniquePtr<Prover>;
         fn new_prover_from_params(
             pcs_type: u8,
-            ls_type: u8,
             transcript_type: u8,
             k: u32,
             params: &[u8],
@@ -823,33 +816,17 @@ pub struct GWCProver<Scheme: CommitmentScheme> {
 }
 
 impl<Scheme: CommitmentScheme> GWCProver<Scheme> {
-    pub fn new(
-        ls_type: u8,
-        transcript_type: u8,
-        k: u32,
-        s: &halo2curves::bn256::Fr,
-    ) -> GWCProver<Scheme> {
+    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> GWCProver<Scheme> {
         let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
         GWCProver {
-            inner: ffi::new_prover(PCSType::GWC as u8, ls_type, transcript_type, k, cpp_s),
+            inner: ffi::new_prover(PCSType::GWC as u8, transcript_type, k, cpp_s),
             _marker: PhantomData,
         }
     }
 
-    pub fn from_params(
-        ls_type: u8,
-        transcript_type: u8,
-        k: u32,
-        params: &[u8],
-    ) -> GWCProver<Scheme> {
+    pub fn from_params(transcript_type: u8, k: u32, params: &[u8]) -> GWCProver<Scheme> {
         GWCProver {
-            inner: ffi::new_prover_from_params(
-                PCSType::GWC as u8,
-                ls_type,
-                transcript_type,
-                k,
-                params,
-            ),
+            inner: ffi::new_prover_from_params(PCSType::GWC as u8, transcript_type, k, params),
             _marker: PhantomData,
         }
     }
@@ -956,33 +933,17 @@ pub struct SHPlonkProver<Scheme: CommitmentScheme> {
 }
 
 impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
-    pub fn new(
-        ls_type: u8,
-        transcript_type: u8,
-        k: u32,
-        s: &halo2curves::bn256::Fr,
-    ) -> SHPlonkProver<Scheme> {
+    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver<Scheme> {
         let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
         SHPlonkProver {
-            inner: ffi::new_prover(PCSType::SHPlonk as u8, ls_type, transcript_type, k, cpp_s),
+            inner: ffi::new_prover(PCSType::SHPlonk as u8, transcript_type, k, cpp_s),
             _marker: PhantomData,
         }
     }
 
-    pub fn from_params(
-        ls_type: u8,
-        transcript_type: u8,
-        k: u32,
-        params: &[u8],
-    ) -> SHPlonkProver<Scheme> {
+    pub fn from_params(transcript_type: u8, k: u32, params: &[u8]) -> SHPlonkProver<Scheme> {
         SHPlonkProver {
-            inner: ffi::new_prover_from_params(
-                PCSType::SHPlonk as u8,
-                ls_type,
-                transcript_type,
-                k,
-                params,
-            ),
+            inner: ffi::new_prover_from_params(PCSType::SHPlonk as u8, transcript_type, k, params),
             _marker: PhantomData,
         }
     }

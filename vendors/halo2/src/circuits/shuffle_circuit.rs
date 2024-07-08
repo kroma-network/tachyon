@@ -261,7 +261,7 @@ mod test {
             ProvingKey as TachyonProvingKey, SHPlonkProver, Sha256Write as TachyonSha256Write,
             TachyonProver,
         },
-        consts::{LSType, TranscriptType, SEED},
+        consts::{TranscriptType, SEED},
         prover::create_proof as tachyon_create_proof,
         sha::ShaWrite,
         xor_shift_rng::XORShiftRng,
@@ -301,12 +301,8 @@ mod test {
         };
 
         let tachyon_proof = {
-            let mut prover = GWCProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::LogDerivativeHalo2 as u8,
-                TranscriptType::Blake2b as u8,
-                K,
-                &s,
-            );
+            let mut prover =
+                GWCProver::<KZGCommitmentScheme<Bn256>>::new(TranscriptType::Blake2b as u8, K, &s);
 
             let (mut tachyon_pk, fixed_values) = {
                 let mut pk_bytes: Vec<u8> = vec![];
@@ -375,7 +371,6 @@ mod test {
 
         let tachyon_blake2b_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Blake2b as u8,
                 K,
                 &s,
@@ -427,7 +422,6 @@ mod test {
 
         let tachyon_poseidon_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Poseidon as u8,
                 K,
                 &s,
@@ -479,7 +473,6 @@ mod test {
 
         let tachyon_sha256_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Sha256 as u8,
                 K,
                 &s,

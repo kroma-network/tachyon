@@ -2,21 +2,23 @@
 
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
+#include "tachyon/c/zk/plonk/halo2/constants.h"
 #include "tachyon/rs/base/rust_vec.h"
 #include "vendors/halo2/src/bn254.rs.h"
 
 namespace tachyon::halo2_api::bn254 {
 
-Prover::Prover(uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type,
-               uint32_t k, const Fr& s)
+Prover::Prover(uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
+               const Fr& s)
     : prover_(tachyon_halo2_bn254_prover_create_from_unsafe_setup(
-          pcs_type, ls_type, transcript_type, k,
+          pcs_type, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS, transcript_type, k,
           reinterpret_cast<const tachyon_bn254_fr*>(&s))) {}
 
-Prover::Prover(uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type,
-               uint32_t k, const uint8_t* params, size_t params_len)
+Prover::Prover(uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
+               const uint8_t* params, size_t params_len)
     : prover_(tachyon_halo2_bn254_prover_create_from_params(
-          pcs_type, ls_type, transcript_type, k, params, params_len)) {}
+          pcs_type, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS, transcript_type, k,
+          params, params_len)) {}
 
 Prover::~Prover() { tachyon_halo2_bn254_prover_destroy(prover_); }
 
@@ -184,17 +186,16 @@ rust::Vec<uint8_t> Prover::get_proof() const {
   return proof;
 }
 
-std::unique_ptr<Prover> new_prover(uint8_t pcs_type, uint8_t ls_type,
-                                   uint8_t transcript_type, uint32_t k,
-                                   const Fr& s) {
-  return std::make_unique<Prover>(pcs_type, ls_type, transcript_type, k, s);
+std::unique_ptr<Prover> new_prover(uint8_t pcs_type, uint8_t transcript_type,
+                                   uint32_t k, const Fr& s) {
+  return std::make_unique<Prover>(pcs_type, transcript_type, k, s);
 }
 
 std::unique_ptr<Prover> new_prover_from_params(
-    uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+    uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
     rust::Slice<const uint8_t> params) {
-  return std::make_unique<Prover>(pcs_type, ls_type, transcript_type, k,
-                                  params.data(), params.size());
+  return std::make_unique<Prover>(pcs_type, transcript_type, k, params.data(),
+                                  params.size());
 }
 
 rust::Box<Fr> ProvingKey::transcript_repr(const Prover& prover) {

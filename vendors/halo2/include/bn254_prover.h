@@ -23,9 +23,8 @@ class Poly;
 
 class Prover {
  public:
-  Prover(uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
-         const Fr& s);
-  Prover(uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+  Prover(uint8_t pcs_type, uint8_t transcript_type, uint32_t k, const Fr& s);
+  Prover(uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
          const uint8_t* params, size_t params_len);
   Prover(const Prover& other) = delete;
   Prover& operator=(const Prover& other) = delete;
@@ -57,12 +56,11 @@ class Prover {
   tachyon_halo2_bn254_prover* prover_;
 };
 
-std::unique_ptr<Prover> new_prover(uint8_t pcs_type, uint8_t ls_type,
-                                   uint8_t transcript_type, uint32_t k,
-                                   const Fr& s);
+std::unique_ptr<Prover> new_prover(uint8_t pcs_type, uint8_t transcript_type,
+                                   uint32_t k, const Fr& s);
 
 std::unique_ptr<Prover> new_prover_from_params(
-    uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+    uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
     rust::Slice<const uint8_t> params);
 
 }  // namespace tachyon::halo2_api::bn254

@@ -3,11 +3,6 @@ pub enum PCSType {
     SHPlonk,
 }
 
-pub enum LSType {
-    Halo2,
-    LogDerivativeHalo2,
-}
-
 pub enum TranscriptType {
     Blake2b,
     Poseidon,

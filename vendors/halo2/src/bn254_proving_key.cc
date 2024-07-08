@@ -1,5 +1,6 @@
 #include "vendors/halo2/include/bn254_proving_key.h"
 
+#include "tachyon/c/zk/plonk/halo2/constants.h"
 #include "vendors/halo2/src/bn254.rs.h"
 
 namespace tachyon::halo2_api::bn254 {

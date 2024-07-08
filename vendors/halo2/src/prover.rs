@@ -575,7 +575,7 @@ where
 mod test {
     use crate::{
         bn254::{SHPlonkProver as TachyonSHPlonkProver, TachyonProver},
-        consts::{LSType, TranscriptType},
+        consts::TranscriptType,
     };
     use ff::Field;
     use halo2_proofs::poly::{
@@ -594,7 +594,6 @@ mod test {
         let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
         let prover_from_s: TachyonSHPlonkProver<KZGCommitmentScheme<Bn256>> =
             TachyonSHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
                 TranscriptType::Blake2b as u8,
                 k,
                 &s,
@@ -603,7 +602,6 @@ mod test {
             let mut params_bytes: Vec<u8> = vec![];
             params.write(&mut params_bytes).unwrap();
             TachyonSHPlonkProver::<KZGCommitmentScheme<Bn256>>::from_params(
-                LSType::Halo2 as u8,
                 TranscriptType::Blake2b as u8,
                 k,
                 params_bytes.as_slice(),
