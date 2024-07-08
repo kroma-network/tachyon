@@ -21,9 +21,18 @@ extern "C" tachyon_bn254_g1_jacobian* run_msm_bellman(
     const tachyon_bn254_g1_affine* bases, const tachyon_bn254_fr* scalars,
     size_t size, uint64_t* duration_in_us);
 
-extern "C" tachyon_bn254_g1_jacobian* run_msm_halo2(
+extern "C" tachyon_bn254_g1_projective* run_msm_halo2(
     const tachyon_bn254_g1_affine* bases, const tachyon_bn254_fr* scalars,
     size_t size, uint64_t* duration_in_us);
+
+tachyon_bn254_g1_jacobian* run_msm_halo2_adapter(
+    const tachyon_bn254_g1_affine* bases, const tachyon_bn254_fr* scalars,
+    size_t size, uint64_t* duration_in_us) {
+  std::unique_ptr<tachyon_bn254_g1_projective> projective(
+      run_msm_halo2(bases, scalars, size, duration_in_us));
+  return c::base::c_cast(new bn254::G1JacobianPoint(
+      c::base::native_cast(projective.get())->ToJacobian()));
+}
 
 int RealMain(int argc, char** argv) {
   MSMConfig config;
@@ -64,7 +73,7 @@ int RealMain(int argc, char** argv) {
         runner.RunExternal(run_msm_bellman, point_nums, &results_vendor);
         break;
       case MSMConfig::Vendor::kHalo2:
-        runner.RunExternal(run_msm_halo2, point_nums, &results_vendor);
+        runner.RunExternal(run_msm_halo2_adapter, point_nums, &results_vendor);
         break;
     }
 

@@ -1,14 +1,14 @@
 use std::marker::PhantomData;
 
 use halo2_proofs::{
-    arithmetic::FieldExt,
+    arithmetic::Field,
     circuit::{AssignedCell, Chip, Layouter, Region, SimpleFloorPlanner, Value},
     plonk::{Advice, Circuit, Column, ConstraintSystem, Error, Fixed, Instance, Selector},
     poly::Rotation,
 };
 
 // ANCHOR: instructions
-trait NumericInstructions<F: FieldExt>: Chip<F> {
+trait NumericInstructions<F: Field>: Chip<F> {
     /// Variable representing a number.
     type Num;
 
@@ -39,7 +39,7 @@ trait NumericInstructions<F: FieldExt>: Chip<F> {
 // ANCHOR: chip
 /// The chip that will implement our instructions! Chips store their own
 /// config, as well as type markers if necessary.
-struct FieldChip<F: FieldExt> {
+struct FieldChip<F: Field> {
     config: FieldConfig,
     _marker: PhantomData<F>,
 }
@@ -65,7 +65,7 @@ pub struct FieldConfig {
     s_mul: Selector,
 }
 
-impl<F: FieldExt> FieldChip<F> {
+impl<F: Field> FieldChip<F> {
     fn construct(config: <Self as Chip<F>>::Config) -> Self {
         Self {
             config,
@@ -126,7 +126,7 @@ impl<F: FieldExt> FieldChip<F> {
 // ANCHOR_END: chip-config
 
 // ANCHOR: chip-impl
-impl<F: FieldExt> Chip<F> for FieldChip<F> {
+impl<F: Field> Chip<F> for FieldChip<F> {
     type Config = FieldConfig;
     type Loaded = ();
 
@@ -143,9 +143,9 @@ impl<F: FieldExt> Chip<F> for FieldChip<F> {
 // ANCHOR: instructions-impl
 /// A variable representing a number.
 #[derive(Clone)]
-struct Number<F: FieldExt>(AssignedCell<F, F>);
+struct Number<F: Field>(AssignedCell<F, F>);
 
-impl<F: FieldExt> NumericInstructions<F> for FieldChip<F> {
+impl<F: Field> NumericInstructions<F> for FieldChip<F> {
     type Num = Number<F>;
 
     fn load_private(
@@ -238,13 +238,13 @@ impl<F: FieldExt> NumericInstructions<F> for FieldChip<F> {
 /// they won't have any value during key generation. During proving, if any of these
 /// were `None` we would get an error.
 #[derive(Clone, Default)]
-pub struct SimpleCircuit<F: FieldExt> {
+pub struct SimpleCircuit<F: Field> {
     pub constant: F,
     pub a: Value<F>,
     pub b: Value<F>,
 }
 
-impl<F: FieldExt> Circuit<F> for SimpleCircuit<F> {
+impl<F: Field> Circuit<F> for SimpleCircuit<F> {
     // Since we are using a single chip for everything, we can just reuse its config.
     type Config = FieldConfig;
     type FloorPlanner = SimpleFloorPlanner;
@@ -387,18 +387,18 @@ mod test {
 
         let tachyon_proof = {
             let mut prover = GWCProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
+                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Blake2b as u8,
                 k,
                 &s,
             );
 
-            let mut tachyon_pk = {
+            let (mut tachyon_pk, fixed_values) = {
                 let mut pk_bytes: Vec<u8> = vec![];
                 pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
                     .unwrap();
-                drop(pk);
-                TachyonProvingKey::from(pk_bytes.as_slice())
+                let fixed_values = pk.drop_but_fixed_values();
+                (TachyonProvingKey::from(pk_bytes.as_slice()), fixed_values)
             };
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
@@ -407,6 +407,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
                 public_inputs3.as_slice(),
+                fixed_values,
                 rng,
                 &mut transcript,
             )
@@ -482,7 +483,7 @@ mod test {
 
         let tachyon_blake2b_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
+                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Blake2b as u8,
                 k,
                 &s,
@@ -496,6 +497,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
                 public_inputs3.as_slice(),
+                pk.fixed_values.clone(),
                 rng.clone(),
                 &mut transcript,
             )
@@ -533,7 +535,7 @@ mod test {
 
         let tachyon_poseidon_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
+                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Poseidon as u8,
                 k,
                 &s,
@@ -547,6 +549,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
                 public_inputs3.as_slice(),
+                pk.fixed_values.clone(),
                 rng.clone(),
                 &mut transcript,
             )
@@ -585,7 +588,7 @@ mod test {
 
         let tachyon_sha256_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
+                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Sha256 as u8,
                 k,
                 &s,
@@ -599,6 +602,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
                 public_inputs3.as_slice(),
+                pk.fixed_values,
                 rng,
                 &mut transcript,
             )

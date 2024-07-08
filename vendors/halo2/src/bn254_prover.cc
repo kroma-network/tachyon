@@ -31,15 +31,15 @@ const G2AffinePoint& Prover::s_g2() const {
       *tachyon_halo2_bn254_prover_get_s_g2(prover_));
 }
 
-rust::Box<G1JacobianPoint> Prover::commit(const Poly& poly) const {
-  return rust::Box<G1JacobianPoint>::from_raw(
-      reinterpret_cast<G1JacobianPoint*>(
+rust::Box<G1ProjectivePoint> Prover::commit(const Poly& poly) const {
+  return rust::Box<G1ProjectivePoint>::from_raw(
+      reinterpret_cast<G1ProjectivePoint*>(
           tachyon_halo2_bn254_prover_commit(prover_, poly.poly())));
 }
 
-rust::Box<G1JacobianPoint> Prover::commit_lagrange(const Evals& evals) const {
-  return rust::Box<G1JacobianPoint>::from_raw(
-      reinterpret_cast<G1JacobianPoint*>(
+rust::Box<G1ProjectivePoint> Prover::commit_lagrange(const Evals& evals) const {
+  return rust::Box<G1ProjectivePoint>::from_raw(
+      reinterpret_cast<G1ProjectivePoint*>(
           tachyon_halo2_bn254_prover_commit_lagrange(prover_, evals.evals())));
 }
 

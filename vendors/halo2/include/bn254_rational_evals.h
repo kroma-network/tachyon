@@ -11,6 +11,7 @@
 namespace tachyon::halo2_api::bn254 {
 
 struct Fr;
+class RationalEvalsView;
 
 class RationalEvals {
  public:
@@ -31,9 +32,7 @@ class RationalEvals {
   }
 
   size_t len() const;
-  void set_zero(size_t idx);
-  void set_trivial(size_t idx, const Fr& numerator);
-  void set_rational(size_t idx, const Fr& numerator, const Fr& denominator);
+  std::unique_ptr<RationalEvalsView> create_view(size_t start, size_t len);
   std::unique_ptr<RationalEvals> clone() const;
 
  private:

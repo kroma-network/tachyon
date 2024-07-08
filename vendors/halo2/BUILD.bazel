@@ -24,6 +24,7 @@ tachyon_rust_library(
         ":bn254_prover",
         ":bn254_proving_key",
         ":bn254_rational_evals",
+        ":bn254_rational_evals_view",
         ":bn254_sha256_writer",
         ":xor_shift_rng",
         ":xor_shift_rng_cxx_bridge",
@@ -83,6 +84,7 @@ tachyon_cc_library(
         "include/bn254_prover.h",
         "include/bn254_proving_key.h",
         "include/bn254_rational_evals.h",
+        "include/bn254_rational_evals_view.h",
         "include/bn254_sha256_writer.h",
     ],
     deps = [
@@ -182,6 +184,16 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_rational_evals_view",
+    srcs = ["src/bn254_rational_evals_view.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        "//tachyon/base:logging",
     ],
 )
 

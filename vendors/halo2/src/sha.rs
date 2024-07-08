@@ -6,11 +6,8 @@ use std::{
 };
 
 use digest::Digest;
-use ff::PrimeField;
-use halo2_proofs::{
-    arithmetic::Field,
-    transcript::{Challenge255, EncodedChallenge, Transcript, TranscriptWrite},
-};
+use ff::{Field, FromUniformBytes, PrimeField};
+use halo2_proofs::transcript::{Challenge255, EncodedChallenge, Transcript, TranscriptWrite};
 use halo2curves::{Coordinates, CurveAffine};
 
 #[derive(Debug, Clone)]
@@ -39,6 +36,8 @@ impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>, D: Digest> ShaWrite<W, C,
 
 impl<W: Write, C: CurveAffine, D: Digest + Clone> TranscriptWrite<C, Challenge255<C>>
     for ShaWrite<W, C, Challenge255<C>, D>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn write_point(&mut self, point: C) -> io::Result<()> {
         self.common_point(point)?;
@@ -47,10 +46,10 @@ impl<W: Write, C: CurveAffine, D: Digest + Clone> TranscriptWrite<C, Challenge25
         let coords = point.coordinates();
         let x = coords
             .map(|v| *v.x())
-            .unwrap_or(<C as CurveAffine>::Base::zero());
+            .unwrap_or(<C as CurveAffine>::Base::ZERO);
         let y = coords
             .map(|v| *v.y())
-            .unwrap_or(<C as CurveAffine>::Base::zero());
+            .unwrap_or(<C as CurveAffine>::Base::ZERO);
 
         for base in &[&x, &y] {
             self.writer.write_all(base.to_repr().as_ref())?;
@@ -69,6 +68,8 @@ impl<W: Write, C: CurveAffine, D: Digest + Clone> TranscriptWrite<C, Challenge25
 
 impl<W: Write, C: CurveAffine, D: Digest + Clone> Transcript<C, Challenge255<C>>
     for ShaWrite<W, C, Challenge255<C>, D>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn squeeze_challenge(&mut self) -> Challenge255<C> {
         const SHA_PREFIX_CHALLENGE: u8 = 0;

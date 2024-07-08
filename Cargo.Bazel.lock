@@ -1,5 +1,5 @@
 {
-  "checksum": "1666b1aa30573a353246937756b70a156983fbecc1af25219af53f7318bd151e",
+  "checksum": "fe9841043a924e278a4cbfdc6d72e1e41a041f14142cbae2a8c1c85fb9c3b77d",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -4291,6 +4291,73 @@
       },
       "license": "MIT/Apache-2.0"
     },
+    "crossbeam 0.8.4": {
+      "name": "crossbeam",
+      "version": "0.8.4",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/crossbeam/0.8.4/download",
+          "sha256": "1137cd7e7fc0fb5d3c5a8678be38ec56e819125d8d7907411fe24ccb943faca8"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "crossbeam",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "crossbeam",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "crossbeam-channel",
+            "crossbeam-deque",
+            "crossbeam-epoch",
+            "crossbeam-queue",
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "crossbeam-channel 0.5.13",
+              "target": "crossbeam_channel"
+            },
+            {
+              "id": "crossbeam-deque 0.8.5",
+              "target": "crossbeam_deque"
+            },
+            {
+              "id": "crossbeam-epoch 0.9.18",
+              "target": "crossbeam_epoch"
+            },
+            {
+              "id": "crossbeam-queue 0.3.11",
+              "target": "crossbeam_queue"
+            },
+            {
+              "id": "crossbeam-utils 0.8.20",
+              "target": "crossbeam_utils"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.8.4"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "crossbeam-channel 0.4.4": {
       "name": "crossbeam-channel",
       "version": "0.4.4",
@@ -4331,6 +4398,51 @@
         },
         "edition": "2015",
         "version": "0.4.4"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "crossbeam-channel 0.5.13": {
+      "name": "crossbeam-channel",
+      "version": "0.5.13",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/crossbeam-channel/0.5.13/download",
+          "sha256": "33480d6946193aa8033910124896ca395333cae7e2d1113d1fef6c3272217df2"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "crossbeam_channel",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "crossbeam_channel",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "crossbeam-utils 0.8.20",
+              "target": "crossbeam_utils"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.5.13"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -4624,6 +4736,52 @@
         "version": "0.2.3"
       },
       "license": "MIT/Apache-2.0 AND BSD-2-Clause"
+    },
+    "crossbeam-queue 0.3.11": {
+      "name": "crossbeam-queue",
+      "version": "0.3.11",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/crossbeam-queue/0.3.11/download",
+          "sha256": "df0346b5d5e76ac2fe4e327c5fd1118d6be7c51dfb18f9b7922923f287471e35"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "crossbeam_queue",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "crossbeam_queue",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "crossbeam-utils 0.8.20",
+              "target": "crossbeam_utils"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.3.11"
+      },
+      "license": "MIT OR Apache-2.0"
     },
     "crossbeam-utils 0.7.2": {
       "name": "crossbeam-utils",
@@ -8081,7 +8239,7 @@
         "deps": {
           "common": [
             {
-              "id": "halo2_proofs 0.2.0",
+              "id": "halo2_proofs 1.1.0",
               "target": "halo2_proofs"
             }
           ],
@@ -8115,7 +8273,7 @@
         "deps": {
           "common": [
             {
-              "id": "halo2_proofs 0.2.0",
+              "id": "halo2_proofs 1.1.0",
               "target": "halo2_proofs"
             }
           ],
@@ -8185,14 +8343,14 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "halo2_proofs 0.2.0": {
+    "halo2_proofs 1.1.0": {
       "name": "halo2_proofs",
-      "version": "0.2.0",
+      "version": "1.1.0",
       "repository": {
         "Git": {
           "remote": "https://github.com/kroma-network/halo2.git",
           "commitish": {
-            "Rev": "be2e64f"
+            "Branch": "scroll-halo2-v1.1-with-tachyon-without-cxx"
           },
           "strip_prefix": "halo2_proofs"
         }
@@ -8217,7 +8375,10 @@
           "common": [
             "batch",
             "default",
-            "gwc"
+            "gwc",
+            "logup_skip_inv",
+            "multicore",
+            "parallel_syn"
           ],
           "selects": {}
         },
@@ -8236,20 +8397,28 @@
               "target": "cfg_if"
             },
             {
-              "id": "ff 0.12.1",
+              "id": "crossbeam 0.8.4",
+              "target": "crossbeam"
+            },
+            {
+              "id": "ff 0.13.0",
               "target": "ff"
             },
             {
-              "id": "group 0.12.1",
+              "id": "group 0.13.0",
               "target": "group"
             },
             {
-              "id": "halo2curves 0.3.1",
+              "id": "halo2curves 0.1.0",
               "target": "halo2curves"
             },
             {
               "id": "log 0.4.21",
               "target": "log"
+            },
+            {
+              "id": "maybe-rayon 0.1.1",
+              "target": "maybe_rayon"
             },
             {
               "id": "num-bigint 0.4.5",
@@ -8262,6 +8431,10 @@
             {
               "id": "poseidon 0.2.0",
               "target": "poseidon"
+            },
+            {
+              "id": "rand_chacha 0.3.1",
+              "target": "rand_chacha"
             },
             {
               "id": "rand_core 0.6.4",
@@ -8287,19 +8460,17 @@
           "selects": {}
         },
         "edition": "2021",
-        "version": "0.2.0"
+        "version": "1.1.0"
       },
       "license": "MIT OR Apache-2.0"
     },
-    "halo2curves 0.3.1": {
+    "halo2curves 0.1.0": {
       "name": "halo2curves",
-      "version": "0.3.1",
+      "version": "0.1.0",
       "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/halo2curves.git",
-          "commitish": {
-            "Rev": "c0ac193"
-          }
+        "Http": {
+          "url": "https://static.crates.io/crates/halo2curves/0.1.0/download",
+          "sha256": "e6b1142bd1059aacde1b477e0c80c142910f1ceae67fc619311d6a17428007ab"
         }
       },
       "targets": [
@@ -8329,22 +8500,31 @@
         ],
         "crate_features": {
           "common": [
-            "default"
+            "bits",
+            "default",
+            "derive_serde",
+            "reexport",
+            "serde",
+            "serde_arrays"
           ],
           "selects": {}
         },
         "deps": {
           "common": [
             {
-              "id": "ff 0.12.1",
+              "id": "blake2b_simd 1.0.2",
+              "target": "blake2b_simd"
+            },
+            {
+              "id": "ff 0.13.0",
               "target": "ff"
             },
             {
-              "id": "group 0.12.1",
+              "id": "group 0.13.0",
               "target": "group"
             },
             {
-              "id": "halo2curves 0.3.1",
+              "id": "halo2curves 0.1.0",
               "target": "build_script_build"
             },
             {
@@ -8360,7 +8540,7 @@
               "target": "num_traits"
             },
             {
-              "id": "pasta_curves 0.4.1",
+              "id": "pasta_curves 0.5.1",
               "target": "pasta_curves"
             },
             {
@@ -8376,6 +8556,10 @@
               "target": "serde"
             },
             {
+              "id": "serde_arrays 0.1.0",
+              "target": "serde_arrays"
+            },
+            {
               "id": "static_assertions 1.1.0",
               "target": "static_assertions"
             },
@@ -8386,7 +8570,7 @@
           ],
           "selects": {}
         },
-        "edition": "2018",
+        "edition": "2021",
         "proc_macro_deps": {
           "common": [
             {
@@ -8396,7 +8580,7 @@
           ],
           "selects": {}
         },
-        "version": "0.3.1"
+        "version": "0.1.0"
       },
       "build_script_attrs": {
         "data_glob": [
@@ -10699,6 +10883,56 @@
         },
         "edition": "2018",
         "version": "0.1.0"
+      },
+      "license": "MIT"
+    },
+    "maybe-rayon 0.1.1": {
+      "name": "maybe-rayon",
+      "version": "0.1.1",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/maybe-rayon/0.1.1/download",
+          "sha256": "8ea1f30cedd69f0a2954655f7188c6a834246d2bcf1e315e2ac40c4b24dc9519"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "maybe_rayon",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "maybe_rayon",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "rayon",
+            "threads"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "cfg-if 1.0.0",
+              "target": "cfg_if"
+            },
+            {
+              "id": "rayon 1.10.0",
+              "target": "rayon"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.1.1"
       },
       "license": "MIT"
     },
@@ -14649,9 +14883,9 @@
       "version": "0.2.0",
       "repository": {
         "Git": {
-          "remote": "https://github.com/kroma-network/poseidon.git",
+          "remote": "https://github.com/scroll-tech/poseidon.git",
           "commitish": {
-            "Rev": "00a2fe0"
+            "Branch": "main"
           }
         }
       },
@@ -14674,11 +14908,7 @@
         "deps": {
           "common": [
             {
-              "id": "group 0.12.1",
-              "target": "group"
-            },
-            {
-              "id": "halo2curves 0.3.1",
+              "id": "halo2curves 0.1.0",
               "target": "halo2curves"
             },
             {
@@ -15234,6 +15464,7 @@
         ],
         "crate_features": {
           "common": [
+            "default",
             "std"
           ],
           "selects": {}
@@ -17457,6 +17688,45 @@
         "data_glob": [
           "**"
         ]
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "serde_arrays 0.1.0": {
+      "name": "serde_arrays",
+      "version": "0.1.0",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/serde_arrays/0.1.0/download",
+          "sha256": "38636132857f68ec3d5f3eb121166d2af33cb55174c4d5ff645db6165cbef0fd"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "serde_arrays",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "serde_arrays",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "serde 1.0.203",
+              "target": "serde"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.0"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -20341,16 +20611,20 @@
               "target": "digest"
             },
             {
-              "id": "ff 0.12.1",
+              "id": "ff 0.13.0",
               "target": "ff"
             },
             {
-              "id": "halo2_proofs 0.2.0",
+              "id": "halo2_proofs 1.1.0",
               "target": "halo2_proofs"
             },
             {
-              "id": "halo2curves 0.3.1",
+              "id": "halo2curves 0.1.0",
               "target": "halo2curves"
+            },
+            {
+              "id": "log 0.4.21",
+              "target": "log"
             },
             {
               "id": "num-bigint 0.4.5",

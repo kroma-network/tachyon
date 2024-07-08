@@ -20,29 +20,31 @@ class KZGFamilyProverImpl : public ProverImplBase<PCS, LS> {
  public:
   using Callback = typename ProverImplBase<PCS, LS>::Callback;
   using AffinePoint = typename PCS::Commitment;
-  using JacobianPoint =
-      tachyon::math::JacobianPoint<typename AffinePoint::Curve>;
+  using ProjectivePoint =
+      tachyon::math::ProjectivePoint<typename AffinePoint::Curve>;
   using ScalarField = typename AffinePoint::ScalarField;
   using CAffinePoint = typename math::PointTraits<AffinePoint>::CCurvePoint;
-  using CJacobianPoint = typename math::PointTraits<JacobianPoint>::CCurvePoint;
+  using CProjectivePoint =
+      typename math::PointTraits<ProjectivePoint>::CCurvePoint;
   using CScalarField = typename math::PointTraits<AffinePoint>::CScalarField;
 
   using ProverImplBase<PCS, LS>::ProverImplBase;
 
-  CJacobianPoint* CommitRaw(const std::vector<ScalarField>& scalars) const {
+  CProjectivePoint* CommitRaw(const std::vector<ScalarField>& scalars) const {
     return DoMSM(this->pcs_.GetG1PowersOfTau(), scalars);
   }
 
-  CJacobianPoint* CommitLagrangeRaw(
+  CProjectivePoint* CommitLagrangeRaw(
       const std::vector<ScalarField>& scalars) const {
     return DoMSM(this->pcs_.GetG1PowersOfTauLagrange(), scalars);
   }
 
  private:
-  CJacobianPoint* DoMSM(const std::vector<AffinePoint>& bases,
-                        const std::vector<ScalarField>& scalars) const {
-    JacobianPoint* ret = new JacobianPoint();
+  CProjectivePoint* DoMSM(const std::vector<AffinePoint>& bases,
+                          const std::vector<ScalarField>& scalars) const {
+    ProjectivePoint* ret = new ProjectivePoint();
     CHECK(this->pcs_.DoMSM(bases, scalars, ret));
+
     return c::base::c_cast(ret);
   }
 };

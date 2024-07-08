@@ -10,6 +10,7 @@
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/zk/plonk/halo2/proof_serializer.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
 
 namespace tachyon::c::zk::plonk::halo2 {
@@ -24,10 +25,16 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS, LS> {
   using Callback = tachyon::base::OnceCallback<Base()>;
 
   ProverImplBase(Base&& base, uint8_t transcript_type)
-      : Base(std::move(base)), transcript_type_(transcript_type) {}
+      : Base(std::move(base)), transcript_type_(transcript_type) {
+    tachyon::zk::plonk::halo2::ProofSerializer<
+        Commitment>::s_use_legacy_serialization = false;
+  }
 
   ProverImplBase(Callback callback, uint8_t transcript_type)
       : Base(std::move(callback).Run()), transcript_type_(transcript_type) {
+    tachyon::zk::plonk::halo2::ProofSerializer<
+        Commitment>::s_use_legacy_serialization = false;
+
     std::string_view pcs_params_str;
     if (tachyon::base::Environment::Get("TACHYON_PCS_PARAMS_LOG_PATH",
                                         &pcs_params_str)) {

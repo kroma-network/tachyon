@@ -17,5 +17,5 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-halo2_proofs = { git = "https://github.com/kroma-network/halo2.git", rev = "be2e64f" }
+halo2_proofs = { git = "https://github.com/scroll-tech/halo2.git", rev = "e5ddf67" }
 tachyon_rs = { path = "../../../tachyon/rs" }

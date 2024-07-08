@@ -11,7 +11,7 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
    ```diff
    # In your Cargo.toml
    - halo2_proofs = { git = "https://github.com/zcash/halo2.git" }
-   + halo2_proofs = { git = "https://github.com/kroma-network/halo2.git", branch = "halo2-with-tachyon" }
+   + halo2_proofs = { git = "https://github.com/kroma-network/halo2.git", branch = "scroll-halo2-v1.1-with-tachyon" }
    ```
 
 2. Install the Tachyon debian package. See [Debian packaging](../../docs/how_to_use/how_to_build.md#debian-packaging).
@@ -41,14 +41,14 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
 
      // Generate `pk` as proving key.
      let pk = keygen_pk2(&params, &circuit).expect("keygen_pk2 should not fail");
-   + let mut tachyon_pk = {
+   + let (mut tachyon_pk, fixed_values) = {
    +     // Please remember to release `pk` and `pk_bytes` immediately after
    +     // deserialization, as it can occupy big memory.
    +     let mut pk_bytes: Vec<u8> = vec![];
    +     pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
    +         .unwrap();
-   +     drop(pk);
-   +     TachyonProvingKey::from(pk_bytes.as_slice())
+   +     fixed_values = pk.drop_but_fixed_values();
+   +     (TachyonProvingKey::from(pk_bytes.as_slice()), fixed_values)
    + };
    ```
 
@@ -122,6 +122,8 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
    +     plonk::tachyon::create_proof as tachyon_create_proof,
      }
 
+   +
+
    - create_proof::<KZGCommitmentScheme<Bn256>, ProverSHPLONK<Bn256>, _, _, _, _>(
    -     &params,
    -     &pk,
@@ -130,6 +132,7 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
    +     &mut tachyon_pk,
          &[&circuit],
          &[&instances],
+   +     fixed_values,
          rng,
          &mut transcript,
      )

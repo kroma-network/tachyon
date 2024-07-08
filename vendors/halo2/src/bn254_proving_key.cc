@@ -45,7 +45,8 @@ rust::Vec<size_t> GetFixedColumns(
 
 ProvingKey::ProvingKey(rust::Slice<const uint8_t> pk_bytes)
     : pk_(tachyon_bn254_plonk_proving_key_create_from_state(
-          TACHYON_HALO2_HALO2_LS, pk_bytes.data(), pk_bytes.size())) {}
+          TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS, pk_bytes.data(),
+          pk_bytes.size())) {}
 
 ProvingKey::~ProvingKey() { tachyon_bn254_plonk_proving_key_destroy(pk_); }
 

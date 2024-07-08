@@ -1,14 +1,14 @@
 use std::marker::PhantomData;
 
+use ff::{Field, PrimeField};
 use halo2_proofs::{
-    arithmetic::FieldExt,
     circuit::{Layouter, SimpleFloorPlanner, Value},
     plonk::{Advice, Circuit, Column, ConstraintSystem, Error, Expression, Selector, TableColumn},
     poly::Rotation,
 };
 
 #[derive(Clone, Default)]
-struct SimpleLookupCircuit<F: FieldExt> {
+struct SimpleLookupCircuit<F: Field> {
     _marker: PhantomData<F>,
 }
 
@@ -19,7 +19,7 @@ struct SimpleLookupConfig {
     advice: Column<Advice>,
 }
 
-impl<F: FieldExt> Circuit<F> for SimpleLookupCircuit<F> {
+impl<F: PrimeField> Circuit<F> for SimpleLookupCircuit<F> {
     type Config = SimpleLookupConfig;
     type FloorPlanner = SimpleFloorPlanner;
 
@@ -36,7 +36,7 @@ impl<F: FieldExt> Circuit<F> for SimpleLookupCircuit<F> {
 
         meta.lookup("lookup", |meta| {
             let selector = meta.query_selector(config.selector);
-            let not_selector = Expression::Constant(F::one()) - selector.clone();
+            let not_selector = Expression::Constant(F::ONE) - selector.clone();
             let advice = meta.query_advice(config.advice, Rotation::cur());
             vec![(selector * advice + not_selector, config.table)]
         });
@@ -160,18 +160,18 @@ mod test {
 
         let tachyon_proof = {
             let mut prover = GWCProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
+                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Blake2b as u8,
                 k,
                 &s,
             );
 
-            let mut tachyon_pk = {
+            let (mut tachyon_pk, fixed_values) = {
                 let mut pk_bytes: Vec<u8> = vec![];
                 pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
                     .unwrap();
-                drop(pk);
-                TachyonProvingKey::from(pk_bytes.as_slice())
+                let fixed_values = pk.drop_but_fixed_values();
+                (TachyonProvingKey::from(pk_bytes.as_slice()), fixed_values)
             };
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
@@ -180,6 +180,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
                 public_inputs2.as_slice(),
+                fixed_values,
                 rng,
                 &mut transcript,
             )
@@ -245,7 +246,7 @@ mod test {
 
         let tachyon_blake2b_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
+                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Blake2b as u8,
                 k,
                 &s,
@@ -259,6 +260,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
                 public_inputs2.as_slice(),
+                pk.fixed_values.clone(),
                 rng.clone(),
                 &mut transcript,
             )
@@ -296,7 +298,7 @@ mod test {
 
         let tachyon_poseidon_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
+                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Poseidon as u8,
                 k,
                 &s,
@@ -310,6 +312,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
                 public_inputs2.as_slice(),
+                pk.fixed_values.clone(),
                 rng.clone(),
                 &mut transcript,
             )
@@ -348,7 +351,7 @@ mod test {
 
         let tachyon_sha256_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
+                LSType::LogDerivativeHalo2 as u8,
                 TranscriptType::Sha256 as u8,
                 k,
                 &s,
@@ -362,6 +365,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
                 public_inputs2.as_slice(),
+                pk.fixed_values,
                 rng,
                 &mut transcript,
             )

@@ -1,4 +1,5 @@
 use std::{
+    fmt,
     io::{self, Write},
     marker::PhantomData,
 };
@@ -11,11 +12,11 @@ use halo2_proofs::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
 };
-use halo2curves::{bn256::G2Affine, Coordinates, CurveAffine, FieldExt};
+use halo2curves::{bn256::G2Affine, ff::FromUniformBytes, Coordinates, CurveAffine};
 use num_bigint::BigUint;
 
 use tachyon_rs::math::elliptic_curves::bn::bn254::{
-    Fr as FrImpl, G1JacobianPoint as G1JacobianPointImpl, G1Point2 as G1Point2Impl,
+    Fr as FrImpl, G1Point2 as G1Point2Impl, G1ProjectivePoint as G1ProjectivePointImpl,
     G2AffinePoint as G2AffinePointImpl,
 };
 
@@ -23,7 +24,7 @@ use crate::consts::PCSType;
 
 pub struct G1MSM;
 pub struct G1MSMGpu;
-pub struct G1JacobianPoint(pub G1JacobianPointImpl);
+pub struct G1ProjectivePoint(pub G1ProjectivePointImpl);
 pub struct G1Point2(pub G1Point2Impl);
 pub struct G2AffinePoint(pub G2AffinePointImpl);
 pub struct Fr(pub FrImpl);
@@ -42,7 +43,7 @@ pub mod ffi {
     extern "Rust" {
         type G1MSM;
         type G1MSMGpu;
-        type G1JacobianPoint;
+        type G1ProjectivePoint;
         type G1Point2;
         type G2AffinePoint;
         type Fr;
@@ -61,7 +62,7 @@ pub mod ffi {
             msm: *mut G1MSM,
             bases: &[G1Point2],
             scalars: &[Fr],
-        ) -> Box<G1JacobianPoint>;
+        ) -> Box<G1ProjectivePoint>;
         #[cfg(feature = "gpu")]
         fn create_g1_msm_gpu(degree: u8) -> Box<G1MSMGpu>;
         #[cfg(feature = "gpu")]
@@ -71,7 +72,7 @@ pub mod ffi {
             msm: *mut G1MSMGpu,
             bases: &[G1Point2],
             scalars: &[Fr],
-        ) -> Box<G1JacobianPoint>;
+        ) -> Box<G1ProjectivePoint>;
     }
 
     unsafe extern "C++" {
@@ -140,15 +141,29 @@ pub mod ffi {
 
         type RationalEvals;
 
-        fn set_zero(self: Pin<&mut RationalEvals>, idx: usize);
-        fn set_trivial(self: Pin<&mut RationalEvals>, idx: usize, numerator: &Fr);
-        fn set_rational(
+        fn len(&self) -> usize;
+        fn create_view(
             self: Pin<&mut RationalEvals>,
+            start: usize,
+            len: usize,
+        ) -> UniquePtr<RationalEvalsView>;
+        fn clone(&self) -> UniquePtr<RationalEvals>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_rational_evals_view.h");
+
+        type RationalEvalsView;
+
+        fn set_zero(self: Pin<&mut RationalEvalsView>, idx: usize);
+        fn set_trivial(self: Pin<&mut RationalEvalsView>, idx: usize, numerator: &Fr);
+        fn set_rational(
+            self: Pin<&mut RationalEvalsView>,
             idx: usize,
             numerator: &Fr,
             denominator: &Fr,
         );
-        fn clone(&self) -> UniquePtr<RationalEvals>;
+        fn evaluate(&self, idx: usize, value: &mut Fr);
     }
 
     unsafe extern "C++" {
@@ -179,8 +194,8 @@ pub mod ffi {
         fn k(&self) -> u32;
         fn n(&self) -> u64;
         fn s_g2(&self) -> &G2AffinePoint;
-        fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
-        fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
+        fn commit(&self, poly: &Poly) -> Box<G1ProjectivePoint>;
+        fn commit_lagrange(&self, evals: &Evals) -> Box<G1ProjectivePoint>;
         fn empty_evals(&self) -> UniquePtr<Evals>;
         fn empty_rational_evals(&self) -> UniquePtr<RationalEvals>;
         fn ifft(&self, evals: &Evals) -> UniquePtr<Poly>;
@@ -217,6 +232,8 @@ pub struct Blake2bWrite<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
 
 impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
     for Blake2bWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn squeeze_challenge(&mut self) -> Challenge255<C> {
         // Prefix to a prover's message soliciting a challenge
@@ -254,6 +271,8 @@ impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
 
 impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
     for Blake2bWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn write_point(&mut self, point: C) -> io::Result<()> {
         self.common_point(point)?;
@@ -270,6 +289,8 @@ impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
 
 impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
     for Blake2bWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn state(&self) -> Vec<u8> {
         self.state.state()
@@ -278,6 +299,8 @@ impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
 
 impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
     for Blake2bWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     /// Initialize a transcript given an output buffer.
     fn init(writer: W) -> Self {
@@ -301,24 +324,34 @@ pub struct PoseidonWrite<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
     _marker: PhantomData<(W, C, E)>,
 }
 
-fn field_to_bn<F: FieldExt>(f: &F) -> BigUint {
+fn field_to_bn<F: PrimeField>(f: &F) -> BigUint {
     BigUint::from_bytes_le(f.to_repr().as_ref())
 }
 
 /// Input a big integer `bn`, compute a field element `f`
 /// such that `f == bn % F::MODULUS`.
-fn bn_to_field<F: FieldExt>(bn: &BigUint) -> F {
+/// Require:
+/// - `bn` is less than 512 bits.
+/// Return:
+/// - `bn mod F::MODULUS` when `bn > F::MODULUS`
+pub fn bn_to_field<F: PrimeField>(bn: &BigUint) -> F
+where
+    F: FromUniformBytes<64>,
+{
     let mut buf = bn.to_bytes_le();
     buf.resize(64, 0u8);
 
     let mut buf_array = [0u8; 64];
     buf_array.copy_from_slice(buf.as_ref());
-    F::from_bytes_wide(&buf_array)
+    F::from_uniform_bytes(&buf_array)
 }
 
 /// Input a base field element `b`, output a scalar field
 /// element `s` s.t. `s == b % ScalarField::MODULUS`
-fn base_to_scalar<C: CurveAffine>(base: &C::Base) -> C::Scalar {
+fn base_to_scalar<C: CurveAffine>(base: &C::Base) -> C::Scalar
+where
+    C::Scalar: FromUniformBytes<64>,
+{
     let bn = field_to_bn(base);
     // bn_to_field will perform a mod reduction
     bn_to_field(&bn)
@@ -326,6 +359,8 @@ fn base_to_scalar<C: CurveAffine>(base: &C::Base) -> C::Scalar {
 
 impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
     for PoseidonWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn squeeze_challenge(&mut self) -> Challenge255<C> {
         let scalar = *unsafe {
@@ -373,6 +408,8 @@ impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
 
 impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
     for PoseidonWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn write_point(&mut self, point: C) -> io::Result<()> {
         self.common_point(point)?;
@@ -407,6 +444,8 @@ impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>> PoseidonWrite<W, C, E> {
 
 impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
     for PoseidonWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn state(&self) -> Vec<u8> {
         self.state.state()
@@ -419,8 +458,9 @@ pub struct Sha256Write<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
     _marker: PhantomData<(W, C, E)>,
 }
 
-impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
-    for Sha256Write<W, C, Challenge255<C>>
+impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>> for Sha256Write<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn squeeze_challenge(&mut self) -> Challenge255<C> {
         const SHA256_PREFIX_CHALLENGE: u8 = 0;
@@ -475,6 +515,8 @@ impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
 
 impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
     for Sha256Write<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn write_point(&mut self, point: C) -> io::Result<()> {
         self.common_point(point)?;
@@ -482,10 +524,10 @@ impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
         let coords = point.coordinates();
         let x = coords
             .map(|v| *v.x())
-            .unwrap_or(<C as CurveAffine>::Base::zero());
+            .unwrap_or(<C as CurveAffine>::Base::ZERO);
         let y = coords
             .map(|v| *v.y())
-            .unwrap_or(<C as CurveAffine>::Base::zero());
+            .unwrap_or(<C as CurveAffine>::Base::ZERO);
 
         for base in &[&x, &y] {
             self.writer.write_all(base.to_repr().as_ref())?;
@@ -504,6 +546,8 @@ impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
 
 impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
     for Sha256Write<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
 {
     fn state(&self) -> Vec<u8> {
         self.state.state()
@@ -645,6 +689,7 @@ impl Clone for Evals {
     }
 }
 
+#[derive(Debug)]
 pub struct RationalEvals {
     inner: cxx::UniquePtr<ffi::RationalEvals>,
 }
@@ -652,6 +697,41 @@ pub struct RationalEvals {
 impl RationalEvals {
     pub fn new(inner: cxx::UniquePtr<ffi::RationalEvals>) -> RationalEvals {
         RationalEvals { inner }
+    }
+
+    pub fn len(&self) -> usize {
+        self.inner.len()
+    }
+
+    pub fn create_view(&mut self, start: usize, len: usize) -> RationalEvalsView {
+        RationalEvalsView::new(self.inner.pin_mut().create_view(start, len))
+    }
+}
+
+unsafe impl Send for ffi::RationalEvals {}
+unsafe impl Sync for ffi::RationalEvals {}
+
+impl fmt::Debug for ffi::RationalEvals {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("RationalEvals").finish()
+    }
+}
+
+impl Clone for RationalEvals {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+        }
+    }
+}
+
+pub struct RationalEvalsView {
+    inner: cxx::UniquePtr<ffi::RationalEvalsView>,
+}
+
+impl RationalEvalsView {
+    pub fn new(inner: cxx::UniquePtr<ffi::RationalEvalsView>) -> RationalEvalsView {
+        RationalEvalsView { inner }
     }
 
     pub fn set_zero(&mut self, idx: usize) {
@@ -675,15 +755,15 @@ impl RationalEvals {
             .pin_mut()
             .set_rational(idx, cpp_numerator, cpp_denominator)
     }
-}
 
-impl Clone for RationalEvals {
-    fn clone(&self) -> Self {
-        Self {
-            inner: self.inner.clone(),
-        }
+    pub fn evaluate(&self, idx: usize, value: &mut halo2curves::bn256::Fr) {
+        self.inner
+            .evaluate(idx, unsafe { std::mem::transmute::<_, &mut Fr>(value) })
     }
 }
+
+unsafe impl Send for ffi::RationalEvalsView {}
+unsafe impl Sync for ffi::RationalEvalsView {}
 
 pub struct Poly {
     inner: cxx::UniquePtr<ffi::Poly>,

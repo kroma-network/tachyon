@@ -96,6 +96,7 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
     cs.num_fixed_columns_ = ReadU32AsSizeT(buffer);
     cs.num_advice_columns_ = ReadU32AsSizeT(buffer);
     cs.num_instance_columns_ = ReadU32AsSizeT(buffer);
+    cs.num_simple_selectors_ = ReadU32AsSizeT(buffer);
     cs.num_selectors_ = ReadU32AsSizeT(buffer);
     cs.num_challenges_ = ReadU32AsSizeT(buffer);
     ReadBuffer(buffer, cs.advice_column_phases_);
@@ -109,8 +110,10 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
     ReadBuffer(buffer, cs.instance_queries_);
     ReadBuffer(buffer, cs.fixed_queries_);
     ReadBuffer(buffer, cs.permutation_);
+    ReadBuffer(buffer, cs.lookups_map_);
     ReadBuffer(buffer, cs.lookups_);
     ReadBuffer(buffer, cs.constants_);
+    ReadBuffer(buffer, cs.minimum_degree_);
   }
 
  private:
