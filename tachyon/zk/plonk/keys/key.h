@@ -30,8 +30,9 @@ struct KeyPreLoadResult {
   std::vector<Evals> fixed_columns;
 
   KeyPreLoadResult() = default;
-  explicit KeyPreLoadResult(lookup::Type lookup_type)
-      : constraint_system(ConstraintSystem<F>(lookup_type)) {}
+  explicit KeyPreLoadResult(lookup::Type lookup_type) {
+    constraint_system.set_lookup_type(lookup_type);
+  }
 };
 
 class TACHYON_EXPORT Key {

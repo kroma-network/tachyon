@@ -64,10 +64,9 @@ class ConstraintSystem {
 
   ConstraintSystem() = default;
 
-  explicit ConstraintSystem(lookup::Type lookup_type)
-      : lookup_type_(lookup_type) {}
-
   lookup::Type lookup_type() const { return lookup_type_; }
+
+  void set_lookup_type(lookup::Type lookup_type) { lookup_type_ = lookup_type; }
 
   size_t num_fixed_columns() const { return num_fixed_columns_; }
 

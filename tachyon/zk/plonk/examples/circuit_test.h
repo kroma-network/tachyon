@@ -42,7 +42,8 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
   static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
 
   void ConfigureTest() {
-    ConstraintSystem<F> constraint_system(TestArguments::LS::type);
+    ConstraintSystem<F> constraint_system;
+    constraint_system.set_lookup_type(TestArguments::LS::type);
 
     auto config = Circuit::Configure(constraint_system);
 
@@ -62,7 +63,8 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     this->prover_->set_domain(Domain::Create(TestData::kN));
     const Domain* domain = this->prover_->domain();
 
-    ConstraintSystem<F> constraint_system(TestArguments::LS::type);
+    ConstraintSystem<F> constraint_system;
+    constraint_system.set_lookup_type(TestArguments::LS::type);
 
     auto config = Circuit::Configure(constraint_system);
     Assembly<RationalEvals> assembly =
