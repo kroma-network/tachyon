@@ -168,6 +168,37 @@ std::string Container2DToString(const Container& data) {
   return ss.str();
 }
 
+template <typename Container>
+std::string ContainerToHexString(const Container& data, bool pad_zero = false) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
+  std::stringstream ss;
+  ss << "[";
+  for (size_t i = 0; i < size - 1; ++i) {
+    ss << data[i].ToHexString(pad_zero) << ", ";
+  }
+  ss << data[size - 1].ToHexString(pad_zero) << "]";
+  return ss.str();
+}
+
+template <typename Container>
+std::string Container2DToHexString(const Container& data,
+                                   bool pad_zero = false) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
+  std::stringstream ss;
+  ss << "[";
+  for (size_t i = 0; i < size - 1; ++i) {
+    ss << ContainerToHexString(data[i], pad_zero) << ", ";
+  }
+  ss << ContainerToHexString(data[size - 1], pad_zero) << "]";
+  return ss.str();
+}
+
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_STRINGS_STRING_UTIL_H_
