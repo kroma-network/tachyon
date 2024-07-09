@@ -30,7 +30,7 @@ class PinnedConstraintSystem {
         num_fixed_columns_(constraint_system.num_fixed_columns()),
         num_advice_columns_(constraint_system.num_advice_columns()),
         num_instance_columns_(constraint_system.num_instance_columns()),
-        num_selectors_(constraint_system.num_selectors()),
+        num_selectors_(constraint_system.GetNumSelectors()),
         num_challenges_(constraint_system.num_challenges()),
         advice_column_phases_(constraint_system.advice_column_phases()),
         challenge_phases_(constraint_system.challenge_phases()),

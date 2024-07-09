@@ -76,7 +76,7 @@ class ConstraintSystem {
 
   size_t num_simple_selectors() const { return num_simple_selectors_; }
 
-  size_t num_selectors() const { return num_selectors_; }
+  size_t num_complex_selectors() const { return num_complex_selectors_; }
 
   size_t num_challenges() const { return num_challenges_; }
 
@@ -138,6 +138,10 @@ class ConstraintSystem {
     } else {
       minimum_degree_ = degree;
     }
+  }
+
+  size_t GetNumSelectors() const {
+    return num_simple_selectors_ + num_complex_selectors_;
   }
 
   // Enables this fixed |column| to be used for global constant assignments.
@@ -439,7 +443,7 @@ class ConstraintSystem {
       const std::vector<std::vector<bool>>& selectors) {
     // The number of provided selector assignments must be the number we
     // counted for this constraint system.
-    CHECK_EQ(selectors.size(), num_selectors_);
+    CHECK_EQ(selectors.size(), GetNumSelectors());
 
     // Compute the maximal degree of every selector. We only consider the
     // expressions in gates, as lookup arguments cannot support simple
@@ -514,14 +518,13 @@ class ConstraintSystem {
   // selectors. Also, simple selectors may not appear in lookup argument
   // inputs.
   Selector CreateSimpleSelector() {
-    ++num_simple_selectors_;
-    return Selector::Simple(num_selectors_++);
+    return Selector::Simple(num_simple_selectors_++ + num_complex_selectors_);
   }
 
   // Allocate a new complex selector that can appear anywhere
   // within expressions.
   Selector CreateComplexSelector() {
-    return Selector::Complex(num_selectors_++);
+    return Selector::Complex(num_simple_selectors_ + num_complex_selectors_++);
   }
 
   // Allocate a new fixed column that can be used in a lookup table.
@@ -708,7 +711,7 @@ class ConstraintSystem {
        << ", num_advice_columns: " << num_advice_columns_
        << ", num_instance_columns: " << num_instance_columns_
        << ", num_simple_selectors: " << num_simple_selectors_
-       << ", num_selectors: " << num_selectors_
+       << ", num_complex_selectors: " << num_complex_selectors_
        << ", num_challenges: " << num_challenges_
        << ", degree: " << ComputeDegree()
        << ", minimum_degree: " << base::OptionalToString(minimum_degree_)
@@ -824,7 +827,7 @@ class ConstraintSystem {
   size_t num_advice_columns_ = 0;
   size_t num_instance_columns_ = 0;
   size_t num_simple_selectors_ = 0;
-  size_t num_selectors_ = 0;
+  size_t num_complex_selectors_ = 0;
   size_t num_challenges_ = 0;
 
   // Contains the phase for each advice column. Should have same length as

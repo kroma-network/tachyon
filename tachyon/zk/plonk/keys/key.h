@@ -46,7 +46,7 @@ class TACHYON_EXPORT Key {
         std::vector<RationalEvals>(constraint_system.num_fixed_columns(),
                                    domain->template Zero<RationalEvals>()),
         PermutationAssembly(constraint_system.permutation(), n),
-        std::vector<std::vector<bool>>(constraint_system.num_selectors(),
+        std::vector<std::vector<bool>>(constraint_system.GetNumSelectors(),
                                        std::vector<bool>(n, false)),
         // NOTE(chokobole): Considering that this is called from a verifier,
         // then you can't load this number through |prover->GetUsableRows()|.
