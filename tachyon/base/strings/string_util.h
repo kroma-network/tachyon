@@ -137,30 +137,34 @@ std::string OptionalToString(const std::optional<T>& value) {
 
 template <typename Container>
 std::string ContainerToString(const Container& data) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
   std::stringstream ss;
   ss << "[";
-  for (size_t i = 0; i < std::size(data); ++i) {
+  for (size_t i = 0; i < size - 1; ++i) {
     // NOTE(chokobole): This is a trick to call |operator<<()| or |ToString()|.
     google::MakeCheckOpValueString(&ss, data[i]);
-    if (i != std::size(data) - 1) {
-      ss << ", ";
-    }
+    ss << ", ";
   }
+  google::MakeCheckOpValueString(&ss, data[size - 1]);
   ss << "]";
   return ss.str();
 }
 
 template <typename Container>
 std::string Container2DToString(const Container& data) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
   std::stringstream ss;
   ss << "[";
-  for (size_t i = 0; i < std::size(data); ++i) {
-    ss << ContainerToString(data[i]);
-    if (i != std::size(data) - 1) {
-      ss << ", ";
-    }
+  for (size_t i = 0; i < size - 1; ++i) {
+    ss << ContainerToString(data[i]) << ", ";
   }
-  ss << "]";
+  ss << ContainerToString(data[size - 1]) << "]";
   return ss.str();
 }
 

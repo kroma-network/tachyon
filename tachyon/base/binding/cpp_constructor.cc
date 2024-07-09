@@ -45,13 +45,16 @@ void CppConstructor::ValidateAndMaybeDie() const {
 std::string CppConstructor::GetFunctionSignature(
     size_t default_args_num) const {
   DCHECK_LE(default_args_num, arg_type_names_.size());
+
+  size_t size = arg_type_names_.size() - default_args_num;
+
+  if (size == 0) return "";
+
   std::stringstream ss;
-  for (size_t i = 0; i < arg_type_names_.size() - default_args_num; ++i) {
-    if (i != 0) {
-      ss << ",";
-    }
-    ss << arg_type_names_[i];
+  for (size_t i = 0; i < size - 1; ++i) {
+    ss << arg_type_names_[i] << ",";
   }
+  ss << arg_type_names_[size - 1];
   return ss.str();
 }
 
