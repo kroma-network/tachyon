@@ -4,7 +4,6 @@ load(
     "tachyon_cc_library",
     "tachyon_cc_unittest",
     "tachyon_cuda_binary",
-    "tachyon_cuda_unittest",
 )
 
 package(default_visibility = ["//visibility:public"])
@@ -58,7 +57,7 @@ tachyon_cc_unittest(
     ],
 )
 
-tachyon_cuda_unittest(
+tachyon_cc_unittest(
     name = "msm_gpu_unittests",
     srcs = if_gpu_is_configured(["msm_gpu_unittest.cc"]),
     deps = [
