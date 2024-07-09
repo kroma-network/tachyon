@@ -23,7 +23,7 @@ class IcicleMSM {
 
   IcicleMSM(gpuMemPool_t mem_pool, gpuStream_t stream)
       : mem_pool_(mem_pool), stream_(stream) {
-    device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
+    ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
     config_.reset(new ::msm::MSMConfig{
         ctx,
         /*points_size=*/0,
