@@ -157,7 +157,7 @@ std::string Container2DToString(const Container& data) {
   for (size_t i = 0; i < std::size(data); ++i) {
     ss << ContainerToString(data[i]);
     if (i != std::size(data) - 1) {
-      ss << ",";
+      ss << ", ";
     }
   }
   ss << "]";
