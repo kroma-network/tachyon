@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 
+#include "tachyon/base/strings/string_util.h"
 #include "tachyon/crypto/hashes/sponge/duplex_sponge_mode.h"
 #include "tachyon/crypto/hashes/sponge/sponge_config.h"
 #include "tachyon/math/matrix/matrix_types.h"
@@ -44,30 +45,10 @@ struct SpongeState {
   }
   bool operator!=(const SpongeState& other) const { return !operator==(other); }
 
-  std::string ToString() const {
-    std::stringstream ss;
-    ss << "[";
-    for (Eigen::Index i = 0; i < elements.size(); ++i) {
-      ss << elements[i].ToString();
-      if (i != elements.size() - 1) {
-        ss << ", ";
-      }
-    }
-    ss << "]";
-    return ss.str();
-  }
+  std::string ToString() const { return base::ContainerToString(elements); }
 
   std::string ToHexString(bool pad_zero = false) const {
-    std::stringstream ss;
-    ss << "[";
-    for (Eigen::Index i = 0; i < elements.size(); ++i) {
-      ss << elements[i].ToHexString(pad_zero);
-      if (i != elements.size() - 1) {
-        ss << ", ";
-      }
-    }
-    ss << "]";
-    return ss.str();
+    return base::ContainerToHexString(elements, pad_zero);
   }
 };
 
