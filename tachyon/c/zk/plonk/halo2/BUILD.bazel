@@ -12,6 +12,7 @@ filegroup(
     srcs = [
         "bn254_argument_data.h",
         "bn254_instance_columns_vec.h",
+        "bn254_prover.h",
         "bn254_transcript.h",
         "bn254_verifier.h",
         "constants.h",
