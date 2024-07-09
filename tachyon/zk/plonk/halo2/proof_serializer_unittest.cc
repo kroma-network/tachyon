@@ -11,6 +11,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/base/auto_reset.h"
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
@@ -57,7 +58,24 @@ TEST_F(ProofSerializerTest, SerializeProof) {
   struct {
     std::array<std::string_view, 2> hex;
     std::vector<uint8_t> proof;
+    bool use_legacy_serialization;
   } tests[] = {
+      // point at infinity
+      {{
+           "0x0",
+           "0x0",
+       },
+       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       true},
+      // point at infinity
+      {{
+           "0x0",
+           "0x0",
+       },
+       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128},
+       false},
       // even point
       {{
            "0x233bd4dc42ffd123f6d041dca2117acea5f6a201b4612a81e7081cad001df470",
@@ -65,7 +83,8 @@ TEST_F(ProofSerializerTest, SerializeProof) {
        },
        {112, 244, 29,  0,   173, 28,  8,   231, 129, 42,  97,
         180, 1,   162, 246, 165, 206, 122, 17,  162, 220, 65,
-        208, 246, 35,  209, 255, 66,  220, 212, 59,  35}},
+        208, 246, 35,  209, 255, 66,  220, 212, 59,  35},
+       false},
       // odd point
       {{
            "0x1ec72fa9df2846c267ad6bc77e438c0d8c0c9bba978be3095cc48b0334299dbb",
@@ -73,10 +92,23 @@ TEST_F(ProofSerializerTest, SerializeProof) {
        },
        {187, 157, 41,  52, 3,   139, 196, 92, 9,   227, 139,
         151, 186, 155, 12, 140, 13,  140, 67, 126, 199, 107,
-        173, 103, 194, 70, 40,  223, 169, 47, 199, 158}},
+        173, 103, 194, 70, 40,  223, 169, 47, 199, 158},
+       true},
+      // odd point
+      {{
+           "0x1ec72fa9df2846c267ad6bc77e438c0d8c0c9bba978be3095cc48b0334299dbb",
+           "0x2c1b5dfdca4dfc40a864355fead42fb3656a8a3304ad11b1dee1a4b924ac5a03",
+       },
+       {187, 157, 41,  52, 3,   139, 196, 92, 9,   227, 139,
+        151, 186, 155, 12, 140, 13,  140, 67, 126, 199, 107,
+        173, 103, 194, 70, 40,  223, 169, 47, 199, 94},
+       false},
   };
 
   for (const auto& test : tests) {
+    base::AutoReset<bool> auto_reset(
+        &ProofSerializer<G1AffinePoint>::s_use_legacy_serialization,
+        test.use_legacy_serialization);
     std::vector<uint8_t> buffer;
     buffer.resize(test.proof.size());
     base::Buffer write_buf(buffer.data(), buffer.size());

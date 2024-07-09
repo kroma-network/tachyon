@@ -161,7 +161,7 @@ const tachyon_bn254_univariate_evaluation_domain* GetDomain(
 }
 
 template <typename NativeProver>
-tachyon_bn254_g1_jacobian* Commit(
+tachyon_bn254_g1_projective* Commit(
     NativeProver* prover,
     const tachyon_bn254_univariate_dense_polynomial* poly) {
   const std::vector<math::bn254::Fr>& scalars =
@@ -170,7 +170,7 @@ tachyon_bn254_g1_jacobian* Commit(
 }
 
 template <typename NativeProver>
-tachyon_bn254_g1_jacobian* CommitLagrange(
+tachyon_bn254_g1_projective* CommitLagrange(
     NativeProver* prover, const tachyon_bn254_univariate_evaluations* evals) {
   const std::vector<math::bn254::Fr>& scalars =
       c::base::native_cast(*evals).evaluations();
@@ -454,14 +454,14 @@ tachyon_halo2_bn254_prover_get_domain(
   return nullptr;
 }
 
-tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_prover_commit(
+tachyon_bn254_g1_projective* tachyon_halo2_bn254_prover_commit(
     const tachyon_halo2_bn254_prover* prover,
     const tachyon_bn254_univariate_dense_polynomial* poly) {
   INVOKE_PROVER(Commit, poly);
   return nullptr;
 }
 
-tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_prover_commit_lagrange(
+tachyon_bn254_g1_projective* tachyon_halo2_bn254_prover_commit_lagrange(
     const tachyon_halo2_bn254_prover* prover,
     const tachyon_bn254_univariate_evaluations* evals) {
   INVOKE_PROVER(CommitLagrange, evals);

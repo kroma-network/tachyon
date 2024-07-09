@@ -12,7 +12,7 @@
 namespace tachyon::halo2_api::bn254 {
 
 struct Fr;
-struct G1JacobianPoint;
+struct G1ProjectivePoint;
 struct G2AffinePoint;
 struct InstanceSingle;
 struct AdviceSingle;
@@ -23,9 +23,8 @@ class Poly;
 
 class Prover {
  public:
-  Prover(uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
-         const Fr& s);
-  Prover(uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+  Prover(uint8_t pcs_type, uint8_t transcript_type, uint32_t k, const Fr& s);
+  Prover(uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
          const uint8_t* params, size_t params_len);
   Prover(const Prover& other) = delete;
   Prover& operator=(const Prover& other) = delete;
@@ -36,8 +35,8 @@ class Prover {
   uint32_t k() const;
   uint64_t n() const;
   const G2AffinePoint& s_g2() const;
-  rust::Box<G1JacobianPoint> commit(const Poly& poly) const;
-  rust::Box<G1JacobianPoint> commit_lagrange(const Evals& evals) const;
+  rust::Box<G1ProjectivePoint> commit(const Poly& poly) const;
+  rust::Box<G1ProjectivePoint> commit_lagrange(const Evals& evals) const;
   std::unique_ptr<Evals> empty_evals() const;
   std::unique_ptr<RationalEvals> empty_rational_evals() const;
   std::unique_ptr<Poly> ifft(const Evals& evals) const;
@@ -57,12 +56,11 @@ class Prover {
   tachyon_halo2_bn254_prover* prover_;
 };
 
-std::unique_ptr<Prover> new_prover(uint8_t pcs_type, uint8_t ls_type,
-                                   uint8_t transcript_type, uint32_t k,
-                                   const Fr& s);
+std::unique_ptr<Prover> new_prover(uint8_t pcs_type, uint8_t transcript_type,
+                                   uint32_t k, const Fr& s);
 
 std::unique_ptr<Prover> new_prover_from_params(
-    uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+    uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
     rust::Slice<const uint8_t> params);
 
 }  // namespace tachyon::halo2_api::bn254

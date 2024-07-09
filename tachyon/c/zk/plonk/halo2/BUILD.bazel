@@ -12,6 +12,7 @@ filegroup(
     srcs = [
         "bn254_argument_data.h",
         "bn254_instance_columns_vec.h",
+        "bn254_prover.h",
         "bn254_transcript.h",
         "bn254_verifier.h",
         "constants.h",
@@ -184,8 +185,10 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/base:phase",
         "//tachyon/zk/plonk/constraint_system:gate",
+        "//tachyon/zk/plonk/constraint_system:lookup_tracker",
         "//tachyon/zk/plonk/permutation:permutation_argument",
         "//tachyon/zk/plonk/permutation:permutation_proving_key",
+        "@com_google_absl//absl/container:btree",
     ],
 )
 
@@ -215,6 +218,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base/files:file_util",
         "//tachyon/base/functional:callback",
+        "//tachyon/zk/plonk/halo2:proof_serializer",
         "//tachyon/zk/plonk/halo2:prover",
     ],
 )

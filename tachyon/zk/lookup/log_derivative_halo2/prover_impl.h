@@ -11,8 +11,6 @@
 #include <utility>
 #include <vector>
 
-#include "third_party/pdqsort/include/pdqsort.h"
-
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/ref.h"
@@ -103,8 +101,10 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
     storage.sorted_table_with_indices[i] = {i, compressed_table[i].ToBigInt()};
   }
 
-  pdqsort(storage.sorted_table_with_indices.begin(),
-          storage.sorted_table_with_indices.end());
+  // TODO(chokobole): Use https://github.com/timsort/cpp-TimSort or
+  // https://github.com/sebawild/powersort for better performance.
+  std::stable_sort(storage.sorted_table_with_indices.begin(),
+                   storage.sorted_table_with_indices.end());
 
   OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < compressed_inputs.size(); ++i) {
     for (RowIndex j = 0; j < usable_rows; ++j) {

@@ -24,9 +24,13 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
   using F = typename LS::Field;
   using C = typename LS::Commitment;
 
-  ProvingKeyImpl() = default;
+  ProvingKeyImpl() {
+    this->verifying_key_.constraint_system_.set_lookup_type(LS::type);
+  }
   ProvingKeyImpl(absl::Span<const uint8_t> state, bool read_only_vk)
       : read_only_vk_(read_only_vk) {
+    this->verifying_key_.constraint_system_.set_lookup_type(LS::type);
+
     std::string_view pk_str;
     if (tachyon::base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {
       VLOG(1) << "Save pk to: " << pk_str;
@@ -92,7 +96,9 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
     cs.num_fixed_columns_ = ReadU32AsSizeT(buffer);
     cs.num_advice_columns_ = ReadU32AsSizeT(buffer);
     cs.num_instance_columns_ = ReadU32AsSizeT(buffer);
-    cs.num_selectors_ = ReadU32AsSizeT(buffer);
+    cs.num_simple_selectors_ = ReadU32AsSizeT(buffer);
+    cs.num_complex_selectors_ =
+        ReadU32AsSizeT(buffer) - cs.num_simple_selectors_;
     cs.num_challenges_ = ReadU32AsSizeT(buffer);
     ReadBuffer(buffer, cs.advice_column_phases_);
     ReadBuffer(buffer, cs.challenge_phases_);
@@ -105,8 +111,10 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
     ReadBuffer(buffer, cs.instance_queries_);
     ReadBuffer(buffer, cs.fixed_queries_);
     ReadBuffer(buffer, cs.permutation_);
+    ReadBuffer(buffer, cs.lookups_map_);
     ReadBuffer(buffer, cs.lookups_);
     ReadBuffer(buffer, cs.constants_);
+    ReadBuffer(buffer, cs.minimum_degree_);
   }
 
  private:

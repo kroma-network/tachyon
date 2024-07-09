@@ -44,6 +44,7 @@ tachyon_cc_library(
     deps = [
         ":duplex_sponge_mode",
         ":sponge_config",
+        "//tachyon/base/strings:string_util",
         "//tachyon/math/matrix:matrix_types",
     ],
 )

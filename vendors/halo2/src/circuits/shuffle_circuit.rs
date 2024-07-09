@@ -2,6 +2,7 @@ use std::iter;
 
 use ff::BatchInvert;
 use halo2_proofs::{
+    arithmetic::Field,
     circuit::{Layouter, SimpleFloorPlanner, Value},
     plonk::{
         Advice, Challenge, Circuit, Column, ConstraintSystem, Error, Expression, FirstPhase,
@@ -9,16 +10,13 @@ use halo2_proofs::{
     },
     poly::Rotation,
 };
-use halo2curves::FieldExt;
 use rand_core::RngCore;
 
-fn rand_2d_array<F: FieldExt, R: RngCore, const W: usize, const H: usize>(
-    rng: &mut R,
-) -> [[F; H]; W] {
+fn rand_2d_array<F: Field, R: RngCore, const W: usize, const H: usize>(rng: &mut R) -> [[F; H]; W] {
     [(); W].map(|_| [(); H].map(|_| F::random(&mut *rng)))
 }
 
-fn shuffled<F: FieldExt, R: RngCore, const W: usize, const H: usize>(
+fn shuffled<F: Field, R: RngCore, const W: usize, const H: usize>(
     original: [[F; H]; W],
     rng: &mut R,
 ) -> [[F; H]; W] {
@@ -47,7 +45,7 @@ struct MyConfig<const W: usize> {
 }
 
 impl<const W: usize> MyConfig<W> {
-    fn configure<F: FieldExt>(meta: &mut ConstraintSystem<F>) -> Self {
+    fn configure<F: Field>(meta: &mut ConstraintSystem<F>) -> Self {
         let [q_shuffle, q_first, q_last] = [(); 3].map(|_| meta.selector());
         // First phase
         let original = [(); W].map(|_| meta.advice_column_in(FirstPhase));
@@ -59,7 +57,7 @@ impl<const W: usize> MyConfig<W> {
         meta.create_gate("z should start with 1", |meta| {
             let q_first = meta.query_selector(q_first);
             let z = meta.query_advice(z, Rotation::cur());
-            let one = Expression::Constant(F::one());
+            let one = Expression::Constant(F::ONE);
 
             vec![q_first * (one - z)]
         });
@@ -67,7 +65,7 @@ impl<const W: usize> MyConfig<W> {
         meta.create_gate("z should end with 1", |meta| {
             let q_last = meta.query_selector(q_last);
             let z = meta.query_advice(z, Rotation::cur());
-            let one = Expression::Constant(F::one());
+            let one = Expression::Constant(F::ONE);
 
             vec![q_last * (one - z)]
         });
@@ -109,12 +107,12 @@ impl<const W: usize> MyConfig<W> {
 }
 
 #[derive(Clone, Default)]
-struct MyCircuit<F: FieldExt, const W: usize, const H: usize> {
+struct MyCircuit<F: Field, const W: usize, const H: usize> {
     original: Value<[[F; H]; W]>,
     shuffled: Value<[[F; H]; W]>,
 }
 
-impl<F: FieldExt, const W: usize, const H: usize> MyCircuit<F, W, H> {
+impl<F: Field, const W: usize, const H: usize> MyCircuit<F, W, H> {
     fn rand<R: RngCore>(rng: &mut R) -> Self {
         let original = rand_2d_array::<F, _, W, H>(rng);
         let shuffled = shuffled(original, rng);
@@ -126,7 +124,7 @@ impl<F: FieldExt, const W: usize, const H: usize> MyCircuit<F, W, H> {
     }
 }
 
-impl<F: FieldExt, const W: usize, const H: usize> Circuit<F> for MyCircuit<F, W, H> {
+impl<F: Field, const W: usize, const H: usize> Circuit<F> for MyCircuit<F, W, H> {
     type Config = MyConfig<W>;
     type FloorPlanner = SimpleFloorPlanner;
 
@@ -191,9 +189,9 @@ impl<F: FieldExt, const W: usize, const H: usize> Circuit<F> for MyCircuit<F, W,
                 // Second phase
                 let z = self.original.zip(self.shuffled).zip(theta).zip(gamma).map(
                     |(((original, shuffled), theta), gamma)| {
-                        let mut product = vec![F::zero(); H];
+                        let mut product = vec![F::ZERO; H];
                         for (idx, product) in product.iter_mut().enumerate() {
-                            let mut compressed = F::zero();
+                            let mut compressed = F::ZERO;
                             for value in shuffled.iter() {
                                 compressed *= theta;
                                 compressed += value[idx];
@@ -205,7 +203,7 @@ impl<F: FieldExt, const W: usize, const H: usize> Circuit<F> for MyCircuit<F, W,
                         product.iter_mut().batch_invert();
 
                         for (idx, product) in product.iter_mut().enumerate() {
-                            let mut compressed = F::zero();
+                            let mut compressed = F::ZERO;
                             for value in original.iter() {
                                 compressed *= theta;
                                 compressed += value[idx];
@@ -215,16 +213,16 @@ impl<F: FieldExt, const W: usize, const H: usize> Circuit<F> for MyCircuit<F, W,
                         }
 
                         #[allow(clippy::let_and_return)]
-                        let z = iter::once(F::one())
+                        let z = iter::once(F::ONE)
                             .chain(product)
-                            .scan(F::one(), |state, cur| {
+                            .scan(F::ONE, |state, cur| {
                                 *state *= &cur;
                                 Some(*state)
                             })
                             .collect::<Vec<_>>();
 
                         #[cfg(feature = "sanity-checks")]
-                        assert_eq!(F::one(), *z.last().unwrap());
+                        assert_eq!(F::ONE, *z.last().unwrap());
 
                         z
                     },
@@ -263,7 +261,7 @@ mod test {
             ProvingKey as TachyonProvingKey, SHPlonkProver, Sha256Write as TachyonSha256Write,
             TachyonProver,
         },
-        consts::{LSType, TranscriptType, SEED},
+        consts::{TranscriptType, SEED},
         prover::create_proof as tachyon_create_proof,
         sha::ShaWrite,
         xor_shift_rng::XORShiftRng,
@@ -303,19 +301,15 @@ mod test {
         };
 
         let tachyon_proof = {
-            let mut prover = GWCProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
-                TranscriptType::Blake2b as u8,
-                K,
-                &s,
-            );
+            let mut prover =
+                GWCProver::<KZGCommitmentScheme<Bn256>>::new(TranscriptType::Blake2b as u8, K, &s);
 
-            let mut tachyon_pk = {
+            let (mut tachyon_pk, fixed_values) = {
                 let mut pk_bytes: Vec<u8> = vec![];
                 pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
                     .unwrap();
-                drop(pk);
-                TachyonProvingKey::from(pk_bytes.as_slice())
+                let fixed_values = pk.drop_but_fixed_values();
+                (TachyonProvingKey::from(pk_bytes.as_slice()), fixed_values)
             };
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
@@ -324,6 +318,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
                 &[&[], &[]],
+                fixed_values,
                 rng,
                 &mut transcript,
             )
@@ -376,7 +371,6 @@ mod test {
 
         let tachyon_blake2b_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
                 TranscriptType::Blake2b as u8,
                 K,
                 &s,
@@ -390,6 +384,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
                 &[&[], &[]],
+                pk.fixed_values.clone(),
                 rng.clone(),
                 &mut transcript,
             )
@@ -427,7 +422,6 @@ mod test {
 
         let tachyon_poseidon_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
                 TranscriptType::Poseidon as u8,
                 K,
                 &s,
@@ -441,6 +435,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
                 &[&[], &[]],
+                pk.fixed_values.clone(),
                 rng.clone(),
                 &mut transcript,
             )
@@ -478,7 +473,6 @@ mod test {
 
         let tachyon_sha256_proof = {
             let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
-                LSType::Halo2 as u8,
                 TranscriptType::Sha256 as u8,
                 K,
                 &s,
@@ -492,6 +486,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
                 &[&[], &[]],
+                pk.fixed_values,
                 rng,
                 &mut transcript,
             )

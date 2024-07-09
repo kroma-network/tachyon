@@ -1,5 +1,6 @@
 #include "vendors/halo2/include/bn254_proving_key.h"
 
+#include "tachyon/c/zk/plonk/halo2/constants.h"
 #include "vendors/halo2/src/bn254.rs.h"
 
 namespace tachyon::halo2_api::bn254 {
@@ -45,7 +46,8 @@ rust::Vec<size_t> GetFixedColumns(
 
 ProvingKey::ProvingKey(rust::Slice<const uint8_t> pk_bytes)
     : pk_(tachyon_bn254_plonk_proving_key_create_from_state(
-          TACHYON_HALO2_HALO2_LS, pk_bytes.data(), pk_bytes.size())) {}
+          TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS, pk_bytes.data(),
+          pk_bytes.size())) {}
 
 ProvingKey::~ProvingKey() { tachyon_bn254_plonk_proving_key_destroy(pk_); }
 

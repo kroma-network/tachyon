@@ -2,9 +2,12 @@
 #define TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_
 
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+#include "absl/container/btree_map.h"
 
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/buffer/read_only_buffer.h"
@@ -23,6 +26,7 @@
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/base/phase.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"
+#include "tachyon/zk/plonk/constraint_system/lookup_tracker.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 
@@ -56,6 +60,46 @@ inline size_t ReadU32AsSizeT(const tachyon::base::ReadOnlyBuffer& buffer) {
   return size_t{BufferReader<uint32_t>::Read(buffer)};
 }
 
+template <>
+class BufferReader<std::string> {
+ public:
+  static std::string Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    size_t size = ReadU32AsSizeT(buffer);
+    std::string ret;
+    ret.resize(size);
+    CHECK(buffer.Read(reinterpret_cast<uint8_t*>(const_cast<char*>(ret.data())),
+                      size));
+    return ret;
+  }
+};
+
+template <typename T>
+class BufferReader<std::optional<T>> {
+ public:
+  static std::optional<T> Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    bool has_value = ReadU8AsBool(buffer);
+    if (has_value) {
+      return BufferReader<T>::Read(buffer);
+    } else {
+      return std::nullopt;
+    }
+  }
+};
+
+template <>
+class BufferReader<std::optional<size_t>> {
+ public:
+  static std::optional<size_t> Read(
+      const tachyon::base::ReadOnlyBuffer& buffer) {
+    bool has_value = ReadU8AsBool(buffer);
+    if (has_value) {
+      return ReadU32AsSizeT(buffer);
+    } else {
+      return std::nullopt;
+    }
+  }
+};
+
 template <typename T>
 class BufferReader<std::vector<T>> {
  public:
@@ -63,6 +107,22 @@ class BufferReader<std::vector<T>> {
     return tachyon::base::CreateVector(ReadU32AsSizeT(buffer), [&buffer]() {
       return BufferReader<T>::Read(buffer);
     });
+  }
+};
+
+template <typename K, typename V>
+class BufferReader<absl::btree_map<K, V>> {
+ public:
+  static absl::btree_map<K, V> Read(
+      const tachyon::base::ReadOnlyBuffer& buffer) {
+    size_t size = ReadU32AsSizeT(buffer);
+    absl::btree_map<K, V> ret;
+    for (size_t i = 0; i < size; ++i) {
+      K key = BufferReader<K>::Read(buffer);
+      V value = BufferReader<V>::Read(buffer);
+      ret[std::move(key)] = std::move(value);
+    }
+    return ret;
   }
 };
 
@@ -262,7 +322,8 @@ class BufferReader<tachyon::zk::plonk::Query<C>> {
  public:
   static tachyon::zk::plonk::Query<C> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
-    size_t index = ReadU32AsSizeT(buffer);
+    bool has_index = ReadU8AsBool(buffer);
+    size_t index = has_index ? ReadU32AsSizeT(buffer) : 0;
     size_t column_index = ReadU32AsSizeT(buffer);
     tachyon::zk::Rotation rotation =
         BufferReader<tachyon::zk::Rotation>::Read(buffer);
@@ -383,12 +444,28 @@ class BufferReader<tachyon::zk::lookup::Argument<F>> {
  public:
   static tachyon::zk::lookup::Argument<F> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
-    std::vector<std::unique_ptr<tachyon::zk::Expression<F>>> input_expressions;
-    ReadBuffer(buffer, input_expressions);
+    std::vector<std::vector<std::unique_ptr<tachyon::zk::Expression<F>>>>
+        inputs_expressions;
+    ReadBuffer(buffer, inputs_expressions);
     std::vector<std::unique_ptr<tachyon::zk::Expression<F>>> table_expressions;
     ReadBuffer(buffer, table_expressions);
-    return tachyon::zk::lookup::Argument<F>("", std::move(input_expressions),
+    return tachyon::zk::lookup::Argument<F>("", std::move(inputs_expressions),
                                             std::move(table_expressions));
+  }
+};
+
+template <typename F>
+class BufferReader<tachyon::zk::plonk::LookupTracker<F>> {
+ public:
+  static tachyon::zk::plonk::LookupTracker<F> Read(
+      const tachyon::base::ReadOnlyBuffer& buffer) {
+    std::vector<std::unique_ptr<tachyon::zk::Expression<F>>> table;
+    ReadBuffer(buffer, table);
+    std::vector<std::vector<std::unique_ptr<tachyon::zk::Expression<F>>>>
+        inputs;
+    ReadBuffer(buffer, inputs);
+    return tachyon::zk::plonk::LookupTracker<F>("", std::move(table),
+                                                std::move(inputs));
   }
 };
 

@@ -62,6 +62,14 @@ void tachyon_bn254_univariate_rational_evaluations_set_rational(
   };
 }
 
+void tachyon_bn254_univariate_rational_evaluations_evaluate(
+    const tachyon_bn254_univariate_rational_evaluations* rational_evals,
+    size_t i, tachyon_bn254_fr* value) {
+  const RationalEvals& cpp_rational_eval =
+      c::base::native_cast(*rational_evals);
+  *value = c::base::c_cast(cpp_rational_eval[i].Evaluate());
+}
+
 tachyon_bn254_univariate_evaluations*
 tachyon_bn254_univariate_rational_evaluations_batch_evaluate(
     const tachyon_bn254_univariate_rational_evaluations* rational_evals) {

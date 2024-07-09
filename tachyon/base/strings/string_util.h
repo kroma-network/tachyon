@@ -137,30 +137,65 @@ std::string OptionalToString(const std::optional<T>& value) {
 
 template <typename Container>
 std::string ContainerToString(const Container& data) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
   std::stringstream ss;
   ss << "[";
-  for (size_t i = 0; i < std::size(data); ++i) {
+  for (size_t i = 0; i < size - 1; ++i) {
     // NOTE(chokobole): This is a trick to call |operator<<()| or |ToString()|.
     google::MakeCheckOpValueString(&ss, data[i]);
-    if (i != std::size(data) - 1) {
-      ss << ", ";
-    }
+    ss << ", ";
   }
+  google::MakeCheckOpValueString(&ss, data[size - 1]);
   ss << "]";
   return ss.str();
 }
 
 template <typename Container>
 std::string Container2DToString(const Container& data) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
   std::stringstream ss;
   ss << "[";
-  for (size_t i = 0; i < std::size(data); ++i) {
-    ss << ContainerToString(data[i]);
-    if (i != std::size(data) - 1) {
-      ss << ",";
-    }
+  for (size_t i = 0; i < size - 1; ++i) {
+    ss << ContainerToString(data[i]) << ", ";
   }
-  ss << "]";
+  ss << ContainerToString(data[size - 1]) << "]";
+  return ss.str();
+}
+
+template <typename Container>
+std::string ContainerToHexString(const Container& data, bool pad_zero = false) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
+  std::stringstream ss;
+  ss << "[";
+  for (size_t i = 0; i < size - 1; ++i) {
+    ss << data[i].ToHexString(pad_zero) << ", ";
+  }
+  ss << data[size - 1].ToHexString(pad_zero) << "]";
+  return ss.str();
+}
+
+template <typename Container>
+std::string Container2DToHexString(const Container& data,
+                                   bool pad_zero = false) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
+  std::stringstream ss;
+  ss << "[";
+  for (size_t i = 0; i < size - 1; ++i) {
+    ss << ContainerToHexString(data[i], pad_zero) << ", ";
+  }
+  ss << ContainerToHexString(data[size - 1], pad_zero) << "]";
   return ss.str();
 }
 

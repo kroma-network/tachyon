@@ -106,6 +106,17 @@ tachyon_bn254_univariate_rational_evaluations_set_rational(
     const tachyon_bn254_fr* numerator, const tachyon_bn254_fr* denominator);
 
 /**
+ * @brief Evaluates the rational evaluations structure at the given index.
+ *
+ * @param evals A pointer to the rational evaluations structure to evaluate.
+ * @param i Index at which to perform the evaluation.
+ * @param value A pointer to the value resulting from the evaluation.
+ */
+TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_evaluate(
+    const tachyon_bn254_univariate_rational_evaluations* evals, size_t i,
+    tachyon_bn254_fr* value);
+
+/**
  * @brief Performs a batch evaluation on the rational evaluations structure.
  *
  * @param evals A pointer to the rational evaluations structure to evaluate.

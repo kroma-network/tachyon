@@ -170,10 +170,10 @@ TEST_P(ProverTest, Commit) {
       math::UnivariateDensePolynomial<math::bn254::Fr, c::math::kMaxDegree>;
   Poly poly = Poly::Random(5);
 
-  tachyon_bn254_g1_jacobian* point =
+  tachyon_bn254_g1_projective* point =
       tachyon_halo2_bn254_prover_commit(prover_, c::base::c_cast(&poly));
 
-  math::bn254::G1JacobianPoint expected;
+  math::bn254::G1ProjectivePoint expected;
   switch (static_cast<zk::plonk::halo2::PCSType>(prover_->pcs_type)) {
     case zk::plonk::halo2::PCSType::kGWC: {
       switch (static_cast<zk::plonk::halo2::LSType>(prover_->ls_type)) {
@@ -181,7 +181,7 @@ TEST_P(ProverTest, Commit) {
           expected =
               reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
                   ->Commit(poly)
-                  .ToJacobian();
+                  .ToProjective();
           break;
         }
         case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
@@ -189,7 +189,7 @@ TEST_P(ProverTest, Commit) {
               reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
                   prover_->extra)
                   ->Commit(poly)
-                  .ToJacobian();
+                  .ToProjective();
           break;
         }
       }
@@ -201,7 +201,7 @@ TEST_P(ProverTest, Commit) {
           expected =
               reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(prover_->extra)
                   ->Commit(poly)
-                  .ToJacobian();
+                  .ToProjective();
           break;
         }
         case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
@@ -209,7 +209,7 @@ TEST_P(ProverTest, Commit) {
               reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
                   prover_->extra)
                   ->Commit(poly)
-                  .ToJacobian();
+                  .ToProjective();
           break;
         }
       }
@@ -225,10 +225,11 @@ TEST_P(ProverTest, CommitLagrange) {
       math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
   Evals evals = Evals::Random(5);
 
-  tachyon_bn254_g1_jacobian* point = tachyon_halo2_bn254_prover_commit_lagrange(
-      prover_, c::base::c_cast(&evals));
+  tachyon_bn254_g1_projective* point =
+      tachyon_halo2_bn254_prover_commit_lagrange(prover_,
+                                                 c::base::c_cast(&evals));
 
-  math::bn254::G1JacobianPoint expected;
+  math::bn254::G1ProjectivePoint expected;
   switch (static_cast<zk::plonk::halo2::PCSType>(prover_->pcs_type)) {
     case zk::plonk::halo2::PCSType::kGWC: {
       switch (static_cast<zk::plonk::halo2::LSType>(prover_->ls_type)) {
@@ -236,7 +237,7 @@ TEST_P(ProverTest, CommitLagrange) {
           expected =
               reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
                   ->Commit(evals)
-                  .ToJacobian();
+                  .ToProjective();
           break;
         }
         case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
@@ -244,7 +245,7 @@ TEST_P(ProverTest, CommitLagrange) {
               reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
                   prover_->extra)
                   ->Commit(evals)
-                  .ToJacobian();
+                  .ToProjective();
           break;
         }
       }
@@ -256,7 +257,7 @@ TEST_P(ProverTest, CommitLagrange) {
           expected =
               reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(prover_->extra)
                   ->Commit(evals)
-                  .ToJacobian();
+                  .ToProjective();
           break;
         }
         case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
@@ -264,7 +265,7 @@ TEST_P(ProverTest, CommitLagrange) {
               reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
                   prover_->extra)
                   ->Commit(evals)
-                  .ToJacobian();
+                  .ToProjective();
           break;
         }
       }

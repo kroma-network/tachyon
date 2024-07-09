@@ -516,7 +516,7 @@ dependencies = [
  "bit-vec 0.4.4",
  "byteorder",
  "cfg-if 0.1.10",
- "crossbeam",
+ "crossbeam 0.7.3",
  "futures 0.1.31",
  "futures-cpupool",
  "num_cpus",
@@ -535,7 +535,7 @@ dependencies = [
  "blake2s_simd",
  "byteorder",
  "cfg-if 1.0.0",
- "crossbeam",
+ "crossbeam 0.7.3",
  "futures 0.3.30",
  "hex",
  "lazy_static",
@@ -903,11 +903,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "69323bff1fb41c635347b8ead484a5ca6c3f11914d784170b158d8449ab07f8e"
 dependencies = [
  "cfg-if 0.1.10",
- "crossbeam-channel",
+ "crossbeam-channel 0.4.4",
  "crossbeam-deque 0.7.4",
  "crossbeam-epoch 0.8.2",
- "crossbeam-queue",
+ "crossbeam-queue 0.2.3",
  "crossbeam-utils 0.7.2",
+]
+
+[[package]]
+name = "crossbeam"
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1137cd7e7fc0fb5d3c5a8678be38ec56e819125d8d7907411fe24ccb943faca8"
+dependencies = [
+ "crossbeam-channel 0.5.13",
+ "crossbeam-deque 0.8.5",
+ "crossbeam-epoch 0.9.18",
+ "crossbeam-queue 0.3.11",
+ "crossbeam-utils 0.8.20",
 ]
 
 [[package]]
@@ -918,6 +931,15 @@ checksum = "b153fe7cbef478c567df0f972e02e6d736db11affe43dfc9c56a9374d1adfb87"
 dependencies = [
  "crossbeam-utils 0.7.2",
  "maybe-uninit",
+]
+
+[[package]]
+name = "crossbeam-channel"
+version = "0.5.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33480d6946193aa8033910124896ca395333cae7e2d1113d1fef6c3272217df2"
+dependencies = [
+ "crossbeam-utils 0.8.20",
 ]
 
 [[package]]
@@ -974,6 +996,15 @@ dependencies = [
  "cfg-if 0.1.10",
  "crossbeam-utils 0.7.2",
  "maybe-uninit",
+]
+
+[[package]]
+name = "crossbeam-queue"
+version = "0.3.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df0346b5d5e76ac2fe4e327c5fd1118d6be7c51dfb18f9b7922923f287471e35"
+dependencies = [
+ "crossbeam-utils 0.8.20",
 ]
 
 [[package]]
@@ -1611,7 +1642,7 @@ dependencies = [
 name = "halo2_fft_benchmark"
 version = "0.0.1"
 dependencies = [
- "halo2_proofs 0.2.0",
+ "halo2_proofs 1.1.0 (git+https://github.com/scroll-tech/halo2.git?rev=e5ddf67)",
  "tachyon_rs",
 ]
 
@@ -1619,7 +1650,7 @@ dependencies = [
 name = "halo2_msm_benchmark"
 version = "0.0.1"
 dependencies = [
- "halo2_proofs 0.2.0",
+ "halo2_proofs 1.1.0 (git+https://github.com/scroll-tech/halo2.git?rev=e5ddf67)",
  "tachyon_rs",
 ]
 
@@ -1639,19 +1670,47 @@ dependencies = [
 
 [[package]]
 name = "halo2_proofs"
-version = "0.2.0"
-source = "git+https://github.com/kroma-network/halo2.git?rev=be2e64f#be2e64f33363340df28ac671da6a7040bf9f8b93"
+version = "1.1.0"
+source = "git+https://github.com/kroma-network/halo2.git?branch=scroll-halo2-v1.1-with-tachyon-without-cxx#ddb483aac69be1d8a4796d409740db9e919de563"
 dependencies = [
  "ark-std 0.3.0",
  "blake2b_simd",
  "cfg-if 0.1.10",
- "ff 0.12.1",
- "group 0.12.1",
+ "crossbeam 0.8.4",
+ "ff 0.13.0",
+ "group 0.13.0",
  "halo2curves",
  "log",
+ "maybe-rayon",
  "num-bigint 0.4.5",
  "num-integer",
  "poseidon",
+ "rand_chacha",
+ "rand_core 0.6.4",
+ "rayon",
+ "sha3 0.9.1",
+ "subtle",
+ "tracing",
+]
+
+[[package]]
+name = "halo2_proofs"
+version = "1.1.0"
+source = "git+https://github.com/scroll-tech/halo2.git?rev=e5ddf67#e5ddf67e5ae16be38d6368ed355c7c41906272ab"
+dependencies = [
+ "ark-std 0.3.0",
+ "blake2b_simd",
+ "cfg-if 0.1.10",
+ "crossbeam 0.8.4",
+ "ff 0.13.0",
+ "group 0.13.0",
+ "halo2curves",
+ "log",
+ "maybe-rayon",
+ "num-bigint 0.4.5",
+ "num-integer",
+ "poseidon",
+ "rand_chacha",
  "rand_core 0.6.4",
  "rayon",
  "sha3 0.9.1",
@@ -1661,19 +1720,22 @@ dependencies = [
 
 [[package]]
 name = "halo2curves"
-version = "0.3.1"
-source = "git+https://github.com/kroma-network/halo2curves.git?rev=c0ac193#c0ac1935e5da2a620204b5b011be2c924b1e0155"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6b1142bd1059aacde1b477e0c80c142910f1ceae67fc619311d6a17428007ab"
 dependencies = [
- "ff 0.12.1",
- "group 0.12.1",
+ "blake2b_simd",
+ "ff 0.13.0",
+ "group 0.13.0",
  "lazy_static",
  "num-bigint 0.4.5",
  "num-traits",
- "pasta_curves 0.4.1",
+ "pasta_curves 0.5.1",
  "paste",
  "rand 0.8.5",
  "rand_core 0.6.4",
  "serde",
+ "serde_arrays",
  "static_assertions",
  "subtle",
 ]
@@ -2115,6 +2177,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8263075bb86c5a1b1427b5ae862e8889656f126e9f77c484496e8b47cf5c5558"
 dependencies = [
  "regex-automata 0.1.10",
+]
+
+[[package]]
+name = "maybe-rayon"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ea1f30cedd69f0a2954655f7188c6a834246d2bcf1e315e2ac40c4b24dc9519"
+dependencies = [
+ "cfg-if 1.0.0",
+ "rayon",
 ]
 
 [[package]]
@@ -3131,9 +3203,8 @@ checksum = "7170ef9988bc169ba16dd36a7fa041e5c4cbeb6a35b76d4c03daded371eae7c0"
 [[package]]
 name = "poseidon"
 version = "0.2.0"
-source = "git+https://github.com/kroma-network/poseidon.git?rev=00a2fe0#00a2fe049208860a5835b1f24d2a80105439b995"
+source = "git+https://github.com/scroll-tech/poseidon.git?branch=main#5787dd3d2ce7a9e9601a035c396ac0c03449b54d"
 dependencies = [
- "group 0.12.1",
  "halo2curves",
  "subtle",
 ]
@@ -3647,6 +3718,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7253ab4de971e72fb7be983802300c30b5a7f0c2e56fab8abfc6a214307c0094"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde_arrays"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38636132857f68ec3d5f3eb121166d2af33cb55174c4d5ff645db6165cbef0fd"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -4228,9 +4308,10 @@ version = "0.0.1"
 dependencies = [
  "cxx",
  "digest 0.10.7",
- "ff 0.12.1",
- "halo2_proofs 0.2.0",
+ "ff 0.13.0",
+ "halo2_proofs 1.1.0 (git+https://github.com/kroma-network/halo2.git?branch=scroll-halo2-v1.1-with-tachyon-without-cxx)",
  "halo2curves",
+ "log",
  "num-bigint 0.4.5",
  "rand_core 0.6.4",
  "rand_xorshift",

@@ -64,10 +64,9 @@ class ConstraintSystem {
 
   ConstraintSystem() = default;
 
-  explicit ConstraintSystem(lookup::Type lookup_type)
-      : lookup_type_(lookup_type) {}
-
   lookup::Type lookup_type() const { return lookup_type_; }
+
+  void set_lookup_type(lookup::Type lookup_type) { lookup_type_ = lookup_type; }
 
   size_t num_fixed_columns() const { return num_fixed_columns_; }
 
@@ -75,7 +74,9 @@ class ConstraintSystem {
 
   size_t num_instance_columns() const { return num_instance_columns_; }
 
-  size_t num_selectors() const { return num_selectors_; }
+  size_t num_simple_selectors() const { return num_simple_selectors_; }
+
+  size_t num_complex_selectors() const { return num_complex_selectors_; }
 
   size_t num_challenges() const { return num_challenges_; }
 
@@ -139,6 +140,10 @@ class ConstraintSystem {
     }
   }
 
+  size_t GetNumSelectors() const {
+    return num_simple_selectors_ + num_complex_selectors_;
+  }
+
   // Enables this fixed |column| to be used for global constant assignments.
   // The |column| will be equality-enabled, too.
   void EnableConstant(const FixedColumnKey& column) {
@@ -191,7 +196,7 @@ class ConstraintSystem {
           input_expressions.push_back(std::move(pair).TakeInput());
           table_expressions.push_back(std::move(table));
         }
-        CreateLookupsMap(name, std::move(input_expressions),
+        UpdateLookupsMap(name, std::move(input_expressions),
                          std::move(table_expressions));
         break;
       }
@@ -233,7 +238,7 @@ class ConstraintSystem {
           table_expressions.push_back(std::move(pair).TakeTable());
         }
 
-        CreateLookupsMap(name, std::move(input_expressions),
+        UpdateLookupsMap(name, std::move(input_expressions),
                          std::move(table_expressions));
         break;
       }
@@ -438,7 +443,7 @@ class ConstraintSystem {
       const std::vector<std::vector<bool>>& selectors) {
     // The number of provided selector assignments must be the number we
     // counted for this constraint system.
-    CHECK_EQ(selectors.size(), num_selectors_);
+    CHECK_EQ(selectors.size(), GetNumSelectors());
 
     // Compute the maximal degree of every selector. We only consider the
     // expressions in gates, as lookup arguments cannot support simple
@@ -512,12 +517,14 @@ class ConstraintSystem {
   // expressions nor multiplied by other expressions containing simple
   // selectors. Also, simple selectors may not appear in lookup argument
   // inputs.
-  Selector CreateSimpleSelector() { return Selector::Simple(num_selectors_++); }
+  Selector CreateSimpleSelector() {
+    return Selector::Simple(num_simple_selectors_++ + num_complex_selectors_);
+  }
 
   // Allocate a new complex selector that can appear anywhere
   // within expressions.
   Selector CreateComplexSelector() {
-    return Selector::Complex(num_selectors_++);
+    return Selector::Complex(num_simple_selectors_ + num_complex_selectors_++);
   }
 
   // Allocate a new fixed column that can be used in a lookup table.
@@ -703,7 +710,8 @@ class ConstraintSystem {
     ss << "num_fixed_columns: " << num_fixed_columns_
        << ", num_advice_columns: " << num_advice_columns_
        << ", num_instance_columns: " << num_instance_columns_
-       << ", num_selectors: " << num_selectors_
+       << ", num_simple_selectors: " << num_simple_selectors_
+       << ", num_complex_selectors: " << num_complex_selectors_
        << ", num_challenges: " << num_challenges_
        << ", degree: " << ComputeDegree()
        << ", minimum_degree: " << base::OptionalToString(minimum_degree_)
@@ -721,7 +729,7 @@ class ConstraintSystem {
   FRIEND_TEST(ConstraintSystemTest, Lookup);
   FRIEND_TEST(ConstraintSystemTest, LookupAny);
 
-  void CreateLookupsMap(
+  void UpdateLookupsMap(
       std::string_view name,
       std::vector<std::unique_ptr<Expression<F>>>&& input_expressions,
       std::vector<std::unique_ptr<Expression<F>>>&& table_expressions) {
@@ -818,7 +826,8 @@ class ConstraintSystem {
   size_t num_fixed_columns_ = 0;
   size_t num_advice_columns_ = 0;
   size_t num_instance_columns_ = 0;
-  size_t num_selectors_ = 0;
+  size_t num_simple_selectors_ = 0;
+  size_t num_complex_selectors_ = 0;
   size_t num_challenges_ = 0;
 
   // Contains the phase for each advice column. Should have same length as

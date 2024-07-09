@@ -141,9 +141,9 @@ tachyon_halo2_bn254_prover_get_domain(const tachyon_halo2_bn254_prover* prover);
  *
  * @param prover A pointer to the prover.
  * @param poly A pointer to the polynomial to commit.
- * @return A pointer to the commitment in the form of a G1 jacobian point.
+ * @return A pointer to the commitment in the form of a G1 projective point.
  */
-TACHYON_C_EXPORT tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_prover_commit(
+TACHYON_C_EXPORT tachyon_bn254_g1_projective* tachyon_halo2_bn254_prover_commit(
     const tachyon_halo2_bn254_prover* prover,
     const tachyon_bn254_univariate_dense_polynomial* poly);
 
@@ -155,9 +155,9 @@ TACHYON_C_EXPORT tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_prover_commit(
  *
  * @param prover A pointer to the prover.
  * @param evals A pointer to the evaluations to commit.
- * @return A pointer to the commitment in the form of a G1 jacobian point.
+ * @return A pointer to the commitment in the form of a G1 projective point.
  */
-TACHYON_C_EXPORT tachyon_bn254_g1_jacobian*
+TACHYON_C_EXPORT tachyon_bn254_g1_projective*
 tachyon_halo2_bn254_prover_commit_lagrange(
     const tachyon_halo2_bn254_prover* prover,
     const tachyon_bn254_univariate_evaluations* evals);

@@ -40,39 +40,59 @@ class ProofSerializer<math::AffinePoint<Curve>> {
   using BaseField = typename math::AffinePoint<Curve>::BaseField;
   using BigInt = typename BaseField::BigIntTy;
 
-  static_assert(BaseField::kModulusBits % 8 != 0,
-                "Halo2 needs 1 spare bit to put sign bit");
+  static bool s_use_legacy_serialization;
 
   constexpr static size_t kByteSize = BaseField::kLimbNums * sizeof(uint64_t);
+
+  [[nodiscard]] static bool CheckBits() {
+    size_t bits_needed = s_use_legacy_serialization ? 1 : 2;
+    return BaseField::kModulusBits % 8 >= bits_needed;
+  }
 
   [[nodiscard]] static bool ReadFromProof(const base::ReadOnlyBuffer& buffer,
                                           math::AffinePoint<Curve>* point_out) {
     uint8_t bytes[kByteSize];
     if (!buffer.Read(bytes)) return false;
-    uint8_t is_odd = bytes[kByteSize - 1] >> 7;
-    bytes[kByteSize - 1] &= 0b01111111;
-    BaseField x = BaseField::FromBigInt(BigInt::FromBytesLE(bytes));
-    if (x.IsZero()) {
-      *point_out = math::AffinePoint<Curve>::Zero();
-      return true;
+
+    BaseField x;
+    bool is_odd;
+    if (s_use_legacy_serialization) {
+      is_odd = bytes[kByteSize - 1] >> 7;
+      bytes[kByteSize - 1] &= 0b01111111;
+      x = BaseField::FromBigInt(BigInt::FromBytesLE(bytes));
+      if (x.IsZero()) {
+        *point_out = math::AffinePoint<Curve>::Zero();
+        return true;
+      }
     } else {
-      std::optional<math::AffinePoint<Curve>> point =
-          math::AffinePoint<Curve>::CreateFromX(x, is_odd);
-      if (!point.has_value()) return false;
-      *point_out = std::move(point).value();
-      return true;
+      bool is_inf = bytes[kByteSize - 1] >> 7;
+      is_odd = (bytes[kByteSize - 1] >> 6) & 1;
+      bytes[kByteSize - 1] &= 0b00111111;
+      x = BaseField::FromBigInt(BigInt::FromBytesLE(bytes));
+      if (x.IsZero() && is_inf) {
+        *point_out = math::AffinePoint<Curve>::Zero();
+        return true;
+      }
     }
+
+    std::optional<math::AffinePoint<Curve>> point =
+        math::AffinePoint<Curve>::CreateFromX(x, is_odd);
+    if (!point.has_value()) return false;
+    *point_out = std::move(point).value();
+    return true;
   }
 
   [[nodiscard]] static bool WriteToProof(const math::AffinePoint<Curve>& point,
                                          base::Buffer& buffer) {
     if (point.IsZero()) {
-      constexpr uint8_t kZeroBytes[kByteSize] = {
-          0,
-      };
-      return buffer.Write(kZeroBytes);
+      uint8_t zero_bytes[kByteSize] = {0};
+      if (!s_use_legacy_serialization) {
+        zero_bytes[kByteSize - 1] |= 0b10000000;
+      }
+      return buffer.Write(zero_bytes);
     } else {
-      uint8_t is_odd = uint8_t{point.y().ToBigInt().IsOdd()} << 7;
+      size_t bits = s_use_legacy_serialization ? 7 : 6;
+      uint8_t is_odd = uint8_t{point.y().ToBigInt().IsOdd()} << bits;
       std::array<uint8_t, kByteSize> x = point.x().ToBigInt().ToBytesLE();
       if (!buffer.Write(x)) return false;
       return buffer.WriteAt(buffer.buffer_offset() - 1,
@@ -80,6 +100,11 @@ class ProofSerializer<math::AffinePoint<Curve>> {
     }
   }
 };
+
+// static
+template <typename Curve>
+bool ProofSerializer<math::AffinePoint<Curve>>::s_use_legacy_serialization =
+    true;
 
 }  // namespace tachyon::zk::plonk::halo2
 

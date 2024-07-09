@@ -1,5 +1,5 @@
 use halo2_proofs::arithmetic::{best_fft, parallelize, Field};
-use halo2_proofs::halo2curves::{bn256::Fr, Group};
+use halo2_proofs::halo2curves::bn256::Fr;
 use std::{mem, slice, time::Instant};
 use tachyon_rs::math::elliptic_curves::bn::bn254::Fr as CppFr;
 
@@ -46,7 +46,7 @@ pub extern "C" fn run_ifft_halo2(
         best_fft(&mut coeffs, omega_inv, k);
         parallelize(&mut coeffs, |coeffs, _| {
             for coeff in coeffs {
-                coeff.group_scale(&divisor);
+                *coeff *= divisor;
             }
         });
         duration.write(start.elapsed().as_micros() as u64);
