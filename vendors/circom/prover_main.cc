@@ -176,8 +176,11 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::FilePathFlag>(&public_path)
       .set_name("public")
       .set_help("The path to public json");
-  parser.AddFlag<base::Flag<Curve>>(&curve).set_long_name("--curve").set_help(
-      "The curve type among ('bn254', bls12_381'), by default 'bn254'");
+  parser.AddFlag<base::Flag<Curve>>(&curve)
+      .set_long_name("--curve")
+      .set_default_value(Curve::kBN254)
+      .set_help(
+          "The curve type among ('bn254', bls12_381'), by default 'bn254'");
   parser.AddFlag<base::BoolFlag>(&no_zk).set_long_name("--no_zk").set_help(
       "Create proof without zk. By default zk is enabled. Use this flag to "
       "compare the proof with rapidsnark.");
