@@ -20,7 +20,9 @@ class IcicleNTT {
   using BigInt = typename F::BigIntTy;
 
   IcicleNTT(gpuMemPool_t mem_pool, gpuStream_t stream)
-      : mem_pool_(mem_pool), stream_(stream) {}
+      : mem_pool_(mem_pool), stream_(stream) {
+    VLOG(1) << "IcicleNTT is created";
+  }
   IcicleNTT(const IcicleNTT& other) = delete;
   IcicleNTT& operator=(const IcicleNTT& other) = delete;
   ~IcicleNTT() { CHECK(Release()); }

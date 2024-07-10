@@ -41,6 +41,7 @@ class IcicleMSM {
         /*are_results_on_device=*/false,
         /*is_big_triangle=*/false,
         /*is_async=*/false});
+    VLOG(1) << "IcicleMSM is created";
   }
   IcicleMSM(const IcicleMSM& other) = delete;
   IcicleMSM& operator=(const IcicleMSM& other) = delete;
