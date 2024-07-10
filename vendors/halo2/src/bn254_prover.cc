@@ -45,6 +45,26 @@ rust::Box<G1ProjectivePoint> Prover::commit_lagrange(const Evals& evals) const {
           tachyon_halo2_bn254_prover_commit_lagrange(prover_, evals.evals())));
 }
 
+void Prover::batch_start(size_t len) const {
+  tachyon_halo2_bn254_prover_batch_start(prover_, len);
+}
+
+void Prover::batch_commit(const Poly& poly, size_t i) const {
+  tachyon_halo2_bn254_prover_batch_commit(prover_, poly.poly(), i);
+}
+
+void Prover::batch_commit_lagrange(const Evals& evals, size_t i) const {
+  tachyon_halo2_bn254_prover_batch_commit_lagrange(prover_, evals.evals(), i);
+}
+
+void Prover::batch_end(rust::Slice<G1AffinePoint> points) const {
+  tachyon_halo2_bn254_prover_batch_end(
+      prover_,
+      const_cast<tachyon_bn254_g1_affine*>(
+          reinterpret_cast<const tachyon_bn254_g1_affine*>(points.data())),
+      points.size());
+}
+
 std::unique_ptr<Evals> Prover::empty_evals() const {
   return std::make_unique<Evals>(
       tachyon_bn254_univariate_evaluation_domain_empty_evals(

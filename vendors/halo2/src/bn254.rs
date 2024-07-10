@@ -12,18 +12,23 @@ use halo2_proofs::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
 };
-use halo2curves::{bn256::G2Affine, ff::FromUniformBytes, Coordinates, CurveAffine};
+use halo2curves::{
+    bn256::{G1Affine, G2Affine},
+    ff::FromUniformBytes,
+    Coordinates, CurveAffine,
+};
 use num_bigint::BigUint;
 
 use tachyon_rs::math::elliptic_curves::bn::bn254::{
-    Fr as FrImpl, G1Point2 as G1Point2Impl, G1ProjectivePoint as G1ProjectivePointImpl,
-    G2AffinePoint as G2AffinePointImpl,
+    Fr as FrImpl, G1AffinePoint as G1AffinePointImpl, G1Point2 as G1Point2Impl,
+    G1ProjectivePoint as G1ProjectivePointImpl, G2AffinePoint as G2AffinePointImpl,
 };
 
 use crate::consts::PCSType;
 
 pub struct G1MSM;
 pub struct G1MSMGpu;
+pub struct G1AffinePoint(pub G1AffinePointImpl);
 pub struct G1ProjectivePoint(pub G1ProjectivePointImpl);
 pub struct G1Point2(pub G1Point2Impl);
 pub struct G2AffinePoint(pub G2AffinePointImpl);
@@ -43,6 +48,7 @@ pub mod ffi {
     extern "Rust" {
         type G1MSM;
         type G1MSMGpu;
+        type G1AffinePoint;
         type G1ProjectivePoint;
         type G1Point2;
         type G2AffinePoint;
@@ -189,6 +195,10 @@ pub mod ffi {
         fn s_g2(&self) -> &G2AffinePoint;
         fn commit(&self, poly: &Poly) -> Box<G1ProjectivePoint>;
         fn commit_lagrange(&self, evals: &Evals) -> Box<G1ProjectivePoint>;
+        fn batch_start(&self, size: usize);
+        fn batch_commit(&self, poly: &Poly, idx: usize);
+        fn batch_commit_lagrange(&self, evals: &Evals, idx: usize);
+        fn batch_end(&self, points: &mut [G1AffinePoint]);
         fn empty_evals(&self) -> UniquePtr<Evals>;
         fn empty_rational_evals(&self) -> UniquePtr<RationalEvals>;
         fn ifft(&self, evals: &Evals) -> UniquePtr<Poly>;
@@ -783,6 +793,14 @@ pub trait TachyonProver<Scheme: CommitmentScheme> {
 
     fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt;
 
+    fn batch_start(&self, size: usize);
+
+    fn batch_commit(&self, poly: &Poly, idx: usize);
+
+    fn batch_commit_lagrange(&self, evals: &Evals, idx: usize);
+
+    fn batch_end(&self, points: &mut [G1Affine]);
+
     fn empty_evals(&self) -> Evals;
 
     fn empty_rational_evals(&self) -> RationalEvals;
@@ -865,6 +883,23 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
                 self.inner.commit_lagrange(&evals.inner),
             )
         }
+    }
+
+    fn batch_start(&self, size: usize) {
+        self.inner.batch_start(size)
+    }
+
+    fn batch_commit(&self, poly: &Poly, idx: usize) {
+        self.inner.batch_commit(&poly.inner, idx)
+    }
+
+    fn batch_commit_lagrange(&self, evals: &Evals, idx: usize) {
+        self.inner.batch_commit_lagrange(&evals.inner, idx)
+    }
+
+    fn batch_end(&self, points: &mut [G1Affine]) {
+        self.inner
+            .batch_end(unsafe { std::mem::transmute::<_, &mut [G1AffinePoint]>(points) })
     }
 
     fn empty_evals(&self) -> Evals {
@@ -982,6 +1017,23 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
                 self.inner.commit_lagrange(&evals.inner),
             )
         }
+    }
+
+    fn batch_start(&self, size: usize) {
+        self.inner.batch_start(size)
+    }
+
+    fn batch_commit(&self, poly: &Poly, idx: usize) {
+        self.inner.batch_commit(&poly.inner, idx)
+    }
+
+    fn batch_commit_lagrange(&self, evals: &Evals, idx: usize) {
+        self.inner.batch_commit_lagrange(&evals.inner, idx)
+    }
+
+    fn batch_end(&self, points: &mut [G1Affine]) {
+        self.inner
+            .batch_end(unsafe { std::mem::transmute::<_, &mut [G1AffinePoint]>(points) })
     }
 
     fn empty_evals(&self) -> Evals {

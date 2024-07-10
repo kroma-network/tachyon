@@ -101,19 +101,18 @@ where
                 .collect::<Result<Vec<_>, _>>()?;
 
             if P::QUERY_INSTANCE {
-                let instance_commitments_projective: Vec<_> = instance_values
+                prover.batch_start(instance_values.len());
+                instance_values
                     .iter()
-                    .map(|poly| prover.commit_lagrange(poly))
-                    .collect();
+                    .enumerate()
+                    .for_each(|(idx, poly)| prover.batch_commit_lagrange(poly, idx));
                 let mut instance_commitments =
-                    vec![Scheme::Curve::identity(); instance_commitments_projective.len()];
-                <Scheme::Curve as CurveAffine>::CurveExt::batch_normalize(
-                    &instance_commitments_projective,
-                    &mut instance_commitments,
-                );
-                let instance_commitments = instance_commitments;
-                drop(instance_commitments_projective);
-
+                    vec![Scheme::Curve::identity(); instance_values.len()];
+                prover.batch_end(unsafe {
+                    std::mem::transmute::<_, &mut [halo2curves::bn256::G1Affine]>(
+                        instance_commitments.as_mut_slice(),
+                    )
+                });
                 for commitment in &instance_commitments {
                     transcript.common_point(*commitment)?;
                 }
@@ -512,19 +511,17 @@ where
                     .iter()
                     .map(|_| Blind(Fr::random(&mut rng)))
                     .collect();
-                let advice_commitments_projective: Vec<_> = advice_values
+                prover.batch_start(advice_values.len());
+                advice_values
                     .iter()
-                    .zip(blinds.iter())
-                    .map(|(poly, _)| prover.commit_lagrange(poly))
-                    .collect();
-                let mut advice_commitments =
-                    vec![Scheme::Curve::identity(); advice_commitments_projective.len()];
-                <Scheme::Curve as CurveAffine>::CurveExt::batch_normalize(
-                    &advice_commitments_projective,
-                    &mut advice_commitments,
-                );
-                let advice_commitments = advice_commitments;
-                drop(advice_commitments_projective);
+                    .enumerate()
+                    .for_each(|(idx, poly)| prover.batch_commit_lagrange(poly, idx));
+                let mut advice_commitments = vec![Scheme::Curve::identity(); advice_values.len()];
+                prover.batch_end(unsafe {
+                    std::mem::transmute::<_, &mut [halo2curves::bn256::G1Affine]>(
+                        advice_commitments.as_mut_slice(),
+                    )
+                });
 
                 for commitment in &advice_commitments {
                     transcript.write_point(unsafe {
