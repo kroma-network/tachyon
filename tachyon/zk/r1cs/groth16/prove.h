@@ -193,6 +193,8 @@ Proof<Curve> CreateProofWithReduction(const Circuit<F>& circuit,
 
   cs.Finalize();
 
+  // TODO(chokobole): Apply |IcicleNTT|. It is tricky because we can't get the
+  // domain size before calling |CreateProofWithReduction()|.
   std::unique_ptr<Domain> domain =
       Domain::Create(cs.num_constraints() + cs.num_instance_variables());
 

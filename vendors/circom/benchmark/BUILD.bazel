@@ -37,6 +37,7 @@ tachyon_cc_library(
         "@com_google_absl//absl/types:span",
         "@kroma_network_tachyon//tachyon/base/files:file_path",
         "@kroma_network_tachyon//tachyon/base/time",
+        "@kroma_network_tachyon//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
         "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:proof",
     ],
 )
@@ -49,7 +50,6 @@ tachyon_cc_library(
         "//circomlib/circuit:quadratic_arithmetic_program",
         "//circomlib/circuit:witness_loader",
         "//circomlib/zkey",
-        "@kroma_network_tachyon//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:prove",
         "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:verify",
     ],
@@ -73,5 +73,7 @@ tachyon_cc_binary(
         "@kroma_network_tachyon//tachyon/base/console",
         "@kroma_network_tachyon//tachyon/base/flag:flag_parser",
         "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254",
+        "@kroma_network_tachyon//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "@kroma_network_tachyon//tachyon/math/polynomials/univariate/icicle:icicle_ntt_holder",
     ],
 )

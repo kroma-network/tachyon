@@ -16,6 +16,10 @@
 #include "tachyon/zk/r1cs/groth16/prove.h"
 #include "tachyon/zk/r1cs/groth16/verify.h"
 
+#if TACHYON_CUDA
+#include "tachyon/math/polynomials/univariate/icicle/icicle_ntt_holder.h"
+#endif
+
 namespace tachyon {
 
 enum class Curve {
@@ -49,6 +53,7 @@ namespace circom {
 struct TimeInfo {
   base::TimeDelta parse_zkey;
   base::TimeDelta parse_wtns;
+  base::TimeDelta init_domain;
   base::TimeDelta total_prove;
   base::TimeDelta max_prove;
   base::TimeDelta verify;
@@ -62,11 +67,11 @@ struct TimeInfo {
 
   std::string ToString() const {
     return absl::Substitute(
-        "{Parse ZKey: $0 s, Parse Wtns: $1 s, Avg Prove: $2 s, Max Prove: $3 "
-        "s, Verify: $4 s}",
+        "{Parse ZKey: $0 s, Parse Wtns: $1 s, Init Domain: $2 s Avg Prove: $3 "
+        "s, Max Prove: $4 s, Verify: $5 s}",
         parse_zkey.InSecondsF(), parse_wtns.InSecondsF(),
-        (total_prove / num_runs).InSecondsF(), max_prove.InSecondsF(),
-        verify.InSecondsF());
+        init_domain.InSecondsF(), (total_prove / num_runs).InSecondsF(),
+        max_prove.InSecondsF(), verify.InSecondsF());
   }
 };
 
@@ -106,10 +111,24 @@ TimeInfo CreateProof(const base::FilePath& zkey_path,
 
   zk::r1cs::groth16::Proof<Curve> proof;
   absl::Span<const F> full_assignments = wtns->GetWitnesses();
+  std::unique_ptr<Domain> domain =
+      Domain::Create(constraint_matrices.num_constraints +
+                     constraint_matrices.num_instance_variables);
+#if TACHYON_CUDA
+  math::IcicleNTTHolder<F> icicle_ntt_holder =
+      math::IcicleNTTHolder<F>::Create();
+  // NOTE(chokobole): For |domain->size()| less than 8, it's very slow to
+  // initialize the domain of |IcicleNTT|.
+  if (domain->size() >= 8) {
+    CHECK(icicle_ntt_holder->Init(domain->group_gen()));
+  }
+  domain->set_icicle(&icicle_ntt_holder);
+
+  end = base::TimeTicks::Now();
+  time_info.init_domain = end - start;
+  start = end;
+#endif
   for (size_t i = 0; i < num_runs; ++i) {
-    std::unique_ptr<Domain> domain =
-        Domain::Create(constraint_matrices.num_constraints +
-                       constraint_matrices.num_instance_variables);
     std::vector<F> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
             domain.get(), constraint_matrices, full_assignments);

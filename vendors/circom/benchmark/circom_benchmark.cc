@@ -15,15 +15,21 @@
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
+
+#if TACHYON_CUDA
+#include "tachyon/math/polynomials/univariate/icicle/icicle_ntt_holder.h"
+#endif
 
 namespace tachyon::circom {
 
 using namespace math;
 
+constexpr size_t kMaxDegree = (size_t{1} << 16) - 1;
+
 using F = bn254::Fr;
 using Curve = math::bn254::BN254Curve;
-
-constexpr size_t kMaxDegree = (size_t{1} << 16) - 1;
+using Domain = UnivariateEvaluationDomain<F, kMaxDegree>;
 
 void CheckPublicInput(const std::vector<uint8_t>& in,
                       absl::Span<const F> public_inputs) {
@@ -58,11 +64,12 @@ int RealMain(int argc, char** argv) {
 
   Curve::Init();
 
-  std::vector<std::unique_ptr<Runner<Curve>>> runners;
+  std::vector<std::unique_ptr<Runner<Curve, kMaxDegree>>> runners;
   runners.push_back(std::make_unique<TachyonRunner<Curve, kMaxDegree>>(
       base::FilePath("benchmark/sha256_512_cpp/sha256_512.dat")));
-  runners.push_back(std::make_unique<RapidsnarkRunner<Curve, AltBn128::Engine>>(
-      base::FilePath("benchmark/sha256_512_verification_key.json")));
+  runners.push_back(
+      std::make_unique<RapidsnarkRunner<Curve, kMaxDegree, AltBn128::Engine>>(
+          base::FilePath("benchmark/sha256_512_verification_key.json")));
   std::vector<zk::r1cs::groth16::Proof<Curve>> proofs;
 
   std::vector<uint8_t> in = base::CreateVector(
@@ -71,9 +78,10 @@ int RealMain(int argc, char** argv) {
   absl::Span<const F> public_inputs;
 
   for (size_t i = 0; i < runners.size(); ++i) {
-    std::unique_ptr<Runner<Curve>>& runner = runners[i];
+    std::unique_ptr<Runner<Curve, kMaxDegree>>& runner = runners[i];
     runner->LoadZkey(base::FilePath("benchmark/sha256_512.zkey"));
 
+    std::unique_ptr<Domain> domain;
     if (i == 0) {
       TachyonRunner<Curve, kMaxDegree>* tachyon_runner =
           reinterpret_cast<TachyonRunner<Curve, kMaxDegree>*>(runner.get());
@@ -86,6 +94,9 @@ int RealMain(int argc, char** argv) {
       const zk::r1cs::ConstraintMatrices<F>& constraint_matrices =
           tachyon_runner->constraint_matrices();
 
+      domain = Domain::Create(constraint_matrices.num_constraints +
+                              constraint_matrices.num_instance_variables);
+
       full_assignments = base::CreateVector(
           constraint_matrices.num_instance_variables +
               constraint_matrices.num_witness_variables,
@@ -97,11 +108,19 @@ int RealMain(int argc, char** argv) {
       CheckPublicInput(in, public_inputs);
     }
 
+#if TACHYON_CUDA
+    IcicleNTTHolder<F> icicle_ntt_holder = IcicleNTTHolder<F>::Create();
+    if (i == 0) {
+      CHECK(icicle_ntt_holder->Init(domain->group_gen()));
+      domain->set_icicle(&icicle_ntt_holder);
+    }
+#endif
+
     base::TimeDelta total_delta;
     for (size_t j = 0; j < n; ++j) {
       base::TimeDelta delta;
       zk::r1cs::groth16::Proof<Curve> proof =
-          runner->Run(full_assignments, public_inputs, delta);
+          runner->Run(domain.get(), full_assignments, public_inputs, delta);
       if (j == 0) {
         proofs.push_back(proof);
       }
