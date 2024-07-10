@@ -12,6 +12,7 @@ def repo():
             "@kroma_network_tachyon//third_party/icicle:rename.patch",
             "@kroma_network_tachyon//third_party/icicle:pragma.patch",
             "@kroma_network_tachyon//third_party/icicle:inlinize.patch",
+            "@kroma_network_tachyon//third_party/icicle:remove-kernels-from-header.patch",
         ],
         build_file = "//third_party/icicle:icicle.BUILD",
     )

@@ -1,0 +1,12 @@
+diff --git a/icicle/include/ntt/ntt.cu.h b/icicle/include/ntt/ntt.cu.h
+index 65482d85..ca014899 100644
+--- a/icicle/include/ntt/ntt.cu.h
++++ b/icicle/include/ntt/ntt.cu.h
+@@ -7,7 +7,6 @@
+ #include "gpu-utils/device_context.cu.h"
+ #include "gpu-utils/error_handler.cu.h"
+ #include "gpu-utils/sharedmem.cu.h"
+-#include "utils/utils_kernels.cu.h"
+ #include "utils/utils.h"
+ 
+ /**

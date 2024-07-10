@@ -1,0 +1,51 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "fft_algorithm_conversion",
+    srcs = if_cuda(["fft_algorithm_conversion.cc"]),
+    hdrs = ["fft_algorithm_conversion.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "//tachyon/math/polynomials/univariate:fft_algorithm",
+        "@icicle//:ntt",
+    ],
+)
+
+tachyon_cuda_library(
+    name = "icicle_ntt_bn254",
+    srcs = if_cuda(["icicle_ntt_bn254.cc"]),
+    hdrs = ["icicle_ntt_bn254.h"],
+    deps = ["@icicle//:ntt"] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "icicle_ntt",
+    srcs = if_cuda(["icicle_ntt.cc"]),
+    hdrs = ["icicle_ntt.h"],
+    deps = [
+        ":icicle_ntt_bn254",
+        "//tachyon/base:bit_cast",
+        "//tachyon/base:logging",
+        "//tachyon/device/gpu:gpu_device_functions",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+    ],
+)
+
+tachyon_cc_library(
+    name = "icicle_ntt_holder",
+    hdrs = ["icicle_ntt_holder.h"],
+    deps = [
+        ":icicle_ntt",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_stream",
+    ],
+)
