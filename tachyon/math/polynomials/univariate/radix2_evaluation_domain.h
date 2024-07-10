@@ -169,6 +169,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   using UnivariateEvaluationDomain<F, MaxDegree>::UnivariateEvaluationDomain;
 
   // UnivariateEvaluationDomain methods
+  FFTAlgorithm GetAlgorithm() const override { return FFTAlgorithm::kRadix2; }
+
   constexpr std::unique_ptr<UnivariateEvaluationDomain<F, MaxDegree>> Clone()
       const override {
     return absl::WrapUnique(new Radix2EvaluationDomain(*this));
