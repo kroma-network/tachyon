@@ -45,6 +45,27 @@ rust::Box<G1JacobianPoint> GWCProver::commit_lagrange(
                                                          evals.evals())));
 }
 
+void GWCProver::batch_start(size_t len) {
+  tachyon_halo2_bn254_gwc_prover_batch_start(prover_, len);
+}
+
+void GWCProver::batch_commit(const Poly& poly, size_t i) {
+  tachyon_halo2_bn254_gwc_prover_batch_commit(prover_, poly.poly(), i);
+}
+
+void GWCProver::batch_commit_lagrange(const Evals& evals, size_t i) {
+  tachyon_halo2_bn254_gwc_prover_batch_commit_lagrange(prover_, evals.evals(),
+                                                       i);
+}
+
+void GWCProver::batch_end(rust::Slice<G1AffinePoint> points) {
+  tachyon_halo2_bn254_gwc_prover_batch_end(
+      prover_,
+      const_cast<tachyon_bn254_g1_affine*>(
+          reinterpret_cast<const tachyon_bn254_g1_affine*>(points.data())),
+      points.size());
+}
+
 std::unique_ptr<Evals> GWCProver::empty_evals() const {
   return std::make_unique<Evals>(
       tachyon_bn254_univariate_evaluation_domain_empty_evals(

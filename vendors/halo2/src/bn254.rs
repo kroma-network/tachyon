@@ -11,16 +11,20 @@ use halo2_proofs::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
 };
-use halo2curves::{bn256::G2Affine, Coordinates, CurveAffine, FieldExt};
+use halo2curves::{
+    bn256::{G1Affine, G2Affine},
+    Coordinates, CurveAffine, FieldExt,
+};
 use num_bigint::BigUint;
 
 use tachyon_rs::math::elliptic_curves::bn::bn254::{
-    Fr as FrImpl, G1JacobianPoint as G1JacobianPointImpl, G1Point2 as G1Point2Impl,
-    G2AffinePoint as G2AffinePointImpl,
+    Fr as FrImpl, G1AffinePoint as G1AffinePointImpl, G1JacobianPoint as G1JacobianPointImpl,
+    G1Point2 as G1Point2Impl, G2AffinePoint as G2AffinePointImpl,
 };
 
 pub struct G1MSM;
 pub struct G1MSMGpu;
+pub struct G1AffinePoint(pub G1AffinePointImpl);
 pub struct G1JacobianPoint(pub G1JacobianPointImpl);
 pub struct G1Point2(pub G1Point2Impl);
 pub struct G2AffinePoint(pub G2AffinePointImpl);
@@ -40,6 +44,7 @@ pub mod ffi {
     extern "Rust" {
         type G1MSM;
         type G1MSMGpu;
+        type G1AffinePoint;
         type G1JacobianPoint;
         type G1Point2;
         type G2AffinePoint;
@@ -174,6 +179,10 @@ pub mod ffi {
         fn s_g2(&self) -> &G2AffinePoint;
         fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
         fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
+        fn batch_start(self: Pin<&mut GWCProver>, size: usize);
+        fn batch_commit(self: Pin<&mut GWCProver>, poly: &Poly, idx: usize);
+        fn batch_commit_lagrange(self: Pin<&mut GWCProver>, evals: &Evals, idx: usize);
+        fn batch_end(self: Pin<&mut GWCProver>, points: &mut [G1AffinePoint]);
         fn empty_evals(&self) -> UniquePtr<Evals>;
         fn empty_rational_evals(&self) -> UniquePtr<RationalEvals>;
         fn ifft(&self, evals: &Evals) -> UniquePtr<Poly>;
@@ -211,6 +220,10 @@ pub mod ffi {
         fn s_g2(&self) -> &G2AffinePoint;
         fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
         fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
+        fn batch_start(self: Pin<&mut SHPlonkProver>, size: usize);
+        fn batch_commit(self: Pin<&mut SHPlonkProver>, poly: &Poly, idx: usize);
+        fn batch_commit_lagrange(self: Pin<&mut SHPlonkProver>, evals: &Evals, idx: usize);
+        fn batch_end(self: Pin<&mut SHPlonkProver>, points: &mut [G1AffinePoint]);
         fn empty_evals(&self) -> UniquePtr<Evals>;
         fn empty_rational_evals(&self) -> UniquePtr<RationalEvals>;
         fn ifft(&self, evals: &Evals) -> UniquePtr<Poly>;
@@ -749,6 +762,14 @@ pub trait TachyonProver<Scheme: CommitmentScheme> {
 
     fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt;
 
+    fn batch_start(&mut self, size: usize);
+
+    fn batch_commit(&mut self, poly: &Poly, idx: usize);
+
+    fn batch_commit_lagrange(&mut self, evals: &Evals, idx: usize);
+
+    fn batch_end(&mut self, points: &mut [G1Affine]);
+
     fn empty_evals(&self) -> Evals;
 
     fn empty_rational_evals(&self) -> RationalEvals;
@@ -827,6 +848,26 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
                 self.inner.commit_lagrange(&evals.inner),
             )
         }
+    }
+
+    fn batch_start(&mut self, size: usize) {
+        self.inner.pin_mut().batch_start(size)
+    }
+
+    fn batch_commit(&mut self, poly: &Poly, idx: usize) {
+        self.inner.pin_mut().batch_commit(&poly.inner, idx)
+    }
+
+    fn batch_commit_lagrange(&mut self, evals: &Evals, idx: usize) {
+        self.inner
+            .pin_mut()
+            .batch_commit_lagrange(&evals.inner, idx)
+    }
+
+    fn batch_end(&mut self, points: &mut [G1Affine]) {
+        self.inner
+            .pin_mut()
+            .batch_end(unsafe { std::mem::transmute::<_, &mut [G1AffinePoint]>(points) })
     }
 
     fn empty_evals(&self) -> Evals {
@@ -940,6 +981,26 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
                 self.inner.commit_lagrange(&evals.inner),
             )
         }
+    }
+
+    fn batch_start(&mut self, size: usize) {
+        self.inner.pin_mut().batch_start(size)
+    }
+
+    fn batch_commit(&mut self, poly: &Poly, idx: usize) {
+        self.inner.pin_mut().batch_commit(&poly.inner, idx)
+    }
+
+    fn batch_commit_lagrange(&mut self, evals: &Evals, idx: usize) {
+        self.inner
+            .pin_mut()
+            .batch_commit_lagrange(&evals.inner, idx)
+    }
+
+    fn batch_end(&mut self, points: &mut [G1Affine]) {
+        self.inner
+            .pin_mut()
+            .batch_end(unsafe { std::mem::transmute::<_, &mut [G1AffinePoint]>(points) })
     }
 
     fn empty_evals(&self) -> Evals {

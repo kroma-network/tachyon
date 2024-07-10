@@ -12,6 +12,7 @@
 namespace tachyon::halo2_api::bn254 {
 
 struct Fr;
+struct G1AffinePoint;
 struct G1JacobianPoint;
 struct G2AffinePoint;
 struct InstanceSingle;
@@ -37,6 +38,10 @@ class SHPlonkProver {
   const G2AffinePoint& s_g2() const;
   rust::Box<G1JacobianPoint> commit(const Poly& poly) const;
   rust::Box<G1JacobianPoint> commit_lagrange(const Evals& evals) const;
+  void batch_start(size_t len);
+  void batch_commit(const Poly& poly, size_t i);
+  void batch_commit_lagrange(const Evals& evals, size_t i);
+  void batch_end(rust::Slice<G1AffinePoint> points);
   std::unique_ptr<Evals> empty_evals() const;
   std::unique_ptr<RationalEvals> empty_rational_evals() const;
   std::unique_ptr<Poly> ifft(const Evals& evals) const;
