@@ -161,8 +161,8 @@ int RealMain(int argc, char** argv) {
   base::FilePath proof_path;
   base::FilePath public_path;
   Curve curve;
-  bool no_zk = false;
-  bool verify = false;
+  bool no_zk;
+  bool verify;
   size_t num_runs;
   parser.AddFlag<base::FilePathFlag>(&zkey_path)
       .set_name("zkey")
@@ -181,11 +181,15 @@ int RealMain(int argc, char** argv) {
       .set_default_value(Curve::kBN254)
       .set_help(
           "The curve type among ('bn254', bls12_381'), by default 'bn254'");
-  parser.AddFlag<base::BoolFlag>(&no_zk).set_long_name("--no_zk").set_help(
-      "Create proof without zk. By default zk is enabled. Use this flag to "
-      "compare the proof with rapidsnark.");
+  parser.AddFlag<base::BoolFlag>(&no_zk)
+      .set_long_name("--no_zk")
+      .set_default_value(false)
+      .set_help(
+          "Create proof without zk. By default zk is enabled. Use this flag to "
+          "compare the proof with rapidsnark.");
   parser.AddFlag<base::BoolFlag>(&verify)
       .set_long_name("--verify")
+      .set_default_value(false)
       .set_help(
           "Verify the proof. By default verify is disabled. Use this flag "
           "to verify the proof with the public inputs.");
