@@ -69,6 +69,9 @@ void CreateProof(CProver* c_prover, const std::vector<uint8_t>& pk_bytes,
       prover->pcs().K());
   prover->set_extended_domain(
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
+#if TACHYON_CUDA
+  prover->EnableIcicleNTT();
+#endif
 
   if constexpr (std::is_same_v<CProver, tachyon_halo2_bn254_shplonk_prover>) {
     tachyon_halo2_bn254_shplonk_prover_set_transcript_state(

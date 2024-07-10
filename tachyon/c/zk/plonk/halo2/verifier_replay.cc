@@ -50,6 +50,9 @@ bool VerifyProof(CVerifier* c_verifier, const std::vector<uint8_t>& pk_bytes) {
       verifier->pcs().K());
   verifier->set_extended_domain(
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
+#if TACHYON_CUDA
+  verifier->EnableIcicleNTT();
+#endif
   pk.SetTranscriptRepr(*verifier);
 
   return verifier->VerifyProof(pk.verifying_key(),

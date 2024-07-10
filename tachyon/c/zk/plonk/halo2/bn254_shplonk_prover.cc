@@ -239,6 +239,9 @@ void tachyon_halo2_bn254_shplonk_prover_set_extended_domain(
       c::base::native_cast(prover)->pcs().K());
   c::base::native_cast(prover)->set_extended_domain(
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
+#if TACHYON_CUDA
+  c::base::native_cast(prover)->EnableIcicleNTT();
+#endif
 }
 
 void tachyon_halo2_bn254_shplonk_prover_create_proof(

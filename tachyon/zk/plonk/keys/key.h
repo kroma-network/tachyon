@@ -77,8 +77,11 @@ class TACHYON_EXPORT Key {
       return false;
     }
     uint32_t extended_k = constraint_system.ComputeExtendedK(pcs.K());
-    entity->set_extended_domain(
-        ExtendedDomain::Create(size_t{1} << extended_k));
+    size_t extended_n = size_t{1} << extended_k;
+    entity->set_extended_domain(ExtendedDomain::Create(extended_n));
+#if TACHYON_CUDA
+    entity->EnableIcicleNTT();
+#endif
 
     result->assembly =
         CreateAssembly<RationalEvals>(entity->domain(), constraint_system);

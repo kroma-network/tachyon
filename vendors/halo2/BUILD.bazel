@@ -46,6 +46,12 @@ tachyon_rust_test(
     aliases = aliases(),
     crate = ":halo2",
     crate_features = FEATURES,
+    # NOTE(chokobole): IcicleNTT should be initialized with the maximum domain size.
+    # If it runs in parallel, it may execute FFT/IFFT with a domain size larger than the allowed maximum.
+    env = if_cuda(
+        {"RUST_TEST_THREADS": "1"},
+        {},
+    ),
     proc_macro_deps = all_crate_deps(proc_macro_dev = True),
     deps = all_crate_deps(normal_dev = True) + [
         ":openmp",
