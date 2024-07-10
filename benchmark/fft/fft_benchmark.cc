@@ -80,8 +80,8 @@ void Run(const FFTConfig& config) {
   std::vector<size_t> degrees = config.GetDegrees();
 
   std::cout << "Generating evaluation domain and random polys..." << std::endl;
-  std::vector<std::unique_ptr<Domain>> domains =
-      base::Map(degrees, [](size_t degree) { return Domain::Create(degree); });
+  std::vector<std::unique_ptr<Domain>> domains = base::Map(
+      degrees, [](size_t degree) { return Domain::Create(degree + 1); });
   std::vector<PolyOrEvals> polys = base::Map(
       degrees, [](size_t degree) { return PolyOrEvals::Random(degree); });
   std::cout << "Generation completed" << std::endl;

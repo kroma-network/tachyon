@@ -80,7 +80,7 @@ bool FFTConfig::Parse(int argc, char** argv) {
 
 std::vector<size_t> FFTConfig::GetDegrees() const {
   return base::Map(exponents_,
-                   [](size_t exponent) { return size_t{1} << exponent; });
+                   [](size_t exponent) { return (size_t{1} << exponent) - 1; });
 }
 
 }  // namespace tachyon

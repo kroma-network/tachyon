@@ -67,15 +67,15 @@ class FFTRunner {
                    std::vector<RetPoly>* results) const {
     for (size_t i = 0; i < exponents.size(); ++i) {
       uint64_t duration_in_us;
+      size_t n = size_t{1} << exponents[i];
 
       std::unique_ptr<F> ret;
       if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
         const F omega_inv = domains_[i]->group_gen_inv();
         ret.reset(c::base::native_cast(
-            fn(c::base::c_cast((*polys_)[i].evaluations().data()),
-               (*polys_)[i].Degree(), c::base::c_cast(&omega_inv), exponents[i],
-               &duration_in_us)));
-        std::vector<F> res_vec(ret.get(), ret.get() + (*polys_)[i].Degree());
+            fn(c::base::c_cast((*polys_)[i].evaluations().data()), n,
+               c::base::c_cast(&omega_inv), exponents[i], &duration_in_us)));
+        std::vector<F> res_vec(ret.get(), ret.get() + n);
         results->emplace_back(
             typename RetPoly::Coefficients(std::move(res_vec)));
         // NOLINTNEXTLINE(readability/braces)
@@ -84,9 +84,8 @@ class FFTRunner {
         const F omega = domains_[i]->group_gen();
         ret.reset(c::base::native_cast(fn(
             c::base::c_cast((*polys_)[i].coefficients().coefficients().data()),
-            (*polys_)[i].Degree(), c::base::c_cast(&omega), exponents[i],
-            &duration_in_us)));
-        std::vector<F> res_vec(ret.get(), ret.get() + (*polys_)[i].Degree());
+            n, c::base::c_cast(&omega), exponents[i], &duration_in_us)));
+        std::vector<F> res_vec(ret.get(), ret.get() + n);
         results->emplace_back(std::move(res_vec));
       }
       reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
