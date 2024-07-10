@@ -178,6 +178,60 @@ tachyon_bn254_g1_projective* CommitLagrange(
 }
 
 template <typename NativeProver>
+void BatchStart(NativeProver* prover, size_t len) {
+  using PCS = typename NativeProver::PCS;
+
+  if constexpr (PCS::kSupportsBatchMode) {
+    prover->pcs().SetBatchMode(len);
+  } else {
+    NOTREACHED() << "PCS doesn't support batch commitment";
+  }
+}
+
+template <typename NativeProver>
+void BatchCommit(NativeProver* prover,
+                 const tachyon_bn254_univariate_dense_polynomial* poly,
+                 size_t idx) {
+  using PCS = typename NativeProver::PCS;
+
+  if constexpr (PCS::kSupportsBatchMode) {
+    prover->BatchCommitAt(c::base::native_cast(*poly), idx);
+  } else {
+    NOTREACHED() << "PCS doesn't support batch commitment";
+  }
+}
+
+template <typename NativeProver>
+void BatchCommitLagrange(NativeProver* prover,
+                         const tachyon_bn254_univariate_evaluations* evals,
+                         size_t idx) {
+  using PCS = typename NativeProver::PCS;
+
+  if constexpr (PCS::kSupportsBatchMode) {
+    prover->BatchCommitAt(c::base::native_cast(*evals), idx);
+  } else {
+    NOTREACHED() << "PCS doesn't support batch commitment";
+  }
+}
+
+template <typename NativeProver>
+void BatchEnd(NativeProver* prover, tachyon_bn254_g1_affine* points,
+              size_t len) {
+  using PCS = typename NativeProver::PCS;
+  using Commitment = typename PCS::Commitment;
+
+  if constexpr (PCS::kSupportsBatchMode) {
+    std::vector<Commitment> commitments = prover->pcs().GetBatchCommitments();
+    CHECK_EQ(commitments.size(), len);
+    // TODO(chokobole): Remove this |memcpy()| by modifying
+    // |GetBatchCommitments()| to take the out parameters |points|.
+    memcpy(points, commitments.data(), len * sizeof(Commitment));
+  } else {
+    NOTREACHED() << "PCS doesn't support batch commitment";
+  }
+}
+
+template <typename NativeProver>
 void SetRngState(NativeProver* prover, const uint8_t* state, size_t state_len) {
   absl::Span<const uint8_t> rng_state(state, state_len);
   prover->SetRngState(rng_state);
@@ -466,6 +520,29 @@ tachyon_bn254_g1_projective* tachyon_halo2_bn254_prover_commit_lagrange(
     const tachyon_bn254_univariate_evaluations* evals) {
   INVOKE_PROVER(CommitLagrange, evals);
   return nullptr;
+}
+
+void tachyon_halo2_bn254_prover_batch_start(
+    const tachyon_halo2_bn254_prover* prover, size_t len) {
+  INVOKE_PROVER(BatchStart, len);
+}
+
+void tachyon_halo2_bn254_prover_batch_commit(
+    const tachyon_halo2_bn254_prover* prover,
+    const tachyon_bn254_univariate_dense_polynomial* poly, size_t idx) {
+  INVOKE_PROVER(BatchCommit, poly, idx);
+}
+
+void tachyon_halo2_bn254_prover_batch_commit_lagrange(
+    const tachyon_halo2_bn254_prover* prover,
+    const tachyon_bn254_univariate_evaluations* evals, size_t idx) {
+  INVOKE_PROVER(BatchCommitLagrange, evals, idx);
+}
+
+void tachyon_halo2_bn254_prover_batch_end(
+    const tachyon_halo2_bn254_prover* prover, tachyon_bn254_g1_affine* points,
+    size_t len) {
+  INVOKE_PROVER(BatchEnd, points, len);
 }
 
 void tachyon_halo2_bn254_prover_set_rng_state(

@@ -163,6 +163,55 @@ tachyon_halo2_bn254_prover_commit_lagrange(
     const tachyon_bn254_univariate_evaluations* evals);
 
 /**
+ * @brief Marks the prover to prepare for batch commitment.
+ *
+ * @param prover A pointer to the prover.
+ * @param len The number of commitments.
+ */
+TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_start(
+    const tachyon_halo2_bn254_prover* prover, size_t len);
+
+/**
+ * @brief Commits to a polynomial using the prover.
+ *
+ * Unlike \ref tachyon_halo2_bn254_prover_commit(), this function doesn't
+ * generate a commitment immediately to avoid expensive inverse operations.
+ *
+ * @param prover A pointer to the prover.
+ * @param poly A pointer to the polynomial to commit.
+ * @param idx The index of the commitment.
+ */
+TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_commit(
+    const tachyon_halo2_bn254_prover* prover,
+    const tachyon_bn254_univariate_dense_polynomial* poly, size_t idx);
+
+/**
+ * @brief Commits to polynomial evaluations (Lagrange form) using the prover.
+ *
+ * Unlike \ref tachyon_halo2_bn254_prover_commit_lagrange(),
+ * this function doesn't generate a commitment immediately to avoid expensive
+ * inverse operation.
+ *
+ * @param prover A pointer to the prover.
+ * @param evals A pointer to the evaluations to commit.
+ * @param idx The index of the commitment.
+ */
+TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_commit_lagrange(
+    const tachyon_halo2_bn254_prover* prover,
+    const tachyon_bn254_univariate_evaluations* evals, size_t idx);
+
+/**
+ * @brief Retrieves the resulting commitment from the prover.
+ *
+ * @param prover A pointer to the prover.
+ * @param points A pointer to the affine points.
+ * @param len The number of commitments.
+ */
+TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_end(
+    const tachyon_halo2_bn254_prover* prover, tachyon_bn254_g1_affine* points,
+    size_t len);
+
+/**
  * @brief Sets the random number generator state for the prover.
  *
  * Configures the internal RNG state, ensuring the reproducibility and security
