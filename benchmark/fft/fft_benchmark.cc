@@ -77,13 +77,13 @@ void Run(const FFTConfig& config) {
     reporter.AddVendor(FFTConfig::VendorToString(vendor));
   }
 
-  std::vector<uint64_t> degrees = config.GetDegrees();
+  std::vector<size_t> degrees = config.GetDegrees();
 
   std::cout << "Generating evaluation domain and random polys..." << std::endl;
-  std::vector<std::unique_ptr<Domain>> domains = base::Map(
-      degrees, [](uint64_t degree) { return Domain::Create(degree); });
+  std::vector<std::unique_ptr<Domain>> domains =
+      base::Map(degrees, [](size_t degree) { return Domain::Create(degree); });
   std::vector<PolyOrEvals> polys = base::Map(
-      degrees, [](uint64_t degree) { return PolyOrEvals::Random(degree); });
+      degrees, [](size_t degree) { return PolyOrEvals::Random(degree); });
   std::cout << "Generation completed" << std::endl;
 
   FFTRunner<Domain, PolyOrEvals> runner(&reporter);

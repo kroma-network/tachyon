@@ -50,7 +50,7 @@ class FFTRunner {
                 std::is_same_v<RetPoly, typename Domain::Evals>,
                 tachyon_bn254_univariate_evaluations,
                 tachyon_bn254_univariate_dense_polynomial>>
-  void Run(Fn fn, const std::vector<uint64_t>& degrees,
+  void Run(Fn fn, const std::vector<size_t>& degrees,
            std::vector<RetPoly>* results) {
     for (size_t i = 0; i < degrees.size(); ++i) {
       PolyOrEvals poly = (*polys_)[i];
@@ -63,7 +63,7 @@ class FFTRunner {
   }
 
   template <typename RetPoly>
-  void RunExternal(FFTExternalFn fn, const std::vector<uint64_t>& exponents,
+  void RunExternal(FFTExternalFn fn, const std::vector<size_t>& exponents,
                    std::vector<RetPoly>* results) const {
     for (size_t i = 0; i < exponents.size(); ++i) {
       uint64_t duration_in_us;

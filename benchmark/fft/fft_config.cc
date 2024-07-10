@@ -50,7 +50,7 @@ std::string FFTConfig::VendorToString(FFTConfig::Vendor vendor) {
 bool FFTConfig::Parse(int argc, char** argv) {
   base::FlagParser parser;
   // clang-format off
-  parser.AddFlag<base::Flag<std::vector<uint64_t>>>(&exponents_)
+  parser.AddFlag<base::Flag<std::vector<size_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
       .set_help("Specify the exponent 'k's where the degree of poly to test is 2ᵏ.");
@@ -78,9 +78,9 @@ bool FFTConfig::Parse(int argc, char** argv) {
   return true;
 }
 
-std::vector<uint64_t> FFTConfig::GetDegrees() const {
+std::vector<size_t> FFTConfig::GetDegrees() const {
   return base::Map(exponents_,
-                   [](uint64_t exponent) { return uint64_t{1} << exponent; });
+                   [](size_t exponent) { return size_t{1} << exponent; });
 }
 
 }  // namespace tachyon

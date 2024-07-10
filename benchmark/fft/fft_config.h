@@ -22,17 +22,17 @@ class FFTConfig {
   FFTConfig(const FFTConfig& other) = delete;
   FFTConfig& operator=(const FFTConfig& other) = delete;
 
-  const std::vector<uint64_t>& exponents() const { return exponents_; }
+  const std::vector<size_t>& exponents() const { return exponents_; }
   const std::vector<Vendor>& vendors() const { return vendors_; }
   bool run_ifft() const { return run_ifft_; }
   bool check_results() const { return check_results_; }
 
   bool Parse(int argc, char** argv);
 
-  std::vector<uint64_t> GetDegrees() const;
+  std::vector<size_t> GetDegrees() const;
 
  private:
-  std::vector<uint64_t> exponents_;
+  std::vector<size_t> exponents_;
   std::vector<Vendor> vendors_;
   bool run_ifft_ = false;
   bool check_results_ = false;
