@@ -79,6 +79,10 @@ class MixedRadixEvaluationDomain
   using UnivariateEvaluationDomain<F, MaxDegree>::UnivariateEvaluationDomain;
 
   // UnivariateEvaluationDomain methods
+  FFTAlgorithm GetAlgorithm() const override {
+    return FFTAlgorithm::kMixedRadix;
+  }
+
   constexpr std::unique_ptr<UnivariateEvaluationDomain<F, MaxDegree>> Clone()
       const override {
     return absl::WrapUnique(new MixedRadixEvaluationDomain(*this));

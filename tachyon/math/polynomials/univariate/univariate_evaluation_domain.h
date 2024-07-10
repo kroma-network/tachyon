@@ -18,6 +18,7 @@
 #include "tachyon/base/optional.h"
 #include "tachyon/base/range.h"
 #include "tachyon/math/polynomials/evaluation_domain.h"
+#include "tachyon/math/polynomials/univariate/fft_algorithm.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -111,6 +112,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   constexpr T Random() const {
     return T::Random(size_ - 1);
   }
+
+  virtual FFTAlgorithm GetAlgorithm() const = 0;
 
   // Compute a FFT.
   [[nodiscard]] constexpr Evals FFT(const DensePoly& poly) const {
