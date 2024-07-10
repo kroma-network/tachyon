@@ -71,7 +71,7 @@ class FFTRunner {
 
       std::unique_ptr<F> ret;
       if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
-        const F omega_inv = domains_[i]->group_gen_inv();
+        const F& omega_inv = domains_[i]->group_gen_inv();
         ret.reset(c::base::native_cast(
             fn(c::base::c_cast((*polys_)[i].evaluations().data()), n,
                c::base::c_cast(&omega_inv), exponents[i], &duration_in_us)));
@@ -81,7 +81,7 @@ class FFTRunner {
         // NOLINTNEXTLINE(readability/braces)
       } else if constexpr (std::is_same_v<PolyOrEvals,
                                           typename Domain::DensePoly>) {
-        const F omega = domains_[i]->group_gen();
+        const F& omega = domains_[i]->group_gen();
         ret.reset(c::base::native_cast(fn(
             c::base::c_cast((*polys_)[i].coefficients().coefficients().data()),
             n, c::base::c_cast(&omega), exponents[i], &duration_in_us)));
