@@ -17,6 +17,10 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 
+#if TACHYON_CUDA
+#include "tachyon/math/polynomials/univariate/icicle/icicle_ntt_holder.h"
+#endif
+
 namespace tachyon {
 
 // NOTE(TomTaehoonKim): |PolyOrEvals| is the type of the input polynomial
@@ -40,6 +44,14 @@ class FFTRunner {
     polys_ = polys;
     domains_ = std::move(domains);
   }
+
+#if TACHYON_CUDA
+  void SwitchToIcicle(math::IcicleNTTHolder<F>* icicle_ntt_holder) {
+    for (std::unique_ptr<Domain>& domain : domains_) {
+      domain->set_icicle(icicle_ntt_holder);
+    }
+  }
+#endif
 
   template <typename Fn, typename RetPoly,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Fn>,

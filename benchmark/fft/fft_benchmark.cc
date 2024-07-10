@@ -139,7 +139,9 @@ int RealMain(int argc, char** argv) {
   Field::Init();
 
   FFTConfig config;
-  if (!config.Parse(argc, argv)) {
+  FFTConfig::Options options;
+  options.include_vendors = true;
+  if (!config.Parse(argc, argv, options)) {
     return 1;
   }
 

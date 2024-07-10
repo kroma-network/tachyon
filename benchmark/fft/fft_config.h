@@ -16,6 +16,10 @@ class FFTConfig {
     kHalo2,
   };
 
+  struct Options {
+    bool include_vendors = false;
+  };
+
   static std::string VendorToString(Vendor vendor);
 
   FFTConfig() = default;
@@ -27,7 +31,7 @@ class FFTConfig {
   bool run_ifft() const { return run_ifft_; }
   bool check_results() const { return check_results_; }
 
-  bool Parse(int argc, char** argv);
+  bool Parse(int argc, char** argv, const Options& options);
 
   std::vector<size_t> GetDegrees() const;
 

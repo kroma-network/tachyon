@@ -1,5 +1,7 @@
 # (I)FFT Benchmark
 
+## CPU
+
 ```
 Run on 13th Gen Intel(R) Core(TM) i9-13900K (32 X 5500 MHz CPU s)
 CPU Caches:
@@ -15,13 +17,13 @@ CPU Caches:
   L2 Unified 4096 KiB (x12)
 ```
 
-## FFT
+### FFT
 
 ```shell
 bazel run --config halo2 -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --check_results
 ```
 
-### On Intel i9-13900K
+#### On Intel i9-13900K
 
 | Exponent | Tachyon      | Arkworks     | Bellman  | Halo2    |
 | :------: | ------------ | ------------ | -------- | -------- |
@@ -36,7 +38,7 @@ bazel run --config halo2 -c opt --//:has_openmp --//:has_rtti --//:has_matplotli
 
 ![image](/benchmark/fft/fft_benchmark_ubuntu_i9.png)
 
-### On Mac M3 Pro
+#### On Mac M3 Pro
 
 | Exponent | Tachyon      | Arkworks     | Bellman  | Halo2    |
 | :------: | ------------ | ------------ | -------- | -------- |
@@ -51,13 +53,13 @@ bazel run --config halo2 -c opt --//:has_openmp --//:has_rtti --//:has_matplotli
 
 ![image](/benchmark/fft/fft_benchmark_mac_m3.png)
 
-## IFFT
+### IFFT
 
 ```shell
 bazel run -c opt --config halo2 --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --run_ifft --check_results
 ```
 
-### On Intel i9-13900K
+#### On Intel i9-13900K
 
 | Exponent | Tachyon      | Arkworks     | Bellman  | Halo2       |
 | :------: | ------------ | ------------ | -------- | ----------- |
@@ -72,7 +74,7 @@ bazel run -c opt --config halo2 --//:has_openmp --//:has_rtti --//:has_matplotli
 
 ![image](/benchmark/fft/ifft_benchmark_ubuntu_i9.png)
 
-### On Mac M3 Pro
+#### On Mac M3 Pro
 
 | Exponent | Tachyon      | Arkworks | Bellman  | Halo2    |
 | :------: | ------------ | -------- | -------- | -------- |
@@ -86,3 +88,47 @@ bazel run -c opt --config halo2 --//:has_openmp --//:has_rtti --//:has_matplotli
 |    23    | **0.383255** | 0.454968 | 1.03129  | 0.881795 |
 
 ![image](/benchmark/fft/ifft_benchmark_mac_m3.png)
+
+## GPU
+
+### FFT
+
+```shell
+bazel run -c opt --config cuda --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --check_results
+```
+
+#### On RTX-4090
+
+| Exponent | Tachyon     | Tachyon GPU  |
+| :------: | ----------- | ------------ |
+|    16    | **0.00097** | 0.001231     |
+|    17    | 0.002156    | **0.000667** |
+|    18    | 0.003524    | **0.001297** |
+|    19    | 0.007366    | **0.002654** |
+|    20    | 0.015787    | **0.005877** |
+|    21    | 0.03753     | **0.012573** |
+|    22    | 0.122167    | **0.027632** |
+|    23    | 0.268875    | **0.055971** |
+
+![image](/benchmark/fft/fft_benchmark_ubuntu_rtx_4090.png)
+
+### IFFT
+
+```shell
+bazel run -c opt --config cuda --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --run_ifft --check_results
+```
+
+#### On RTX-4090
+
+| Exponent | Tachyon  | Tachyon GPU  |
+| :------: | -------- | ------------ |
+|    16    | 0.000993 | **0.000833** |
+|    17    | 0.001673 | **0.000643** |
+|    18    | 0.003533 | **0.001305** |
+|    19    | 0.007446 | **0.002701** |
+|    20    | 0.016039 | **0.005882** |
+|    21    | 0.03786  | **0.012817** |
+|    22    | 0.126032 | **0.027767** |
+|    23    | 0.32731  | **0.056064** |
+
+![image](/benchmark/fft/ifft_benchmark_ubuntu_rtx_4090.png)
