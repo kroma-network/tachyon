@@ -19,6 +19,7 @@ bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen) {
       reinterpret_cast<const ::bn254::scalar_t&>(group_gen_big_int), ctx,
       /*fast_twiddles_mode=*/true);
   if (error != gpuSuccess) return false;
+  VLOG(1) << "IcicleNTT is initialized";
 
   config_.reset(new ::ntt::NTTConfig<bn254::Fr>{
       ctx,
