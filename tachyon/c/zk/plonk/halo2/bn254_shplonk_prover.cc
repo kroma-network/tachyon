@@ -177,6 +177,54 @@ tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_shplonk_prover_commit_lagrange(
       c::base::native_cast(*evals).evaluations());
 }
 
+void tachyon_halo2_bn254_shplonk_prover_batch_start(
+    tachyon_halo2_bn254_shplonk_prover* prover, size_t len) {
+  if constexpr (PCS::kSupportsBatchMode) {
+    c::base::native_cast(prover)->pcs().SetBatchMode(len);
+  } else {
+    NOTREACHED() << "PCS doesn't support batch commitment";
+  }
+}
+
+void tachyon_halo2_bn254_shplonk_prover_batch_commit(
+    tachyon_halo2_bn254_shplonk_prover* prover,
+    const tachyon_bn254_univariate_dense_polynomial* poly, size_t idx) {
+  if constexpr (PCS::kSupportsBatchMode) {
+    c::base::native_cast(prover)->BatchCommitAt(c::base::native_cast(*poly),
+                                                idx);
+  } else {
+    NOTREACHED() << "PCS doesn't support batch commitment";
+  }
+}
+
+void tachyon_halo2_bn254_shplonk_prover_batch_commit_lagrange(
+    tachyon_halo2_bn254_shplonk_prover* prover,
+    const tachyon_bn254_univariate_evaluations* evals, size_t idx) {
+  if constexpr (PCS::kSupportsBatchMode) {
+    c::base::native_cast(prover)->BatchCommitAt(c::base::native_cast(*evals),
+                                                idx);
+  } else {
+    NOTREACHED() << "PCS doesn't support batch commitment";
+  }
+}
+
+void tachyon_halo2_bn254_shplonk_prover_batch_end(
+    tachyon_halo2_bn254_shplonk_prover* prover, tachyon_bn254_g1_affine* points,
+    size_t len) {
+  using Commitment = typename PCS::Commitment;
+
+  if constexpr (PCS::kSupportsBatchMode) {
+    std::vector<Commitment> commitments =
+        c::base::native_cast(prover)->pcs().GetBatchCommitments();
+    CHECK_EQ(commitments.size(), len);
+    // TODO(chokobole): Remove this |memcpy()| by modifying
+    // |GetBatchCommitments()| to take the out parameters |points|.
+    memcpy(points, commitments.data(), len * sizeof(Commitment));
+  } else {
+    NOTREACHED() << "PCS doesn't support batch commitment";
+  }
+}
+
 void tachyon_halo2_bn254_shplonk_prover_set_rng_state(
     tachyon_halo2_bn254_shplonk_prover* prover, const uint8_t* state,
     size_t state_len) {
