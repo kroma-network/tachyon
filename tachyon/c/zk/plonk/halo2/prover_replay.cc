@@ -95,6 +95,9 @@ void CreateProof(NativeProver* prover, tachyon_halo2_bn254_prover* c_prover,
       prover->pcs().K());
   prover->set_extended_domain(
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
+#if TACHYON_CUDA
+  prover->EnableIcicleNTT();
+#endif
 
   tachyon_halo2_bn254_prover_set_transcript_state(
       c_prover, transcript_state_bytes.data(), transcript_state_bytes.size());

@@ -55,6 +55,9 @@ bool VerifyProof(NativeVerifier* verifier,
       verifier->pcs().K());
   verifier->set_extended_domain(
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
+#if TACHYON_CUDA
+  verifier->EnableIcicleNTT();
+#endif
   pk.SetTranscriptRepr(*verifier);
 
   return verifier->VerifyProof(pk.verifying_key(),

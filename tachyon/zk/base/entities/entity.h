@@ -16,6 +16,10 @@
 #include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/zk/base/row_types.h"
 
+#if TACHYON_CUDA
+#include "tachyon/math/polynomials/univariate/icicle/icicle_ntt_holder.h"
+#endif
+
 namespace tachyon::zk {
 
 // |Entity| class is a parent class of |Prover| and |Verifier|.
@@ -43,10 +47,20 @@ class Entity {
   void set_domain(std::unique_ptr<Domain> domain) {
     CHECK_LE(domain->size(), size_t{std::numeric_limits<RowIndex>::max()});
     domain_ = std::move(domain);
+#if TACHYON_CUDA
+    if (icicle_ntt_holder_) {
+      domain_->set_icicle(&icicle_ntt_holder_);
+    }
+#endif
   }
   const Domain* domain() const { return domain_.get(); }
   void set_extended_domain(std::unique_ptr<ExtendedDomain> extended_domain) {
     extended_domain_ = std::move(extended_domain);
+#if TACHYON_CUDA
+    if (icicle_ntt_holder_) {
+      extended_domain_->set_icicle(&icicle_ntt_holder_);
+    }
+#endif
   }
   const ExtendedDomain* extended_domain() const {
     return extended_domain_.get();
@@ -55,6 +69,31 @@ class Entity {
   const crypto::Transcript<Commitment>* transcript() const {
     return transcript_.get();
   }
+
+#if TACHYON_CUDA
+  math::IcicleNTTHolder<F>&& TakeIcicleNTTHolder() && {
+    return std::move(icicle_ntt_holder_);
+  }
+
+  void set_icicle_ntt_holder(math::IcicleNTTHolder<F>&& icicle_ntt_holder) {
+    CHECK(!icicle_ntt_holder_);
+    icicle_ntt_holder_ = std::move(icicle_ntt_holder);
+  }
+
+  void EnableIcicleNTT() {
+    if (icicle_ntt_holder_) {
+      LOG(WARNING)
+          << "EnableIcicleNTT() is called more than once. If you see "
+             "this log while running unittests, this is intended. The first "
+             "call is made in 'tachyon/zk/plonk/halo2/prover_test.h'.";
+    } else {
+      icicle_ntt_holder_ = math::IcicleNTTHolder<F>::Create();
+      CHECK(icicle_ntt_holder_->Init(extended_domain_->group_gen()));
+      domain_->set_icicle(&icicle_ntt_holder_);
+      extended_domain_->set_icicle(&icicle_ntt_holder_);
+    }
+  }
+#endif
 
   RowIndex GetUsableRows(RowIndex blinding_factors) const {
     return domain_->size() - (blinding_factors + 1);
@@ -109,6 +148,9 @@ class Entity {
   std::unique_ptr<Domain> domain_;
   std::unique_ptr<ExtendedDomain> extended_domain_;
   std::unique_ptr<crypto::Transcript<Commitment>> transcript_;
+#if TACHYON_CUDA
+  math::IcicleNTTHolder<F> icicle_ntt_holder_;
+#endif
 };
 
 }  // namespace tachyon::zk

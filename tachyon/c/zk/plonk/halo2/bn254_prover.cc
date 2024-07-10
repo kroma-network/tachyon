@@ -234,6 +234,9 @@ void SetExtendedDomain(NativeProver* prover,
       c::base::native_cast(cs)->ComputeExtendedK(prover->pcs().K());
   prover->set_extended_domain(
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
+#if TACHYON_CUDA
+  prover->EnableIcicleNTT();
+#endif
 }
 
 template <typename NativeProver, typename NativeProvingKey>

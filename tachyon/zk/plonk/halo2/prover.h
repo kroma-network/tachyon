@@ -71,6 +71,9 @@ class Prover : public ProverBase<PCS> {
     Verifier<PCS, LS> ret(std::move(this->pcs_), std::move(reader));
     ret.set_domain(std::move(this->domain_));
     ret.set_extended_domain(std::move(this->extended_domain_));
+#if TACHYON_CUDA
+    ret.set_icicle_ntt_holder(std::move(this->icicle_ntt_holder_));
+#endif
     return ret;
   }
 

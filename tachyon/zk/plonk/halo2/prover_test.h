@@ -44,6 +44,9 @@ class ProverTest : public testing::Test {
     prover_->set_domain(Domain::Create(kMaxDomainSize));
     prover_->set_extended_domain(
         ExtendedDomain::Create(kMaxExtendedDomainSize));
+#if TACHYON_CUDA
+    prover_->EnableIcicleNTT();
+#endif
   }
 
  protected:
