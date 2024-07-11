@@ -50,46 +50,38 @@ class FlagValueTraits<Curve> {
 
 namespace circom {
 
-struct TimeInfo {
-  base::TimeDelta parse_zkey;
-  base::TimeDelta parse_wtns;
-  base::TimeDelta init_domain;
-  base::TimeDelta total_prove;
-  base::TimeDelta max_prove;
-  base::TimeDelta verify;
+struct ProverTime {
+  base::TimeDelta total;
+  base::TimeDelta max;
   size_t num_runs = 0;
 
-  void AddProve(base::TimeDelta prove) {
+  void Add(base::TimeDelta delta) {
     ++num_runs;
-    total_prove += prove;
-    max_prove = std::max(prove, max_prove);
+    total += delta;
+    max = std::max(delta, max);
   }
 
-  std::string ToString() const {
-    return absl::Substitute(
-        "{Parse ZKey: $0 s, Parse Wtns: $1 s, Init Domain: $2 s Avg Prove: $3 "
-        "s, Max Prove: $4 s, Verify: $5 s}",
-        parse_zkey.InSecondsF(), parse_wtns.InSecondsF(),
-        init_domain.InSecondsF(), (total_prove / num_runs).InSecondsF(),
-        max_prove.InSecondsF(), verify.InSecondsF());
+  base::TimeDelta GetAvg() const {
+    CHECK_NE(num_runs, size_t{0});
+    return total / num_runs;
   }
 };
 
 template <typename Curve>
-TimeInfo CreateProof(const base::FilePath& zkey_path,
-                     const base::FilePath& witness_path,
-                     const base::FilePath& proof_path,
-                     const base::FilePath& public_path, bool no_zk,
-                     size_t num_runs, bool verify) {
+void CreateProof(const base::FilePath& zkey_path,
+                 const base::FilePath& witness_path,
+                 const base::FilePath& proof_path,
+                 const base::FilePath& public_path, bool no_zk, size_t num_runs,
+                 bool verify) {
   using F = typename Curve::G1Curve::ScalarField;
   using Domain = math::UnivariateEvaluationDomain<F, SIZE_MAX>;
 
   Curve::Init();
 
-  TimeInfo time_info;
   base::TimeTicks start = base::TimeTicks::Now();
   zk::r1cs::groth16::ProvingKey<Curve> proving_key;
   zk::r1cs::ConstraintMatrices<F> constraint_matrices;
+  std::cout << "Start parsing zkey" << std::endl;
   {
     std::unique_ptr<ZKey<Curve>> zkey = ParseZKey<Curve>(zkey_path);
     CHECK(zkey);
@@ -99,14 +91,15 @@ TimeInfo CreateProof(const base::FilePath& zkey_path,
   }
 
   base::TimeTicks end = base::TimeTicks::Now();
-  time_info.parse_zkey = end - start;
+  std::cout << "Time taken for parsing zkey: " << end - start << std::endl;
   start = end;
 
+  std::cout << "Start parsing witness" << std::endl;
   std::unique_ptr<Wtns<F>> wtns = ParseWtns<F>(witness_path);
   CHECK(wtns);
 
   end = base::TimeTicks::Now();
-  time_info.parse_wtns = end - start;
+  std::cout << "Time taken for parsing witness: " << end - start << std::endl;
   start = end;
 
   zk::r1cs::groth16::Proof<Curve> proof;
@@ -115,6 +108,7 @@ TimeInfo CreateProof(const base::FilePath& zkey_path,
       Domain::Create(constraint_matrices.num_constraints +
                      constraint_matrices.num_instance_variables);
 #if TACHYON_CUDA
+  std::cout << "Start initializing Icicle NTT domain" << std::endl;
   math::IcicleNTTHolder<F> icicle_ntt_holder =
       math::IcicleNTTHolder<F>::Create();
   // NOTE(chokobole): For |domain->size()| less than 8, it's very slow to
@@ -125,9 +119,12 @@ TimeInfo CreateProof(const base::FilePath& zkey_path,
   domain->set_icicle(&icicle_ntt_holder);
 
   end = base::TimeTicks::Now();
-  time_info.init_domain = end - start;
+  std::cout << "Time taken for initializing Icicle NTT domain: " << end - start
+            << std::endl;
   start = end;
 #endif
+  std::cout << "Start proving" << std::endl;
+  ProverTime prover_time;
   for (size_t i = 0; i < num_runs; ++i) {
     std::vector<F> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
@@ -149,26 +146,32 @@ TimeInfo CreateProof(const base::FilePath& zkey_path,
     }
 
     end = base::TimeTicks::Now();
-    base::TimeDelta prove = end - start;
-    time_info.AddProve(prove);
+    base::TimeDelta delta = end - start;
+    std::cout << "Time taken for proving #" << i << ": " << delta << std::endl;
+    prover_time.Add(delta);
     start = end;
-    std::cout << "Time Taken for Prove: " << prove << std::endl;
   }
+  std::cout << "Avg time taken for proving: " << prover_time.GetAvg()
+            << std::endl;
+  std::cout << "Max time taken for proving: " << prover_time.max << std::endl;
 
   absl::Span<const F> public_inputs = full_assignments.subspan(
       1, constraint_matrices.num_instance_variables - 1);
   if (verify) {
+    std::cout << "Start verifying" << std::endl;
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> prepared_verifying_key =
         std::move(proving_key).TakeVerifyingKey().ToPreparedVerifyingKey();
     CHECK(zk::r1cs::groth16::VerifyProof(prepared_verifying_key, proof,
                                          public_inputs));
     end = base::TimeTicks::Now();
-    time_info.verify = end - start;
+    std::cout << "Time taken for verifying: " << end - start << std::endl;
   }
 
   CHECK(WriteToJson(proof, proof_path));
+  std::cout << "Proof is saved to \"" << proof_path << "\"" << std::endl;
   CHECK(WriteToJson(public_inputs, public_path));
-  return time_info;
+  std::cout << "Public input is saved to \"" << public_path << "\""
+            << std::endl;
 }
 
 }  // namespace circom
@@ -233,23 +236,20 @@ int RealMain(int argc, char** argv) {
     tachyon_cerr << "num_runs should be positive" << std::endl;
     return 1;
   }
-  circom::TimeInfo time_info;
   switch (curve) {
     case Curve::kBN254:
-      time_info = circom::CreateProof<math::bn254::BN254Curve>(
-          zkey_path, witness_path, proof_path, public_path, no_zk, num_runs,
-          verify);
+      circom::CreateProof<math::bn254::BN254Curve>(zkey_path, witness_path,
+                                                   proof_path, public_path,
+                                                   no_zk, num_runs, verify);
       break;
     case Curve::kBLS12_381:
 #if !TACHYON_CUDA
-      time_info = circom::CreateProof<math::bls12_381::BLS12_381Curve>(
+      circom::CreateProof<math::bls12_381::BLS12_381Curve>(
           zkey_path, witness_path, proof_path, public_path, no_zk, num_runs,
           verify);
 #endif
       break;
   }
-
-  std::cout << "Time Taken for All: " << time_info.ToString() << std::endl;
 
   return 0;
 }
