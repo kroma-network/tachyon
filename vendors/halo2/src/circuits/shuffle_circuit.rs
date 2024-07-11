@@ -306,8 +306,7 @@ mod test {
 
             let (mut tachyon_pk, fixed_values) = {
                 let mut pk_bytes: Vec<u8> = vec![];
-                pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
-                    .unwrap();
+                pk.write_including_cs(&mut pk_bytes).unwrap();
                 let fixed_values = pk.drop_but_fixed_values();
                 (TachyonProvingKey::from(pk_bytes.as_slice()), fixed_values)
             };
@@ -341,8 +340,7 @@ mod test {
         let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(K, s);
         let pk = keygen_pk2(&params, &circuit).unwrap();
         let mut pk_bytes: Vec<u8> = vec![];
-        pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
-            .unwrap();
+        pk.write_including_cs(&mut pk_bytes).unwrap();
 
         let rng = XORShiftRng::from_seed(SEED);
 

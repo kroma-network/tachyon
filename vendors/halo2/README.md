@@ -45,8 +45,7 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
    +     // Please remember to release `pk` and `pk_bytes` immediately after
    +     // deserialization, as it can occupy big memory.
    +     let mut pk_bytes: Vec<u8> = vec![];
-   +     pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
-   +         .unwrap();
+   +     pk.write_including_cs(&mut pk_bytes).unwrap();
    +     fixed_values = pk.drop_but_fixed_values();
    +     (TachyonProvingKey::from(pk_bytes.as_slice()), fixed_values)
    + };
