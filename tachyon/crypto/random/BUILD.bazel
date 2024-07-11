@@ -3,6 +3,12 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "block_rng",
+    hdrs = ["block_rng.h"],
+    deps = [":rng"],
+)
+
+tachyon_cc_library(
     name = "rng",
     hdrs = ["rng.h"],
     deps = [
