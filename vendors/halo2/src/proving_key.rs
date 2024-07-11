@@ -29,8 +29,7 @@ mod test {
         let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s);
         let pk = keygen_pk2(&params, &circuit).expect("vk should not fail");
         let mut pk_bytes: Vec<u8> = vec![];
-        pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
-            .unwrap();
+        pk.write_including_cs(&mut pk_bytes).unwrap();
         let tachyon_pk = ProvingKey::<G1Affine>::from(pk_bytes.as_slice());
 
         assert_eq!(
