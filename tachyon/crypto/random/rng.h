@@ -1,6 +1,8 @@
 #ifndef TACHYON_CRYPTO_RANDOM_RNG_H_
 #define TACHYON_CRYPTO_RANDOM_RNG_H_
 
+#include <stdint.h>
+
 namespace tachyon::crypto {
 
 template <typename Derived>
