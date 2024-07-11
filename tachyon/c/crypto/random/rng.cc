@@ -2,7 +2,6 @@
 
 #include "absl/types/span.h"
 
-#include "tachyon/base/buffer/buffer.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 
@@ -29,14 +28,8 @@ tachyon_rng* tachyon_rng_create_from_state(uint8_t type, const uint8_t* state,
   if (type == TACHYON_RNG_XOR_SHIFT) {
     CHECK_EQ(state_len, crypto::XORShiftRNG::kStateSize);
     base::ReadOnlyBuffer buffer(state, state_len);
-    uint32_t x, y, z, w;
-    CHECK(buffer.Read32LE(&x));
-    CHECK(buffer.Read32LE(&y));
-    CHECK(buffer.Read32LE(&z));
-    CHECK(buffer.Read32LE(&w));
-    CHECK(buffer.Done());
     crypto::XORShiftRNG* xor_shift = new crypto::XORShiftRNG;
-    *xor_shift = crypto::XORShiftRNG::FromState(x, y, z, w);
+    CHECK(xor_shift->ReadFromBuffer(buffer));
     rng->extra = xor_shift;
   }
   return rng;
@@ -73,10 +66,7 @@ void tachyon_rng_get_state(const tachyon_rng* rng, uint8_t* state,
     crypto::XORShiftRNG* xor_shift =
         reinterpret_cast<crypto::XORShiftRNG*>(rng->extra);
     base::Buffer buffer(state, crypto::XORShiftRNG::kStateSize);
-    CHECK(buffer.Write32LE(xor_shift->x()));
-    CHECK(buffer.Write32LE(xor_shift->y()));
-    CHECK(buffer.Write32LE(xor_shift->z()));
-    CHECK(buffer.Write32LE(xor_shift->w()));
+    CHECK(xor_shift->WriteToBuffer(buffer));
     return;
   }
   NOTREACHED();

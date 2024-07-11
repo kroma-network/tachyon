@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "tachyon/base/buffer/buffer.h"
 #include "tachyon/export.h"
 
 namespace tachyon::crypto {
@@ -18,6 +19,13 @@ class TACHYON_EXPORT RNG {
   }
 
   virtual uint32_t NextUint32() = 0;
+
+  // Return false if it fails to read the state from the |buffer|.
+  [[nodiscard]] virtual bool ReadFromBuffer(
+      const base::ReadOnlyBuffer& buffer) = 0;
+
+  // Return false if it fails to write the state to the |buffer|.
+  [[nodiscard]] virtual bool WriteToBuffer(base::Buffer& buffer) const = 0;
 };
 
 }  // namespace tachyon::crypto

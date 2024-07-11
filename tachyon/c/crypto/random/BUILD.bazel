@@ -12,7 +12,6 @@ tachyon_cc_library(
     srcs = ["rng.cc"],
     hdrs = ["rng.h"],
     deps = [
-        "//tachyon/base/buffer",
         "//tachyon/c:export",
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
         "@com_google_absl//absl/types:span",

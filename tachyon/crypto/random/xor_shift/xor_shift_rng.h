@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/random.h"
 #include "tachyon/base/template_util.h"
@@ -27,11 +28,6 @@ class XORShiftRNG final : public RNG {
   constexpr static size_t kStateSize = 16;
 
   XORShiftRNG() = default;
-
-  uint32_t x() const { return x_; }
-  uint32_t y() const { return y_; }
-  uint32_t z() const { return z_; }
-  uint32_t w() const { return w_; }
 
   template <typename Container>
   static XORShiftRNG FromSeed(const Container& seed) {
@@ -64,10 +60,6 @@ class XORShiftRNG final : public RNG {
     return FromSeed(seed);
   }
 
-  static XORShiftRNG FromState(uint32_t x, uint32_t y, uint32_t z, uint32_t w) {
-    return {x, y, z, w};
-  }
-
   // RNG methods
   uint32_t NextUint32() override {
     uint32_t t = x_ ^ (x_ << 11);
@@ -76,6 +68,23 @@ class XORShiftRNG final : public RNG {
     z_ = w_;
     w_ = w_ ^ (w_ >> 19) ^ (t ^ (t >> 8));
     return w_;
+  }
+
+  [[nodiscard]] bool ReadFromBuffer(
+      const base::ReadOnlyBuffer& buffer) override {
+    uint32_t x, y, z, w;
+    base::EndianAutoReset auto_reset(buffer, base::Endian::kLittle);
+    if (!buffer.ReadMany(&x, &y, &z, &w)) return false;
+    x_ = x;
+    y_ = y;
+    z_ = z;
+    w_ = w;
+    return true;
+  }
+
+  [[nodiscard]] bool WriteToBuffer(base::Buffer& buffer) const override {
+    base::EndianAutoReset auto_reset(buffer, base::Endian::kLittle);
+    return buffer.WriteMany(x_, y_, z_, w_);
   }
 
  private:

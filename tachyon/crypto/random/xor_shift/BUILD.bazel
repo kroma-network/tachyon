@@ -9,6 +9,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base:random",
         "//tachyon/base:template_util",
+        "//tachyon/base/buffer:endian_auto_reset",
         "//tachyon/crypto/random:rng",
     ],
 )
