@@ -122,7 +122,7 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
    - create_proof::<KZGCommitmentScheme<Bn256>, ProverSHPLONK<Bn256>, _, _, _, _>(
    -     &params,
    -     &pk,
-   + tachyon_create_proof::<_, _, _, _, _>(
+   + tachyon_create_proof::<_, _, _, _, _, _>(
    +     &mut prover,
    +     &mut tachyon_pk,
          &[&circuit],

@@ -6,11 +6,13 @@ use std::{
     sync::Arc,
 };
 
-use crate::bn254::{
-    AdviceSingle, Evals, InstanceSingle, ProvingKey as TachyonProvingKey, RationalEvals,
-    RationalEvalsView, TachyonProver, TranscriptWriteState,
+use crate::{
+    bn254::{
+        AdviceSingle, Evals, InstanceSingle, ProvingKey as TachyonProvingKey, RationalEvals,
+        RationalEvalsView, TachyonProver, TranscriptWriteState,
+    },
+    rng::SerializableRng,
 };
-use crate::xor_shift_rng::XORShiftRng as TachyonXORShiftRng;
 use ff::{Field, FromUniformBytes, WithSmallOrderMulGroup};
 use halo2_proofs::{
     circuit::Value,
@@ -29,6 +31,7 @@ use halo2curves::{
     group::{prime::PrimeCurveAffine, Curve},
     CurveAffine,
 };
+use rand_core::RngCore;
 
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
@@ -39,6 +42,7 @@ pub fn create_proof<
     Scheme: CommitmentScheme,
     P: TachyonProver<Scheme>,
     E: EncodedChallenge<Scheme::Curve>,
+    R: RngCore + SerializableRng,
     T: TranscriptWriteState<Scheme::Curve, E>,
     ConcreteCircuit: Circuit<Scheme::Scalar>,
 >(
@@ -47,7 +51,7 @@ pub fn create_proof<
     circuits: &[ConcreteCircuit],
     instances: &[&[&[Scheme::Scalar]]],
     fixed_values: Vec<Polynomial<Scheme::Scalar, LagrangeCoeff>>,
-    mut rng: TachyonXORShiftRng,
+    mut rng: R,
     transcript: &mut T,
 ) -> Result<(), Error>
 where

@@ -1,3 +1,5 @@
+use crate::{consts::RNGType, rng::SerializableRng};
+
 #[cxx::bridge(namespace = "tachyon::halo2_api")]
 pub mod ffi {
     unsafe extern "C++" {
@@ -16,9 +18,13 @@ pub struct XORShiftRng {
     inner: cxx::UniquePtr<ffi::XORShiftRng>,
 }
 
-impl XORShiftRng {
-    pub fn state(&self) -> Vec<u8> {
+impl SerializableRng for XORShiftRng {
+    fn state(&self) -> Vec<u8> {
         self.inner.state()
+    }
+
+    fn rng_type() -> RNGType {
+        RNGType::XORShift
     }
 }
 
@@ -65,7 +71,7 @@ impl rand_core::RngCore for XORShiftRng {
 mod test {
     use rand_core::{RngCore, SeedableRng};
 
-    use crate::consts::SEED;
+    use crate::{consts::SEED, rng::SerializableRng};
 
     #[test]
     fn test_rng() {

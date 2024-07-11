@@ -170,7 +170,7 @@ mod test {
             };
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
@@ -248,7 +248,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
@@ -299,7 +299,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonPoseidonWrite::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
@@ -351,7 +351,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonSha256Write::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
