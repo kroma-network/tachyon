@@ -6,6 +6,7 @@ tachyon_cc_library(
     name = "xor_shift_rng",
     hdrs = ["xor_shift_rng.h"],
     deps = [
+        "//tachyon:export",
         "//tachyon/base:logging",
         "//tachyon/base:random",
         "//tachyon/base/buffer:endian_auto_reset",

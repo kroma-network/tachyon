@@ -9,6 +9,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/random.h"
 #include "tachyon/crypto/random/rng.h"
+#include "tachyon/export.h"
 
 namespace tachyon::crypto {
 
@@ -21,7 +22,7 @@ namespace tachyon::crypto {
 // [Seed Stability]
 // (https://abseil.io/docs/cpp/guides/random#classes-of-generator-stability)
 // and [Xorshift RNGs](https://www.jstatsoft.org/v08/i14/paper).
-class XORShiftRNG final : public RNG {
+class TACHYON_EXPORT XORShiftRNG final : public RNG {
  public:
   constexpr static size_t kSeedSize = 16;
   constexpr static size_t kStateSize = 16;
