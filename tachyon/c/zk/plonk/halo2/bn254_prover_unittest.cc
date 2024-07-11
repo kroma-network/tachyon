@@ -129,8 +129,8 @@ TEST_P(ProverTest, Getters) {
       tachyon_halo2_bn254_prover_get_blinder(prover_);
   const tachyon_bn254_univariate_evaluation_domain* domain =
       tachyon_halo2_bn254_prover_get_domain(prover_);
-  switch (static_cast<zk::plonk::halo2::PCSType>(prover_->pcs_type)) {
-    case zk::plonk::halo2::PCSType::kGWC: {
+  switch (static_cast<PCSType>(prover_->pcs_type)) {
+    case PCSType::kGWC: {
       EXPECT_EQ(blinder,
                 &c::base::c_cast(
                     reinterpret_cast<zk::ProverBase<GWCPCS>*>(prover_->extra)
@@ -141,7 +141,7 @@ TEST_P(ProverTest, Getters) {
               reinterpret_cast<zk::Entity<GWCPCS>*>(prover_->extra)->domain()));
       break;
     }
-    case zk::plonk::halo2::PCSType::kSHPlonk: {
+    case PCSType::kSHPlonk: {
       EXPECT_EQ(blinder,
                 &c::base::c_cast(reinterpret_cast<zk::ProverBase<SHPlonkPCS>*>(
                                      prover_->extra)
@@ -174,17 +174,17 @@ TEST_P(ProverTest, Commit) {
       tachyon_halo2_bn254_prover_commit(prover_, c::base::c_cast(&poly));
 
   math::bn254::G1ProjectivePoint expected;
-  switch (static_cast<zk::plonk::halo2::PCSType>(prover_->pcs_type)) {
-    case zk::plonk::halo2::PCSType::kGWC: {
-      switch (static_cast<zk::plonk::halo2::LSType>(prover_->ls_type)) {
-        case zk::plonk::halo2::LSType::kHalo2: {
+  switch (static_cast<PCSType>(prover_->pcs_type)) {
+    case PCSType::kGWC: {
+      switch (static_cast<LSType>(prover_->ls_type)) {
+        case LSType::kHalo2: {
           expected =
               reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
                   ->Commit(poly)
                   .ToProjective();
           break;
         }
-        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+        case LSType::kLogDerivativeHalo2: {
           expected =
               reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
                   prover_->extra)
@@ -195,16 +195,16 @@ TEST_P(ProverTest, Commit) {
       }
       break;
     }
-    case zk::plonk::halo2::PCSType::kSHPlonk: {
-      switch (static_cast<zk::plonk::halo2::LSType>(prover_->ls_type)) {
-        case zk::plonk::halo2::LSType::kHalo2: {
+    case PCSType::kSHPlonk: {
+      switch (static_cast<LSType>(prover_->ls_type)) {
+        case LSType::kHalo2: {
           expected =
               reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(prover_->extra)
                   ->Commit(poly)
                   .ToProjective();
           break;
         }
-        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+        case LSType::kLogDerivativeHalo2: {
           expected =
               reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
                   prover_->extra)
@@ -230,17 +230,17 @@ TEST_P(ProverTest, CommitLagrange) {
                                                  c::base::c_cast(&evals));
 
   math::bn254::G1ProjectivePoint expected;
-  switch (static_cast<zk::plonk::halo2::PCSType>(prover_->pcs_type)) {
-    case zk::plonk::halo2::PCSType::kGWC: {
-      switch (static_cast<zk::plonk::halo2::LSType>(prover_->ls_type)) {
-        case zk::plonk::halo2::LSType::kHalo2: {
+  switch (static_cast<PCSType>(prover_->pcs_type)) {
+    case PCSType::kGWC: {
+      switch (static_cast<LSType>(prover_->ls_type)) {
+        case LSType::kHalo2: {
           expected =
               reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
                   ->Commit(evals)
                   .ToProjective();
           break;
         }
-        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+        case LSType::kLogDerivativeHalo2: {
           expected =
               reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
                   prover_->extra)
@@ -251,16 +251,16 @@ TEST_P(ProverTest, CommitLagrange) {
       }
       break;
     }
-    case zk::plonk::halo2::PCSType::kSHPlonk: {
-      switch (static_cast<zk::plonk::halo2::LSType>(prover_->ls_type)) {
-        case zk::plonk::halo2::LSType::kHalo2: {
+    case PCSType::kSHPlonk: {
+      switch (static_cast<LSType>(prover_->ls_type)) {
+        case LSType::kHalo2: {
           expected =
               reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(prover_->extra)
                   ->Commit(evals)
                   .ToProjective();
           break;
         }
-        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+        case LSType::kLogDerivativeHalo2: {
           expected =
               reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
                   prover_->extra)
@@ -274,6 +274,132 @@ TEST_P(ProverTest, CommitLagrange) {
   }
 
   EXPECT_EQ(c::base::native_cast(*point), expected);
+}
+
+TEST_P(ProverTest, BatchCommit) {
+  using Poly =
+      math::UnivariateDensePolynomial<math::bn254::Fr, c::math::kMaxDegree>;
+  std::vector<Poly> polys =
+      base::CreateVector(4, []() { return Poly::Random(5); });
+
+  tachyon_halo2_bn254_prover_batch_start(prover_, polys.size());
+  for (size_t i = 0; i < polys.size(); ++i) {
+    tachyon_halo2_bn254_prover_batch_commit(prover_, c::base::c_cast(&polys[i]),
+                                            i);
+  }
+
+  std::vector<math::bn254::G1AffinePoint> points(polys.size());
+  tachyon_halo2_bn254_prover_batch_end(
+      prover_,
+      const_cast<tachyon_bn254_g1_affine*>(c::base::c_cast(points.data())),
+      points.size());
+
+  for (size_t i = 0; i < points.size(); ++i) {
+    const Poly& poly = polys[i];
+    math::bn254::G1AffinePoint expected;
+    switch (static_cast<PCSType>(prover_->pcs_type)) {
+      case PCSType::kGWC: {
+        switch (static_cast<LSType>(prover_->ls_type)) {
+          case LSType::kHalo2: {
+            expected =
+                reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
+                    ->Commit(poly);
+            break;
+          }
+          case LSType::kLogDerivativeHalo2: {
+            expected =
+                reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
+                    prover_->extra)
+                    ->Commit(poly);
+            break;
+          }
+        }
+        break;
+      }
+      case PCSType::kSHPlonk: {
+        switch (static_cast<LSType>(prover_->ls_type)) {
+          case LSType::kHalo2: {
+            expected = reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(
+                           prover_->extra)
+                           ->Commit(poly);
+            break;
+          }
+          case LSType::kLogDerivativeHalo2: {
+            expected =
+                reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
+                    prover_->extra)
+                    ->Commit(poly);
+            break;
+          }
+        }
+        break;
+      }
+    }
+    EXPECT_EQ(points[i], expected);
+  }
+}
+
+TEST_P(ProverTest, BatchCommitLagrange) {
+  using Evals =
+      math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
+  std::vector<Evals> evals_vec =
+      base::CreateVector(4, []() { return Evals::Random(5); });
+
+  tachyon_halo2_bn254_prover_batch_start(prover_, evals_vec.size());
+  for (size_t i = 0; i < evals_vec.size(); ++i) {
+    tachyon_halo2_bn254_prover_batch_commit_lagrange(
+        prover_, c::base::c_cast(&evals_vec[i]), i);
+  }
+
+  std::vector<math::bn254::G1AffinePoint> points(evals_vec.size());
+  tachyon_halo2_bn254_prover_batch_end(
+      prover_,
+      const_cast<tachyon_bn254_g1_affine*>(c::base::c_cast(points.data())),
+      points.size());
+
+  for (size_t i = 0; i < points.size(); ++i) {
+    const Evals& evals = evals_vec[i];
+    math::bn254::G1AffinePoint expected;
+    switch (static_cast<PCSType>(prover_->pcs_type)) {
+      case PCSType::kGWC: {
+        switch (static_cast<LSType>(prover_->ls_type)) {
+          case LSType::kHalo2: {
+            expected =
+                reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
+                    ->Commit(evals);
+            break;
+          }
+          case LSType::kLogDerivativeHalo2: {
+            expected =
+                reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
+                    prover_->extra)
+                    ->Commit(evals);
+            break;
+          }
+        }
+        break;
+      }
+      case PCSType::kSHPlonk: {
+        switch (static_cast<LSType>(prover_->ls_type)) {
+          case LSType::kHalo2: {
+            expected = reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(
+                           prover_->extra)
+                           ->Commit(evals);
+            break;
+          }
+          case LSType::kLogDerivativeHalo2: {
+            expected =
+                reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
+                    prover_->extra)
+                    ->Commit(evals);
+            break;
+          }
+        }
+        break;
+      }
+    }
+    EXPECT_EQ(points[i], expected);
+  }
 }
 
 TEST_P(ProverTest, SetRng) {
@@ -293,14 +419,14 @@ TEST_P(ProverTest, SetRng) {
       std::make_unique<RandomFieldGenerator<math::bn254::Fr>>(cpp_rng.get());
 
   math::bn254::Fr expected;
-  switch (static_cast<zk::plonk::halo2::PCSType>(prover_->pcs_type)) {
-    case zk::plonk::halo2::PCSType::kGWC: {
+  switch (static_cast<PCSType>(prover_->pcs_type)) {
+    case PCSType::kGWC: {
       expected = reinterpret_cast<zk::ProverBase<GWCPCS>*>(prover_->extra)
                      ->blinder()
                      .Generate();
       break;
     }
-    case zk::plonk::halo2::PCSType::kSHPlonk: {
+    case PCSType::kSHPlonk: {
       expected = reinterpret_cast<zk::ProverBase<SHPlonkPCS>*>(prover_->extra)
                      ->blinder()
                      .Generate();
@@ -370,14 +496,14 @@ TEST_P(ProverTest, SetTranscript) {
                                                   state_len);
 
   math::bn254::Fr expected;
-  switch (static_cast<zk::plonk::halo2::PCSType>(prover_->pcs_type)) {
-    case zk::plonk::halo2::PCSType::kGWC: {
+  switch (static_cast<PCSType>(prover_->pcs_type)) {
+    case PCSType::kGWC: {
       expected = reinterpret_cast<zk::Entity<GWCPCS>*>(prover_->extra)
                      ->transcript()
                      ->SqueezeChallenge();
       break;
     }
-    case zk::plonk::halo2::PCSType::kSHPlonk: {
+    case PCSType::kSHPlonk: {
       expected = reinterpret_cast<zk::Entity<SHPlonkPCS>*>(prover_->extra)
                      ->transcript()
                      ->SqueezeChallenge();
