@@ -14,8 +14,7 @@ tachyon_rng* tachyon_rng_create_from_seed(uint8_t type, const uint8_t* seed,
   if (type == TACHYON_RNG_XOR_SHIFT) {
     CHECK_EQ(seed_len, crypto::XORShiftRNG::kSeedSize);
     crypto::XORShiftRNG* xor_shift = new crypto::XORShiftRNG;
-    *xor_shift = crypto::XORShiftRNG::FromSeed(
-        absl::Span<const uint8_t>(seed, seed_len));
+    CHECK(xor_shift->SetSeed(absl::Span<const uint8_t>(seed, seed_len)));
     rng->extra = xor_shift;
   }
   return rng;

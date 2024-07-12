@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "absl/types/span.h"
+
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/export.h"
 
@@ -17,6 +19,11 @@ class TACHYON_EXPORT RNG {
     uint64_t hi = uint64_t{NextUint32()};
     return (hi << 32 | lo);
   }
+
+  virtual void SetRandomSeed() = 0;
+
+  // Return false if the length of the |seed| exceeds the expected seed size.
+  [[nodiscard]] virtual bool SetSeed(absl::Span<const uint8_t> seed) = 0;
 
   virtual uint32_t NextUint32() = 0;
 

@@ -102,9 +102,9 @@ void CreateProof(NativeProver* prover, tachyon_halo2_bn254_prover* c_prover,
   tachyon_halo2_bn254_prover_set_transcript_state(
       c_prover, transcript_state_bytes.data(), transcript_state_bytes.size());
 
-  prover->SetRng(std::make_unique<tachyon::crypto::XORShiftRNG>(
-      tachyon::crypto::XORShiftRNG::FromSeed(
-          tachyon::zk::plonk::halo2::kXORShiftSeed)));
+  auto rng = std::make_unique<tachyon::crypto::XORShiftRNG>();
+  CHECK(rng->SetSeed(tachyon::zk::plonk::halo2::kXORShiftSeed));
+  prover->SetRng(std::move(rng));
 
   std::cout << "deserializing argument data" << std::endl;
   ArgumentData<PCS> arg_data = DeserializeArgumentData<PCS>(arg_data_bytes);

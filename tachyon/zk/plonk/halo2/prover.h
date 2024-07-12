@@ -38,18 +38,17 @@ class Prover : public ProverBase<PCS> {
   static Prover CreateFromRandomSeed(
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       RowIndex blinding_factors) {
-    auto rng = std::make_unique<crypto::XORShiftRNG>(
-        crypto::XORShiftRNG::FromRandomSeed());
+    auto rng = std::make_unique<crypto::XORShiftRNG>();
+    rng->SetRandomSeed();
     return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),
                          blinding_factors);
   }
 
-  template <typename Container>
   static Prover CreateFromSeed(
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-      const Container& seed, RowIndex blinding_factors) {
-    auto rng = std::make_unique<crypto::XORShiftRNG>(
-        crypto::XORShiftRNG::FromSeed(seed));
+      absl::Span<const uint8_t> seed, RowIndex blinding_factors) {
+    auto rng = std::make_unique<crypto::XORShiftRNG>();
+    CHECK(rng->SetSeed(seed));
     return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),
                          blinding_factors);
   }

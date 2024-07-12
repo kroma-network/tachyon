@@ -123,7 +123,8 @@ TEST_F(RandomFieldGeneratorTest, Random) {
   uint8_t seed[crypto::XORShiftRNG::kSeedSize] = {
       0x59, 0x62, 0xbe, 0x5d, 0x76, 0x3d, 0x31, 0x8d,
       0x17, 0xdb, 0x37, 0x32, 0x54, 0x06, 0xbc, 0xe5};
-  crypto::XORShiftRNG rng = crypto::XORShiftRNG::FromSeed(seed);
+  crypto::XORShiftRNG rng;
+  ASSERT_TRUE(rng.SetSeed(seed));
   RandomFieldGenerator<F> generator(&rng);
   for (size_t i = 0; i < 100; ++i) {
     EXPECT_EQ(generator.Generate(), *F::FromHexString(kHexes[i]));

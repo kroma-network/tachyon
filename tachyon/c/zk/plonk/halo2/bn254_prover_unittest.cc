@@ -413,8 +413,8 @@ TEST_P(ProverTest, SetRng) {
   tachyon_rng_get_state(rng, state, &state_len);
   tachyon_halo2_bn254_prover_set_rng_state(prover_, state, state_len);
 
-  auto cpp_rng = std::make_unique<crypto::XORShiftRNG>(
-      crypto::XORShiftRNG::FromSeed(seed));
+  auto cpp_rng = std::make_unique<crypto::XORShiftRNG>();
+  ASSERT_TRUE(cpp_rng->SetSeed(seed));
   auto cpp_generator =
       std::make_unique<RandomFieldGenerator<math::bn254::Fr>>(cpp_rng.get());
 

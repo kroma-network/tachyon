@@ -31,7 +31,8 @@ TYPED_TEST(RngTest, APIs) {
 
   std::vector<uint8_t> seed = base::CreateVector(
       Rng::kSeedSize, []() { return base::Uniform(base::Range<uint8_t>()); });
-  Rng cpp_rng = Rng::FromSeed(seed);
+  Rng cpp_rng;
+  ASSERT_TRUE(cpp_rng.SetSeed(seed));
 
   uint8_t type;
   if constexpr (std::is_same_v<Rng, XORShiftRNG>) {

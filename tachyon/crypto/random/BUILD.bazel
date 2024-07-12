@@ -8,5 +8,6 @@ tachyon_cc_library(
     deps = [
         "//tachyon:export",
         "//tachyon/base/buffer",
+        "@com_google_absl//absl/types:span",
     ],
 )
