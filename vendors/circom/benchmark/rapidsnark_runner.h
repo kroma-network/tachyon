@@ -42,12 +42,13 @@ void parse_key(Groth16::VerificationKey<Engine>& key, const char* key_str) {
 
 }  // namespace
 
-template <typename Curve, typename Engine>
-class RapidsnarkRunner : public Runner<Curve> {
+template <typename Curve, size_t MaxDegree, typename Engine>
+class RapidsnarkRunner : public Runner<Curve, MaxDegree> {
  public:
   using G1AffinePoint = typename Curve::G1Curve::AffinePoint;
   using G2AffinePoint = typename Curve::G2Curve::AffinePoint;
   using F = typename Curve::G1Curve::ScalarField;
+  using Domain = math::UnivariateEvaluationDomain<F, MaxDegree>;
 
   explicit RapidsnarkRunner(const base::FilePath& vk_path)
       : verification_key_(Engine::engine) {
@@ -72,7 +73,8 @@ class RapidsnarkRunner : public Runner<Curve> {
     );                             // NOLINT(whitespace/parens)
   }
 
-  zk::r1cs::groth16::Proof<Curve> Run(const std::vector<F>& full_assignments_in,
+  zk::r1cs::groth16::Proof<Curve> Run(const Domain*,
+                                      const std::vector<F>& full_assignments_in,
                                       absl::Span<const F> public_inputs_in,
                                       base::TimeDelta& delta) override {
     using FrElement = typename Engine::Fr::Element;

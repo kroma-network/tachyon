@@ -1,9 +1,4 @@
-load(
-    "//bazel:tachyon_cc.bzl",
-    "tachyon_cc_binary",
-    "tachyon_cc_library",
-    "tachyon_cuda_binary",
-)
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary", "tachyon_cc_library")
 
 tachyon_cc_library(
     name = "msm_config",
@@ -55,7 +50,7 @@ tachyon_cc_binary(
     ],
 )
 
-tachyon_cuda_binary(
+tachyon_cc_binary(
     name = "msm_benchmark_gpu",
     testonly = True,
     srcs = ["msm_benchmark_gpu.cc"],

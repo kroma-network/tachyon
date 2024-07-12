@@ -18,9 +18,15 @@
 #include "tachyon/base/optional.h"
 #include "tachyon/base/range.h"
 #include "tachyon/math/polynomials/evaluation_domain.h"
+#include "tachyon/math/polynomials/univariate/fft_algorithm.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
+
+#if TACHYON_CUDA
+#include "tachyon/math/polynomials/univariate/icicle/fft_algorithm_conversion.h"
+#include "tachyon/math/polynomials/univariate/icicle/icicle_ntt_holder.h"
+#endif
 
 namespace tachyon::math {
 
@@ -39,6 +45,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   using DenseCoeffs = UnivariateDenseCoefficients<F, MaxDegree>;
   using SparseCoeffs = UnivariateSparseCoefficients<F, MaxDegree>;
   using SparsePoly = UnivariateSparsePolynomial<F, MaxDegree>;
+  using BigInt = typename F::BigIntTy;
 
   constexpr static size_t kMaxDegree = MaxDegree;
 
@@ -46,7 +53,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   constexpr UnivariateEvaluationDomain(size_t size, uint32_t log_size_of_group)
       : size_(size), log_size_of_group_(log_size_of_group) {
-    size_as_field_element_ = F::FromBigInt(typename F::BigIntTy(size_));
+    size_as_field_element_ = F::FromBigInt(BigInt(size_));
     size_inv_ = unwrap(size_as_field_element_.Inverse());
 
     // Compute the generator for the multiplicative subgroup.
@@ -55,6 +62,9 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     // Check that it is indeed the 2^(log_size_of_group) root of unity.
     DCHECK_EQ(group_gen_.Pow(size_), F::One());
     group_gen_inv_ = unwrap(group_gen_.Inverse());
+#if TACHYON_CUDA
+    offset_big_int_ = F::One().ToBigInt();
+#endif
   }
 
   virtual ~UnivariateEvaluationDomain() = default;
@@ -84,12 +94,24 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   constexpr const F& offset_pow_size() const { return offset_pow_size_; }
 
+#if TACHYON_CUDA
+  void set_icicle(IcicleNTTHolder<F>* icicle) { icicle_ = icicle; }
+#endif
+
   constexpr std::unique_ptr<UnivariateEvaluationDomain> GetCoset(
       const F& offset) const {
     std::unique_ptr<UnivariateEvaluationDomain> coset = Clone();
     coset->offset_ = offset;
     coset->offset_inv_ = unwrap(offset.Inverse());
     coset->offset_pow_size_ = offset.Pow(size_);
+#if TACHYON_CUDA
+    // TODO(chokobole): Remove this condition.
+    if constexpr (std::is_same_v<F, bn254::Fr>) {
+      if (icicle_) {
+        coset->offset_big_int_ = offset.ToBigInt();
+      }
+    }
+#endif
     return coset;
   }
 
@@ -112,12 +134,25 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     return T::Random(size_ - 1);
   }
 
+  virtual FFTAlgorithm GetAlgorithm() const = 0;
+
   // Compute a FFT.
   [[nodiscard]] constexpr Evals FFT(const DensePoly& poly) const {
     if (poly.IsZero()) return {};
 
     Evals evals;
     evals.evaluations_ = poly.coefficients_.coefficients_;
+#if TACHYON_CUDA
+    // TODO(chokobole): Remove this condition.
+    if constexpr (std::is_same_v<F, bn254::Fr>) {
+      if (icicle_) {
+        evals.evaluations_.resize(size_);
+        CHECK((*icicle_)->FFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),
+                              offset_big_int_, evals));
+        return evals;
+      }
+    }
+#endif
     DoFFT(evals);
     return evals;
   }
@@ -128,6 +163,17 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
     Evals evals;
     evals.evaluations_ = std::move(poly.coefficients_.coefficients_);
+#if TACHYON_CUDA
+    // TODO(chokobole): Remove this condition.
+    if constexpr (std::is_same_v<F, bn254::Fr>) {
+      if (icicle_) {
+        evals.evaluations_.resize(size_);
+        CHECK((*icicle_)->FFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),
+                              offset_big_int_, evals));
+        return evals;
+      }
+    }
+#endif
     DoFFT(evals);
     return evals;
   }
@@ -142,6 +188,17 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = evals.evaluations_;
+#if TACHYON_CUDA
+    // TODO(chokobole): Remove this condition.
+    if constexpr (std::is_same_v<F, bn254::Fr>) {
+      if (icicle_) {
+        poly.coefficients_.coefficients_.resize(size_);
+        CHECK((*icicle_)->IFFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),
+                               offset_big_int_, poly));
+        return poly;
+      }
+    }
+#endif
     DoIFFT(poly);
     return poly;
   }
@@ -154,6 +211,17 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = std::move(evals.evaluations_);
+#if TACHYON_CUDA
+    // TODO(chokobole): Remove this condition.
+    if constexpr (std::is_same_v<F, bn254::Fr>) {
+      if (icicle_) {
+        poly.coefficients_.coefficients_.resize(size_);
+        CHECK((*icicle_)->IFFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),
+                               offset_big_int_, poly));
+        return poly;
+      }
+    }
+#endif
     DoIFFT(poly);
     return poly;
   }
@@ -503,6 +571,11 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // Constant coefficient for the vanishing polynomial.
   // Equals |offset_|^|size_|.
   F offset_pow_size_ = F::One();
+#if TACHYON_CUDA
+  // not owned
+  const IcicleNTTHolder<F>* icicle_ = nullptr;
+  BigInt offset_big_int_ = BigInt::One();
+#endif
 };
 
 }  // namespace tachyon::math

@@ -14,16 +14,16 @@
 #include "circomlib/zkey/zkey.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/time/time.h"
-#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/r1cs/groth16/prove.h"
 #include "tachyon/zk/r1cs/groth16/verify.h"
 
 namespace tachyon::circom {
 
 template <typename Curve, size_t MaxDegree>
-class TachyonRunner : public Runner<Curve> {
+class TachyonRunner : public Runner<Curve, MaxDegree> {
  public:
   using F = typename Curve::G1Curve::ScalarField;
+  using Domain = math::UnivariateEvaluationDomain<F, MaxDegree>;
 
   explicit TachyonRunner(const base::FilePath& data_path)
       : witness_loader_(data_path) {}
@@ -46,19 +46,15 @@ class TachyonRunner : public Runner<Curve> {
     constraint_matrices_ = std::move(*zkey).TakeConstraintMatrices().ToNative();
   }
 
-  zk::r1cs::groth16::Proof<Curve> Run(const std::vector<F>& full_assignments,
+  zk::r1cs::groth16::Proof<Curve> Run(const Domain* domain,
+                                      const std::vector<F>& full_assignments,
                                       absl::Span<const F> public_inputs,
                                       base::TimeDelta& delta) override {
-    using Domain = math::UnivariateEvaluationDomain<F, MaxDegree>;
-
     base::TimeTicks now = base::TimeTicks::Now();
 
-    std::unique_ptr<Domain> domain =
-        Domain::Create(constraint_matrices_.num_constraints +
-                       constraint_matrices_.num_instance_variables);
     std::vector<F> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
-            domain.get(), constraint_matrices_, full_assignments);
+            domain, constraint_matrices_, full_assignments);
 
     zk::r1cs::groth16::Proof<Curve> proof =
         zk::r1cs::groth16::CreateProofWithAssignmentNoZK(

@@ -23,7 +23,7 @@ class IcicleMSM {
 
   IcicleMSM(gpuMemPool_t mem_pool, gpuStream_t stream)
       : mem_pool_(mem_pool), stream_(stream) {
-    device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
+    ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
     config_.reset(new ::msm::MSMConfig{
         ctx,
         /*points_size=*/0,
@@ -41,6 +41,7 @@ class IcicleMSM {
         /*are_results_on_device=*/false,
         /*is_big_triangle=*/false,
         /*is_async=*/false});
+    VLOG(1) << "IcicleMSM is created";
   }
   IcicleMSM(const IcicleMSM& other) = delete;
   IcicleMSM& operator=(const IcicleMSM& other) = delete;

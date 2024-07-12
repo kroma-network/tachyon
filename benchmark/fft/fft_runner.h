@@ -17,6 +17,10 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 
+#if TACHYON_CUDA
+#include "tachyon/math/polynomials/univariate/icicle/icicle_ntt_holder.h"
+#endif
+
 namespace tachyon {
 
 // NOTE(TomTaehoonKim): |PolyOrEvals| is the type of the input polynomial
@@ -41,6 +45,14 @@ class FFTRunner {
     domains_ = std::move(domains);
   }
 
+#if TACHYON_CUDA
+  void SwitchToIcicle(math::IcicleNTTHolder<F>* icicle_ntt_holder) {
+    for (std::unique_ptr<Domain>& domain : domains_) {
+      domain->set_icicle(icicle_ntt_holder);
+    }
+  }
+#endif
+
   template <typename Fn, typename RetPoly,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Fn>,
             typename RunType = typename FunctorTraits::RunType,
@@ -50,7 +62,7 @@ class FFTRunner {
                 std::is_same_v<RetPoly, typename Domain::Evals>,
                 tachyon_bn254_univariate_evaluations,
                 tachyon_bn254_univariate_dense_polynomial>>
-  void Run(Fn fn, const std::vector<uint64_t>& degrees,
+  void Run(Fn fn, const std::vector<size_t>& degrees,
            std::vector<RetPoly>* results) {
     for (size_t i = 0; i < degrees.size(); ++i) {
       PolyOrEvals poly = (*polys_)[i];
@@ -63,30 +75,29 @@ class FFTRunner {
   }
 
   template <typename RetPoly>
-  void RunExternal(FFTExternalFn fn, const std::vector<uint64_t>& exponents,
+  void RunExternal(FFTExternalFn fn, const std::vector<size_t>& exponents,
                    std::vector<RetPoly>* results) const {
     for (size_t i = 0; i < exponents.size(); ++i) {
       uint64_t duration_in_us;
+      size_t n = size_t{1} << exponents[i];
 
       std::unique_ptr<F> ret;
       if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
-        const F omega_inv = domains_[i]->group_gen_inv();
+        const F& omega_inv = domains_[i]->group_gen_inv();
         ret.reset(c::base::native_cast(
-            fn(c::base::c_cast((*polys_)[i].evaluations().data()),
-               (*polys_)[i].Degree(), c::base::c_cast(&omega_inv), exponents[i],
-               &duration_in_us)));
-        std::vector<F> res_vec(ret.get(), ret.get() + (*polys_)[i].Degree());
+            fn(c::base::c_cast((*polys_)[i].evaluations().data()), n,
+               c::base::c_cast(&omega_inv), exponents[i], &duration_in_us)));
+        std::vector<F> res_vec(ret.get(), ret.get() + n);
         results->emplace_back(
             typename RetPoly::Coefficients(std::move(res_vec)));
         // NOLINTNEXTLINE(readability/braces)
       } else if constexpr (std::is_same_v<PolyOrEvals,
                                           typename Domain::DensePoly>) {
-        const F omega = domains_[i]->group_gen();
+        const F& omega = domains_[i]->group_gen();
         ret.reset(c::base::native_cast(fn(
             c::base::c_cast((*polys_)[i].coefficients().coefficients().data()),
-            (*polys_)[i].Degree(), c::base::c_cast(&omega), exponents[i],
-            &duration_in_us)));
-        std::vector<F> res_vec(ret.get(), ret.get() + (*polys_)[i].Degree());
+            n, c::base::c_cast(&omega), exponents[i], &duration_in_us)));
+        std::vector<F> res_vec(ret.get(), ret.get() + n);
         results->emplace_back(std::move(res_vec));
       }
       reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());

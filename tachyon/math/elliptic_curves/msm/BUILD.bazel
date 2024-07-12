@@ -1,10 +1,5 @@
 load("//bazel:tachyon.bzl", "if_gpu_is_configured")
-load(
-    "//bazel:tachyon_cc.bzl",
-    "tachyon_cc_library",
-    "tachyon_cc_unittest",
-    "tachyon_cuda_unittest",
-)
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -75,7 +70,7 @@ tachyon_cc_unittest(
     ],
 )
 
-tachyon_cuda_unittest(
+tachyon_cc_unittest(
     name = "msm_gpu_unittests",
     srcs = if_gpu_is_configured(["variable_base_msm_gpu_unittest.cc"]),
     deps = [

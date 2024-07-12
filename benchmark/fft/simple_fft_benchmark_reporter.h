@@ -1,7 +1,7 @@
 #ifndef BENCHMARK_FFT_SIMPLE_FFT_BENCHMARK_REPORTER_H_
 #define BENCHMARK_FFT_SIMPLE_FFT_BENCHMARK_REPORTER_H_
 
-#include <stdint.h>
+#include <stddef.h>
 
 #include <vector>
 
@@ -12,7 +12,7 @@ namespace tachyon {
 class SimpleFFTBenchmarkReporter : public SimpleBenchmarkReporter {
  public:
   SimpleFFTBenchmarkReporter(std::string_view title,
-                             const std::vector<uint64_t>& exponents);
+                             const std::vector<size_t>& exponents);
   SimpleFFTBenchmarkReporter(const SimpleFFTBenchmarkReporter& other) = delete;
   SimpleFFTBenchmarkReporter& operator=(
       const SimpleFFTBenchmarkReporter& other) = delete;
@@ -20,7 +20,7 @@ class SimpleFFTBenchmarkReporter : public SimpleBenchmarkReporter {
   void AddVendor(std::string_view name);
 
  private:
-  std::vector<uint64_t> exponents_;
+  std::vector<size_t> exponents_;
 };
 
 }  // namespace tachyon

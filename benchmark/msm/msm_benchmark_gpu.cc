@@ -1,4 +1,4 @@
-#if TACHYON_CUDA || TACHYON_USE_ROCM
+#if TACHYON_CUDA
 #include <iostream>
 
 // clang-format off
@@ -68,8 +68,7 @@ int main(int argc, char** argv) { return tachyon::RealMain(argc, argv); }
 #include "tachyon/base/console/iostream.h"
 
 int main(int argc, char **argv) {
-  tachyon_cerr << "please build with --config cuda or --config rocm"
-               << std::endl;
+  tachyon_cerr << "please build with --config cuda" << std::endl;
   return 1;
 }
 #endif  // TACHYON_CUDA

@@ -1,6 +1,17 @@
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "fft_algorithm",
+    srcs = ["fft_algorithm.cc"],
+    hdrs = ["fft_algorithm.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+    ],
+)
 
 tachyon_cc_library(
     name = "lagrange_interpolation",
@@ -66,6 +77,7 @@ tachyon_cc_library(
     name = "univariate_evaluation_domain",
     hdrs = ["univariate_evaluation_domain.h"],
     deps = [
+        ":fft_algorithm",
         ":univariate_evaluation_domain_forwards",
         ":univariate_evaluations",
         ":univariate_polynomial",
@@ -74,6 +86,8 @@ tachyon_cc_library(
         "//tachyon/base:optional",
         "//tachyon/base:range",
         "//tachyon/math/polynomials:evaluation_domain",
+        "//tachyon/math/polynomials/univariate/icicle:fft_algorithm_conversion",
+        "//tachyon/math/polynomials/univariate/icicle:icicle_ntt_holder",
     ],
 )
 
@@ -168,5 +182,16 @@ tachyon_cc_unittest(
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
         "@com_google_absl//absl/hash:hash_testing",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "univariate_gpu_unittests",
+    srcs = if_gpu_is_configured(["univariate_evaluation_domain_gpu_unittest.cc"]),
+    deps = [
+        ":mixed_radix_evaluation_domain",
+        ":radix2_evaluation_domain",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )

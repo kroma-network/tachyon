@@ -17,6 +17,7 @@ tachyon_cc_binary(
         "@kroma_network_tachyon//tachyon/math/elliptic_curves/bls12/bls12_381",
         "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254",
         "@kroma_network_tachyon//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "@kroma_network_tachyon//tachyon/math/polynomials/univariate/icicle:icicle_ntt_holder",
         "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:prove",
         "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:verify",
     ],

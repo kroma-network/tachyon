@@ -52,6 +52,9 @@ class Key {
 
     cs.Finalize();
 
+    // TODO(chokobole): Apply |IcicleNTT|. Considering that the key is
+    // generated only once the circuit is constructed, this is not a high
+    // priority.
     std::unique_ptr<Domain> domain =
         Domain::Create(cs.num_constraints() + cs.num_instance_variables());
 
