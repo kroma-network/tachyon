@@ -106,7 +106,7 @@ mod test {
             TachyonProver,
         },
         circuits::simple_lookup_circuit::SimpleLookupCircuit,
-        consts::{TranscriptType, SEED},
+        consts::{TranscriptType, XOR_SHIFT_SEED},
         prover::create_proof as tachyon_create_proof,
         sha::ShaWrite,
         xor_shift_rng::XORShiftRng,
@@ -133,7 +133,7 @@ mod test {
         let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
         let pk = keygen_pk2(&params, &circuit).expect("vk should not fail");
 
-        let rng = XORShiftRng::from_seed(SEED);
+        let rng = XORShiftRng::from_seed(XOR_SHIFT_SEED);
 
         let halo2_proof = {
             let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
@@ -213,7 +213,7 @@ mod test {
         let mut pk_bytes: Vec<u8> = vec![];
         pk.write_including_cs(&mut pk_bytes).unwrap();
 
-        let rng = XORShiftRng::from_seed(SEED);
+        let rng = XORShiftRng::from_seed(XOR_SHIFT_SEED);
 
         let halo2_blake2b_proof = {
             let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);

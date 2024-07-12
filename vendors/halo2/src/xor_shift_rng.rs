@@ -71,12 +71,12 @@ impl rand_core::RngCore for XORShiftRng {
 mod test {
     use rand_core::{RngCore, SeedableRng};
 
-    use crate::{consts::SEED, rng::SerializableRng};
+    use crate::{consts::XOR_SHIFT_SEED, rng::SerializableRng};
 
     #[test]
     fn test_rng() {
-        let mut rng = rand_xorshift::XorShiftRng::from_seed(SEED);
-        let mut rng_tachyon = crate::xor_shift_rng::XORShiftRng::from_seed(SEED);
+        let mut rng = rand_xorshift::XorShiftRng::from_seed(XOR_SHIFT_SEED);
+        let mut rng_tachyon = crate::xor_shift_rng::XORShiftRng::from_seed(XOR_SHIFT_SEED);
 
         const LEN: i32 = 100;
         let random_u64s = (0..LEN).map(|_| rng.next_u64()).collect::<Vec<_>>();
@@ -86,7 +86,7 @@ mod test {
 
     #[test]
     fn test_clone() {
-        let mut rng = crate::xor_shift_rng::XORShiftRng::from_seed(SEED);
+        let mut rng = crate::xor_shift_rng::XORShiftRng::from_seed(XOR_SHIFT_SEED);
         let mut rng_clone = rng.clone();
 
         const LEN: i32 = 100;
@@ -97,7 +97,7 @@ mod test {
 
     #[test]
     fn test_state() {
-        let rng = crate::xor_shift_rng::XORShiftRng::from_seed(SEED);
+        let rng = crate::xor_shift_rng::XORShiftRng::from_seed(XOR_SHIFT_SEED);
         assert_eq!(
             rng.state(),
             vec![89, 98, 190, 93, 118, 61, 49, 141, 23, 219, 55, 50, 84, 6, 188, 229]

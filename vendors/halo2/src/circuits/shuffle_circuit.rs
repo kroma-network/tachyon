@@ -261,7 +261,7 @@ mod test {
             ProvingKey as TachyonProvingKey, SHPlonkProver, Sha256Write as TachyonSha256Write,
             TachyonProver,
         },
-        consts::{TranscriptType, SEED},
+        consts::{TranscriptType, XOR_SHIFT_SEED},
         prover::create_proof as tachyon_create_proof,
         sha::ShaWrite,
         xor_shift_rng::XORShiftRng,
@@ -275,14 +275,14 @@ mod test {
 
     #[test]
     fn test_create_gwc_proof() {
-        let mut rng_for_table = XORShiftRng::from_seed(SEED);
+        let mut rng_for_table = XORShiftRng::from_seed(XOR_SHIFT_SEED);
         let circuit = MyCircuit::<Fr, W, H>::rand(&mut rng_for_table);
 
         let s = Fr::from(2);
         let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(K, s);
         let pk = keygen_pk2(&params, &circuit).unwrap();
 
-        let rng = XORShiftRng::from_seed(SEED);
+        let rng = XORShiftRng::from_seed(XOR_SHIFT_SEED);
 
         let halo2_proof = {
             let mut transcript = Blake2bWrite::<_, _, Challenge255<_>>::init(vec![]);
@@ -333,7 +333,7 @@ mod test {
 
     #[test]
     fn test_create_shplonk_proof_with_various_transcripts() {
-        let mut rng_for_table = XORShiftRng::from_seed(SEED);
+        let mut rng_for_table = XORShiftRng::from_seed(XOR_SHIFT_SEED);
         let circuit = MyCircuit::<Fr, W, H>::rand(&mut rng_for_table);
 
         let s = Fr::from(2);
@@ -342,7 +342,7 @@ mod test {
         let mut pk_bytes: Vec<u8> = vec![];
         pk.write_including_cs(&mut pk_bytes).unwrap();
 
-        let rng = XORShiftRng::from_seed(SEED);
+        let rng = XORShiftRng::from_seed(XOR_SHIFT_SEED);
 
         let halo2_blake2b_proof = {
             let mut transcript = Blake2bWrite::<_, _, Challenge255<_>>::init(vec![]);
