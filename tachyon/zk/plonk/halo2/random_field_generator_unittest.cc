@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 

@@ -23,6 +23,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
 #include "tachyon/c/zk/plonk/halo2/test/bn254_halo2_params_data.h"
+#include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/ls_type.h"

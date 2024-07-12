@@ -49,14 +49,7 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS, LS> {
 
   uint8_t transcript_type() const { return transcript_type_; }
 
-  void SetRngState(absl::Span<const uint8_t> state) {
-    tachyon::base::ReadOnlyBuffer buffer(state.data(), state.size());
-    auto rng = std::make_unique<crypto::XORShiftRNG>();
-    CHECK(rng->ReadFromBuffer(buffer));
-    Base::SetRng(std::move(rng));
-  }
-
-  void SetRng(std::unique_ptr<crypto::XORShiftRNG> rng) {
+  void SetRng(std::unique_ptr<crypto::RNG> rng) {
     Base::SetRng(std::move(rng));
   }
 

@@ -23,6 +23,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl.h"
+#include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/ls_type.h"
@@ -38,6 +39,7 @@ using GWCPCS = c::zk::plonk::halo2::bn254::GWCPCS;
 using SHPlonkPCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
 using Halo2LS = c::zk::plonk::halo2::bn254::Halo2LS;
 using LogDerivativeHalo2LS = c::zk::plonk::halo2::bn254::LogDerivativeHalo2LS;
+using XORShiftRNG = crypto::XORShiftRNG;
 
 template <typename PCS, typename LS>
 using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS, LS>;
@@ -80,10 +82,10 @@ zk::plonk::halo2::Prover<PCS, LS> CreateProver(uint8_t transcript_type,
   }
   CHECK(writer);
   zk::plonk::halo2::Prover<PCS, LS> prover =
-      zk::plonk::halo2::Prover<PCS, LS>::CreateFromRNG(std::move(pcs),
-                                                       std::move(writer),
-                                                       /*rng=*/nullptr,
-                                                       /*blinding_factors=*/0);
+      zk::plonk::halo2::Prover<PCS, LS>::Create(std::move(pcs),
+                                                std::move(writer),
+                                                /*rng=*/nullptr,
+                                                /*blinding_factors=*/0);
   prover.set_domain(PCS::Domain::Create(n));
   return prover;
 }
@@ -121,10 +123,10 @@ zk::plonk::halo2::Prover<PCS, LS> CreateProverFromParams(
   }
   CHECK(writer);
   zk::plonk::halo2::Prover<PCS, LS> prover =
-      zk::plonk::halo2::Prover<PCS, LS>::CreateFromRNG(std::move(pcs),
-                                                       std::move(writer),
-                                                       /*rng=*/nullptr,
-                                                       /*blinding_factors=*/0);
+      zk::plonk::halo2::Prover<PCS, LS>::Create(std::move(pcs),
+                                                std::move(writer),
+                                                /*rng=*/nullptr,
+                                                /*blinding_factors=*/0);
   prover.set_domain(PCS::Domain::Create(n));
   return prover;
 }
@@ -233,8 +235,10 @@ void BatchEnd(NativeProver* prover, tachyon_bn254_g1_affine* points,
 
 template <typename NativeProver>
 void SetRngState(NativeProver* prover, const uint8_t* state, size_t state_len) {
-  absl::Span<const uint8_t> rng_state(state, state_len);
-  prover->SetRngState(rng_state);
+  auto rng = std::make_unique<XORShiftRNG>();
+  base::ReadOnlyBuffer buffer(state, state_len);
+  CHECK(rng->ReadFromBuffer(buffer));
+  prover->SetRng(std::move(rng));
 }
 
 template <typename NativeProver>

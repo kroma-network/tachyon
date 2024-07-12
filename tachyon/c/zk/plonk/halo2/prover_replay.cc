@@ -14,6 +14,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl.h"
+#include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/ls_type.h"
