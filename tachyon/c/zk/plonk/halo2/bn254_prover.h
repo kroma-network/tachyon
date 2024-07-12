@@ -218,11 +218,13 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_end(
  * of the random numbers used in the proof generation process.
  *
  * @param prover A pointer to the prover.
+ * @param rng_type Identifier for the rng type.
  * @param state A pointer to the RNG state.
  * @param state_len Length of the RNG state array.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_rng_state(
-    tachyon_halo2_bn254_prover* prover, const uint8_t* state, size_t state_len);
+    tachyon_halo2_bn254_prover* prover, uint8_t rng_type, const uint8_t* state,
+    size_t state_len);
 
 /**
  * @brief Sets the state of the transcript to a specific value.

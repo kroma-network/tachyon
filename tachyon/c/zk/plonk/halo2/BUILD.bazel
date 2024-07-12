@@ -138,6 +138,8 @@ tachyon_cc_library(
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
         "//tachyon/c/zk/base:bn254_blinder",
         "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key",
+        "//tachyon/crypto/random:rng_type",
+        "//tachyon/crypto/random/cha_cha20:cha_cha20_rng",
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/base/commitments:gwc_extension",

@@ -24,7 +24,7 @@ use tachyon_rs::math::elliptic_curves::bn::bn254::{
     G1ProjectivePoint as G1ProjectivePointImpl, G2AffinePoint as G2AffinePointImpl,
 };
 
-use crate::consts::PCSType;
+use crate::consts::{PCSType, RNGType};
 
 pub struct G1MSM;
 pub struct G1MSMGpu;
@@ -207,7 +207,7 @@ pub mod ffi {
             rational_evals: &[UniquePtr<RationalEvals>],
             evals: &mut [UniquePtr<Evals>],
         );
-        fn set_rng(self: Pin<&mut Prover>, state: &[u8]);
+        fn set_rng(self: Pin<&mut Prover>, rng_type: u8, state: &[u8]);
         fn set_transcript(self: Pin<&mut Prover>, state: &[u8]);
         fn set_extended_domain(self: Pin<&mut Prover>, pk: &ProvingKey);
         fn create_proof(
@@ -809,7 +809,7 @@ pub trait TachyonProver<Scheme: CommitmentScheme> {
 
     fn ifft(&self, evals: &Evals) -> Poly;
 
-    fn set_rng(&mut self, state: &[u8]);
+    fn set_rng(&mut self, rng_type: RNGType, state: &[u8]);
 
     fn set_transcript(&mut self, state: &[u8]);
 
@@ -923,8 +923,8 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
         Poly::new(self.inner.ifft(&evals.inner))
     }
 
-    fn set_rng(&mut self, state: &[u8]) {
-        self.inner.pin_mut().set_rng(state)
+    fn set_rng(&mut self, rng_type: RNGType, state: &[u8]) {
+        self.inner.pin_mut().set_rng(rng_type as u8, state)
     }
 
     fn set_transcript(&mut self, state: &[u8]) {
@@ -1057,8 +1057,8 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
         Poly::new(self.inner.ifft(&evals.inner))
     }
 
-    fn set_rng(&mut self, state: &[u8]) {
-        self.inner.pin_mut().set_rng(state)
+    fn set_rng(&mut self, rng_type: RNGType, state: &[u8]) {
+        self.inner.pin_mut().set_rng(rng_type as u8, state)
     }
 
     fn set_transcript(&mut self, state: &[u8]) {

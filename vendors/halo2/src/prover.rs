@@ -559,7 +559,7 @@ where
 
     drop(fixed_values);
 
-    prover.set_rng(rng.state().as_slice());
+    prover.set_rng(R::rng_type(), rng.state().as_slice());
     prover.set_transcript(transcript.state().as_slice());
 
     let challenges = unsafe { std::mem::transmute::<_, Vec<crate::bn254::Fr>>(challenges) };
