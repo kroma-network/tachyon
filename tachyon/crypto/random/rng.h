@@ -3,17 +3,21 @@
 
 #include <stdint.h>
 
+#include "tachyon/export.h"
+
 namespace tachyon::crypto {
 
-template <typename Derived>
-class RNG {
+class TACHYON_EXPORT RNG {
  public:
+  virtual ~RNG() = default;
+
   uint64_t NextUint64() {
-    Derived* derived = static_cast<Derived*>(this);
-    uint64_t lo = uint64_t{derived->NextUint32()};
-    uint64_t hi = uint64_t{derived->NextUint32()};
+    uint64_t lo = uint64_t{NextUint32()};
+    uint64_t hi = uint64_t{NextUint32()};
     return (hi << 32 | lo);
   }
+
+  virtual uint32_t NextUint32() = 0;
 };
 
 }  // namespace tachyon::crypto

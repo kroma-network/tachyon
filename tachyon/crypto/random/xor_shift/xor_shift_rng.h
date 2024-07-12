@@ -21,7 +21,7 @@ namespace tachyon::crypto {
 // [Seed Stability]
 // (https://abseil.io/docs/cpp/guides/random#classes-of-generator-stability)
 // and [Xorshift RNGs](https://www.jstatsoft.org/v08/i14/paper).
-class XORShiftRNG final : public RNG<XORShiftRNG> {
+class XORShiftRNG final : public RNG {
  public:
   constexpr static size_t kSeedSize = 16;
   constexpr static size_t kStateSize = 16;
@@ -68,7 +68,8 @@ class XORShiftRNG final : public RNG<XORShiftRNG> {
     return {x, y, z, w};
   }
 
-  uint32_t NextUint32() {
+  // RNG methods
+  uint32_t NextUint32() override {
     uint32_t t = x_ ^ (x_ << 11);
     x_ = y_;
     y_ = z_;
