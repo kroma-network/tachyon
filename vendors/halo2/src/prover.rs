@@ -26,11 +26,7 @@ use halo2_proofs::{
     },
     transcript::EncodedChallenge,
 };
-use halo2curves::{
-    bn256::Fr,
-    group::{prime::PrimeCurveAffine, Curve},
-    CurveAffine,
-};
+use halo2curves::{bn256::Fr, group::prime::PrimeCurveAffine};
 use rand_core::RngCore;
 
 /// This creates a proof for the provided `circuit` when given the public
