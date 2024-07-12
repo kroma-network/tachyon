@@ -17,3 +17,12 @@ tachyon_cc_library(
         "@com_google_absl//absl/types:span",
     ],
 )
+
+tachyon_cc_library(
+    name = "rng_type",
+    hdrs = ["rng_type.h"],
+    deps = [
+        "//tachyon/base/flag",
+        "@com_google_absl//absl/strings",
+    ],
+)
