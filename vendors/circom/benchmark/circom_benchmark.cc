@@ -28,7 +28,7 @@ using namespace math;
 constexpr size_t kMaxDegree = (size_t{1} << 16) - 1;
 
 using F = bn254::Fr;
-using Curve = math::bn254::BN254Curve;
+using Curve = bn254::BN254Curve;
 using Domain = UnivariateEvaluationDomain<F, kMaxDegree>;
 
 void CheckPublicInput(const std::vector<uint8_t>& in,
