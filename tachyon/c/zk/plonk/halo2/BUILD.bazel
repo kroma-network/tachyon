@@ -236,6 +236,8 @@ tachyon_cc_binary(
         "//tachyon/base/flag:flag_parser",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/zk/plonk/keys:proving_key_impl",
+        "//tachyon/crypto/random:rng_type",
+        "//tachyon/crypto/random/cha_cha20:cha_cha20_rng",
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
         "//tachyon/zk/plonk/halo2:constants",
         "//tachyon/zk/plonk/halo2:ls_type",
