@@ -12,7 +12,6 @@ tachyon_rng* tachyon_rng_create_from_seed(uint8_t type, const uint8_t* seed,
   tachyon_rng* rng = new tachyon_rng;
   rng->type = type;
   if (type == TACHYON_RNG_XOR_SHIFT) {
-    CHECK_EQ(seed_len, crypto::XORShiftRNG::kSeedSize);
     crypto::XORShiftRNG* xor_shift = new crypto::XORShiftRNG;
     CHECK(xor_shift->SetSeed(absl::Span<const uint8_t>(seed, seed_len)));
     rng->extra = xor_shift;
@@ -25,7 +24,6 @@ tachyon_rng* tachyon_rng_create_from_state(uint8_t type, const uint8_t* state,
   tachyon_rng* rng = new tachyon_rng;
   rng->type = type;
   if (type == TACHYON_RNG_XOR_SHIFT) {
-    CHECK_EQ(state_len, crypto::XORShiftRNG::kStateSize);
     base::ReadOnlyBuffer buffer(state, state_len);
     crypto::XORShiftRNG* xor_shift = new crypto::XORShiftRNG;
     CHECK(xor_shift->ReadFromBuffer(buffer));
