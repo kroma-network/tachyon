@@ -26,6 +26,8 @@ tachyon_rust_library(
         ":bn254_rational_evals",
         ":bn254_rational_evals_view",
         ":bn254_sha256_writer",
+        ":cha_cha20_rng",
+        ":cha_cha20_rng_cxx_bridge",
         ":xor_shift_rng",
         ":xor_shift_rng_cxx_bridge",
         "//tachyon/rs:tachyon_rs",
@@ -70,6 +72,12 @@ rust_cxx_bridge(
         '--cfg=feature="gpu"',
     ]),
     deps = [":bn254_api_hdrs"],
+)
+
+rust_cxx_bridge(
+    name = "cha_cha20_rng_cxx_bridge",
+    src = "src/cha_cha20_rng.rs",
+    deps = [":cha_cha20_rng_api_hdrs"],
 )
 
 rust_cxx_bridge(
@@ -209,6 +217,25 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+        "//tachyon/base:logging",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cha_cha20_rng_api_hdrs",
+    hdrs = ["include/cha_cha20_rng.h"],
+    deps = [
+        "//tachyon/c/crypto/random:rng",
+        "@cxx.rs//:core",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cha_cha20_rng",
+    srcs = ["src/cha_cha20_rng.cc"],
+    deps = [
+        ":cha_cha20_rng_api_hdrs",
+        ":cha_cha20_rng_cxx_bridge/include",
         "//tachyon/base:logging",
     ],
 )

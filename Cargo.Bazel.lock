@@ -1,5 +1,5 @@
 {
-  "checksum": "fe9841043a924e278a4cbfdc6d72e1e41a041f14142cbae2a8c1c85fb9c3b77d",
+  "checksum": "03243c9b1e5367be90b7c0fba8b9a2c88f2e642956b9871e9885f7d1805ac77c",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -20643,6 +20643,10 @@
         },
         "deps_dev": {
           "common": [
+            {
+              "id": "rand_chacha 0.3.1",
+              "target": "rand_chacha"
+            },
             {
               "id": "rand_xorshift 0.3.0",
               "target": "rand_xorshift"

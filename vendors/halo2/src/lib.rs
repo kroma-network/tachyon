@@ -1,4 +1,5 @@
 mod bn254;
+mod cha_cha20_rng;
 mod circuits;
 mod consts;
 mod msm;

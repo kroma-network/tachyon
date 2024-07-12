@@ -4313,6 +4313,7 @@ dependencies = [
  "halo2curves",
  "log",
  "num-bigint 0.4.5",
+ "rand_chacha",
  "rand_core 0.6.4",
  "rand_xorshift",
  "sha2",
