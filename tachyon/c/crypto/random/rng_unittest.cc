@@ -6,6 +6,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/random.h"
+#include "tachyon/crypto/random/cha_cha20/cha_cha20_rng.h"
 #include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 
 namespace tachyon::crypto {
@@ -23,7 +24,7 @@ class RngTest : public testing::Test {
   tachyon_rng* rng_clone_ = nullptr;
 };
 
-using RngTypes = testing::Types<XORShiftRNG>;
+using RngTypes = testing::Types<XORShiftRNG, ChaCha20RNG>;
 TYPED_TEST_SUITE(RngTest, RngTypes);
 
 TYPED_TEST(RngTest, APIs) {
@@ -37,6 +38,8 @@ TYPED_TEST(RngTest, APIs) {
   uint8_t type;
   if constexpr (std::is_same_v<Rng, XORShiftRNG>) {
     type = TACHYON_RNG_XOR_SHIFT;
+  } else if constexpr (std::is_same_v<Rng, ChaCha20RNG>) {
+    type = TACHYON_RNG_CHA_CHA20;
   }
 
   this->rng_ = tachyon_rng_create_from_seed(type, seed.data(), Rng::kSeedSize);

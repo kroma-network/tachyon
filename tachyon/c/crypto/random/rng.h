@@ -17,6 +17,7 @@
 #include "tachyon/c/export.h"
 
 #define TACHYON_RNG_XOR_SHIFT 0
+#define TACHYON_RNG_CHA_CHA20 1
 
 /**
  * @struct tachyon_rng
