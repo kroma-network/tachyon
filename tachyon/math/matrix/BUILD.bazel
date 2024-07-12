@@ -54,6 +54,7 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "matrix_unittests",
     srcs = [
+        "matrix_inverse_unittest.cc",
         "matrix_types_unittest.cc",
         "matrix_utils_unittest.cc",
     ],

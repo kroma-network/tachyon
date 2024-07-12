@@ -54,6 +54,7 @@ struct NumTraits<tachyon::math::PackedMersenne31>
 
   enum {
     IsInteger = 1,
+    IsField = 1,
     IsSigned = 0,
     IsComplex = 0,
     RequireInitialization = 1,
