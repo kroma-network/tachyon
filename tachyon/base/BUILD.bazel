@@ -76,6 +76,18 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "maybe_owned",
+    hdrs = ["maybe_owned.h"],
+    deps = [":maybe_owned_traits"],
+)
+
+tachyon_cc_library(
+    name = "maybe_owned_traits",
+    hdrs = ["maybe_owned_traits.h"],
+    deps = ["@com_google_absl//absl/types:span"],
+)
+
+tachyon_cc_library(
     name = "no_destructor",
     hdrs = ["no_destructor.h"],
 )
