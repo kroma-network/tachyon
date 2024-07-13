@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/maybe_owned.h"
 #include "tachyon/zk/r1cs/groth16/verifying_key.h"
 
 namespace tachyon::zk::r1cs::groth16 {
@@ -52,19 +53,31 @@ class ProvingKey : public Key {
         b_g2_query_(std::move(b_g2_query)),
         h_g1_query_(std::move(h_g1_query)),
         l_g1_query_(std::move(l_g1_query)) {}
+  ProvingKey(const VerifyingKey<Curve>& verifying_key, G1Point* beta_g1,
+             G1Point* delta_g1, absl::Span<G1Point> a_g1_query,
+             absl::Span<G1Point> b_g1_query, absl::Span<G2Point> b_g2_query,
+             absl::Span<G1Point> h_g1_query, absl::Span<G1Point> l_g1_query)
+      : verifying_key_(verifying_key),
+        beta_g1_(beta_g1),
+        delta_g1_(delta_g1),
+        a_g1_query_(a_g1_query),
+        b_g1_query_(b_g1_query),
+        b_g2_query_(b_g2_query),
+        h_g1_query_(h_g1_query),
+        l_g1_query_(l_g1_query) {}
 
   const VerifyingKey<Curve>& verifying_key() const { return verifying_key_; }
   VerifyingKey<Curve>&& TakeVerifyingKey() && {
     return std::move(verifying_key_);
   }
 
-  const G1Point& beta_g1() const { return beta_g1_; }
-  const G1Point& delta_g1() const { return delta_g1_; }
-  const std::vector<G1Point>& a_g1_query() const { return a_g1_query_; }
-  const std::vector<G1Point>& b_g1_query() const { return b_g1_query_; }
-  const std::vector<G2Point>& b_g2_query() const { return b_g2_query_; }
-  const std::vector<G1Point>& h_g1_query() const { return h_g1_query_; }
-  const std::vector<G1Point>& l_g1_query() const { return l_g1_query_; }
+  const G1Point& beta_g1() const { return *beta_g1_; }
+  const G1Point& delta_g1() const { return *delta_g1_; }
+  absl::Span<const G1Point> a_g1_query() const { return *a_g1_query_; }
+  absl::Span<const G1Point> b_g1_query() const { return *b_g1_query_; }
+  absl::Span<const G2Point> b_g2_query() const { return *b_g2_query_; }
+  absl::Span<const G1Point> h_g1_query() const { return *h_g1_query_; }
+  absl::Span<const G1Point> l_g1_query() const { return *l_g1_query_; }
 
   template <size_t MaxDegree, typename QAP>
   [[nodiscard]] bool Load(ToxicWaste<Curve>& toxic_waste,
@@ -142,20 +155,27 @@ class ProvingKey : public Key {
     beta_g1_ = std::move(beta_delta[0]);
     delta_g1_ = std::move(beta_delta[1]);
 
-    a_g1_query_.resize(a_g1_query_jacobian.size());
-    if (!G1JacobianPoint::BatchNormalize(a_g1_query_jacobian, &a_g1_query_))
+    std::vector<G1Point> a_g1_query(a_g1_query_jacobian.size());
+    if (!G1JacobianPoint::BatchNormalize(a_g1_query_jacobian, &a_g1_query))
       return false;
-    b_g1_query_.resize(b_g1_query_jacobian.size());
-    if (!G1JacobianPoint::BatchNormalize(b_g1_query_jacobian, &b_g1_query_))
+    std::vector<G1Point> b_g1_query(b_g1_query_jacobian.size());
+    if (!G1JacobianPoint::BatchNormalize(b_g1_query_jacobian, &b_g1_query))
       return false;
-    b_g2_query_.resize(b_g2_query_jacobian.size());
-    if (!G2JacobianPoint::BatchNormalize(b_g2_query_jacobian, &b_g2_query_))
+    std::vector<G2Point> b_g2_query(b_g2_query_jacobian.size());
+    if (!G2JacobianPoint::BatchNormalize(b_g2_query_jacobian, &b_g2_query))
       return false;
-    h_g1_query_.resize(h_g1_query_jacobian.size());
-    if (!G1JacobianPoint::BatchNormalize(h_g1_query_jacobian, &h_g1_query_))
+    std::vector<G1Point> h_g1_query(h_g1_query_jacobian.size());
+    if (!G1JacobianPoint::BatchNormalize(h_g1_query_jacobian, &h_g1_query))
       return false;
-    l_g1_query_.resize(l_g1_query_jacobian.size());
-    return G1JacobianPoint::BatchNormalize(l_g1_query_jacobian, &l_g1_query_);
+    std::vector<G1Point> l_g1_query(l_g1_query_jacobian.size());
+    if (!G1JacobianPoint::BatchNormalize(l_g1_query_jacobian, &l_g1_query))
+      return false;
+    a_g1_query_ = std::move(a_g1_query);
+    b_g1_query_ = std::move(b_g1_query);
+    b_g2_query_ = std::move(b_g2_query);
+    h_g1_query_ = std::move(h_g1_query);
+    l_g1_query_ = std::move(l_g1_query);
+    return true;
   }
 
   std::string ToString() const {
@@ -186,19 +206,19 @@ class ProvingKey : public Key {
  private:
   VerifyingKey<Curve> verifying_key_;
   // [β]₁
-  G1Point beta_g1_;
+  base::MaybeOwned<G1Point> beta_g1_;
   // [δ]₁
-  G1Point delta_g1_;
+  base::MaybeOwned<G1Point> delta_g1_;
   // |a_g1_query_[i]| = [aᵢ(x)]₁
-  std::vector<G1Point> a_g1_query_;
+  base::MaybeOwned<std::vector<G1Point>> a_g1_query_;
   // |b_g1_query_[i]| = [bᵢ(x)]₁
-  std::vector<G1Point> b_g1_query_;
+  base::MaybeOwned<std::vector<G1Point>> b_g1_query_;
   // |b_g2_query_[i]| = [bᵢ(x)]₂
-  std::vector<G2Point> b_g2_query_;
+  base::MaybeOwned<std::vector<G2Point>> b_g2_query_;
   // |h_g1_query_[i]| = [(xⁱ * t(x)) / δ]₁
-  std::vector<G1Point> h_g1_query_;
+  base::MaybeOwned<std::vector<G1Point>> h_g1_query_;
   // |l_g1_query_[i]| = [(β * aᵢ(x) + α * bᵢ(x) + cᵢ(x)) / δ]₁
-  std::vector<G1Point> l_g1_query_;
+  base::MaybeOwned<std::vector<G1Point>> l_g1_query_;
 };
 
 }  // namespace tachyon::zk::r1cs::groth16

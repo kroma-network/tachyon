@@ -49,7 +49,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "proving_key",
     hdrs = ["proving_key.h"],
-    deps = [":verifying_key"],
+    deps = [
+        ":verifying_key",
+        "//tachyon/base:maybe_owned",
+    ],
 )
 
 tachyon_cc_library(
