@@ -26,6 +26,7 @@ tachyon_cc_library(
     hdrs = ["proving_key.h"],
     deps = [
         ":verifying_key",
+        "@com_google_absl//absl/types:span",
         "@kroma_network_tachyon//tachyon/base/strings:string_util",
         "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:proving_key",
     ],
@@ -34,7 +35,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "verifying_key",
     hdrs = ["verifying_key.h"],
-    deps = ["@kroma_network_tachyon//tachyon/base/buffer:copyable"],
+    deps = [
+        "@com_google_absl//absl/strings",
+        "@kroma_network_tachyon//tachyon/base/buffer:read_only_buffer",
+    ],
 )
 
 tachyon_cc_library(

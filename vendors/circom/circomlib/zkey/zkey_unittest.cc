@@ -66,15 +66,15 @@ TEST_F(ZKeyTest, Parse) {
       math::bn254::FrConfig::kModulus.ToBytesLE();
 
   // clang-format off
-  std::string_view alpha_g1[2] = {
+  std::string_view alpha_g1_str[2] = {
     "5700502584084766622350343367608487274977128430049880895783423261700075212785",
     "9143870410831450591509938003078256759736333300521257694515214164265805259830",
   };
-  std::string_view beta_g1[2] = {
+  std::string_view beta_g1_str[2] = {
     "12699714711422499622362310820475830692566951228171954587615996781136226772367",
     "2601999511749500018822665665362525344184434745926911293241192574303473253831",
   };
-  std::string_view beta_g2[2][2] = {
+  std::string_view beta_g2_str[2][2] = {
     {
       "11780196173848324687642894328871430898972567583635494711927265792805257024861",
       "3029614260803671687015271480824975868088527303860361358764452805565479529001",
@@ -84,7 +84,7 @@ TEST_F(ZKeyTest, Parse) {
       "10565581580493997556536063930500447170628763955833078597453719665182760199848"
     },
   };
-  std::string_view gamma_g2[2][2] = {
+  std::string_view gamma_g2_str[2][2] = {
     {
       "10857046999023057135944570762232829481370756359578518086990519993285655852781",
       "11559732032986387107991004021392285783925812861821192530917403151452391805634",
@@ -94,11 +94,11 @@ TEST_F(ZKeyTest, Parse) {
       "4082367875863433681332203403145435568316851327593401208105741076214120093531"
     },
   };
-  std::string_view delta_g1[2] =  {
+  std::string_view delta_g1_str[2] =  {
     "18121096455458648748006856505340317178704791872899059396361359566439114201168",
     "1584219057669659447306711278235088033786171030532185363250775914928871374123",
   };
-  std::string_view delta_g2[2][2] = {
+  std::string_view delta_g2_str[2][2] = {
     {
       "12202969132968262321607709426694195568617274504067880373401633817598633451917",
       "3518609536734967363313514083213104545803320919611827958997148133314959258666",
@@ -110,6 +110,12 @@ TEST_F(ZKeyTest, Parse) {
   };
   // clang-format on
 
+  G1AffinePoint alpha_g1 = ToG1AffinePoint(alpha_g1_str);
+  G1AffinePoint beta_g1 = ToG1AffinePoint(beta_g1_str);
+  G2AffinePoint beta_g2 = ToG2AffinePoint(beta_g2_str);
+  G2AffinePoint gamma_g2 = ToG2AffinePoint(gamma_g2_str);
+  G1AffinePoint delta_g1 = ToG1AffinePoint(delta_g1_str);
+  G2AffinePoint delta_g2 = ToG2AffinePoint(delta_g2_str);
   v1::ZKeyHeaderGrothSection<Curve> expected_header_groth = {
       Modulus{std::vector<uint8_t>(fq_bytes.begin(), fq_bytes.end())},
       Modulus{std::vector<uint8_t>(fr_bytes.begin(), fr_bytes.end())},
@@ -117,12 +123,12 @@ TEST_F(ZKeyTest, Parse) {
       1,
       4,
       {
-          ToG1AffinePoint(alpha_g1),
-          ToG1AffinePoint(beta_g1),
-          ToG2AffinePoint(beta_g2),
-          ToG2AffinePoint(gamma_g2),
-          ToG1AffinePoint(delta_g1),
-          ToG2AffinePoint(delta_g2),
+          &alpha_g1,
+          &beta_g1,
+          &beta_g2,
+          &gamma_g2,
+          &delta_g1,
+          &delta_g2,
       }};
   EXPECT_EQ(v1_zkey->header_groth, expected_header_groth);
 
@@ -138,10 +144,12 @@ TEST_F(ZKeyTest, Parse) {
     }
   };
   // clang-format on
-  v1::ICSection<G1AffinePoint> expected_ic = {base::Map(
+  std::vector<G1AffinePoint> expected_ic = base::Map(
       expected_ic_strs,
-      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
-  EXPECT_EQ(v1_zkey->ic, expected_ic);
+      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); });
+  v1::ICSection<G1AffinePoint> expected_ic_section = {
+      absl::MakeSpan(expected_ic)};
+  EXPECT_EQ(v1_zkey->ic, expected_ic_section);
 
   // clang-format off
   CellData a[4][1] = {
@@ -194,10 +202,12 @@ TEST_F(ZKeyTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsA1Section<G1AffinePoint> expected_points_a1 = {base::Map(
+  std::vector<G1AffinePoint> expected_points_a1 = base::Map(
       expected_points_a1_strs,
-      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
-  EXPECT_EQ(v1_zkey->points_a1, expected_points_a1);
+      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); });
+  v1::PointsA1Section<G1AffinePoint> expected_points_a1_section = {
+      absl::MakeSpan(expected_points_a1)};
+  EXPECT_EQ(v1_zkey->points_a1, expected_points_a1_section);
 
   // clang-format off
   std::string_view expected_points_b1_strs[][2] = {
@@ -227,10 +237,12 @@ TEST_F(ZKeyTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsB1Section<G1AffinePoint> expected_points_b1 = {base::Map(
+  std::vector<G1AffinePoint> expected_points_b1 = base::Map(
       expected_points_b1_strs,
-      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
-  EXPECT_EQ(v1_zkey->points_b1, expected_points_b1);
+      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); });
+  v1::PointsA1Section<G1AffinePoint> expected_points_b1_section = {
+      absl::MakeSpan(expected_points_b1)};
+  EXPECT_EQ(v1_zkey->points_b1, expected_points_b1_section);
 
   // clang-format off
   std::string_view expected_points_b2_strs[][2][2] = {
@@ -296,10 +308,12 @@ TEST_F(ZKeyTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsB2Section<G2AffinePoint> expected_points_b2 = {base::Map(
+  std::vector<G2AffinePoint> expected_points_b2 = base::Map(
       expected_points_b2_strs,
-      [](std::string_view g2_str[2][2]) { return ToG2AffinePoint(g2_str); })};
-  EXPECT_EQ(v1_zkey->points_b2, expected_points_b2);
+      [](std::string_view g2_str[2][2]) { return ToG2AffinePoint(g2_str); });
+  v1::PointsA1Section<G2AffinePoint> expected_points_b2_section = {
+      absl::MakeSpan(expected_points_b2)};
+  EXPECT_EQ(v1_zkey->points_b2, expected_points_b2_section);
 
   // clang-format off
   std::string_view expected_points_c1_strs[][2] = {
@@ -321,10 +335,12 @@ TEST_F(ZKeyTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsC1Section<G1AffinePoint> expected_points_c1 = {base::Map(
+  std::vector<G1AffinePoint> expected_points_c1 = base::Map(
       expected_points_c1_strs,
-      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
-  EXPECT_EQ(v1_zkey->points_c1, expected_points_c1);
+      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); });
+  v1::PointsA1Section<G1AffinePoint> expected_points_c1_section = {
+      absl::MakeSpan(expected_points_c1)};
+  EXPECT_EQ(v1_zkey->points_c1, expected_points_c1_section);
 
   // clang-format off
   std::string_view expected_points_h1_strs[][2] = {
@@ -346,10 +362,12 @@ TEST_F(ZKeyTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsH1Section<G1AffinePoint> expected_points_h1 = {base::Map(
+  std::vector<G1AffinePoint> expected_points_h1 = base::Map(
       expected_points_h1_strs,
-      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
-  EXPECT_EQ(v1_zkey->points_h1, expected_points_h1);
+      [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); });
+  v1::PointsA1Section<G1AffinePoint> expected_points_h1_section = {
+      absl::MakeSpan(expected_points_h1)};
+  EXPECT_EQ(v1_zkey->points_h1, expected_points_h1_section);
 }
 
 }  // namespace tachyon::circom

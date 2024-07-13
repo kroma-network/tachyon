@@ -53,7 +53,7 @@ class CircuitTest : public testing::Test {
     using Domain = math::UnivariateEvaluationDomain<F, MaxDegree>;
 
     zk::r1cs::groth16::ProvingKey<Curve> pk =
-        std::move(zkey).TakeProvingKey().ToNativeProvingKey();
+        zkey.GetProvingKey().ToNativeProvingKey();
     zk::r1cs::ConstraintMatrices<F> constraint_matrices =
         std::move(zkey).TakeConstraintMatrices().ToNative();
 
