@@ -20,7 +20,6 @@
 
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/base/buffer/copyable.h"
-#include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/endian_utils.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
@@ -43,16 +42,12 @@ TACHYON_EXPORT std::string LimbsToString(const uint64_t* limbs,
 TACHYON_EXPORT std::string LimbsToHexString(const uint64_t* limbs,
                                             size_t limb_nums, bool pad_zero);
 
-constexpr size_t LimbsAlignment(size_t x) {
-  return x % 4 == 0 ? 32 : (x % 2 == 0 ? 16 : 8);
-}
-
 }  // namespace internal
 
 // BigInt is a fixed size array of uint64_t, capable of holding up to |N| limbs,
 // designed to support a wide range of big integer arithmetic operations.
 template <size_t N>
-struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
+struct BigInt {
   uint64_t limbs[N] = {
       0,
   };

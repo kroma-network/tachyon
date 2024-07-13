@@ -35,7 +35,6 @@ tachyon_cc_library(
         ":arithmetics",
         ":bit_traits_forward",
         "//tachyon/base:bit_cast",
-        "//tachyon/base:compiler_specific",
         "//tachyon/base:endian_utils",
         "//tachyon/base:random",
         "//tachyon/base/buffer:copyable",
