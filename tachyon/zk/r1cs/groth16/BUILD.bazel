@@ -74,6 +74,7 @@ tachyon_cc_library(
     hdrs = ["verifying_key.h"],
     deps = [
         ":key",
+        "//tachyon/base:maybe_owned",
         "//tachyon/base:openmp_util",
         "//tachyon/base:optional",
         "//tachyon/base/strings:string_util",
