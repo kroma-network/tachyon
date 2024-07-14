@@ -6,8 +6,10 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_PAIRING_G2_PREPARED_BASE_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_PAIRING_G2_PREPARED_BASE_H_
 
+#include <string>
 #include <utility>
 
+#include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/elliptic_curves/pairing/ell_coeff.h"
 
 namespace tachyon::math {
@@ -27,6 +29,17 @@ class G2PreparedBase {
 
   const EllCoeffs<Fp2>& ell_coeffs() const { return ell_coeffs_; }
   bool infinity() const { return infinity_; }
+
+  std::string ToString() const {
+    return absl::Substitute("{ell_coeffs: $0, infinity: $1}",
+                            base::ContainerToString(ell_coeffs_), infinity_);
+  }
+
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute("{ell_coeffs: $0, infinity: $1}",
+                            base::ContainerToString(ell_coeffs_, pad_zero),
+                            infinity_);
+  }
 
  protected:
   // Stores the coefficients of the line evaluations as calculated in
