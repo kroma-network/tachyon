@@ -12,6 +12,7 @@
 #include "tachyon/base/buffer/copyable_forward.h"
 #include "tachyon/base/endian.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/numerics/checked_math.h"
 
 namespace tachyon::base {
 namespace internal {
@@ -133,6 +134,22 @@ class TACHYON_EXPORT ReadOnlyBuffer {
     return true;
   }
 
+  template <typename T>
+  [[nodiscard]] bool ReadPtrAt(size_t buffer_offset, T** ptr,
+                               size_t ptr_num) const {
+    size_t size = sizeof(T) * ptr_num;
+    base::CheckedNumeric<size_t> len = buffer_offset;
+    size_t size_needed;
+    if (!(len + size).AssignIfValid(&size_needed)) return false;
+    if (size_needed > buffer_len_) {
+      return false;
+    }
+    const char* buffer = reinterpret_cast<const char*>(buffer_);
+    *ptr = const_cast<T*>(reinterpret_cast<const T*>(&buffer[buffer_offset]));
+    buffer_offset_ = buffer_offset + size;
+    return true;
+  }
+
   [[nodiscard]] bool Read(uint8_t* ptr, size_t size) const {
     return ReadAt(buffer_offset_, ptr, size);
   }
@@ -140,6 +157,11 @@ class TACHYON_EXPORT ReadOnlyBuffer {
   template <typename T>
   [[nodiscard]] bool Read(T&& value) const {
     return ReadAt(buffer_offset_, std::forward<T>(value));
+  }
+
+  template <typename T>
+  [[nodiscard]] bool ReadPtr(T** ptr, size_t ptr_num) const {
+    return ReadPtrAt(buffer_offset_, ptr, ptr_num);
   }
 
   [[nodiscard]] bool Read16BE(uint16_t* ptr) const {

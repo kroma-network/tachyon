@@ -2,8 +2,6 @@
 
 #include <string.h>
 
-#include "tachyon/base/numerics/checked_math.h"
-
 namespace tachyon::base {
 
 bool ReadOnlyBuffer::ReadAt(size_t buffer_offset, uint8_t* ptr,
