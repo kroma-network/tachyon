@@ -93,8 +93,8 @@ PreparedVerifyingKey<Curve> VerifyingKey<Curve>::ToPreparedVerifyingKey() && {
   using G2Prepared = typename Curve::G2Prepared;
   using Fp12 = typename Curve::Fp12;
 
-  G1AffinePoint left[] = {*alpha_g1_};
-  G2AffinePoint right[] = {*beta_g2_};
+  G1AffinePoint left[] = {std::move(*alpha_g1_)};
+  G2AffinePoint right[] = {std::move(*beta_g2_)};
   Fp12 alpha_g1_beta_g2 = math::Pairing<Curve>(left, right);
   G2Prepared delta_neg_g2 = G2Prepared::From(-(*delta_g2_));
   G2Prepared gamma_neg_g2 = G2Prepared::From(-(*gamma_g2_));
