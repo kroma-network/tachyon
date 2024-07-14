@@ -21,13 +21,12 @@ class PreparedVerifyingKey {
 
   PreparedVerifyingKey() = default;
   PreparedVerifyingKey(const VerifyingKey<Curve>& verifying_key,
-                       const Fp12& alpha_g1_beta_g2,
-                       const G2Prepared& delta_neg_g2,
-                       const G2Prepared& gamma_neg_g2)
+                       Fp12&& alpha_g1_beta_g2, G2Prepared&& delta_neg_g2,
+                       G2Prepared&& gamma_neg_g2)
       : verifying_key_(verifying_key),
-        alpha_g1_beta_g2_(alpha_g1_beta_g2),
-        delta_neg_g2_(delta_neg_g2),
-        gamma_neg_g2_(gamma_neg_g2) {}
+        alpha_g1_beta_g2_(std::move(alpha_g1_beta_g2)),
+        delta_neg_g2_(std::move(delta_neg_g2)),
+        gamma_neg_g2_(std::move(gamma_neg_g2)) {}
   PreparedVerifyingKey(VerifyingKey<Curve>&& verifying_key,
                        Fp12&& alpha_g1_beta_g2, G2Prepared&& delta_neg_g2,
                        G2Prepared&& gamma_neg_g2)
@@ -68,6 +67,24 @@ class PreparedVerifyingKey {
   // [-γ]₂
   G2Prepared gamma_neg_g2_;
 };
+
+template <typename Curve>
+PreparedVerifyingKey<Curve> VerifyingKey<Curve>::ToPreparedVerifyingKey()
+    const& {
+  using G1AffinePoint = typename Curve::G1Curve::AffinePoint;
+  using G2AffinePoint = typename Curve::G2Curve::AffinePoint;
+  using G2Prepared = typename Curve::G2Prepared;
+  using Fp12 = typename Curve::Fp12;
+
+  G1AffinePoint left[] = {*alpha_g1_};
+  G2AffinePoint right[] = {*beta_g2_};
+  Fp12 alpha_g1_beta_g2 = math::Pairing<Curve>(left, right);
+  G2Prepared delta_neg_g2 = G2Prepared::From(-(*delta_g2_));
+  G2Prepared gamma_neg_g2 = G2Prepared::From(-(*gamma_g2_));
+
+  return {*this, std::move(alpha_g1_beta_g2), std::move(delta_neg_g2),
+          std::move(gamma_neg_g2)};
+}
 
 template <typename Curve>
 PreparedVerifyingKey<Curve> VerifyingKey<Curve>::ToPreparedVerifyingKey() && {

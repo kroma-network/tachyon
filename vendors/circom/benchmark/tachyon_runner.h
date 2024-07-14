@@ -69,7 +69,7 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
 
     if (!prepared_verifying_key_.has_value()) {
       prepared_verifying_key_ =
-          std::move(proving_key_).TakeVerifyingKey().ToPreparedVerifyingKey();
+          proving_key_.verifying_key().ToPreparedVerifyingKey();
     }
     CHECK(zk::r1cs::groth16::VerifyProof(*prepared_verifying_key_, proof,
                                          public_inputs));

@@ -121,6 +121,7 @@ class VerifyingKey : public Key {
     return true;
   }
 
+  PreparedVerifyingKey<Curve> ToPreparedVerifyingKey() const&;
   PreparedVerifyingKey<Curve> ToPreparedVerifyingKey() &&;
 
   std::string ToString() const {
