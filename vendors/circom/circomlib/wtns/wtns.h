@@ -17,6 +17,7 @@
 #include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/strings/string_util.h"
 
 namespace tachyon::circom {
@@ -29,6 +30,7 @@ struct Wtns;
 
 template <typename F>
 struct Wtns {
+  explicit Wtns(std::vector<uint8_t>&& data) : data(std::move(data)) {}
   virtual ~Wtns() = default;
 
   virtual uint32_t GetVersion() const = 0;
@@ -40,6 +42,8 @@ struct Wtns {
   virtual size_t GetNumWitness() const = 0;
 
   virtual absl::Span<const F> GetWitnesses() const = 0;
+
+  std::vector<uint8_t> data;
 };
 
 constexpr char kWtnsMagic[4] = {'w', 't', 'n', 's'};
@@ -64,7 +68,7 @@ std::unique_ptr<Wtns<F>> ParseWtns(const base::FilePath& path) {
   }
   std::unique_ptr<Wtns<F>> wtns;
   if (version == 2) {
-    wtns.reset(new v2::Wtns<F>());
+    wtns.reset(new v2::Wtns<F>(std::move(wtns_data).value()));
     CHECK(wtns->ToV2()->Read(buffer));
   } else {
     LOG(ERROR) << "Invalid version: " << version;
@@ -107,7 +111,7 @@ struct WtnsHeaderSection {
 
 template <typename F>
 struct WtnsDataSection {
-  std::vector<F> witnesses;
+  absl::Span<F> witnesses;
 
   bool operator==(const WtnsDataSection& other) const {
     return witnesses == other.witnesses;
@@ -118,10 +122,12 @@ struct WtnsDataSection {
 
   bool Read(const base::ReadOnlyBuffer& buffer,
             const WtnsHeaderSection& header) {
-    base::EndianAutoReset reset(buffer, base::Endian::kLittle);
-    witnesses.resize(header.num_witness);
-    for (uint32_t i = 0; i < header.num_witness; ++i) {
-      if (!buffer.Read(&witnesses[i])) return false;
+    F* ptr;
+    if (!buffer.ReadPtr(&ptr, header.num_witness)) return false;
+    witnesses = {ptr, header.num_witness};
+
+    OPENMP_PARALLEL_FOR(uint32_t i = 0; i < header.num_witness; ++i) {
+      witnesses[i] = F(witnesses[i].value());
     }
     return true;
   }
@@ -133,6 +139,9 @@ template <typename F>
 struct Wtns : public circom::Wtns<F> {
   WtnsHeaderSection header;
   WtnsDataSection<F> data;
+
+  explicit Wtns(std::vector<uint8_t>&& data)
+      : circom::Wtns<F>(std::move(data)) {}
 
   // circom::Wtns methods
   uint32_t GetVersion() const override { return 2; }

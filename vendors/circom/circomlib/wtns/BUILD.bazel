@@ -10,6 +10,7 @@ tachyon_cc_library(
         "//circomlib/base:modulus",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
+        "@kroma_network_tachyon//tachyon/base:openmp_util",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
         "@kroma_network_tachyon//tachyon/base/buffer:read_only_buffer",
         "@kroma_network_tachyon//tachyon/base/files:file_util",
