@@ -6,6 +6,7 @@
 #ifndef TACHYON_ZK_R1CS_GROTH16_PREPARED_VERIFYING_KEY_H_
 #define TACHYON_ZK_R1CS_GROTH16_PREPARED_VERIFYING_KEY_H_
 
+#include <string>
 #include <utility>
 
 #include "tachyon/zk/r1cs/groth16/verifying_key.h"
@@ -39,6 +40,24 @@ class PreparedVerifyingKey {
   const Fp12& alpha_g1_beta_g2() const { return alpha_g1_beta_g2_; }
   const G2Prepared& delta_neg_g2() const { return delta_neg_g2_; }
   const G2Prepared& gamma_neg_g2() const { return gamma_neg_g2_; }
+
+  std::string ToString() const {
+    return absl::Substitute(
+        "{verifying_key: $0, alpha_g1_beta_g2: $1, delta_neg_g2: $2, "
+        "gamma_neg_g2: $3}",
+        verifying_key_.ToString(), alpha_g1_beta_g2_.ToString(),
+        delta_neg_g2_.ToString(), gamma_neg_g2_.ToString());
+  }
+
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute(
+        "{verifying_key: $0, alpha_g1_beta_g2: $1, delta_neg_g2: $2, "
+        "gamma_neg_g2: $3}",
+        verifying_key_.ToHexString(pad_zero),
+        alpha_g1_beta_g2_.ToHexString(pad_zero),
+        delta_neg_g2_.ToHexString(pad_zero),
+        gamma_neg_g2_.ToHexString(pad_zero));
+  }
 
  private:
   VerifyingKey<Curve> verifying_key_;
