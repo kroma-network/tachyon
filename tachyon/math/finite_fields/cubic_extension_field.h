@@ -6,6 +6,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_CUBIC_EXTENSION_FIELD_H_
 #define TACHYON_MATH_FINITE_FIELDS_CUBIC_EXTENSION_FIELD_H_
 
+#include <array>
 #include <optional>
 #include <string>
 #include <utility>
@@ -73,6 +74,10 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
           prime_fields.subspan(2 * kBaseFieldDegree, kBaseFieldDegree));
       return Derived(std::move(c0), std::move(c1), std::move(c2));
     }
+  }
+
+  constexpr std::array<BaseField, 3> ToBaseFields() const {
+    return {c0_, c1_, c2_};
   }
 
   constexpr bool IsZero() const {

@@ -6,6 +6,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 #define TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 
+#include <array>
 #include <optional>
 #include <string>
 #include <utility>
@@ -70,6 +71,8 @@ class QuadraticExtensionField
       return Derived(std::move(c0), std::move(c1));
     }
   }
+
+  constexpr std::array<BaseField, 2> ToBaseFields() const { return {c0_, c1_}; }
 
   constexpr bool IsZero() const { return c0_.IsZero() && c1_.IsZero(); }
 

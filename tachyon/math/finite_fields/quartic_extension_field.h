@@ -1,6 +1,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_QUARTIC_EXTENSION_FIELD_H_
 #define TACHYON_MATH_FINITE_FIELDS_QUARTIC_EXTENSION_FIELD_H_
 
+#include <array>
 #include <optional>
 #include <string>
 #include <utility>
@@ -89,6 +90,10 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
       return Derived(std::move(c0), std::move(c1), std::move(c2),
                      std::move(c3));
     }
+  }
+
+  constexpr std::array<BaseField, 4> ToBaseFields() const {
+    return {c0_, c1_, c2_, c3_};
   }
 
   static void Init() {
