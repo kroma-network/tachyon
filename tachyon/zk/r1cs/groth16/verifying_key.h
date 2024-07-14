@@ -8,11 +8,13 @@
 
 #include <stddef.h>
 
+#include <string>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
+#include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/r1cs/groth16/key.h"
 
 namespace tachyon::zk::r1cs::groth16 {
@@ -109,6 +111,23 @@ class VerifyingKey : public Key {
   }
 
   PreparedVerifyingKey<Curve> ToPreparedVerifyingKey() &&;
+
+  std::string ToString() const {
+    return absl::Substitute(
+        "{alpha_g1: $0, beta_g2: $1, gamma_g2: $2, delta_g2: $3, l_g1_query: "
+        "$4}",
+        alpha_g1_.ToString(), beta_g2_.ToString(), gamma_g2_.ToString(),
+        delta_g2_.ToString(), base::ContainerToString(l_g1_query_));
+  }
+
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute(
+        "{alpha_g1: $0, beta_g2: $1, gamma_g2: $2, delta_g2: $3, l_g1_query: "
+        "$4}",
+        alpha_g1_.ToHexString(pad_zero), beta_g2_.ToHexString(pad_zero),
+        gamma_g2_.ToHexString(pad_zero), delta_g2_.ToHexString(pad_zero),
+        base::ContainerToHexString(l_g1_query_, pad_zero));
+  }
 
  private:
   // [α]₁

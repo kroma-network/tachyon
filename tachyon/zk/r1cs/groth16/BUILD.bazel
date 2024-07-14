@@ -76,6 +76,7 @@ tachyon_cc_library(
         ":key",
         "//tachyon/base:openmp_util",
         "//tachyon/base:optional",
+        "//tachyon/base/strings:string_util",
     ],
 )
 
