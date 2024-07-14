@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <optional>
-#include <utility>
 #include <vector>
 
 // clang-format off
@@ -43,8 +42,7 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
     CHECK(zkey_);
 
     proving_key_ = zkey_->GetProvingKey().ToNativeProvingKey();
-    constraint_matrices_ =
-        std::move(*zkey_).TakeConstraintMatrices().ToNative();
+    constraint_matrices_ = zkey_->GetConstraintMatrices();
   }
 
   zk::r1cs::groth16::Proof<Curve> Run(const Domain* domain,

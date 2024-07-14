@@ -3,22 +3,9 @@ load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tach
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "cell",
-    hdrs = ["cell.h"],
-    deps = [
-        "@com_google_absl//absl/strings",
-        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:matrix",
-    ],
-)
-
-tachyon_cc_library(
-    name = "constraint_matrices",
-    hdrs = ["constraint_matrices.h"],
-    deps = [
-        ":cell",
-        "@kroma_network_tachyon//tachyon/base/strings:string_util",
-        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:constraint_matrices",
-    ],
+    name = "coefficient",
+    hdrs = ["coefficient.h"],
+    deps = ["@com_google_absl//absl/strings"],
 )
 
 tachyon_cc_library(
@@ -46,17 +33,19 @@ tachyon_cc_library(
     srcs = ["zkey.cc"],
     hdrs = ["zkey.h"],
     deps = [
-        ":constraint_matrices",
+        ":coefficient",
         ":proving_key",
         "//circomlib/base:modulus",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:auto_reset",
         "@kroma_network_tachyon//tachyon/base:logging",
+        "@kroma_network_tachyon//tachyon/base:openmp_util",
         "@kroma_network_tachyon//tachyon/base/buffer:copyable",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
         "@kroma_network_tachyon//tachyon/base/buffer:read_only_buffer",
         "@kroma_network_tachyon//tachyon/base/files:file_util",
         "@kroma_network_tachyon//tachyon/base/strings:string_util",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:constraint_matrices",
     ],
 )
 

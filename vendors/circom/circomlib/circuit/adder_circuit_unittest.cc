@@ -66,7 +66,7 @@ TEST_F(AdderCircuitTest, Groth16ProveAndVerifyUsingZkey) {
 
   this->Groth16ProveAndVerifyUsingZKeyTest<kMaxDegree,
                                            QuadraticArithmeticProgram<F>>(
-      std::move(*zkey), full_assignments);
+      *zkey, full_assignments);
 }
 
 }  // namespace tachyon::circom

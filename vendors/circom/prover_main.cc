@@ -79,15 +79,13 @@ void CreateProof(const base::FilePath& zkey_path,
   Curve::Init();
 
   base::TimeTicks start = base::TimeTicks::Now();
-  zk::r1cs::ConstraintMatrices<F> constraint_matrices;
   std::cout << "Start parsing zkey" << std::endl;
   std::unique_ptr<ZKey<Curve>> zkey = ParseZKey<Curve>(zkey_path);
   CHECK(zkey);
   zk::r1cs::groth16::ProvingKey<Curve> proving_key =
       zkey->GetProvingKey().ToNativeProvingKey();
-  {
-    constraint_matrices = std::move(*zkey).TakeConstraintMatrices().ToNative();
-  }
+  zk::r1cs::ConstraintMatrices<F> constraint_matrices =
+      zkey->GetConstraintMatrices();
 
   base::TimeTicks end = base::TimeTicks::Now();
   std::cout << "Time taken for parsing zkey: " << end - start << std::endl;

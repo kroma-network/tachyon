@@ -35,15 +35,19 @@ G2AffinePoint ToG2AffinePoint(std::string_view g2[2][2]) {
   return {std::move(x), std::move(y)};
 }
 
-struct CellData {
+struct CoefficientData {
+  uint32_t matrix;
+  uint32_t constraint;
+  uint32_t signal;
   std::string_view coefficient;
-  uint32_t signal = 0;
 };
 
-Cell<F> ToCell(const CellData& data) {
+Coefficient<F> ToCoefficient(const CoefficientData& data) {
   return {
-      *F::FromDecString(data.coefficient),
+      data.matrix,
+      data.constraint,
       data.signal,
+      *F::FromDecString(data.coefficient),
   };
 }
 
@@ -152,27 +156,22 @@ TEST_F(ZKeyTest, Parse) {
   EXPECT_EQ(v1_zkey->ic, expected_ic_section);
 
   // clang-format off
-  CellData a[4][1] = {
-    {{"15537367993719455909907449462855742678020201736855642022731641111541721333766", 2}},
-    {{"15537367993719455909907449462855742678020201736855642022731641111541721333766", 5}},
-    {{"6350874878119819312338956282401532410528162663560392320966563075034087161851", 0}},
-    {{"6350874878119819312338956282401532410528162663560392320966563075034087161851", 1}},
-  };
-  CellData b[2][1] = {
-    {{"6350874878119819312338956282401532410528162663560392320966563075034087161851", 3}},
-    {{"6350874878119819312338956282401532410528162663560392320966563075034087161851", 4}},
+  CoefficientData coefficient_datas[] = {
+    {0, 0, 2, "15537367993719455909907449462855742678020201736855642022731641111541721333766"},
+    {1, 0, 3, "6350874878119819312338956282401532410528162663560392320966563075034087161851"},
+    {0, 1, 5, "15537367993719455909907449462855742678020201736855642022731641111541721333766"},
+    {1, 1, 4, "6350874878119819312338956282401532410528162663560392320966563075034087161851"},
+    {0, 2, 0, "6350874878119819312338956282401532410528162663560392320966563075034087161851"},
+    {0, 3, 1, "6350874878119819312338956282401532410528162663560392320966563075034087161851"},
   };
   // clang-format on
 
-  v1::CoefficientsSection<F> expected_coefficients;
-  expected_coefficients.a = base::Map(a, [](const CellData row[1]) {
-    return std::vector<Cell<F>>{ToCell(row[0])};
-  });
-  expected_coefficients.b = base::Map(b, [](const CellData row[1]) {
-    return std::vector<Cell<F>>{ToCell(row[0])};
-  });
-  expected_coefficients.b.resize(4);
-  EXPECT_EQ(v1_zkey->coefficients, expected_coefficients);
+  std::vector<Coefficient<F>> expected_coefficients = base::Map(
+      coefficient_datas,
+      [](const CoefficientData& data) { return ToCoefficient(data); });
+  v1::CoefficientsSection<F> expected_coefficients_section = {
+      absl::MakeSpan(expected_coefficients)};
+  EXPECT_EQ(v1_zkey->coefficients, expected_coefficients_section);
 
   // clang-format off
   std::string_view expected_points_a1_strs[][2] = {
