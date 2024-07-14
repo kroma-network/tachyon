@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -155,6 +156,31 @@ class ProvingKey : public Key {
       return false;
     l_g1_query_.resize(l_g1_query_jacobian.size());
     return G1JacobianPoint::BatchNormalize(l_g1_query_jacobian, &l_g1_query_);
+  }
+
+  std::string ToString() const {
+    return absl::Substitute(
+        "{verifying_key: $0, beta_g1: $1, delta_g1: $2, a_1_query: $3, "
+        "b_g1_query: $4, b_g2_query: $5, h_g1_query: $6, l_g1_query: $7}",
+        verifying_key_.ToString(), beta_g1_.ToString(), delta_g1_.ToString(),
+        base::ContainerToString(a_g1_query_),
+        base::ContainerToString(b_g1_query_),
+        base::ContainerToString(b_g2_query_),
+        base::ContainerToString(h_g1_query_),
+        base::ContainerToString(l_g1_query_));
+  }
+
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute(
+        "{verifying_key: $0, beta_g1: $1, delta_g1: $2, a_1_query: $3, "
+        "b_g1_query: $4, b_g2_query: $5, h_g1_query: $6, l_g1_query: $7}",
+        verifying_key_.ToHexString(pad_zero), beta_g1_.ToHexString(pad_zero),
+        delta_g1_.ToHexString(pad_zero),
+        base::ContainerToHexString(a_g1_query_, pad_zero),
+        base::ContainerToHexString(b_g1_query_, pad_zero),
+        base::ContainerToHexString(b_g2_query_, pad_zero),
+        base::ContainerToHexString(h_g1_query_, pad_zero),
+        base::ContainerToHexString(l_g1_query_, pad_zero));
   }
 
  private:
