@@ -58,7 +58,7 @@ class Challenger {
 
   template <size_t N>
   std::array<Field, N> SampleArray() {
-    return base::CreateArray(N, [this]() { return Sample(); });
+    return base::CreateArray<N>([this]() { return Sample(); });
   }
 
   template <typename ExtField>
