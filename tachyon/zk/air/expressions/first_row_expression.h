@@ -26,7 +26,7 @@ class FirstRowExpression : public Expression<F> {
   Expression<F>* expr() const { return expr_.get(); }
 
   // Expression methods
-  size_t Degree() const override { return expr_->Degree(); }
+  size_t Degree() const override { return 1 + expr_->Degree(); }
 
   uint64_t Complexity() const override { return expr_->Complexity(); }
 
