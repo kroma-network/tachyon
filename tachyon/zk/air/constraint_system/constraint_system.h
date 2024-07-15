@@ -47,15 +47,7 @@ class ConstraintSystem {
                    const std::vector<F>& public_values,
                    const RowMajorMatrix& main,
                    const RowMajorMatrix* preprocessed = nullptr) const {
-    CHECK_EQ(public_values.size(), num_public_values_);
-    CHECK_EQ(main.cols(), main_width_);
-    CHECK_GE(main.rows(), 1);
-    if (preprocessed) {
-      CHECK_EQ(preprocessed->cols(), preprocessed_width_);
-      CHECK_EQ(preprocessed->rows(), main.rows());
-    } else {
-      CHECK_EQ(preprocessed_width_, 0);
-    }
+    CheckInputDimensions(public_values, main, preprocessed);
 
     evaluator.set_public_values(public_values);
     evaluator.set_num_rows(main.rows());
@@ -83,6 +75,20 @@ class ConstraintSystem {
   }
 
  private:
+  constexpr void CheckInputDimensions(
+      const std::vector<F>& public_values, const RowMajorMatrix& main,
+      const RowMajorMatrix* preprocessed = nullptr) const {
+    CHECK_EQ(public_values.size(), num_public_values_);
+    CHECK_EQ(main.cols(), main_width_);
+    CHECK_GE(main.rows(), 1);
+    if (preprocessed) {
+      CHECK_EQ(preprocessed->cols(), preprocessed_width_);
+      CHECK_EQ(preprocessed->rows(), main.rows());
+    } else {
+      CHECK_EQ(preprocessed_width_, 0);
+    }
+  }
+
   const size_t num_public_values_ = 0;
   const Eigen::Index main_width_ = 0;
   const Eigen::Index preprocessed_width_ = 0;
