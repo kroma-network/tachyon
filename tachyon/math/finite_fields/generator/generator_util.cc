@@ -24,7 +24,7 @@ std::string MpzClassToString(const mpz_class& m) {
   std::vector<std::string> ret;
   ret.reserve(limb_size);
   for (size_t i = 0; i < limb_size; ++i) {
-    ret.push_back(absl::Substitute("UINT64_C($0)", gmp::GetLimbConstRef(m, i)));
+    ret.push_back(absl::Substitute("UINT64_C($0)", gmp::GetLimb(m, i)));
   }
   return absl::StrJoin(ret, ", ");
 }
