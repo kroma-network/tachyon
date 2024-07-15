@@ -64,7 +64,7 @@ TEST_F(ConstraintSystemTest, FibonacciAirTest) {
 
   Trace<F> trace(std::move(main_trace));
 
-  AirEvaluator<F> evaluator;
+  AirEvaluator<F, F> evaluator;
   bool is_satisfied =
       constraint_system.IsSatisfied(evaluator, public_values, trace);
   EXPECT_TRUE(is_satisfied);
@@ -104,7 +104,7 @@ TEST_F(ConstraintSystemTest, PreprocessedAirTest) {
 
   Trace<F> trace(std::move(main_trace), std::move(preprocessed_trace));
 
-  AirEvaluator<F> evaluator;
+  AirEvaluator<F, F> evaluator;
   bool is_satisfied =
       constraint_system.IsSatisfied(evaluator, public_values, trace);
   EXPECT_TRUE(is_satisfied);

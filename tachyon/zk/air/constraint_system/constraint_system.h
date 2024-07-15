@@ -45,7 +45,7 @@ class ConstraintSystem {
     constraints_.push_back(std::move(constraint));
   }
 
-  bool IsSatisfied(AirEvaluator<F>& evaluator,
+  bool IsSatisfied(AirEvaluator<F, F>& evaluator,
                    const std::vector<F>& public_values,
                    const Trace<F>& trace) const {
     CheckInputDimensions(public_values, trace);

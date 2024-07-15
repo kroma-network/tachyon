@@ -14,13 +14,13 @@
 
 namespace tachyon::zk::air {
 
-template <typename F>
-class AirEvaluator : public Evaluator<F, F> {
+template <typename F, typename T>
+class AirEvaluator : public Evaluator<F, T> {
  public:
-  using RowMajorMatrix = math::RowMajorMatrix<F>;
+  using RowMajorMatrix = math::RowMajorMatrix<T>;
   using ConstMatrixBlock = Eigen::Block<const RowMajorMatrix>;
 
-  F Evaluate(const Expression<F>* input) override {
+  T Evaluate(const Expression<F>* input) override {
     switch (input->type()) {
       case ExpressionType::kConstant:
         return input->ToConstant()->value();
@@ -45,14 +45,14 @@ class AirEvaluator : public Evaluator<F, F> {
           const FirstRowExpression<F>* first_row = input->ToFirstRow();
           return Evaluate(first_row->expr());
         }
-        return F::Zero();
+        return T::Zero();
       }
       case ExpressionType::kLastRow: {
         if (current_row_ == num_rows_ - 2) {
           const LastRowExpression<F>* last_row = input->ToLastRow();
           return Evaluate(last_row->expr());
         }
-        return F::Zero();
+        return T::Zero();
       }
       case ExpressionType::kTransition: {
         const TransitionExpression<F>* transition = input->ToTransition();
@@ -62,7 +62,7 @@ class AirEvaluator : public Evaluator<F, F> {
         Variable variable = input->ToVariable()->variable();
         switch (variable.type()) {
           case Variable::Type::kPublic:
-            return public_values_[variable.row_index()];
+            return T(public_values_[variable.row_index()]);
           case Variable::Type::kMain:
             CHECK_NE(main_window_, nullptr);
             return main_window_->coeff(variable.row_index(),
@@ -75,7 +75,7 @@ class AirEvaluator : public Evaluator<F, F> {
           case Variable::Type::kChallenge:
           case Variable::Type::kPermutation:
             NOTIMPLEMENTED();
-            return F::Zero();
+            return T::Zero();
         }
       }
       case ExpressionType::kAdvice:
