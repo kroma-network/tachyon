@@ -6,8 +6,6 @@
 #ifndef TACHYON_ZK_R1CS_GROTH16_VERIFY_H_
 #define TACHYON_ZK_R1CS_GROTH16_VERIFY_H_
 
-#include <vector>
-
 #include "absl/types/span.h"
 
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
@@ -23,9 +21,8 @@ template <typename Curve, typename Container, typename Bucket>
                                  const Container& public_inputs,
                                  Bucket* prepared_inputs) {
   using G1Point = typename Curve::G1Curve::AffinePoint;
-  const std::vector<G1Point>& l_g1_query = pvk.verifying_key().l_g1_query();
-  absl::Span<const G1Point> l_g1_query_first_skipped =
-      absl::MakeConstSpan(l_g1_query).subspan(1);
+  absl::Span<const G1Point> l_g1_query = pvk.verifying_key().l_g1_query();
+  absl::Span<const G1Point> l_g1_query_first_skipped = l_g1_query.subspan(1);
   math::VariableBaseMSM<G1Point> msm;
   if (!msm.Run(l_g1_query_first_skipped, public_inputs, prepared_inputs))
     return false;

@@ -35,7 +35,12 @@ Bucket CalculateCoeff(MSM& msm, const Bucket& initial,
                       const AffinePoint& vk_param,
                       absl::Span<const F> assignments) {
   Bucket acc;
-  CHECK(msm.Run(query.subspan(1), assignments, &acc));
+  CHECK(msm.Run(query.subspan(1), assignments, &acc))
+      << "If you encounter this error with `--config cuda`, it indicates that "
+         "your GPU RAM is insufficient to hold the twiddle caches created "
+         "during the icicle NTT domain initialization. If you run this from "
+         "the circom prover, try using the `--disable_fast_twiddles_mode` "
+         "flag.";
 
   Bucket ret = initial + query[0];
   ret += acc;
@@ -99,7 +104,7 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
     CHECK(msm_g1.Run(pk.h_g1_query(), h_coefficients_subspan, &h_acc));
   } else {
     absl::Span<const G1AffinePoint> h_g1_query_subspan =
-        absl::MakeConstSpan(pk.h_g1_query()).subspan(0, h_coefficients.size());
+        pk.h_g1_query().subspan(0, h_coefficients.size());
     CHECK(msm_g1.Run(h_g1_query_subspan, h_coefficients, &h_acc));
   }
 
@@ -109,18 +114,18 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
   G1Bucket r_delta_g1_bucket = math::ConvertPoint<G1Bucket>(r * pk.delta_g1());
   // |ac_g1_bucket[0]| = [A]₁ = [α + Σᵢ₌₀..ₘ (xᵢ * aᵢ(x)) + rδ]₁
   // where x is |full_assignments|.
-  ac_g1_bucket[0] = CalculateCoeff(
-      msm_g1, r_delta_g1_bucket, absl::MakeConstSpan(pk.a_g1_query()),
-      pk.verifying_key().alpha_g1(), full_assignments);
+  ac_g1_bucket[0] =
+      CalculateCoeff(msm_g1, r_delta_g1_bucket, pk.a_g1_query(),
+                     pk.verifying_key().alpha_g1(), full_assignments);
 
   // |s_delta_g2_bucket| = [sδ]₂
   G2Bucket s_delta_g2_bucket =
       math::ConvertPoint<G2Bucket>(s * pk.verifying_key().delta_g2());
   // |b_g2_bucket| = [B]₂ = [β + Σᵢ₌₀..ₘ (xᵢ * bᵢ(x)) + sδ]₂
   // where x is |full_assignments|.
-  G2Bucket b_g2_bucket = CalculateCoeff(
-      msm_g2, s_delta_g2_bucket, absl::MakeConstSpan(pk.b_g2_query()),
-      pk.verifying_key().beta_g2(), full_assignments);
+  G2Bucket b_g2_bucket =
+      CalculateCoeff(msm_g2, s_delta_g2_bucket, pk.b_g2_query(),
+                     pk.verifying_key().beta_g2(), full_assignments);
 
   // |ac_g1_bucket[1]| = [As]₁
   ac_g1_bucket[1] = ac_g1_bucket[0] * s;
@@ -131,9 +136,9 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
         math::ConvertPoint<G1Bucket>(s * pk.delta_g1());
     // |b_g1_bucket| = [B]₁ = [β + Σᵢ₌₀..ₘ (xᵢ * bᵢ(x)) + sδ]₁
     // where x is |full_assignments|.
-    G1Bucket b_g1_bucket = CalculateCoeff(msm_g1, s_delta_g1_bucket,
-                                          absl::MakeConstSpan(pk.b_g1_query()),
-                                          pk.beta_g1(), full_assignments);
+    G1Bucket b_g1_bucket =
+        CalculateCoeff(msm_g1, s_delta_g1_bucket, pk.b_g1_query(), pk.beta_g1(),
+                       full_assignments);
     ac_g1_bucket[1] += (r * b_g1_bucket);
     ac_g1_bucket[1] -= (s * r_delta_g1_bucket);
   }

@@ -12,14 +12,16 @@
 
 #include "circomlib/base/modulus.h"
 #include "circomlib/base/sections.h"
-#include "circomlib/zkey/constraint_matrices.h"
+#include "circomlib/zkey/coefficient.h"
 #include "circomlib/zkey/proving_key.h"
 #include "tachyon/base/auto_reset.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/zk/r1cs/constraint_system/constraint_matrices.h"
 
 namespace tachyon::circom {
 namespace v1 {
@@ -33,6 +35,7 @@ template <typename Curve>
 struct ZKey {
   using F = typename Curve::G1Curve::ScalarField;
 
+  explicit ZKey(std::vector<uint8_t>&& data) : data(std::move(data)) {}
   virtual ~ZKey() = default;
 
   virtual uint32_t GetVersion() const = 0;
@@ -41,8 +44,10 @@ struct ZKey {
 
   virtual bool Read(const base::ReadOnlyBuffer& buffer) = 0;
 
-  virtual ProvingKey<Curve> TakeProvingKey() && = 0;
-  virtual ConstraintMatrices<F> TakeConstraintMatrices() && = 0;
+  virtual ProvingKey<Curve> GetProvingKey() const = 0;
+  virtual zk::r1cs::ConstraintMatrices<F> GetConstraintMatrices() const = 0;
+
+  std::vector<uint8_t> data;
 };
 
 constexpr char kZkeyMagic[4] = {'z', 'k', 'e', 'y'};
@@ -67,7 +72,7 @@ std::unique_ptr<ZKey<Curve>> ParseZKey(const base::FilePath& path) {
   }
   std::unique_ptr<ZKey<Curve>> zkey;
   if (version == 1) {
-    zkey.reset(new v1::ZKey<Curve>());
+    zkey.reset(new v1::ZKey<Curve>(std::move(zkey_data).value()));
     CHECK(zkey->ToV1()->Read(buffer));
   } else {
     LOG(ERROR) << "Invalid version: " << version;
@@ -140,7 +145,9 @@ struct ZKeyHeaderGrothSection {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
     if (!q.Read(buffer)) return false;
     if (!r.Read(buffer)) return false;
-    return buffer.ReadMany(&num_vars, &num_public_inputs, &domain_size, &vkey);
+    if (!buffer.ReadMany(&num_vars, &num_public_inputs, &domain_size))
+      return false;
+    return vkey.Read(buffer);
   }
 
   std::string ToString() const {
@@ -154,7 +161,7 @@ struct ZKeyHeaderGrothSection {
 
 template <typename T>
 struct CommitmentsSection {
-  std::vector<T> commitments;
+  absl::Span<T> commitments;
 
   bool operator==(const CommitmentsSection& other) const {
     return commitments == other.commitments;
@@ -164,10 +171,9 @@ struct CommitmentsSection {
   }
 
   bool Read(const base::ReadOnlyBuffer& buffer, uint32_t num_commitments) {
-    commitments.resize(num_commitments);
-    for (uint32_t i = 0; i < num_commitments; ++i) {
-      if (!buffer.Read(&commitments[i])) return false;
-    }
+    T* ptr;
+    if (!buffer.ReadPtr(&ptr, num_commitments)) return false;
+    commitments = {ptr, num_commitments};
     return true;
   }
 
@@ -190,43 +196,27 @@ using PointsH1Section = CommitmentsSection<C>;
 
 template <typename F>
 struct CoefficientsSection {
-  std::vector<std::vector<Cell<F>>> a;
-  std::vector<std::vector<Cell<F>>> b;
-  uint32_t max_constraint;
+  absl::Span<Coefficient<F>> coefficients;
 
   bool operator==(const CoefficientsSection& other) const {
-    return a == other.a && b == other.b;
+    return coefficients == other.coefficients;
   }
   bool operator!=(const CoefficientsSection& other) const {
     return !operator==(other);
   }
 
-  bool Read(const base::ReadOnlyBuffer& buffer, uint32_t domain_size) {
-    base::EndianAutoReset reset(buffer, base::Endian::kLittle);
+  bool Read(const base::ReadOnlyBuffer& buffer) {
     uint32_t num_coefficients;
     if (!buffer.Read(&num_coefficients)) return false;
-    a.resize(domain_size);
-    b.resize(domain_size);
-    max_constraint = 0;
-    for (uint32_t i = 0; i < num_coefficients; ++i) {
-      Cell<F> cell;
-      uint32_t matrix, constraint;
-      if (!buffer.ReadMany(&matrix, &constraint, &cell.signal,
-                           &cell.coefficient))
-        return false;
-      max_constraint = std::max(constraint, max_constraint);
-      if (matrix == 0) {
-        a[constraint].push_back(std::move(cell));
-      } else {
-        b[constraint].push_back(std::move(cell));
-      }
-    }
+    Coefficient<F>* ptr;
+    if (!buffer.ReadPtr(&ptr, num_coefficients)) return false;
+    coefficients = {ptr, num_coefficients};
     return true;
   }
 
   std::string ToString() const {
-    return absl::Substitute("{a: $0, b: $1}", base::Container2DToString(a),
-                            base::Container2DToString(b));
+    return absl::Substitute("{coefficients: $0}",
+                            base::ContainerToString(coefficients));
   }
 };
 
@@ -245,6 +235,9 @@ struct ZKey : public circom::ZKey<Curve> {
   PointsB2Section<G2AffinePoint> points_b2;
   PointsC1Section<G1AffinePoint> points_c1;
   PointsH1Section<G1AffinePoint> points_h1;
+
+  explicit ZKey(std::vector<uint8_t>&& data)
+      : circom::ZKey<Curve>(std::move(data)) {}
 
   // circom::ZKey methods
   uint32_t GetVersion() const override { return 1; }
@@ -274,7 +267,7 @@ struct ZKey : public circom::ZKey<Curve> {
     if (!ic.Read(buffer, num_public_inputs + 1)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kCoefficients)) return false;
-    if (!coefficients.Read(buffer, domain_size)) return false;
+    if (!coefficients.Read(buffer)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsA1)) return false;
     if (!points_a1.Read(buffer, num_vars)) return false;
@@ -293,46 +286,57 @@ struct ZKey : public circom::ZKey<Curve> {
     return true;
   }
 
-  ProvingKey<Curve> TakeProvingKey() && override {
+  ProvingKey<Curve> GetProvingKey() const override {
     return {
-        std::move(header_groth.vkey),     std::move(ic.commitments),
-        std::move(points_a1.commitments), std::move(points_b1.commitments),
-        std::move(points_b2.commitments), std::move(points_c1.commitments),
-        std::move(points_h1.commitments),
+        header_groth.vkey,     ic.commitments,        points_a1.commitments,
+        points_b1.commitments, points_b2.commitments, points_c1.commitments,
+        points_h1.commitments,
     };
   }
 
-  ConstraintMatrices<F> TakeConstraintMatrices() && override {
-    size_t num_constraints =
-        coefficients.max_constraint - header_groth.num_public_inputs;
-    if (coefficients.a.size() > num_constraints) {
-      coefficients.a.resize(num_constraints);
-    }
-    if (coefficients.b.size() > num_constraints) {
-      coefficients.b.resize(num_constraints);
+  zk::r1cs::ConstraintMatrices<F> GetConstraintMatrices() const override {
+    std::vector<std::vector<zk::r1cs::Cell<F>>> a(header_groth.domain_size);
+    std::vector<std::vector<zk::r1cs::Cell<F>>> b(header_groth.domain_size);
+
+    uint32_t max_constraint = 0;
+    for (const Coefficient<F>& c : coefficients.coefficients) {
+      max_constraint = std::max(c.constraint, max_constraint);
+      if (c.matrix == 0) {
+        a[c.constraint].push_back({std::move(c.value), c.signal});
+      } else {
+        b[c.constraint].push_back({std::move(c.value), c.signal});
+      }
     }
 
-    size_t a_num_non_zero =
-        std::accumulate(coefficients.a.begin(), coefficients.a.end(), 0,
-                        [](size_t acc, const std::vector<Cell<F>>& cells) {
-                          return acc + cells.size();
-                        });
-    size_t b_num_non_zero =
-        std::accumulate(coefficients.b.begin(), coefficients.b.end(), 0,
-                        [](size_t acc, const std::vector<Cell<F>>& cells) {
-                          return acc + cells.size();
-                        });
+    // Need to divide by R, since snarkjs outputs the zkey with coefficients
+    // multiplied by R².
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < max_constraint; ++i) {
+      if (i < a.size()) {
+        for (size_t j = 0; j < a[i].size(); ++j) {
+          a[i][j].coefficient =
+              F::FromMontgomery(a[i][j].coefficient.ToBigInt());
+        }
+      }
+      if (i < b.size()) {
+        for (size_t j = 0; j < b[i].size(); ++j) {
+          b[i][j].coefficient =
+              F::FromMontgomery(b[i][j].coefficient.ToBigInt());
+        }
+      }
+    }
 
     return {
         header_groth.num_public_inputs + 1,
         header_groth.num_vars - header_groth.num_public_inputs - 1,
-        num_constraints,
+        max_constraint - header_groth.num_public_inputs,
 
-        a_num_non_zero,
-        b_num_non_zero,
+        0,
+        0,
+        0,
 
-        std::move(coefficients.a),
-        std::move(coefficients.b),
+        zk::r1cs::Matrix<F>(std::move(a)),
+        zk::r1cs::Matrix<F>(std::move(b)),
+        {},
     };
   }
 

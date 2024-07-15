@@ -67,28 +67,34 @@ struct ProverTime {
   }
 };
 
+struct CreateProofOptions {
+  bool no_zk;
+  bool verify;
+  size_t num_runs;
+#if TACHYON_CUDA
+  bool disable_fast_twiddles_mode;
+#endif
+};
+
 template <typename Curve>
 void CreateProof(const base::FilePath& zkey_path,
                  const base::FilePath& witness_path,
                  const base::FilePath& proof_path,
-                 const base::FilePath& public_path, bool no_zk, size_t num_runs,
-                 bool verify) {
+                 const base::FilePath& public_path,
+                 const CreateProofOptions& options) {
   using F = typename Curve::G1Curve::ScalarField;
   using Domain = math::UnivariateEvaluationDomain<F, SIZE_MAX>;
 
   Curve::Init();
 
   base::TimeTicks start = base::TimeTicks::Now();
-  zk::r1cs::groth16::ProvingKey<Curve> proving_key;
-  zk::r1cs::ConstraintMatrices<F> constraint_matrices;
   std::cout << "Start parsing zkey" << std::endl;
-  {
-    std::unique_ptr<ZKey<Curve>> zkey = ParseZKey<Curve>(zkey_path);
-    CHECK(zkey);
-
-    proving_key = std::move(*zkey).TakeProvingKey().ToNativeProvingKey();
-    constraint_matrices = std::move(*zkey).TakeConstraintMatrices().ToNative();
-  }
+  std::unique_ptr<ZKey<Curve>> zkey = ParseZKey<Curve>(zkey_path);
+  CHECK(zkey);
+  zk::r1cs::groth16::ProvingKey<Curve> proving_key =
+      zkey->GetProvingKey().ToNativeProvingKey();
+  zk::r1cs::ConstraintMatrices<F> constraint_matrices =
+      zkey->GetConstraintMatrices();
 
   base::TimeTicks end = base::TimeTicks::Now();
   std::cout << "Time taken for parsing zkey: " << end - start << std::endl;
@@ -114,7 +120,9 @@ void CreateProof(const base::FilePath& zkey_path,
   // NOTE(chokobole): For |domain->size()| less than 8, it's very slow to
   // initialize the domain of |IcicleNTT|.
   if (domain->size() >= 8) {
-    CHECK(icicle_ntt_holder->Init(domain->group_gen()));
+    math::IcicleNTTOptions ntt_options;
+    ntt_options.fast_twiddles_mode = !options.disable_fast_twiddles_mode;
+    CHECK(icicle_ntt_holder->Init(domain->group_gen(), ntt_options));
   }
   domain->set_icicle(&icicle_ntt_holder);
 
@@ -125,11 +133,11 @@ void CreateProof(const base::FilePath& zkey_path,
 #endif
   std::cout << "Start proving" << std::endl;
   ProverTime prover_time;
-  for (size_t i = 0; i < num_runs; ++i) {
+  for (size_t i = 0; i < options.num_runs; ++i) {
     std::vector<F> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
             domain.get(), constraint_matrices, full_assignments);
-    if (no_zk) {
+    if (options.no_zk) {
       proof = zk::r1cs::groth16::CreateProofWithAssignmentNoZK(
           proving_key, absl::MakeConstSpan(h_evals),
           full_assignments.subspan(
@@ -157,7 +165,7 @@ void CreateProof(const base::FilePath& zkey_path,
 
   absl::Span<const F> public_inputs = full_assignments.subspan(
       1, constraint_matrices.num_instance_variables - 1);
-  if (verify) {
+  if (options.verify) {
     std::cout << "Start verifying" << std::endl;
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> prepared_verifying_key =
         std::move(proving_key).TakeVerifyingKey().ToPreparedVerifyingKey();
@@ -183,9 +191,7 @@ int RealMain(int argc, char** argv) {
   base::FilePath proof_path;
   base::FilePath public_path;
   Curve curve;
-  bool no_zk;
-  bool verify;
-  size_t num_runs;
+  circom::CreateProofOptions options;
   parser.AddFlag<base::FilePathFlag>(&zkey_path)
       .set_name("zkey")
       .set_help("The path to zkey file");
@@ -203,23 +209,30 @@ int RealMain(int argc, char** argv) {
       .set_default_value(Curve::kBN254)
       .set_help(
           "The curve type among ('bn254', bls12_381'), by default 'bn254'");
-  parser.AddFlag<base::BoolFlag>(&no_zk)
+  parser.AddFlag<base::BoolFlag>(&options.no_zk)
       .set_long_name("--no_zk")
       .set_default_value(false)
       .set_help(
           "Create proof without zk. By default zk is enabled. Use this flag to "
           "compare the proof with rapidsnark.");
-  parser.AddFlag<base::BoolFlag>(&verify)
+  parser.AddFlag<base::BoolFlag>(&options.verify)
       .set_long_name("--verify")
       .set_default_value(false)
       .set_help(
           "Verify the proof. By default verify is disabled. Use this flag "
           "to verify the proof with the public inputs.");
-  parser.AddFlag<base::Flag<size_t>>(&num_runs)
+  parser.AddFlag<base::Flag<size_t>>(&options.num_runs)
       .set_short_name("-n")
       .set_long_name("--num_runs")
       .set_default_value(1)
       .set_help("The number of times to run the proof generation");
+#if TACHYON_CUDA
+  parser.AddFlag<base::BoolFlag>(&options.disable_fast_twiddles_mode)
+      .set_long_name("--disable_fast_twiddles_mode")
+      .set_default_value(false)
+      .set_help(
+          "Disables fast twiddle mode on Icicle NTT domain initialization.");
+#endif
 
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {
@@ -232,21 +245,19 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 #endif
-  if (num_runs == 0) {
+  if (options.num_runs == 0) {
     tachyon_cerr << "num_runs should be positive" << std::endl;
     return 1;
   }
   switch (curve) {
     case Curve::kBN254:
-      circom::CreateProof<math::bn254::BN254Curve>(zkey_path, witness_path,
-                                                   proof_path, public_path,
-                                                   no_zk, num_runs, verify);
+      circom::CreateProof<math::bn254::BN254Curve>(
+          zkey_path, witness_path, proof_path, public_path, options);
       break;
     case Curve::kBLS12_381:
 #if !TACHYON_CUDA
       circom::CreateProof<math::bls12_381::BLS12_381Curve>(
-          zkey_path, witness_path, proof_path, public_path, no_zk, num_runs,
-          verify);
+          zkey_path, witness_path, proof_path, public_path, options);
 #endif
       break;
   }

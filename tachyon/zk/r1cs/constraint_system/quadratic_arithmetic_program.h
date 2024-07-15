@@ -103,7 +103,7 @@ class QuadraticArithmeticProgram {
         constraint_system.ToMatrices();
     std::vector<F> full_assignments;
     full_assignments.reserve(constraint_system.num_instance_variables() +
-                             constraint_system.num_constraints());
+                             constraint_system.num_witness_variables());
     full_assignments.insert(full_assignments.end(),
                             constraint_system.instance_assignments().begin(),
                             constraint_system.instance_assignments().end());

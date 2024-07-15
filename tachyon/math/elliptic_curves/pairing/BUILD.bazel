@@ -11,7 +11,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "g2_prepared_base",
     hdrs = ["g2_prepared_base.h"],
-    deps = [":ell_coeff"],
+    deps = [
+        ":ell_coeff",
+        "//tachyon/base/strings:string_util",
+    ],
 )
 
 tachyon_cc_library(

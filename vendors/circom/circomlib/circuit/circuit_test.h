@@ -49,13 +49,13 @@ class CircuitTest : public testing::Test {
 
   template <size_t MaxDegree, typename QAP>
   void Groth16ProveAndVerifyUsingZKeyTest(
-      ZKey<Curve>&& zkey, absl::Span<const F> full_assignments) {
+      const ZKey<Curve>& zkey, absl::Span<const F> full_assignments) {
     using Domain = math::UnivariateEvaluationDomain<F, MaxDegree>;
 
     zk::r1cs::groth16::ProvingKey<Curve> pk =
-        std::move(zkey).TakeProvingKey().ToNativeProvingKey();
+        zkey.GetProvingKey().ToNativeProvingKey();
     zk::r1cs::ConstraintMatrices<F> constraint_matrices =
-        std::move(zkey).TakeConstraintMatrices().ToNative();
+        zkey.GetConstraintMatrices();
 
     std::unique_ptr<Domain> domain =
         Domain::Create(constraint_matrices.num_constraints +

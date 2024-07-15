@@ -31,6 +31,12 @@ class EllCoeff {
                             c1_.ToString(), c2_.ToString());
   }
 
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute(
+        "{c0: $0, c1: $1, c2: $2}", c0_.ToHexString(pad_zero),
+        c1_.ToHexString(pad_zero), c2_.ToHexString(pad_zero));
+  }
+
  private:
   F c0_;
   F c1_;

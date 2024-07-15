@@ -55,7 +55,7 @@ class QuadraticArithmeticProgram {
         a[i] = zk::r1cs::EvaluateConstraint(matrices.a[i], full_assignments);
       }
 
-      OMP_FOR_NOWAIT
+      OMP_FOR
       for (size_t i = 0; i < matrices.num_constraints; ++i) {
         b[i] = zk::r1cs::EvaluateConstraint(matrices.b[i], full_assignments);
       }

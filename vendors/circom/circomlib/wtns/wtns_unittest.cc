@@ -31,15 +31,12 @@ TEST(WtnsTest, Parse) {
   };
   EXPECT_EQ(wtns->ToV2()->header, expected_header);
 
-  v2::WtnsDataSection<F> expected_data = {std::vector<F>{
-      F(1),
-      F(60),
-      F(3),
-      F(4),
-      F(5),
-      F(12),
-  }};
-  EXPECT_EQ(wtns->ToV2()->data, expected_data);
+  std::vector<F> expected_data{
+      F(1), F(60), F(3), F(4), F(5), F(12),
+  };
+  v2::WtnsDataSection<F> expected_data_section = {
+      absl::MakeSpan(expected_data)};
+  EXPECT_EQ(wtns->ToV2()->data, expected_data_section);
 }
 
 }  // namespace tachyon::circom

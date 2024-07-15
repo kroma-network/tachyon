@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <optional>
-#include <utility>
 #include <vector>
 
 // clang-format off
@@ -39,11 +38,11 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
   }
 
   void LoadZkey(const base::FilePath& zkey_path) override {
-    std::unique_ptr<ZKey<Curve>> zkey = ParseZKey<Curve>(zkey_path);
-    CHECK(zkey);
+    zkey_ = ParseZKey<Curve>(zkey_path);
+    CHECK(zkey_);
 
-    proving_key_ = std::move(*zkey).TakeProvingKey().ToNativeProvingKey();
-    constraint_matrices_ = std::move(*zkey).TakeConstraintMatrices().ToNative();
+    proving_key_ = zkey_->GetProvingKey().ToNativeProvingKey();
+    constraint_matrices_ = zkey_->GetConstraintMatrices();
   }
 
   zk::r1cs::groth16::Proof<Curve> Run(const Domain* domain,
@@ -69,7 +68,7 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
 
     if (!prepared_verifying_key_.has_value()) {
       prepared_verifying_key_ =
-          std::move(proving_key_).TakeVerifyingKey().ToPreparedVerifyingKey();
+          proving_key_.verifying_key().ToPreparedVerifyingKey();
     }
     CHECK(zk::r1cs::groth16::VerifyProof(*prepared_verifying_key_, proof,
                                          public_inputs));
@@ -79,6 +78,7 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
 
  private:
   WitnessLoader<F> witness_loader_;
+  std::unique_ptr<ZKey<Curve>> zkey_;
   zk::r1cs::groth16::ProvingKey<Curve> proving_key_;
   zk::r1cs::ConstraintMatrices<F> constraint_matrices_;
   std::optional<zk::r1cs::groth16::PreparedVerifyingKey<Curve>>

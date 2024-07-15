@@ -93,6 +93,10 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 
 ### Uniform points
 
+```shell
+bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib --config cuda //benchmark/msm:msm_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --test_set non_uniform
+```
+
 #### On RTX-4090
 
 | Exponent | Tachyon  | Tachyon GPU  |
@@ -109,6 +113,10 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 ![image](/benchmark/msm/msm_benchmark_uniform_ubuntu_rtx_4090.png)
 
 ### Non-uniform points
+
+```shell
+bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib --config cuda //benchmark/msm:msm_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23
+```
 
 #### On RTX-4090
 
