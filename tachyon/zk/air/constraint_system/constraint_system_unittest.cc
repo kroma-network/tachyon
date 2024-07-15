@@ -51,7 +51,7 @@ TEST_F(ConstraintSystemTest, FibonacciAirTest) {
       ExpressionFactory<F>::Variable(Variable::Public(2));
   constraint_system.EnforceLastRowConstraint(std::move(expr5));
 
-  std::vector<F> public_trace = {F(1), F(1), F(1)};
+  std::vector<F> public_values = {F(1), F(1), F(1)};
   math::RowMajorMatrix<F> main_trace(5, 2);
 
   // clang-format off
@@ -62,9 +62,11 @@ TEST_F(ConstraintSystemTest, FibonacciAirTest) {
                 F(5), F(1);
   // clang-format on
 
+  Trace<F> trace(std::move(main_trace));
+
   AirEvaluator<F> evaluator;
-  bool is_satisfied = constraint_system.IsSatisfied(evaluator, public_trace,
-                                                    main_trace, nullptr);
+  bool is_satisfied =
+      constraint_system.IsSatisfied(evaluator, public_values, trace);
   EXPECT_TRUE(is_satisfied);
 }
 
@@ -83,7 +85,7 @@ TEST_F(ConstraintSystemTest, PreprocessedAirTest) {
        ExpressionFactory<F>::Variable(Variable::Main(1, 1)));
   constraint_system.EnforceTransitionConstraint(std::move(expr2));
 
-  std::vector<F> public_trace = {};
+  std::vector<F> public_values = {};
   math::RowMajorMatrix<F> main_trace(4, 2);
   math::RowMajorMatrix<F> preprocessed_trace(4, 2);
 
@@ -99,9 +101,11 @@ TEST_F(ConstraintSystemTest, PreprocessedAirTest) {
                         F(0), F(1);
   // clang-format on
 
+  Trace<F> trace(std::move(main_trace), std::move(preprocessed_trace));
+
   AirEvaluator<F> evaluator;
-  bool is_satisfied = constraint_system.IsSatisfied(
-      evaluator, public_trace, main_trace, &preprocessed_trace);
+  bool is_satisfied =
+      constraint_system.IsSatisfied(evaluator, public_values, trace);
   EXPECT_TRUE(is_satisfied);
 }
 

@@ -6,6 +6,7 @@ tachyon_cc_library(
     name = "constraint_system",
     hdrs = ["constraint_system.h"],
     deps = [
+        ":trace",
         ":variable",
         "//tachyon/math/matrix:matrix_types",
         "//tachyon/zk/air/expressions:air_evaluator",
@@ -19,6 +20,15 @@ tachyon_cc_library(
         "//tachyon:export",
         "//tachyon/base:logging",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "trace",
+    hdrs = ["trace.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/math/matrix:matrix_types",
     ],
 )
 

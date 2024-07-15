@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "tachyon/math/matrix/matrix_types.h"
+#include "tachyon/zk/air/constraint_system/trace.h"
 #include "tachyon/zk/air/constraint_system/variable.h"
 #include "tachyon/zk/air/expressions/air_evaluator.h"
 
@@ -45,19 +46,18 @@ class ConstraintSystem {
 
   bool IsSatisfied(AirEvaluator<F>& evaluator,
                    const std::vector<F>& public_values,
-                   const RowMajorMatrix& main,
-                   const RowMajorMatrix* preprocessed = nullptr) const {
-    CheckInputDimensions(public_values, main, preprocessed);
+                   const Trace<F>& trace) const {
+    CheckInputDimensions(public_values, trace);
 
     evaluator.set_public_values(public_values);
-    evaluator.set_num_rows(main.rows());
+    evaluator.set_num_rows(trace.rows());
 
-    for (Eigen::Index i = 0; i < main.rows() - 1; ++i) {
-      const ConstMatrixBlock main_window(main, i, 0, 2, main_width_);
+    for (Eigen::Index i = 0; i < trace.rows() - 1; ++i) {
+      const ConstMatrixBlock main_window(trace.main, i, 0, 2, main_width_);
 
-      if (preprocessed) {
+      if (trace.preprocessed) {
         new (preprocessed_buf_.get())
-            ConstMatrixBlock(*preprocessed, i, 0, 2, preprocessed_width_);
+            ConstMatrixBlock(*trace.preprocessed, i, 0, 2, preprocessed_width_);
         evaluator.SetCurrentWindowData(
             i, &main_window,
             reinterpret_cast<const ConstMatrixBlock*>(preprocessed_buf_.get()));
@@ -75,15 +75,13 @@ class ConstraintSystem {
   }
 
  private:
-  constexpr void CheckInputDimensions(
-      const std::vector<F>& public_values, const RowMajorMatrix& main,
-      const RowMajorMatrix* preprocessed = nullptr) const {
+  constexpr void CheckInputDimensions(const std::vector<F>& public_values,
+                                      const Trace<F>& trace) const {
     CHECK_EQ(public_values.size(), num_public_values_);
-    CHECK_EQ(main.cols(), main_width_);
-    CHECK_GE(main.rows(), 1);
-    if (preprocessed) {
-      CHECK_EQ(preprocessed->cols(), preprocessed_width_);
-      CHECK_EQ(preprocessed->rows(), main.rows());
+    CHECK_EQ(trace.main.cols(), main_width_);
+    CHECK_GE(trace.rows(), 1);
+    if (trace.preprocessed) {
+      CHECK_EQ(trace.preprocessed->cols(), preprocessed_width_);
     } else {
       CHECK_EQ(preprocessed_width_, 0);
     }
