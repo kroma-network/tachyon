@@ -31,10 +31,10 @@ class XORShiftRNG final : public RNG {
   // RNG methods
   void SetRandomSeed() override {
     uint8_t seed[kSeedSize];
-    uint64_t lo = base::Uniform(base::Range<uint64_t>::All());
-    uint64_t hi = base::Uniform(base::Range<uint64_t>::All());
-    memcpy(&seed[0], &lo, sizeof(uint64_t));
-    memcpy(&seed[8], &hi, sizeof(uint64_t));
+    *reinterpret_cast<uint64_t*>(&seed[0]) =
+        base::Uniform(base::Range<uint64_t>::All());
+    *reinterpret_cast<uint64_t*>(&seed[8]) =
+        base::Uniform(base::Range<uint64_t>::All());
     CHECK(SetSeed(seed));
   }
 
