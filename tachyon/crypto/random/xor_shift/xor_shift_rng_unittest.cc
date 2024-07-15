@@ -62,7 +62,8 @@ TEST(XORShiftRngTest, NextUint64) {
       UINT64_C(4115505420980006796),  UINT64_C(16660106575296596679),
   };
 
-  XORShiftRNG rng = XORShiftRNG::FromSeed(seed);
+  XORShiftRNG rng;
+  ASSERT_TRUE(rng.SetSeed(seed));
   for (size_t i = 0; i < 100; ++i) {
     EXPECT_EQ(rng.NextUint64(), expected[i]);
   }

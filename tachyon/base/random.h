@@ -1,8 +1,6 @@
 #ifndef TACHYON_BASE_RANDOM_H_
 #define TACHYON_BASE_RANDOM_H_
 
-#include <vector>
-
 #include "absl/random/random.h"
 
 #include "tachyon/base/logging.h"

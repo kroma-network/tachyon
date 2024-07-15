@@ -5,10 +5,11 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/random.h"
-#include "tachyon/base/template_util.h"
 #include "tachyon/crypto/random/rng.h"
+#include "tachyon/export.h"
 
 namespace tachyon::crypto {
 
@@ -21,60 +22,59 @@ namespace tachyon::crypto {
 // [Seed Stability]
 // (https://abseil.io/docs/cpp/guides/random#classes-of-generator-stability)
 // and [Xorshift RNGs](https://www.jstatsoft.org/v08/i14/paper).
-class XORShiftRNG final : public RNG<XORShiftRNG> {
+class TACHYON_EXPORT XORShiftRNG final : public RNG {
  public:
   constexpr static size_t kSeedSize = 16;
   constexpr static size_t kStateSize = 16;
 
   XORShiftRNG() = default;
 
-  uint32_t x() const { return x_; }
-  uint32_t y() const { return y_; }
-  uint32_t z() const { return z_; }
-  uint32_t w() const { return w_; }
-
-  template <typename Container>
-  static XORShiftRNG FromSeed(const Container& seed) {
-    CHECK_EQ(std::size(seed), kSeedSize);
-    static_assert(std::is_same_v<base::container_value_t<Container>, uint8_t>,
-                  "The value type of |seed| must be uint8_t");
-    XORShiftRNG ret;
-    memcpy(&ret.x_, &seed[0], sizeof(uint32_t));
-    memcpy(&ret.y_, &seed[4], sizeof(uint32_t));
-    memcpy(&ret.z_, &seed[8], sizeof(uint32_t));
-    memcpy(&ret.w_, &seed[12], sizeof(uint32_t));
-    return ret;
-  }
-
-  static XORShiftRNG FromSeed(const uint8_t seed[kSeedSize]) {
-    XORShiftRNG ret;
-    memcpy(&ret.x_, &seed[0], sizeof(uint32_t));
-    memcpy(&ret.y_, &seed[4], sizeof(uint32_t));
-    memcpy(&ret.z_, &seed[8], sizeof(uint32_t));
-    memcpy(&ret.w_, &seed[12], sizeof(uint32_t));
-    return ret;
-  }
-
-  static XORShiftRNG FromRandomSeed() {
+  // RNG methods
+  void SetRandomSeed() override {
     uint8_t seed[kSeedSize];
-    uint64_t lo = base::Uniform(base::Range<uint64_t>::All());
-    uint64_t hi = base::Uniform(base::Range<uint64_t>::All());
-    memcpy(&seed[0], &lo, sizeof(uint64_t));
-    memcpy(&seed[8], &hi, sizeof(uint64_t));
-    return FromSeed(seed);
+    *reinterpret_cast<uint64_t*>(&seed[0]) =
+        base::Uniform(base::Range<uint64_t>::All());
+    *reinterpret_cast<uint64_t*>(&seed[8]) =
+        base::Uniform(base::Range<uint64_t>::All());
+    CHECK(SetSeed(seed));
   }
 
-  static XORShiftRNG FromState(uint32_t x, uint32_t y, uint32_t z, uint32_t w) {
-    return {x, y, z, w};
+  [[nodiscard]] bool SetSeed(absl::Span<const uint8_t> seed) override {
+    if (seed.size() != kSeedSize) {
+      LOG(ERROR) << "Seed size must be " << kSeedSize;
+      return false;
+    }
+    memcpy(&x_, &seed[0], sizeof(uint32_t));
+    memcpy(&y_, &seed[4], sizeof(uint32_t));
+    memcpy(&z_, &seed[8], sizeof(uint32_t));
+    memcpy(&w_, &seed[12], sizeof(uint32_t));
+    return true;
   }
 
-  uint32_t NextUint32() {
+  uint32_t NextUint32() override {
     uint32_t t = x_ ^ (x_ << 11);
     x_ = y_;
     y_ = z_;
     z_ = w_;
     w_ = w_ ^ (w_ >> 19) ^ (t ^ (t >> 8));
     return w_;
+  }
+
+  [[nodiscard]] bool ReadFromBuffer(
+      const base::ReadOnlyBuffer& buffer) override {
+    uint32_t x, y, z, w;
+    base::EndianAutoReset auto_reset(buffer, base::Endian::kLittle);
+    if (!buffer.ReadMany(&x, &y, &z, &w)) return false;
+    x_ = x;
+    y_ = y;
+    z_ = z;
+    w_ = w;
+    return true;
+  }
+
+  [[nodiscard]] bool WriteToBuffer(base::Buffer& buffer) const override {
+    base::EndianAutoReset auto_reset(buffer, base::Endian::kLittle);
+    return buffer.WriteMany(x_, y_, z_, w_);
   }
 
  private:

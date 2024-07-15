@@ -35,35 +35,16 @@ class Prover : public ProverBase<PCS> {
   using LS = _LS;
   using LookupProver = typename LS::Prover;
 
-  static Prover CreateFromRandomSeed(
+  static Prover Create(
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-      RowIndex blinding_factors) {
-    auto rng = std::make_unique<crypto::XORShiftRNG>(
-        crypto::XORShiftRNG::FromRandomSeed());
-    return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),
-                         blinding_factors);
-  }
-
-  template <typename Container>
-  static Prover CreateFromSeed(
-      PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-      const Container& seed, RowIndex blinding_factors) {
-    auto rng = std::make_unique<crypto::XORShiftRNG>(
-        crypto::XORShiftRNG::FromSeed(seed));
-    return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),
-                         blinding_factors);
-  }
-
-  static Prover CreateFromRNG(
-      PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-      std::unique_ptr<crypto::XORShiftRNG> rng, RowIndex blinding_factors) {
+      std::unique_ptr<crypto::RNG> rng, RowIndex blinding_factors) {
     auto generator = std::make_unique<RandomFieldGenerator<F>>(rng.get());
     Blinder<F> blinder(generator.get(), blinding_factors);
     return {std::move(pcs), std::move(writer), std::move(blinder),
             std::move(rng), std::move(generator)};
   }
 
-  crypto::XORShiftRNG* rng() { return rng_.get(); }
+  crypto::RNG* rng() { return rng_.get(); }
   RandomFieldGenerator<F>* generator() { return generator_.get(); }
 
   Verifier<PCS, LS> ToVerifier(
@@ -109,13 +90,13 @@ class Prover : public ProverBase<PCS> {
 
   Prover(PCS&& pcs,
          std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-         Blinder<F>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
+         Blinder<F>&& blinder, std::unique_ptr<crypto::RNG> rng,
          std::unique_ptr<RandomFieldGenerator<F>> generator)
       : ProverBase<PCS>(std::move(pcs), std::move(writer), std::move(blinder)),
         rng_(std::move(rng)),
         generator_(std::move(generator)) {}
 
-  void SetRng(std::unique_ptr<crypto::XORShiftRNG> rng) {
+  void SetRng(std::unique_ptr<crypto::RNG> rng) {
     rng_ = std::move(rng);
     generator_ = std::make_unique<RandomFieldGenerator<F>>(rng_.get());
     this->blinder_ =
@@ -358,7 +339,7 @@ class Prover : public ProverBase<PCS> {
     return openings;
   }
 
-  std::unique_ptr<crypto::XORShiftRNG> rng_;
+  std::unique_ptr<crypto::RNG> rng_;
   std::unique_ptr<RandomFieldGenerator<F>> generator_;
 };
 

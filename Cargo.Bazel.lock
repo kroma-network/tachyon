@@ -1,5 +1,5 @@
 {
-  "checksum": "fe9841043a924e278a4cbfdc6d72e1e41a041f14142cbae2a8c1c85fb9c3b77d",
+  "checksum": "ad0fa670632dac1fa04401d06d366157173bff8f0a79a868a7fcfe935ab4d60f",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -8350,7 +8350,7 @@
         "Git": {
           "remote": "https://github.com/kroma-network/halo2.git",
           "commitish": {
-            "Branch": "scroll-halo2-v1.1-with-tachyon-without-cxx"
+            "Rev": "b95cf98"
           },
           "strip_prefix": "halo2_proofs"
         }
@@ -20643,6 +20643,10 @@
         },
         "deps_dev": {
           "common": [
+            {
+              "id": "rand_chacha 0.3.1",
+              "target": "rand_chacha"
+            },
             {
               "id": "rand_xorshift 0.3.0",
               "target": "rand_xorshift"

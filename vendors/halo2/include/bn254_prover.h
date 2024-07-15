@@ -48,7 +48,7 @@ class Prover {
   void batch_evaluate(
       rust::Slice<const std::unique_ptr<RationalEvals>> rational_evals,
       rust::Slice<std::unique_ptr<Evals>> evals) const;
-  void set_rng(rust::Slice<const uint8_t> state);
+  void set_rng(uint8_t rng_type, rust::Slice<const uint8_t> state);
   void set_transcript(rust::Slice<const uint8_t> state);
   void set_extended_domain(const ProvingKey& pk);
   void create_proof(ProvingKey& key,

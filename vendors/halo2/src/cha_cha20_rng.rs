@@ -3,32 +3,32 @@ use crate::{consts::RNGType, rng::SerializableRng};
 #[cxx::bridge(namespace = "tachyon::halo2_api")]
 pub mod ffi {
     unsafe extern "C++" {
-        include!("vendors/halo2/include/xor_shift_rng.h");
+        include!("vendors/halo2/include/cha_cha20_rng.h");
 
-        type XORShiftRng;
+        type ChaCha20Rng;
 
-        fn new_xor_shift_rng(seed: [u8; 16]) -> UniquePtr<XORShiftRng>;
-        fn next_u32(self: Pin<&mut XORShiftRng>) -> u32;
-        fn clone(&self) -> UniquePtr<XORShiftRng>;
+        fn new_cha_cha20_rng(seed: [u8; 32]) -> UniquePtr<ChaCha20Rng>;
+        fn next_u32(self: Pin<&mut ChaCha20Rng>) -> u32;
+        fn clone(&self) -> UniquePtr<ChaCha20Rng>;
         fn state(&self) -> Vec<u8>;
     }
 }
 
-pub struct XORShiftRng {
-    inner: cxx::UniquePtr<ffi::XORShiftRng>,
+pub struct ChaCha20Rng {
+    inner: cxx::UniquePtr<ffi::ChaCha20Rng>,
 }
 
-impl SerializableRng for XORShiftRng {
+impl SerializableRng for ChaCha20Rng {
     fn state(&self) -> Vec<u8> {
         self.inner.state()
     }
 
     fn rng_type() -> RNGType {
-        RNGType::XORShift
+        RNGType::ChaCha20
     }
 }
 
-impl Clone for XORShiftRng {
+impl Clone for ChaCha20Rng {
     fn clone(&self) -> Self {
         Self {
             inner: self.inner.clone(),
@@ -36,17 +36,17 @@ impl Clone for XORShiftRng {
     }
 }
 
-impl rand_core::SeedableRng for XORShiftRng {
-    type Seed = [u8; 16];
+impl rand_core::SeedableRng for ChaCha20Rng {
+    type Seed = [u8; 32];
 
     fn from_seed(seed: Self::Seed) -> Self {
         Self {
-            inner: ffi::new_xor_shift_rng(seed),
+            inner: ffi::new_cha_cha20_rng(seed),
         }
     }
 }
 
-impl rand_core::RngCore for XORShiftRng {
+impl rand_core::RngCore for ChaCha20Rng {
     fn next_u32(&mut self) -> u32 {
         self.inner.pin_mut().next_u32()
     }
@@ -71,12 +71,12 @@ impl rand_core::RngCore for XORShiftRng {
 mod test {
     use rand_core::{RngCore, SeedableRng};
 
-    use crate::{consts::XOR_SHIFT_SEED, rng::SerializableRng};
+    use crate::{consts::CHA_CHA20_SEED, rng::SerializableRng};
 
     #[test]
     fn test_rng() {
-        let mut rng = rand_xorshift::XorShiftRng::from_seed(XOR_SHIFT_SEED);
-        let mut rng_tachyon = crate::xor_shift_rng::XORShiftRng::from_seed(XOR_SHIFT_SEED);
+        let mut rng = rand_chacha::ChaCha20Rng::from_seed(CHA_CHA20_SEED);
+        let mut rng_tachyon = crate::cha_cha20_rng::ChaCha20Rng::from_seed(CHA_CHA20_SEED);
 
         const LEN: i32 = 100;
         let random_u64s = (0..LEN).map(|_| rng.next_u64()).collect::<Vec<_>>();
@@ -86,7 +86,7 @@ mod test {
 
     #[test]
     fn test_clone() {
-        let mut rng = crate::xor_shift_rng::XORShiftRng::from_seed(XOR_SHIFT_SEED);
+        let mut rng = crate::cha_cha20_rng::ChaCha20Rng::from_seed(CHA_CHA20_SEED);
         let mut rng_clone = rng.clone();
 
         const LEN: i32 = 100;
@@ -97,10 +97,17 @@ mod test {
 
     #[test]
     fn test_state() {
-        let rng = crate::xor_shift_rng::XORShiftRng::from_seed(XOR_SHIFT_SEED);
+        let rng = crate::cha_cha20_rng::ChaCha20Rng::from_seed(CHA_CHA20_SEED);
         assert_eq!(
             rng.state(),
-            vec![89, 98, 190, 93, 118, 61, 49, 141, 23, 219, 55, 50, 84, 6, 188, 229]
+            vec![
+                16, 0, 0, 0, 0, 0, 0, 0, 101, 120, 112, 97, 110, 100, 32, 51, 50, 45, 98, 121, 116,
+                101, 32, 107, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0
+            ]
         );
     }
 }

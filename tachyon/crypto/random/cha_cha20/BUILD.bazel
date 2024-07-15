@@ -3,19 +3,22 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "xor_shift_rng",
-    hdrs = ["xor_shift_rng.h"],
+    name = "cha_cha20_rng",
+    hdrs = ["cha_cha20_rng.h"],
     deps = [
         "//tachyon:export",
         "//tachyon/base:logging",
         "//tachyon/base:random",
+        "//tachyon/base/buffer:copyable",
         "//tachyon/base/buffer:endian_auto_reset",
-        "//tachyon/crypto/random:rng",
+        "//tachyon/crypto/random:block_rng",
+        "@com_google_absl//absl/base:endian",
+        "@com_google_boringssl//:crypto",
     ],
 )
 
 tachyon_cc_unittest(
-    name = "xor_shift_unittests",
-    srcs = ["xor_shift_rng_unittest.cc"],
-    deps = [":xor_shift_rng"],
+    name = "cha_cha20_unittests",
+    srcs = ["cha_cha20_rng_unittest.cc"],
+    deps = [":cha_cha20_rng"],
 )

@@ -19,7 +19,7 @@ class FakeRandomFieldGenerator : public RandomFieldGeneratorBase<math::GF7> {
   explicit FakeRandomFieldGenerator(const std::vector<math::GF7>& values)
       : values_(values) {}
 
-  // RandomFieldGenerator<math::GF7> methods
+  // RandomFieldGeneratorBase<math::GF7> methods
   math::GF7 Generate() override {
     CHECK_LT(idx_, values_.size());
     return values_[idx_++];

@@ -94,8 +94,9 @@ void Prover::batch_evaluate(
   }
 }
 
-void Prover::set_rng(rust::Slice<const uint8_t> state) {
-  tachyon_halo2_bn254_prover_set_rng_state(prover_, state.data(), state.size());
+void Prover::set_rng(uint8_t rng_type, rust::Slice<const uint8_t> state) {
+  tachyon_halo2_bn254_prover_set_rng_state(prover_, rng_type, state.data(),
+                                           state.size());
 }
 
 void Prover::set_transcript(rust::Slice<const uint8_t> state) {

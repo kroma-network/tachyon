@@ -6,6 +6,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
@@ -38,9 +39,11 @@ class ProverTest : public testing::Test {
     std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer =
         std::make_unique<Blake2bWriter<Commitment>>(std::move(write_buf));
 
+    auto rng = std::make_unique<crypto::XORShiftRNG>();
+    CHECK(rng->SetSeed(kXORShiftSeed));
     prover_ = std::make_unique<Prover<PCS, LS>>(
-        Prover<PCS, LS>::CreateFromSeed(std::move(pcs), std::move(writer),
-                                        kXORShiftSeed, /*blinding_factors=*/0));
+        Prover<PCS, LS>::Create(std::move(pcs), std::move(writer),
+                                std::move(rng), /*blinding_factors=*/0));
     prover_->set_domain(Domain::Create(kMaxDomainSize));
     prover_->set_extended_domain(
         ExtendedDomain::Create(kMaxExtendedDomainSize));

@@ -110,7 +110,10 @@ def tachyon_deps():
             strip_prefix = "boringssl-b69f4d27a75dcf4b94138790883b44274fab56c2",
             urls = ["https://github.com/google/boringssl/archive/b69f4d27a75dcf4b94138790883b44274fab56c2.tar.gz"],
             patch_args = ["-p1"],
-            patches = ["@kroma_network_tachyon//third_party/boringssl:blake2b512.patch"],
+            patches = [
+                "@kroma_network_tachyon//third_party/boringssl:blake2b512.patch",
+                "@kroma_network_tachyon//third_party/boringssl:chacha_core.patch",
+            ],
         )
 
     if not native.existing_rule("com_google_googletest"):

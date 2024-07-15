@@ -14,6 +14,9 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl.h"
+#include "tachyon/crypto/random/cha_cha20/cha_cha20_rng.h"
+#include "tachyon/crypto/random/rng_type.h"
+#include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/ls_type.h"
@@ -81,7 +84,7 @@ void WriteParams(tachyon_halo2_bn254_prover* c_prover,
 
 template <typename NativeProver>
 void CreateProof(NativeProver* prover, tachyon_halo2_bn254_prover* c_prover,
-                 const std::vector<uint8_t>& pk_bytes,
+                 crypto::RNGType rng_type, const std::vector<uint8_t>& pk_bytes,
                  const std::vector<uint8_t>& arg_data_bytes,
                  const std::vector<uint8_t>& transcript_state_bytes) {
   using PCS = typename NativeProver::PCS;
@@ -102,9 +105,18 @@ void CreateProof(NativeProver* prover, tachyon_halo2_bn254_prover* c_prover,
   tachyon_halo2_bn254_prover_set_transcript_state(
       c_prover, transcript_state_bytes.data(), transcript_state_bytes.size());
 
-  prover->SetRng(std::make_unique<tachyon::crypto::XORShiftRNG>(
-      tachyon::crypto::XORShiftRNG::FromSeed(
-          tachyon::zk::plonk::halo2::kXORShiftSeed)));
+  std::unique_ptr<tachyon::crypto::RNG> rng;
+  switch (rng_type) {
+    case crypto::RNGType::kXORShift:
+      rng = std::make_unique<tachyon::crypto::XORShiftRNG>();
+      CHECK(rng->SetSeed(tachyon::zk::plonk::halo2::kXORShiftSeed));
+      break;
+    case crypto::RNGType::kChaCha20:
+      rng = std::make_unique<tachyon::crypto::ChaCha20RNG>();
+      break;
+  }
+  CHECK(rng);
+  prover->SetRng(std::move(rng));
 
   std::cout << "deserializing argument data" << std::endl;
   ArgumentData<PCS> arg_data = DeserializeArgumentData<PCS>(arg_data_bytes);
@@ -123,7 +135,7 @@ void CreateProof(NativeProver* prover, tachyon_halo2_bn254_prover* c_prover,
   prover->CreateProof(pk, &arg_data);
 }
 
-void CreateProof(tachyon_halo2_bn254_prover* c_prover,
+void CreateProof(tachyon_halo2_bn254_prover* c_prover, crypto::RNGType rng_type,
                  const std::vector<uint8_t>& pk_bytes,
                  const std::vector<uint8_t>& arg_data_bytes,
                  const std::vector<uint8_t>& transcript_state_bytes) {
@@ -134,13 +146,14 @@ void CreateProof(tachyon_halo2_bn254_prover* c_prover,
         case tachyon::zk::plonk::halo2::LSType::kHalo2: {
           CreateProof(
               reinterpret_cast<Prover<GWCPCS, Halo2LS>*>(c_prover->extra),
-              c_prover, pk_bytes, arg_data_bytes, transcript_state_bytes);
+              c_prover, rng_type, pk_bytes, arg_data_bytes,
+              transcript_state_bytes);
           break;
         }
         case tachyon::zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
           CreateProof(reinterpret_cast<Prover<GWCPCS, LogDerivativeHalo2LS>*>(
                           c_prover->extra),
-                      c_prover, pk_bytes, arg_data_bytes,
+                      c_prover, rng_type, pk_bytes, arg_data_bytes,
                       transcript_state_bytes);
           break;
         }
@@ -153,14 +166,16 @@ void CreateProof(tachyon_halo2_bn254_prover* c_prover,
         case tachyon::zk::plonk::halo2::LSType::kHalo2: {
           CreateProof(
               reinterpret_cast<Prover<SHPlonkPCS, Halo2LS>*>(c_prover->extra),
-              c_prover, pk_bytes, arg_data_bytes, transcript_state_bytes);
+              c_prover, rng_type, pk_bytes, arg_data_bytes,
+              transcript_state_bytes);
           break;
         }
         case tachyon::zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
           CreateProof(
               reinterpret_cast<Prover<SHPlonkPCS, LogDerivativeHalo2LS>*>(
                   c_prover->extra),
-              c_prover, pk_bytes, arg_data_bytes, transcript_state_bytes);
+              c_prover, rng_type, pk_bytes, arg_data_bytes,
+              transcript_state_bytes);
           break;
         }
       }
@@ -196,6 +211,7 @@ int RunMain(int argc, char** argv) {
   zk::plonk::halo2::PCSType pcs_type;
   zk::plonk::halo2::LSType ls_type;
   zk::plonk::halo2::TranscriptType transcript_type;
+  crypto::RNGType rng_type;
   uint32_t k;
   std::string s_hex;
   tachyon::base::FilePath pcs_params_path;
@@ -217,6 +233,10 @@ int RunMain(int argc, char** argv) {
       .set_long_name("--transcript_type")
       .set_required()
       .set_help("Transcript type");
+  parser.AddFlag<tachyon::base::Flag<crypto::RNGType>>(&rng_type)
+      .set_long_name("--rng_type")
+      .set_required()
+      .set_help("Rng type");
   parser.AddFlag<tachyon::base::Uint32Flag>(&k)
       .set_short_name("-k")
       .set_required()
@@ -301,7 +321,7 @@ int RunMain(int argc, char** argv) {
     }
   }
 
-  c::zk::plonk::halo2::bn254::CreateProof(prover, pk_bytes.value(),
+  c::zk::plonk::halo2::bn254::CreateProof(prover, rng_type, pk_bytes.value(),
                                           arg_data_bytes.value(),
                                           transcript_state_bytes.value());
 

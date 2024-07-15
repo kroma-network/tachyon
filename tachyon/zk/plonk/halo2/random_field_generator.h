@@ -1,7 +1,7 @@
 #ifndef TACHYON_ZK_PLONK_HALO2_RANDOM_FIELD_GENERATOR_H_
 #define TACHYON_ZK_PLONK_HALO2_RANDOM_FIELD_GENERATOR_H_
 
-#include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
+#include "tachyon/crypto/random/rng.h"
 #include "tachyon/zk/base/random_field_generator_base.h"
 #include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
 
@@ -13,7 +13,7 @@ class RandomFieldGenerator : public RandomFieldGeneratorBase<F> {
   static_assert(F::BigIntTy::kLimbNums == 4,
                 "Halo2Curves seems only supporting ~256 bit prime field.");
 
-  explicit RandomFieldGenerator(crypto::XORShiftRNG* generator)
+  explicit RandomFieldGenerator(crypto::RNG* generator)
       : generator_(generator) {}
 
   // RandomFieldGeneratorBase<F> methods
@@ -29,7 +29,7 @@ class RandomFieldGenerator : public RandomFieldGeneratorBase<F> {
 
  private:
   // not owned
-  crypto::XORShiftRNG* const generator_;
+  crypto::RNG* const generator_;
 };
 
 }  // namespace tachyon::zk::plonk::halo2

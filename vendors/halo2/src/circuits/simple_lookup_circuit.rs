@@ -105,15 +105,16 @@ mod test {
             ProvingKey as TachyonProvingKey, SHPlonkProver, Sha256Write as TachyonSha256Write,
             TachyonProver,
         },
+        cha_cha20_rng::ChaCha20Rng,
         circuits::simple_lookup_circuit::SimpleLookupCircuit,
-        consts::{TranscriptType, SEED},
+        consts::{TranscriptType, CHA_CHA20_SEED, XOR_SHIFT_SEED},
         prover::create_proof as tachyon_create_proof,
         sha::ShaWrite,
         xor_shift_rng::XORShiftRng,
     };
 
     #[test]
-    fn test_create_gwc_proof() {
+    fn test_create_gwc_proof_with_various_rngs() {
         // ANCHOR: test-circuit
         // The number of rows in our circuit cannot exceed 2ᵏ. Since our example
         // circuit is very small, we can pick a very small value here.
@@ -132,8 +133,10 @@ mod test {
         let s = Fr::from(2);
         let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
         let pk = keygen_pk2(&params, &circuit).expect("vk should not fail");
+        let mut pk_bytes: Vec<u8> = vec![];
+        pk.write_including_cs(&mut pk_bytes).unwrap();
 
-        let rng = XORShiftRng::from_seed(SEED);
+        let rng = XORShiftRng::from_seed(XOR_SHIFT_SEED);
 
         let halo2_proof = {
             let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
@@ -162,20 +165,65 @@ mod test {
             let mut prover =
                 GWCProver::<KZGCommitmentScheme<Bn256>>::new(TranscriptType::Blake2b as u8, k, &s);
 
-            let (mut tachyon_pk, fixed_values) = {
-                let mut pk_bytes: Vec<u8> = vec![];
-                pk.write_including_cs(&mut pk_bytes).unwrap();
-                let fixed_values = pk.drop_but_fixed_values();
-                (TachyonProvingKey::from(pk_bytes.as_slice()), fixed_values)
-            };
+            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _, _>(
+                &mut prover,
+                &mut tachyon_pk,
+                &[circuit.clone(), circuit.clone()],
+                public_inputs2.as_slice(),
+                pk.fixed_values.clone(),
+                rng,
+                &mut transcript,
+            )
+            .expect("proof generation should not fail");
+
+            let mut proof = transcript.finalize();
+            let proof_last = prover.get_proof();
+            proof.extend_from_slice(&proof_last);
+            proof
+        };
+        assert_eq!(halo2_proof, tachyon_proof);
+
+        let rng = ChaCha20Rng::from_seed(CHA_CHA20_SEED);
+
+        let halo2_proof = {
+            let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
+
+            halo2_proofs::plonk::create_proof::<
+                KZGCommitmentScheme<Bn256>,
+                ProverGWC<_>,
+                _,
+                _,
+                _,
+                _,
+            >(
+                &params,
+                &pk,
+                &[circuit.clone(), circuit.clone()],
+                public_inputs2.as_slice(),
+                rng.clone(),
+                &mut transcript,
+            )
+            .expect("proof generation should not fail");
+
+            transcript.finalize()
+        };
+
+        let tachyon_proof = {
+            let mut prover =
+                GWCProver::<KZGCommitmentScheme<Bn256>>::new(TranscriptType::Blake2b as u8, k, &s);
+
+            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
+            let mut transcript = TachyonBlake2bWrite::init(vec![]);
+
+            tachyon_create_proof::<_, _, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
                 public_inputs2.as_slice(),
-                fixed_values,
+                pk.fixed_values,
                 rng,
                 &mut transcript,
             )
@@ -213,7 +261,7 @@ mod test {
         let mut pk_bytes: Vec<u8> = vec![];
         pk.write_including_cs(&mut pk_bytes).unwrap();
 
-        let rng = XORShiftRng::from_seed(SEED);
+        let rng = XORShiftRng::from_seed(XOR_SHIFT_SEED);
 
         let halo2_blake2b_proof = {
             let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
@@ -248,7 +296,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
@@ -299,7 +347,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonPoseidonWrite::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit.clone()],
@@ -351,7 +399,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonSha256Write::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],

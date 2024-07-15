@@ -1,0 +1,94 @@
+diff --git a/src/crypto/chacha/chacha.c b/src/crypto/chacha/chacha.c
+index 1092b7aa2..8b7d9663d 100644
+--- a/src/crypto/chacha/chacha.c
++++ b/src/crypto/chacha/chacha.c
+@@ -24,8 +24,8 @@
+ 
+ 
+ // sigma contains the ChaCha constants, which happen to be an ASCII string.
+-static const uint8_t sigma[16] = { 'e', 'x', 'p', 'a', 'n', 'd', ' ', '3',
+-                                   '2', '-', 'b', 'y', 't', 'e', ' ', 'k' };
++static const uint8_t sigma[16] = {'e', 'x', 'p', 'a', 'n', 'd', ' ', '3',
++                                  '2', '-', 'b', 'y', 't', 'e', ' ', 'k'};
+ 
+ // QUARTERROUND updates a, b, c, d with a ChaCha "quarter" round.
+ #define QUARTERROUND(a, b, c, d)           \
+@@ -38,6 +38,33 @@ static const uint8_t sigma[16] = { 'e', 'x', 'p', 'a', 'n', 'd', ' ', '3',
+   x[c] += x[d];                            \
+   x[b] = CRYPTO_rotl_u32(x[b] ^ x[c], 7);
+ 
++// chacha_core performs 20 rounds of ChaCha on the input words in
++// |input| and writes the 64 output bytes to |output|.
++void chacha_core(uint8_t output[64], const uint32_t input[16]) {
++  uint32_t x[16];
++  int i;
++
++  OPENSSL_memcpy(x, input, sizeof(uint32_t) * 16);
++  for (i = 20; i > 0; i -= 2) {
++    QUARTERROUND(0, 4, 8, 12)
++    QUARTERROUND(1, 5, 9, 13)
++    QUARTERROUND(2, 6, 10, 14)
++    QUARTERROUND(3, 7, 11, 15)
++    QUARTERROUND(0, 5, 10, 15)
++    QUARTERROUND(1, 6, 11, 12)
++    QUARTERROUND(2, 7, 8, 13)
++    QUARTERROUND(3, 4, 9, 14)
++  }
++
++  for (i = 0; i < 16; ++i) {
++    x[i] += input[i];
++  }
++  for (i = 0; i < 16; ++i) {
++    CRYPTO_store_u32_le(output + 4 * i, x[i]);
++  }
++}
++
++
+ void CRYPTO_hchacha20(uint8_t out[32], const uint8_t key[32],
+                       const uint8_t nonce[16]) {
+   uint32_t x[16];
+@@ -96,32 +123,6 @@ void CRYPTO_chacha_20(uint8_t *out, const uint8_t *in, size_t in_len,
+ 
+ #else
+ 
+-// chacha_core performs 20 rounds of ChaCha on the input words in
+-// |input| and writes the 64 output bytes to |output|.
+-static void chacha_core(uint8_t output[64], const uint32_t input[16]) {
+-  uint32_t x[16];
+-  int i;
+-
+-  OPENSSL_memcpy(x, input, sizeof(uint32_t) * 16);
+-  for (i = 20; i > 0; i -= 2) {
+-    QUARTERROUND(0, 4, 8, 12)
+-    QUARTERROUND(1, 5, 9, 13)
+-    QUARTERROUND(2, 6, 10, 14)
+-    QUARTERROUND(3, 7, 11, 15)
+-    QUARTERROUND(0, 5, 10, 15)
+-    QUARTERROUND(1, 6, 11, 12)
+-    QUARTERROUND(2, 7, 8, 13)
+-    QUARTERROUND(3, 4, 9, 14)
+-  }
+-
+-  for (i = 0; i < 16; ++i) {
+-    x[i] += input[i];
+-  }
+-  for (i = 0; i < 16; ++i) {
+-    CRYPTO_store_u32_le(output + 4 * i, x[i]);
+-  }
+-}
+-
+ void CRYPTO_chacha_20(uint8_t *out, const uint8_t *in, size_t in_len,
+                       const uint8_t key[32], const uint8_t nonce[12],
+                       uint32_t counter) {
+diff --git a/src/include/openssl/chacha.h b/src/include/openssl/chacha.h
+index cfbaa7568..a0379ad4c 100644
+--- a/src/include/openssl/chacha.h
++++ b/src/include/openssl/chacha.h
+@@ -33,6 +33,7 @@ OPENSSL_EXPORT void CRYPTO_chacha_20(uint8_t *out, const uint8_t *in,
+                                      size_t in_len, const uint8_t key[32],
+                                      const uint8_t nonce[12], uint32_t counter);
+ 
++OPENSSL_EXPORT void chacha_core(uint8_t output[64], const uint32_t input[16]);
+ 
+ #if defined(__cplusplus)
+ }  // extern C

@@ -12,15 +12,16 @@ tachyon_cc_library(
     srcs = ["rng.cc"],
     hdrs = ["rng.h"],
     deps = [
-        "//tachyon/base/buffer",
         "//tachyon/c:export",
+        "//tachyon/crypto/random:rng_type",
+        "//tachyon/crypto/random/cha_cha20:cha_cha20_rng",
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
         "@com_google_absl//absl/types:span",
     ],
 )
 
 tachyon_cc_unittest(
-    name = "rng_unittests",
+    name = "random_unittests",
     srcs = ["rng_unittest.cc"],
     deps = [
         ":rng",

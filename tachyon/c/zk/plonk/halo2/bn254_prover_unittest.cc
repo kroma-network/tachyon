@@ -23,6 +23,9 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
 #include "tachyon/c/zk/plonk/halo2/test/bn254_halo2_params_data.h"
+#include "tachyon/crypto/random/cha_cha20/cha_cha20_rng.h"
+#include "tachyon/crypto/random/rng_type.h"
+#include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/ls_type.h"
@@ -402,32 +405,32 @@ TEST_P(ProverTest, BatchCommitLagrange) {
   }
 }
 
-TEST_P(ProverTest, SetRng) {
+template <typename RNG>
+void SetRngTestImpl(tachyon_halo2_bn254_prover* prover, uint8_t rng_type) {
   std::vector<uint8_t> seed = base::CreateVector(
-      crypto::XORShiftRNG::kSeedSize,
-      []() { return base::Uniform(base::Range<uint8_t>()); });
-  tachyon_rng* rng = tachyon_rng_create_from_seed(TACHYON_RNG_XOR_SHIFT,
-                                                  seed.data(), seed.size());
-  uint8_t state[crypto::XORShiftRNG::kStateSize];
+      RNG::kSeedSize, []() { return base::Uniform(base::Range<uint8_t>()); });
+  tachyon_rng* rng =
+      tachyon_rng_create_from_seed(rng_type, seed.data(), seed.size());
+  uint8_t state[RNG::kStateSize];
   size_t state_len;
   tachyon_rng_get_state(rng, state, &state_len);
-  tachyon_halo2_bn254_prover_set_rng_state(prover_, state, state_len);
+  tachyon_halo2_bn254_prover_set_rng_state(prover, rng_type, state, state_len);
 
-  auto cpp_rng = std::make_unique<crypto::XORShiftRNG>(
-      crypto::XORShiftRNG::FromSeed(seed));
+  auto cpp_rng = std::make_unique<RNG>();
+  ASSERT_TRUE(cpp_rng->SetSeed(seed));
   auto cpp_generator =
       std::make_unique<RandomFieldGenerator<math::bn254::Fr>>(cpp_rng.get());
 
   math::bn254::Fr expected;
-  switch (static_cast<PCSType>(prover_->pcs_type)) {
+  switch (static_cast<PCSType>(prover->pcs_type)) {
     case PCSType::kGWC: {
-      expected = reinterpret_cast<zk::ProverBase<GWCPCS>*>(prover_->extra)
+      expected = reinterpret_cast<zk::ProverBase<GWCPCS>*>(prover->extra)
                      ->blinder()
                      .Generate();
       break;
     }
     case PCSType::kSHPlonk: {
-      expected = reinterpret_cast<zk::ProverBase<SHPlonkPCS>*>(prover_->extra)
+      expected = reinterpret_cast<zk::ProverBase<SHPlonkPCS>*>(prover->extra)
                      ->blinder()
                      .Generate();
       break;
@@ -437,6 +440,11 @@ TEST_P(ProverTest, SetRng) {
   EXPECT_EQ(cpp_generator->Generate(), expected);
 
   tachyon_rng_destroy(rng);
+}
+
+TEST_P(ProverTest, SetRng) {
+  SetRngTestImpl<crypto::XORShiftRNG>(prover_, TACHYON_RNG_XOR_SHIFT);
+  SetRngTestImpl<crypto::ChaCha20RNG>(prover_, TACHYON_RNG_CHA_CHA20);
 }
 
 TEST_P(ProverTest, SetTranscript) {
