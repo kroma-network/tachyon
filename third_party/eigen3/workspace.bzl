@@ -20,5 +20,6 @@ def repo():
         patch_file = [
             "@kroma_network_tachyon//third_party/eigen3:add_sfinae_to_scalar_random_op.patch",
             "@kroma_network_tachyon//third_party/eigen3:add_sfinae_to_num_traits.patch",
+            "@kroma_network_tachyon//third_party/eigen3:use_faster_constant_method.patch",
         ],
     )
