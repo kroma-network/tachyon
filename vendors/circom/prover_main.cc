@@ -123,8 +123,8 @@ void CreateProof(const base::FilePath& zkey_path,
     math::IcicleNTTOptions ntt_options;
     ntt_options.fast_twiddles_mode = !options.disable_fast_twiddles_mode;
     CHECK(icicle_ntt_holder->Init(domain->group_gen(), ntt_options));
+    domain->set_icicle(&icicle_ntt_holder);
   }
-  domain->set_icicle(&icicle_ntt_holder);
 
   end = base::TimeTicks::Now();
   std::cout << "Time taken for initializing Icicle NTT domain: " << end - start
