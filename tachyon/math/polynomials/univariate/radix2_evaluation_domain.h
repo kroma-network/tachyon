@@ -374,7 +374,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
     // max block size: 2^|mid_|
     // TODO(ashjeong): benchmark between |OPENMP_PARALLEL_FOR| here vs
-    // |OPENMP_NESTED_PARALLEL_FOR| in |RunDitLayers|
+    // |OPENMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
     for (size_t block_start = 0; block_start < this->size_;
          block_start += chunk_rows) {
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
@@ -400,7 +400,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
     // max block size: 2^(|this->log_size_of_group_| - |mid_|)
     // TODO(ashjeong): benchmark between |OPENMP_PARALLEL_FOR| here vs
-    // |OPENMP_NESTED_PARALLEL_FOR| in |RunDitLayers|
+    // |OPENMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
     for (size_t block_start = 0; block_start < this->size_;
          block_start += chunk_rows) {
       size_t thread = block_start / chunk_rows;
