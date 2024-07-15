@@ -35,7 +35,12 @@ Bucket CalculateCoeff(MSM& msm, const Bucket& initial,
                       const AffinePoint& vk_param,
                       absl::Span<const F> assignments) {
   Bucket acc;
-  CHECK(msm.Run(query.subspan(1), assignments, &acc));
+  CHECK(msm.Run(query.subspan(1), assignments, &acc))
+      << "If you encounter this error with `--config cuda`, it indicates that "
+         "your GPU RAM is insufficient to hold the twiddle caches created "
+         "during the icicle NTT domain initialization. If you run this from "
+         "the circom prover, try using the `--disable_fast_twiddles_mode` "
+         "flag.";
 
   Bucket ret = initial + query[0];
   ret += acc;
