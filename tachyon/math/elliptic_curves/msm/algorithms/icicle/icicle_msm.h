@@ -8,6 +8,7 @@
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/device/gpu/gpu_enums.h"
+#include "tachyon/export.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_bn254_g1.h"
@@ -16,31 +17,49 @@
 
 namespace tachyon::math {
 
+struct TACHYON_EXPORT IcicleMSMOptions {
+  int points_size = 0;
+  int precompute_factor = 1;
+  int c = 0;
+  int bitsize = 0;
+  int large_bucket_factor = 10;
+  int batch_size = 1;
+  bool are_scalars_on_device = false;
+  bool are_scalars_montgomery_form = true;
+  bool are_points_on_device = false;
+  bool are_points_montgomery_form = true;
+  bool are_results_on_device = false;
+  bool is_big_triangle = false;
+  bool is_async = false;
+};
+
 template <typename Point>
 class IcicleMSM {
  public:
   using Curve = typename Point::Curve;
 
-  IcicleMSM(gpuMemPool_t mem_pool, gpuStream_t stream)
+  IcicleMSM(gpuMemPool_t mem_pool, gpuStream_t stream,
+            const IcicleMSMOptions& options = IcicleMSMOptions())
       : mem_pool_(mem_pool), stream_(stream) {
     ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
     config_.reset(new ::msm::MSMConfig{
         ctx,
-        /*points_size=*/0,
-        /*precompute_factor=*/1,
-        /*c=*/0,
-        /*bitsize=*/0,
-        /*large_bucket_factor=*/10,
-        /*batch_size=*/1,
-        /*are_scalars_on_device=*/false,
-        /*are_scalars_montgomery_form=*/true,
+        options.points_size,
+        options.precompute_factor,
+        options.c,
+        options.bitsize,
+        options.large_bucket_factor,
+        options.batch_size,
+        options.are_scalars_on_device,
+        options.are_scalars_montgomery_form,
         // TODO(chokobole): Considering KZG commitment, bases can be loaded to
         // the device just once initially.
-        /*are_points_on_device=*/false,
-        /*are_points_montgomery_form=*/true,
-        /*are_results_on_device=*/false,
-        /*is_big_triangle=*/false,
-        /*is_async=*/false});
+        options.are_points_on_device,
+        options.are_points_montgomery_form,
+        options.are_results_on_device,
+        options.is_big_triangle,
+        options.is_async,
+    });
     VLOG(1) << "IcicleMSM is created";
   }
   IcicleMSM(const IcicleMSM& other) = delete;

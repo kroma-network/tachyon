@@ -27,6 +27,7 @@ tachyon_cc_library(
     deps = [
         ":icicle_msm_bn254_g1",
         ":icicle_msm_bn254_g2",
+        "//tachyon:export",
         "//tachyon/base:bit_cast",
         "//tachyon/device/gpu:gpu_device_functions",
         "//tachyon/device/gpu:gpu_enums",
