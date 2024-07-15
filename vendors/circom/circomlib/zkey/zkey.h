@@ -21,7 +21,6 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/zk/r1cs/constraint_system/constraint_matrices.h"
 
 namespace tachyon::circom {
 namespace v1 {
@@ -45,7 +44,10 @@ struct ZKey {
   virtual bool Read(const base::ReadOnlyBuffer& buffer) = 0;
 
   virtual ProvingKey<Curve> GetProvingKey() const = 0;
-  virtual zk::r1cs::ConstraintMatrices<F> GetConstraintMatrices() const = 0;
+  virtual absl::Span<const Coefficient<F>> GetCoefficients() const = 0;
+  virtual size_t GetDomainSize() const = 0;
+  virtual size_t GetNumInstanceVariables() const = 0;
+  virtual size_t GetNumWitnessVariables() const = 0;
 
   std::vector<uint8_t> data;
 };
@@ -211,6 +213,12 @@ struct CoefficientsSection {
     Coefficient<F>* ptr;
     if (!buffer.ReadPtr(&ptr, num_coefficients)) return false;
     coefficients = {ptr, num_coefficients};
+
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < coefficients.size(); ++i) {
+      coefficients[i].value =
+          F::FromMontgomery(coefficients[i].value.ToBigInt());
+    }
+
     return true;
   }
 
@@ -294,50 +302,18 @@ struct ZKey : public circom::ZKey<Curve> {
     };
   }
 
-  zk::r1cs::ConstraintMatrices<F> GetConstraintMatrices() const override {
-    std::vector<std::vector<zk::r1cs::Cell<F>>> a(header_groth.domain_size);
-    std::vector<std::vector<zk::r1cs::Cell<F>>> b(header_groth.domain_size);
+  absl::Span<const Coefficient<F>> GetCoefficients() const override {
+    return coefficients.coefficients;
+  }
 
-    uint32_t max_constraint = 0;
-    for (const Coefficient<F>& c : coefficients.coefficients) {
-      max_constraint = std::max(c.constraint, max_constraint);
-      if (c.matrix == 0) {
-        a[c.constraint].push_back({std::move(c.value), c.signal});
-      } else {
-        b[c.constraint].push_back({std::move(c.value), c.signal});
-      }
-    }
+  size_t GetDomainSize() const override { return header_groth.domain_size; }
 
-    // Need to divide by R, since snarkjs outputs the zkey with coefficients
-    // multiplied by R².
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < max_constraint; ++i) {
-      if (i < a.size()) {
-        for (size_t j = 0; j < a[i].size(); ++j) {
-          a[i][j].coefficient =
-              F::FromMontgomery(a[i][j].coefficient.ToBigInt());
-        }
-      }
-      if (i < b.size()) {
-        for (size_t j = 0; j < b[i].size(); ++j) {
-          b[i][j].coefficient =
-              F::FromMontgomery(b[i][j].coefficient.ToBigInt());
-        }
-      }
-    }
+  size_t GetNumInstanceVariables() const override {
+    return header_groth.num_public_inputs + 1;
+  }
 
-    return {
-        header_groth.num_public_inputs + 1,
-        header_groth.num_vars - header_groth.num_public_inputs - 1,
-        max_constraint - header_groth.num_public_inputs,
-
-        0,
-        0,
-        0,
-
-        zk::r1cs::Matrix<F>(std::move(a)),
-        zk::r1cs::Matrix<F>(std::move(b)),
-        {},
-    };
+  size_t GetNumWitnessVariables() const override {
+    return header_groth.num_vars - header_groth.num_public_inputs - 1;
   }
 
   std::string ToString() const {

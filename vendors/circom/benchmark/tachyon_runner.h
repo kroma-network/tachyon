@@ -33,8 +33,14 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
     return proving_key_;
   }
 
-  const zk::r1cs::ConstraintMatrices<F>& constraint_matrices() const {
-    return constraint_matrices_;
+  size_t GetDomainSize() const { return zkey_->GetDomainSize(); }
+
+  size_t GetNumInstanceVariables() const {
+    return zkey_->GetNumInstanceVariables();
+  }
+
+  size_t GetNumWitnessVariables() const {
+    return zkey_->GetNumWitnessVariables();
   }
 
   void LoadZkey(const base::FilePath& zkey_path) override {
@@ -42,7 +48,7 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
     CHECK(zkey_);
 
     proving_key_ = zkey_->GetProvingKey().ToNativeProvingKey();
-    constraint_matrices_ = zkey_->GetConstraintMatrices();
+    coefficients_ = zkey_->GetCoefficients();
   }
 
   zk::r1cs::groth16::Proof<Curve> Run(const Domain* domain,
@@ -53,15 +59,16 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
 
     std::vector<F> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
-            domain, constraint_matrices_, full_assignments);
+            domain, coefficients_, full_assignments);
 
+    size_t num_instance_variables = GetNumInstanceVariables();
     zk::r1cs::groth16::Proof<Curve> proof =
         zk::r1cs::groth16::CreateProofWithAssignmentNoZK(
             proving_key_, absl::MakeConstSpan(h_evals),
             absl::MakeConstSpan(full_assignments)
-                .subspan(1, constraint_matrices_.num_instance_variables - 1),
+                .subspan(1, num_instance_variables - 1),
             absl::MakeConstSpan(full_assignments)
-                .subspan(constraint_matrices_.num_instance_variables),
+                .subspan(num_instance_variables),
             absl::MakeConstSpan(full_assignments).subspan(1));
 
     delta = base::TimeTicks::Now() - now;
@@ -80,7 +87,7 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
   WitnessLoader<F> witness_loader_;
   std::unique_ptr<ZKey<Curve>> zkey_;
   zk::r1cs::groth16::ProvingKey<Curve> proving_key_;
-  zk::r1cs::ConstraintMatrices<F> constraint_matrices_;
+  absl::Span<const Coefficient<F>> coefficients_;
   std::optional<zk::r1cs::groth16::PreparedVerifyingKey<Curve>>
       prepared_verifying_key_;
 };

@@ -45,7 +45,6 @@ tachyon_cc_library(
         "@kroma_network_tachyon//tachyon/base/buffer:read_only_buffer",
         "@kroma_network_tachyon//tachyon/base/files:file_util",
         "@kroma_network_tachyon//tachyon/base/strings:string_util",
-        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:constraint_matrices",
     ],
 )
 

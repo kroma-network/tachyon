@@ -91,20 +91,15 @@ int RealMain(int argc, char** argv) {
       witness_loader.Set("in", Uint8ToBitVector<F>(in));
       witness_loader.Load();
 
-      const zk::r1cs::ConstraintMatrices<F>& constraint_matrices =
-          tachyon_runner->constraint_matrices();
+      domain = Domain::Create(tachyon_runner->GetDomainSize());
 
-      domain = Domain::Create(constraint_matrices.num_constraints +
-                              constraint_matrices.num_instance_variables);
-
+      size_t num_instance_variables = tachyon_runner->GetNumInstanceVariables();
       full_assignments = base::CreateVector(
-          constraint_matrices.num_instance_variables +
-              constraint_matrices.num_witness_variables,
+          num_instance_variables + tachyon_runner->GetNumWitnessVariables(),
           [&witness_loader](size_t i) { return witness_loader.Get(i); });
 
-      public_inputs =
-          absl::MakeConstSpan(full_assignments)
-              .subspan(1, constraint_matrices.num_instance_variables - 1);
+      public_inputs = absl::MakeConstSpan(full_assignments)
+                          .subspan(1, num_instance_variables - 1);
       CheckPublicInput(in, public_inputs);
     }
 

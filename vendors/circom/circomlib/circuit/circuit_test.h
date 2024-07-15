@@ -54,22 +54,18 @@ class CircuitTest : public testing::Test {
 
     zk::r1cs::groth16::ProvingKey<Curve> pk =
         zkey.GetProvingKey().ToNativeProvingKey();
-    zk::r1cs::ConstraintMatrices<F> constraint_matrices =
-        zkey.GetConstraintMatrices();
+    absl::Span<const Coefficient<F>> coefficients = zkey.GetCoefficients();
 
-    std::unique_ptr<Domain> domain =
-        Domain::Create(constraint_matrices.num_constraints +
-                       constraint_matrices.num_instance_variables);
+    std::unique_ptr<Domain> domain = Domain::Create(zkey.GetDomainSize());
     std::vector<F> h_evals = QAP::WitnessMapFromMatrices(
-        domain.get(), constraint_matrices, full_assignments);
+        domain.get(), coefficients, full_assignments);
 
+    size_t num_instance_variables = zkey.GetNumInstanceVariables();
     zk::r1cs::groth16::Proof<Curve> proof =
         zk::r1cs::groth16::CreateProofWithAssignmentZK(
             pk, absl::MakeConstSpan(h_evals),
-            full_assignments.subspan(
-                1, constraint_matrices.num_instance_variables - 1),
-            full_assignments.subspan(
-                constraint_matrices.num_instance_variables),
+            full_assignments.subspan(1, num_instance_variables - 1),
+            full_assignments.subspan(num_instance_variables),
             full_assignments.subspan(1));
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> pvk =
         std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();

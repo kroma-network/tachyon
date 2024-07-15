@@ -93,8 +93,7 @@ void CreateProof(const base::FilePath& zkey_path,
   CHECK(zkey);
   zk::r1cs::groth16::ProvingKey<Curve> proving_key =
       zkey->GetProvingKey().ToNativeProvingKey();
-  zk::r1cs::ConstraintMatrices<F> constraint_matrices =
-      zkey->GetConstraintMatrices();
+  absl::Span<const Coefficient<F>> coefficients = zkey->GetCoefficients();
 
   base::TimeTicks end = base::TimeTicks::Now();
   std::cout << "Time taken for parsing zkey: " << end - start << std::endl;
@@ -110,9 +109,7 @@ void CreateProof(const base::FilePath& zkey_path,
 
   zk::r1cs::groth16::Proof<Curve> proof;
   absl::Span<const F> full_assignments = wtns->GetWitnesses();
-  std::unique_ptr<Domain> domain =
-      Domain::Create(constraint_matrices.num_constraints +
-                     constraint_matrices.num_instance_variables);
+  std::unique_ptr<Domain> domain = Domain::Create(zkey->GetDomainSize());
 #if TACHYON_CUDA
   std::cout << "Start initializing Icicle NTT domain" << std::endl;
   math::IcicleNTTHolder<F> icicle_ntt_holder =
@@ -133,23 +130,22 @@ void CreateProof(const base::FilePath& zkey_path,
 #endif
   std::cout << "Start proving" << std::endl;
   ProverTime prover_time;
+  size_t num_instance_variables = zkey->GetNumInstanceVariables();
   for (size_t i = 0; i < options.num_runs; ++i) {
     std::vector<F> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
-            domain.get(), constraint_matrices, full_assignments);
+            domain.get(), coefficients, full_assignments);
     if (options.no_zk) {
       proof = zk::r1cs::groth16::CreateProofWithAssignmentNoZK(
           proving_key, absl::MakeConstSpan(h_evals),
-          full_assignments.subspan(
-              1, constraint_matrices.num_instance_variables - 1),
-          full_assignments.subspan(constraint_matrices.num_instance_variables),
+          full_assignments.subspan(1, num_instance_variables - 1),
+          full_assignments.subspan(num_instance_variables),
           full_assignments.subspan(1));
     } else {
       proof = zk::r1cs::groth16::CreateProofWithAssignmentZK(
           proving_key, absl::MakeConstSpan(h_evals),
-          full_assignments.subspan(
-              1, constraint_matrices.num_instance_variables - 1),
-          full_assignments.subspan(constraint_matrices.num_instance_variables),
+          full_assignments.subspan(1, num_instance_variables - 1),
+          full_assignments.subspan(num_instance_variables),
           full_assignments.subspan(1));
     }
 
@@ -163,8 +159,8 @@ void CreateProof(const base::FilePath& zkey_path,
             << std::endl;
   std::cout << "Max time taken for proving: " << prover_time.max << std::endl;
 
-  absl::Span<const F> public_inputs = full_assignments.subspan(
-      1, constraint_matrices.num_instance_variables - 1);
+  absl::Span<const F> public_inputs =
+      full_assignments.subspan(1, num_instance_variables - 1);
   if (options.verify) {
     std::cout << "Start verifying" << std::endl;
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> prepared_verifying_key =
