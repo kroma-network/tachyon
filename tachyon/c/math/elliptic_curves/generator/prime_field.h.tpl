@@ -39,6 +39,12 @@ TACHYON_C_EXPORT tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_zero();
 TACHYON_C_EXPORT tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_one();
 
 /**
+ * @brief Returns the minus one element of the finite field %{suffix}.
+ * @return The one element in %{suffix}.
+ */
+TACHYON_C_EXPORT tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_minus_one();
+
+/**
  * @brief Generates a random element in the finite field %{suffix}.
  * @return A random element in %{suffix}.
  */

@@ -62,6 +62,12 @@ class PrimeFieldGpuDebug final
     return ret;
   }
 
+  constexpr static PrimeFieldGpuDebug MinusOne() {
+    PrimeFieldGpuDebug ret{};
+    ret.value_ = Config::kMinusOne;
+    return ret;
+  }
+
   static PrimeFieldGpuDebug Random() {
     PrimeFieldGpuDebug ret{};
     ret.value_ = PrimeField<Config>::Random().value();

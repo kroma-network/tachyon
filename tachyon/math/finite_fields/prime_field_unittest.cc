@@ -45,6 +45,7 @@ TYPED_TEST(PrimeFieldTest, Zero) {
 
   EXPECT_TRUE(F::Zero().IsZero());
   EXPECT_FALSE(F::One().IsZero());
+  EXPECT_FALSE(F::MinusOne().IsZero());
 }
 
 TYPED_TEST(PrimeFieldTest, One) {
@@ -52,7 +53,16 @@ TYPED_TEST(PrimeFieldTest, One) {
 
   EXPECT_TRUE(F::One().IsOne());
   EXPECT_FALSE(F::Zero().IsOne());
+  EXPECT_FALSE(F::MinusOne().IsOne());
   EXPECT_EQ(F::Config::kOne, F(1).value());
+}
+
+TYPED_TEST(PrimeFieldTest, MinusOne) {
+  using F = TypeParam;
+
+  EXPECT_TRUE(F::MinusOne().IsMinusOne());
+  EXPECT_FALSE(F::Zero().IsMinusOne());
+  EXPECT_FALSE(F::One().IsMinusOne());
 }
 
 TYPED_TEST(PrimeFieldTest, BigIntConversion) {

@@ -30,6 +30,16 @@ CLASS CLASS::One() {
 
 // static
 template <typename Config>
+CLASS CLASS::MinusOne() {
+#if USE_MONTGOMERY == 1
+  return PrimeField::FromMontgomery(Config::kMinusOne[0]);
+#else
+  return PrimeField(Config::kModulus[0] - 1);
+#endif
+}
+
+// static
+template <typename Config>
 CLASS CLASS::Random() {
   return PrimeField(
       ::Goldilocks::fromU64(
@@ -87,6 +97,15 @@ template <typename Config>
 bool CLASS::IsOne() const {
   return ::Goldilocks::isOne(
       reinterpret_cast<const ::Goldilocks::Element&>(value_));
+}
+
+template <typename Config>
+bool CLASS::IsMinusOne() const {
+#if USE_MONTGOMERY == 1
+  return value_ == Config::kMinusOne[0];
+#else
+  return value_ == Config::kModulus[0] - 1;
+#endif
 }
 
 template <typename Config>

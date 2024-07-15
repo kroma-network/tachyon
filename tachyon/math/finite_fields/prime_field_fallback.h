@@ -66,6 +66,12 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
     return ret;
   }
 
+  constexpr static PrimeField MinusOne() {
+    PrimeField ret{};
+    ret.value_ = Config::kMinusOne;
+    return ret;
+  }
+
   static PrimeField Random() {
     return PrimeField(BigInt<N>::Random(Config::kModulus));
   }
@@ -117,6 +123,13 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   constexpr bool IsOne() const {
     for (size_t i = 0; i < N; ++i) {
       if (value_[i] != Config::kOne[i]) return false;
+    }
+    return true;
+  }
+
+  constexpr bool IsMinusOne() const {
+    for (size_t i = 0; i < N; ++i) {
+      if (value_[i] != Config::kMinusOne[i]) return false;
     }
     return true;
   }

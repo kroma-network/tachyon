@@ -38,6 +38,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsTachyonMathGoldilocks>>
 
   constexpr static PrimeField Zero() { return PrimeField(); }
   static PrimeField One();
+  static PrimeField MinusOne();
   static PrimeField Random();
 
   static std::optional<PrimeField> FromDecString(std::string_view str);
@@ -55,6 +56,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsTachyonMathGoldilocks>>
 
   bool IsZero() const;
   bool IsOne() const;
+  bool IsMinusOne() const;
 
   std::string ToString() const;
   std::string ToHexString(bool pad_zero = false) const;

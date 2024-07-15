@@ -47,6 +47,13 @@ TACHYON_C_EXPORT tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_zero();
 TACHYON_C_EXPORT tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_one();
 
 /**
+ * @brief Returns an Fq%{degree} element with the value minus one.
+ *
+ * @return An Fq%{degree} element representing minus one.
+ */
+TACHYON_C_EXPORT tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_minus_one();
+
+/**
  * @brief Generates a random Fq%{degree} element.
  *
  * @return A randomly generated Fq%{degree} element.

@@ -57,6 +57,11 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
     ret.value_ = Config::kOne;
     return ret;
   }
+  constexpr static PrimeField MinusOne() {
+    PrimeField ret{};
+    ret.value_ = Config::kMinusOne;
+    return ret;
+  }
 
   static PrimeField Random() {
     return PrimeField(
@@ -99,6 +104,8 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
   constexpr bool IsZero() const { return value_ == 0; }
 
   constexpr bool IsOne() const { return value_ == Config::kOne; }
+
+  constexpr bool IsMinusOne() const { return value_ == Config::kMinusOne; }
 
   std::string ToString() const {
     return base::NumberToString(Config::FromMontgomery(value_));

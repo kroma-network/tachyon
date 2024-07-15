@@ -35,6 +35,11 @@ TEST_F(PrimeFieldTest, One) {
   EXPECT_TRUE(c::base::native_cast(c_ret).IsOne());
 }
 
+TEST_F(PrimeFieldTest, MinusOne) {
+  tachyon_bn254_fr c_ret = tachyon_bn254_fr_minus_one();
+  EXPECT_TRUE(c::base::native_cast(c_ret).IsMinusOne());
+}
+
 TEST_F(PrimeFieldTest, Random) {
   tachyon_bn254_fr c_ret = tachyon_bn254_fr_random();
   EXPECT_NE(c::base::native_cast(c_ret), a_);

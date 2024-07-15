@@ -19,11 +19,19 @@ class QuaticExtensionFieldTest : public FiniteFieldTest<F4> {};
 TEST_F(QuaticExtensionFieldTest, Zero) {
   EXPECT_TRUE(F4::Zero().IsZero());
   EXPECT_FALSE(F4::One().IsZero());
+  EXPECT_FALSE(F4::MinusOne().IsZero());
 }
 
 TEST_F(QuaticExtensionFieldTest, One) {
   EXPECT_TRUE(F4::One().IsOne());
   EXPECT_FALSE(F4::Zero().IsOne());
+  EXPECT_FALSE(F4::MinusOne().IsOne());
+}
+
+TEST_F(QuaticExtensionFieldTest, MinusOne) {
+  EXPECT_TRUE(F4::MinusOne().IsMinusOne());
+  EXPECT_FALSE(F4::Zero().IsMinusOne());
+  EXPECT_FALSE(F4::One().IsMinusOne());
 }
 
 TEST_F(QuaticExtensionFieldTest, Random) {

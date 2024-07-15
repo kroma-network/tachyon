@@ -17,6 +17,7 @@ uint32x4_t kP;
 uint32x4_t kInv;
 uint32x4_t kZero;
 uint32x4_t kOne;
+uint32x4_t kMinusOne;
 
 uint32x4_t ToVector(const PackedKoalaBearNeon& packed) {
   return vld1q_u32(reinterpret_cast<const uint32_t*>(packed.values().data()));
@@ -55,6 +56,7 @@ void PackedKoalaBearNeon::Init() {
   kInv = vdupq_n_u32(KoalaBear::Config::kInverse32);
   kZero = vdupq_n_u32(0);
   kOne = vdupq_n_u32(KoalaBear::Config::kOne);
+  kMinusOne = vdupq_n_u32(KoalaBear::Config::kMinusOne);
 }
 
 // static
@@ -62,6 +64,11 @@ PackedKoalaBearNeon PackedKoalaBearNeon::Zero() { return FromVector(kZero); }
 
 // static
 PackedKoalaBearNeon PackedKoalaBearNeon::One() { return FromVector(kOne); }
+
+// static
+PackedKoalaBearNeon PackedKoalaBearNeon::MinusOne() {
+  return FromVector(kMinusOne);
+}
 
 // static
 PackedKoalaBearNeon PackedKoalaBearNeon::Broadcast(const PrimeField& value) {

@@ -16,6 +16,13 @@ tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_one() {
   return c_cast(NativeType::One());
 }
 
+tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_minus_one() {
+  using namespace tachyon::c::base;
+  using NativeType =
+      typename TypeTraits<tachyon_%{type}_fq%{degree}>::NativeType;
+  return c_cast(NativeType::MinusOne());
+}
+
 tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_random() {
   using namespace tachyon::c::base;
   using NativeType =

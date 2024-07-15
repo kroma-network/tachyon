@@ -16,11 +16,19 @@ class CubicExtensionFieldTest : public FiniteFieldTest<GF7_3> {};
 TEST_F(CubicExtensionFieldTest, Zero) {
   EXPECT_TRUE(GF7_3::Zero().IsZero());
   EXPECT_FALSE(GF7_3::One().IsZero());
+  EXPECT_FALSE(GF7_3::MinusOne().IsZero());
 }
 
 TEST_F(CubicExtensionFieldTest, One) {
   EXPECT_TRUE(GF7_3::One().IsOne());
   EXPECT_FALSE(GF7_3::Zero().IsOne());
+  EXPECT_FALSE(GF7_3::MinusOne().IsOne());
+}
+
+TEST_F(CubicExtensionFieldTest, MinusOne) {
+  EXPECT_FALSE(GF7_3::One().IsMinusOne());
+  EXPECT_FALSE(GF7_3::Zero().IsMinusOne());
+  EXPECT_TRUE(GF7_3::MinusOne().IsMinusOne());
 }
 
 TEST_F(CubicExtensionFieldTest, Random) {

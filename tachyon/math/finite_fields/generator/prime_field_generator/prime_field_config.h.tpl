@@ -58,6 +58,10 @@ class TACHYON_EXPORT %{class}Config {
     %{one}
   });
 
+  constexpr static BigInt<%{n}> kMinusOne = BigInt<%{n}>({
+    %{minus_one}
+  });
+
   constexpr static bool kHasTwoAdicRootOfUnity = %{has_two_adic_root_of_unity};
 
   constexpr static bool kHasLargeSubgroupRootOfUnity = %{has_large_subgroup_root_of_unity};

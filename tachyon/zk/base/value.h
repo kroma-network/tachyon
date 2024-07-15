@@ -30,6 +30,8 @@ class Value : public math::Field<Value<T>> {
 
   constexpr static Value One() { return Value(T::One()); }
 
+  constexpr static Value MinusOne() { return Value(T::MinusOne()); }
+
   static Value Random() { return Value(T::Random()); }
 
   constexpr bool IsZero() const {
@@ -40,6 +42,11 @@ class Value : public math::Field<Value<T>> {
   constexpr bool IsOne() const {
     if (IsNone()) return false;
     return value_->IsOne();
+  }
+
+  constexpr bool IsMinusOne() const {
+    if (IsNone()) return false;
+    return value_->IsMinusOne();
   }
 
   constexpr bool IsNone() const { return !value_.has_value(); }

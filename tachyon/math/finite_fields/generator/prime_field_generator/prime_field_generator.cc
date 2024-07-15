@@ -214,8 +214,11 @@ int GenerationConfig::GenerateConfigHdr() const {
   replacements["%{use_montgomery}"] = base::BoolToString(use_montgomery);
   if (use_montgomery) {
     replacements["%{one}"] = math::MpzClassToMontString(mpz_class(1), m);
+    replacements["%{minus_one}"] =
+        math::MpzClassToMontString(m - mpz_class(1), m);
   } else {
     replacements["%{one}"] = "1";
+    replacements["%{minus_one}"] = math::MpzClassToString(m - mpz_class(1));
   }
 
   std::string tpl_content;

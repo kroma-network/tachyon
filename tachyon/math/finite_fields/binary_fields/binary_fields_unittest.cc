@@ -47,13 +47,22 @@ TYPED_TEST(BinaryFieldsTest, Zero) {
   using BinaryField = TypeParam;
   EXPECT_TRUE(BinaryField::Zero().IsZero());
   EXPECT_FALSE(BinaryField::One().IsZero());
+  EXPECT_FALSE(BinaryField::MinusOne().IsZero());
 }
 
 TYPED_TEST(BinaryFieldsTest, One) {
   using BinaryField = TypeParam;
   EXPECT_TRUE(BinaryField::One().IsOne());
   EXPECT_FALSE(BinaryField::Zero().IsOne());
+  EXPECT_TRUE(BinaryField::MinusOne().IsOne());
   EXPECT_EQ(BinaryField::Config::kOne, BinaryField(1).value());
+}
+
+TYPED_TEST(BinaryFieldsTest, MinusOne) {
+  using BinaryField = TypeParam;
+  EXPECT_TRUE(BinaryField::MinusOne().IsMinusOne());
+  EXPECT_FALSE(BinaryField::Zero().IsMinusOne());
+  EXPECT_TRUE(BinaryField::One().IsMinusOne());
 }
 
 TYPED_TEST(BinaryFieldsTest, BigIntConversion) {

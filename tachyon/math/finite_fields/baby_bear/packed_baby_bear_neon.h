@@ -44,6 +44,8 @@ class TACHYON_EXPORT PackedBabyBearNeon final
 
   static PackedBabyBearNeon One();
 
+  static PackedBabyBearNeon MinusOne();
+
   static PackedBabyBearNeon Broadcast(const PrimeField& value);
 
   // AdditiveSemigroup methods

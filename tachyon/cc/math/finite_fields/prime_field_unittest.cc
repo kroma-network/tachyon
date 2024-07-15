@@ -37,6 +37,11 @@ TEST_F(PrimeFieldTest, One) {
   EXPECT_TRUE(c::base::native_cast(one.value()).IsOne());
 }
 
+TEST_F(PrimeFieldTest, MinusOne) {
+  bn254::Fr minus_one = bn254::Fr::MinusOne();
+  EXPECT_TRUE(c::base::native_cast(minus_one.value()).IsMinusOne());
+}
+
 TEST_F(PrimeFieldTest, Random) {
   bn254::Fr random = bn254::Fr::Random();
   EXPECT_NE(c::base::native_cast(random.value()), a_);

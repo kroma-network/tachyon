@@ -56,6 +56,11 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
             BaseField::Zero()};
   }
 
+  constexpr static Derived MinusOne() {
+    return {BaseField::MinusOne(), BaseField::Zero(), BaseField::Zero(),
+            BaseField::Zero()};
+  }
+
   static Derived Random() {
     return {BaseField::Random(), BaseField::Random(), BaseField::Random(),
             BaseField::Random()};
@@ -91,6 +96,10 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
 
   constexpr bool IsOne() const {
     return c0_.IsOne() && c1_.IsZero() && c2_.IsZero() && c3_.IsZero();
+  }
+
+  constexpr bool IsMinusOne() const {
+    return c0_.IsMinusOne() && c1_.IsZero() && c2_.IsZero() && c3_.IsZero();
   }
 
   constexpr static uint64_t ExtensionDegree() {

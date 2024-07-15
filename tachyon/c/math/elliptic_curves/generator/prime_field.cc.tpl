@@ -15,6 +15,12 @@ tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_one() {
   return c_cast(NativeType::One());
 }
 
+tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_minus_one() {
+  using namespace tachyon::c::base;
+  using NativeType = typename TypeTraits<tachyon_%{type}_%{suffix}>::NativeType;
+  return c_cast(NativeType::MinusOne());
+}
+
 tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_random() {
   using namespace tachyon::c::base;
   using NativeType = typename TypeTraits<tachyon_%{type}_%{suffix}>::NativeType;
