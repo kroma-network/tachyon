@@ -24,9 +24,9 @@ TEST_F(RationalFieldTest, Zero) {
 }
 
 TEST_F(RationalFieldTest, One) {
-  EXPECT_TRUE(R::Zero().IsZero());
-  EXPECT_FALSE(R::One().IsZero());
-  EXPECT_FALSE(R(GF7(3), GF7(3)).IsZero());
+  EXPECT_TRUE(R::One().IsOne());
+  EXPECT_FALSE(R::Zero().IsOne());
+  EXPECT_TRUE(R(GF7(3), GF7(3)).IsOne());
 }
 
 TEST_F(RationalFieldTest, Random) {
