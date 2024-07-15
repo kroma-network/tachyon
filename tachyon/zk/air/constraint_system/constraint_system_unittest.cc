@@ -68,6 +68,7 @@ TEST_F(ConstraintSystemTest, FibonacciAirTest) {
   bool is_satisfied =
       constraint_system.IsSatisfied(evaluator, public_values, trace);
   EXPECT_TRUE(is_satisfied);
+  EXPECT_EQ(constraint_system.GetMaxConstraintDegree(), 2);
 }
 
 TEST_F(ConstraintSystemTest, PreprocessedAirTest) {

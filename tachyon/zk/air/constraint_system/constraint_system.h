@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+#include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -72,6 +73,14 @@ class ConstraintSystem {
       }
     }
     return true;
+  }
+
+  size_t GetMaxConstraintDegree() const {
+    size_t degree = 0;
+    for (const std::unique_ptr<Expression<F>>& constraint : constraints_) {
+      degree = std::max(degree, constraint->Degree());
+    }
+    return degree;
   }
 
  private:
