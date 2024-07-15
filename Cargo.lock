@@ -1671,7 +1671,7 @@ dependencies = [
 [[package]]
 name = "halo2_proofs"
 version = "1.1.0"
-source = "git+https://github.com/kroma-network/halo2.git?branch=scroll-halo2-v1.1-with-tachyon-without-cxx#b95cf98d2a5106fe6ed45bc73d2c7b3b387e7f2f"
+source = "git+https://github.com/kroma-network/halo2.git?rev=b95cf98#b95cf98d2a5106fe6ed45bc73d2c7b3b387e7f2f"
 dependencies = [
  "ark-std 0.3.0",
  "blake2b_simd",
@@ -4309,7 +4309,7 @@ dependencies = [
  "cxx",
  "digest 0.10.7",
  "ff 0.13.0",
- "halo2_proofs 1.1.0 (git+https://github.com/kroma-network/halo2.git?branch=scroll-halo2-v1.1-with-tachyon-without-cxx)",
+ "halo2_proofs 1.1.0 (git+https://github.com/kroma-network/halo2.git?rev=b95cf98)",
  "halo2curves",
  "log",
  "num-bigint 0.4.5",
