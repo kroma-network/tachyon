@@ -161,9 +161,9 @@ Tachyon can be built in your own Bazel project with the following two simple ste
 First, obtain the Tachyon code from a specific commit hash and get a SHA256 value from the fetched code through these commands:
 
 ```shell
-wget https://github.com/kroma-network/tachyon/archive/79ec2875bdc6fce62e490c845b44477b15df45ec.tar.gz
+wget https://github.com/kroma-network/tachyon/archive/d056e1c61622e8788ae558c7fd4c19415fe7a7e8.tar.gz
 
-shasum -a 256 79ec2875bdc6fce62e490c845b44477b15df45ec.tar.gz
+shasum -a 256 d056e1c61622e8788ae558c7fd4c19415fe7a7e8.tar.gz
 ```
 
 Second, input the shasum output into your `WORKSPACE` file as the `sha256` argument like shown below:
@@ -174,9 +174,9 @@ Second, input the shasum output into your `WORKSPACE` file as the `sha256` argum
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "kroma_network_tachyon",
-    sha256 = "a37fba8082a2c27a4a2f09255cf6c2693836dccbb8a8cea7e327d860115ffd30",
-    strip_prefix = "tachyon-79ec2875bdc6fce62e490c845b44477b15df45ec",
-    urls = ["https://github.com/kroma-network/tachyon/archive/79ec2875bdc6fce62e490c845b44477b15df45ec.tar.gz"],
+    sha256 = "aae28c7853dff4bb91f60aa7cbd17f26e4014bbe67d8853d6e2012d61c7e3715",
+    strip_prefix = "tachyon-d056e1c61622e8788ae558c7fd4c19415fe7a7e8",
+    urls = ["https://github.com/kroma-network/tachyon/archive/d056e1c61622e8788ae558c7fd4c19415fe7a7e8.tar.gz"],
 )
 ```
 
