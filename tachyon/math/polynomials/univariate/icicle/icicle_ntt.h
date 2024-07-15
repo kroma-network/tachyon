@@ -8,11 +8,22 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/device/gpu/gpu_device_functions.h"
+#include "tachyon/export.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
+
+struct TACHYON_EXPORT IcicleNTTOptions {
+  bool fast_twiddles_mode = true;
+  int batch_size = 1;
+  bool columns_batch = false;
+  ::ntt::Ordering ordering = ::ntt::Ordering::kNN;
+  bool are_inputs_on_device = false;
+  bool are_outputs_on_device = false;
+  bool is_async = false;
+};
 
 template <typename F>
 class IcicleNTT {
@@ -27,7 +38,8 @@ class IcicleNTT {
   IcicleNTT& operator=(const IcicleNTT& other) = delete;
   ~IcicleNTT() { CHECK(Release()); }
 
-  [[nodiscard]] bool Init(const F& group_gen) {
+  [[nodiscard]] bool Init(const F& group_gen, const IcicleNTTOptions& options =
+                                                  IcicleNTTOptions()) {
     NOTIMPLEMENTED();
     return true;
   }
@@ -65,7 +77,8 @@ class IcicleNTT {
 };
 
 template <>
-bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen);
+bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
+                                const IcicleNTTOptions& options);
 
 template <>
 bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,

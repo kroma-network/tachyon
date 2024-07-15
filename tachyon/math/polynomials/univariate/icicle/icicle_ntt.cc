@@ -9,7 +9,8 @@
 namespace tachyon::math {
 
 template <>
-bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen) {
+bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
+                                const IcicleNTTOptions& options) {
 #if FIELD_ID != BN254
 #error Only Bn254 is supported
 #endif
@@ -24,19 +25,19 @@ bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen) {
   //    https://github.com/ingonyama-zk/icicle/blob/4fef5423462a72a37fe66cee89e24eae083cc112/icicle/include/ntt/ntt.cuh#L26-L40.
   gpuError_t error = tachyon_bn254_initialize_domain(
       reinterpret_cast<const ::bn254::scalar_t&>(group_gen_big_int), ctx,
-      /*fast_twiddles_mode=*/true);
+      options.fast_twiddles_mode);
   if (error != gpuSuccess) return false;
   VLOG(1) << "IcicleNTT is initialized";
 
   config_.reset(new ::ntt::NTTConfig<bn254::Fr>{
       ctx,
       base::bit_cast<bn254::Fr>(::bn254::scalar_t::one()),
-      /*batch_size=*/1,
-      /*columns_batch=*/false,
-      /*ordering=*/::ntt::Ordering::kNN,
-      /*are_inputs_on_device=*/false,
-      /*are_outputs_on_device=*/false,
-      /*is_async=*/false,
+      options.batch_size,
+      options.columns_batch,
+      options.ordering,
+      options.are_inputs_on_device,
+      options.are_outputs_on_device,
+      options.is_async,
       /*ntt_algorithm=*/::ntt::NttAlgorithm::Auto,
   });
   return true;
