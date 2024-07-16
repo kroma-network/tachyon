@@ -166,7 +166,10 @@ void CreateProof(const base::FilePath& zkey_path,
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> prepared_verifying_key =
         std::move(proving_key).TakeVerifyingKey().ToPreparedVerifyingKey();
     CHECK(zk::r1cs::groth16::VerifyProof(prepared_verifying_key, proof,
-                                         public_inputs));
+                                         public_inputs))
+        << "If you see this error with `--config cuda`, it means your GPU "
+           "doesn't have enough RAM for Icicle. Try running it with a GPU with "
+           "more RAM.";
     end = base::TimeTicks::Now();
     std::cout << "Time taken for verifying: " << end - start << std::endl;
   }
@@ -240,6 +243,16 @@ int RealMain(int argc, char** argv) {
     tachyon_cerr << "BLS12_381 curve is not supported on CUDA" << std::endl;
     return 1;
   }
+
+  if (!options.verify) {
+    std::cout << "Icicle MSM/NTT may produce incorrect results without any "
+                 "error if the polynomial degree is too high relative to the "
+                 "GPU RAM size. This may be resolved in the future release of "
+                 "the Icicle. In the meantime, please run with --verify to "
+                 "ensure the accuracy of the results."
+              << std::endl;
+  }
+
 #endif
   if (options.num_runs == 0) {
     tachyon_cerr << "num_runs should be positive" << std::endl;
