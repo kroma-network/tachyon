@@ -1,4 +1,9 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_benchmark",
+    "tachyon_cc_library",
+    "tachyon_cc_unittest",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -13,6 +18,15 @@ tachyon_cc_library(
     deps = [
         "@eigen_archive//:eigen3",
         "@local_config_gmp//:gmp",
+    ],
+)
+
+tachyon_cc_library(
+    name = "matrix_operations",
+    hdrs = ["matrix_operations.h"],
+    deps = [
+        ":matrix_types",
+        "//tachyon/base:openmp_util",
     ],
 )
 
@@ -55,10 +69,12 @@ tachyon_cc_unittest(
     name = "matrix_unittests",
     srcs = [
         "matrix_inverse_unittest.cc",
+        "matrix_operations_unittest.cc",
         "matrix_types_unittest.cc",
         "matrix_utils_unittest.cc",
     ],
     deps = [
+        ":matrix_operations",
         ":matrix_types",
         ":matrix_utils",
         "//tachyon/base/buffer:vector_buffer",
@@ -66,5 +82,15 @@ tachyon_cc_unittest(
         "//tachyon/math/finite_fields/baby_bear:packed_baby_bear",
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
+    ],
+)
+
+tachyon_cc_benchmark(
+    name = "matrix_operations_benchmark",
+    srcs = ["matrix_operations_benchmark.cc"],
+    deps = [
+        ":matrix_operations",
+        ":matrix_types",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
     ],
 )

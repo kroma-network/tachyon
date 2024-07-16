@@ -10,6 +10,7 @@ tachyon_cc_library(
         ":poseidon_sponge_base",
         "//tachyon/base/buffer:copyable",
         "//tachyon/crypto/hashes/sponge:sponge_state",
+        "//tachyon/math/matrix:matrix_operations",
     ],
 )
 
