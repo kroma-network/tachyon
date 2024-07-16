@@ -6,7 +6,6 @@
 #ifndef VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_QUADRATIC_ARITHMETIC_PROGRAM_H_
 #define VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_QUADRATIC_ARITHMETIC_PROGRAM_H_
 
-#include <memory>
 #include <utility>
 #include <vector>
 
@@ -20,13 +19,6 @@ template <typename F>
 class QuadraticArithmeticProgram {
  public:
   QuadraticArithmeticProgram() = delete;
-
-  template <typename Domain>
-  static zk::r1cs::QAPInstanceMapResult<F> InstanceMap(
-      const Domain* domain, const zk::r1cs::ConstraintSystem<F>& cs,
-      const F& x) {
-    return zk::r1cs::QuadraticArithmeticProgram<F>::InstanceMap(domain, cs, x);
-  }
 
   template <typename Domain>
   static std::vector<F> WitnessMapFromMatrices(
@@ -96,26 +88,6 @@ class QuadraticArithmeticProgram {
     }
 
     return std::move(a_evals).TakeEvaluations();
-  }
-
-  template <typename Domain>
-  static std::vector<F> ComputeHQuery(const Domain* domain, const F& t_x,
-                                      const F& x, const F& delta_inverse) {
-    using Evals = typename Domain::Evals;
-    using DensePoly = typename Domain::DensePoly;
-
-    // The usual H query has domain - 1 powers. Z has domain powers. So HZ has
-    // 2 * domain - 1 powers.
-    std::unique_ptr<Domain> extended_domain =
-        Domain::Create(domain->size() * 2 + 1);
-    Evals evals(
-        F::GetSuccessivePowers(extended_domain->size(), t_x, delta_inverse));
-    DensePoly poly = extended_domain->IFFT(std::move(evals));
-    std::vector<F> ret(domain->size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
-      ret[i] = poly[2 * i + 1];
-    }
-    return ret;
   }
 };
 
