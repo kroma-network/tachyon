@@ -33,14 +33,14 @@ struct tachyon_%{type}_fq%{degree} {
 %{extern_c_front}
 
 /**
- * @brief Initializes an Fq%{degree} element to zero.
+ * @brief Returns an Fq%{degree} element with the value zero.
  *
  * @return An Fq%{degree} element representing zero.
  */
 TACHYON_C_EXPORT tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_zero();
 
 /**
- * @brief Initializes an Fq%{degree} element to one.
+ * @brief Returns an Fq%{degree} element with the value one.
  *
  * @return An Fq%{degree} element representing one.
  */
