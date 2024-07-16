@@ -12,8 +12,19 @@
 namespace tachyon {
 namespace math {
 
+// See
+// https://gitlab.com/libeigen/eigen/-/blob/c29c800126982c561e8d0b9255dc65474cd98de3/Eigen/src/Core/util/ForwardDeclarations.h#L66-68.
+template <int Rows, int Cols>
+constexpr int GetDefaultEigenOptions() {
+  return Eigen::AutoAlign | ((Rows == 1 && Cols != 1) ? Eigen::RowMajor
+                             : (Cols == 1 && Rows != 1)
+                                 ? Eigen::ColMajor
+                                 : EIGEN_DEFAULT_MATRIX_STORAGE_ORDER_OPTION);
+}
+
 template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
-          int Options = 0, int MaxRows = Rows, int MaxCols = Cols>
+          int Options = GetDefaultEigenOptions<Rows, Cols>(),
+          int MaxRows = Rows, int MaxCols = Cols>
 using Matrix = Eigen::Matrix<Field, Rows, Cols, Options, MaxRows, MaxCols>;
 
 template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
@@ -29,12 +40,12 @@ using RowMajorMatrix =
 template <typename Field, int Size = Eigen::Dynamic, int MaxSize = Size>
 using DiagonalMatrix = Eigen::DiagonalMatrix<Field, Size, MaxSize>;
 
-template <typename Field, int Rows = Eigen::Dynamic, int Options = 0,
-          int MaxRows = Rows>
+template <typename Field, int Rows = Eigen::Dynamic,
+          int Options = GetDefaultEigenOptions<Rows, 1>(), int MaxRows = Rows>
 using Vector = Eigen::Matrix<Field, Rows, 1, Options, MaxRows, 1>;
 
-template <typename Field, int Cols = Eigen::Dynamic, int Options = 0,
-          int MaxCols = Cols>
+template <typename Field, int Cols = Eigen::Dynamic,
+          int Options = GetDefaultEigenOptions<1, Cols>(), int MaxCols = Cols>
 using RowVector = Eigen::Matrix<Field, 1, Cols, Options, 1, MaxCols>;
 
 }  // namespace math
