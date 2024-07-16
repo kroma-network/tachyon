@@ -6,10 +6,10 @@
 #ifndef VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_QUADRATIC_ARITHMETIC_PROGRAM_H_
 #define VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_QUADRATIC_ARITHMETIC_PROGRAM_H_
 
-#include <memory>
 #include <utility>
 #include <vector>
 
+#include "circomlib/zkey/coefficient.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/r1cs/constraint_system/quadratic_arithmetic_program.h"
 
@@ -21,54 +21,45 @@ class QuadraticArithmeticProgram {
   QuadraticArithmeticProgram() = delete;
 
   template <typename Domain>
-  static zk::r1cs::QAPInstanceMapResult<F> InstanceMap(
-      const Domain* domain, const zk::r1cs::ConstraintSystem<F>& cs,
-      const F& x) {
-    return zk::r1cs::QuadraticArithmeticProgram<F>::InstanceMap(domain, cs, x);
-  }
-
-  template <typename Domain>
   static std::vector<F> WitnessMapFromMatrices(
-      const Domain* domain, const zk::r1cs::ConstraintMatrices<F>& matrices,
+      const Domain* domain, absl::Span<const Coefficient<F>> coefficients,
       absl::Span<const F> full_assignments) {
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
-
-    CHECK_GE(domain->size(), matrices.num_constraints);
 
     std::vector<F> a(domain->size());
     std::vector<F> b(domain->size());
     std::vector<F> c(domain->size());
 
-    // clang-format off
-    // |a[i]| = Σⱼ₌₀..ₘ (xⱼ * Aᵢ,ⱼ)    (if i < |num_constraints|)
-    //        = x[i - num_constraints] (otherwise)
-    // |b[i]| = Σⱼ₌₀..ₘ (xⱼ * Bᵢ,ⱼ)    (if i < |num_constraints|)
-    //        = 0                      (otherwise)
-    // |c[i]| = |a[i]|* |b[i]|         (if i < |num_constraints|)
-    //        = 0                      (otherwise)
-    // where x is |full_assignments|.
-    // clang-format on
-    OMP_PARALLEL {
-      OMP_FOR_NOWAIT
-      for (size_t i = 0; i < matrices.num_constraints; ++i) {
-        a[i] = zk::r1cs::EvaluateConstraint(matrices.a[i], full_assignments);
-      }
+    // See
+    // https://github.com/iden3/rapidsnark/blob/b17e6fed08e9ceec3518edeffe4384313f91e9ad/src/groth16.cpp#L116-L156.
+#if defined(TACHYON_HAS_OPENMP)
+    constexpr size_t kNumLocks = 1024;
+    omp_lock_t locks[kNumLocks];
+    for (size_t i = 0; i < kNumLocks; i++) omp_init_lock(&locks[i]);
+#endif
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < coefficients.size(); i++) {
+      const Coefficient<F>& c = coefficients[i];
+      std::vector<F>& ab = (c.matrix == 0) ? a : b;
 
-      OMP_FOR
-      for (size_t i = 0; i < matrices.num_constraints; ++i) {
-        b[i] = zk::r1cs::EvaluateConstraint(matrices.b[i], full_assignments);
+#if defined(TACHYON_HAS_OPENMP)
+      omp_set_lock(&locks[c.constraint % kNumLocks]);
+#endif
+      if (c.value.IsOne()) {
+        ab[c.constraint] += full_assignments[c.signal];
+      } else {
+        ab[c.constraint] += c.value * full_assignments[c.signal];
       }
-
-      OMP_FOR
-      for (size_t i = 0; i < matrices.num_constraints; ++i) {
-        c[i] = a[i] * b[i];
-      }
+#if defined(TACHYON_HAS_OPENMP)
+      omp_unset_lock(&locks[c.constraint % kNumLocks]);
+#endif
     }
+#if defined(TACHYON_HAS_OPENMP)
+    for (size_t i = 0; i < kNumLocks; i++) omp_destroy_lock(&locks[i]);
+#endif
 
-    for (size_t i = matrices.num_constraints;
-         i < matrices.num_constraints + matrices.num_instance_variables; ++i) {
-      a[i] = full_assignments[i - matrices.num_constraints];
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
+      c[i] = a[i] * b[i];
     }
 
     Evals a_evals(std::move(a));
@@ -79,11 +70,8 @@ class QuadraticArithmeticProgram {
     DensePoly c_poly = domain->IFFT(std::move(c_evals));
 
     F root_of_unity;
-    {
-      std::unique_ptr<Domain> extended_domain =
-          Domain::Create(2 * domain->size());
-      root_of_unity = extended_domain->GetElement(1);
-    }
+    CHECK(F::GetRootOfUnity(2 * domain->size(), &root_of_unity));
+
     Domain::DistributePowers(a_poly, root_of_unity);
     Domain::DistributePowers(b_poly, root_of_unity);
     Domain::DistributePowers(c_poly, root_of_unity);
@@ -100,26 +88,6 @@ class QuadraticArithmeticProgram {
     }
 
     return std::move(a_evals).TakeEvaluations();
-  }
-
-  template <typename Domain>
-  static std::vector<F> ComputeHQuery(const Domain* domain, const F& t_x,
-                                      const F& x, const F& delta_inverse) {
-    using Evals = typename Domain::Evals;
-    using DensePoly = typename Domain::DensePoly;
-
-    // The usual H query has domain - 1 powers. Z has domain powers. So HZ has
-    // 2 * domain - 1 powers.
-    std::unique_ptr<Domain> extended_domain =
-        Domain::Create(domain->size() * 2 + 1);
-    Evals evals(
-        F::GetSuccessivePowers(extended_domain->size(), t_x, delta_inverse));
-    DensePoly poly = extended_domain->IFFT(std::move(evals));
-    std::vector<F> ret(domain->size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
-      ret[i] = poly[2 * i + 1];
-    }
-    return ret;
   }
 };
 
