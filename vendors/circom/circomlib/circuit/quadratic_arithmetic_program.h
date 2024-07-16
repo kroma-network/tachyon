@@ -78,11 +78,8 @@ class QuadraticArithmeticProgram {
     DensePoly c_poly = domain->IFFT(std::move(c_evals));
 
     F root_of_unity;
-    {
-      std::unique_ptr<Domain> extended_domain =
-          Domain::Create(2 * domain->size());
-      root_of_unity = extended_domain->GetElement(1);
-    }
+    CHECK(F::GetRootOfUnity(2 * domain->size(), &root_of_unity));
+
     Domain::DistributePowers(a_poly, root_of_unity);
     Domain::DistributePowers(b_poly, root_of_unity);
     Domain::DistributePowers(c_poly, root_of_unity);
