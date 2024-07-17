@@ -20,6 +20,7 @@ tachyon_cc_library(
     deps = [
         ":poseidon_config_base",
         ":poseidon_config_entry",
+        ":sparse_mds_matrix",
         "//tachyon/base:optional",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/ranges:algorithm",
