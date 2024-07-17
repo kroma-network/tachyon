@@ -38,7 +38,7 @@ class PoseidonBenchmarkRunner {
       crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
           crypto::Poseidon2HorizenExternalMatrix<Field>>>
           sponge(config);
-      crypto::SpongeState<Field> state;
+      crypto::SpongeState<Field> state(config);
       base::TimeTicks start = base::TimeTicks::Now();
       sponge.Permute(state);
       reporter_->AddTime(i, (base::TimeTicks::Now() - start).InSecondsF());
