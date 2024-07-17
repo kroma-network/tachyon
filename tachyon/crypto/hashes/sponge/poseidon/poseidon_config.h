@@ -26,7 +26,7 @@ namespace crypto {
 // for each round. It ensures that the sum of the vector's weight before and
 // after the MDS is at least |state| + 1.
 template <typename F>
-void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
+void FindPoseidonARKAndMDS(const PoseidonGrainLFSRConfig& config,
                            size_t skip_matrices, math::Matrix<F>& ark,
                            math::Matrix<F>& mds) {
   PoseidonGrainLFSR<F> lfsr(config);
@@ -79,7 +79,7 @@ struct PoseidonConfig : public PoseidonConfigBase<F> {
                                     });
     CHECK_NE(it, param_set.end());
     PoseidonConfig ret = it->template ToPoseidonConfig<F>();
-    FindPoseidonArkAndMds<F>(it->template ToPoseidonGrainLFSRConfig<F>(),
+    FindPoseidonARKAndMDS<F>(it->template ToPoseidonGrainLFSRConfig<F>(),
                              it->skip_matrices, ret.ark, ret.mds);
     return ret;
   }
@@ -91,7 +91,7 @@ struct PoseidonConfig : public PoseidonConfigBase<F> {
     PoseidonConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds,
                                      skip_matrices);
     PoseidonConfig ret = config_entry.ToPoseidonConfig<F>();
-    FindPoseidonArkAndMds<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(),
+    FindPoseidonARKAndMDS<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(),
                              skip_matrices, ret.ark, ret.mds);
     return ret;
   }
