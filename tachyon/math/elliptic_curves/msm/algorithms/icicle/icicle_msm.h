@@ -100,7 +100,9 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(const BaseContainer& cpu_bases,
       bases_size, *config_, &ret);
   if (error != gpuSuccess) return false;
   ret = ::bn254::projective_t::to_montgomery(ret);
-  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(ret);
+  *cpu_result = {base::bit_cast<bn254::Fq>(ret.x.limbs_storage),
+                 base::bit_cast<bn254::Fq>(ret.y.limbs_storage),
+                 base::bit_cast<bn254::Fq>(ret.z.limbs_storage)};
   return true;
 }
 
@@ -128,9 +130,14 @@ bool IcicleMSM<bn254::G2AffinePoint>::Run(const BaseContainer& cpu_bases,
       bases_size, *config_, &ret);
   if (error != gpuSuccess) return false;
   ret = ::bn254::g2_projective_t::to_montgomery(ret);
-  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(ret);
+  *cpu_result = {{base::bit_cast<bn254::Fq>(ret.x.real.limbs_storage),
+                  base::bit_cast<bn254::Fq>(ret.x.imaginary.limbs_storage)},
+                 {base::bit_cast<bn254::Fq>(ret.y.real.limbs_storage),
+                  base::bit_cast<bn254::Fq>(ret.y.imaginary.limbs_storage)},
+                 {base::bit_cast<bn254::Fq>(ret.z.real.limbs_storage),
+                  base::bit_cast<bn254::Fq>(ret.z.imaginary.limbs_storage)}};
   return true;
-}
+}  // namespace tachyon::math
 
 }  // namespace tachyon::math
 

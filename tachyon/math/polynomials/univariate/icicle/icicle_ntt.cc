@@ -29,9 +29,14 @@ bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
   if (error != gpuSuccess) return false;
   VLOG(1) << "IcicleNTT is initialized";
 
+  // ::bn254::scalar_t one = ::bn254::scalar_t::one();
+  // bn254::Fr coset_gen;
+  // memcpy(&coset_gen, &one, sizeof(::bn254::scalar_t));
+  // static_assert(sizeof(::bn254::scalar_t), sizeof(bn254::Fr));
+
   config_.reset(new ::ntt::NTTConfig<bn254::Fr>{
       ctx,
-      base::bit_cast<bn254::Fr>(::bn254::scalar_t::one()),
+      base::bit_cast<bn254::Fr>(::bn254::scalar_t::one().limbs_storage),
       options.batch_size,
       options.columns_batch,
       options.ordering,
@@ -58,7 +63,7 @@ bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
   // https://github.com/ingonyama-zk/icicle/blob/4fef5423462a72a37fe66cee89e24eae083cc112/icicle/include/fields/storage.cuh.
   ::ntt::NTTConfig<::bn254::scalar_t> config{
       config_->ctx,
-      base::bit_cast<::bn254::scalar_t>(coset),
+      ::bn254::scalar_t{base::bit_cast<::bn254::scalar_t::ff_storage>(coset)},
       config_->batch_size,
       config_->columns_batch,
       config_->ordering,

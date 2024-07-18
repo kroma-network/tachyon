@@ -1,0 +1,271 @@
+diff --git a/icicle/benchmarks/benches.cu.cc b/icicle/benchmarks/benches.cu.cc
+index f7ff8635..450f9088 100644
+--- a/icicle/benchmarks/benches.cu.cc
++++ b/icicle/benchmarks/benches.cu.cc
+@@ -1,6 +1,6 @@
+-#include "field_benchmarks.cu"
++#include "field_benchmarks.cu.cc"
+ #ifdef CURVE_ID
+-#include "curve_benchmarks.cu"
++#include "curve_benchmarks.cu.cc"
+ #endif
+ 
+ BENCHMARK_MAIN();
+\ No newline at end of file
+diff --git a/icicle/src/hash/keccak/extern.cu.cc b/icicle/src/hash/keccak/extern.cu.cc
+index b1e6d6aa..009b8891 100644
+--- a/icicle/src/hash/keccak/extern.cu.cc
++++ b/icicle/src/hash/keccak/extern.cu.cc
+@@ -3,8 +3,8 @@
+ 
+ #include "hash/hash.cuh"
+ #include "hash/keccak/keccak.cuh"
+-#include "keccak.cu"
+-#include "../../merkle-tree/merkle.cu"
++#include "keccak.cu.cc"
++#include "../../merkle-tree/merkle.cu.cc"
+ #include "merkle-tree/merkle.cuh"
+ 
+ namespace keccak {
+diff --git a/icicle/src/hash/keccak/test.cu.cc b/icicle/src/hash/keccak/test.cu.cc
+index 03293f1e..fda294e4 100644
+--- a/icicle/src/hash/keccak/test.cu.cc
++++ b/icicle/src/hash/keccak/test.cu.cc
+@@ -1,5 +1,5 @@
+ #include "gpu-utils/device_context.cuh"
+-#include "extern.cu"
++#include "extern.cu.cc"
+ 
+ // #define DEBUG
+ 
+diff --git a/icicle/src/hash/keccak/test_tree.cu.cc b/icicle/src/hash/keccak/test_tree.cu.cc
+index ed1de95f..40b94af8 100644
+--- a/icicle/src/hash/keccak/test_tree.cu.cc
++++ b/icicle/src/hash/keccak/test_tree.cu.cc
+@@ -1,6 +1,6 @@
+ #include "gpu-utils/device_context.cuh"
+ #include "merkle-tree/merkle.cuh"
+-#include "extern.cu"
++#include "extern.cu.cc"
+ 
+ #ifndef __CUDA_ARCH__
+ #include <cassert>
+diff --git a/icicle/src/merkle-tree/extern.cu.cc b/icicle/src/merkle-tree/extern.cu.cc
+index 060afe87..6811473d 100644
+--- a/icicle/src/merkle-tree/extern.cu.cc
++++ b/icicle/src/merkle-tree/extern.cu.cc
+@@ -2,7 +2,7 @@
+ 
+ #include "gpu-utils/error_handler.cuh"
+ #include "merkle-tree/merkle.cuh"
+-#include "merkle.cu"
++#include "merkle.cu.cc"
+ 
+ #include "hash/hash.cuh"
+ 
+diff --git a/icicle/src/merkle-tree/extern_mmcs.cu.cc b/icicle/src/merkle-tree/extern_mmcs.cu.cc
+index 3b6fc5cc..2d51dad1 100644
+--- a/icicle/src/merkle-tree/extern_mmcs.cu.cc
++++ b/icicle/src/merkle-tree/extern_mmcs.cu.cc
+@@ -3,7 +3,7 @@
+ #include "gpu-utils/error_handler.cuh"
+ #include "merkle-tree/merkle.cuh"
+ #include "matrix/matrix.cuh"
+-#include "mmcs.cu"
++#include "mmcs.cu.cc"
+ 
+ #include "hash/hash.cuh"
+ 
+diff --git a/icicle/src/msm/extern.cu.cc b/icicle/src/msm/extern.cu.cc
+index 42bc31db..f4cb0ef3 100644
+--- a/icicle/src/msm/extern.cu.cc
++++ b/icicle/src/msm/extern.cu.cc
+@@ -4,7 +4,7 @@
+ using namespace curve_config;
+ using namespace field_config;
+ 
+-#include "msm.cu"
++#include "msm.cu.cc"
+ #include "utils/utils.h"
+ 
+ namespace msm {
+diff --git a/icicle/src/msm/extern_g2.cu.cc b/icicle/src/msm/extern_g2.cu.cc
+index 1a84c66e..92b8f9fb 100644
+--- a/icicle/src/msm/extern_g2.cu.cc
++++ b/icicle/src/msm/extern_g2.cu.cc
+@@ -4,7 +4,7 @@
+ using namespace curve_config;
+ using namespace field_config;
+ 
+-#include "msm.cu"
++#include "msm.cu.cc"
+ #include "utils/utils.h"
+ 
+ namespace msm {
+diff --git a/icicle/src/msm/tests/msm_test.cu.cc b/icicle/src/msm/tests/msm_test.cu.cc
+index 005a00c5..c3862fc9 100644
+--- a/icicle/src/msm/tests/msm_test.cu.cc
++++ b/icicle/src/msm/tests/msm_test.cu.cc
+@@ -4,7 +4,7 @@
+ #include "curves/curve_config.cuh"
+ // #include "fields/field_config.cuh"
+ 
+-#include "msm.cu"
++#include "msm.cu.cc"
+ 
+ #include <chrono>
+ #include <iostream>
+diff --git a/icicle/src/ntt/extern.cu.cc b/icicle/src/ntt/extern.cu.cc
+index e64da6e3..07291f1e 100644
+--- a/icicle/src/ntt/extern.cu.cc
++++ b/icicle/src/ntt/extern.cu.cc
+@@ -2,7 +2,7 @@
+ 
+ using namespace field_config;
+ 
+-#include "ntt.cu"
++#include "ntt.cu.cc"
+ 
+ #include "gpu-utils/device_context.cuh"
+ #include "utils/utils.h"
+diff --git a/icicle/src/ntt/extern_ecntt.cu.cc b/icicle/src/ntt/extern_ecntt.cu.cc
+index 72a4e42b..6469cf58 100644
+--- a/icicle/src/ntt/extern_ecntt.cu.cc
++++ b/icicle/src/ntt/extern_ecntt.cu.cc
+@@ -4,7 +4,7 @@
+ using namespace curve_config;
+ using namespace field_config;
+ 
+-#include "ntt.cu"
++#include "ntt.cu.cc"
+ 
+ #include "gpu-utils/device_context.cuh"
+ #include "utils/utils.h"
+diff --git a/icicle/src/ntt/extern_extension.cu.cc b/icicle/src/ntt/extern_extension.cu.cc
+index 5def1ddd..d4431209 100644
+--- a/icicle/src/ntt/extern_extension.cu.cc
++++ b/icicle/src/ntt/extern_extension.cu.cc
+@@ -2,7 +2,7 @@
+ 
+ using namespace field_config;
+ 
+-#include "ntt.cu"
++#include "ntt.cu.cc"
+ 
+ #include "gpu-utils/device_context.cuh"
+ #include "utils/utils.h"
+diff --git a/icicle/src/ntt/kernel_ntt.cu.cc b/icicle/src/ntt/kernel_ntt.cu.cc
+index 8b32f3b5..93f073c4 100644
+--- a/icicle/src/ntt/kernel_ntt.cu.cc
++++ b/icicle/src/ntt/kernel_ntt.cu.cc
+@@ -2,7 +2,7 @@
+ 
+ using namespace field_config;
+ 
+-#include "thread_ntt.cu"
++#include "thread_ntt.cu.cc"
+ #include "gpu-utils/sharedmem.cuh"
+ #include "ntt/ntt.cuh" // for ntt::Ordering
+ 
+diff --git a/icicle/src/ntt/tests/verification.cu.cc b/icicle/src/ntt/tests/verification.cu.cc
+index 21e143a0..edb769a8 100644
+--- a/icicle/src/ntt/tests/verification.cu.cc
++++ b/icicle/src/ntt/tests/verification.cu.cc
+@@ -18,8 +18,8 @@ typedef field_config::scalar_t test_data;
+ #include <iostream>
+ #include <vector>
+ 
+-#include "ntt.cu"
+-#include "kernel_ntt.cu"
++#include "ntt.cu.cc"
++#include "kernel_ntt.cu.cc"
+ #include <memory>
+ 
+ void random_samples(test_data* res, uint32_t count)
+diff --git a/icicle/src/polynomials/cuda_backend/kernels.cu.h b/icicle/src/polynomials/cuda_backend/kernels.cu.h
+index 2d1032b6..546889ba 100644
+--- a/icicle/src/polynomials/cuda_backend/kernels.cu.h
++++ b/icicle/src/polynomials/cuda_backend/kernels.cu.h
+@@ -1,6 +1,6 @@
+ #pragma once
+ #include "stdint.h"
+-#include "../../../src/vec_ops/vec_ops.cu" // TODO Yuval: avoid this
++#include "../../../src/vec_ops/vec_ops.cu.cc" // TODO Yuval: avoid this
+ 
+ namespace polynomials {
+   using namespace vec_ops;
+diff --git a/icicle/src/poseidon/extern.cu.cc b/icicle/src/poseidon/extern.cu.cc
+index 16145bb2..2d7ee1e5 100644
+--- a/icicle/src/poseidon/extern.cu.cc
++++ b/icicle/src/poseidon/extern.cu.cc
+@@ -3,7 +3,7 @@
+ using namespace field_config;
+ 
+ #include "poseidon/poseidon.cuh"
+-#include "constants.cu"
++#include "constants.cu.cc"
+ 
+ #include "gpu-utils/device_context.cuh"
+ #include "utils/utils.h"
+diff --git a/icicle/src/poseidon2/extern.cu.cc b/icicle/src/poseidon2/extern.cu.cc
+index 7741d29a..50b9bdcb 100644
+--- a/icicle/src/poseidon2/extern.cu.cc
++++ b/icicle/src/poseidon2/extern.cu.cc
+@@ -5,7 +5,7 @@ using namespace field_config;
+ 
+ #include "gpu-utils/error_handler.cuh"
+ #include "poseidon2/poseidon2.cuh"
+-#include "./constants.cu"
++#include "./constants.cu.cc"
+ 
+ namespace poseidon2 {
+   template class Poseidon2<scalar_t>;
+diff --git a/icicle/src/vec_ops/extern.cu.cc b/icicle/src/vec_ops/extern.cu.cc
+index 78a7467c..21b2c071 100644
+--- a/icicle/src/vec_ops/extern.cu.cc
++++ b/icicle/src/vec_ops/extern.cu.cc
+@@ -3,7 +3,7 @@
+ using namespace field_config;
+ 
+ #include "utils/utils.h"
+-#include "vec_ops.cu"
++#include "vec_ops.cu.cc"
+ 
+ namespace vec_ops {
+   /**
+diff --git a/icicle/src/vec_ops/extern_extension.cu.cc b/icicle/src/vec_ops/extern_extension.cu.cc
+index 80653c79..5c0fce48 100644
+--- a/icicle/src/vec_ops/extern_extension.cu.cc
++++ b/icicle/src/vec_ops/extern_extension.cu.cc
+@@ -3,7 +3,7 @@
+ using namespace field_config;
+ 
+ #include "utils/utils.h"
+-#include "vec_ops.cu"
++#include "vec_ops.cu.cc"
+ 
+ namespace vec_ops {
+   /**
+diff --git a/icicle/tests/runner.cu.cc b/icicle/tests/runner.cu.cc
+index 330b82c5..5222ba34 100644
+--- a/icicle/tests/runner.cu.cc
++++ b/icicle/tests/runner.cu.cc
+@@ -3,14 +3,14 @@
+ #include <iostream>
+ 
+ // include list of test files
+-#include "field_test.cu"
++#include "field_test.cu.cc"
+ #ifdef CURVE_ID
+-#include "curve_test.cu"
++#include "curve_test.cu.cc"
+ #endif
+-#include "error_handler_test.cu"
++#include "error_handler_test.cu.cc"
+ 
+ // Ensure the device_error_test.cu is last to prevent aborting mid-test run
+-#include "device_error_test.cu"
++#include "device_error_test.cu.cc"
+ 
+ int main(int argc, char** argv)
+ {
