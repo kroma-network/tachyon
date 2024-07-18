@@ -28,7 +28,7 @@ class PoseidonBenchmarkRunner {
   typedef CPrimeField* (*PoseidonExternalFn)(uint64_t* duration);
 
   PoseidonBenchmarkRunner(SimplePoseidonBenchmarkReporter* reporter,
-                          PoseidonConfig* config)
+                          const PoseidonConfig* config)
       : reporter_(reporter), config_(config) {}
 
   Field Run() {
@@ -62,7 +62,7 @@ class PoseidonBenchmarkRunner {
   // not owned
   SimplePoseidonBenchmarkReporter* const reporter_;
   // not owned
-  PoseidonConfig* const config_;
+  const PoseidonConfig* const config_;
 };
 
 }  // namespace tachyon
