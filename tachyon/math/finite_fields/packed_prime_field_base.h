@@ -55,6 +55,13 @@ class PackedPrimeFieldBase : public Field<Derived> {
     return true;
   }
 
+  constexpr bool IsMinusOne() const {
+    for (size_t i = 0; i < N; ++i) {
+      if (!values_[i].IsMinusOne()) return false;
+    }
+    return true;
+  }
+
   std::string ToString() const { return base::ContainerToString(values_); }
   std::string ToHexString(bool pad_zero = false) const {
     return base::ContainerToString(

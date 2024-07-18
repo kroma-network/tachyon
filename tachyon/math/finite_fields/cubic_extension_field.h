@@ -49,6 +49,10 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return {BaseField::One(), BaseField::Zero(), BaseField::Zero()};
   }
 
+  constexpr static Derived MinusOne() {
+    return {BaseField::MinusOne(), BaseField::Zero(), BaseField::Zero()};
+  }
+
   static Derived Random() {
     return {BaseField::Random(), BaseField::Random(), BaseField::Random()};
   }
@@ -76,6 +80,10 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
 
   constexpr bool IsOne() const {
     return c0_.IsOne() && c1_.IsZero() && c2_.IsZero();
+  }
+
+  constexpr bool IsMinusOne() const {
+    return c0_.IsMinusOne() && c1_.IsZero() && c2_.IsZero();
   }
 
   constexpr static uint64_t ExtensionDegree() {

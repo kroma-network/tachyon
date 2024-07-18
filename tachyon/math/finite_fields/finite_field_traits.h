@@ -123,6 +123,7 @@ struct NumTraits<
 
   enum {
     IsInteger = 1,
+    IsField = 1,
     IsSigned = 0,
     IsComplex = 0,
     RequireInitialization = 1,

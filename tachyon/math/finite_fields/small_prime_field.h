@@ -53,6 +53,9 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
 
   constexpr static PrimeField Zero() { return PrimeField(); }
   constexpr static PrimeField One() { return PrimeField(1); }
+  constexpr static PrimeField MinusOne() {
+    return PrimeField(GetModulus() - 1);
+  }
 
   static PrimeField Random() {
     return PrimeField(
@@ -89,6 +92,8 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
   constexpr bool IsZero() const { return value_ == 0; }
 
   constexpr bool IsOne() const { return value_ == 1; }
+
+  constexpr bool IsMinusOne() const { return value_ == GetModulus() - 1; }
 
   std::string ToString() const { return base::NumberToString(value_); }
 

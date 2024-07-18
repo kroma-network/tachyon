@@ -49,6 +49,10 @@ class QuadraticExtensionField
     return {BaseField::One(), BaseField::Zero()};
   }
 
+  constexpr static Derived MinusOne() {
+    return {BaseField::MinusOne(), BaseField::Zero()};
+  }
+
   static Derived Random() { return {BaseField::Random(), BaseField::Random()}; }
 
   static Derived FromBasePrimeFields(
@@ -69,6 +73,8 @@ class QuadraticExtensionField
   constexpr bool IsZero() const { return c0_.IsZero() && c1_.IsZero(); }
 
   constexpr bool IsOne() const { return c0_.IsOne() && c1_.IsZero(); }
+
+  constexpr bool IsMinusOne() const { return c0_.IsMinusOne() && c1_.IsZero(); }
 
   constexpr static uint64_t ExtensionDegree() {
     return 2 * BaseField::ExtensionDegree();

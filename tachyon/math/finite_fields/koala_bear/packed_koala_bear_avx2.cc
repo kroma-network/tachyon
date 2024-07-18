@@ -17,6 +17,7 @@ __m256i kP;
 __m256i kInv;
 __m256i kZero;
 __m256i kOne;
+__m256i kMinusOne;
 
 __m256i ToVector(const PackedKoalaBearAVX2& packed) {
   return _mm256_loadu_si256(
@@ -53,6 +54,7 @@ void PackedKoalaBearAVX2::Init() {
   kInv = _mm256_set1_epi32(KoalaBear::Config::kInverse32);
   kZero = _mm256_set1_epi32(0);
   kOne = _mm256_set1_epi32(KoalaBear::Config::kOne);
+  kMinusOne = _mm256_set1_epi32(KoalaBear::Config::kMinusOne);
 }
 
 // static
@@ -60,6 +62,11 @@ PackedKoalaBearAVX2 PackedKoalaBearAVX2::Zero() { return FromVector(kZero); }
 
 // static
 PackedKoalaBearAVX2 PackedKoalaBearAVX2::One() { return FromVector(kOne); }
+
+// static
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::MinusOne() {
+  return FromVector(kMinusOne);
+}
 
 // static
 PackedKoalaBearAVX2 PackedKoalaBearAVX2::Broadcast(const PrimeField& value) {

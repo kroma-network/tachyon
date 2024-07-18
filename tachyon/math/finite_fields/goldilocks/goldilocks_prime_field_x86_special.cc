@@ -17,15 +17,24 @@ namespace tachyon::math {
   PrimeField<Config, std::enable_if_t<Config::kIsTachyonMathGoldilocks>>
 
 template <typename Config>
-CLASS::PrimeField(uint64_t value) : value_(value) {
-  DCHECK_LT(value_, Config::kModulus[0]);
-  value_ = ::Goldilocks::fromU64(value_).fe;
+CLASS::PrimeField(uint64_t value) : value_(::Goldilocks::fromU64(value).fe) {
+  DCHECK_LT(value, Config::kModulus[0]);
 }
 
 // static
 template <typename Config>
 CLASS CLASS::One() {
   return PrimeField(::Goldilocks::one().fe);
+}
+
+// static
+template <typename Config>
+CLASS CLASS::MinusOne() {
+#if USE_MONTGOMERY == 1
+  return PrimeField::FromMontgomery(Config::kMinusOne[0]);
+#else
+  return PrimeField(Config::kModulus[0] - 1);
+#endif
 }
 
 // static
@@ -87,6 +96,15 @@ template <typename Config>
 bool CLASS::IsOne() const {
   return ::Goldilocks::isOne(
       reinterpret_cast<const ::Goldilocks::Element&>(value_));
+}
+
+template <typename Config>
+bool CLASS::IsMinusOne() const {
+#if USE_MONTGOMERY == 1
+  return value_ == Config::kMinusOne[0];
+#else
+  return value_ == Config::kModulus[0] - 1;
+#endif
 }
 
 template <typename Config>

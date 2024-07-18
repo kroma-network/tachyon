@@ -1,0 +1,103 @@
+diff --git a/Eigen/src/Core/functors/AssignmentFunctors.h b/Eigen/src/Core/functors/AssignmentFunctors.h
+index ca0899182..ea4d7fe6c 100644
+--- a/Eigen/src/Core/functors/AssignmentFunctors.h
++++ b/Eigen/src/Core/functors/AssignmentFunctors.h
+@@ -107,7 +107,7 @@ struct functor_traits<mul_assign_op<DstScalar,SrcScalar> > {
+   */
+ template<typename DstScalar, typename SrcScalar=DstScalar> struct div_assign_op {
+ 
+-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void assignCoeff(DstScalar& a, const SrcScalar& b) const { a /= b; }
++  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void assignCoeff(DstScalar& a, const SrcScalar& b) const { a = ScalarTraits<DstScalar>::Divide(a, b); }
+ 
+   template<int Alignment, typename Packet>
+   EIGEN_STRONG_INLINE void assignPacket(DstScalar* a, const Packet& b) const
+diff --git a/Eigen/src/Core/products/TriangularSolverMatrix.h b/Eigen/src/Core/products/TriangularSolverMatrix.h
+index 23a8453bd..aa3e2db55 100644
+--- a/Eigen/src/Core/products/TriangularSolverMatrix.h
++++ b/Eigen/src/Core/products/TriangularSolverMatrix.h
+@@ -60,7 +60,7 @@ EIGEN_STRONG_INLINE void trsmKernelL<Scalar, Index, Mode, Conjugate, TriStorageO
+       Index s  = TriStorageOrder==RowMajor ? (IsLower ? 0 : i+1)
+         :  IsLower ? i+1 : i-rs;
+ 
+-      Scalar a = (Mode & UnitDiag) ? Scalar::One() : Scalar::One()/conj(tri(i,i));
++      Scalar a = (Mode & UnitDiag) ? Scalar::One() : ScalarTraits<Scalar>::Divide(Scalar::One(), conj(tri(i,i)));
+       for (Index j=0; j<otherSize; ++j)
+       {
+         if (TriStorageOrder==RowMajor)
+diff --git a/Eigen/src/Core/util/ForwardDeclarations.h b/Eigen/src/Core/util/ForwardDeclarations.h
+index 2421fa779..6fb286aab 100644
+--- a/Eigen/src/Core/util/ForwardDeclarations.h
++++ b/Eigen/src/Core/util/ForwardDeclarations.h
+@@ -50,12 +50,15 @@ template <typename Scalar, typename SFINAE = void> struct ScalarTraits {
+   EIGEN_CONSTEXPR static Scalar Zero() { return Scalar(0); }
+   EIGEN_CONSTEXPR static Scalar One() { return Scalar(1); }
+   EIGEN_CONSTEXPR static Scalar MinsOne() { return Scalar(-1); }
++  template <typename T>
++  EIGEN_CONSTEXPR static auto Divide(Scalar a, T b) { return a / b; }
+ };
+ 
+ template <typename Scalar> struct ScalarTraits<Scalar, std::enable_if_t<NumTraits<Scalar>::IsField>> {
+   EIGEN_CONSTEXPR static Scalar Zero() { return Scalar::Zero(); }
+   EIGEN_CONSTEXPR static Scalar One() { return Scalar::One(); }
+   EIGEN_CONSTEXPR static Scalar MinusOne() { return Scalar::MinusOne(); }
++  EIGEN_CONSTEXPR static Scalar Divide(const Scalar& a, const Scalar& b) { return *(a / b); }
+ };
+ 
+ template<typename Derived> struct EigenBase;
+diff --git a/Eigen/src/Core/util/StaticAssert.h b/Eigen/src/Core/util/StaticAssert.h
+index c938eb800..6bd8428e8 100644
+--- a/Eigen/src/Core/util/StaticAssert.h
++++ b/Eigen/src/Core/util/StaticAssert.h
+@@ -79,7 +79,7 @@
+      )
+ 
+ #define EIGEN_STATIC_ASSERT_NON_INTEGER(TYPE) \
+-    EIGEN_STATIC_ASSERT(!Eigen::NumTraits<TYPE>::IsInteger, THIS_FUNCTION_IS_NOT_FOR_INTEGER_NUMERIC_TYPES)
++    EIGEN_STATIC_ASSERT(!Eigen::NumTraits<TYPE>::IsInteger || NumTraits<TYPE>::IsField, THIS_FUNCTION_IS_NOT_FOR_INTEGER_NUMERIC_TYPES)
+ 
+ 
+ // static assertion failing if it is guaranteed at compile-time that the two matrix expression types have different sizes
+diff --git a/Eigen/src/LU/InverseImpl.h b/Eigen/src/LU/InverseImpl.h
+index bcfe7031e..1b9e4be70 100644
+--- a/Eigen/src/LU/InverseImpl.h
++++ b/Eigen/src/LU/InverseImpl.h
+@@ -349,7 +349,7 @@ template<typename Derived>
+ EIGEN_DEVICE_FUNC
+ inline const Inverse<Derived> MatrixBase<Derived>::inverse() const
+ {
+-  EIGEN_STATIC_ASSERT(!NumTraits<Scalar>::IsInteger,THIS_FUNCTION_IS_NOT_FOR_INTEGER_NUMERIC_TYPES)
++  EIGEN_STATIC_ASSERT(!NumTraits<Scalar>::IsInteger || NumTraits<Scalar>::IsField,THIS_FUNCTION_IS_NOT_FOR_INTEGER_NUMERIC_TYPES)
+   eigen_assert(rows() == cols());
+   return Inverse<Derived>(derived());
+ }
+diff --git a/Eigen/src/LU/PartialPivLU.h b/Eigen/src/LU/PartialPivLU.h
+index bee743794..1e6e72440 100644
+--- a/Eigen/src/LU/PartialPivLU.h
++++ b/Eigen/src/LU/PartialPivLU.h
+@@ -276,7 +276,7 @@ template<typename MatrixType_, typename PermutationIndex_> class PartialPivLU
+     PermutationType m_p;
+     TranspositionType m_rowsTranspositions;
+     RealScalar m_l1_norm;
+-    signed char m_det_p;
++    Scalar m_det_p;
+     bool m_isInitialized;
+ };
+ 
+@@ -538,7 +538,7 @@ void PartialPivLU<MatrixType, PermutationIndex>::compute()
+ 
+   typename TranspositionType::StorageIndex nb_transpositions;
+   internal::partial_lu_inplace(m_lu, m_rowsTranspositions, nb_transpositions);
+-  m_det_p = (nb_transpositions%2) ? -1 : 1;
++  m_det_p = (nb_transpositions%2) ? -Scalar::One() : Scalar::One();
+ 
+   m_p = m_rowsTranspositions;
+ 
+@@ -549,7 +549,7 @@ template<typename MatrixType, typename PermutationIndex>
+ typename PartialPivLU<MatrixType, PermutationIndex>::Scalar PartialPivLU<MatrixType, PermutationIndex>::determinant() const
+ {
+   eigen_assert(m_isInitialized && "PartialPivLU is not initialized.");
+-  return Scalar(m_det_p) * m_lu.diagonal().prod();
++  return m_det_p * m_lu.diagonal().prod();
+ }
+ 
+ /** \returns the matrix represented by the decomposition,

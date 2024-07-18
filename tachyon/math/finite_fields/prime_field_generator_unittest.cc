@@ -55,13 +55,22 @@ TYPED_TEST(PrimeFieldGeneratorTest, Zero) {
   using PrimeField = TypeParam;
   EXPECT_TRUE(PrimeField::Zero().IsZero());
   EXPECT_FALSE(PrimeField::One().IsZero());
+  EXPECT_FALSE(PrimeField::MinusOne().IsZero());
 }
 
 TYPED_TEST(PrimeFieldGeneratorTest, One) {
   using PrimeField = TypeParam;
   EXPECT_TRUE(PrimeField::One().IsOne());
   EXPECT_FALSE(PrimeField::Zero().IsOne());
+  EXPECT_FALSE(PrimeField::MinusOne().IsOne());
   EXPECT_EQ(PrimeField::Config::kOne, PrimeField(1).value());
+}
+
+TYPED_TEST(PrimeFieldGeneratorTest, MinusOne) {
+  using PrimeField = TypeParam;
+  EXPECT_TRUE(PrimeField::MinusOne().IsMinusOne());
+  EXPECT_FALSE(PrimeField::Zero().IsMinusOne());
+  EXPECT_FALSE(PrimeField::One().IsMinusOne());
 }
 
 TYPED_TEST(PrimeFieldGeneratorTest, BigIntConversion) {

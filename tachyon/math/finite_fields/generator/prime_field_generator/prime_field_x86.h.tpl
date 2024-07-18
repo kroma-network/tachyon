@@ -61,6 +61,12 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
     return ret;
   }
 
+  constexpr static PrimeField MinusOne() {
+    PrimeField ret{};
+    ret.value_ = Config::kMinusOne;
+    return ret;
+  }
+
   static PrimeField Random() {
     return PrimeField(BigInt<N>::Random(Config::kModulus));
   }
@@ -108,6 +114,10 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
 
   constexpr bool IsOne() const {
     return %{prefix}_rawIsEq(value_.limbs, Config::kOne.limbs);
+  }
+
+  constexpr bool IsMinusOne() const {
+    return %{prefix}_rawIsEq(value_.limbs, Config::kMinusOne.limbs);
   }
 
   std::string ToString() const { return ToBigInt().ToString(); }

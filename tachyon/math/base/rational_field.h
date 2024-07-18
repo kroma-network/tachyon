@@ -34,6 +34,10 @@ class RationalField : public Field<RationalField<F>> {
 
   constexpr static RationalField One() { return RationalField(F::One()); }
 
+  constexpr static RationalField MinusOne() {
+    return RationalField(F::MinusOne());
+  }
+
   constexpr static RationalField Random() {
     F denominator = F::Random();
     while (denominator.IsZero()) {
@@ -76,6 +80,10 @@ class RationalField : public Field<RationalField<F>> {
 
   constexpr bool IsOne() const {
     return numerator_.IsOne() || numerator_ == denominator_;
+  }
+
+  constexpr bool IsMinusOne() const {
+    return numerator_.IsMinusOne() || (numerator_ + denominator_).IsZero();
   }
 
   std::string ToString() const {

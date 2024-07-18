@@ -21,12 +21,21 @@ class RationalFieldTest : public FiniteFieldTest<GF7> {};
 TEST_F(RationalFieldTest, Zero) {
   EXPECT_TRUE(R::Zero().IsZero());
   EXPECT_FALSE(R::One().IsZero());
+  EXPECT_FALSE(R::MinusOne().IsZero());
 }
 
 TEST_F(RationalFieldTest, One) {
-  EXPECT_TRUE(R::Zero().IsZero());
-  EXPECT_FALSE(R::One().IsZero());
-  EXPECT_FALSE(R(GF7(3), GF7(3)).IsZero());
+  EXPECT_TRUE(R::One().IsOne());
+  EXPECT_FALSE(R::Zero().IsOne());
+  EXPECT_FALSE(R::MinusOne().IsOne());
+  EXPECT_TRUE(R(GF7(3), GF7(3)).IsOne());
+}
+
+TEST_F(RationalFieldTest, MinusOne) {
+  EXPECT_TRUE(R::MinusOne().IsMinusOne());
+  EXPECT_FALSE(R::Zero().IsMinusOne());
+  EXPECT_FALSE(R::One().IsMinusOne());
+  EXPECT_TRUE(R(GF7(4), GF7(3)).IsMinusOne());
 }
 
 TEST_F(RationalFieldTest, Random) {

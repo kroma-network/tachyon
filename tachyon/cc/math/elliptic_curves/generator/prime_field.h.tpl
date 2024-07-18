@@ -29,6 +29,10 @@ class TACHYON_CC_EXPORT %{cc_field} {
     return %{cc_field}(%{c_field}_one());
   }
 
+  static %{cc_field} MinusOne() {
+    return %{cc_field}(%{c_field}_minus_one());
+  }
+
   static %{cc_field} Random() {
     return %{cc_field}(%{c_field}_random());
   }

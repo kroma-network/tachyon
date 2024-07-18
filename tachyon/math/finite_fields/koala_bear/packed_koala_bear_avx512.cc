@@ -17,6 +17,7 @@ __m512i kP;
 __m512i kInv;
 __m512i kZero;
 __m512i kOne;
+__m512i kMinusOne;
 
 __m512i ToVector(const PackedKoalaBearAVX512& packed) {
   return _mm512_loadu_si512(packed.values().data());
@@ -60,6 +61,11 @@ PackedKoalaBearAVX512 PackedKoalaBearAVX512::Zero() {
 
 // static
 PackedKoalaBearAVX512 PackedKoalaBearAVX512::One() { return FromVector(kOne); }
+
+// static
+PackedKoalaBearAVX512 PackedKoalaBearAVX512::MinusOne() {
+  return FromVector(kMinusOne);
+}
 
 // static
 PackedKoalaBearAVX512 PackedKoalaBearAVX512::Broadcast(

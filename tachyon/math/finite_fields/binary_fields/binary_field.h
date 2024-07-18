@@ -72,6 +72,7 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
 
   constexpr static BinaryField Zero() { return BinaryField(); }
   constexpr static BinaryField One() { return BinaryField(1); }
+  constexpr static BinaryField MinusOne() { return One(); }
 
   static BinaryField Random() {
     if constexpr (kBits <= 64) {
@@ -165,6 +166,8 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
       return value_.IsOne();
     }
   }
+
+  constexpr bool IsMinusOne() const { return IsOne(); }
 
   template <typename T = Type,
             std::enable_if_t<!std::is_same_v<T, uint8_t>>* = nullptr>

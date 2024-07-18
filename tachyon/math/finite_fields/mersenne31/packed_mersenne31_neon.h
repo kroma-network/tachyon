@@ -44,6 +44,8 @@ class TACHYON_EXPORT PackedMersenne31Neon final
 
   static PackedMersenne31Neon One();
 
+  static PackedMersenne31Neon MinusOne();
+
   static PackedMersenne31Neon Broadcast(const PrimeField& value);
 
   // AdditiveSemigroup methods

@@ -17,11 +17,19 @@ class QuadraticExtensionFieldTest : public FiniteFieldTest<GF7_2> {};
 TEST_F(QuadraticExtensionFieldTest, Zero) {
   EXPECT_TRUE(GF7_2::Zero().IsZero());
   EXPECT_FALSE(GF7_2::One().IsZero());
+  EXPECT_FALSE(GF7_2::MinusOne().IsZero());
 }
 
 TEST_F(QuadraticExtensionFieldTest, One) {
   EXPECT_TRUE(GF7_2::One().IsOne());
   EXPECT_FALSE(GF7_2::Zero().IsOne());
+  EXPECT_FALSE(GF7_2::MinusOne().IsOne());
+}
+
+TEST_F(QuadraticExtensionFieldTest, MinusOne) {
+  EXPECT_TRUE(GF7_2::MinusOne().IsMinusOne());
+  EXPECT_FALSE(GF7_2::Zero().IsMinusOne());
+  EXPECT_FALSE(GF7_2::One().IsMinusOne());
 }
 
 TEST_F(QuadraticExtensionFieldTest, Random) {

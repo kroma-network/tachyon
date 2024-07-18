@@ -16,6 +16,7 @@ namespace {
 __m256i kP;
 __m256i kZero;
 __m256i kOne;
+__m256i kMinusOne;
 
 __m256i ToVector(const PackedMersenne31AVX2& packed) {
   return _mm256_loadu_si256(
@@ -168,6 +169,7 @@ void PackedMersenne31AVX2::Init() {
   kP = _mm256_set1_epi32(Mersenne31::Config::kModulus);
   kZero = _mm256_set1_epi32(0);
   kOne = _mm256_set1_epi32(1);
+  kMinusOne = _mm256_set1_epi32(Mersenne31::Config::kModulus - 1);
 }
 
 // static
@@ -175,6 +177,11 @@ PackedMersenne31AVX2 PackedMersenne31AVX2::Zero() { return FromVector(kZero); }
 
 // static
 PackedMersenne31AVX2 PackedMersenne31AVX2::One() { return FromVector(kOne); }
+
+// static
+PackedMersenne31AVX2 PackedMersenne31AVX2::MinusOne() {
+  return FromVector(kMinusOne);
+}
 
 // static
 PackedMersenne31AVX2 PackedMersenne31AVX2::Broadcast(const PrimeField& value) {

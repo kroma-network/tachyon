@@ -1,11 +1,13 @@
 #include "tachyon/math/finite_fields/generator/generator_util.h"
 
+#include <limits>
 #include <string>
 #include <vector>
 
 #include "absl/strings/str_join.h"
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
@@ -18,14 +20,44 @@ namespace tachyon::math {
 std::string MpzClassToString(const mpz_class& m) {
   size_t limb_size = gmp::GetLimbSize(m);
   if (limb_size == 0) {
-    return "UINT64_C(0)";
+    return "0";
   }
 
-  std::vector<std::string> ret;
-  ret.reserve(limb_size);
+  enum class MaximumType {
+    kInt,
+    kUint32,
+    kUint64,
+  };
+
+  // This code checks the maximum type of the vector. It determines the template
+  // type |T| of the |std::initializer_list<T>|.
+  MaximumType type = MaximumType::kInt;
   for (size_t i = 0; i < limb_size; ++i) {
-    ret.push_back(absl::Substitute("UINT64_C($0)", gmp::GetLimbConstRef(m, i)));
+    mp_limb_t limb = gmp::GetLimb(m, i);
+    if (limb <= std::numeric_limits<int>::max()) {
+      continue;
+    } else if (limb <= std::numeric_limits<uint32_t>::max()) {
+      type = MaximumType::kUint32;
+    } else {
+      type = MaximumType::kUint64;
+      break;
+    }
   }
+
+  std::vector<std::string> ret =
+      base::CreateVector(limb_size, [type, &m](size_t i) {
+        mp_limb_t limb = gmp::GetLimb(m, i);
+        switch (type) {
+          case MaximumType::kInt:
+            return absl::StrCat(limb);
+          case MaximumType::kUint32:
+            return absl::Substitute("UINT32_C($0)", limb);
+          case MaximumType::kUint64:
+            return absl::Substitute("UINT64_C($0)", limb);
+        }
+        NOTREACHED();
+        return base::EmptyString();
+      });
   return absl::StrJoin(ret, ", ");
 }
 

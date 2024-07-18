@@ -63,6 +63,17 @@ TYPED_TEST(PackedPrimeFieldTest, One) {
   EXPECT_FALSE(PackedPrimeField::Random().IsOne());
 }
 
+TYPED_TEST(PackedPrimeFieldTest, MinusOne) {
+  using PackedPrimeField = TypeParam;
+
+  PackedPrimeField one = PackedPrimeField::MinusOne();
+  EXPECT_TRUE(one.IsMinusOne());
+  for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+    EXPECT_TRUE(one[i].IsMinusOne());
+  }
+  EXPECT_FALSE(PackedPrimeField::Random().IsMinusOne());
+}
+
 TYPED_TEST(PackedPrimeFieldTest, Broadcast) {
   using PackedPrimeField = TypeParam;
   using PrimeField = typename PackedPrimeField::PrimeField;

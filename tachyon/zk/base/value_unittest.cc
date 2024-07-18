@@ -11,11 +11,19 @@ namespace tachyon::zk {
 TEST(ValueTest, Zero) {
   EXPECT_TRUE(Value<math::GF7>::Zero().IsZero());
   EXPECT_FALSE(Value<math::GF7>::One().IsZero());
+  EXPECT_FALSE(Value<math::GF7>::MinusOne().IsZero());
 }
 
 TEST(ValueTest, One) {
   EXPECT_TRUE(Value<math::GF7>::One().IsOne());
   EXPECT_FALSE(Value<math::GF7>::Zero().IsOne());
+  EXPECT_FALSE(Value<math::GF7>::MinusOne().IsOne());
+}
+
+TEST(ValueTest, MinusOne) {
+  EXPECT_TRUE(Value<math::GF7>::MinusOne().IsMinusOne());
+  EXPECT_FALSE(Value<math::GF7>::Zero().IsMinusOne());
+  EXPECT_FALSE(Value<math::GF7>::One().IsMinusOne());
 }
 
 TEST(ValueTest, IsNone) {

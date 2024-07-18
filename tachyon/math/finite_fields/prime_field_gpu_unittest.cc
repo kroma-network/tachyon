@@ -116,11 +116,19 @@ TEST_F(PrimeFieldGpuTest, ToString) {
 TEST_F(PrimeFieldGpuTest, Zero) {
   EXPECT_TRUE(GF7Gpu::Zero().IsZero());
   EXPECT_FALSE(GF7Gpu::One().IsZero());
+  EXPECT_FALSE(GF7Gpu::MinusOne().IsZero());
 }
 
 TEST_F(PrimeFieldGpuTest, One) {
   EXPECT_TRUE(GF7Gpu::One().IsOne());
   EXPECT_FALSE(GF7Gpu::Zero().IsOne());
+  EXPECT_FALSE(GF7Gpu::MinusOne().IsOne());
+}
+
+TEST_F(PrimeFieldGpuTest, MinusOne) {
+  EXPECT_TRUE(GF7Gpu::MinusOne().IsMinusOne());
+  EXPECT_FALSE(GF7Gpu::Zero().IsMinusOne());
+  EXPECT_FALSE(GF7Gpu::One().IsMinusOne());
 }
 
 TEST_F(PrimeFieldGpuTest, Add) {

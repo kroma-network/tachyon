@@ -45,6 +45,8 @@ class TACHYON_EXPORT PackedMersenne31AVX512 final
 
   static PackedMersenne31AVX512 One();
 
+  static PackedMersenne31AVX512 MinusOne();
+
   static PackedMersenne31AVX512 Broadcast(const PrimeField& value);
 
   // AdditiveSemigroup methods

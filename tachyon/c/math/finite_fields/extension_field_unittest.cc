@@ -65,6 +65,17 @@ TEST_F(ExtensionFieldTest, One) {
   EXPECT_TRUE(c::base::native_cast(c_ret12).IsOne());
 }
 
+TEST_F(ExtensionFieldTest, MinusOne) {
+  tachyon_bn254_fq2 c_ret2 = tachyon_bn254_fq2_minus_one();
+  EXPECT_TRUE(c::base::native_cast(c_ret2).IsMinusOne());
+
+  tachyon_bn254_fq6 c_ret6 = tachyon_bn254_fq6_minus_one();
+  EXPECT_TRUE(c::base::native_cast(c_ret6).IsMinusOne());
+
+  tachyon_bn254_fq12 c_ret12 = tachyon_bn254_fq12_minus_one();
+  EXPECT_TRUE(c::base::native_cast(c_ret12).IsMinusOne());
+}
+
 TEST_F(ExtensionFieldTest, Random) {
   tachyon_bn254_fq2 c_ret2 = tachyon_bn254_fq2_random();
   EXPECT_NE(c::base::native_cast(c_ret2), native_fq2_a_);

@@ -56,9 +56,7 @@ TACHYON_EXPORT void ClearBit(mpz_class& value, size_t index);
 
 TACHYON_EXPORT uint64_t* GetLimbs(const mpz_class& value);
 TACHYON_EXPORT size_t GetLimbSize(const mpz_class& value);
-TACHYON_EXPORT const mp_limb_t& GetLimbConstRef(const mpz_class& value,
-                                                size_t idx);
-TACHYON_EXPORT mp_limb_t& GetLimbRef(mpz_class& value, size_t idx);
+TACHYON_EXPORT mp_limb_t GetLimb(const mpz_class& value, size_t idx);
 TACHYON_EXPORT void CopyLimbs(const mpz_class& value, uint64_t* limbs);
 TACHYON_EXPORT void WriteLimbs(const uint64_t* limbs, size_t limb_size,
                                mpz_class* out);

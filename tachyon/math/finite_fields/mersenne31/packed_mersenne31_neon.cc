@@ -16,6 +16,7 @@ namespace {
 uint32x4_t kP;
 uint32x4_t kZero;
 uint32x4_t kOne;
+uint32x4_t kMinusOne;
 
 uint32x4_t ToVector(const PackedMersenne31Neon& packed) {
   return vld1q_u32(reinterpret_cast<const uint32_t*>(packed.values().data()));
@@ -101,6 +102,7 @@ void PackedMersenne31Neon::Init() {
   kP = vdupq_n_u32(Mersenne31::Config::kModulus);
   kZero = vdupq_n_u32(0);
   kOne = vdupq_n_u32(1);
+  kMinusOne = vdupq_n_u32(Mersenne31::Config::kModulus - 1);
 }
 
 // static
@@ -108,6 +110,11 @@ PackedMersenne31Neon PackedMersenne31Neon::Zero() { return FromVector(kZero); }
 
 // static
 PackedMersenne31Neon PackedMersenne31Neon::One() { return FromVector(kOne); }
+
+// static
+PackedMersenne31Neon PackedMersenne31Neon::MinusOne() {
+  return FromVector(kMinusOne);
+}
 
 // static
 PackedMersenne31Neon PackedMersenne31Neon::Broadcast(const PrimeField& value) {

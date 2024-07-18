@@ -1,0 +1,715 @@
+diff --git a/Eigen/src/Core/CwiseNullaryOp.h b/Eigen/src/Core/CwiseNullaryOp.h
+index b33c052c3..13bad9b09 100644
+--- a/Eigen/src/Core/CwiseNullaryOp.h
++++ b/Eigen/src/Core/CwiseNullaryOp.h
+@@ -502,7 +502,7 @@ template<typename Derived>
+ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const typename DenseBase<Derived>::ConstantReturnType
+ DenseBase<Derived>::Zero(Index rows, Index cols)
+ {
+-  return Constant(rows, cols, Scalar(0));
++  return Constant(rows, cols, ScalarTraits<Scalar>::Zero());
+ }
+ 
+ /** \returns an expression of a zero vector.
+@@ -525,7 +525,7 @@ template<typename Derived>
+ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const typename DenseBase<Derived>::ConstantReturnType
+ DenseBase<Derived>::Zero(Index size)
+ {
+-  return Constant(size, Scalar(0));
++  return Constant(size, ScalarTraits<Scalar>::Zero());
+ }
+ 
+ /** \returns an expression of a fixed-size zero matrix or vector.
+@@ -542,7 +542,7 @@ template<typename Derived>
+ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const typename DenseBase<Derived>::ConstantReturnType
+ DenseBase<Derived>::Zero()
+ {
+-  return Constant(Scalar(0));
++  return Constant(ScalarTraits<Scalar>::Zero());
+ }
+ 
+ /** \returns true if *this is approximately equal to the zero matrix,
+@@ -574,7 +574,7 @@ EIGEN_DEVICE_FUNC bool DenseBase<Derived>::isZero(const RealScalar& prec) const
+ template<typename Derived>
+ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Derived& DenseBase<Derived>::setZero()
+ {
+-  return setConstant(Scalar(0));
++  return setConstant(ScalarTraits<Scalar>::Zero());
+ }
+ 
+ /** Resizes to the given \a size, and sets all coefficients in this expression to zero.
+@@ -591,7 +591,7 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Derived&
+ PlainObjectBase<Derived>::setZero(Index newSize)
+ {
+   resize(newSize);
+-  return setConstant(Scalar(0));
++  return setConstant(ScalarTraits<Scalar>::Zero());
+ }
+ 
+ /** Resizes to the given size, and sets all coefficients in this expression to zero.
+@@ -609,7 +609,7 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Derived&
+ PlainObjectBase<Derived>::setZero(Index rows, Index cols)
+ {
+   resize(rows, cols);
+-  return setConstant(Scalar(0));
++  return setConstant(ScalarTraits<Scalar>::Zero());
+ }
+ 
+ /** Resizes to the given size, changing only the number of columns, and sets all
+@@ -658,7 +658,7 @@ template<typename Derived>
+ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const typename DenseBase<Derived>::ConstantReturnType
+ DenseBase<Derived>::Ones(Index rows, Index cols)
+ {
+-  return Constant(rows, cols, Scalar(1));
++  return Constant(rows, cols, ScalarTraits<Scalar>::One());
+ }
+ 
+ /** \returns an expression of a vector where all coefficients equal one.
+@@ -681,7 +681,7 @@ template<typename Derived>
+ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const typename DenseBase<Derived>::ConstantReturnType
+ DenseBase<Derived>::Ones(Index newSize)
+ {
+-  return Constant(newSize, Scalar(1));
++  return Constant(newSize, ScalarTraits<Scalar>::One());
+ }
+ 
+ /** \returns an expression of a fixed-size matrix or vector where all coefficients equal one.
+@@ -698,7 +698,7 @@ template<typename Derived>
+ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const typename DenseBase<Derived>::ConstantReturnType
+ DenseBase<Derived>::Ones()
+ {
+-  return Constant(Scalar(1));
++  return Constant(ScalarTraits<Scalar>::One());
+ }
+ 
+ /** \returns true if *this is approximately equal to the matrix where all coefficients
+@@ -713,7 +713,7 @@ template<typename Derived>
+ EIGEN_DEVICE_FUNC bool DenseBase<Derived>::isOnes
+ (const RealScalar& prec) const
+ {
+-  return isApproxToConstant(Scalar(1), prec);
++  return isApproxToConstant(ScalarTraits<Scalar>::One(), prec);
+ }
+ 
+ /** Sets all coefficients in this expression to one.
+@@ -726,7 +726,7 @@ EIGEN_DEVICE_FUNC bool DenseBase<Derived>::isOnes
+ template<typename Derived>
+ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Derived& DenseBase<Derived>::setOnes()
+ {
+-  return setConstant(Scalar(1));
++  return setConstant(ScalarTraits<Scalar>::One());
+ }
+ 
+ /** Resizes to the given \a newSize, and sets all coefficients in this expression to one.
+@@ -743,7 +743,7 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Derived&
+ PlainObjectBase<Derived>::setOnes(Index newSize)
+ {
+   resize(newSize);
+-  return setConstant(Scalar(1));
++  return setConstant(ScalarTraits<Scalar>::One());
+ }
+ 
+ /** Resizes to the given size, and sets all coefficients in this expression to one.
+@@ -761,7 +761,7 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Derived&
+ PlainObjectBase<Derived>::setOnes(Index rows, Index cols)
+ {
+   resize(rows, cols);
+-  return setConstant(Scalar(1));
++  return setConstant(ScalarTraits<Scalar>::One());
+ }
+ 
+ /** Resizes to the given size, changing only the number of rows, and sets all
+@@ -884,7 +884,7 @@ struct setIdentity_impl<Derived, true>
+   {
+     m.setZero();
+     const Index size = numext::mini(m.rows(), m.cols());
+-    for(Index i = 0; i < size; ++i) m.coeffRef(i,i) = typename Derived::Scalar(1);
++    for(Index i = 0; i < size; ++i) m.coeffRef(i,i) = ScalarTraits<typename Derived::Scalar>::One();
+     return m;
+   }
+ };
+@@ -1003,7 +1003,7 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Derived& MatrixBase<Derived>::setUnit(Inde
+   EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived);
+   eigen_assert(i<size());
+   derived().setZero();
+-  derived().coeffRef(i) = Scalar(1);
++  derived().coeffRef(i) = ScalarTraits<Scalar>::One();
+   return derived();
+ }
+ 
+diff --git a/Eigen/src/Core/DiagonalMatrix.h b/Eigen/src/Core/DiagonalMatrix.h
+index 3c389b972..bef9ee894 100644
+--- a/Eigen/src/Core/DiagonalMatrix.h
++++ b/Eigen/src/Core/DiagonalMatrix.h
+@@ -76,7 +76,7 @@ class DiagonalBase : public EigenBase<Derived>
+     EIGEN_DEVICE_FUNC
+     inline Scalar coeff(Index row, Index col) const {
+       eigen_assert(row >= 0 && col >= 0 && row < rows() && col <= cols());
+-      return row == col ? diagonal().coeff(row) : Scalar(0);
++      return row == col ? diagonal().coeff(row) : ScalarTraits<Scalar>::Zero();
+     }
+ 
+     /** \returns the number of rows. */
+diff --git a/Eigen/src/Core/GeneralProduct.h b/Eigen/src/Core/GeneralProduct.h
+index 9f693baa2..a503511c9 100644
+--- a/Eigen/src/Core/GeneralProduct.h
++++ b/Eigen/src/Core/GeneralProduct.h
+@@ -278,7 +278,7 @@ template<> struct gemv_dense_selector<OnTheRight,ColMajor,true>
+         if(!alphaIsCompatible)
+         {
+           MappedDest(actualDestPtr, dest.size()).setZero();
+-          compatibleAlpha = RhsScalar(1);
++          compatibleAlpha = ScalarTraits<RhsScalar>::One();
+         }
+         else
+           MappedDest(actualDestPtr, dest.size()) = dest;
+diff --git a/Eigen/src/Core/MatrixBase.h b/Eigen/src/Core/MatrixBase.h
+index 605a05e84..145a87803 100644
+--- a/Eigen/src/Core/MatrixBase.h
++++ b/Eigen/src/Core/MatrixBase.h
+@@ -250,7 +250,7 @@ template<typename Derived> class MatrixBase
+     EIGEN_DEVICE_FUNC
+     typename ConstSelfAdjointViewReturnType<UpLo>::Type selfadjointView() const;
+ 
+-    const SparseView<Derived> sparseView(const Scalar& m_reference = Scalar(0),
++    const SparseView<Derived> sparseView(const Scalar& m_reference = ScalarTraits<Scalar>::Zero(),
+                                          const typename NumTraits<Scalar>::Real& m_epsilon = NumTraits<Scalar>::dummy_precision()) const;
+     EIGEN_DEVICE_FUNC static const IdentityReturnType Identity();
+     EIGEN_DEVICE_FUNC static const IdentityReturnType Identity(Index rows, Index cols);
+diff --git a/Eigen/src/Core/NumTraits.h b/Eigen/src/Core/NumTraits.h
+index 89ba2bc0e..e4de9bc98 100644
+--- a/Eigen/src/Core/NumTraits.h
++++ b/Eigen/src/Core/NumTraits.h
+@@ -155,6 +155,7 @@ template<typename T, typename SFINAE = void> struct GenericNumTraits
+ {
+   enum {
+     IsInteger = std::numeric_limits<T>::is_integer,
++    IsField = 0,
+     IsSigned = std::numeric_limits<T>::is_signed,
+     IsComplex = 0,
+     RequireInitialization = internal::is_arithmetic<T>::value ? 0 : 1,
+diff --git a/Eigen/src/Core/PlainObjectBase.h b/Eigen/src/Core/PlainObjectBase.h
+index fc2e94178..642b26dde 100644
+--- a/Eigen/src/Core/PlainObjectBase.h
++++ b/Eigen/src/Core/PlainObjectBase.h
+@@ -13,7 +13,7 @@
+ 
+ #if defined(EIGEN_INITIALIZE_MATRICES_BY_ZERO)
+ # define EIGEN_INITIALIZE_COEFFS
+-# define EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED for(Index i=0;i<base().size();++i) coeffRef(i)=Scalar(0);
++# define EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED for(Index i=0;i<base().size();++i) coeffRef(i)=ScalarTraits<Scalar>::Zero();
+ #elif defined(EIGEN_INITIALIZE_MATRICES_BY_NAN)
+ # define EIGEN_INITIALIZE_COEFFS
+ # define EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED for(Index i=0;i<base().size();++i) coeffRef(i)=std::numeric_limits<Scalar>::quiet_NaN();
+diff --git a/Eigen/src/Core/ProductEvaluators.h b/Eigen/src/Core/ProductEvaluators.h
+index 9da240671..5f4b2f8c9 100644
+--- a/Eigen/src/Core/ProductEvaluators.h
++++ b/Eigen/src/Core/ProductEvaluators.h
+@@ -348,15 +348,15 @@ struct generic_product_impl_base
+ 
+   template<typename Dst>
+   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void evalTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
+-  { dst.setZero(); scaleAndAddTo(dst, lhs, rhs, Scalar(1)); }
++  { dst.setZero(); scaleAndAddTo(dst, lhs, rhs, ScalarTraits<Scalar>::One()); }
+ 
+   template<typename Dst>
+   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void addTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
+-  { scaleAndAddTo(dst,lhs, rhs, Scalar(1)); }
++  { scaleAndAddTo(dst,lhs, rhs, ScalarTraits<Scalar>::One()); }
+ 
+   template<typename Dst>
+   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void subTo(Dst& dst, const Lhs& lhs, const Rhs& rhs)
+-  { scaleAndAddTo(dst, lhs, rhs, Scalar(-1)); }
++  { scaleAndAddTo(dst, lhs, rhs, ScalarTraits<Scalar>::MinusOne()); }
+ 
+   template<typename Dst>
+   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void scaleAndAddTo(Dst& dst, const Lhs& lhs, const Rhs& rhs, const Scalar& alpha)
+diff --git a/Eigen/src/Core/Redux.h b/Eigen/src/Core/Redux.h
+index 796e6c4eb..9890aa782 100644
+--- a/Eigen/src/Core/Redux.h
++++ b/Eigen/src/Core/Redux.h
+@@ -460,7 +460,7 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::traits<Derived>::Scalar
+ DenseBase<Derived>::sum() const
+ {
+   if(SizeAtCompileTime==0 || (SizeAtCompileTime==Dynamic && size()==0))
+-    return Scalar(0);
++    return ScalarTraits<Scalar>::Zero();
+   return derived().redux(Eigen::internal::scalar_sum_op<Scalar,Scalar>());
+ }
+ 
+diff --git a/Eigen/src/Core/TriangularMatrix.h b/Eigen/src/Core/TriangularMatrix.h
+index c1bd13afc..3920aef89 100644
+--- a/Eigen/src/Core/TriangularMatrix.h
++++ b/Eigen/src/Core/TriangularMatrix.h
+@@ -408,10 +408,10 @@ template<typename MatrixType_, unsigned int Mode_> class TriangularViewImpl<Matr
+     { return *this = MatrixType::Constant(derived().rows(), derived().cols(), value); }
+     /** \sa MatrixBase::setZero() */
+     EIGEN_DEVICE_FUNC
+-    TriangularViewType& setZero() { return setConstant(Scalar(0)); }
++    TriangularViewType& setZero() { return setConstant(ScalarTraits<Scalar>::Zero()); }
+     /** \sa MatrixBase::setOnes() */
+     EIGEN_DEVICE_FUNC
+-    TriangularViewType& setOnes() { return setConstant(Scalar(1)); }
++    TriangularViewType& setOnes() { return setConstant(ScalarTraits<Scalar>::One()); }
+ 
+     /** \sa MatrixBase::coeff()
+       * \warning the coordinates must fit into the referenced triangular part
+@@ -786,8 +786,8 @@ public:
+ 
+   EIGEN_DEVICE_FUNC void assignDiagonalCoeff(Index id)
+   {
+-         if(Mode==UnitDiag && SetOpposite) m_functor.assignCoeff(m_dst.coeffRef(id,id), Scalar(1));
+-    else if(Mode==ZeroDiag && SetOpposite) m_functor.assignCoeff(m_dst.coeffRef(id,id), Scalar(0));
++         if(Mode==UnitDiag && SetOpposite) m_functor.assignCoeff(m_dst.coeffRef(id,id), ScalarTraits<Scalar>::One());
++    else if(Mode==ZeroDiag && SetOpposite) m_functor.assignCoeff(m_dst.coeffRef(id,id), ScalarTraits<Scalar>::Zero());
+     else if(Mode==0)                       Base::assignCoeff(id,id);
+   }
+ 
+@@ -795,7 +795,7 @@ public:
+   {
+     eigen_internal_assert(row!=col);
+     if(SetOpposite)
+-      m_functor.assignCoeff(m_dst.coeffRef(row,col), Scalar(0));
++      m_functor.assignCoeff(m_dst.coeffRef(row,col), ScalarTraits<Scalar>::Zero());
+   }
+ };
+ 
+@@ -970,7 +970,7 @@ struct Assignment<DstXprType, Product<Lhs,Rhs,DefaultProduct>, internal::assign_
+     if((dst.rows()!=dstRows) || (dst.cols()!=dstCols))
+       dst.resize(dstRows, dstCols);
+ 
+-    dst._assignProduct(src, Scalar(1), false);
++    dst._assignProduct(src, ScalarTraits<Scalar>::One(), false);
+   }
+ };
+ 
+@@ -981,7 +981,7 @@ struct Assignment<DstXprType, Product<Lhs,Rhs,DefaultProduct>, internal::add_ass
+   typedef Product<Lhs,Rhs,DefaultProduct> SrcXprType;
+   static void run(DstXprType &dst, const SrcXprType &src, const internal::add_assign_op<Scalar,typename SrcXprType::Scalar> &)
+   {
+-    dst._assignProduct(src, Scalar(1), true);
++    dst._assignProduct(src, ScalarTraits<Scalar>::One(), true);
+   }
+ };
+ 
+@@ -992,7 +992,7 @@ struct Assignment<DstXprType, Product<Lhs,Rhs,DefaultProduct>, internal::sub_ass
+   typedef Product<Lhs,Rhs,DefaultProduct> SrcXprType;
+   static void run(DstXprType &dst, const SrcXprType &src, const internal::sub_assign_op<Scalar,typename SrcXprType::Scalar> &)
+   {
+-    dst._assignProduct(src, Scalar(-1), true);
++    dst._assignProduct(src, ScalarTraits<Scalar>::MinusOne(), true);
+   }
+ };
+ 
+diff --git a/Eigen/src/Core/functors/BinaryFunctors.h b/Eigen/src/Core/functors/BinaryFunctors.h
+index cd8ae9ee5..b3a7de968 100644
+--- a/Eigen/src/Core/functors/BinaryFunctors.h
++++ b/Eigen/src/Core/functors/BinaryFunctors.h
+@@ -470,11 +470,11 @@ struct scalar_boolean_and_op {
+   // `false` any value `a` that satisfies `a == Scalar(0)`
+   // `true` is the complement of `false`
+   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar operator()(const Scalar& a, const Scalar& b) const {
+-    return (a != Scalar(0)) && (b != Scalar(0)) ? Scalar(1) : Scalar(0);
++    return (a != ScalarTraits<Scalar>::Zero()) && (b != ScalarTraits<Scalar>::Zero()) ? ScalarTraits<Scalar>::One() : ScalarTraits<Scalar>::Zero();
+   }
+   template <typename Packet>
+   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Packet packetOp(const Packet& a, const Packet& b) const {
+-    const Packet cst_one = pset1<Packet>(Scalar(1));
++    const Packet cst_one = pset1<Packet>(ScalarTraits<Scalar>::One());
+     // and(a,b) == !or(!a,!b)
+     Packet not_a = pcmp_eq(a, pzero(a));
+     Packet not_b = pcmp_eq(b, pzero(b));
+@@ -498,11 +498,11 @@ struct scalar_boolean_or_op {
+   // `false` any value `a` that satisfies `a == Scalar(0)`
+   // `true` is the complement of `false`
+   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar operator()(const Scalar& a, const Scalar& b) const {
+-    return (a != Scalar(0)) || (b != Scalar(0)) ? Scalar(1) : Scalar(0);
++    return (a != ScalarTraits<Scalar>::Zero()) || (b != ScalarTraits<Scalar>::Zero()) ? ScalarTraits<Scalar>::One() : ScalarTraits<Scalar>::Zero();
+   }
+   template <typename Packet>
+   EIGEN_STRONG_INLINE Packet packetOp(const Packet& a, const Packet& b) const {
+-    const Packet cst_one = pset1<Packet>(Scalar(1));
++    const Packet cst_one = pset1<Packet>(ScalarTraits<Scalar>::One());
+     // if or(a,b) == 0, then a == 0 and b == 0
+     // or(a,b) == !nor(a,b)
+     Packet a_nor_b = pcmp_eq(por(a, b), pzero(a));
+@@ -525,11 +525,11 @@ struct scalar_boolean_xor_op {
+   // `false` any value `a` that satisfies `a == Scalar(0)`
+   // `true` is the complement of `false`
+   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar operator()(const Scalar& a, const Scalar& b) const {
+-    return (a != Scalar(0)) != (b != Scalar(0)) ? Scalar(1) : Scalar(0);
++    return (a != ScalarTraits<Scalar>::Zero()) != (b != ScalarTraits<Scalar>::Zero()) ? ScalarTraits<Scalar>::One() : ScalarTraits<Scalar>::Zero();
+   }
+   template <typename Packet>
+   EIGEN_STRONG_INLINE Packet packetOp(const Packet& a, const Packet& b) const {
+-    const Packet cst_one = pset1<Packet>(Scalar(1));
++    const Packet cst_one = pset1<Packet>(ScalarTraits<Scalar>::One());
+     // xor(a,b) == xor(!a,!b)
+     Packet not_a = pcmp_eq(a, pzero(a));
+     Packet not_b = pcmp_eq(b, pzero(b));
+diff --git a/Eigen/src/Core/functors/NullaryFunctors.h b/Eigen/src/Core/functors/NullaryFunctors.h
+index 4943d8756..fafef3a97 100644
+--- a/Eigen/src/Core/functors/NullaryFunctors.h
++++ b/Eigen/src/Core/functors/NullaryFunctors.h
+@@ -32,7 +32,7 @@ struct functor_traits<scalar_constant_op<Scalar> >
+ 
+ template<typename Scalar> struct scalar_identity_op {
+   template<typename IndexType>
+-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar operator() (IndexType row, IndexType col) const { return row==col ? Scalar(1) : Scalar(0); }
++  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar operator() (IndexType row, IndexType col) const { return row==col ? ScalarTraits<Scalar>::One() : ScalarTraits<Scalar>::Zero(); }
+ };
+ template<typename Scalar>
+ struct functor_traits<scalar_identity_op<Scalar> >
+diff --git a/Eigen/src/Core/functors/UnaryFunctors.h b/Eigen/src/Core/functors/UnaryFunctors.h
+index 8354c0a76..99c0203fc 100644
+--- a/Eigen/src/Core/functors/UnaryFunctors.h
++++ b/Eigen/src/Core/functors/UnaryFunctors.h
+@@ -182,7 +182,7 @@ struct scalar_cast_op {
+ template <typename Scalar>
+ struct scalar_cast_op<Scalar, bool> {
+   typedef bool result_type;
+-  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator()(const Scalar& a) const { return a != Scalar(0); }
++  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator()(const Scalar& a) const { return a != ScalarTraits<Scalar>::Zero(); }
+ };
+ 
+ template<typename Scalar, typename NewType>
+@@ -711,7 +711,7 @@ struct functor_traits<scalar_acosh_op<Scalar> > {
+   */
+ template<typename Scalar>
+ struct scalar_inverse_op {
+-  EIGEN_DEVICE_FUNC inline Scalar operator() (const Scalar& a) const { return Scalar(1)/a; }
++  EIGEN_DEVICE_FUNC inline Scalar operator() (const Scalar& a) const { return ScalarTraits<Scalar>::One()/a; }
+   template<typename Packet>
+   EIGEN_DEVICE_FUNC inline const Packet packetOp(const Packet& a) const
+   { return internal::preciprocal(a); }
+@@ -952,11 +952,11 @@ struct scalar_boolean_not_op {
+   // `false` any value `a` that satisfies `a == Scalar(0)`
+   // `true` is the complement of `false`
+   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar operator()(const Scalar& a) const {
+-    return a == Scalar(0) ? Scalar(1) : Scalar(0);
++    return a == ScalarTraits<Scalar>::Zero() ? ScalarTraits<Scalar>::One() : ScalarTraits<Scalar>::Zero();
+   }
+   template <typename Packet>
+   EIGEN_STRONG_INLINE Packet packetOp(const Packet& a) const {
+-    const Packet cst_one = pset1<Packet>(Scalar(1));
++    const Packet cst_one = pset1<Packet>(ScalarTraits<Scalar>::One());
+     Packet not_a = pcmp_eq(a, pzero(a));
+     return pand(not_a, cst_one);
+   }
+diff --git a/Eigen/src/Core/products/GeneralMatrixMatrix.h b/Eigen/src/Core/products/GeneralMatrixMatrix.h
+index 9f2a53da1..80db83e90 100644
+--- a/Eigen/src/Core/products/GeneralMatrixMatrix.h
++++ b/Eigen/src/Core/products/GeneralMatrixMatrix.h
+@@ -439,7 +439,7 @@ struct generic_product_impl<Lhs,Rhs,DenseShape,DenseShape,GemmProduct>
+     else
+     {
+       dst.setZero();
+-      scaleAndAddTo(dst, lhs, rhs, Scalar(1));
++      scaleAndAddTo(dst, lhs, rhs, ScalarTraits<Scalar>::One());
+     }
+   }
+ 
+@@ -449,7 +449,7 @@ struct generic_product_impl<Lhs,Rhs,DenseShape,DenseShape,GemmProduct>
+     if((rhs.rows()+dst.rows()+dst.cols())<EIGEN_GEMM_TO_COEFFBASED_THRESHOLD && rhs.rows()>0)
+       lazyproduct::eval_dynamic(dst, lhs, rhs, internal::add_assign_op<typename Dst::Scalar,Scalar>());
+     else
+-      scaleAndAddTo(dst,lhs, rhs, Scalar(1));
++      scaleAndAddTo(dst,lhs, rhs, ScalarTraits<Scalar>::One());
+   }
+ 
+   template<typename Dst>
+@@ -458,7 +458,7 @@ struct generic_product_impl<Lhs,Rhs,DenseShape,DenseShape,GemmProduct>
+     if((rhs.rows()+dst.rows()+dst.cols())<EIGEN_GEMM_TO_COEFFBASED_THRESHOLD && rhs.rows()>0)
+       lazyproduct::eval_dynamic(dst, lhs, rhs, internal::sub_assign_op<typename Dst::Scalar,Scalar>());
+     else
+-      scaleAndAddTo(dst, lhs, rhs, Scalar(-1));
++      scaleAndAddTo(dst, lhs, rhs, ScalarTraits<Scalar>::MinusOne());
+   }
+ 
+   template<typename Dest>
+diff --git a/Eigen/src/Core/products/GeneralMatrixVector.h b/Eigen/src/Core/products/GeneralMatrixVector.h
+index 7307994ce..a881b2909 100644
+--- a/Eigen/src/Core/products/GeneralMatrixVector.h
++++ b/Eigen/src/Core/products/GeneralMatrixVector.h
+@@ -157,14 +157,14 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+     Index i=0;
+     for(; i<n8; i+=ResPacketSize*8)
+     {
+-      ResPacket c0 = pset1<ResPacket>(ResScalar(0)),
+-                c1 = pset1<ResPacket>(ResScalar(0)),
+-                c2 = pset1<ResPacket>(ResScalar(0)),
+-                c3 = pset1<ResPacket>(ResScalar(0)),
+-                c4 = pset1<ResPacket>(ResScalar(0)),
+-                c5 = pset1<ResPacket>(ResScalar(0)),
+-                c6 = pset1<ResPacket>(ResScalar(0)),
+-                c7 = pset1<ResPacket>(ResScalar(0));
++      ResPacket c0 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c1 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c2 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c3 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c4 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c5 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c6 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c7 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero());
+ 
+       for(Index j=j2; j<jend; j+=1)
+       {
+@@ -189,10 +189,10 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+     }
+     if(i<n4)
+     {
+-      ResPacket c0 = pset1<ResPacket>(ResScalar(0)),
+-                c1 = pset1<ResPacket>(ResScalar(0)),
+-                c2 = pset1<ResPacket>(ResScalar(0)),
+-                c3 = pset1<ResPacket>(ResScalar(0));
++      ResPacket c0 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c1 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c2 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c3 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero());
+ 
+       for(Index j=j2; j<jend; j+=1)
+       {
+@@ -211,9 +211,9 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+     }
+     if(i<n3)
+     {
+-      ResPacket c0 = pset1<ResPacket>(ResScalar(0)),
+-                c1 = pset1<ResPacket>(ResScalar(0)),
+-                c2 = pset1<ResPacket>(ResScalar(0));
++      ResPacket c0 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c1 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c2 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero());
+ 
+       for(Index j=j2; j<jend; j+=1)
+       {
+@@ -230,8 +230,8 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+     }
+     if(i<n2)
+     {
+-      ResPacket c0 = pset1<ResPacket>(ResScalar(0)),
+-                c1 = pset1<ResPacket>(ResScalar(0));
++      ResPacket c0 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++                c1 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero());
+ 
+       for(Index j=j2; j<jend; j+=1)
+       {
+@@ -245,7 +245,7 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+     }
+     if(i<n1)
+     {
+-      ResPacket c0 = pset1<ResPacket>(ResScalar(0));
++      ResPacket c0 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero());
+       for(Index j=j2; j<jend; j+=1)
+       {
+         RhsPacket b0 = pset1<RhsPacket>(rhs(j,0));
+@@ -256,7 +256,7 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+     }
+     if(HasHalf && i<n_half)
+     {
+-      ResPacketHalf c0 = pset1<ResPacketHalf>(ResScalar(0));
++      ResPacketHalf c0 = pset1<ResPacketHalf>(ScalarTraits<ResScalar>::Zero());
+       for(Index j=j2; j<jend; j+=1)
+       {
+         RhsPacketHalf b0 = pset1<RhsPacketHalf>(rhs(j,0));
+@@ -267,7 +267,7 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+     }
+     if(HasQuarter && i<n_quarter)
+     {
+-      ResPacketQuarter c0 = pset1<ResPacketQuarter>(ResScalar(0));
++      ResPacketQuarter c0 = pset1<ResPacketQuarter>(ScalarTraits<ResScalar>::Zero());
+       for(Index j=j2; j<jend; j+=1)
+       {
+         RhsPacketQuarter b0 = pset1<RhsPacketQuarter>(rhs(j,0));
+@@ -364,14 +364,14 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+   Index i=0;
+   for(; i<n8; i+=8)
+   {
+-    ResPacket c0 = pset1<ResPacket>(ResScalar(0)),
+-              c1 = pset1<ResPacket>(ResScalar(0)),
+-              c2 = pset1<ResPacket>(ResScalar(0)),
+-              c3 = pset1<ResPacket>(ResScalar(0)),
+-              c4 = pset1<ResPacket>(ResScalar(0)),
+-              c5 = pset1<ResPacket>(ResScalar(0)),
+-              c6 = pset1<ResPacket>(ResScalar(0)),
+-              c7 = pset1<ResPacket>(ResScalar(0));
++    ResPacket c0 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c1 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c2 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c3 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c4 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c5 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c6 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c7 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero());
+ 
+     Index j=0;
+     for(; j+LhsPacketSize<=cols; j+=LhsPacketSize)
+@@ -419,10 +419,10 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+   }
+   for(; i<n4; i+=4)
+   {
+-    ResPacket c0 = pset1<ResPacket>(ResScalar(0)),
+-              c1 = pset1<ResPacket>(ResScalar(0)),
+-              c2 = pset1<ResPacket>(ResScalar(0)),
+-              c3 = pset1<ResPacket>(ResScalar(0));
++    ResPacket c0 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c1 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c2 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c3 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero());
+ 
+     Index j=0;
+     for(; j+LhsPacketSize<=cols; j+=LhsPacketSize)
+@@ -454,8 +454,8 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+   }
+   for(; i<n2; i+=2)
+   {
+-    ResPacket c0 = pset1<ResPacket>(ResScalar(0)),
+-              c1 = pset1<ResPacket>(ResScalar(0));
++    ResPacket c0 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero()),
++              c1 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero());
+ 
+     Index j=0;
+     for(; j+LhsPacketSize<=cols; j+=LhsPacketSize)
+@@ -479,9 +479,9 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE void general_matrix_vector_product<Index,Lhs
+   }
+   for(; i<rows; ++i)
+   {
+-    ResPacket c0 = pset1<ResPacket>(ResScalar(0));
+-    ResPacketHalf c0_h = pset1<ResPacketHalf>(ResScalar(0));
+-    ResPacketQuarter c0_q = pset1<ResPacketQuarter>(ResScalar(0));
++    ResPacket c0 = pset1<ResPacket>(ScalarTraits<ResScalar>::Zero());
++    ResPacketHalf c0_h = pset1<ResPacketHalf>(ScalarTraits<ResScalar>::Zero());
++    ResPacketQuarter c0_q = pset1<ResPacketQuarter>(ScalarTraits<ResScalar>::Zero());
+     Index j=0;
+     for(; j+LhsPacketSize<=cols; j+=LhsPacketSize)
+     {
+diff --git a/Eigen/src/Core/products/TriangularSolverMatrix.h b/Eigen/src/Core/products/TriangularSolverMatrix.h
+index b148d9c4f..23a8453bd 100644
+--- a/Eigen/src/Core/products/TriangularSolverMatrix.h
++++ b/Eigen/src/Core/products/TriangularSolverMatrix.h
+@@ -60,7 +60,7 @@ EIGEN_STRONG_INLINE void trsmKernelL<Scalar, Index, Mode, Conjugate, TriStorageO
+       Index s  = TriStorageOrder==RowMajor ? (IsLower ? 0 : i+1)
+         :  IsLower ? i+1 : i-rs;
+ 
+-      Scalar a = (Mode & UnitDiag) ? Scalar(1) : Scalar(1)/conj(tri(i,i));
++      Scalar a = (Mode & UnitDiag) ? Scalar::One() : Scalar::One()/conj(tri(i,i));
+       for (Index j=0; j<otherSize; ++j)
+       {
+         if (TriStorageOrder==RowMajor)
+@@ -273,7 +273,7 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheLeft,Mode,Conju
+ 
+             pack_lhs(blockA, tri.getSubMapper(startTarget,startBlock), actualPanelWidth, lengthTarget);
+ 
+-            gebp_kernel(other.getSubMapper(startTarget,j2), blockA, blockB+actual_kc*j2, lengthTarget, actualPanelWidth, actual_cols, Scalar(-1),
++            gebp_kernel(other.getSubMapper(startTarget,j2), blockA, blockB+actual_kc*j2, lengthTarget, actualPanelWidth, actual_cols, Scalar::MinusOne(),
+                         actualPanelWidth, actual_kc, 0, blockBOffset);
+           }
+         }
+@@ -290,7 +290,7 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheLeft,Mode,Conju
+           {
+             pack_lhs(blockA, tri.getSubMapper(i2, IsLower ? k2 : k2-kc), actual_kc, actual_mc);
+ 
+-            gebp_kernel(other.getSubMapper(i2, 0), blockA, blockB, actual_mc, actual_kc, cols, Scalar(-1), -1, -1, 0, 0);
++            gebp_kernel(other.getSubMapper(i2, 0), blockA, blockB, actual_mc, actual_kc, cols, Scalar::MinusOne(), -1, -1, 0, 0);
+           }
+         }
+       }
+@@ -416,7 +416,7 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheRight,Mode,Conj
+               gebp_kernel(lhs.getSubMapper(i2,absolute_j2),
+                           blockA, blockB+j2*actual_kc,
+                           actual_mc, panelLength, actualPanelWidth,
+-                          Scalar(-1),
++                          Scalar::MinusOne(),
+                           actual_kc, actual_kc, // strides
+                           panelOffset, panelOffset); // offsets
+             }
+@@ -437,7 +437,7 @@ EIGEN_DONT_INLINE void triangular_solve_matrix<Scalar,Index,OnTheRight,Mode,Conj
+ 
+         if (rs>0)
+           gebp_kernel(lhs.getSubMapper(i2, startPanel), blockA, geb,
+-                      actual_mc, actual_kc, rs, Scalar(-1),
++                      actual_mc, actual_kc, rs, Scalar::MinusOne(),
+                       -1, -1, 0, 0);
+       }
+     }
+diff --git a/Eigen/src/Core/util/ForwardDeclarations.h b/Eigen/src/Core/util/ForwardDeclarations.h
+index feacdcfe4..2421fa779 100644
+--- a/Eigen/src/Core/util/ForwardDeclarations.h
++++ b/Eigen/src/Core/util/ForwardDeclarations.h
+@@ -46,6 +46,18 @@ template< typename T> struct evaluator;
+ 
+ template<typename T, typename SFINAE> struct NumTraits;
+ 
++template <typename Scalar, typename SFINAE = void> struct ScalarTraits {
++  EIGEN_CONSTEXPR static Scalar Zero() { return Scalar(0); }
++  EIGEN_CONSTEXPR static Scalar One() { return Scalar(1); }
++  EIGEN_CONSTEXPR static Scalar MinsOne() { return Scalar(-1); }
++};
++
++template <typename Scalar> struct ScalarTraits<Scalar, std::enable_if_t<NumTraits<Scalar>::IsField>> {
++  EIGEN_CONSTEXPR static Scalar Zero() { return Scalar::Zero(); }
++  EIGEN_CONSTEXPR static Scalar One() { return Scalar::One(); }
++  EIGEN_CONSTEXPR static Scalar MinusOne() { return Scalar::MinusOne(); }
++};
++
+ template<typename Derived> struct EigenBase;
+ template<typename Derived> class DenseBase;
+ template<typename Derived> class PlainObjectBase;
+diff --git a/Eigen/src/SparseCore/SparseCwiseBinaryOp.h b/Eigen/src/SparseCore/SparseCwiseBinaryOp.h
+index 3aea5ecb5..0bc180a52 100644
+--- a/Eigen/src/SparseCore/SparseCwiseBinaryOp.h
++++ b/Eigen/src/SparseCore/SparseCwiseBinaryOp.h
+@@ -76,9 +76,9 @@ public:
+   class InnerIterator
+   {
+   public:
+-    
++
+     EIGEN_STRONG_INLINE InnerIterator(const binary_evaluator& aEval, Index outer)
+-      : m_lhsIter(aEval.m_lhsImpl,outer), m_rhsIter(aEval.m_rhsImpl,outer), m_functor(aEval.m_functor), m_value(Scalar(0))
++      : m_lhsIter(aEval.m_lhsImpl,outer), m_rhsIter(aEval.m_rhsImpl,outer), m_functor(aEval.m_functor), m_value(ScalarTraits<Scalar>::Zero())
+     {
+       this->operator++();
+     }
+@@ -95,13 +95,13 @@ public:
+       else if (m_lhsIter && (!m_rhsIter || (m_lhsIter.index() < m_rhsIter.index())))
+       {
+         m_id = m_lhsIter.index();
+-        m_value = m_functor(m_lhsIter.value(), Scalar(0));
++        m_value = m_functor(m_lhsIter.value(), ScalarTraits<Scalar>::Zero());
+         ++m_lhsIter;
+       }
+       else if (m_rhsIter && (!m_lhsIter || (m_lhsIter.index() > m_rhsIter.index())))
+       {
+         m_id = m_rhsIter.index();
+-        m_value = m_functor(Scalar(0), m_rhsIter.value());
++        m_value = m_functor(ScalarTraits<Scalar>::Zero(), m_rhsIter.value());
+         ++m_rhsIter;
+       }
+       else
+@@ -189,7 +189,7 @@ public:
+           ++m_rhsIter;
+         }
+         else
+-          m_value = m_functor(lhsVal, Scalar(0));
++          m_value = m_functor(lhsVal, ScalarTraits<Scalar>::Zero());
+       }
+ 
+       return *this;
+@@ -276,7 +276,7 @@ public:
+           ++m_lhsIter;
+         }
+         else
+-          m_value = m_functor(Scalar(0),rhsVal);
++          m_value = m_functor(ScalarTraits<Scalar>::Zero(),rhsVal);
+       }
+ 
+       return *this;
+@@ -670,7 +670,7 @@ struct sparse_disjunction_evaluator<XprType, IteratorBased, IteratorBased> : eva
+         : m_lhsIter(aEval.m_lhsImpl, outer),
+           m_rhsIter(aEval.m_rhsImpl, outer),
+           m_functor(aEval.m_functor),
+-          m_value(Scalar(0)) {
++          m_value(ScalarTraits<Scalar>::Zero()) {
+       this->operator++();
+     }
+ 
