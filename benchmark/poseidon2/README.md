@@ -13,7 +13,7 @@ CPU Caches:
 bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/poseidon2:poseidon2_benchmark -- -p bn254_fr --vendor horizen --vendor plonky3 --check_results
 ```
 
-| Repetition | tachyon  | horizen | plonky3 |
+| Repetition | Tachyon  | Horizen | Plonky3 |
 | :--------- | -------- | ------- | ------- |
 | 0          | 1.2e-05  | 7e-06   | 1e-05   |
 | 1          | 1.1e-05  | 4e-06   | 8e-06   |
