@@ -30,7 +30,7 @@ fn bn254_from_ark_ff(input: ark_FpBN256) -> Bn254Fr {
 }
 
 #[no_mangle]
-pub extern "C" fn run_poseidon_plonky3(duration: *mut u64) -> *mut CppFr {
+pub extern "C" fn run_poseidon_plonky3_bn254_fr(duration: *mut u64) -> *mut CppFr {
     const WIDTH: usize = 3;
     const D: u64 = 5;
     const ROUNDS_F: usize = 8;
