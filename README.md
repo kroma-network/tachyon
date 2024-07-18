@@ -59,6 +59,13 @@ Symbol Definitions:
 | Poseidon  | :heavy_check_mark: | :x: |
 | Poseidon2 | :heavy_check_mark: | :x: |
 
+### FFT
+
+|               | CPU                | GPU                |
+| ------------- | ------------------ | ------------------ |
+| Radix2FFT     | :heavy_check_mark: | :heavy_check_mark: |
+| MixedRadixFFT | :heavy_check_mark: | :heavy_check_mark: |
+
 ### Lookups
 
 |       | CPU                | GPU |
