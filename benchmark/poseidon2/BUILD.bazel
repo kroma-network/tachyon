@@ -42,7 +42,6 @@ tachyon_cc_binary(
         "//benchmark/poseidon:simple_poseidon_benchmark_reporter",
         "//benchmark/poseidon2/horizen",
         "//benchmark/poseidon2/plonky3",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:poseidon2",
     ],
 )

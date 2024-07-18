@@ -7,7 +7,6 @@
 // clang-format on
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/poseidon2.h"
