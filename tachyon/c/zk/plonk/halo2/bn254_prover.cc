@@ -33,6 +33,7 @@
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
 #include "tachyon/zk/plonk/halo2/sha256_transcript.h"
+#include "tachyon/zk/plonk/halo2/snark_verifier_poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 using namespace tachyon;
@@ -82,6 +83,11 @@ zk::plonk::halo2::Prover<PCS, LS> CreateProver(uint8_t transcript_type,
           std::move(write_buf));
       break;
     }
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+      writer = std::make_unique<zk::plonk::halo2::SnarkVerifierPoseidonWriter<
+          math::bn254::G1AffinePoint>>(std::move(write_buf));
+      break;
+    }
   }
   CHECK(writer);
   zk::plonk::halo2::Prover<PCS, LS> prover =
@@ -121,6 +127,11 @@ zk::plonk::halo2::Prover<PCS, LS> CreateProverFromParams(
       writer = std::make_unique<
           zk::plonk::halo2::Sha256Writer<math::bn254::G1AffinePoint>>(
           std::move(write_buf));
+      break;
+    }
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+      writer = std::make_unique<zk::plonk::halo2::SnarkVerifierPoseidonWriter<
+          math::bn254::G1AffinePoint>>(std::move(write_buf));
       break;
     }
   }
@@ -282,6 +293,15 @@ void SetTranscriptState(NativeProver* prover, const uint8_t* state,
       auto writer = std::make_unique<
           zk::plonk::halo2::Sha256Writer<math::bn254::G1AffinePoint>>(
           std::move(write_buf));
+      absl::Span<const uint8_t> state_span(state, state_len);
+      writer->SetState(state_span);
+      prover->SetTranscript(state_span, std::move(writer));
+      return;
+    }
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+      auto writer =
+          std::make_unique<zk::plonk::halo2::SnarkVerifierPoseidonWriter<
+              math::bn254::G1AffinePoint>>(std::move(write_buf));
       absl::Span<const uint8_t> state_span(state, state_len);
       writer->SetState(state_span);
       prover->SetTranscript(state_span, std::move(writer));
