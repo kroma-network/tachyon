@@ -3,6 +3,11 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
+// Copyright 2022 Ethereum Foundation
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.EF and the LICENCE-APACHE.EF
+// file.
+
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 
@@ -36,12 +41,41 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
   explicit PoseidonSponge(const PoseidonConfig<F>& config) : config(config) {}
 
   // PoseidonSpongeBase methods
-  void ApplyARK(SpongeState<F>& state, Eigen::Index round_number, bool) const {
-    state.elements += config.ark.row(round_number);
-  }
+  void Permute(SpongeState<F>& state) const {
+    size_t full_rounds_over_2 = config.full_rounds / 2;
+    {
+      bool is_full_round = true;
+      this->ApplyARK(state, 0, is_full_round);
+      size_t full_rounds_over_2 = config.full_rounds / 2;
+      for (size_t i = 1; i < full_rounds_over_2; ++i) {
+        this->ApplySBox(state, is_full_round);
+        this->ApplyARK(state, i, is_full_round);
+        ApplyMix(state, is_full_round);
+      }
+      this->ApplySBox(state, is_full_round);
+      this->ApplyARK(state, full_rounds_over_2, is_full_round);
+      ApplyMixEfficient(state, full_rounds_over_2, is_full_round);
+    }
 
-  void ApplyMix(SpongeState<F>& state, bool) const {
-    state.elements = math::MulMatVecSerial(config.mds, state.elements);
+    for (size_t i = full_rounds_over_2 + 1;
+         i < full_rounds_over_2 + config.partial_rounds + 1; ++i) {
+      bool is_full_round = false;
+      this->ApplySBox(state, is_full_round);
+      this->ApplyARK(state, i, is_full_round);
+      ApplyMixEfficient(state, i - (full_rounds_over_2 + 1), is_full_round);
+    }
+
+    {
+      bool is_full_round = true;
+      for (size_t i = full_rounds_over_2 + config.partial_rounds + 1;
+           i < config.partial_rounds + config.full_rounds; ++i) {
+        this->ApplySBox(state, is_full_round);
+        this->ApplyARK(state, i, is_full_round);
+        ApplyMix(state, is_full_round);
+      }
+      this->ApplySBox(state, is_full_round);
+      ApplyMix(state, is_full_round);
+    }
   }
 
   bool operator==(const PoseidonSponge& other) const {
@@ -50,12 +84,26 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
   bool operator!=(const PoseidonSponge& other) const {
     return !operator==(other);
   }
+
+ private:
+  void ApplyMix(SpongeState<F>& state, bool is_full_round) const {
+    state.elements = math::MulMatVecSerial(config.mds, state.elements);
+  }
+
+  void ApplyMixEfficient(SpongeState<F>& state, Eigen::Index index,
+                         bool is_full_round) const {
+    if (is_full_round) {
+      state.elements =
+          math::MulMatVecSerial(config.pre_sparse_mds, state.elements);
+    } else {
+      config.sparse_mds_matrices[index].Apply(state.elements);
+    }
+  }
 };
 
 template <typename Field>
 struct CryptographicSpongeTraits<PoseidonSponge<Field>> {
   using F = Field;
-  constexpr static bool kApplyMixAtFront = false;
 };
 
 }  // namespace crypto

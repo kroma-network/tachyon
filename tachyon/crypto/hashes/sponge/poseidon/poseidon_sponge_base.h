@@ -19,8 +19,17 @@ namespace tachyon::crypto {
 template <typename Derived>
 struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
   using F = typename CryptographicSpongeTraits<Derived>::F;
-  constexpr static bool kApplyMixAtFront =
-      CryptographicSpongeTraits<Derived>::kApplyMixAtFront;
+
+  void ApplyARK(SpongeState<F>& state, Eigen::Index round_number,
+                bool is_full_round) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    auto& config = derived.config;
+    if (is_full_round) {
+      state.elements += config.ark.row(round_number);
+    } else {
+      state.elements[0] += config.ark.row(round_number)[0];
+    }
+  }
 
   void ApplySBox(SpongeState<F>& state, bool is_full_round) const {
     const Derived& derived = static_cast<const Derived&>(*this);
@@ -34,36 +43,6 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
       // Partial rounds apply the S-Box (xᵅ) to just the first element of
       // |state|.
       state[0] = state[0].Pow(config.alpha);
-    }
-  }
-
-  void Permute(SpongeState<F>& state) const {
-    const Derived& derived = static_cast<const Derived&>(*this);
-    auto& config = derived.config;
-    if constexpr (kApplyMixAtFront) {
-      derived.ApplyMix(state, /*is_full_round=*/true);
-    }
-
-    size_t full_rounds_over_2 = config.full_rounds / 2;
-    for (size_t i = 0; i < full_rounds_over_2; ++i) {
-      bool is_full_round = true;
-      derived.ApplyARK(state, i, is_full_round);
-      ApplySBox(state, is_full_round);
-      derived.ApplyMix(state, is_full_round);
-    }
-    for (size_t i = full_rounds_over_2;
-         i < full_rounds_over_2 + config.partial_rounds; ++i) {
-      bool is_full_round = false;
-      derived.ApplyARK(state, i, is_full_round);
-      ApplySBox(state, is_full_round);
-      derived.ApplyMix(state, is_full_round);
-    }
-    for (size_t i = full_rounds_over_2 + config.partial_rounds;
-         i < config.partial_rounds + config.full_rounds; ++i) {
-      bool is_full_round = true;
-      derived.ApplyARK(state, i, is_full_round);
-      ApplySBox(state, is_full_round);
-      derived.ApplyMix(state, is_full_round);
     }
   }
 
@@ -90,7 +69,7 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
       for (size_t i = 0; i < num_elements_absorbed; ++i, ++elements_idx) {
         state[config.capacity + i + rate_start_index] += elements[elements_idx];
       }
-      Permute(state);
+      derived.Permute(state);
       rate_start_index = 0;
     }
   }
@@ -123,7 +102,7 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
       }
 
       if (output_remaining_size != config.rate) {
-        Permute(state);
+        derived.Permute(state);
       }
       output_idx += num_elements_squeezed;
       rate_start_index = 0;
@@ -149,14 +128,14 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
       case DuplexSpongeMode::Type::kAbsorbing: {
         size_t absorb_index = state.mode.next_index;
         if (absorb_index == config.rate) {
-          Permute(state);
+          derived.Permute(state);
           absorb_index = 0;
         }
         AbsorbInternal(state, absorb_index, input);
         return true;
       }
       case DuplexSpongeMode::Type::kSqueezing: {
-        Permute(state);
+        derived.Permute(state);
         AbsorbInternal(state, 0, input);
         return true;
       }
@@ -233,14 +212,14 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
     std::vector<F> ret(num_elements);
     switch (state.mode.type) {
       case DuplexSpongeMode::Type::kAbsorbing: {
-        Permute(state);
+        derived.Permute(state);
         SqueezeInternal(state, 0, &ret);
         return ret;
       }
       case DuplexSpongeMode::Type::kSqueezing: {
         size_t squeeze_index = state.mode.next_index;
         if (squeeze_index == config.rate) {
-          Permute(state);
+          derived.Permute(state);
           squeeze_index = 0;
         }
         SqueezeInternal(state, squeeze_index, &ret);

@@ -40,15 +40,40 @@ struct Poseidon2Sponge final
   explicit Poseidon2Sponge(const Poseidon2Config<F>& config) : config(config) {}
 
   // PoseidonSpongeBase methods
-  void ApplyARK(SpongeState<F>& state, Eigen::Index round_number,
-                bool is_full_round) const {
-    if (is_full_round) {
-      state.elements += config.ark.row(round_number);
-    } else {
-      state.elements[0] += config.ark.row(round_number)[0];
+  void Permute(SpongeState<F>& state) const {
+    ApplyMix(state, /*is_full_round=*/true);
+
+    size_t full_rounds_over_2 = config.full_rounds / 2;
+    for (size_t i = 0; i < full_rounds_over_2; ++i) {
+      bool is_full_round = true;
+      this->ApplyARK(state, i, is_full_round);
+      this->ApplySBox(state, is_full_round);
+      ApplyMix(state, is_full_round);
+    }
+    for (size_t i = full_rounds_over_2;
+         i < full_rounds_over_2 + config.partial_rounds; ++i) {
+      bool is_full_round = false;
+      this->ApplyARK(state, i, is_full_round);
+      this->ApplySBox(state, is_full_round);
+      ApplyMix(state, is_full_round);
+    }
+    for (size_t i = full_rounds_over_2 + config.partial_rounds;
+         i < config.partial_rounds + config.full_rounds; ++i) {
+      bool is_full_round = true;
+      this->ApplyARK(state, i, is_full_round);
+      this->ApplySBox(state, is_full_round);
+      ApplyMix(state, is_full_round);
     }
   }
 
+  bool operator==(const Poseidon2Sponge& other) const {
+    return config == other.config;
+  }
+  bool operator!=(const Poseidon2Sponge& other) const {
+    return !operator==(other);
+  }
+
+ private:
   void ApplyMix(SpongeState<F>& state, bool is_full_round) const {
     if (is_full_round) {
       ExternalMatrix::Apply(state.elements);
@@ -74,19 +99,11 @@ struct Poseidon2Sponge final
           state.elements, config.internal_diagonal_minus_one);
     }
   }
-
-  bool operator==(const Poseidon2Sponge& other) const {
-    return config == other.config;
-  }
-  bool operator!=(const Poseidon2Sponge& other) const {
-    return !operator==(other);
-  }
 };
 
 template <typename ExternalMatrix>
 struct CryptographicSpongeTraits<Poseidon2Sponge<ExternalMatrix>> {
   using F = typename ExternalMatrix::Field;
-  constexpr static bool kApplyMixAtFront = true;
 };
 
 }  // namespace crypto

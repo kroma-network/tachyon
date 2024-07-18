@@ -182,8 +182,7 @@ struct PoseidonConfig : public PoseidonConfigBase<F> {
          i < partial_rounds + full_rounds; ++i) {
       optimized_ark.row(i) = mds_inverse * ark.row(i).transpose();
     }
-    // TODO(chokobole): This will be uncommented!
-    // ark = std::move(optimized_ark);
+    ark = std::move(optimized_ark);
   }
 
   constexpr static void ComputeSparseMatrices(
