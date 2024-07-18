@@ -13,7 +13,8 @@ class PedersenTest : public testing::Test {
  public:
   constexpr static size_t kMaxSize = 3;
 
-  using VCS = Pedersen<math::bn254::G1JacobianPoint, kMaxSize>;
+  using VCS = Pedersen<math::bn254::G1AffinePoint, kMaxSize,
+                       math::bn254::G1AffinePoint>;
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
@@ -28,14 +29,15 @@ TEST_F(PedersenTest, CommitPedersen) {
       base::CreateVector(kMaxSize, []() { return math::bn254::Fr::Random(); });
 
   math::bn254::Fr r = math::bn254::Fr::Random();
-  math::bn254::G1JacobianPoint commitment;
+  math::bn254::G1AffinePoint commitment;
   ASSERT_TRUE(vcs.Commit(v, r, &commitment));
 
-  math::VariableBaseMSM<math::bn254::G1JacobianPoint> msm;
-  math::bn254::G1JacobianPoint msm_result;
-  ASSERT_TRUE(msm.Run(vcs.generators(), v, &msm_result));
+  math::VariableBaseMSM<math::bn254::G1AffinePoint> msm;
+  math::bn254::G1PointXYZZ msm_result_tmp;
+  ASSERT_TRUE(msm.Run(vcs.generators(), v, &msm_result_tmp));
+  math::bn254::G1AffinePoint msm_result = msm_result_tmp.ToAffine();
 
-  EXPECT_EQ(commitment, msm_result + r * vcs.h());
+  EXPECT_EQ(commitment, (msm_result + r * vcs.h()).ToAffine());
 }
 
 TEST_F(PedersenTest, BatchCommitPedersen) {
@@ -57,17 +59,19 @@ TEST_F(PedersenTest, BatchCommitPedersen) {
   for (size_t i = 0; i < num_vectors; ++i) {
     ASSERT_TRUE(vcs.Commit(v_vec[i], r_vec[i], i));
   }
-  std::vector<math::bn254::G1JacobianPoint> batch_commitments =
+  std::vector<math::bn254::G1AffinePoint> batch_commitments =
       vcs.GetBatchCommitments();
   EXPECT_EQ(vcs.batch_commitment_state().batch_mode, false);
   EXPECT_EQ(vcs.batch_commitment_state().batch_count, size_t{0});
 
-  math::VariableBaseMSM<math::bn254::G1JacobianPoint> msm;
-  std::vector<math::bn254::G1JacobianPoint> msm_results;
-  msm_results.resize(num_vectors);
+  math::VariableBaseMSM<math::bn254::G1AffinePoint> msm;
+  std::vector<math::bn254::G1PointXYZZ> msm_results_tmp(num_vectors);
   for (size_t i = 0; i < num_vectors; ++i) {
-    ASSERT_TRUE(msm.Run(vcs.generators(), v_vec[i], &msm_results[i]));
+    ASSERT_TRUE(msm.Run(vcs.generators(), v_vec[i], &msm_results_tmp[i]));
   }
+  std::vector<math::bn254::G1AffinePoint> msm_results(num_vectors);
+  ASSERT_TRUE(
+      math::bn254::G1PointXYZZ::BatchNormalize(msm_results_tmp, &msm_results));
 
   EXPECT_EQ(batch_commitments, msm_results);
 }

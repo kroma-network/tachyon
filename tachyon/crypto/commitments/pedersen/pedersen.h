@@ -32,6 +32,9 @@ class Pedersen final
  public:
   using Field = typename Point::ScalarField;
   using Bucket = typename math::Pippenger<Point>::Bucket;
+  using Curve = typename Point::Curve;
+  using AddResult =
+      typename math::internal::AdditiveSemigroupTraits<Point>::ReturnTy;
 
   Pedersen() = default;
   Pedersen(const Point& h, const std::vector<Point>& generators)
@@ -99,13 +102,9 @@ class Pedersen final
   bool DoCommit(const std::vector<Field>& v, const Field& r,
                 Commitment* out) const {
     math::VariableBaseMSM<Point> msm;
-    Bucket result;
-    if (!msm.Run(generators_, v, &result)) return false;
-    if constexpr (std::is_same_v<Commitment, Bucket>) {
-      *out = r * h_ + result;
-    } else {
-      *out = r * h_ + math::ConvertPoint<Commitment>(result);
-    }
+    Bucket msm_result;
+    if (!msm.Run(generators_, v, &msm_result)) return false;
+    *out = ComputeCommitment(r, msm_result);
     return true;
   }
 
@@ -115,6 +114,26 @@ class Pedersen final
     if (batch_commitments_.size() != state.batch_count)
       batch_commitments_.resize(state.batch_count);
     return msm.Run(generators_, v, &batch_commitments_[index]);
+  }
+
+  template <typename MSMResult>
+  Commitment ComputeCommitment(const Field& r,
+                               const MSMResult& msm_result) const {
+    AddResult rh = r * h_;
+    if constexpr (math::internal::SupportsAdd<MSMResult, AddResult>::value) {
+      if constexpr (std::is_same_v<MSMResult, Commitment>) {
+        return rh + msm_result;
+      } else {
+        return math::ConvertPoint<Commitment>(rh + msm_result);
+      }
+    } else {
+      MSMResult result = math::ConvertPoint<MSMResult>(rh) + msm_result;
+      if constexpr (std::is_same_v<MSMResult, Commitment>) {
+        return result;
+      } else {
+        return math::ConvertPoint<Commitment>(result);
+      }
+    }
   }
 
   Point h_;
