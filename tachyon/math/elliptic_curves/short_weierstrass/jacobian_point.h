@@ -72,6 +72,8 @@ class JacobianPoint<
 
   constexpr static JacobianPoint Zero() { return JacobianPoint(); }
 
+  constexpr static JacobianPoint One() { return Generator(); }
+
   constexpr static JacobianPoint Generator() {
     return {Curve::Config::kGenerator.x, Curve::Config::kGenerator.y,
             BaseField::One()};

@@ -50,6 +50,8 @@ class CirclePoint : public AdditiveGroup<CirclePoint<_Circle>> {
 
   constexpr static CirclePoint Zero() { return CirclePoint(); }
 
+  constexpr static CirclePoint One() { return Generator(); }
+
   constexpr static CirclePoint Generator() {
     return {Circle::Config::kGenerator.x, Circle::Config::kGenerator.y};
   }

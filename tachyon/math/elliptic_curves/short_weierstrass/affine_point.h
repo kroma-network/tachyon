@@ -68,6 +68,8 @@ class AffinePoint<
 
   constexpr static AffinePoint Zero() { return AffinePoint(); }
 
+  constexpr static AffinePoint One() { return Generator(); }
+
   constexpr static AffinePoint Generator() {
     return {Curve::Config::kGenerator.x, Curve::Config::kGenerator.y};
   }

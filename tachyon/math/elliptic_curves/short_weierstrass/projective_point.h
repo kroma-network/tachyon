@@ -70,6 +70,8 @@ class ProjectivePoint<
 
   constexpr static ProjectivePoint Zero() { return ProjectivePoint(); }
 
+  constexpr static ProjectivePoint One() { return Generator(); }
+
   constexpr static ProjectivePoint Generator() {
     return {Curve::Config::kGenerator.x, Curve::Config::kGenerator.y,
             BaseField::One()};

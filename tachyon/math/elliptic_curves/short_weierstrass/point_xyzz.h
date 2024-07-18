@@ -76,6 +76,8 @@ class PointXYZZ<_Curve,
 
   constexpr static PointXYZZ Zero() { return PointXYZZ(); }
 
+  constexpr static PointXYZZ One() { return Generator(); }
+
   constexpr static PointXYZZ Generator() {
     return {Curve::Config::kGenerator.x, Curve::Config::kGenerator.y,
             BaseField::One(), BaseField::One()};

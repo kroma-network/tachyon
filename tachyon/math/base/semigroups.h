@@ -141,7 +141,38 @@ class MultiplicativeSemigroup {
   template <typename Scalar>
   [[nodiscard]] constexpr auto Pow(const Scalar& scalar) const {
     if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
-      return DoPow(BigInt<1>(scalar));
+      const G& g = static_cast<const G&>(*this);
+      switch (scalar) {
+        case 0:
+          return MulResult::One();
+        case 1:
+          return g;
+        case 2:
+          return Square();
+        case 3:
+          return Square() * g;
+        case 4:
+          return Square().Square();
+        case 5: {
+          MulResult g4 = Square();
+          g4.SquareInPlace();
+          return g4 * g;
+        }
+        case 6: {
+          MulResult g2 = Square();
+          MulResult g4 = g2;
+          g4.SquareInPlace();
+          return g4 * g2;
+        }
+        case 7: {
+          MulResult g2 = Square();
+          MulResult g4 = g2;
+          g4.SquareInPlace();
+          return g4 * g2 * g;
+        }
+        default:
+          return DoPow(BigInt<1>(scalar));
+      }
     } else {
       return DoPow(scalar.ToBigInt());
     }
@@ -280,7 +311,38 @@ class AdditiveSemigroup {
   template <typename Scalar>
   [[nodiscard]] constexpr auto ScalarMul(const Scalar& scalar) const {
     if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
-      return DoScalarMul(BigInt<1>(scalar));
+      const G& g = static_cast<const G&>(*this);
+      switch (scalar) {
+        case 0:
+          return AddResult::One();
+        case 1:
+          return g;
+        case 2:
+          return Double();
+        case 3:
+          return Double() * g;
+        case 4:
+          return Double().Double();
+        case 5: {
+          AddResult g4 = Double();
+          g4.DoubleInPlace();
+          return g4 * g;
+        }
+        case 6: {
+          AddResult g2 = Double();
+          AddResult g4 = g2;
+          g4.DoubleInPlace();
+          return g4 * g2;
+        }
+        case 7: {
+          AddResult g2 = Double();
+          AddResult g4 = g2;
+          g4.DoubleInPlace();
+          return g4 * g2 * g;
+        }
+        default:
+          return DoScalarMul(BigInt<1>(scalar));
+      }
     } else {
       return DoScalarMul(scalar.ToBigInt());
     }
