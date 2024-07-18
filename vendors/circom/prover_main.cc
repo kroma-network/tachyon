@@ -114,9 +114,8 @@ void CreateProof(const base::FilePath& zkey_path,
   std::cout << "Start initializing Icicle NTT domain" << std::endl;
   math::IcicleNTTHolder<F> icicle_ntt_holder =
       math::IcicleNTTHolder<F>::Create();
-  // NOTE(chokobole): For |domain->size()| less than 8, it's very slow to
-  // initialize the domain of |IcicleNTT|.
-  if (domain->size() >= 8) {
+  // NOTE(chokobole): For |domain->size()| is 1, it produces an invalid output.
+  if (domain->size() >= 2) {
     math::IcicleNTTOptions ntt_options;
     ntt_options.fast_twiddles_mode = !options.disable_fast_twiddles_mode;
     CHECK(icicle_ntt_holder->Init(domain->group_gen(), ntt_options));

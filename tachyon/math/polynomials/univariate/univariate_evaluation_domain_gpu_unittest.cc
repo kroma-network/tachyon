@@ -49,7 +49,7 @@ TYPED_TEST(UnivariateEvaluationDomainGpuTest, FFTCorrectness) {
   using Domain = TypeParam;
   using F = typename Domain::Field;
 
-  for (size_t i = 5; i < 15; ++i) {
+  for (size_t i = 1; i < 15; ++i) {
     IcicleNTTHolder<F> holder = IcicleNTTHolder<F>::Create();
     size_t size = size_t{1} << i;
     auto domain = Domain::Create(size);
