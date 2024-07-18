@@ -29,15 +29,24 @@ TEST_F(PedersenTest, CommitPedersen) {
       base::CreateVector(kMaxSize, []() { return math::bn254::Fr::Random(); });
 
   math::bn254::Fr r = math::bn254::Fr::Random();
-  math::bn254::G1AffinePoint commitment;
-  ASSERT_TRUE(vcs.Commit(v, r, &commitment));
+  math::bn254::G1AffinePoint cpu_commitment;
+  ASSERT_TRUE(vcs.Commit(v, r, &cpu_commitment));
 
   math::VariableBaseMSM<math::bn254::G1AffinePoint> msm;
-  math::bn254::G1PointXYZZ msm_result_tmp;
-  ASSERT_TRUE(msm.Run(vcs.generators(), v, &msm_result_tmp));
-  math::bn254::G1AffinePoint msm_result = msm_result_tmp.ToAffine();
+  math::bn254::G1PointXYZZ msm_result_xyzz;
+  ASSERT_TRUE(msm.Run(vcs.generators(), v, &msm_result_xyzz));
+  math::bn254::G1AffinePoint msm_result_affine = msm_result_xyzz.ToAffine();
 
-  EXPECT_EQ(commitment, (msm_result + r * vcs.h()).ToAffine());
+  EXPECT_EQ(cpu_commitment, (msm_result_affine + r * vcs.h()).ToAffine());
+
+#if TACHYON_CUDA
+  vcs.SetupForGpu();
+
+  math::bn254::G1AffinePoint gpu_commitment;
+  ASSERT_TRUE(vcs.Commit(v, r, &gpu_commitment));
+
+  EXPECT_EQ(gpu_commitment, cpu_commitment);
+#endif
 }
 
 TEST_F(PedersenTest, BatchCommitPedersen) {
@@ -59,21 +68,40 @@ TEST_F(PedersenTest, BatchCommitPedersen) {
   for (size_t i = 0; i < num_vectors; ++i) {
     ASSERT_TRUE(vcs.Commit(v_vec[i], r_vec[i], i));
   }
-  std::vector<math::bn254::G1AffinePoint> batch_commitments =
+  std::vector<math::bn254::G1AffinePoint> cpu_batch_commitments =
       vcs.GetBatchCommitments();
-  EXPECT_EQ(vcs.batch_commitment_state().batch_mode, false);
-  EXPECT_EQ(vcs.batch_commitment_state().batch_count, size_t{0});
+  BatchCommitmentState& state = vcs.batch_commitment_state();
+  EXPECT_EQ(state.batch_mode, false);
+  EXPECT_EQ(state.batch_count, size_t{0});
 
   math::VariableBaseMSM<math::bn254::G1AffinePoint> msm;
-  std::vector<math::bn254::G1PointXYZZ> msm_results_tmp(num_vectors);
+  std::vector<math::bn254::G1PointXYZZ> cpu_msm_results_xyzz(num_vectors);
   for (size_t i = 0; i < num_vectors; ++i) {
-    ASSERT_TRUE(msm.Run(vcs.generators(), v_vec[i], &msm_results_tmp[i]));
+    ASSERT_TRUE(msm.Run(vcs.generators(), v_vec[i], &cpu_msm_results_xyzz[i]));
   }
-  std::vector<math::bn254::G1AffinePoint> msm_results(num_vectors);
-  ASSERT_TRUE(
-      math::bn254::G1PointXYZZ::BatchNormalize(msm_results_tmp, &msm_results));
+  std::vector<math::bn254::G1AffinePoint> cpu_msm_results_affine(num_vectors);
+  ASSERT_TRUE(math::bn254::G1PointXYZZ::BatchNormalize(
+      cpu_msm_results_xyzz, &cpu_msm_results_affine));
 
-  EXPECT_EQ(batch_commitments, msm_results);
+  EXPECT_EQ(cpu_batch_commitments, cpu_msm_results_affine);
+
+#if TACHYON_CUDA
+  vcs.SetupForGpu();
+
+  state.batch_mode = true;
+  state.batch_count = num_vectors;
+  vcs.ResizeBatchCommitments();
+  for (size_t i = 0; i < num_vectors; ++i) {
+    ASSERT_TRUE(vcs.Commit(v_vec[i], r_vec[i], i));
+  }
+  std::vector<math::bn254::G1AffinePoint> gpu_batch_commitments =
+      vcs.GetBatchCommitments();
+  EXPECT_EQ(state.batch_mode, false);
+  EXPECT_EQ(state.batch_count, size_t{0});
+
+  EXPECT_EQ(gpu_batch_commitments, cpu_batch_commitments);
+
+#endif
 }
 
 TEST_F(PedersenTest, Copyable) {

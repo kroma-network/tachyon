@@ -50,7 +50,7 @@ Symbol Definitions:
 | GWC      | :heavy_check_mark: | :heavy_check_mark: |
 | SHPlonk  | :heavy_check_mark: | :heavy_check_mark: |
 | FRI      | :heavy_check_mark: | :x:                |
-| Pedersen | :heavy_check_mark: | :x:                |
+| Pedersen | :heavy_check_mark: | :heavy_check_mark: |
 
 ### Hashes
 

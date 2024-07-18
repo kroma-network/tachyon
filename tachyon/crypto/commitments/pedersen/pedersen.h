@@ -8,6 +8,9 @@
 
 #include <stddef.h>
 
+#include <algorithm>
+#include <limits>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -19,6 +22,12 @@
 #include "tachyon/crypto/commitments/vector_commitment_scheme.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
+
+#if TACHYON_CUDA
+#include "tachyon/device/gpu/scoped_mem_pool.h"
+#include "tachyon/device/gpu/scoped_stream.h"
+#include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
+#endif
 
 namespace tachyon {
 namespace crypto {
@@ -40,28 +49,83 @@ class Pedersen final
   Pedersen(const Point& h, const std::vector<Point>& generators)
       : h_(h), generators_(generators) {
     CHECK_LE(generators_.size(), MaxSize);
+#if TACHYON_CUDA
+    SetupForGpu();
+#endif
   }
   Pedersen(Point&& h, std::vector<Point>&& generators)
       : h_(h), generators_(std::move(generators)) {
     CHECK_LE(generators_.size(), MaxSize);
+#if TACHYON_CUDA
+    SetupForGpu();
+#endif
   }
 
   const Point& h() const { return h_; }
   const std::vector<Point>& generators() const { return generators_; }
 
+#if TACHYON_CUDA
+  void SetupForGpu() {
+    if (msm_gpu_) return;
+
+    gpuMemPoolProps props = {gpuMemAllocationTypePinned,
+                             gpuMemHandleTypeNone,
+                             {gpuMemLocationTypeDevice, 0}};
+    mem_pool_ = device::gpu::CreateMemPool(&props);
+
+    uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
+    gpuError_t error = gpuMemPoolSetAttribute(
+        mem_pool_.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
+    CHECK_EQ(error, gpuSuccess);
+    stream_ = device::gpu::CreateStream();
+
+    msm_gpu_.reset(
+        new math::VariableBaseMSMGpu<Point>(mem_pool_.get(), stream_.get()));
+  }
+#endif
+
   void ResizeBatchCommitments() {
-    batch_commitments_.resize(this->batch_commitment_state_.batch_count);
+    size_t size = this->batch_commitment_state_.batch_count;
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      gpu_batch_commitments_.resize(size);
+      return;
+    }
+#endif
+    cpu_batch_commitments_.resize(size);
   }
 
   std::vector<Commitment> GetBatchCommitments() {
     std::vector<Commitment> batch_commitments;
-    if constexpr (std::is_same_v<Commitment, Bucket>) {
-      batch_commitments = std::move(batch_commitments_);
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      if constexpr (std::is_same_v<Commitment, math::ProjectivePoint<Curve>>) {
+        batch_commitments = std::move(gpu_batch_commitments_);
+        // NOLINTNEXTLINE(readability/braces)
+      } else if constexpr (std::is_same_v<Commitment,
+                                          math::AffinePoint<Curve>>) {
+        batch_commitments.resize(gpu_batch_commitments_.size());
+        CHECK(math::ProjectivePoint<Curve>::BatchNormalize(
+            gpu_batch_commitments_, &batch_commitments));
+        gpu_batch_commitments_.clear();
+      } else {
+        batch_commitments.resize(gpu_batch_commitments_.size());
+        CHECK(math::ConvertPoints(gpu_batch_commitments_, &batch_commitments));
+        gpu_batch_commitments_.clear();
+      }
     } else {
-      batch_commitments.resize(batch_commitments_.size());
-      CHECK(Bucket::BatchNormalize(batch_commitments_, &batch_commitments));
-      batch_commitments_.clear();
+#endif
+      if constexpr (std::is_same_v<Commitment, Bucket>) {
+        batch_commitments = std::move(cpu_batch_commitments_);
+      } else {
+        batch_commitments.resize(cpu_batch_commitments_.size());
+        CHECK(
+            Bucket::BatchNormalize(cpu_batch_commitments_, &batch_commitments));
+        cpu_batch_commitments_.clear();
+      }
+#if TACHYON_CUDA
     }
+#endif
     this->batch_commitment_state_.Reset();
     return batch_commitments;
   }
@@ -101,6 +165,17 @@ class Pedersen final
   // clang-format on
   bool DoCommit(const std::vector<Field>& v, const Field& r,
                 Commitment* out) const {
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      math::ProjectivePoint<Curve> msm_result;
+      absl::Span<const Point> bases_span = absl::Span<const Point>(
+          generators_.data(), std::min(generators_.size(), v.size()));
+      if (!msm_gpu_->Run(bases_span, v, &msm_result)) return false;
+      *out = ComputeCommitment(r, msm_result);
+      return true;
+    }
+#endif
+
     math::VariableBaseMSM<Point> msm;
     Bucket msm_result;
     if (!msm.Run(generators_, v, &msm_result)) return false;
@@ -110,10 +185,17 @@ class Pedersen final
 
   bool DoCommit(const std::vector<Field>& v, const Field& r,
                 BatchCommitmentState& state, size_t index) {
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      absl::Span<const Point> bases_span = absl::Span<const Point>(
+          generators_.data(), std::min(generators_.size(), v.size()));
+      return msm_gpu_->Run(bases_span, v, &gpu_batch_commitments_[index]);
+    }
+#endif
     math::VariableBaseMSM<Point> msm;
-    if (batch_commitments_.size() != state.batch_count)
-      batch_commitments_.resize(state.batch_count);
-    return msm.Run(generators_, v, &batch_commitments_[index]);
+    if (cpu_batch_commitments_.size() != state.batch_count)
+      cpu_batch_commitments_.resize(state.batch_count);
+    return msm.Run(generators_, v, &cpu_batch_commitments_[index]);
   }
 
   template <typename MSMResult>
@@ -138,7 +220,13 @@ class Pedersen final
 
   Point h_;
   std::vector<Point> generators_;
-  std::vector<Bucket> batch_commitments_;
+  std::vector<Bucket> cpu_batch_commitments_;
+#if TACHYON_CUDA
+  device::gpu::ScopedMemPool mem_pool_;
+  device::gpu::ScopedStream stream_;
+  std::unique_ptr<math::VariableBaseMSMGpu<Point>> msm_gpu_;
+  std::vector<math::ProjectivePoint<Curve>> gpu_batch_commitments_;
+#endif
 };
 
 template <typename Point, size_t MaxSize, typename _Commitment>
