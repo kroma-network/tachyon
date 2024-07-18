@@ -18,8 +18,8 @@ using namespace crypto;
 
 using Field = math::bn254::Fr;
 
-extern "C" tachyon_bn254_fr* run_poseidon_horizen(uint64_t* duration);
-extern "C" tachyon_bn254_fr* run_poseidon_plonky3(uint64_t* duration);
+extern "C" tachyon_bn254_fr* run_poseidon_horizen_bn254_fr(uint64_t* duration);
+extern "C" tachyon_bn254_fr* run_poseidon_plonky3_bn254_fr(uint64_t* duration);
 
 int RealMain(int argc, char** argv) {
   tachyon::Poseidon2Config config;
@@ -45,10 +45,10 @@ int RealMain(int argc, char** argv) {
     Field result_vendor;
     switch (vendor) {
       case tachyon::Poseidon2Config::Vendor::kHorizen:
-        result_vendor = runner.RunExternal(run_poseidon_horizen);
+        result_vendor = runner.RunExternal(run_poseidon_horizen_bn254_fr);
         break;
       case tachyon::Poseidon2Config::Vendor::kPlonky3:
-        result_vendor = runner.RunExternal(run_poseidon_plonky3);
+        result_vendor = runner.RunExternal(run_poseidon_plonky3_bn254_fr);
         break;
     }
 
