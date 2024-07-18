@@ -54,6 +54,5 @@ tachyon_cc_binary(
         ":poseidon_config",
         ":simple_poseidon_benchmark_reporter",
         "//benchmark/poseidon/arkworks",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
     ],
 )

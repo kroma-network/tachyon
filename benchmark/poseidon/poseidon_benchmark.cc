@@ -7,7 +7,6 @@
 // clang-format on
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 
 namespace tachyon {
