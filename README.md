@@ -45,12 +45,12 @@ Symbol Definitions:
 
 ### Commitment Schemes
 
-|          | CPU                | GPU |
-| -------- | ------------------ | --- |
-| GWC      | :heavy_check_mark: | :x: |
-| SHPlonk  | :heavy_check_mark: | :x: |
-| FRI      | :heavy_check_mark: | :x: |
-| Pedersen | :heavy_check_mark: | :x: |
+|          | CPU                | GPU                |
+| -------- | ------------------ | ------------------ |
+| GWC      | :heavy_check_mark: | :heavy_check_mark: |
+| SHPlonk  | :heavy_check_mark: | :heavy_check_mark: |
+| FRI      | :heavy_check_mark: | :x:                |
+| Pedersen | :heavy_check_mark: | :x:                |
 
 ### Hashes
 
@@ -67,17 +67,17 @@ Symbol Definitions:
 
 ### SNARKs
 
-|         | CPU                | GPU |
-| ------- | ------------------ | --- |
-| Groth16 | :heavy_check_mark: | :x: |
-| Halo2   | :heavy_check_mark: | :x: |
+|         | CPU                | GPU                |
+| ------- | ------------------ | ------------------ |
+| Groth16 | :heavy_check_mark: | :heavy_check_mark: |
+| Halo2   | :heavy_check_mark: | :x:                |
 
 ### Frontends
 
-|                 | CPU                | GPU |
-| --------------- | ------------------ | --- |
-| Circom(groth16) | :heavy_check_mark: | :x: |
-| Halo2           | :heavy_check_mark: | :x: |
+|                 | CPU                | GPU                |
+| --------------- | ------------------ | ------------------ |
+| Circom(groth16) | :heavy_check_mark: | :heavy_check_mark: |
+| Halo2           | :heavy_check_mark: | :x:                |
 
 ## Roadmap
 
