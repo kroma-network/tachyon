@@ -26,6 +26,7 @@ tachyon_rust_library(
         ":bn254_rational_evals",
         ":bn254_rational_evals_view",
         ":bn254_sha256_writer",
+        ":bn254_snark_verifier_poseidon_writer",
         ":cha_cha20_rng",
         ":cha_cha20_rng_cxx_bridge",
         ":xor_shift_rng",
@@ -100,6 +101,7 @@ tachyon_cc_library(
         "include/bn254_rational_evals.h",
         "include/bn254_rational_evals_view.h",
         "include/bn254_sha256_writer.h",
+        "include/bn254_snark_verifier_poseidon_writer.h",
     ],
     deps = [
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
@@ -218,6 +220,15 @@ tachyon_cc_library(
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
         "//tachyon/base:logging",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_snark_verifier_poseidon_writer",
+    srcs = ["src/bn254_snark_verifier_poseidon_writer.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
     ],
 )
 

@@ -115,6 +115,17 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_snark_verifier_poseidon_writer.h");
+
+        type SnarkVerifierPoseidonWriter;
+
+        fn new_snark_verifier_poseidon_writer() -> UniquePtr<SnarkVerifierPoseidonWriter>;
+        fn update(self: Pin<&mut SnarkVerifierPoseidonWriter>, data: &[u8]);
+        fn squeeze(self: Pin<&mut SnarkVerifierPoseidonWriter>) -> Box<Fr>;
+        fn state(&self) -> Vec<u8>;
+    }
+
+    unsafe extern "C++" {
         include!("vendors/halo2/include/bn254_proving_key.h");
 
         type ProvingKey;
@@ -572,6 +583,107 @@ impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>> Sha256Write<W, C, E> {
         // TODO: handle outstanding scalars?
         // See https://github.com/zcash/halo2/issues/138.
         self.writer
+    }
+}
+
+pub struct SnarkVerifierPoseidonWrite<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
+    state: cxx::UniquePtr<ffi::SnarkVerifierPoseidonWriter>,
+    writer: W,
+    _marker: PhantomData<(W, C, E)>,
+}
+
+impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
+    for SnarkVerifierPoseidonWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
+{
+    fn squeeze_challenge(&mut self) -> Challenge255<C> {
+        let scalar = *unsafe {
+            std::mem::transmute::<_, Box<halo2curves::bn256::Fr>>(self.state.pin_mut().squeeze())
+        };
+        let mut scalar_bytes = scalar.to_repr().as_ref().to_vec();
+        scalar_bytes.resize(64, 0u8);
+        Challenge255::<C>::new(&scalar_bytes.try_into().unwrap())
+    }
+
+    fn common_point(&mut self, point: C) -> io::Result<()> {
+        let coords: Coordinates<C> = Option::from(point.coordinates()).ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                "cannot write points at infinity to the transcript",
+            )
+        })?;
+        let x = coords.x();
+        let y = coords.y();
+        let slice = &[base_to_scalar::<C>(x), base_to_scalar::<C>(y)];
+        let bytes = std::mem::size_of::<C::Scalar>() * 2;
+        unsafe {
+            self.state.pin_mut().update(std::slice::from_raw_parts(
+                slice.as_ptr() as *const u8,
+                bytes,
+            ));
+        }
+
+        Ok(())
+    }
+
+    fn common_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        let slice = &[scalar];
+        let bytes = std::mem::size_of::<C::Scalar>();
+        unsafe {
+            self.state.pin_mut().update(std::slice::from_raw_parts(
+                slice.as_ptr() as *const u8,
+                bytes,
+            ));
+        }
+
+        Ok(())
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
+    for SnarkVerifierPoseidonWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
+{
+    fn write_point(&mut self, point: C) -> io::Result<()> {
+        self.common_point(point)?;
+        let compressed = point.to_bytes();
+        self.writer.write_all(compressed.as_ref())
+    }
+
+    fn write_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        self.common_scalar(scalar)?;
+        let data = scalar.to_repr();
+        self.writer.write_all(data.as_ref())
+    }
+}
+
+impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>> SnarkVerifierPoseidonWrite<W, C, E> {
+    /// Initialize a transcript given an output buffer.
+    pub fn init(writer: W) -> Self {
+        SnarkVerifierPoseidonWrite {
+            state: ffi::new_snark_verifier_poseidon_writer(),
+            writer,
+            _marker: PhantomData,
+        }
+    }
+
+    /// Conclude the interaction and return the output buffer (writer).
+    pub fn finalize(self) -> W {
+        // TODO: handle outstanding scalars?
+        // See https://github.com/zcash/halo2/issues/138.
+        self.writer
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
+    for SnarkVerifierPoseidonWrite<W, C, Challenge255<C>>
+where
+    C::Scalar: FromUniformBytes<64>,
+{
+    fn state(&self) -> Vec<u8> {
+        self.state.state()
     }
 }
 
