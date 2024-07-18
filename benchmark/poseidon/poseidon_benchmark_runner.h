@@ -15,7 +15,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/time/time.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
+#include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon.h"
 
 namespace tachyon {

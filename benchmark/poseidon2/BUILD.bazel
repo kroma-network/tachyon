@@ -26,7 +26,6 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/time",
         "//tachyon/c/base:type_traits_forward",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/crypto/hashes/sponge/poseidon2",
         "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_horizen_external_matrix",
     ],
@@ -42,6 +41,7 @@ tachyon_cc_binary(
         "//benchmark/poseidon:simple_poseidon_benchmark_reporter",
         "//benchmark/poseidon2/horizen",
         "//benchmark/poseidon2/plonky3",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:poseidon2",
     ],
 )
