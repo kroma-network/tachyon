@@ -16,7 +16,7 @@ CPU Caches:
 ```
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/poseidon:poseidon_benchmark
+bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/poseidon:poseidon_benchmark -- --check_results
 ```
 
 ## On Intel i9-13900K
