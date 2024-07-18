@@ -27,13 +27,73 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
     auto& config = derived.config;
     if (is_full_round) {
       // Full rounds apply the S-Box (xᵅ) to every element of |state|.
-      for (F& elem : state.elements) {
-        elem = elem.Pow(config.alpha);
+      if (config.alpha == 3) {
+        for (F& elem : state.elements) {
+          F t = elem;
+          // e²
+          t.SquareInPlace();
+          // e³
+          elem *= t;
+        }
+      } else if (config.alpha == 5) {
+        for (F& elem : state.elements) {
+          F t = elem;
+          // e²
+          t.SquareInPlace();
+          // e⁴
+          t.SquareInPlace();
+          // e⁵
+          elem *= t;
+        }
+      } else if (config.alpha == 7) {
+        for (F& elem : state.elements) {
+          F t = elem;
+          // e²
+          t.SquareInPlace();
+          F t2 = t;
+          // e⁴
+          t2.SquareInPlace();
+          // e³
+          elem *= t;
+          // e⁷
+          elem *= t2;
+        }
+      } else {
+        for (F& elem : state.elements) {
+          elem = elem.Pow(config.alpha);
+        }
       }
     } else {
       // Partial rounds apply the S-Box (xᵅ) to just the first element of
       // |state|.
-      state[0] = state[0].Pow(config.alpha);
+      if (config.alpha == 3) {
+        F t = state[0];
+        // e²
+        t.SquareInPlace();
+        // e³
+        state[0] *= t;
+      } else if (config.alpha == 5) {
+        F t = state[0];
+        // e²
+        t.SquareInPlace();
+        // e⁴
+        t.SquareInPlace();
+        // e⁵
+        state[0] *= t;
+      } else if (config.alpha == 7) {
+        F t = state[0];
+        // e²
+        t.SquareInPlace();
+        F t2 = t;
+        // e⁴
+        t2.SquareInPlace();
+        // e³
+        state[0] *= t;
+        // e⁷
+        state[0] *= t2;
+      } else {
+        state[0] = state[0].Pow(config.alpha);
+      }
     }
   }
 
