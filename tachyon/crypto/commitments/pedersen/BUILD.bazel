@@ -14,7 +14,10 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/strings:string_util",
         "//tachyon/crypto/commitments:vector_commitment_scheme",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_stream",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm_gpu",
     ],
 )
 
