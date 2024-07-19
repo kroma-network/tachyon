@@ -142,6 +142,11 @@ class PackedPrimeFieldBase : public Field<Derived> {
     return static_cast<Derived*>(this);
   }
 
+  constexpr Derived& FrobeniusMapInPlace(uint32_t exponent) {
+    // Do nothing.
+    return static_cast<Derived&>(*this);
+  }
+
  protected:
   std::array<PrimeField, N> values_;
 };
