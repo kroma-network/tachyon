@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_GOLDILOCKS_PRIME_FIELD_X86_SPECIAL_H_
-#define TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_GOLDILOCKS_PRIME_FIELD_X86_SPECIAL_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_INTERNAL_GOLDILOCKS_PRIME_FIELD_X86_SPECIAL_H_
+#define TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_INTERNAL_GOLDILOCKS_PRIME_FIELD_X86_SPECIAL_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -7,7 +7,7 @@
 #include <optional>
 #include <string>
 
-#include "tachyon/math/finite_fields/goldilocks/goldilocks_config.h"
+#include "tachyon/math/finite_fields/goldilocks/internal/goldilocks_config.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::math {
@@ -114,4 +114,4 @@ extern template class PrimeField<GoldilocksConfig>;
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_GOLDILOCKS_PRIME_FIELD_X86_SPECIAL_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_INTERNAL_GOLDILOCKS_PRIME_FIELD_X86_SPECIAL_H_

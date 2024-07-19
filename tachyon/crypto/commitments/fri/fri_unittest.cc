@@ -8,7 +8,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/crypto/commitments/merkle_tree/binary_merkle_tree/simple_binary_merkle_tree_storage.h"
 #include "tachyon/crypto/transcripts/simple_transcript.h"
-#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
+#include "tachyon/math/finite_fields/goldilocks/goldilocks.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"

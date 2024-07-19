@@ -74,7 +74,7 @@ Finally, ensure the prime field works well by incorporating it into `prime_field
 
 ```cpp
 ...
-#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
+#include "tachyon/math/finite_fields/goldilocks/goldilocks.h"
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 // ADD NEW PRIME FIELD HEADER FILE HERE
 // #include "tachyon/math/finite_fields/..."

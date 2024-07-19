@@ -1,4 +1,4 @@
-#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
+#include "tachyon/math/finite_fields/goldilocks/goldilocks.h"
 
 #include "absl/numeric/int128.h"
 #include "absl/strings/substitute.h"

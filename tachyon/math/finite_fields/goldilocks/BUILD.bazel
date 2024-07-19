@@ -1,13 +1,10 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load("//bazel:tachyon.bzl", "if_has_avx512", "if_x86_64")
-load("//bazel:tachyon_cc.bzl", "tachyon_asm_prime_field_defines", "tachyon_cc_library", "tachyon_cc_unittest")
-load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp2s")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 load(
     "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
     "SMALL_SUBGROUP_ADICITY",
     "SMALL_SUBGROUP_BASE",
     "SUBGROUP_GENERATOR",
-    "generate_large_fft_prime_fields",
 )
 
 package(default_visibility = ["//visibility:public"])
@@ -27,57 +24,12 @@ string_flag(
     build_setting_default = "7",
 )
 
-generate_large_fft_prime_fields(
+tachyon_cc_library(
     name = "goldilocks",
-    class_name = "Goldilocks",
-    # 2⁶⁴ - 2³² + 1
-    # Hex: 0xffffffff00000001
-    modulus = "18446744069414584321",
-    namespace = "tachyon::math",
-    small_subgroup_adicity = ":" + SMALL_SUBGROUP_ADICITY,
-    small_subgroup_base = ":" + SMALL_SUBGROUP_BASE,
-    subgroup_generator = ":" + SUBGROUP_GENERATOR,
-    # NOTE(chokobole): Polygon's Goldilocks doesn't use montgomery reduction by default.
-    use_montgomery = if_x86_64(False, True),
-)
-
-generate_fp2s(
-    name = "goldilocks2",
-    base_field = "Goldilocks",
-    base_field_hdr = "tachyon/math/finite_fields/goldilocks/goldilocks.h",
-    class_name = "Goldilocks2",
-    is_packed = False,
-    namespace = "tachyon::math",
-    non_residue = ["7"],
-    deps = [":goldilocks"],
-)
-
-tachyon_cc_library(
-    name = "goldilocks_prime_field_x86_special",
-    srcs = if_x86_64(["goldilocks_prime_field_x86_special.cc"]),
-    hdrs = if_x86_64(["goldilocks_prime_field_x86_special.h"]),
-    copts = if_x86_64([
-        "-mavx2",
-    ]) + if_has_avx512([
-        "-mavx512f",
-    ]),
-    defines = tachyon_asm_prime_field_defines(),
-    deps = if_x86_64([
-        ":goldilocks_config",
-        "//tachyon/base:random",
-        "//tachyon/base/strings:string_number_conversions",
-        "//tachyon/base/strings:string_util",
-        "//tachyon/math/finite_fields:prime_field_base",
-        "@goldilocks//:base_field",
-    ]),
-)
-
-tachyon_cc_library(
-    name = "goldilocks_prime_field",
-    hdrs = ["goldilocks_prime_field.h"],
+    hdrs = ["goldilocks.h"],
     deps = [
-        ":goldilocks",
-        ":goldilocks_prime_field_x86_special",
+        "//tachyon/math/finite_fields/goldilocks/internal:goldilocks",
+        "//tachyon/math/finite_fields/goldilocks/internal:goldilocks_prime_field_x86_special",
     ],
 )
 
@@ -85,13 +37,13 @@ tachyon_cc_library(
     name = "poseidon2",
     hdrs = ["poseidon2.h"],
     deps = [
-        ":goldilocks_prime_field",
+        ":goldilocks",
         "//tachyon/base/types:always_false",
     ],
 )
 
 tachyon_cc_unittest(
     name = "goldilocks_unittests",
-    srcs = ["goldilocks_prime_field_unittest.cc"],
-    deps = [":goldilocks_prime_field"],
+    srcs = ["goldilocks_unittest.cc"],
+    deps = [":goldilocks"],
 )

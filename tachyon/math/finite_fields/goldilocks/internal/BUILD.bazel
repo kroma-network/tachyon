@@ -1,0 +1,57 @@
+load("//bazel:tachyon.bzl", "if_has_avx512", "if_x86_64")
+load("//bazel:tachyon_cc.bzl", "tachyon_asm_prime_field_defines", "tachyon_cc_library")
+load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp2s")
+load(
+    "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
+    "SMALL_SUBGROUP_ADICITY",
+    "SMALL_SUBGROUP_BASE",
+    "SUBGROUP_GENERATOR",
+    "generate_large_fft_prime_fields",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+generate_large_fft_prime_fields(
+    name = "goldilocks",
+    class_name = "Goldilocks",
+    # 2⁶⁴ - 2³² + 1
+    # Hex: 0xffffffff00000001
+    modulus = "18446744069414584321",
+    namespace = "tachyon::math",
+    small_subgroup_adicity = "//tachyon/math/finite_fields/goldilocks:" + SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = "//tachyon/math/finite_fields/goldilocks:" + SMALL_SUBGROUP_BASE,
+    subgroup_generator = "//tachyon/math/finite_fields/goldilocks:" + SUBGROUP_GENERATOR,
+    # NOTE(chokobole): Polygon's Goldilocks doesn't use montgomery reduction by default.
+    use_montgomery = if_x86_64(False, True),
+)
+
+generate_fp2s(
+    name = "goldilocks2",
+    base_field = "Goldilocks",
+    base_field_hdr = "tachyon/math/finite_fields/goldilocks/goldilocks.h",
+    class_name = "Goldilocks2",
+    is_packed = False,
+    namespace = "tachyon::math",
+    non_residue = ["7"],
+    deps = [":goldilocks"],
+)
+
+tachyon_cc_library(
+    name = "goldilocks_prime_field_x86_special",
+    srcs = if_x86_64(["goldilocks_prime_field_x86_special.cc"]),
+    hdrs = if_x86_64(["goldilocks_prime_field_x86_special.h"]),
+    copts = if_x86_64([
+        "-mavx2",
+    ]) + if_has_avx512([
+        "-mavx512f",
+    ]),
+    defines = tachyon_asm_prime_field_defines(),
+    deps = if_x86_64([
+        ":goldilocks_config",
+        "//tachyon/base:random",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/finite_fields:prime_field_base",
+        "@goldilocks//:base_field",
+    ]),
+)
