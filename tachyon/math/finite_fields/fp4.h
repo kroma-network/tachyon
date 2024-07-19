@@ -113,6 +113,7 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 4>> final
 
   static void Init() {
     Config::Init();
+    QuarticExtensionField<Fp4<Config>>::Init();
     // x⁴ = q = |Config::kNonResidue|
 
     // αᴾ = (α₀ + α₁x + α₂x² + α₃x³)ᴾ

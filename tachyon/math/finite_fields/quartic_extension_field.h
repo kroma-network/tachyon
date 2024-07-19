@@ -90,6 +90,26 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     }
   }
 
+  static void Init() {
+    kInv2 = *BaseField(2).Inverse();
+    kInv3 = *BaseField(3).Inverse();
+    kInv4 = *BaseField(4).Inverse();
+    kInv6 = *BaseField(6).Inverse();
+    kInv12 = *BaseField(12).Inverse();
+    kInv20 = *BaseField(20).Inverse();
+    kInv24 = *BaseField(24).Inverse();
+    kInv30 = *BaseField(30).Inverse();
+    kInv120 = *BaseField(120).Inverse();
+    kNeg5 = -BaseField(5);
+    kNegInv2 = -kInv2;
+    kNegInv3 = -kInv3;
+    kNegInv4 = -kInv4;
+    kNegInv6 = -kInv6;
+    kNegInv12 = -kInv12;
+    kNegInv24 = -kInv24;
+    kNegInv120 = -kInv120;
+  }
+
   constexpr bool IsZero() const {
     return c0_.IsZero() && c1_.IsZero() && c2_.IsZero() && c3_.IsZero();
   }
@@ -373,24 +393,6 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 5.2
     // clang-format on
 
-    constexpr BaseField kInv2 = *BaseField(2).Inverse();
-    constexpr BaseField kInv3 = *BaseField(3).Inverse();
-    constexpr BaseField kInv4 = *BaseField(4).Inverse();
-    constexpr BaseField kInv6 = *BaseField(6).Inverse();
-    constexpr BaseField kInv12 = *BaseField(12).Inverse();
-    constexpr BaseField kInv20 = *BaseField(20).Inverse();
-    constexpr BaseField kInv24 = *BaseField(24).Inverse();
-    constexpr BaseField kInv30 = *BaseField(30).Inverse();
-    constexpr BaseField kInv120 = *BaseField(120).Inverse();
-    constexpr BaseField kNeg5 = -BaseField(5);
-    constexpr BaseField kNegInv2 = -kInv2;
-    constexpr BaseField kNegInv3 = -kInv3;
-    constexpr BaseField kNegInv4 = -kInv4;
-    constexpr BaseField kNegInv6 = -kInv6;
-    constexpr BaseField kNegInv12 = -kInv12;
-    constexpr BaseField kNegInv24 = -kInv24;
-    constexpr BaseField kNegInv120 = -kInv120;
-
     // h1 = 2 * a.c1
     BaseField h1 = a.c1_.Double();
     // h2 = 4 * a.c2
@@ -480,24 +482,6 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     // See https://eprint.iacr.org/2006/471.pdf
     // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 5
     // clang-format on
-
-    constexpr BaseField kInv2 = *BaseField(2).Inverse();
-    constexpr BaseField kInv3 = *BaseField(3).Inverse();
-    constexpr BaseField kInv4 = *BaseField(4).Inverse();
-    constexpr BaseField kInv6 = *BaseField(6).Inverse();
-    constexpr BaseField kInv12 = *BaseField(12).Inverse();
-    constexpr BaseField kInv20 = *BaseField(20).Inverse();
-    constexpr BaseField kInv24 = *BaseField(24).Inverse();
-    constexpr BaseField kInv30 = *BaseField(30).Inverse();
-    constexpr BaseField kInv120 = *BaseField(120).Inverse();
-    constexpr BaseField kNeg5 = -BaseField(5);
-    constexpr BaseField kNegInv2 = -kInv2;
-    constexpr BaseField kNegInv3 = -kInv3;
-    constexpr BaseField kNegInv4 = -kInv4;
-    constexpr BaseField kNegInv6 = -kInv6;
-    constexpr BaseField kNegInv12 = -kInv12;
-    constexpr BaseField kNegInv24 = -kInv24;
-    constexpr BaseField kNegInv120 = -kInv120;
 
     // h1 = 2 * c1
     BaseField h1 = a.c1_.Double();
@@ -593,7 +577,50 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   BaseField c1_;
   BaseField c2_;
   BaseField c3_;
+
+  static BaseField kInv2;
+  static BaseField kInv3;
+  static BaseField kInv4;
+  static BaseField kInv6;
+  static BaseField kInv12;
+  static BaseField kInv20;
+  static BaseField kInv24;
+  static BaseField kInv30;
+  static BaseField kInv120;
+  static BaseField kNeg5;
+  static BaseField kNegInv2;
+  static BaseField kNegInv3;
+  static BaseField kNegInv4;
+  static BaseField kNegInv6;
+  static BaseField kNegInv12;
+  static BaseField kNegInv24;
+  static BaseField kNegInv120;
 };
+
+#define ADD_STATIC_MEMBER(name)                      \
+  template <typename Derived>                        \
+  typename QuarticExtensionField<Derived>::BaseField \
+      QuarticExtensionField<Derived>::name
+
+ADD_STATIC_MEMBER(kInv2);
+ADD_STATIC_MEMBER(kInv3);
+ADD_STATIC_MEMBER(kInv4);
+ADD_STATIC_MEMBER(kInv6);
+ADD_STATIC_MEMBER(kInv12);
+ADD_STATIC_MEMBER(kInv20);
+ADD_STATIC_MEMBER(kInv24);
+ADD_STATIC_MEMBER(kInv30);
+ADD_STATIC_MEMBER(kInv120);
+ADD_STATIC_MEMBER(kNeg5);
+ADD_STATIC_MEMBER(kNegInv2);
+ADD_STATIC_MEMBER(kNegInv3);
+ADD_STATIC_MEMBER(kNegInv4);
+ADD_STATIC_MEMBER(kNegInv6);
+ADD_STATIC_MEMBER(kNegInv12);
+ADD_STATIC_MEMBER(kNegInv24);
+ADD_STATIC_MEMBER(kNegInv120);
+
+#undef ADD_STATIC_MEMBER
 
 template <
     typename BaseField, typename Derived,
