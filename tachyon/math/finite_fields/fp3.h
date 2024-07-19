@@ -6,6 +6,8 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_FP3_H_
 #define TACHYON_MATH_FINITE_FIELDS_FP3_H_
 
+#include <type_traits>
+
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/cubic_extension_field.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
@@ -41,13 +43,17 @@ class Fp3 final : public CubicExtensionField<Fp3<Config>> {
     //    = α₀ + α₁(x³)^((P - 1) / 3) * x + α₂(x³)^(2 * (P - 1) / 3) * x²
     //    = α₀ + α₁ωx + α₂ω²x², where ω is a cubic root of unity.
 
-    constexpr size_t N = BasePrimeField::kLimbNums;
+    using UnpackedBasePrimeField = std::conditional_t<
+        FiniteFieldTraits<BasePrimeField>::kIsPackedPrimeField,
+        typename FiniteFieldTraits<BasePrimeField>::PrimeField, BasePrimeField>;
+
+    constexpr size_t N = UnpackedBasePrimeField::kLimbNums;
     // m₁ = P
     mpz_class m1;
-    if constexpr (BasePrimeField::Config::kModulusBits <= 32) {
-      m1 = mpz_class(BasePrimeField::Config::kModulus);
+    if constexpr (UnpackedBasePrimeField::Config::kModulusBits <= 32) {
+      m1 = mpz_class(UnpackedBasePrimeField::Config::kModulus);
     } else {
-      gmp::WriteLimbs(BasePrimeField::Config::kModulus.limbs, N, &m1);
+      gmp::WriteLimbs(UnpackedBasePrimeField::Config::kModulus.limbs, N, &m1);
     }
 
 #define SET_M(d, d_prev) mpz_class m##d = m##d_prev * m1

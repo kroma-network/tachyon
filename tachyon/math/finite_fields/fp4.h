@@ -6,6 +6,8 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_FP4_H_
 #define TACHYON_MATH_FINITE_FIELDS_FP4_H_
 
+#include <type_traits>
+
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
@@ -45,13 +47,17 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     //    = ᾱ₀ + ᾱ₁(x⁴)^((p - 1) / 4) * x
     //    = ᾱ₀ - ᾱ₁ωx, where ω is a quartic root of unity.
 
-    constexpr size_t N = BasePrimeField::kLimbNums;
+    using UnpackedBasePrimeField = std::conditional_t<
+        FiniteFieldTraits<BasePrimeField>::kIsPackedPrimeField,
+        typename FiniteFieldTraits<BasePrimeField>::PrimeField, BasePrimeField>;
+
+    constexpr size_t N = UnpackedBasePrimeField::kLimbNums;
     // m₁ = P
     mpz_class m1;
-    if constexpr (BasePrimeField::Config::kModulusBits <= 32) {
-      m1 = mpz_class(BasePrimeField::Config::kModulus);
+    if constexpr (UnpackedBasePrimeField::Config::kModulusBits <= 32) {
+      m1 = mpz_class(UnpackedBasePrimeField::Config::kModulus);
     } else {
-      gmp::WriteLimbs(BasePrimeField::Config::kModulus.limbs, N, &m1);
+      gmp::WriteLimbs(UnpackedBasePrimeField::Config::kModulus.limbs, N, &m1);
     }
 
 #define SET_M(d, d_prev) mpz_class m##d = m##d_prev * m1
@@ -124,13 +130,17 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 4>> final
     //      α₃(x⁴)^(3 * (P - 1) / 4) * x³
     //    = α₀ + α₁ωx + α₂ω²x² + α₃ω³x³, where ω is a quartic root of unity.
 
-    constexpr size_t N = BasePrimeField::kLimbNums;
+    using UnpackedBasePrimeField = std::conditional_t<
+        FiniteFieldTraits<BasePrimeField>::kIsPackedPrimeField,
+        typename FiniteFieldTraits<BasePrimeField>::PrimeField, BasePrimeField>;
+
+    constexpr size_t N = UnpackedBasePrimeField::kLimbNums;
     // m₁ = P
     mpz_class m1;
-    if constexpr (BasePrimeField::Config::kModulusBits <= 32) {
-      m1 = mpz_class(BasePrimeField::Config::kModulus);
+    if constexpr (UnpackedBasePrimeField::Config::kModulusBits <= 32) {
+      m1 = mpz_class(UnpackedBasePrimeField::Config::kModulus);
     } else {
-      gmp::WriteLimbs(BasePrimeField::Config::kModulus.limbs, N, &m1);
+      gmp::WriteLimbs(UnpackedBasePrimeField::Config::kModulus.limbs, N, &m1);
     }
 
 #define SET_M(d, d_prev) mpz_class m##d = m##d_prev * m1
