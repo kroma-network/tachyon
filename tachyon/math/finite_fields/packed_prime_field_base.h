@@ -22,6 +22,10 @@ class PackedPrimeFieldBase : public Field<Derived> {
 
   constexpr static size_t N = PackedPrimeFieldTraits<Derived>::N;
 
+  constexpr static uint32_t ExtensionDegree() {
+    return PrimeField::ExtensionDegree();
+  }
+
   static Derived Random() {
     Derived ret;
     for (size_t i = 0; i < N; ++i) {
