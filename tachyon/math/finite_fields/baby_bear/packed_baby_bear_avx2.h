@@ -18,7 +18,7 @@ class PackedBabyBearAVX2;
 
 template <>
 struct PackedFieldTraits<PackedBabyBearAVX2> {
-  using PrimeField = BabyBear;
+  using Field = BabyBear;
 
   constexpr static size_t N = 8;
 };

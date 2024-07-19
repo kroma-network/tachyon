@@ -16,8 +16,7 @@ namespace {
 
 template <typename F>
 class Radix2EvaluationDomainTest
-    : public FiniteFieldTest<typename PackedFieldTraits<F>::PackedPrimeField> {
-};
+    : public FiniteFieldTest<typename PackedFieldTraits<F>::PackedField> {};
 
 }  // namespace
 

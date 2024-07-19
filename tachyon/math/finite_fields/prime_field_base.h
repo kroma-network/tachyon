@@ -169,7 +169,7 @@ H AbslHashValue(H h, const F& prime_field) {
 template <typename T>
 struct PackedFieldTraits<
     T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
-  using PackedPrimeField = T;
+  using PackedField = T;
 };
 
 template <typename T>

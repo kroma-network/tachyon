@@ -35,7 +35,7 @@ class FieldMerkleTree {
                          typename math::ExtensionFieldTraits<F>::BasePrimeField,
                          F>;
   using PackedPrimeField =
-      typename math::PackedFieldTraits<PrimeField>::PackedPrimeField;
+      typename math::PackedFieldTraits<PrimeField>::PackedField;
   using Digest = std::array<PrimeField, N>;
   using PackedDigest = std::array<PackedPrimeField, N>;
 

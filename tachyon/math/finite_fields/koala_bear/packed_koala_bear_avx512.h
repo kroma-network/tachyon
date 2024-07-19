@@ -18,7 +18,7 @@ class PackedKoalaBearAVX512;
 
 template <>
 struct PackedFieldTraits<PackedKoalaBearAVX512> {
-  using PrimeField = KoalaBear;
+  using Field = KoalaBear;
 
   constexpr static size_t N = 16;
 };

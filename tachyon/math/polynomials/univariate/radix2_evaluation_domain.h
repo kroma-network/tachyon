@@ -61,7 +61,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   using PackedPrimeField =
       // NOLINTNEXTLINE(whitespace/operators)
       std::conditional_t<F::Config::kModulusBits <= 32,
-                         typename PackedFieldTraits<F>::PackedPrimeField, F>;
+                         typename PackedFieldTraits<F>::PackedField, F>;
 
   constexpr static size_t kMaxDegree = MaxDegree;
   // Factor that determines if a the degree aware FFT should be called.

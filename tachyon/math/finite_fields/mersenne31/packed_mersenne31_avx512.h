@@ -18,7 +18,7 @@ class PackedMersenne31AVX512;
 
 template <>
 struct PackedFieldTraits<PackedMersenne31AVX512> {
-  using PrimeField = Mersenne31;
+  using Field = Mersenne31;
 
   constexpr static size_t N = 16;
 };

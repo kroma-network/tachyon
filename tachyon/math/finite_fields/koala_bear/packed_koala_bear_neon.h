@@ -18,7 +18,7 @@ class PackedKoalaBearNeon;
 
 template <>
 struct PackedFieldTraits<PackedKoalaBearNeon> {
-  using PrimeField = KoalaBear;
+  using Field = KoalaBear;
 
   constexpr static size_t N = 4;
 };

@@ -17,7 +17,7 @@ namespace tachyon::math {
 template <typename Derived>
 class PackedPrimeFieldBase : public Field<Derived> {
  public:
-  using PrimeField = typename PackedFieldTraits<Derived>::PrimeField;
+  using PrimeField = typename PackedFieldTraits<Derived>::Field;
   using Generator = base::RepeatingCallback<PrimeField(size_t)>;
 
   constexpr static size_t N = PackedFieldTraits<Derived>::N;
