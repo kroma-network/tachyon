@@ -247,6 +247,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "snark_verifier_poseidon_transcript",
+    hdrs = ["snark_verifier_poseidon_transcript.h"],
+    deps = [
+        ":prime_field_conversion",
+        ":proof_serializer",
+        "//tachyon/crypto/hashes/sponge/poseidon",
+        "//tachyon/crypto/transcripts:transcript",
+    ],
+)
+
+tachyon_cc_library(
     name = "transcript_type",
     hdrs = ["transcript_type.h"],
     deps = [
@@ -295,6 +306,7 @@ tachyon_cc_unittest(
         "proof_unittest.cc",
         "random_field_generator_unittest.cc",
         "sha256_transcript_unittest.cc",
+        "snark_verifier_poseidon_transcript_unittest.cc",
         "witness_collection_unittest.cc",
     ],
     deps = [
@@ -306,6 +318,7 @@ tachyon_cc_unittest(
         ":proof_serializer",
         ":random_field_generator",
         ":sha256_transcript",
+        ":snark_verifier_poseidon_transcript",
         ":witness_collection",
         "//tachyon/base:auto_reset",
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
