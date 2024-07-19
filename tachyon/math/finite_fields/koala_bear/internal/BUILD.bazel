@@ -1,0 +1,27 @@
+load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp4s")
+
+package(default_visibility = ["//visibility:public"])
+
+generate_fp4s(
+    name = "koala_bear4",
+    base_field = "KoalaBear",
+    base_field_degree = 1,
+    base_field_hdr = "tachyon/math/finite_fields/koala_bear/koala_bear.h",
+    class_name = "KoalaBear4",
+    is_packed = False,
+    namespace = "tachyon::math",
+    non_residue = ["3"],
+    deps = ["//tachyon/math/finite_fields/koala_bear"],
+)
+
+generate_fp4s(
+    name = "packed_koala_bear4",
+    base_field = "PackedKoalaBear",
+    base_field_degree = 1,
+    base_field_hdr = "tachyon/math/finite_fields/koala_bear/packed_koala_bear.h",
+    class_name = "PackedKoalaBear4",
+    is_packed = True,
+    namespace = "tachyon::math",
+    non_residue = ["3"],
+    deps = ["//tachyon/math/finite_fields/koala_bear:packed_koala_bear"],
+)
