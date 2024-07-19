@@ -56,7 +56,7 @@ class PrimeFieldBase : public FiniteField<F> {
     return F::FromBigint(Config::kModulus);
   }
 
-  constexpr static uint64_t ExtensionDegree() { return 1; }
+  constexpr static uint32_t ExtensionDegree() { return 1; }
 
   constexpr static bool Decompose(uint64_t n, PrimeFieldFactors* factors) {
     static_assert(Config::kHasLargeSubgroupRootOfUnity);
@@ -143,7 +143,7 @@ class PrimeFieldBase : public FiniteField<F> {
     return LegendreSymbol::kMinusOne;
   }
 
-  constexpr F& FrobeniusMapInPlace(uint64_t exponent) {
+  constexpr F& FrobeniusMapInPlace(uint32_t exponent) {
     // Do nothing.
     return static_cast<F&>(*this);
   }
