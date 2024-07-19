@@ -12,29 +12,29 @@ namespace {
 using F4 = BabyBear4;
 using F = BabyBear;
 
-class QuaticExtensionFieldTest : public FiniteFieldTest<F4> {};
+class QuarticExtensionFieldTest : public FiniteFieldTest<F4> {};
 
 }  // namespace
 
-TEST_F(QuaticExtensionFieldTest, Zero) {
+TEST_F(QuarticExtensionFieldTest, Zero) {
   EXPECT_TRUE(F4::Zero().IsZero());
   EXPECT_FALSE(F4::One().IsZero());
   EXPECT_FALSE(F4::MinusOne().IsZero());
 }
 
-TEST_F(QuaticExtensionFieldTest, One) {
+TEST_F(QuarticExtensionFieldTest, One) {
   EXPECT_TRUE(F4::One().IsOne());
   EXPECT_FALSE(F4::Zero().IsOne());
   EXPECT_FALSE(F4::MinusOne().IsOne());
 }
 
-TEST_F(QuaticExtensionFieldTest, MinusOne) {
+TEST_F(QuarticExtensionFieldTest, MinusOne) {
   EXPECT_TRUE(F4::MinusOne().IsMinusOne());
   EXPECT_FALSE(F4::Zero().IsMinusOne());
   EXPECT_FALSE(F4::One().IsMinusOne());
 }
 
-TEST_F(QuaticExtensionFieldTest, Random) {
+TEST_F(QuarticExtensionFieldTest, Random) {
   bool success = false;
   F4 r = F4::Random();
   for (size_t i = 0; i < 100; ++i) {
@@ -46,7 +46,7 @@ TEST_F(QuaticExtensionFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TEST_F(QuaticExtensionFieldTest, Norm) {
+TEST_F(QuarticExtensionFieldTest, Norm) {
   constexpr static uint32_t kModulus = BabyBear::Config::kModulus;
   F4 r = F4::Random();
   F4 r_to_p = r.Pow(kModulus);
@@ -55,7 +55,7 @@ TEST_F(QuaticExtensionFieldTest, Norm) {
   EXPECT_EQ(r.Norm(), (r * r_to_p * r_to_p2 * r_to_p3).c0());
 }
 
-TEST_F(QuaticExtensionFieldTest, EqualityOperators) {
+TEST_F(QuarticExtensionFieldTest, EqualityOperators) {
   F4 f(F(3), F(4), F(5), F(6));
   F4 f2(F(4), F(4), F(5), F(6));
   EXPECT_NE(f, f2);
@@ -69,7 +69,7 @@ TEST_F(QuaticExtensionFieldTest, EqualityOperators) {
   EXPECT_EQ(f, f5);
 }
 
-TEST_F(QuaticExtensionFieldTest, ComparisonOperator) {
+TEST_F(QuarticExtensionFieldTest, ComparisonOperator) {
   F4 f(F(3), F(4), F(5), F(6));
   F4 f2(F(4), F(4), F(5), F(6));
   EXPECT_LT(f, f2);
@@ -92,7 +92,7 @@ TEST_F(QuaticExtensionFieldTest, ComparisonOperator) {
   EXPECT_GE(f6, f5);
 }
 
-TEST_F(QuaticExtensionFieldTest, AdditiveOperators) {
+TEST_F(QuarticExtensionFieldTest, AdditiveOperators) {
   struct {
     F4 a;
     F4 b;
@@ -123,7 +123,7 @@ TEST_F(QuaticExtensionFieldTest, AdditiveOperators) {
   }
 }
 
-TEST_F(QuaticExtensionFieldTest, AdditiveGroupOperators) {
+TEST_F(QuarticExtensionFieldTest, AdditiveGroupOperators) {
   F4 f(F(3), F(4), F(5), F(6));
   F4 f_neg(-F(3), -F(4), -F(5), -F(6));
   EXPECT_EQ(-f, f_neg);
@@ -137,7 +137,7 @@ TEST_F(QuaticExtensionFieldTest, AdditiveGroupOperators) {
   EXPECT_EQ(f, f_dbl);
 }
 
-TEST_F(QuaticExtensionFieldTest, MultiplicativeOperators) {
+TEST_F(QuarticExtensionFieldTest, MultiplicativeOperators) {
   struct {
     F4 a;
     F4 b;
@@ -168,7 +168,7 @@ TEST_F(QuaticExtensionFieldTest, MultiplicativeOperators) {
   }
 }
 
-TEST_F(QuaticExtensionFieldTest, MultiplicativeOperators2) {
+TEST_F(QuarticExtensionFieldTest, MultiplicativeOperators2) {
   F4 f(F(3), F(4), F(5), F(6));
   F4 f_mul(F(6), F(8), F(10), F(12));
   EXPECT_EQ(f * F(2), f_mul);
@@ -176,7 +176,7 @@ TEST_F(QuaticExtensionFieldTest, MultiplicativeOperators2) {
   EXPECT_EQ(f, f_mul);
 }
 
-TEST_F(QuaticExtensionFieldTest, MultiplicativeGroupOperators) {
+TEST_F(QuarticExtensionFieldTest, MultiplicativeGroupOperators) {
   F4 f = F4::Random();
   std::optional<F4> f_inv = f.Inverse();
   if (UNLIKELY(f.IsZero())) {
@@ -195,7 +195,7 @@ TEST_F(QuaticExtensionFieldTest, MultiplicativeGroupOperators) {
   EXPECT_EQ(f, f_sqr);
 }
 
-TEST_F(QuaticExtensionFieldTest, JsonValueConverter) {
+TEST_F(QuarticExtensionFieldTest, JsonValueConverter) {
   F4 expected_point(F(1), F(2), F(3), F(4));
   std::string expected_json = R"({"c0":1,"c1":2,"c2":3,"c3":4})";
 
