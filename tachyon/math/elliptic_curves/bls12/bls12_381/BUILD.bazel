@@ -76,6 +76,7 @@ generate_fp2s(
     base_field = "Fq",
     base_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq.h",
     class_name = "Fq2",
+    is_packed = False,
     namespace = "tachyon::math::bls12_381",
     non_residue = ["-1"],
     deps = [":fq"],
@@ -87,6 +88,7 @@ generate_fp6s(
     base_field_degree = 2,
     base_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq2.h",
     class_name = "Fq6",
+    is_packed = False,
     mul_by_non_residue_override =
         """    // (c0 + c1 * u) * (1 + u) = (c0 - c1) + (c1 + c0) * u
     return BaseField(v.c0() - v.c1(), v.c0() + v.c1());""",
@@ -103,6 +105,7 @@ generate_fp12s(
     base_field = "Fq6",
     base_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq6.h",
     class_name = "Fq12",
+    is_packed = False,
     namespace = "tachyon::math::bls12_381",
     non_residue = [
         "0",

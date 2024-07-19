@@ -21,6 +21,7 @@ struct GenerationConfig : public build::CcWriter {
   std::vector<std::string> non_residue;
   std::string base_field_hdr;
   std::string base_field;
+  bool is_packed;
   std::string mul_by_non_residue_override;
 
   std::string GenerateFastMulByNonResidueCode(int64_t a_value) const;
@@ -33,7 +34,13 @@ std::string GenerationConfig::GenerateInitCode(
     bool mul_by_non_residue_fast) const {
   std::string init;
   if (mul_by_non_residue_fast) {
-    init = math::GenerateInitField("kNonResidue", "BaseField", non_residue[0]);
+    if (is_packed) {
+      init = math::GenerateInitPackedField("kNonResidue", "BaseField",
+                                           non_residue[0]);
+    } else {
+      init =
+          math::GenerateInitField("kNonResidue", "BaseField", non_residue[0]);
+    }
   } else {
     init = math::GenerateInitExtField("kNonResidue", "BaseField", non_residue,
                                       base_field_degree);
@@ -161,6 +168,9 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.base_field)
       .set_long_name("--base_field")
       .set_required();
+  parser.AddFlag<base::BoolFlag>(&config.is_packed)
+      .set_long_name("--is_packed")
+      .set_default_value(false);
   parser.AddFlag<base::FilePathFlag>(&config.fq_hdr_tpl_path)
       .set_long_name("--fq_hdr_tpl_path")
       .set_required();

@@ -66,6 +66,7 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
             BaseField::Random()};
   }
 
+  // TODO(chokobole): Should be generalized for packed extension field.
   static Derived FromBasePrimeFields(
       absl::Span<const BasePrimeField> prime_fields) {
     CHECK_EQ(prime_fields.size(), ExtensionDegree());

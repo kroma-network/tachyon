@@ -46,6 +46,7 @@ generate_fp2s(
     base_field = "Goldilocks",
     base_field_hdr = "tachyon/math/finite_fields/goldilocks/goldilocks.h",
     class_name = "Goldilocks2",
+    is_packed = False,
     namespace = "tachyon::math",
     non_residue = ["7"],
     deps = [":goldilocks"],
