@@ -17,7 +17,7 @@ namespace tachyon::math {
 class PackedKoalaBearAVX2;
 
 template <>
-struct PackedPrimeFieldTraits<PackedKoalaBearAVX2> {
+struct PackedFieldTraits<PackedKoalaBearAVX2> {
   using PrimeField = KoalaBear;
 
   constexpr static size_t N = 8;

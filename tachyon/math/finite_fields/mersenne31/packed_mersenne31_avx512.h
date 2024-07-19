@@ -17,7 +17,7 @@ namespace tachyon::math {
 class PackedMersenne31AVX512;
 
 template <>
-struct PackedPrimeFieldTraits<PackedMersenne31AVX512> {
+struct PackedFieldTraits<PackedMersenne31AVX512> {
   using PrimeField = Mersenne31;
 
   constexpr static size_t N = 16;
@@ -28,7 +28,7 @@ class TACHYON_EXPORT PackedMersenne31AVX512 final
  public:
   using PrimeField = Mersenne31;
 
-  constexpr static size_t N = PackedPrimeFieldTraits<PackedMersenne31AVX512>::N;
+  constexpr static size_t N = PackedFieldTraits<PackedMersenne31AVX512>::N;
 
   PackedMersenne31AVX512() = default;
   // NOTE(chokobole): This is needed by Eigen matrix.

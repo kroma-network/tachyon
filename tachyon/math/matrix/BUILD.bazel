@@ -50,7 +50,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/math/finite_fields:extension_field_traits_forward",
         "//tachyon/math/finite_fields:finite_field_traits",
-        "//tachyon/math/finite_fields:packed_prime_field_traits_forward",
+        "//tachyon/math/finite_fields:packed_field_traits_forward",
         "@eigen_archive//:eigen3",
     ],
 )

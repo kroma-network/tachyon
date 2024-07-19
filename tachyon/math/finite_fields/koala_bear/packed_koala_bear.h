@@ -38,7 +38,7 @@ struct FiniteFieldTraits<PackedKoalaBear> {
 };
 
 template <>
-struct PackedPrimeFieldTraits<KoalaBear> {
+struct PackedFieldTraits<KoalaBear> {
   using PackedPrimeField = PackedKoalaBear;
 };
 

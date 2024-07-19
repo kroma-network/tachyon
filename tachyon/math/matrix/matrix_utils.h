@@ -11,7 +11,7 @@
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
-#include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
+#include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 
 namespace tachyon::math {
 

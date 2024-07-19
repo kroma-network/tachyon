@@ -38,7 +38,7 @@ struct FiniteFieldTraits<PackedMersenne31> {
 };
 
 template <>
-struct PackedPrimeFieldTraits<Mersenne31> {
+struct PackedFieldTraits<Mersenne31> {
   using PackedPrimeField = PackedMersenne31;
 };
 

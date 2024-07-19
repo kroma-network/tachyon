@@ -23,7 +23,7 @@
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/finite_field.h"
 #include "tachyon/math/finite_fields/legendre_symbol.h"
-#include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
+#include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/finite_fields/prime_field_util.h"
 
 namespace tachyon {
@@ -167,7 +167,7 @@ H AbslHashValue(H h, const F& prime_field) {
 // standardization. See how it is used in
 // tachyon/math/polynomials/univariate/radix2_evaluation_domain.h.
 template <typename T>
-struct PackedPrimeFieldTraits<
+struct PackedFieldTraits<
     T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
   using PackedPrimeField = T;
 };
