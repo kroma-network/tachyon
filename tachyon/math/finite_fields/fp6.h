@@ -48,7 +48,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     //    = α₀ᴾ + α₁ᴾ(x⁶)^((P - 1) / 6) * x
     //    = α₀ᴾ + α₁ᴾωx, where ω is a sextic root of unity.
 
-    constexpr uint64_t N = BasePrimeField::kLimbNums;
+    constexpr size_t N = BasePrimeField::kLimbNums;
     // m₁ = P
     mpz_class m1;
     if constexpr (BasePrimeField::Config::kModulusBits <= 32) {
@@ -242,7 +242,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     //    = ᾱ₀ + ᾱ₁(x³)^((P - 1) / 3) * x + ᾱ(x³)^(2 * (P - 1) / 3) * x²
     //    = ᾱ₀ + ᾱ₁ωx + ᾱω²x², where ω is a cubic root of unity.
 
-    constexpr uint64_t N = BasePrimeField::kLimbNums;
+    constexpr size_t N = BasePrimeField::kLimbNums;
     // m₁ = P
     mpz_class m1;
     if constexpr (BasePrimeField::Config::kModulusBits <= 32) {

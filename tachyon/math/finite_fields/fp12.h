@@ -47,7 +47,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     //    = α₀ᴾ + α₁ᴾ(x⁶)^((P - 1) / 6) * x
     //    = α₀ᴾ + α₁ᴾωx, where ω is a sextic root of unity.
 
-    constexpr uint64_t N = BasePrimeField::kLimbNums;
+    constexpr size_t N = BasePrimeField::kLimbNums;
     // m₁ = P
     mpz_class m1;
     if constexpr (BasePrimeField::Config::kModulusBits <= 32) {
