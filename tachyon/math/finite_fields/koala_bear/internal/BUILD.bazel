@@ -10,6 +10,7 @@ generate_fp4s(
     class_name = "KoalaBear4",
     is_packed = False,
     namespace = "tachyon::math",
+    # See https://github.com/Plonky3/Plonky3/blob/d9ef3902abcc6a34b75f6820da168460aee26763/koala-bear/src/koala_bear.rs#L80.
     non_residue = ["3"],
     deps = ["//tachyon/math/finite_fields/koala_bear"],
 )
@@ -22,6 +23,7 @@ generate_fp4s(
     class_name = "PackedKoalaBear4",
     is_packed = True,
     namespace = "tachyon::math",
+    # See https://github.com/Plonky3/Plonky3/blob/d9ef3902abcc6a34b75f6820da168460aee26763/koala-bear/src/koala_bear.rs#L80.
     non_residue = ["3"],
     deps = ["//tachyon/math/finite_fields/koala_bear:packed_koala_bear"],
 )
