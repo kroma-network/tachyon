@@ -134,6 +134,8 @@ class TACHYON_CC_EXPORT G1JacobianPoint {
     return G1JacobianPoint(tachyon_%{type}_g1_jacobian_zero());
   }
 
+  static G1JacobianPoint One() { return Generator(); }
+
   static G1JacobianPoint Generator() {
     return G1JacobianPoint(tachyon_%{type}_g1_jacobian_generator());
   }

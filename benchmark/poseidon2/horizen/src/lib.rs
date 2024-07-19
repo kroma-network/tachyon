@@ -6,7 +6,7 @@ use zkhash::{
 };
 
 #[no_mangle]
-pub extern "C" fn run_poseidon_horizen(duration: *mut u64) -> *mut CppFr {
+pub extern "C" fn run_poseidon_horizen_bn254_fr(duration: *mut u64) -> *mut CppFr {
     let poseidon = Poseidon2::new(&POSEIDON2_BN256_PARAMS);
 
     let t = poseidon.get_t();

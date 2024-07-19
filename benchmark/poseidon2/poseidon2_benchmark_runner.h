@@ -15,7 +15,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/time/time.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
+#include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
 
@@ -29,7 +29,7 @@ class PoseidonBenchmarkRunner {
   typedef CPrimeField* (*PoseidonExternalFn)(uint64_t* duration);
 
   PoseidonBenchmarkRunner(SimplePoseidonBenchmarkReporter* reporter,
-                          Poseidon2Config* config)
+                          const Poseidon2Config* config)
       : reporter_(reporter), config_(config) {}
 
   Field Run(const crypto::Poseidon2Config<Field>& config) {
@@ -38,7 +38,7 @@ class PoseidonBenchmarkRunner {
       crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
           crypto::Poseidon2HorizenExternalMatrix<Field>>>
           sponge(config);
-      crypto::SpongeState<Field> state;
+      crypto::SpongeState<Field> state(config);
       base::TimeTicks start = base::TimeTicks::Now();
       sponge.Permute(state);
       reporter_->AddTime(i, (base::TimeTicks::Now() - start).InSecondsF());
@@ -63,7 +63,7 @@ class PoseidonBenchmarkRunner {
   // not owned
   SimplePoseidonBenchmarkReporter* const reporter_;
   // not owned
-  Poseidon2Config* const config_;
+  const Poseidon2Config* const config_;
 };
 
 }  // namespace tachyon
