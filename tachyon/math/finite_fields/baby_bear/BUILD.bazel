@@ -34,6 +34,18 @@ generate_fp4s(
     deps = [":baby_bear"],
 )
 
+generate_fp4s(
+    name = "packed_baby_bear4",
+    base_field = "PackedBabyBear",
+    base_field_degree = 1,
+    base_field_hdr = "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h",
+    class_name = "PackedBabyBear4",
+    is_packed = True,
+    namespace = "tachyon::math",
+    non_residue = ["11"],
+    deps = [":packed_baby_bear"],
+)
+
 tachyon_cc_library(
     name = "packed_baby_bear",
     hdrs = ["packed_baby_bear.h"],

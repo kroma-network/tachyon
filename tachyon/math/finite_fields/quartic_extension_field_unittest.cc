@@ -3,38 +3,48 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
+#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear4.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::math {
 
 namespace {
 
-using F4 = BabyBear4;
-using F = BabyBear;
-
-class QuarticExtensionFieldTest : public FiniteFieldTest<F4> {};
+template <typename FieldType>
+class QuarticExtensionFieldTest : public FiniteFieldTest<FieldType> {};
 
 }  // namespace
 
-TEST_F(QuarticExtensionFieldTest, Zero) {
+using FieldTypes = testing::Types<BabyBear4, PackedBabyBear4>;
+TYPED_TEST_SUITE(QuarticExtensionFieldTest, FieldTypes);
+
+TYPED_TEST(QuarticExtensionFieldTest, Zero) {
+  using F4 = TypeParam;
+
   EXPECT_TRUE(F4::Zero().IsZero());
   EXPECT_FALSE(F4::One().IsZero());
   EXPECT_FALSE(F4::MinusOne().IsZero());
 }
 
-TEST_F(QuarticExtensionFieldTest, One) {
+TYPED_TEST(QuarticExtensionFieldTest, One) {
+  using F4 = TypeParam;
+
   EXPECT_TRUE(F4::One().IsOne());
   EXPECT_FALSE(F4::Zero().IsOne());
   EXPECT_FALSE(F4::MinusOne().IsOne());
 }
 
-TEST_F(QuarticExtensionFieldTest, MinusOne) {
+TYPED_TEST(QuarticExtensionFieldTest, MinusOne) {
+  using F4 = TypeParam;
+
   EXPECT_TRUE(F4::MinusOne().IsMinusOne());
   EXPECT_FALSE(F4::Zero().IsMinusOne());
   EXPECT_FALSE(F4::One().IsMinusOne());
 }
 
-TEST_F(QuarticExtensionFieldTest, Random) {
+TYPED_TEST(QuarticExtensionFieldTest, Random) {
+  using F4 = TypeParam;
+
   bool success = false;
   F4 r = F4::Random();
   for (size_t i = 0; i < 100; ++i) {
@@ -46,7 +56,9 @@ TEST_F(QuarticExtensionFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TEST_F(QuarticExtensionFieldTest, Norm) {
+TYPED_TEST(QuarticExtensionFieldTest, Norm) {
+  using F4 = TypeParam;
+
   constexpr static uint32_t kModulus = BabyBear::Config::kModulus;
   F4 r = F4::Random();
   F4 r_to_p = r.Pow(kModulus);
@@ -55,7 +67,10 @@ TEST_F(QuarticExtensionFieldTest, Norm) {
   EXPECT_EQ(r.Norm(), (r * r_to_p * r_to_p2 * r_to_p3).c0());
 }
 
-TEST_F(QuarticExtensionFieldTest, EqualityOperators) {
+TYPED_TEST(QuarticExtensionFieldTest, EqualityOperators) {
+  using F4 = TypeParam;
+  using F = typename F4::BaseField;
+
   F4 f(F(3), F(4), F(5), F(6));
   F4 f2(F(4), F(4), F(5), F(6));
   EXPECT_NE(f, f2);
@@ -69,30 +84,40 @@ TEST_F(QuarticExtensionFieldTest, EqualityOperators) {
   EXPECT_EQ(f, f5);
 }
 
-TEST_F(QuarticExtensionFieldTest, ComparisonOperator) {
-  F4 f(F(3), F(4), F(5), F(6));
-  F4 f2(F(4), F(4), F(5), F(6));
-  EXPECT_LT(f, f2);
-  EXPECT_LE(f, f2);
-  EXPECT_GT(f2, f);
-  EXPECT_GE(f2, f);
+TYPED_TEST(QuarticExtensionFieldTest, ComparisonOperator) {
+  using F4 = TypeParam;
+  using F = typename F4::BaseField;
 
-  F4 f3(F(4), F(3), F(5), F(6));
-  F4 f4(F(3), F(4), F(5), F(6));
-  EXPECT_LT(f3, f4);
-  EXPECT_LE(f3, f4);
-  EXPECT_GT(f4, f3);
-  EXPECT_GE(f4, f3);
+  if constexpr (std::is_same_v<F4, PackedBabyBear4>) {
+    GTEST_SKIP();
+  } else {
+    F4 f(F(3), F(4), F(5), F(6));
+    F4 f2(F(4), F(4), F(5), F(6));
+    EXPECT_LT(f, f2);
+    EXPECT_LE(f, f2);
+    EXPECT_GT(f2, f);
+    EXPECT_GE(f2, f);
 
-  F4 f5(F(4), F(5), F(6), F(3));
-  F4 f6(F(3), F(2), F(6), F(5));
-  EXPECT_LT(f5, f6);
-  EXPECT_LE(f5, f6);
-  EXPECT_GT(f6, f5);
-  EXPECT_GE(f6, f5);
+    F4 f3(F(4), F(3), F(5), F(6));
+    F4 f4(F(3), F(4), F(5), F(6));
+    EXPECT_LT(f3, f4);
+    EXPECT_LE(f3, f4);
+    EXPECT_GT(f4, f3);
+    EXPECT_GE(f4, f3);
+
+    F4 f5(F(4), F(5), F(6), F(3));
+    F4 f6(F(3), F(2), F(6), F(5));
+    EXPECT_LT(f5, f6);
+    EXPECT_LE(f5, f6);
+    EXPECT_GT(f6, f5);
+    EXPECT_GE(f6, f5);
+  }
 }
 
-TEST_F(QuarticExtensionFieldTest, AdditiveOperators) {
+TYPED_TEST(QuarticExtensionFieldTest, AdditiveOperators) {
+  using F4 = TypeParam;
+  using F = typename F4::BaseField;
+
   struct {
     F4 a;
     F4 b;
@@ -123,7 +148,10 @@ TEST_F(QuarticExtensionFieldTest, AdditiveOperators) {
   }
 }
 
-TEST_F(QuarticExtensionFieldTest, AdditiveGroupOperators) {
+TYPED_TEST(QuarticExtensionFieldTest, AdditiveGroupOperators) {
+  using F4 = TypeParam;
+  using F = typename F4::BaseField;
+
   F4 f(F(3), F(4), F(5), F(6));
   F4 f_neg(-F(3), -F(4), -F(5), -F(6));
   EXPECT_EQ(-f, f_neg);
@@ -137,7 +165,10 @@ TEST_F(QuarticExtensionFieldTest, AdditiveGroupOperators) {
   EXPECT_EQ(f, f_dbl);
 }
 
-TEST_F(QuarticExtensionFieldTest, MultiplicativeOperators) {
+TYPED_TEST(QuarticExtensionFieldTest, MultiplicativeOperators) {
+  using F4 = TypeParam;
+  using F = typename F4::BaseField;
+
   struct {
     F4 a;
     F4 b;
@@ -168,7 +199,10 @@ TEST_F(QuarticExtensionFieldTest, MultiplicativeOperators) {
   }
 }
 
-TEST_F(QuarticExtensionFieldTest, MultiplicativeOperators2) {
+TYPED_TEST(QuarticExtensionFieldTest, MultiplicativeOperators2) {
+  using F4 = TypeParam;
+  using F = typename F4::BaseField;
+
   F4 f(F(3), F(4), F(5), F(6));
   F4 f_mul(F(6), F(8), F(10), F(12));
   EXPECT_EQ(f * F(2), f_mul);
@@ -176,7 +210,10 @@ TEST_F(QuarticExtensionFieldTest, MultiplicativeOperators2) {
   EXPECT_EQ(f, f_mul);
 }
 
-TEST_F(QuarticExtensionFieldTest, MultiplicativeGroupOperators) {
+TYPED_TEST(QuarticExtensionFieldTest, MultiplicativeGroupOperators) {
+  using F4 = TypeParam;
+  using F = typename F4::BaseField;
+
   F4 f = F4::Random();
   std::optional<F4> f_inv = f.Inverse();
   if (UNLIKELY(f.IsZero())) {
@@ -195,18 +232,26 @@ TEST_F(QuarticExtensionFieldTest, MultiplicativeGroupOperators) {
   EXPECT_EQ(f, f_sqr);
 }
 
-TEST_F(QuarticExtensionFieldTest, JsonValueConverter) {
-  F4 expected_point(F(1), F(2), F(3), F(4));
-  std::string expected_json = R"({"c0":1,"c1":2,"c2":3,"c3":4})";
+TYPED_TEST(QuarticExtensionFieldTest, JsonValueConverter) {
+  using F4 = TypeParam;
+  using F = typename F4::BaseField;
 
-  F4 p;
-  std::string error;
-  ASSERT_TRUE(base::ParseJson(expected_json, &p, &error));
-  ASSERT_TRUE(error.empty());
-  EXPECT_EQ(p, expected_point);
+  // TODO(chokobole): Enable this test.
+  if constexpr (std::is_same_v<F4, PackedBabyBear4>) {
+    GTEST_SKIP();
+  } else {
+    F4 expected_point(F(1), F(2), F(3), F(4));
+    std::string expected_json = R"({"c0":1,"c1":2,"c2":3,"c3":4})";
 
-  std::string json = base::WriteToJson(p);
-  EXPECT_EQ(json, expected_json);
+    F4 p;
+    std::string error;
+    ASSERT_TRUE(base::ParseJson(expected_json, &p, &error));
+    ASSERT_TRUE(error.empty());
+    EXPECT_EQ(p, expected_point);
+
+    std::string json = base::WriteToJson(p);
+    EXPECT_EQ(json, expected_json);
+  }
 }
 
 }  // namespace tachyon::math
