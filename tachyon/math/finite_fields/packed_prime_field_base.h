@@ -80,6 +80,29 @@ class PackedPrimeFieldBase : public Field<Derived> {
     return values_ != other.values_;
   }
 
+  // NOTE(chokobole): These are needed by Eigen Matrix inverse operation.
+  constexpr bool operator<(const Derived& other) const {
+    for (size_t i = 0; i < values_.size(); ++i) {
+      if (values_[i] == other.values_[i]) continue;
+      return values_[i] < other.values_[i];
+    }
+    return false;
+  }
+  constexpr bool operator>(const Derived& other) const {
+    for (size_t i = 0; i < values_.size(); ++i) {
+      if (values_[i] == other.values_[i]) continue;
+      return values_[i] > other.values_[i];
+    }
+    return false;
+  }
+  constexpr bool operator<=(const Derived& other) const {
+    return !operator>(other);
+  }
+
+  constexpr bool operator>=(const Derived& other) const {
+    return !operator<(other);
+  }
+
   // AdditiveSemigroup methods
   Derived& AddInPlace(const Derived& other) {
     Derived& self = static_cast<Derived&>(*this);
