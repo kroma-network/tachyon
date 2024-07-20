@@ -32,6 +32,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "extended_packed_field_traits_forward",
+    hdrs = ["extended_packed_field_traits_forward.h"],
+)
+
+tachyon_cc_library(
     name = "extension_field_traits_forward",
     hdrs = ["extension_field_traits_forward.h"],
 )
