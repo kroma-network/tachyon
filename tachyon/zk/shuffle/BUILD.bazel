@@ -7,3 +7,8 @@ tachyon_cc_library(
     hdrs = ["argument.h"],
     deps = ["//tachyon/zk/expressions:expression"],
 )
+
+tachyon_cc_library(
+    name = "opening_point_set",
+    hdrs = ["opening_point_set.h"],
+)
