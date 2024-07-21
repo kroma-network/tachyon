@@ -94,7 +94,7 @@ int RealMain(int argc, char** argv) {
       domain = Domain::Create(tachyon_runner->GetDomainSize());
 
       size_t num_instance_variables = tachyon_runner->GetNumInstanceVariables();
-      full_assignments = base::CreateVector(
+      full_assignments = base::CreateVectorParallel(
           num_instance_variables + tachyon_runner->GetNumWitnessVariables(),
           [&witness_loader](size_t i) { return witness_loader.Get(i); });
 

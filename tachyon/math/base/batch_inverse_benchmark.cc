@@ -9,7 +9,7 @@ template <typename F>
 void BM_BatchInverseSerial(benchmark::State& state) {
   using BigInt = typename F::BigIntTy;
 
-  std::vector<F> fields = base::CreateVector(
+  std::vector<F> fields = base::CreateVectorParallel(
       state.range(0), [](size_t i) { return F::FromBigInt(BigInt(i + 1)); });
   for (auto _ : state) {
     CHECK(F::BatchInverseInPlaceSerial(fields));
@@ -21,7 +21,7 @@ template <typename F>
 void BM_BatchInverse(benchmark::State& state) {
   using BigInt = typename F::BigIntTy;
 
-  std::vector<F> fields = base::CreateVector(
+  std::vector<F> fields = base::CreateVectorParallel(
       state.range(0), [](size_t i) { return F::FromBigInt(BigInt(i + 1)); });
   for (auto _ : state) {
     CHECK(F::BatchInverseInPlace(fields));
@@ -33,7 +33,7 @@ template <typename F>
 void BM_InverseParallelFor(benchmark::State& state) {
   using BigInt = typename F::BigIntTy;
 
-  std::vector<F> fields = base::CreateVector(
+  std::vector<F> fields = base::CreateVectorParallel(
       state.range(0), [](size_t i) { return F::FromBigInt(BigInt(i + 1)); });
   for (auto _ : state) {
     OPENMP_PARALLEL_FOR(size_t i = 0; i < fields.size(); ++i) {

@@ -12,6 +12,7 @@
 #include "tachyon/base/functional/functor_traits.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/numerics/checked_math.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/random.h"
 
 namespace tachyon::base {
@@ -47,6 +48,21 @@ std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
   return ret;
 }
 
+// |generator| is called in parallel, so it should be thread-safe.
+template <typename Generator,
+          typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>,
+          std::enable_if_t<ArgNum == 0>* = nullptr>
+std::vector<ReturnType> CreateVectorParallel(size_t size,
+                                             Generator&& generator) {
+  std::vector<ReturnType> ret(size);
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) { ret[i] = generator(); }
+  return ret;
+}
+
 template <typename Generator,
           typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
           typename ReturnType = typename FunctorTraits::ReturnType,
@@ -63,6 +79,21 @@ std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
       [&idx, generator = std::forward<Generator>(generator)]() mutable {
         return generator(idx++);
       });
+  return ret;
+}
+
+// |generator| is called in parallel, so it should be thread-safe.
+template <typename Generator,
+          typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>,
+          std::enable_if_t<ArgNum == 1>* = nullptr>
+std::vector<ReturnType> CreateVectorParallel(size_t size,
+                                             Generator&& generator) {
+  std::vector<ReturnType> ret(size);
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) { ret[i] = generator(i); }
   return ret;
 }
 

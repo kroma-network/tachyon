@@ -34,8 +34,8 @@ struct VariableBaseMSMTestSet {
                                        VariableBaseMSMMethod method) {
     VariableBaseMSMTestSet test_set;
     test_set.bases = CreatePseudoRandomPoints<Point>(size);
-    test_set.scalars =
-        base::CreateVector(size, []() { return ScalarField::Random(); });
+    test_set.scalars = base::CreateVectorParallel(
+        size, []() { return ScalarField::Random(); });
     test_set.ComputeAnswer(method);
     return test_set;
   }
@@ -46,7 +46,7 @@ struct VariableBaseMSMTestSet {
     test_set.bases = CreatePseudoRandomPoints<Point>(size);
     std::vector<ScalarField> scalar_sets =
         base::CreateVector(scalar_size, []() { return ScalarField::Random(); });
-    test_set.scalars = base::CreateVector(
+    test_set.scalars = base::CreateVectorParallel(
         size, [&scalar_sets]() { return base::UniformElement(scalar_sets); });
     test_set.ComputeAnswer(method);
     return test_set;
@@ -56,7 +56,7 @@ struct VariableBaseMSMTestSet {
                                      VariableBaseMSMMethod method) {
     VariableBaseMSMTestSet test_set;
     test_set.bases =
-        base::CreateVector(size, []() { return Point::Generator(); });
+        base::CreateVectorParallel(size, []() { return Point::Generator(); });
     ScalarField s = ScalarField::One();
     test_set.scalars = base::CreateVector(size, [&s]() {
       ScalarField ret = s;
