@@ -86,6 +86,25 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "verifying_evaluator",
+    hdrs = ["verifying_evaluator.h"],
+    deps = [
+        ":advice_expression",
+        ":challenge_expression",
+        ":fixed_expression",
+        ":instance_expression",
+        ":selector_expression",
+        "//tachyon/zk/expressions:constant_expression",
+        "//tachyon/zk/expressions:evaluator",
+        "//tachyon/zk/expressions:negated_expression",
+        "//tachyon/zk/expressions:product_expression",
+        "//tachyon/zk/expressions:scaled_expression",
+        "//tachyon/zk/expressions:sum_expression",
+        "//tachyon/zk/plonk/base:multi_phase_evaluations",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "expression_unittests",
     srcs = [

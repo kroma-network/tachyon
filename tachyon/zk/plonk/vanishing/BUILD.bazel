@@ -127,7 +127,7 @@ tachyon_cc_library(
         ":vanishing_utils",
         ":vanishing_verifier_data",
         "//tachyon/crypto/commitments:polynomial_openings",
-        "//tachyon/zk/lookup:verifying_evaluator",
+        "//tachyon/zk/plonk/expressions:verifying_evaluator",
     ],
 )
 

@@ -14,8 +14,8 @@
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/verifier_data.h"
 #include "tachyon/zk/lookup/verifier.h"
-#include "tachyon/zk/lookup/verifying_evaluator.h"
 #include "tachyon/zk/plonk/base/l_values.h"
+#include "tachyon/zk/plonk/expressions/verifying_evaluator.h"
 #include "tachyon/zk/plonk/halo2/proof.h"
 
 namespace tachyon::zk::lookup {
@@ -36,7 +36,7 @@ class Verifier final
 
   void DoEvaluate(const std::vector<lookup::Argument<F>>& arguments,
                   std::vector<F>& evals) {
-    lookup::VerifyingEvaluator<F> evaluator(data_);
+    plonk::VerifyingEvaluator<F> evaluator(data_);
 
     F active_rows = F::One() - (l_values_->last + l_values_->blind);
 
@@ -73,7 +73,7 @@ class Verifier final
  private:
   F CompressExpressions(
       const std::vector<std::unique_ptr<Expression<F>>>& expressions,
-      lookup::VerifyingEvaluator<F>& evaluator) const {
+      plonk::VerifyingEvaluator<F>& evaluator) const {
     F compressed_value = F::Zero();
     for (const std::unique_ptr<Expression<F>>& expression : expressions) {
       compressed_value *= data_.theta;
@@ -83,7 +83,7 @@ class Verifier final
   }
 
   F CreateGrandSumEvaluation(size_t i, const lookup::Argument<F>& argument,
-                             lookup::VerifyingEvaluator<F>& evaluator) {
+                             plonk::VerifyingEvaluator<F>& evaluator) {
     // φᵢ(X) = fᵢ(X) + β
     std::vector<F> f_evals = base::Map(
         argument.inputs_expressions(),
