@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_LOOKUP_LOOKUP_PAIR_H_
-#define TACHYON_ZK_LOOKUP_LOOKUP_PAIR_H_
+#ifndef TACHYON_ZK_LOOKUP_PAIR_H_
+#define TACHYON_ZK_LOOKUP_PAIR_H_
 
 #include <string>
 #include <utility>
@@ -73,4 +73,4 @@ class RapidJsonValueConverter<zk::lookup::Pair<T, U>> {
 }  // namespace base
 }  // namespace tachyon
 
-#endif  // TACHYON_ZK_LOOKUP_LOOKUP_PAIR_H_
+#endif  // TACHYON_ZK_LOOKUP_PAIR_H_

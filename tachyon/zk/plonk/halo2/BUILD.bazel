@@ -153,7 +153,7 @@ tachyon_cc_library(
     name = "proof",
     hdrs = ["proof.h"],
     deps = [
-        "//tachyon/zk/lookup:lookup_pair",
+        "//tachyon/zk/lookup:pair",
         "//tachyon/zk/lookup:type",
         "//tachyon/zk/lookup/halo2:verifier_data",
         "//tachyon/zk/lookup/log_derivative_halo2:verifier_data",

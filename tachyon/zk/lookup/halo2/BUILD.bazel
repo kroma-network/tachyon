@@ -32,7 +32,7 @@ tachyon_cc_library(
     hdrs = ["permute_expression_pair.h"],
     deps = [
         "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/lookup:lookup_pair",
+        "//tachyon/zk/lookup:pair",
         "@com_google_absl//absl/container:btree",
     ],
 )
@@ -99,7 +99,7 @@ tachyon_cc_library(
     name = "verifier_data",
     hdrs = ["verifier_data.h"],
     deps = [
-        "//tachyon/zk/lookup:lookup_pair",
+        "//tachyon/zk/lookup:pair",
         "//tachyon/zk/plonk/base:multi_phase_evaluations",
     ],
 )

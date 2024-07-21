@@ -18,7 +18,7 @@
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
-#include "tachyon/zk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/pair.h"
 #include "tachyon/zk/lookup/proving_evaluator.h"
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 

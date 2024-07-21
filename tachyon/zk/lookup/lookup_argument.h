@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "tachyon/zk/expressions/expression.h"
-#include "tachyon/zk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/pair.h"
 
 namespace tachyon::zk::lookup {
 

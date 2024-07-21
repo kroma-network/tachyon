@@ -59,7 +59,7 @@ tachyon_cc_library(
         ":simple_lookup_circuit_test_data",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/lookup:lookup_pair",
+        "//tachyon/zk/lookup:pair",
         "//tachyon/zk/plonk/halo2:pinned_constraint_system",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/halo2:prover_test",

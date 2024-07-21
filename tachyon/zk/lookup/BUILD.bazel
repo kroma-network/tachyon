@@ -6,14 +6,14 @@ tachyon_cc_library(
     name = "lookup_argument",
     hdrs = ["lookup_argument.h"],
     deps = [
-        ":lookup_pair",
+        ":pair",
         "//tachyon/zk/expressions:expression",
     ],
 )
 
 tachyon_cc_library(
-    name = "lookup_pair",
-    hdrs = ["lookup_pair.h"],
+    name = "pair",
+    hdrs = ["pair.h"],
     deps = ["//tachyon/base/json"],
 )
 

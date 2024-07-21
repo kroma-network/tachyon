@@ -1,7 +1,7 @@
 #ifndef TACHYON_ZK_LOOKUP_HALO2_VERIFIER_DATA_H_
 #define TACHYON_ZK_LOOKUP_HALO2_VERIFIER_DATA_H_
 
-#include "tachyon/zk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/pair.h"
 #include "tachyon/zk/plonk/base/multi_phase_evaluations.h"
 
 namespace tachyon::zk::lookup::halo2 {
