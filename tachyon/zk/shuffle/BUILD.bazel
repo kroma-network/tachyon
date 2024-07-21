@@ -12,3 +12,9 @@ tachyon_cc_library(
     name = "opening_point_set",
     hdrs = ["opening_point_set.h"],
 )
+
+tachyon_cc_library(
+    name = "pair",
+    hdrs = ["pair.h"],
+    deps = ["//tachyon/base/json"],
+)
