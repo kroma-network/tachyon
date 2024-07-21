@@ -41,28 +41,25 @@ struct Poseidon2Sponge final
 
   // PoseidonSpongeBase methods
   void Permute(SpongeState<F>& state) const {
-    ApplyMix(state, /*is_full_round=*/true);
+    ApplyMixFull(state);
 
     size_t full_rounds_over_2 = config.full_rounds / 2;
     for (size_t i = 0; i < full_rounds_over_2; ++i) {
-      bool is_full_round = true;
-      this->ApplyARK(state, i, is_full_round);
-      this->ApplySBox(state, is_full_round);
-      ApplyMix(state, is_full_round);
+      this->ApplyARKFull(state, i);
+      this->ApplySBoxFull(state);
+      ApplyMixFull(state);
     }
     for (size_t i = full_rounds_over_2;
          i < full_rounds_over_2 + config.partial_rounds; ++i) {
-      bool is_full_round = false;
-      this->ApplyARK(state, i, is_full_round);
-      this->ApplySBox(state, is_full_round);
-      ApplyMix(state, is_full_round);
+      this->ApplyARKPartial(state, i);
+      this->ApplySBoxPartial(state);
+      ApplyMixPartial(state);
     }
     for (size_t i = full_rounds_over_2 + config.partial_rounds;
          i < config.partial_rounds + config.full_rounds; ++i) {
-      bool is_full_round = true;
-      this->ApplyARK(state, i, is_full_round);
-      this->ApplySBox(state, is_full_round);
-      ApplyMix(state, is_full_round);
+      this->ApplyARKFull(state, i);
+      this->ApplySBoxFull(state);
+      ApplyMixFull(state);
     }
   }
 
@@ -74,30 +71,29 @@ struct Poseidon2Sponge final
   }
 
  private:
-  void ApplyMix(SpongeState<F>& state, bool is_full_round) const {
-    if (is_full_round) {
-      ExternalMatrix::Apply(state.elements);
-    } else {
-      using PrimeField =
-          std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
-                             typename math::FiniteFieldTraits<F>::PrimeField,
-                             F>;
+  void ApplyMixFull(SpongeState<F>& state) const {
+    ExternalMatrix::Apply(state.elements);
+  }
 
-      if constexpr (PrimeField::Config::kModulusBits <= 32) {
-        if (config.use_plonky3_internal_matrix) {
-          if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
-            Poseidon2Plonky3InternalMatrix<F>::Apply(
-                state.elements, config.internal_diagonal_minus_one);
-          } else {
-            Poseidon2Plonky3InternalMatrix<F>::Apply(state.elements,
-                                                     config.internal_shifts);
-          }
-          return;
+  void ApplyMixPartial(SpongeState<F>& state) const {
+    using PrimeField =
+        std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
+                           typename math::FiniteFieldTraits<F>::PrimeField, F>;
+
+    if constexpr (PrimeField::Config::kModulusBits <= 32) {
+      if (config.use_plonky3_internal_matrix) {
+        if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
+          Poseidon2Plonky3InternalMatrix<F>::Apply(
+              state.elements, config.internal_diagonal_minus_one);
+        } else {
+          Poseidon2Plonky3InternalMatrix<F>::Apply(state.elements,
+                                                   config.internal_shifts);
         }
+        return;
       }
-      Poseidon2HorizenInternalMatrix<F>::Apply(
-          state.elements, config.internal_diagonal_minus_one);
     }
+    Poseidon2HorizenInternalMatrix<F>::Apply(
+        state.elements, config.internal_diagonal_minus_one);
   }
 };
 

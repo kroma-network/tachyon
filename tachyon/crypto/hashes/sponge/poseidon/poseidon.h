@@ -42,40 +42,33 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
 
   // PoseidonSpongeBase methods
   void Permute(SpongeState<F>& state) const {
+    this->ApplyARKFull(state, 0);
+
     size_t full_rounds_over_2 = config.full_rounds / 2;
-    {
-      bool is_full_round = true;
-      this->ApplyARK(state, 0, is_full_round);
-      size_t full_rounds_over_2 = config.full_rounds / 2;
-      for (size_t i = 1; i < full_rounds_over_2; ++i) {
-        this->ApplySBox(state, is_full_round);
-        this->ApplyARK(state, i, is_full_round);
-        ApplyMix(state, is_full_round);
-      }
-      this->ApplySBox(state, is_full_round);
-      this->ApplyARK(state, full_rounds_over_2, is_full_round);
-      ApplyMixEfficient(state, full_rounds_over_2, is_full_round);
+    for (size_t i = 1; i < full_rounds_over_2; ++i) {
+      this->ApplySBoxFull(state);
+      this->ApplyARKFull(state, i);
+      ApplyMixFull(state);
     }
+    this->ApplySBoxFull(state);
+    this->ApplyARKFull(state, full_rounds_over_2);
+    ApplyMixEfficientFull(state, full_rounds_over_2);
 
     for (size_t i = full_rounds_over_2 + 1;
          i < full_rounds_over_2 + config.partial_rounds + 1; ++i) {
-      bool is_full_round = false;
-      this->ApplySBox(state, is_full_round);
-      this->ApplyARK(state, i, is_full_round);
-      ApplyMixEfficient(state, i - (full_rounds_over_2 + 1), is_full_round);
+      this->ApplySBoxPartial(state);
+      this->ApplyARKPartial(state, i);
+      ApplyMixEfficientPartial(state, i - (full_rounds_over_2 + 1));
     }
 
-    {
-      bool is_full_round = true;
-      for (size_t i = full_rounds_over_2 + config.partial_rounds + 1;
-           i < config.partial_rounds + config.full_rounds; ++i) {
-        this->ApplySBox(state, is_full_round);
-        this->ApplyARK(state, i, is_full_round);
-        ApplyMix(state, is_full_round);
-      }
-      this->ApplySBox(state, is_full_round);
-      ApplyMix(state, is_full_round);
+    for (size_t i = full_rounds_over_2 + config.partial_rounds + 1;
+         i < config.partial_rounds + config.full_rounds; ++i) {
+      this->ApplySBoxFull(state);
+      this->ApplyARKFull(state, i);
+      ApplyMixFull(state);
     }
+    this->ApplySBoxFull(state);
+    ApplyMixFull(state);
   }
 
   bool operator==(const PoseidonSponge& other) const {
@@ -86,18 +79,18 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
   }
 
  private:
-  void ApplyMix(SpongeState<F>& state, bool is_full_round) const {
+  void ApplyMixFull(SpongeState<F>& state) const {
     state.elements = math::MulMatVecSerial(config.mds, state.elements);
   }
 
-  void ApplyMixEfficient(SpongeState<F>& state, Eigen::Index index,
-                         bool is_full_round) const {
-    if (is_full_round) {
-      state.elements =
-          math::MulMatVecSerial(config.pre_sparse_mds, state.elements);
-    } else {
-      config.sparse_mds_matrices[index].Apply(state.elements);
-    }
+  void ApplyMixEfficientFull(SpongeState<F>& state, Eigen::Index index) const {
+    state.elements =
+        math::MulMatVecSerial(config.pre_sparse_mds, state.elements);
+  }
+
+  void ApplyMixEfficientPartial(SpongeState<F>& state,
+                                Eigen::Index index) const {
+    config.sparse_mds_matrices[index].Apply(state.elements);
   }
 };
 

@@ -20,30 +20,33 @@ template <typename Derived>
 struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
   using F = typename CryptographicSpongeTraits<Derived>::F;
 
-  void ApplyARK(SpongeState<F>& state, Eigen::Index round_number,
-                bool is_full_round) const {
+  void ApplyARKFull(SpongeState<F>& state, Eigen::Index round_number) const {
     const Derived& derived = static_cast<const Derived&>(*this);
     auto& config = derived.config;
-    if (is_full_round) {
-      state.elements += config.ark.row(round_number);
-    } else {
-      state.elements[0] += config.ark.row(round_number)[0];
+    state.elements += config.ark.row(round_number);
+  }
+
+  void ApplyARKPartial(SpongeState<F>& state, Eigen::Index round_number) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    auto& config = derived.config;
+    state.elements[0] += config.ark.row(round_number)[0];
+  }
+
+  void ApplySBoxFull(SpongeState<F>& state) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    auto& config = derived.config;
+    // Full rounds apply the S-Box (xᵅ) to every element of |state|.
+    for (F& elem : state.elements) {
+      elem = elem.Pow(config.alpha);
     }
   }
 
-  void ApplySBox(SpongeState<F>& state, bool is_full_round) const {
+  void ApplySBoxPartial(SpongeState<F>& state) const {
     const Derived& derived = static_cast<const Derived&>(*this);
     auto& config = derived.config;
-    if (is_full_round) {
-      // Full rounds apply the S-Box (xᵅ) to every element of |state|.
-      for (F& elem : state.elements) {
-        elem = elem.Pow(config.alpha);
-      }
-    } else {
-      // Partial rounds apply the S-Box (xᵅ) to just the first element of
-      // |state|.
-      state[0] = state[0].Pow(config.alpha);
-    }
+    // Partial rounds apply the S-Box (xᵅ) to just the first element of
+    // |state|.
+    state[0] = state[0].Pow(config.alpha);
   }
 
   // Absorbs everything in |elements|, this does not end in an absorbing.
