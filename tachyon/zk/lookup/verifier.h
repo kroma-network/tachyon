@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "tachyon/zk/lookup/lookup_argument.h"
+#include "tachyon/zk/lookup/argument.h"
 #include "tachyon/zk/lookup/verifier_traits_forward.h"
 
 namespace tachyon::zk::lookup {

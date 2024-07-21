@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_H_
-#define TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_H_
+#ifndef TACHYON_ZK_LOOKUP_ARGUMENT_H_
+#define TACHYON_ZK_LOOKUP_ARGUMENT_H_
 
 #include <algorithm>
 #include <memory>
@@ -218,4 +218,4 @@ class Argument {
 
 }  // namespace tachyon::zk::lookup
 
-#endif  // TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_H_
+#endif  // TACHYON_ZK_LOOKUP_ARGUMENT_H_

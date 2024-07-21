@@ -10,9 +10,9 @@
 #include <vector>
 
 #include "tachyon/crypto/commitments/polynomial_openings.h"
+#include "tachyon/zk/lookup/argument.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/verifier_data.h"
-#include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/lookup/verifier.h"
 #include "tachyon/zk/lookup/verifying_evaluator.h"
 #include "tachyon/zk/plonk/base/l_values.h"

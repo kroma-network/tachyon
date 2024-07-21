@@ -3,8 +3,8 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "lookup_argument",
-    hdrs = ["lookup_argument.h"],
+    name = "argument",
+    hdrs = ["argument.h"],
     deps = [
         ":pair",
         "//tachyon/zk/expressions:expression",
@@ -45,7 +45,7 @@ tachyon_cc_library(
     name = "verifier",
     hdrs = ["verifier.h"],
     deps = [
-        ":lookup_argument",
+        ":argument",
         ":verifier_traits_forward",
     ],
 )

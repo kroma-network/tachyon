@@ -22,7 +22,7 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 #include "tachyon/zk/expressions/expression_factory.h"
-#include "tachyon/zk/lookup/lookup_argument.h"
+#include "tachyon/zk/lookup/argument.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/base/phase.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"

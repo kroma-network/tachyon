@@ -29,7 +29,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/row_types.h"
-#include "tachyon/zk/lookup/lookup_argument.h"
+#include "tachyon/zk/lookup/argument.h"
 #include "tachyon/zk/lookup/type.h"
 #include "tachyon/zk/plonk/constraint_system/constraint.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"
