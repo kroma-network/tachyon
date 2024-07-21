@@ -24,6 +24,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "compress_expression",
+    hdrs = ["compress_expression.h"],
+    deps = [
+        ":proving_evaluator",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:openmp_util",
+    ],
+)
+
+tachyon_cc_library(
     name = "expression_factory",
     hdrs = ["expression_factory.h"],
     deps = [
@@ -110,6 +120,7 @@ tachyon_cc_unittest(
     srcs = [
         "advice_expression_unittest.cc",
         "challenge_expression_unittest.cc",
+        "compress_expression_unittest.cc",
         "expression_unittest.cc",
         "fixed_expression_unittest.cc",
         "instance_expression_unittest.cc",
@@ -117,6 +128,7 @@ tachyon_cc_unittest(
         "selector_expression_unittest.cc",
     ],
     deps = [
+        ":compress_expression",
         ":expression_factory",
         ":proving_evaluator",
         "//tachyon/math/finite_fields/test:finite_field_test",
@@ -124,5 +136,6 @@ tachyon_cc_unittest(
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
         "//tachyon/zk/plonk/expressions/evaluator:simple_selector_finder",
         "//tachyon/zk/plonk/expressions/evaluator/test:evaluator_test",
+        "//tachyon/zk/plonk/expressions/test:compress_expression_test",
     ],
 )

@@ -35,22 +35,3 @@ tachyon_cc_library(
     name = "verifier_traits_forward",
     hdrs = ["verifier_traits_forward.h"],
 )
-
-tachyon_cc_library(
-    name = "verifying_evaluator",
-    hdrs = ["verifying_evaluator.h"],
-    deps = [
-        "//tachyon/zk/expressions:constant_expression",
-        "//tachyon/zk/expressions:evaluator",
-        "//tachyon/zk/expressions:negated_expression",
-        "//tachyon/zk/expressions:product_expression",
-        "//tachyon/zk/expressions:scaled_expression",
-        "//tachyon/zk/expressions:sum_expression",
-        "//tachyon/zk/plonk/base:multi_phase_evaluations",
-        "//tachyon/zk/plonk/expressions:advice_expression",
-        "//tachyon/zk/plonk/expressions:challenge_expression",
-        "//tachyon/zk/plonk/expressions:fixed_expression",
-        "//tachyon/zk/plonk/expressions:instance_expression",
-        "//tachyon/zk/plonk/expressions:selector_expression",
-    ],
-)

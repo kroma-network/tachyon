@@ -12,9 +12,9 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/ref.h"
-#include "tachyon/zk/lookup/halo2/compress_expression.h"
 #include "tachyon/zk/lookup/halo2/permute_expression_pair.h"
 #include "tachyon/zk/lookup/halo2/prover.h"
+#include "tachyon/zk/plonk/expressions/compress_expression.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 
 namespace tachyon::zk::lookup::halo2 {
@@ -26,11 +26,11 @@ Pair<Evals> Prover<Poly, Evals>::CompressPair(
     const Domain* domain, const Argument<F>& argument, const F& theta,
     const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
   // A_compressedᵢ(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
-  Evals compressed_input = CompressExpressions(
+  Evals compressed_input = plonk::CompressExpressions(
       domain, argument.input_expressions(), theta, evaluator_tpl);
 
   // S_compressedᵢ(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
-  Evals compressed_table = CompressExpressions(
+  Evals compressed_table = plonk::CompressExpressions(
       domain, argument.table_expressions(), theta, evaluator_tpl);
 
   return {std::move(compressed_input), std::move(compressed_table)};

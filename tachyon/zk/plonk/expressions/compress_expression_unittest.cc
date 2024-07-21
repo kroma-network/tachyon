@@ -4,14 +4,14 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/lookup/halo2/compress_expression.h"
+#include "tachyon/zk/plonk/expressions/compress_expression.h"
 
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/expressions/expression_factory.h"
-#include "tachyon/zk/lookup/halo2/test/compress_expression_test.h"
+#include "tachyon/zk/plonk/expressions/test/compress_expression_test.h"
 
-namespace tachyon::zk::lookup::halo2 {
+namespace tachyon::zk::plonk {
 
 TEST_F(CompressExpressionTest, CompressExpressions) {
   const size_t kExpressionSize = 10;
@@ -25,7 +25,7 @@ TEST_F(CompressExpressionTest, CompressExpressions) {
       });
 
   size_t n = prover_->pcs().N();
-  plonk::ProvingEvaluator<Evals> evaluator = evaluator_;
+  ProvingEvaluator<Evals> evaluator = evaluator_;
   std::vector<F> expected(n);
   for (size_t i = 0; i < expressions.size(); ++i) {
     F value = evaluator.Evaluate(expressions[i].get());
@@ -40,4 +40,4 @@ TEST_F(CompressExpressionTest, CompressExpressions) {
   EXPECT_EQ(out, Evals(std::move(expected)));
 }
 
-}  // namespace tachyon::zk::lookup::halo2
+}  // namespace tachyon::zk::plonk

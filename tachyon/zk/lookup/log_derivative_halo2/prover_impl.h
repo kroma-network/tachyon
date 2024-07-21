@@ -14,8 +14,8 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/ref.h"
-#include "tachyon/zk/lookup/halo2/compress_expression.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/prover.h"
+#include "tachyon/zk/plonk/expressions/compress_expression.h"
 
 namespace tachyon::zk::lookup::log_derivative_halo2 {
 
@@ -30,7 +30,7 @@ std::vector<Evals> Prover<Poly, Evals>::CompressInputs(
                    [&domain, &theta, &evaluator_tpl](
                        const std::vector<std::unique_ptr<Expression<F>>>&
                            input_expressions) {
-                     return halo2::CompressExpressions(
+                     return plonk::CompressExpressions(
                          domain, input_expressions, theta, evaluator_tpl);
                    });
 }
@@ -42,7 +42,7 @@ Evals Prover<Poly, Evals>::CompressTable(
     const Domain* domain, const Argument<F>& argument, const F& theta,
     const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
   // t_compressedᵢ(X) = θᵐ⁻¹t₀(X) + θᵐ⁻²t₁(X) + ... + θtₘ₋₂(X) + tₘ₋₁(X)
-  return halo2::CompressExpressions(domain, argument.table_expressions(), theta,
+  return plonk::CompressExpressions(domain, argument.table_expressions(), theta,
                                     evaluator_tpl);
 }
 

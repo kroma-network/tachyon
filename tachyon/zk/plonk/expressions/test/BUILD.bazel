@@ -4,7 +4,7 @@ tachyon_cc_library(
     name = "compress_expression_test",
     testonly = True,
     hdrs = ["compress_expression_test.h"],
-    visibility = ["//tachyon/zk/lookup/halo2:__pkg__"],
+    visibility = ["//tachyon/zk/plonk/expressions:__pkg__"],
     deps = [
         "//tachyon/zk/plonk/expressions:proving_evaluator",
         "//tachyon/zk/plonk/halo2:bn254_shplonk_prover_test",
