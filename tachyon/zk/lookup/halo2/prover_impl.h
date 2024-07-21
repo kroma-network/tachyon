@@ -24,7 +24,7 @@ template <typename Poly, typename Evals>
 template <typename Domain>
 Pair<Evals> Prover<Poly, Evals>::CompressPair(
     const Domain* domain, const Argument<F>& argument, const F& theta,
-    const ProvingEvaluator<Evals>& evaluator_tpl) {
+    const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
   // A_compressedᵢ(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
   Evals compressed_input = CompressExpressions(
       domain, argument.input_expressions(), theta, evaluator_tpl);
@@ -40,7 +40,7 @@ template <typename Poly, typename Evals>
 template <typename Domain>
 void Prover<Poly, Evals>::CompressPairs(
     const Domain* domain, const std::vector<Argument<F>>& arguments,
-    const F& theta, const ProvingEvaluator<Evals>& evaluator_tpl) {
+    const F& theta, const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
   compressed_pairs_ = base::Map(
       arguments, [domain, &theta, &evaluator_tpl](const Argument<F>& argument) {
         return CompressPair(domain, argument, theta, evaluator_tpl);
@@ -58,7 +58,7 @@ void Prover<Poly, Evals>::BatchCompressPairs(
   // NOTE(chokobole): It's safe to downcast because domain is already checked.
   int32_t n = static_cast<int32_t>(domain->size());
   for (size_t i = 0; i < lookup_provers.size(); ++i) {
-    ProvingEvaluator<Evals> proving_evaluator(0, n, 1, tables[i]);
+    plonk::ProvingEvaluator<Evals> proving_evaluator(0, n, 1, tables[i]);
     lookup_provers[i].CompressPairs(domain, arguments, theta,
                                     proving_evaluator);
   }

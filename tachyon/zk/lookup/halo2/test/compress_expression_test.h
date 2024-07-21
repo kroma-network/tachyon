@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "tachyon/zk/lookup/proving_evaluator.h"
+#include "tachyon/zk/plonk/expressions/proving_evaluator.h"
 #include "tachyon/zk/plonk/halo2/bn254_shplonk_prover_test.h"
 
 namespace tachyon::zk::lookup {
@@ -21,7 +21,7 @@ class CompressExpressionTest : public plonk::halo2::BN254SHPlonkProverTest {
   }
 
  protected:
-  ProvingEvaluator<Evals> evaluator_;
+  plonk::ProvingEvaluator<Evals> evaluator_;
   std::vector<Evals> fixed_columns_;
   std::vector<Evals> advice_columns_;
   std::vector<Evals> instance_columns_;
