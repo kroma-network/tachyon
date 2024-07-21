@@ -68,10 +68,10 @@ class PinnedConstraintSystem {
   }
   const PermutationArgument& permutation() const { return permutation_; }
   const std::vector<lookup::Argument<F>>& lookups() const { return lookups_; }
-  const std::vector<FixedColumnKey>& constants() const { return constants_; }
   const absl::btree_map<std::string, LookupTracker<F>>& lookups_map() const {
     return lookups_map_;
   }
+  const std::vector<FixedColumnKey>& constants() const { return constants_; }
   const std::optional<size_t>& minimum_degree() const {
     return minimum_degree_;
   }
