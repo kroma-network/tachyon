@@ -26,7 +26,7 @@ TEST_F(PoseidonTest, AbsorbSqueeze) {
   using Fr = math::bls12_381::Fr;
 
   PoseidonConfig<Fr> config = PoseidonConfig<Fr>::CreateDefault(2, false);
-  PoseidonSponge<Fr> sponge(config);
+  PoseidonSponge<Fr> sponge(std::move(config));
   SpongeState<Fr> state(config);
   std::vector<Fr> inputs = {Fr(0), Fr(1), Fr(2)};
   ASSERT_TRUE(sponge.Absorb(state, inputs));
@@ -77,16 +77,16 @@ TEST_F(PackedPoseidonTest, AbsorbSqueeze) {
 
   PoseidonConfig<PackedF> packed_config =
       PoseidonConfig<PackedF>::CreateDefault(2, false);
-  PoseidonSponge<PackedF> packed_sponge(packed_config);
-  SpongeState<PackedF> packed_state(packed_config);
+  PoseidonSponge<PackedF> packed_sponge(std::move(packed_config));
+  SpongeState<PackedF> packed_state(packed_sponge.config);
   std::vector<PackedF> packed_inputs = {PackedF(0), PackedF(1), PackedF(2)};
   ASSERT_TRUE(packed_sponge.Absorb(packed_state, packed_inputs));
   std::vector<PackedF> packed_result =
       packed_sponge.SqueezeNativeFieldElements(packed_state, 1);
 
   PoseidonConfig<F> config = PoseidonConfig<F>::CreateDefault(2, false);
-  PoseidonSponge<F> sponge(config);
-  SpongeState<F> state(config);
+  PoseidonSponge<F> sponge(std::move(config));
+  SpongeState<F> state(sponge.config);
   std::vector<F> inputs = {F(0), F(1), F(2)};
   ASSERT_TRUE(sponge.Absorb(state, inputs));
   std::vector<F> result = sponge.SqueezeNativeFieldElements(state, 1);

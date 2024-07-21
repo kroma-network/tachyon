@@ -38,6 +38,8 @@ struct Poseidon2Sponge final
 
   Poseidon2Sponge() = default;
   explicit Poseidon2Sponge(const Poseidon2Config<F>& config) : config(config) {}
+  explicit Poseidon2Sponge(Poseidon2Config<F>&& config)
+      : config(std::move(config)) {}
 
   // PoseidonSpongeBase methods
   void Permute(SpongeState<F>& state) const {

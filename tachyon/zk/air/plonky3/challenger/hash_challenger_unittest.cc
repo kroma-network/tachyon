@@ -30,7 +30,7 @@ class HashChallengerTest : public math::FiniteFieldTest<F> {
     crypto::Poseidon2Config<F> config =
         crypto::Poseidon2Config<F>::CreateCustom(
             15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
-    Poseidon2 sponge(config);
+    Poseidon2 sponge(std::move(config));
     Hasher hasher(std::move(sponge));
 
     std::vector<F> initial_state =
