@@ -8,21 +8,21 @@
 
 #include <vector>
 
-#include "gtest/gtest.h"
-
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
 namespace tachyon::zk::plonk {
 
 namespace {
 
-class VanishingUtilsTest : public testing::Test {
+using F = math::bn254::Fr;
+
+class VanishingUtilsTest : public math::FiniteFieldTest<F> {
  public:
   constexpr static size_t N = size_t{1} << 4;
   constexpr static size_t kMaxDegree = N - 1;
 
-  using F = math::bn254::Fr;
   using Domain = math::UnivariateEvaluationDomain<F, kMaxDegree>;
   using Poly = typename Domain::DensePoly;
   using Coeffs = typename Poly::Coefficients;

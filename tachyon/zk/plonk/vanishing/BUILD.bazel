@@ -149,6 +149,7 @@ tachyon_cc_unittest(
         ":vanishing_utils",
         "//tachyon/base:random",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/zk/plonk/expressions:expression_factory",
         "//tachyon/zk/plonk/expressions/evaluator/test:evaluator_test",
