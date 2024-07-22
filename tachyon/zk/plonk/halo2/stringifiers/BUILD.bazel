@@ -65,7 +65,7 @@ tachyon_cc_library(
     hdrs = ["lookup_argument_stringifier.h"],
     deps = [
         ":expression_stringifier",
-        "//tachyon/zk/lookup:lookup_argument",
+        "//tachyon/zk/lookup:argument",
     ],
 )
 

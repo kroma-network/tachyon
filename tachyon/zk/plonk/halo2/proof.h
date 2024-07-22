@@ -9,7 +9,7 @@
 #include "tachyon/base/json/json.h"
 #include "tachyon/zk/lookup/halo2/verifier_data.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/verifier_data.h"
-#include "tachyon/zk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/pair.h"
 #include "tachyon/zk/lookup/type.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifier_data.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verifier_data.h"

@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_LOOKUP_VERIFYING_EVALUATOR_H_
-#define TACHYON_ZK_LOOKUP_VERIFYING_EVALUATOR_H_
+#ifndef TACHYON_ZK_PLONK_EXPRESSIONS_VERIFYING_EVALUATOR_H_
+#define TACHYON_ZK_PLONK_EXPRESSIONS_VERIFYING_EVALUATOR_H_
 
 #include "tachyon/zk/expressions/constant_expression.h"
 #include "tachyon/zk/expressions/evaluator.h"
@@ -20,12 +20,12 @@
 #include "tachyon/zk/plonk/expressions/instance_expression.h"
 #include "tachyon/zk/plonk/expressions/selector_expression.h"
 
-namespace tachyon::zk::lookup {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class VerifyingEvaluator : public Evaluator<F, F> {
  public:
-  explicit VerifyingEvaluator(const plonk::MultiPhaseEvaluations<F>& data)
+  explicit VerifyingEvaluator(const MultiPhaseEvaluations<F>& data)
       : data_(data) {}
 
   // Evaluator methods
@@ -37,24 +37,23 @@ class VerifyingEvaluator : public Evaluator<F, F> {
         NOTREACHED() << "virtual selectors are removed during optimization";
         break;
       case ExpressionType::kFixed: {
-        const plonk::FixedExpression<F>* fixed_expr = input->ToFixed();
-        const plonk::FixedQuery& query = fixed_expr->query();
+        const FixedExpression<F>* fixed_expr = input->ToFixed();
+        const FixedQuery& query = fixed_expr->query();
         return data_.fixed_evals[query.index()];
       }
       case ExpressionType::kAdvice: {
-        const plonk::AdviceExpression<F>* advice_expr = input->ToAdvice();
-        const plonk::AdviceQuery& query = advice_expr->query();
+        const AdviceExpression<F>* advice_expr = input->ToAdvice();
+        const AdviceQuery& query = advice_expr->query();
         return data_.advice_evals[query.index()];
       }
       case ExpressionType::kInstance: {
-        const plonk::InstanceExpression<F>* instance_expr = input->ToInstance();
-        const plonk::InstanceQuery& query = instance_expr->query();
+        const InstanceExpression<F>* instance_expr = input->ToInstance();
+        const InstanceQuery& query = instance_expr->query();
         return data_.instance_evals[query.index()];
       }
       case ExpressionType::kChallenge: {
-        const plonk::ChallengeExpression<F>* challenge_expr =
-            input->ToChallenge();
-        plonk::Challenge challenge = challenge_expr->challenge();
+        const ChallengeExpression<F>* challenge_expr = input->ToChallenge();
+        Challenge challenge = challenge_expr->challenge();
         return data_.challenges[challenge.index()];
       }
       case ExpressionType::kNegated: {
@@ -79,16 +78,16 @@ class VerifyingEvaluator : public Evaluator<F, F> {
       case ExpressionType::kVariable:
         NOTREACHED() << "AIR expression "
                      << ExpressionTypeToString(input->type())
-                     << " is not allowed in lookup!";
+                     << " is not allowed in plonk!";
     }
     NOTREACHED();
     return F::Zero();
   }
 
  private:
-  plonk::MultiPhaseEvaluations<F> data_;
+  MultiPhaseEvaluations<F> data_;
 };
 
-}  // namespace tachyon::zk::lookup
+}  // namespace tachyon::zk::plonk
 
-#endif  // TACHYON_ZK_LOOKUP_VERIFYING_EVALUATOR_H_
+#endif  // TACHYON_ZK_PLONK_EXPRESSIONS_VERIFYING_EVALUATOR_H_

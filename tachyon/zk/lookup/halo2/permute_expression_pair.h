@@ -15,7 +15,7 @@
 #include "third_party/pdqsort/include/pdqsort.h"
 
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/pair.h"
 
 namespace tachyon::zk::lookup::halo2 {
 

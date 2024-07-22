@@ -11,8 +11,8 @@
 #include <vector>
 
 #include "tachyon/crypto/commitments/polynomial_openings.h"
-#include "tachyon/zk/lookup/verifying_evaluator.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
+#include "tachyon/zk/plonk/expressions/verifying_evaluator.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verifier_data.h"
 
 namespace tachyon::zk::plonk {
@@ -25,7 +25,7 @@ class VanishingVerifier {
 
   void Evaluate(const ConstraintSystem<F>& constraint_system,
                 std::vector<F>& evals) {
-    lookup::VerifyingEvaluator<F> evaluator(data_);
+    plonk::VerifyingEvaluator<F> evaluator(data_);
     for (const Gate<F>& gate : constraint_system.gates()) {
       for (const std::unique_ptr<Expression<F>>& poly : gate.polys()) {
         evals.push_back(poly->Evaluate(&evaluator));

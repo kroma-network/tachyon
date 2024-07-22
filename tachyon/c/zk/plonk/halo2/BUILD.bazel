@@ -185,7 +185,7 @@ tachyon_cc_library(
         "//tachyon/math/polynomials/univariate:univariate_evaluations",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
         "//tachyon/zk/expressions:expression_factory",
-        "//tachyon/zk/lookup:lookup_argument",
+        "//tachyon/zk/lookup:argument",
         "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/base:phase",
         "//tachyon/zk/plonk/constraint_system:gate",

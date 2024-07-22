@@ -11,12 +11,12 @@
 #include <vector>
 
 #include "tachyon/crypto/commitments/polynomial_openings.h"
+#include "tachyon/zk/lookup/argument.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/halo2/verifier_data.h"
-#include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/lookup/verifier.h"
-#include "tachyon/zk/lookup/verifying_evaluator.h"
 #include "tachyon/zk/plonk/base/l_values.h"
+#include "tachyon/zk/plonk/expressions/verifying_evaluator.h"
 #include "tachyon/zk/plonk/halo2/proof.h"
 
 namespace tachyon::zk::lookup {
@@ -36,7 +36,7 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
 
   void DoEvaluate(const std::vector<lookup::Argument<F>>& arguments,
                   std::vector<F>& evals) {
-    lookup::VerifyingEvaluator<F> evaluator(data_);
+    plonk::VerifyingEvaluator<F> evaluator(data_);
 
     F active_rows = F::One() - (l_values_->last + l_values_->blind);
     for (size_t i = 0; i < data_.grand_product_commitments.size(); ++i) {
@@ -91,7 +91,7 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
  private:
   F CompressExpressions(
       const std::vector<std::unique_ptr<Expression<F>>>& expressions,
-      lookup::VerifyingEvaluator<F>& evaluator) const {
+      plonk::VerifyingEvaluator<F>& evaluator) const {
     F compressed_value = F::Zero();
     for (const std::unique_ptr<Expression<F>>& expression : expressions) {
       compressed_value *= data_.theta;
@@ -101,7 +101,7 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
   }
 
   F CreateGrandProductEvaluation(size_t i, const lookup::Argument<F>& argument,
-                                 lookup::VerifyingEvaluator<F>& evaluator) {
+                                 plonk::VerifyingEvaluator<F>& evaluator) {
     // Zₗ,ᵢ(ω * x) * (A'ᵢ(x) + β) * (S'ᵢ(x) + γ)
     // - Zₗ,ᵢ(x) * (A_compressedᵢ(x) + β) * (S_compressedᵢ(x) + γ)
     F left = data_.grand_product_next_evals[i] *

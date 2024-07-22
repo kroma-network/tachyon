@@ -24,11 +24,11 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/lookup:lookup_argument",
-        "//tachyon/zk/lookup:proving_evaluator",
-        "//tachyon/zk/lookup/halo2:compress_expression",
+        "//tachyon/zk/lookup:argument",
         "//tachyon/zk/lookup/halo2:opening_point_set",
         "//tachyon/zk/plonk/base:multi_phase_ref_table",
+        "//tachyon/zk/plonk/expressions:compress_expression",
+        "//tachyon/zk/plonk/expressions:proving_evaluator",
     ],
 )
 
@@ -50,11 +50,11 @@ tachyon_cc_library(
     deps = [
         ":verifier_data",
         "//tachyon/crypto/commitments:polynomial_openings",
-        "//tachyon/zk/lookup:lookup_argument",
+        "//tachyon/zk/lookup:argument",
         "//tachyon/zk/lookup:verifier",
-        "//tachyon/zk/lookup:verifying_evaluator",
         "//tachyon/zk/lookup/halo2:opening_point_set",
         "//tachyon/zk/plonk/base:l_values",
+        "//tachyon/zk/plonk/expressions:verifying_evaluator",
         "//tachyon/zk/plonk/halo2:proof",
     ],
 )

@@ -16,11 +16,11 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/lookup/argument.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
-#include "tachyon/zk/lookup/lookup_argument.h"
-#include "tachyon/zk/lookup/lookup_pair.h"
-#include "tachyon/zk/lookup/proving_evaluator.h"
+#include "tachyon/zk/lookup/pair.h"
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
+#include "tachyon/zk/plonk/expressions/proving_evaluator.h"
 
 namespace tachyon::zk::lookup::halo2 {
 
@@ -110,9 +110,9 @@ class Prover {
 
  private:
   template <typename Domain>
-  static Pair<Evals> CompressPair(const Domain* domain,
-                                  const Argument<F>& argument, const F& theta,
-                                  const ProvingEvaluator<Evals>& evaluator_tpl);
+  static Pair<Evals> CompressPair(
+      const Domain* domain, const Argument<F>& argument, const F& theta,
+      const plonk::ProvingEvaluator<Evals>& evaluator_tpl);
 
   template <typename PCS>
   static Pair<BlindedPolynomial<Poly, Evals>> PermutePair(
@@ -127,7 +127,7 @@ class Prover {
   template <typename Domain>
   void CompressPairs(const Domain* domain,
                      const std::vector<Argument<F>>& arguments, const F& theta,
-                     const ProvingEvaluator<Evals>& evaluator_tpl);
+                     const plonk::ProvingEvaluator<Evals>& evaluator_tpl);
 
   template <typename PCS>
   void PermutePairs(ProverBase<PCS>* prover);

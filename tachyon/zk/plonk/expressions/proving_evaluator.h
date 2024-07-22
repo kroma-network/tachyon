@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_LOOKUP_PROVING_EVALUATOR_H_
-#define TACHYON_ZK_LOOKUP_PROVING_EVALUATOR_H_
+#ifndef TACHYON_ZK_PLONK_EXPRESSIONS_PROVING_EVALUATOR_H_
+#define TACHYON_ZK_PLONK_EXPRESSIONS_PROVING_EVALUATOR_H_
 
 #include <vector>
 
@@ -24,7 +24,7 @@
 #include "tachyon/zk/plonk/expressions/instance_expression.h"
 #include "tachyon/zk/plonk/expressions/selector_expression.h"
 
-namespace tachyon::zk::lookup {
+namespace tachyon::zk::plonk {
 
 template <typename Evals>
 class ProvingEvaluator
@@ -34,7 +34,7 @@ class ProvingEvaluator
 
   ProvingEvaluator() = default;
   ProvingEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
-                   const plonk::MultiPhaseRefTable<Evals>& table)
+                   const MultiPhaseRefTable<Evals>& table)
       : idx_(idx), size_(size), rot_scale_(rot_scale), table_(table) {}
 
   int32_t idx() const { return idx_; }
@@ -51,21 +51,20 @@ class ProvingEvaluator
         NOTREACHED() << "virtual selectors are removed during optimization";
         break;
       case ExpressionType::kFixed: {
-        const plonk::FixedExpression<Field>* fixed_expr = input->ToFixed();
-        const plonk::FixedQuery& query = fixed_expr->query();
+        const FixedExpression<Field>* fixed_expr = input->ToFixed();
+        const FixedQuery& query = fixed_expr->query();
         const Evals& evals = table_.GetFixedColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
       case ExpressionType::kAdvice: {
-        const plonk::AdviceExpression<Field>* advice_expr = input->ToAdvice();
-        const plonk::AdviceQuery& query = advice_expr->query();
+        const AdviceExpression<Field>* advice_expr = input->ToAdvice();
+        const AdviceQuery& query = advice_expr->query();
         const Evals& evals = table_.GetAdviceColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
       case ExpressionType::kInstance: {
-        const plonk::InstanceExpression<Field>* instance_expr =
-            input->ToInstance();
-        const plonk::InstanceQuery& query = instance_expr->query();
+        const InstanceExpression<Field>* instance_expr = input->ToInstance();
+        const InstanceQuery& query = instance_expr->query();
         const Evals& evals =
             table_.GetInstanceColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
@@ -92,7 +91,7 @@ class ProvingEvaluator
       case ExpressionType::kVariable:
         NOTREACHED() << "AIR expression "
                      << ExpressionTypeToString(input->type())
-                     << " is not allowed in lookup!";
+                     << " is not allowed in plonk!";
     }
     NOTREACHED();
     return Field::Zero();
@@ -102,9 +101,9 @@ class ProvingEvaluator
   int32_t idx_ = 0;
   int32_t size_ = 0;
   int32_t rot_scale_ = 0;
-  plonk::MultiPhaseRefTable<Evals> table_;
+  MultiPhaseRefTable<Evals> table_;
 };
 
-}  // namespace tachyon::zk::lookup
+}  // namespace tachyon::zk::plonk
 
-#endif  // TACHYON_ZK_LOOKUP_PROVING_EVALUATOR_H_
+#endif  // TACHYON_ZK_PLONK_EXPRESSIONS_PROVING_EVALUATOR_H_

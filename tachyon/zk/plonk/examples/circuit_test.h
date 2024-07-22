@@ -9,7 +9,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
-#include "tachyon/zk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/pair.h"
 #include "tachyon/zk/plonk/examples/circuit_test_type_traits.h"
 #include "tachyon/zk/plonk/examples/point.h"
 #include "tachyon/zk/plonk/halo2/pinned_constraint_system.h"

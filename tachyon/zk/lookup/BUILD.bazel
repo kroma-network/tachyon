@@ -1,39 +1,20 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "lookup_argument",
-    hdrs = ["lookup_argument.h"],
+    name = "argument",
+    hdrs = ["argument.h"],
     deps = [
-        ":lookup_pair",
+        ":pair",
         "//tachyon/zk/expressions:expression",
     ],
 )
 
 tachyon_cc_library(
-    name = "lookup_pair",
-    hdrs = ["lookup_pair.h"],
+    name = "pair",
+    hdrs = ["pair.h"],
     deps = ["//tachyon/base/json"],
-)
-
-tachyon_cc_library(
-    name = "proving_evaluator",
-    hdrs = ["proving_evaluator.h"],
-    deps = [
-        "//tachyon/zk/expressions:constant_expression",
-        "//tachyon/zk/expressions:evaluator",
-        "//tachyon/zk/expressions:negated_expression",
-        "//tachyon/zk/expressions:product_expression",
-        "//tachyon/zk/expressions:scaled_expression",
-        "//tachyon/zk/expressions:sum_expression",
-        "//tachyon/zk/plonk/base:multi_phase_ref_table",
-        "//tachyon/zk/plonk/expressions:advice_expression",
-        "//tachyon/zk/plonk/expressions:challenge_expression",
-        "//tachyon/zk/plonk/expressions:fixed_expression",
-        "//tachyon/zk/plonk/expressions:instance_expression",
-        "//tachyon/zk/plonk/expressions:selector_expression",
-    ],
 )
 
 tachyon_cc_library(
@@ -45,7 +26,7 @@ tachyon_cc_library(
     name = "verifier",
     hdrs = ["verifier.h"],
     deps = [
-        ":lookup_argument",
+        ":argument",
         ":verifier_traits_forward",
     ],
 )
@@ -53,33 +34,4 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "verifier_traits_forward",
     hdrs = ["verifier_traits_forward.h"],
-)
-
-tachyon_cc_library(
-    name = "verifying_evaluator",
-    hdrs = ["verifying_evaluator.h"],
-    deps = [
-        "//tachyon/zk/expressions:constant_expression",
-        "//tachyon/zk/expressions:evaluator",
-        "//tachyon/zk/expressions:negated_expression",
-        "//tachyon/zk/expressions:product_expression",
-        "//tachyon/zk/expressions:scaled_expression",
-        "//tachyon/zk/expressions:sum_expression",
-        "//tachyon/zk/plonk/base:multi_phase_evaluations",
-        "//tachyon/zk/plonk/expressions:advice_expression",
-        "//tachyon/zk/plonk/expressions:challenge_expression",
-        "//tachyon/zk/plonk/expressions:fixed_expression",
-        "//tachyon/zk/plonk/expressions:instance_expression",
-        "//tachyon/zk/plonk/expressions:selector_expression",
-    ],
-)
-
-tachyon_cc_unittest(
-    name = "lookup_unittests",
-    srcs = ["proving_evaluator_unittest.cc"],
-    deps = [
-        ":proving_evaluator",
-        "//tachyon/zk/plonk/expressions:expression_factory",
-        "//tachyon/zk/plonk/expressions/evaluator/test:evaluator_test",
-    ],
 )

@@ -13,10 +13,10 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/lookup/argument.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
-#include "tachyon/zk/lookup/lookup_argument.h"
-#include "tachyon/zk/lookup/proving_evaluator.h"
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
+#include "tachyon/zk/plonk/expressions/proving_evaluator.h"
 
 namespace tachyon::zk::lookup::log_derivative_halo2 {
 
@@ -146,17 +146,17 @@ class Prover {
   template <typename Domain>
   static std::vector<Evals> CompressInputs(
       const Domain* domain, const Argument<F>& argument, const F& theta,
-      const ProvingEvaluator<Evals>& evaluator_tpl);
+      const plonk::ProvingEvaluator<Evals>& evaluator_tpl);
 
   template <typename Domain>
-  static Evals CompressTable(const Domain* domain, const Argument<F>& argument,
-                             const F& theta,
-                             const ProvingEvaluator<Evals>& evaluator_tpl);
+  static Evals CompressTable(
+      const Domain* domain, const Argument<F>& argument, const F& theta,
+      const plonk::ProvingEvaluator<Evals>& evaluator_tpl);
 
   template <typename Domain>
   void CompressPairs(const Domain* domain,
                      const std::vector<Argument<F>>& arguments, const F& theta,
-                     const ProvingEvaluator<Evals>& evaluator_tpl);
+                     const plonk::ProvingEvaluator<Evals>& evaluator_tpl);
 
   template <typename PCS>
   static BlindedPolynomial<Poly, Evals> ComputeMPoly(

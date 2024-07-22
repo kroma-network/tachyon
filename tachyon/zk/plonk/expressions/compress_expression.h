@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_LOOKUP_HALO2_COMPRESS_EXPRESSION_H_
-#define TACHYON_ZK_LOOKUP_HALO2_COMPRESS_EXPRESSION_H_
+#ifndef TACHYON_ZK_PLONK_EXPRESSIONS_COMPRESS_EXPRESSION_H_
+#define TACHYON_ZK_PLONK_EXPRESSIONS_COMPRESS_EXPRESSION_H_
 
 #include <memory>
 #include <utility>
@@ -13,9 +13,9 @@
 
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/openmp_util.h"
-#include "tachyon/zk/lookup/proving_evaluator.h"
+#include "tachyon/zk/plonk/expressions/proving_evaluator.h"
 
-namespace tachyon::zk::lookup::halo2 {
+namespace tachyon::zk::plonk {
 
 template <typename Domain, typename Evals, typename F>
 Evals CompressExpressions(
@@ -44,6 +44,6 @@ Evals CompressExpressions(
   return compressed_evals;
 }
 
-}  // namespace tachyon::zk::lookup::halo2
+}  // namespace tachyon::zk::plonk
 
-#endif  // TACHYON_ZK_LOOKUP_HALO2_COMPRESS_EXPRESSION_H_
+#endif  // TACHYON_ZK_PLONK_EXPRESSIONS_COMPRESS_EXPRESSION_H_
