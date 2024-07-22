@@ -52,6 +52,7 @@ PackedKoalaBearNeon::PackedKoalaBearNeon(uint32_t value) {
 
 // static
 void PackedKoalaBearNeon::Init() {
+  KoalaBear::Init();
   kP = vdupq_n_u32(KoalaBear::Config::kModulus);
   kInv = vdupq_n_u32(KoalaBear::Config::kInverse32);
   kZero = vdupq_n_u32(0);

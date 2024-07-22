@@ -99,6 +99,7 @@ PackedMersenne31Neon::PackedMersenne31Neon(uint32_t value) {
 
 // static
 void PackedMersenne31Neon::Init() {
+  Mersenne31::Init();
   kP = vdupq_n_u32(Mersenne31::Config::kModulus);
   kZero = vdupq_n_u32(0);
   kOne = vdupq_n_u32(1);

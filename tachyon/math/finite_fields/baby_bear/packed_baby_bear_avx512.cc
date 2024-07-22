@@ -48,6 +48,7 @@ PackedBabyBearAVX512::PackedBabyBearAVX512(uint32_t value) {
 
 // static
 void PackedBabyBearAVX512::Init() {
+  BabyBear::Init();
   kP = _mm512_set1_epi32(BabyBear::Config::kModulus);
   kInv = _mm512_set1_epi32(BabyBear::Config::kInverse32);
   kZero = _mm512_set1_epi32(0);

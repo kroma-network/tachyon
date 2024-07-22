@@ -166,6 +166,7 @@ PackedMersenne31AVX2::PackedMersenne31AVX2(uint32_t value) {
 
 // static
 void PackedMersenne31AVX2::Init() {
+  Mersenne31::Init();
   kP = _mm256_set1_epi32(Mersenne31::Config::kModulus);
   kZero = _mm256_set1_epi32(0);
   kOne = _mm256_set1_epi32(1);

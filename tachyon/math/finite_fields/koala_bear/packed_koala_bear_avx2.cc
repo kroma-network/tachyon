@@ -50,6 +50,7 @@ PackedKoalaBearAVX2::PackedKoalaBearAVX2(uint32_t value) {
 
 // static
 void PackedKoalaBearAVX2::Init() {
+  KoalaBear::Init();
   kP = _mm256_set1_epi32(KoalaBear::Config::kModulus);
   kInv = _mm256_set1_epi32(KoalaBear::Config::kInverse32);
   kZero = _mm256_set1_epi32(0);
