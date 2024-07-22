@@ -10,6 +10,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "reusing_allocator",
+    hdrs = ["reusing_allocator.h"],
+)
+
+tachyon_cc_library(
     name = "scoped_policy",
     hdrs = ["scoped_policy.h"],
 )
