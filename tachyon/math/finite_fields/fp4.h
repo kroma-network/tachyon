@@ -47,9 +47,7 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     //    = ᾱ₀ + ᾱ₁(x⁴)^((p - 1) / 4) * x
     //    = ᾱ₀ - ᾱ₁ωx, where ω is a quartic root of unity.
 
-    using UnpackedBasePrimeField = std::conditional_t<
-        FiniteFieldTraits<BasePrimeField>::kIsPackedPrimeField,
-        typename FiniteFieldTraits<BasePrimeField>::PrimeField, BasePrimeField>;
+    using UnpackedBasePrimeField = MaybeUnpack<BasePrimeField>;
 
     constexpr size_t N = UnpackedBasePrimeField::kLimbNums;
     // m₁ = P
@@ -130,9 +128,7 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 4>> final
     //      α₃(x⁴)^(3 * (P - 1) / 4) * x³
     //    = α₀ + α₁ωx + α₂ω²x² + α₃ω³x³, where ω is a quartic root of unity.
 
-    using UnpackedBasePrimeField = std::conditional_t<
-        FiniteFieldTraits<BasePrimeField>::kIsPackedPrimeField,
-        typename FiniteFieldTraits<BasePrimeField>::PrimeField, BasePrimeField>;
+    using UnpackedBasePrimeField = MaybeUnpack<BasePrimeField>;
 
     constexpr size_t N = UnpackedBasePrimeField::kLimbNums;
     // m₁ = P

@@ -102,9 +102,8 @@ PoseidonGrainLFSR<F>::PoseidonGrainLFSR(const PoseidonGrainLFSRConfig& config)
 
 template <typename F>
 auto PoseidonGrainLFSR<F>::GetBits(size_t num_bits) {
-  using PrimeField =
-      std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
-                         typename math::FiniteFieldTraits<F>::PrimeField, F>;
+  using PrimeField = math::MaybeUnpack<F>;
+
   std::bitset<PrimeField::kModulusBits> ret;
   for (size_t i = 0; i < num_bits; ++i) {
     // Obtain the first bit
@@ -128,9 +127,7 @@ auto PoseidonGrainLFSR<F>::GetBits(size_t num_bits) {
 template <typename F>
 math::Vector<F> PoseidonGrainLFSR<F>::GetFieldElementsRejectionSampling(
     size_t num_elems) {
-  using PrimeField =
-      std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
-                         typename math::FiniteFieldTraits<F>::PrimeField, F>;
+  using PrimeField = math::MaybeUnpack<F>;
   using BigInt = typename PrimeField::BigIntTy;
 
   CHECK_EQ(PrimeField::Config::kModulusBits, prime_num_bits);
@@ -161,9 +158,7 @@ math::Vector<F> PoseidonGrainLFSR<F>::GetFieldElementsRejectionSampling(
 // Samples n bits and computes the remainder modulo P.
 template <typename F>
 math::Vector<F> PoseidonGrainLFSR<F>::GetFieldElementsModP(size_t num_elems) {
-  using PrimeField =
-      std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
-                         typename math::FiniteFieldTraits<F>::PrimeField, F>;
+  using PrimeField = math::MaybeUnpack<F>;
   using BigInt = typename PrimeField::BigIntTy;
 
   CHECK_EQ(PrimeField::Config::kModulusBits, prime_num_bits);

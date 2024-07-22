@@ -43,9 +43,7 @@ class Fp3 final : public CubicExtensionField<Fp3<Config>> {
     //    = α₀ + α₁(x³)^((P - 1) / 3) * x + α₂(x³)^(2 * (P - 1) / 3) * x²
     //    = α₀ + α₁ωx + α₂ω²x², where ω is a cubic root of unity.
 
-    using UnpackedBasePrimeField = std::conditional_t<
-        FiniteFieldTraits<BasePrimeField>::kIsPackedPrimeField,
-        typename FiniteFieldTraits<BasePrimeField>::PrimeField, BasePrimeField>;
+    using UnpackedBasePrimeField = MaybeUnpack<BasePrimeField>;
 
     constexpr size_t N = UnpackedBasePrimeField::kLimbNums;
     // m₁ = P

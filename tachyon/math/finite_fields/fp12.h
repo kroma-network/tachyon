@@ -48,9 +48,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     //    = α₀ᴾ + α₁ᴾ(x⁶)^((P - 1) / 6) * x
     //    = α₀ᴾ + α₁ᴾωx, where ω is a sextic root of unity.
 
-    using UnpackedBasePrimeField = std::conditional_t<
-        FiniteFieldTraits<BasePrimeField>::kIsPackedPrimeField,
-        typename FiniteFieldTraits<BasePrimeField>::PrimeField, BasePrimeField>;
+    using UnpackedBasePrimeField = MaybeUnpack<BasePrimeField>;
 
     constexpr size_t N = UnpackedBasePrimeField::kLimbNums;
     // m₁ = P

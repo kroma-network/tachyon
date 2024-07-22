@@ -78,9 +78,7 @@ struct Poseidon2Sponge final
   }
 
   void ApplyMixPartial(SpongeState<F>& state) const {
-    using PrimeField =
-        std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
-                           typename math::FiniteFieldTraits<F>::PrimeField, F>;
+    using PrimeField = math::MaybeUnpack<F>;
 
     if constexpr (PrimeField::Config::kModulusBits <= 32) {
       if (config.use_plonky3_internal_matrix) {
@@ -107,7 +105,6 @@ struct CryptographicSpongeTraits<Poseidon2Sponge<ExternalMatrix>> {
 }  // namespace crypto
 
 namespace base {
-
 template <typename ExternalMatrix>
 class Copyable<crypto::Poseidon2Sponge<ExternalMatrix>> {
  public:
