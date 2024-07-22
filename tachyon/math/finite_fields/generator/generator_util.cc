@@ -134,17 +134,38 @@ std::string GenerateInitMpzClass(std::string_view name,
   return ss.str();
 }
 
-std::string GenerateInitField(std::string_view name, std::string_view type,
-                              std::string_view value) {
+namespace {
+
+std::string DoGenerateInitField(std::string_view type, std::string_view value) {
   std::stringstream ss;
-  ss << "    " << name << " = ";
   if (base::ConsumePrefix(&value, "-")) {
     ss << "-";
   }
-  ss << "*" << type << "::FromDecString(\"" << value << "\");";
+  ss << "*" << type << "::FromDecString(\"" << value << "\")";
   return ss.str();
 }
 
+}  // namespace
+
+std::string GenerateInitField(std::string_view name, std::string_view type,
+                              std::string_view value) {
+  std::stringstream ss;
+  ss << "    " << name << " = " << DoGenerateInitField(type, value) << ";";
+  return ss.str();
+}
+
+std::string GenerateInitPackedField(std::string_view name,
+                                    std::string_view type,
+                                    std::string_view value) {
+  std::stringstream ss;
+  // clang-format off
+  ss << "    using UnpackedPrimeField = typename math::FiniteFieldTraits<" << type << ">::PrimeField;" << std::endl;
+  ss << "    " << name << " = " << type << "::Broadcast(" << DoGenerateInitField("UnpackedPrimeField", value) << ");";
+  // clang-format on
+  return ss.str();
+}
+
+// TODO(chokobole): Should be generalized for packed extension field.
 std::string GenerateInitExtField(std::string_view name, std::string_view type,
                                  absl::Span<const std::string> values,
                                  size_t degree) {

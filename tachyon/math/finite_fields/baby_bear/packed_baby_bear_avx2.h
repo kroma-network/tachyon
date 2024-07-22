@@ -17,8 +17,8 @@ namespace tachyon::math {
 class PackedBabyBearAVX2;
 
 template <>
-struct PackedPrimeFieldTraits<PackedBabyBearAVX2> {
-  using PrimeField = BabyBear;
+struct PackedFieldTraits<PackedBabyBearAVX2> {
+  using Field = BabyBear;
 
   constexpr static size_t N = 8;
 };

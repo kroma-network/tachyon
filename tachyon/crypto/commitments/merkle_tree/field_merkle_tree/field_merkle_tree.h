@@ -21,7 +21,7 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
-#include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
+#include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
 
@@ -35,7 +35,7 @@ class FieldMerkleTree {
                          typename math::ExtensionFieldTraits<F>::BasePrimeField,
                          F>;
   using PackedPrimeField =
-      typename math::PackedPrimeFieldTraits<PrimeField>::PackedPrimeField;
+      typename math::PackedFieldTraits<PrimeField>::PackedField;
   using Digest = std::array<PrimeField, N>;
   using PackedDigest = std::array<PackedPrimeField, N>;
 

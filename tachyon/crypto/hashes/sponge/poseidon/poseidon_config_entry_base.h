@@ -38,9 +38,7 @@ struct TACHYON_EXPORT PoseidonConfigEntryBase {
 
   template <typename F>
   PoseidonGrainLFSRConfig ToPoseidonGrainLFSRConfig() const {
-    using PrimeField =
-        std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
-                           typename math::FiniteFieldTraits<F>::PrimeField, F>;
+    using PrimeField = math::MaybeUnpack<F>;
 
     PoseidonGrainLFSRConfig config;
     config.prime_num_bits = PrimeField::kModulusBits;

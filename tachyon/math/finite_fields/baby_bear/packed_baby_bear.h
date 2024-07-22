@@ -38,8 +38,8 @@ struct FiniteFieldTraits<PackedBabyBear> {
 };
 
 template <>
-struct PackedPrimeFieldTraits<BabyBear> {
-  using PackedPrimeField = PackedBabyBear;
+struct PackedFieldTraits<BabyBear> {
+  using PackedField = PackedBabyBear;
 };
 
 }  // namespace tachyon::math

@@ -13,6 +13,8 @@ def _generate_ext_prime_field_impl(ctx):
         "--base_field=%s" % (ctx.attr.base_field),
         "--fq_hdr_tpl_path=%s" % (fq_hdr_tpl_path),
     ]
+    if ctx.attr.is_packed:
+        arguments.append("--is_packed")
 
     for non_residue in ctx.attr.non_residue:
         arguments.append("--non_residue=%s" % (non_residue))
@@ -41,6 +43,7 @@ generate_ext_prime_field = rule(
         "base_field_degree": attr.int(mandatory = True),
         "base_field_hdr": attr.string(mandatory = True),
         "base_field": attr.string(mandatory = True),
+        "is_packed": attr.bool(mandatory = True),
         "mul_by_non_residue_override": attr.string(),
         "fq_hdr_tpl_path": attr.label(
             allow_single_file = True,
@@ -65,6 +68,7 @@ def _generate_ext_prime_fields(
         base_field_degree,
         base_field_hdr,
         base_field,
+        is_packed,
         mul_by_non_residue_override = "",
         ext_prime_field_deps = [],
         deps = [],
@@ -80,6 +84,7 @@ def _generate_ext_prime_fields(
             base_field_degree = base_field_degree,
             base_field_hdr = base_field_hdr,
             base_field = base_field,
+            is_packed = is_packed,
             mul_by_non_residue_override = mul_by_non_residue_override,
             name = n[0],
             out = n[1],

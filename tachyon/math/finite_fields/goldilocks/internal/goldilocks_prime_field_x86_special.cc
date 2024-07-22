@@ -1,6 +1,6 @@
 #if defined(TACHYON_HAS_ASM_PRIME_FIELD)
 
-#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field_x86_special.h"
+#include "tachyon/math/finite_fields/goldilocks/internal/goldilocks_prime_field_x86_special.h"
 
 #include <optional>
 

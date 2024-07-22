@@ -10,17 +10,21 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
+#include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 
 namespace tachyon::math {
 
 template <typename Derived>
 class PackedPrimeFieldBase : public Field<Derived> {
  public:
-  using PrimeField = typename PackedPrimeFieldTraits<Derived>::PrimeField;
+  using PrimeField = typename PackedFieldTraits<Derived>::Field;
   using Generator = base::RepeatingCallback<PrimeField(size_t)>;
 
-  constexpr static size_t N = PackedPrimeFieldTraits<Derived>::N;
+  constexpr static size_t N = PackedFieldTraits<Derived>::N;
+
+  constexpr static uint32_t ExtensionDegree() {
+    return PrimeField::ExtensionDegree();
+  }
 
   static Derived Random() {
     Derived ret;
@@ -136,6 +140,11 @@ class PackedPrimeFieldBase : public Field<Derived> {
   [[nodiscard]] std::optional<Derived*> InverseInPlace() {
     CHECK(PrimeField::BatchInverseInPlace(values_));
     return static_cast<Derived*>(this);
+  }
+
+  constexpr Derived& FrobeniusMapInPlace(uint32_t exponent) {
+    // Do nothing.
+    return static_cast<Derived&>(*this);
   }
 
  protected:

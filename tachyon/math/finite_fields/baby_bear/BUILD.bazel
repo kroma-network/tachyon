@@ -1,7 +1,6 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("//bazel:tachyon.bzl", "if_aarch64", "if_has_avx512", "if_x86_64")
 load("//bazel:tachyon_cc.bzl", "tachyon_avx512_defines", "tachyon_cc_library")
-load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp4s")
 load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "SUBGROUP_GENERATOR", "generate_fft_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
@@ -22,15 +21,13 @@ generate_fft_prime_fields(
     use_montgomery = True,
 )
 
-generate_fp4s(
+tachyon_cc_library(
     name = "baby_bear4",
-    base_field = "BabyBear",
-    base_field_degree = 1,
-    base_field_hdr = "tachyon/math/finite_fields/baby_bear/baby_bear.h",
-    class_name = "BabyBear4",
-    namespace = "tachyon::math",
-    non_residue = ["11"],
-    deps = [":baby_bear"],
+    hdrs = ["baby_bear4.h"],
+    deps = [
+        "//tachyon/math/finite_fields/baby_bear/internal:baby_bear4",
+        "//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear4",
+    ],
 )
 
 tachyon_cc_library(
@@ -40,12 +37,23 @@ tachyon_cc_library(
     deps = [
         ":packed_baby_bear_neon",
         "//tachyon/build:build_config",
+        "//tachyon/math/finite_fields:extended_packed_field_traits_forward",
         "//tachyon/math/finite_fields:finite_field_traits",
         "//tachyon/math/matrix:prime_field_num_traits",
     ] + if_has_avx512(
         [":packed_baby_bear_avx512"],
         [":packed_baby_bear_avx2"],
     ),
+)
+
+tachyon_cc_library(
+    name = "packed_baby_bear4",
+    hdrs = ["packed_baby_bear4.h"],
+    deps = [
+        "//tachyon/math/finite_fields:extended_packed_field_traits_forward",
+        "//tachyon/math/finite_fields/baby_bear/internal:baby_bear4",
+        "//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear4",
+    ],
 )
 
 tachyon_cc_library(

@@ -40,6 +40,7 @@ generate_fp2s(
     base_field = "Mersenne31",
     base_field_hdr = "tachyon/math/finite_fields/mersenne31/mersenne31.h",
     class_name = "Fq2",
+    is_packed = False,
     namespace = "tachyon::math::stark",
     non_residue = ["-1"],
     deps = ["//tachyon/math/finite_fields/mersenne31"],
@@ -51,6 +52,7 @@ generate_fp4s(
     base_field_degree = 2,
     base_field_hdr = "tachyon/math/circle/stark/fq2.h",
     class_name = "Fq4",
+    is_packed = False,
     namespace = "tachyon::math::stark",
     non_residue = [
         "2",

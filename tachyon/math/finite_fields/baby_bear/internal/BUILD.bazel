@@ -1,0 +1,29 @@
+load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp4s")
+
+package(default_visibility = ["//visibility:public"])
+
+generate_fp4s(
+    name = "baby_bear4",
+    base_field = "BabyBear",
+    base_field_degree = 1,
+    base_field_hdr = "tachyon/math/finite_fields/baby_bear/baby_bear.h",
+    class_name = "BabyBear4",
+    is_packed = False,
+    namespace = "tachyon::math",
+    # See https://github.com/Plonky3/Plonky3/blob/d9ef3902abcc6a34b75f6820da168460aee26763/baby-bear/src/baby_bear.rs#L80.
+    non_residue = ["11"],
+    deps = ["//tachyon/math/finite_fields/baby_bear"],
+)
+
+generate_fp4s(
+    name = "packed_baby_bear4",
+    base_field = "PackedBabyBear",
+    base_field_degree = 1,
+    base_field_hdr = "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h",
+    class_name = "PackedBabyBear4",
+    is_packed = True,
+    namespace = "tachyon::math",
+    # See https://github.com/Plonky3/Plonky3/blob/d9ef3902abcc6a34b75f6820da168460aee26763/baby-bear/src/baby_bear.rs#L80.
+    non_residue = ["11"],
+    deps = ["//tachyon/math/finite_fields/baby_bear:packed_baby_bear"],
+)

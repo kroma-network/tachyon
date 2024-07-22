@@ -38,8 +38,8 @@ struct FiniteFieldTraits<PackedMersenne31> {
 };
 
 template <>
-struct PackedPrimeFieldTraits<Mersenne31> {
-  using PackedPrimeField = PackedMersenne31;
+struct PackedFieldTraits<Mersenne31> {
+  using PackedField = PackedMersenne31;
 };
 
 }  // namespace tachyon::math

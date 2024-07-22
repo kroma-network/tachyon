@@ -47,9 +47,7 @@ void FindPoseidon2ARK(const PoseidonGrainLFSRConfig& config,
 
 template <typename F>
 struct Poseidon2Config : public PoseidonConfigBase<F> {
-  using PrimeField =
-      std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
-                         typename math::FiniteFieldTraits<F>::PrimeField, F>;
+  using PrimeField = math::MaybeUnpack<F>;
 
   math::Vector<F> internal_diagonal_minus_one;
   math::Vector<uint8_t> internal_shifts;

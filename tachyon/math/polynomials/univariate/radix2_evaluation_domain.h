@@ -36,7 +36,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/parallelize.h"
-#include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
+#include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
 #include "tachyon/math/polynomials/univariate/two_adic_subgroup.h"
@@ -61,8 +61,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   using PackedPrimeField =
       // NOLINTNEXTLINE(whitespace/operators)
       std::conditional_t<F::Config::kModulusBits <= 32,
-                         typename PackedPrimeFieldTraits<F>::PackedPrimeField,
-                         F>;
+                         typename PackedFieldTraits<F>::PackedField, F>;
 
   constexpr static size_t kMaxDegree = MaxDegree;
   // Factor that determines if a the degree aware FFT should be called.

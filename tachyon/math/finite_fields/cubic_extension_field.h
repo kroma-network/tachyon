@@ -57,6 +57,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return {BaseField::Random(), BaseField::Random(), BaseField::Random()};
   }
 
+  // TODO(chokobole): Should be generalized for packed extension field.
   static Derived FromBasePrimeFields(
       absl::Span<const BasePrimeField> prime_fields) {
     CHECK_EQ(prime_fields.size(), ExtensionDegree());
@@ -86,7 +87,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return c0_.IsMinusOne() && c1_.IsZero() && c2_.IsZero();
   }
 
-  constexpr static uint64_t ExtensionDegree() {
+  constexpr static uint32_t ExtensionDegree() {
     return 3 * BaseField::ExtensionDegree();
   }
 
@@ -112,7 +113,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return self_to_p.c0();
   }
 
-  constexpr Derived& FrobeniusMapInPlace(uint64_t exponent) {
+  constexpr Derived& FrobeniusMapInPlace(uint32_t exponent) {
     c0_.FrobeniusMapInPlace(exponent);
     c1_.FrobeniusMapInPlace(exponent);
     c2_.FrobeniusMapInPlace(exponent);

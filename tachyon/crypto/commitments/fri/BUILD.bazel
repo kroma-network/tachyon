@@ -36,7 +36,7 @@ tachyon_cc_unittest(
         ":fri",
         "//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:simple_binary_merkle_tree_storage",
         "//tachyon/crypto/transcripts:simple_transcript",
-        "//tachyon/math/finite_fields/goldilocks:goldilocks_prime_field",
+        "//tachyon/math/finite_fields/goldilocks",
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],

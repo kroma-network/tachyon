@@ -55,6 +55,7 @@ class QuadraticExtensionField
 
   static Derived Random() { return {BaseField::Random(), BaseField::Random()}; }
 
+  // TODO(chokobole): Should be generalized for packed extension field.
   static Derived FromBasePrimeFields(
       absl::Span<const BasePrimeField> prime_fields) {
     CHECK_EQ(prime_fields.size(), ExtensionDegree());
@@ -76,7 +77,7 @@ class QuadraticExtensionField
 
   constexpr bool IsMinusOne() const { return c0_.IsMinusOne() && c1_.IsZero(); }
 
-  constexpr static uint64_t ExtensionDegree() {
+  constexpr static uint32_t ExtensionDegree() {
     return 2 * BaseField::ExtensionDegree();
   }
 
@@ -100,7 +101,7 @@ class QuadraticExtensionField
     return c0_.Square() - Config::MulByNonResidue(c1_.Square());
   }
 
-  constexpr Derived& FrobeniusMapInPlace(uint64_t exponent) {
+  constexpr Derived& FrobeniusMapInPlace(uint32_t exponent) {
     c0_.FrobeniusMapInPlace(exponent);
     c1_.FrobeniusMapInPlace(exponent);
     c1_ *=

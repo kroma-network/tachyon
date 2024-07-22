@@ -23,7 +23,7 @@
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/finite_field.h"
 #include "tachyon/math/finite_fields/legendre_symbol.h"
-#include "tachyon/math/finite_fields/packed_prime_field_traits_forward.h"
+#include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/finite_fields/prime_field_util.h"
 
 namespace tachyon {
@@ -56,7 +56,7 @@ class PrimeFieldBase : public FiniteField<F> {
     return F::FromBigint(Config::kModulus);
   }
 
-  constexpr static uint64_t ExtensionDegree() { return 1; }
+  constexpr static uint32_t ExtensionDegree() { return 1; }
 
   constexpr static bool Decompose(uint64_t n, PrimeFieldFactors* factors) {
     static_assert(Config::kHasLargeSubgroupRootOfUnity);
@@ -143,7 +143,7 @@ class PrimeFieldBase : public FiniteField<F> {
     return LegendreSymbol::kMinusOne;
   }
 
-  constexpr F& FrobeniusMapInPlace(uint64_t exponent) {
+  constexpr F& FrobeniusMapInPlace(uint32_t exponent) {
     // Do nothing.
     return static_cast<F&>(*this);
   }
@@ -167,9 +167,9 @@ H AbslHashValue(H h, const F& prime_field) {
 // standardization. See how it is used in
 // tachyon/math/polynomials/univariate/radix2_evaluation_domain.h.
 template <typename T>
-struct PackedPrimeFieldTraits<
+struct PackedFieldTraits<
     T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
-  using PackedPrimeField = T;
+  using PackedField = T;
 };
 
 template <typename T>

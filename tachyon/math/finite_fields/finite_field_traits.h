@@ -109,6 +109,11 @@ struct FiniteFieldTraits<Fp12<_Config>> {
   using Config = _Config;
 };
 
+template <typename T>
+using MaybeUnpack =
+    std::conditional_t<FiniteFieldTraits<T>::kIsPackedPrimeField,
+                       typename FiniteFieldTraits<T>::PrimeField, T>;
+
 }  // namespace tachyon::math
 
 namespace Eigen {

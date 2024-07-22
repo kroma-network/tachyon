@@ -13,7 +13,7 @@
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fq.h"
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fr.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
-#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
+#include "tachyon/math/finite_fields/goldilocks/goldilocks.h"
 #include "tachyon/math/finite_fields/koala_bear/koala_bear.h"
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 

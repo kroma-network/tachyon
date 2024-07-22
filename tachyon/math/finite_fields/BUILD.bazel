@@ -32,6 +32,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "extended_packed_field_traits_forward",
+    hdrs = ["extended_packed_field_traits_forward.h"],
+)
+
+tachyon_cc_library(
     name = "extension_field_traits_forward",
     hdrs = ["extension_field_traits_forward.h"],
 )
@@ -127,7 +132,7 @@ tachyon_cc_library(
     name = "packed_prime_field_base",
     hdrs = ["packed_prime_field_base.h"],
     deps = [
-        ":packed_prime_field_traits_forward",
+        ":packed_field_traits_forward",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/functional:callback",
         "//tachyon/base/strings:string_util",
@@ -135,8 +140,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "packed_prime_field_traits_forward",
-    hdrs = ["packed_prime_field_traits_forward.h"],
+    name = "packed_field_traits_forward",
+    hdrs = ["packed_field_traits_forward.h"],
 )
 
 tachyon_cc_library(
@@ -164,7 +169,7 @@ tachyon_cc_library(
         ":extension_field_traits_forward",
         ":finite_field",
         ":legendre_symbol",
-        ":packed_prime_field_traits_forward",
+        ":packed_field_traits_forward",
         ":prime_field_util",
         "//tachyon/base:bits",
         "//tachyon/base/json",
@@ -334,8 +339,9 @@ tachyon_cc_unittest(
         "//tachyon/math/elliptic_curves/secp/secp256k1:fr",
         "//tachyon/math/finite_fields/baby_bear",
         "//tachyon/math/finite_fields/baby_bear:baby_bear4",
+        "//tachyon/math/finite_fields/baby_bear:packed_baby_bear4",
         "//tachyon/math/finite_fields/binary_fields",
-        "//tachyon/math/finite_fields/goldilocks:goldilocks_prime_field",
+        "//tachyon/math/finite_fields/goldilocks",
         "//tachyon/math/finite_fields/koala_bear",
         "//tachyon/math/finite_fields/mersenne31",
         "//tachyon/math/finite_fields/test:finite_field_test",
