@@ -106,7 +106,10 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return FromBigInt(big_int);
   }
 
-  static void Init() { VLOG(1) << Config::kName << " initialized"; }
+  static void Init() {
+    Config::Init();
+    VLOG(1) << Config::kName << " initialized";
+  }
 
   constexpr const value_type& value() const { return value_; }
   constexpr size_t GetLimbSize() const { return N; }

@@ -97,7 +97,10 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
     return ret;
   }
 
-  static void Init() { VLOG(1) << Config::kName << " initialized"; }
+  static void Init() {
+    Config::Init();
+    VLOG(1) << Config::kName << " initialized";
+  }
 
   constexpr value_type value() const { return value_; }
 

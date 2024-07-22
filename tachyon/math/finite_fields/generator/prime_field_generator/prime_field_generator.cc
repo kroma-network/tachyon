@@ -104,7 +104,9 @@ struct ModulusInfo {
 
 struct GenerationConfig : public build::CcWriter {
   base::FilePath config_hdr_tpl_path;
+  base::FilePath config_src_tpl_path;
   base::FilePath small_config_hdr_tpl_path;
+  base::FilePath small_config_src_tpl_path;
   base::FilePath cpu_hdr_tpl_path;
   base::FilePath small_cpu_hdr_tpl_path;
   base::FilePath fail_src_tpl_path;
@@ -128,6 +130,7 @@ struct GenerationConfig : public build::CcWriter {
   int GenerateFailSrc() const;
   int GeneratePrimeFieldX86Hdr() const;
   int GenerateConfigHdr() const;
+  int GenerateConfigSrc() const;
   int GenerateCpuHdr() const;
   int GenerateGpuHdr() const;
 
@@ -320,6 +323,37 @@ int GenerationConfig::GenerateConfigHdr() const {
   return WriteHdr(content, false);
 }
 
+int GenerationConfig::GenerateConfigSrc() const {
+  mpz_class m = math::gmp::FromDecString(modulus);
+  size_t n = math::gmp::GetLimbSize(m);
+  size_t num_bits = GetNumBits(m);
+
+  std::string tpl_content;
+  bool is_small_field = num_bits <= 32;
+  if (is_small_field) {
+    CHECK(base::ReadFileToString(small_config_src_tpl_path, &tpl_content));
+  } else {
+    CHECK(base::ReadFileToString(config_src_tpl_path, &tpl_content));
+  }
+  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, "\n");
+
+  bool has_two_adic_root_of_unity = !subgroup_generator.empty();
+  RemoveOptionalLines(tpl_lines, "kHasTwoAdicRootOfUnity",
+                      has_two_adic_root_of_unity);
+  bool has_large_subgroup_root_of_unity = !small_subgroup_base.empty();
+  RemoveOptionalLines(tpl_lines, "kHasLargeSubgroupRootOfUnity",
+                      has_large_subgroup_root_of_unity);
+
+  tpl_content = absl::StrJoin(tpl_lines, "\n");
+  std::string content =
+      absl::StrReplaceAll(tpl_content, {
+                                           {"%{namespace}", ns_name},
+                                           {"%{class}", class_name},
+                                           {"%{n}", base::NumberToString(n)},
+                                       });
+  return WriteSrc(content);
+}
+
 int GenerationConfig::GenerateCpuHdr() const {
   mpz_class m = math::gmp::FromDecString(modulus);
   size_t num_bits = GetNumBits(m);
@@ -425,8 +459,14 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::FilePathFlag>(&config.config_hdr_tpl_path)
       .set_long_name("--config_hdr_tpl_path")
       .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.config_src_tpl_path)
+      .set_long_name("--config_src_tpl_path")
+      .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.small_config_hdr_tpl_path)
       .set_long_name("--small_config_hdr_tpl_path")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.small_config_src_tpl_path)
+      .set_long_name("--small_config_src_tpl_path")
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.cpu_hdr_tpl_path)
       .set_long_name("--cpu_hdr_tpl_path")
@@ -474,6 +514,8 @@ int RealMain(int argc, char** argv) {
     return config.GeneratePrimeFieldX86Hdr();
   } else if (base::EndsWith(config.out.value(), "_config.h")) {
     return config.GenerateConfigHdr();
+  } else if (base::EndsWith(config.out.value(), "_config.cc")) {
+    return config.GenerateConfigSrc();
   } else if (base::EndsWith(config.out.value(), "_gpu.h")) {
     return config.GenerateGpuHdr();
   } else if (base::EndsWith(config.out.value(), ".h")) {
