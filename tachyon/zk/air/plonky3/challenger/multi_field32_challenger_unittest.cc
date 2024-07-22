@@ -35,7 +35,7 @@ class MultiField32ChallengerTest : public testing::Test {
     crypto::Poseidon2Config<math::bn254::Fr> config =
         crypto::Poseidon2Config<math::bn254::Fr>::CreateCustom(
             2, 5, 8, 56, math::bn254::GetPoseidon2InternalDiagonalVector<3>());
-    Poseidon2 sponge(config);
+    Poseidon2 sponge(std::move(config));
     challenger_.reset(
         new MultiField32Challenger<F, Poseidon2, kWidth>(std::move(sponge)));
   }

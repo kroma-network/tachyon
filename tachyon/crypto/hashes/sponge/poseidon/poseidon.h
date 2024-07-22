@@ -3,6 +3,11 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
+// Copyright 2022 Ethereum Foundation
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.EF and the LICENCE-APACHE.EF
+// file.
+
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 
@@ -13,6 +18,7 @@
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_sponge_base.h"
 #include "tachyon/crypto/hashes/sponge/sponge_state.h"
+#include "tachyon/math/matrix/matrix_operations.h"
 
 namespace tachyon {
 namespace crypto {
@@ -33,47 +39,38 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
 
   PoseidonSponge() = default;
   explicit PoseidonSponge(const PoseidonConfig<F>& config) : config(config) {}
+  explicit PoseidonSponge(PoseidonConfig<F>&& config)
+      : config(std::move(config)) {}
 
   // PoseidonSpongeBase methods
-  void ApplyARK(SpongeState<F>& state, Eigen::Index round_number, bool) const {
-    state.elements += config.ark.row(round_number);
-  }
+  void Permute(SpongeState<F>& state) const {
+    this->ApplyARKFull(state, 0);
 
-  void ApplyMix(SpongeState<F>& state, bool) const {
-    // NOTE (chokobole): Eigen matrix multiplication has a computational
-    // overhead unlike naive matrix multiplication.
-    //
-    // Example: Multiplying a 2x2 matrix by a 2x1 vector:
-    //
-    // +----+----+   +----+
-    // | m₀ | m₁ | * | v₀ |
-    // +----+----+   +----+
-    // | m₂ | m₃ |   | v₁ |
-    // +----+----+   +----+
-    //
-    // The operations involved in this multiplication are as follows:
-    //
-    // 1 * 1
-    // 1 * 1
-    // m₀ * v₀
-    // m₀v₀ + 0
-    // m₂ * v₀
-    // m₂v₀ + 0
-    // m₁ * v₁
-    // m₁v₁ + m₀v₀
-    // m₃ * v₁
-    // m₃v₁ + m₂v₀
-    // m₁v₁ + m₀v₀ * 1
-    // m₁v₁ + m₀v₀ + 0
-    // m₃v₁ + m₂v₀ * 1
-    // m₃v₁ + m₂v₀ + 0
-    math::Vector<F> elements(state.elements.size());
-    for (Eigen::Index i = 0; i < config.mds.rows(); ++i) {
-      for (Eigen::Index j = 0; j < config.mds.cols(); ++j) {
-        elements[i] += config.mds(i, j) * state.elements[j];
-      }
+    size_t full_rounds_over_2 = config.full_rounds / 2;
+    for (size_t i = 1; i < full_rounds_over_2; ++i) {
+      this->ApplySBoxFull(state);
+      this->ApplyARKFull(state, i);
+      ApplyMixFull(state);
     }
-    state.elements = std::move(elements);
+    this->ApplySBoxFull(state);
+    this->ApplyARKFull(state, full_rounds_over_2);
+    ApplyMixEfficientFull(state, full_rounds_over_2);
+
+    for (size_t i = full_rounds_over_2 + 1;
+         i < full_rounds_over_2 + config.partial_rounds + 1; ++i) {
+      this->ApplySBoxPartial(state);
+      this->ApplyARKPartial(state, i);
+      ApplyMixEfficientPartial(state, i - (full_rounds_over_2 + 1));
+    }
+
+    for (size_t i = full_rounds_over_2 + config.partial_rounds + 1;
+         i < config.partial_rounds + config.full_rounds; ++i) {
+      this->ApplySBoxFull(state);
+      this->ApplyARKFull(state, i);
+      ApplyMixFull(state);
+    }
+    this->ApplySBoxFull(state);
+    ApplyMixFull(state);
   }
 
   bool operator==(const PoseidonSponge& other) const {
@@ -82,12 +79,26 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
   bool operator!=(const PoseidonSponge& other) const {
     return !operator==(other);
   }
+
+ private:
+  void ApplyMixFull(SpongeState<F>& state) const {
+    state.elements = math::MulMatVecSerial(config.mds, state.elements);
+  }
+
+  void ApplyMixEfficientFull(SpongeState<F>& state, Eigen::Index index) const {
+    state.elements =
+        math::MulMatVecSerial(config.pre_sparse_mds, state.elements);
+  }
+
+  void ApplyMixEfficientPartial(SpongeState<F>& state,
+                                Eigen::Index index) const {
+    config.sparse_mds_matrices[index].Apply(state.elements);
+  }
 };
 
 template <typename Field>
 struct CryptographicSpongeTraits<PoseidonSponge<Field>> {
   using F = Field;
-  constexpr static bool kApplyMixAtFront = false;
 };
 
 }  // namespace crypto

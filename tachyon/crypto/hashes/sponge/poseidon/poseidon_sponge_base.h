@@ -19,116 +19,6 @@ namespace tachyon::crypto {
 template <typename Derived>
 struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
   using F = typename CryptographicSpongeTraits<Derived>::F;
-  constexpr static bool kApplyMixAtFront =
-      CryptographicSpongeTraits<Derived>::kApplyMixAtFront;
-
-  void ApplySBox(SpongeState<F>& state, bool is_full_round) const {
-    const Derived& derived = static_cast<const Derived&>(*this);
-    auto& config = derived.config;
-    if (is_full_round) {
-      // Full rounds apply the S-Box (xᵅ) to every element of |state|.
-      for (F& elem : state.elements) {
-        elem = elem.Pow(config.alpha);
-      }
-    } else {
-      // Partial rounds apply the S-Box (xᵅ) to just the first element of
-      // |state|.
-      state[0] = state[0].Pow(config.alpha);
-    }
-  }
-
-  void Permute(SpongeState<F>& state) const {
-    const Derived& derived = static_cast<const Derived&>(*this);
-    auto& config = derived.config;
-    if constexpr (kApplyMixAtFront) {
-      derived.ApplyMix(state, /*is_full_round=*/true);
-    }
-
-    size_t full_rounds_over_2 = config.full_rounds / 2;
-    for (size_t i = 0; i < full_rounds_over_2; ++i) {
-      bool is_full_round = true;
-      derived.ApplyARK(state, i, is_full_round);
-      ApplySBox(state, is_full_round);
-      derived.ApplyMix(state, is_full_round);
-    }
-    for (size_t i = full_rounds_over_2;
-         i < full_rounds_over_2 + config.partial_rounds; ++i) {
-      bool is_full_round = false;
-      derived.ApplyARK(state, i, is_full_round);
-      ApplySBox(state, is_full_round);
-      derived.ApplyMix(state, is_full_round);
-    }
-    for (size_t i = full_rounds_over_2 + config.partial_rounds;
-         i < config.partial_rounds + config.full_rounds; ++i) {
-      bool is_full_round = true;
-      derived.ApplyARK(state, i, is_full_round);
-      ApplySBox(state, is_full_round);
-      derived.ApplyMix(state, is_full_round);
-    }
-  }
-
-  // Absorbs everything in |elements|, this does not end in an absorbing.
-  void AbsorbInternal(SpongeState<F>& state, size_t rate_start_index,
-                      absl::Span<const F> elements) const {
-    const Derived& derived = static_cast<const Derived&>(*this);
-    auto& config = derived.config;
-    size_t elements_idx = 0;
-    while (true) {
-      size_t remaining_size = elements.size() - elements_idx;
-      // if we can finish in this call
-      if (rate_start_index + remaining_size <= config.rate) {
-        for (size_t i = 0; i < remaining_size; ++i, ++elements_idx) {
-          state[config.capacity + i + rate_start_index] +=
-              elements[elements_idx];
-        }
-        state.mode.type = DuplexSpongeMode::Type::kAbsorbing;
-        state.mode.next_index = rate_start_index + remaining_size;
-        break;
-      }
-      // otherwise absorb (|config.rate| - |rate_start_index|) elements
-      size_t num_elements_absorbed = config.rate - rate_start_index;
-      for (size_t i = 0; i < num_elements_absorbed; ++i, ++elements_idx) {
-        state[config.capacity + i + rate_start_index] += elements[elements_idx];
-      }
-      Permute(state);
-      rate_start_index = 0;
-    }
-  }
-
-  // Squeeze |output| many elements. This does not end in a squeezing.
-  void SqueezeInternal(SpongeState<F>& state, size_t rate_start_index,
-                       std::vector<F>* output) const {
-    const Derived& derived = static_cast<const Derived&>(*this);
-    auto& config = derived.config;
-    size_t output_size = output->size();
-    size_t output_idx = 0;
-    while (true) {
-      size_t output_remaining_size = output_size - output_idx;
-      // if we can finish in this call
-      if (rate_start_index + output_remaining_size <= config.rate) {
-        for (size_t i = 0; i < output_remaining_size; ++i) {
-          (*output)[output_idx + i] =
-              state[config.capacity + rate_start_index + i];
-        }
-        state.mode.type = DuplexSpongeMode::Type::kSqueezing;
-        state.mode.next_index = rate_start_index + output_remaining_size;
-        return;
-      }
-
-      // otherwise squeeze (|config.rate| - |rate_start_index|) elements
-      size_t num_elements_squeezed = config.rate - rate_start_index;
-      for (size_t i = 0; i < num_elements_squeezed; ++i) {
-        (*output)[output_idx + i] =
-            state[config.capacity + rate_start_index + i];
-      }
-
-      if (output_remaining_size != config.rate) {
-        Permute(state);
-      }
-      output_idx += num_elements_squeezed;
-      rate_start_index = 0;
-    }
-  }
 
   // CryptographicSponge methods
   template <typename T>
@@ -149,14 +39,14 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
       case DuplexSpongeMode::Type::kAbsorbing: {
         size_t absorb_index = state.mode.next_index;
         if (absorb_index == config.rate) {
-          Permute(state);
+          derived.Permute(state);
           absorb_index = 0;
         }
         AbsorbInternal(state, absorb_index, input);
         return true;
       }
       case DuplexSpongeMode::Type::kSqueezing: {
-        Permute(state);
+        derived.Permute(state);
         AbsorbInternal(state, 0, input);
         return true;
       }
@@ -233,14 +123,14 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
     std::vector<F> ret(num_elements);
     switch (state.mode.type) {
       case DuplexSpongeMode::Type::kAbsorbing: {
-        Permute(state);
+        derived.Permute(state);
         SqueezeInternal(state, 0, &ret);
         return ret;
       }
       case DuplexSpongeMode::Type::kSqueezing: {
         size_t squeeze_index = state.mode.next_index;
         if (squeeze_index == config.rate) {
-          Permute(state);
+          derived.Permute(state);
           squeeze_index = 0;
         }
         SqueezeInternal(state, squeeze_index, &ret);
@@ -249,6 +139,100 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
     }
     NOTREACHED();
     return {};
+  }
+
+ protected:
+  void ApplyARKFull(SpongeState<F>& state, Eigen::Index round_number) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    auto& config = derived.config;
+    state.elements += config.ark.row(round_number);
+  }
+
+  void ApplyARKPartial(SpongeState<F>& state, Eigen::Index round_number) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    auto& config = derived.config;
+    state.elements[0] += config.ark.row(round_number)[0];
+  }
+
+  void ApplySBoxFull(SpongeState<F>& state) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    auto& config = derived.config;
+    // Full rounds apply the S-Box (xᵅ) to every element of |state|.
+    for (F& elem : state.elements) {
+      elem = elem.Pow(config.alpha);
+    }
+  }
+
+  void ApplySBoxPartial(SpongeState<F>& state) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    auto& config = derived.config;
+    // Partial rounds apply the S-Box (xᵅ) to just the first element of
+    // |state|.
+    state[0] = state[0].Pow(config.alpha);
+  }
+
+ private:
+  // Absorbs everything in |elements|, this does not end in an absorbing.
+  void AbsorbInternal(SpongeState<F>& state, size_t rate_start_index,
+                      absl::Span<const F> elements) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    auto& config = derived.config;
+    size_t elements_idx = 0;
+    while (true) {
+      size_t remaining_size = elements.size() - elements_idx;
+      // if we can finish in this call
+      if (rate_start_index + remaining_size <= config.rate) {
+        for (size_t i = 0; i < remaining_size; ++i, ++elements_idx) {
+          state[config.capacity + i + rate_start_index] +=
+              elements[elements_idx];
+        }
+        state.mode.type = DuplexSpongeMode::Type::kAbsorbing;
+        state.mode.next_index = rate_start_index + remaining_size;
+        break;
+      }
+      // otherwise absorb (|config.rate| - |rate_start_index|) elements
+      size_t num_elements_absorbed = config.rate - rate_start_index;
+      for (size_t i = 0; i < num_elements_absorbed; ++i, ++elements_idx) {
+        state[config.capacity + i + rate_start_index] += elements[elements_idx];
+      }
+      derived.Permute(state);
+      rate_start_index = 0;
+    }
+  }
+
+  // Squeeze |output| many elements. This does not end in a squeezing.
+  void SqueezeInternal(SpongeState<F>& state, size_t rate_start_index,
+                       std::vector<F>* output) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    auto& config = derived.config;
+    size_t output_size = output->size();
+    size_t output_idx = 0;
+    while (true) {
+      size_t output_remaining_size = output_size - output_idx;
+      // if we can finish in this call
+      if (rate_start_index + output_remaining_size <= config.rate) {
+        for (size_t i = 0; i < output_remaining_size; ++i) {
+          (*output)[output_idx + i] =
+              state[config.capacity + rate_start_index + i];
+        }
+        state.mode.type = DuplexSpongeMode::Type::kSqueezing;
+        state.mode.next_index = rate_start_index + output_remaining_size;
+        return;
+      }
+
+      // otherwise squeeze (|config.rate| - |rate_start_index|) elements
+      size_t num_elements_squeezed = config.rate - rate_start_index;
+      for (size_t i = 0; i < num_elements_squeezed; ++i) {
+        (*output)[output_idx + i] =
+            state[config.capacity + rate_start_index + i];
+      }
+
+      if (output_remaining_size != config.rate) {
+        derived.Permute(state);
+      }
+      output_idx += num_elements_squeezed;
+      rate_start_index = 0;
+    }
   }
 };
 

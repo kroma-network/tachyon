@@ -7,6 +7,7 @@ pub enum TranscriptType {
     Blake2b,
     Poseidon,
     Sha256,
+    SnarkVerifierPoseidon,
 }
 
 pub enum RNGType {

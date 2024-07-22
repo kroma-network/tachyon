@@ -10,6 +10,7 @@
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/sha256_transcript.h"
+#include "tachyon/zk/plonk/halo2/snark_verifier_poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 using namespace tachyon;
@@ -19,6 +20,8 @@ using Blake2bWriter =
 using PoseidonWriter =
     zk::plonk::halo2::PoseidonWriter<math::bn254::G1AffinePoint>;
 using Sha256Writer = zk::plonk::halo2::Sha256Writer<math::bn254::G1AffinePoint>;
+using SnarkVerifierPoseidonWriter =
+    zk::plonk::halo2::SnarkVerifierPoseidonWriter<math::bn254::G1AffinePoint>;
 
 tachyon_halo2_bn254_transcript_writer*
 tachyon_halo2_bn254_transcript_writer_create(uint8_t type) {
@@ -36,6 +39,11 @@ tachyon_halo2_bn254_transcript_writer_create(uint8_t type) {
     }
     case zk::plonk::halo2::TranscriptType::kSha256: {
       writer->extra = new Sha256Writer(base::Uint8VectorBuffer());
+      return writer;
+    }
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+      writer->extra =
+          new SnarkVerifierPoseidonWriter(base::Uint8VectorBuffer());
       return writer;
     }
   }
@@ -69,6 +77,13 @@ tachyon_halo2_bn254_transcript_writer_create_from_state(uint8_t type,
       writer->extra = sha256;
       return writer;
     }
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+      SnarkVerifierPoseidonWriter* sv_poseidon =
+          new SnarkVerifierPoseidonWriter(base::Uint8VectorBuffer());
+      sv_poseidon->SetState(absl::Span<const uint8_t>(state, state_len));
+      writer->extra = sv_poseidon;
+      return writer;
+    }
   }
   NOTREACHED();
   return nullptr;
@@ -89,6 +104,11 @@ void tachyon_halo2_bn254_transcript_writer_destroy(
     }
     case zk::plonk::halo2::TranscriptType::kSha256: {
       delete reinterpret_cast<Sha256Writer*>(writer->extra);
+      delete writer;
+      return;
+    }
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+      delete reinterpret_cast<SnarkVerifierPoseidonWriter*>(writer->extra);
       delete writer;
       return;
     }
@@ -114,6 +134,14 @@ void tachyon_halo2_bn254_transcript_writer_update(
       reinterpret_cast<Sha256Writer*>(writer->extra)->Update(data, data_len);
       return;
     }
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+      reinterpret_cast<SnarkVerifierPoseidonWriter*>(writer->extra)
+          ->Update(
+              reinterpret_cast<const SnarkVerifierPoseidonWriter::ScalarField*>(
+                  data),
+              data_len / SnarkVerifierPoseidonWriter::ScalarBigInt::kByteNums);
+      return;
+    }
   }
   NOTREACHED();
 }
@@ -131,6 +159,7 @@ void tachyon_halo2_bn254_transcript_writer_finalize(
       return;
     }
     case zk::plonk::halo2::TranscriptType::kPoseidon:
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon:
       break;
     case zk::plonk::halo2::TranscriptType::kSha256: {
       *data_len = SHA256_DIGEST_LENGTH;
@@ -151,6 +180,13 @@ tachyon_bn254_fr tachyon_halo2_bn254_transcript_writer_squeeze(
   switch (static_cast<zk::plonk::halo2::TranscriptType>(writer->type)) {
     case zk::plonk::halo2::TranscriptType::kPoseidon: {
       challenge = reinterpret_cast<PoseidonWriter*>(writer->extra)->Squeeze();
+      memcpy(ret.limbs, challenge.value().limbs,
+             math::bn254::Fr::BigIntTy::kByteNums);
+      return ret;
+    }
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+      challenge = reinterpret_cast<SnarkVerifierPoseidonWriter*>(writer->extra)
+                      ->Squeeze();
       memcpy(ret.limbs, challenge.value().limbs,
              math::bn254::Fr::BigIntTy::kByteNums);
       return ret;
@@ -189,6 +225,15 @@ void tachyon_halo2_bn254_transcript_writer_get_state(
       *state_len = sha256->GetStateLen();
       if (state == nullptr) return;
       std::vector<uint8_t> state_tmp = sha256->GetState();
+      memcpy(state, state_tmp.data(), *state_len);
+      return;
+    }
+    case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+      SnarkVerifierPoseidonWriter* sv_poseidon =
+          reinterpret_cast<SnarkVerifierPoseidonWriter*>(writer->extra);
+      *state_len = sv_poseidon->GetStateLen();
+      if (state == nullptr) return;
+      std::vector<uint8_t> state_tmp = sv_poseidon->GetState();
       memcpy(state, state_tmp.data(), *state_len);
       return;
     }

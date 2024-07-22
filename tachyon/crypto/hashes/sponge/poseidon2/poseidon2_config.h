@@ -26,7 +26,7 @@ namespace crypto {
 // each row. Each constant is added to the |state| of each round of Poseidon.
 // TODO(chokobole): add comment
 template <typename F>
-void FindPoseidon2Ark(const PoseidonGrainLFSRConfig& config,
+void FindPoseidon2ARK(const PoseidonGrainLFSRConfig& config,
                       math::Matrix<F>& ark) {
   PoseidonGrainLFSR<F> lfsr(config);
   ark = math::Matrix<F>(config.num_full_rounds + config.num_partial_rounds,
@@ -80,7 +80,7 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
         ret.internal_diagonal_minus_one[i] = internal_diagonal_minus_one[i];
       }
     }
-    FindPoseidon2Ark<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
+    FindPoseidon2ARK<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
     return ret;
   }
 
@@ -103,7 +103,7 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
         ret.internal_shifts[i] = internal_shifts[i];
       }
     }
-    FindPoseidon2Ark<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
+    FindPoseidon2ARK<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
     return ret;
   }
 };

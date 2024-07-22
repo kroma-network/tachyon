@@ -10,6 +10,7 @@
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/sha256_transcript.h"
+#include "tachyon/zk/plonk/halo2/snark_verifier_poseidon_transcript.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
@@ -29,7 +30,8 @@ class TranscriptWriterTest : public math::FiniteFieldTest<math::bn254::Fr> {
 using TranscriptTypes =
     testing::Types<Blake2bWriter<math::bn254::G1AffinePoint>,
                    PoseidonWriter<math::bn254::G1AffinePoint>,
-                   Sha256Writer<math::bn254::G1AffinePoint>>;
+                   Sha256Writer<math::bn254::G1AffinePoint>,
+                   SnarkVerifierPoseidonWriter<math::bn254::G1AffinePoint>>;
 TYPED_TEST_SUITE(TranscriptWriterTest, TranscriptTypes);
 
 TYPED_TEST(TranscriptWriterTest, APIs) {
@@ -52,6 +54,11 @@ TYPED_TEST(TranscriptWriterTest, APIs) {
                            TranscriptWriter,
                            Sha256Writer<math::bn254::G1AffinePoint>>) {
     type = TACHYON_HALO2_SHA256_TRANSCRIPT;
+    // NOLINTNEXTLINE(readability/braces)
+  } else if constexpr (std::is_same_v<TranscriptWriter,
+                                      SnarkVerifierPoseidonWriter<
+                                          math::bn254::G1AffinePoint>>) {
+    type = TACHYON_HALO2_SNARK_VERIFIER_POSEIDON_TRANSCRIPT;
   }
 
   this->writer_ = tachyon_halo2_bn254_transcript_writer_create(type);

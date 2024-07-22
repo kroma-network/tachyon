@@ -18,6 +18,7 @@
 #include "tachyon/zk/plonk/halo2/pcs_type.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/sha256_transcript.h"
+#include "tachyon/zk/plonk/halo2/snark_verifier_poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 using namespace tachyon;
@@ -65,6 +66,12 @@ Verifier<PCS, LS>* CreateVerifierFromParams(uint8_t transcript_type, uint32_t k,
             reader = std::make_unique<
                 zk::plonk::halo2::Sha256Reader<math::bn254::G1AffinePoint>>(
                 std::move(read_buf));
+            break;
+          }
+          case zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon: {
+            reader =
+                std::make_unique<zk::plonk::halo2::SnarkVerifierPoseidonReader<
+                    math::bn254::G1AffinePoint>>(std::move(read_buf));
             break;
           }
         }

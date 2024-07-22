@@ -36,8 +36,8 @@ class PoseidonBenchmarkRunner {
     for (size_t i = 0; i < config_->repeating_num(); ++i) {
       crypto::PoseidonConfig<Field> config =
           crypto::PoseidonConfig<Field>::CreateCustom(8, 5, 8, 63, 0);
-      crypto::PoseidonSponge<Field> sponge(config);
-      crypto::SpongeState<Field> state(config);
+      crypto::PoseidonSponge<Field> sponge(std::move(config));
+      crypto::SpongeState<Field> state(sponge.config);
       base::TimeTicks start = base::TimeTicks::Now();
       sponge.Permute(state);
       reporter_->AddTime(i, (base::TimeTicks::Now() - start).InSecondsF());

@@ -32,6 +32,7 @@
 #include "tachyon/zk/plonk/halo2/pcs_type.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/sha256_transcript.h"
+#include "tachyon/zk/plonk/halo2/snark_verifier_poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 namespace tachyon::zk::plonk::halo2::bn254 {
@@ -88,24 +89,32 @@ INSTANTIATE_TEST_SUITE_P(
               TACHYON_HALO2_POSEIDON_TRANSCRIPT),
         Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_HALO2_LS,
               TACHYON_HALO2_SHA256_TRANSCRIPT),
+        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_HALO2_LS,
+              TACHYON_HALO2_SNARK_VERIFIER_POSEIDON_TRANSCRIPT),
         Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
               TACHYON_HALO2_BLAKE2B_TRANSCRIPT),
         Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
               TACHYON_HALO2_POSEIDON_TRANSCRIPT),
         Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
               TACHYON_HALO2_SHA256_TRANSCRIPT),
+        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+              TACHYON_HALO2_SNARK_VERIFIER_POSEIDON_TRANSCRIPT),
         Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_HALO2_LS,
               TACHYON_HALO2_BLAKE2B_TRANSCRIPT),
         Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_HALO2_LS,
               TACHYON_HALO2_POSEIDON_TRANSCRIPT),
         Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_HALO2_LS,
               TACHYON_HALO2_SHA256_TRANSCRIPT),
+        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_HALO2_LS,
+              TACHYON_HALO2_SNARK_VERIFIER_POSEIDON_TRANSCRIPT),
         Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
               TACHYON_HALO2_BLAKE2B_TRANSCRIPT),
         Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
               TACHYON_HALO2_POSEIDON_TRANSCRIPT),
         Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
-              TACHYON_HALO2_SHA256_TRANSCRIPT)));
+              TACHYON_HALO2_SHA256_TRANSCRIPT),
+        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+              TACHYON_HALO2_SNARK_VERIFIER_POSEIDON_TRANSCRIPT)));
 
 TEST_P(ProverTest, Constructor) {
   Param param = GetParam();
@@ -482,6 +491,17 @@ TEST_P(ProverTest, SetTranscript) {
       state_len = sha256->GetStateLen();
       break;
     }
+    case TranscriptType::kSnarkVerifierPoseidon: {
+      SnarkVerifierPoseidonWriter<math::bn254::G1AffinePoint>* sv_poseidon =
+          reinterpret_cast<
+              SnarkVerifierPoseidonWriter<math::bn254::G1AffinePoint>*>(
+              transcript->extra);
+      digest_len = sv_poseidon->GetDigestLen();
+      // NOTE(chokobole): In case of SnarkVerifierPoseidon transcript,
+      // |tachyon_halo2_bn254_transcript_writer_update()| touches an internal
+      // member |buf_|, so |state_len| has to be updated after this
+      break;
+    }
   }
 
   std::vector<uint8_t> data = base::CreateVector(
@@ -489,12 +509,25 @@ TEST_P(ProverTest, SetTranscript) {
   tachyon_halo2_bn254_transcript_writer_update(transcript, data.data(),
                                                data.size());
 
-  if (static_cast<TranscriptType>(transcript_type) ==
-      TranscriptType::kPoseidon) {
-    PoseidonWriter<math::bn254::G1AffinePoint>* poseidon =
-        reinterpret_cast<PoseidonWriter<math::bn254::G1AffinePoint>*>(
-            transcript->extra);
-    state_len = poseidon->GetStateLen();
+  switch (static_cast<TranscriptType>(transcript_type)) {
+    case TranscriptType::kPoseidon: {
+      PoseidonWriter<math::bn254::G1AffinePoint>* poseidon =
+          reinterpret_cast<PoseidonWriter<math::bn254::G1AffinePoint>*>(
+              transcript->extra);
+      state_len = poseidon->GetStateLen();
+      break;
+    }
+    case TranscriptType::kSnarkVerifierPoseidon: {
+      SnarkVerifierPoseidonWriter<math::bn254::G1AffinePoint>* sv_poseidon =
+          reinterpret_cast<
+              SnarkVerifierPoseidonWriter<math::bn254::G1AffinePoint>*>(
+              transcript->extra);
+      state_len = sv_poseidon->GetStateLen();
+      break;
+    }
+    case TranscriptType::kBlake2b:
+    case TranscriptType::kSha256:
+      break;
   }
 
   std::vector<uint8_t> state(state_len);

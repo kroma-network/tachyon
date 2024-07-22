@@ -19,6 +19,7 @@ enum class TranscriptType : uint8_t {
   kBlake2b,
   kPoseidon,
   kSha256,
+  kSnarkVerifierPoseidon,
 };
 
 }  // namespace zk::plonk::halo2
@@ -37,6 +38,8 @@ class FlagValueTraits<zk::plonk::halo2::TranscriptType> {
       *value = zk::plonk::halo2::TranscriptType::kPoseidon;
     } else if (input == "sha256") {
       *value = zk::plonk::halo2::TranscriptType::kSha256;
+    } else if (input == "snark_verifier_poseidon") {
+      *value = zk::plonk::halo2::TranscriptType::kSnarkVerifierPoseidon;
     } else {
       *reason = absl::Substitute("Unknown transcript type: $0", input);
       return false;

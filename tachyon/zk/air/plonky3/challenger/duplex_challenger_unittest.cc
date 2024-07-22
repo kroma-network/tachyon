@@ -32,7 +32,7 @@ class DuplexChallengerTest : public math::FiniteFieldTest<F> {
     crypto::Poseidon2Config<F> config =
         crypto::Poseidon2Config<F>::CreateCustom(
             15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
-    Poseidon2 sponge(config);
+    Poseidon2 sponge(std::move(config));
     challenger_.reset(
         new DuplexChallenger<Poseidon2, kWidth, kRate>(std::move(sponge)));
   }

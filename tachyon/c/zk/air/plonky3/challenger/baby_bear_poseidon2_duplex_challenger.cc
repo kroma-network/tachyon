@@ -16,7 +16,7 @@ tachyon_plonky3_baby_bear_poseidon2_duplex_challenger*
 tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_create() {
   crypto::Poseidon2Config<F> config = crypto::Poseidon2Config<F>::CreateCustom(
       15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
-  Poseidon2 sponge(config);
+  Poseidon2 sponge(std::move(config));
   return c::base::c_cast(
       new zk::air::plonky3::DuplexChallenger<Poseidon2, 16, 4>(
           std::move(sponge)));

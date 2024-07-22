@@ -10,6 +10,7 @@ tachyon_cc_library(
         ":poseidon_sponge_base",
         "//tachyon/base/buffer:copyable",
         "//tachyon/crypto/hashes/sponge:sponge_state",
+        "//tachyon/math/matrix:matrix_operations",
     ],
 )
 
@@ -19,9 +20,11 @@ tachyon_cc_library(
     deps = [
         ":poseidon_config_base",
         ":poseidon_config_entry",
+        ":sparse_mds_matrix",
         "//tachyon/base:optional",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/ranges:algorithm",
+        "//tachyon/math/finite_fields:finite_field_traits",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -73,16 +76,30 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "sparse_mds_matrix",
+    hdrs = ["sparse_mds_matrix.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/matrix:matrix_types",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "poseidon_unittests",
     srcs = [
         "poseidon_config_unittest.cc",
         "poseidon_grain_lfsr_unittest.cc",
         "poseidon_unittest.cc",
+        "sparse_mds_matrix_unittest.cc",
     ],
     deps = [
         ":poseidon",
         ":poseidon_config",
+        ":sparse_mds_matrix",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",

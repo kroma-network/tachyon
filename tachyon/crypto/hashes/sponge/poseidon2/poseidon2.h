@@ -38,40 +38,30 @@ struct Poseidon2Sponge final
 
   Poseidon2Sponge() = default;
   explicit Poseidon2Sponge(const Poseidon2Config<F>& config) : config(config) {}
+  explicit Poseidon2Sponge(Poseidon2Config<F>&& config)
+      : config(std::move(config)) {}
 
   // PoseidonSpongeBase methods
-  void ApplyARK(SpongeState<F>& state, Eigen::Index round_number,
-                bool is_full_round) const {
-    if (is_full_round) {
-      state.elements += config.ark.row(round_number);
-    } else {
-      state.elements[0] += config.ark.row(round_number)[0];
+  void Permute(SpongeState<F>& state) const {
+    ApplyMixFull(state);
+
+    size_t full_rounds_over_2 = config.full_rounds / 2;
+    for (size_t i = 0; i < full_rounds_over_2; ++i) {
+      this->ApplyARKFull(state, i);
+      this->ApplySBoxFull(state);
+      ApplyMixFull(state);
     }
-  }
-
-  void ApplyMix(SpongeState<F>& state, bool is_full_round) const {
-    if (is_full_round) {
-      ExternalMatrix::Apply(state.elements);
-    } else {
-      using PrimeField =
-          std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
-                             typename math::FiniteFieldTraits<F>::PrimeField,
-                             F>;
-
-      if constexpr (PrimeField::Config::kModulusBits <= 32) {
-        if (config.use_plonky3_internal_matrix) {
-          if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
-            Poseidon2Plonky3InternalMatrix<F>::Apply(
-                state.elements, config.internal_diagonal_minus_one);
-          } else {
-            Poseidon2Plonky3InternalMatrix<F>::Apply(state.elements,
-                                                     config.internal_shifts);
-          }
-          return;
-        }
-      }
-      Poseidon2HorizenInternalMatrix<F>::Apply(
-          state.elements, config.internal_diagonal_minus_one);
+    for (size_t i = full_rounds_over_2;
+         i < full_rounds_over_2 + config.partial_rounds; ++i) {
+      this->ApplyARKPartial(state, i);
+      this->ApplySBoxPartial(state);
+      ApplyMixPartial(state);
+    }
+    for (size_t i = full_rounds_over_2 + config.partial_rounds;
+         i < config.partial_rounds + config.full_rounds; ++i) {
+      this->ApplyARKFull(state, i);
+      this->ApplySBoxFull(state);
+      ApplyMixFull(state);
     }
   }
 
@@ -81,12 +71,37 @@ struct Poseidon2Sponge final
   bool operator!=(const Poseidon2Sponge& other) const {
     return !operator==(other);
   }
+
+ private:
+  void ApplyMixFull(SpongeState<F>& state) const {
+    ExternalMatrix::Apply(state.elements);
+  }
+
+  void ApplyMixPartial(SpongeState<F>& state) const {
+    using PrimeField =
+        std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
+                           typename math::FiniteFieldTraits<F>::PrimeField, F>;
+
+    if constexpr (PrimeField::Config::kModulusBits <= 32) {
+      if (config.use_plonky3_internal_matrix) {
+        if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
+          Poseidon2Plonky3InternalMatrix<F>::Apply(
+              state.elements, config.internal_diagonal_minus_one);
+        } else {
+          Poseidon2Plonky3InternalMatrix<F>::Apply(state.elements,
+                                                   config.internal_shifts);
+        }
+        return;
+      }
+    }
+    Poseidon2HorizenInternalMatrix<F>::Apply(
+        state.elements, config.internal_diagonal_minus_one);
+  }
 };
 
 template <typename ExternalMatrix>
 struct CryptographicSpongeTraits<Poseidon2Sponge<ExternalMatrix>> {
   using F = typename ExternalMatrix::Field;
-  constexpr static bool kApplyMixAtFront = true;
 };
 
 }  // namespace crypto
