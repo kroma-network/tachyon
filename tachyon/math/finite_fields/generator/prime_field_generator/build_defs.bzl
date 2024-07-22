@@ -185,9 +185,8 @@ def _do_generate_prime_fields(
     config_deps = [
         "//tachyon:export",
         "//tachyon/build:build_config",
+        "//tachyon/math/base:big_int",
     ]
-    if not is_small_prime_field:
-        config_deps.append("//tachyon/math/base:big_int")
 
     tachyon_cc_library(
         name = "{}_config".format(name),
