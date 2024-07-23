@@ -6,5 +6,8 @@ tachyon_cc_library(
     name = "random",
     testonly = True,
     hdrs = ["random.h"],
-    deps = ["//tachyon/base/containers:container_util"],
+    deps = [
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/elliptic_curves:points",
+    ],
 )
