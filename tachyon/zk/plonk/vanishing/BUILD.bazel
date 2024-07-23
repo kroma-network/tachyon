@@ -31,6 +31,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/base:multi_phase_ref_table",
         "//tachyon/zk/plonk/keys:proving_key_forward",
         "//tachyon/zk/plonk/permutation:permutation_prover",
+        "//tachyon/zk/shuffle:prover",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -86,6 +87,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/lookup/halo2:evaluator",
         "//tachyon/zk/plonk/constraint_system",
+        "//tachyon/zk/shuffle:evaluator",
     ],
 )
 

@@ -20,6 +20,7 @@
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
+#include "tachyon/zk/shuffle/evaluator.h"
 
 namespace tachyon::zk::plonk {
 
@@ -57,6 +58,9 @@ class VanishingArgument {
 
   const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
   const LookupEvaluator& lookup_evaluator() const { return lookup_evaluator_; }
+  const shuffle::Evaluator<Evals>& shuffle_evaluator() const {
+    return shuffle_evaluator_;
+  }
 
   template <typename PCS, typename Poly,
             typename ExtendedEvals = typename PCS::ExtendedEvals>
@@ -81,6 +85,7 @@ class VanishingArgument {
  private:
   GraphEvaluator<F> custom_gates_;
   LookupEvaluator lookup_evaluator_;
+  shuffle::Evaluator<Evals> shuffle_evaluator_;
 };
 
 }  // namespace tachyon::zk::plonk

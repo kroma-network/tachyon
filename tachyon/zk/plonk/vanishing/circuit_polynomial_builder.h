@@ -43,6 +43,13 @@ class Evaluator;
 
 }  // namespace lookup::log_derivative_halo2
 
+namespace shuffle {
+
+template <typename Evals>
+class Evaluator;
+
+}  // namespace shuffle
+
 namespace plonk {
 
 // It generates "CircuitPolynomial" formed below:
@@ -93,6 +100,7 @@ class CircuitPolynomialBuilder {
         domain->group_gen(), extended_domain->group_gen(), theta, beta, gamma,
         y, zeta, proving_key, permutation_provers, lookup_provers, poly_tables);
     builder.domain_ = domain;
+    builder.extended_domain_ = extended_domain;
 
     builder.n_ = static_cast<int32_t>(n);
     builder.num_parts_ = extended_domain->size() >> domain->log_size_of_group();
@@ -228,6 +236,7 @@ class CircuitPolynomialBuilder {
  private:
   friend class lookup::halo2::Evaluator<Evals>;
   friend class lookup::log_derivative_halo2::Evaluator<Evals>;
+  friend class shuffle::Evaluator<Evals>;
 
   EvaluationInput<Evals> ExtractEvaluationInput(
       std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
@@ -324,6 +333,7 @@ class CircuitPolynomialBuilder {
 
   // not owned
   const Domain* domain_ = nullptr;
+  const ExtendedDomain* extended_domain_ = nullptr;
   std::unique_ptr<Domain> coset_domain_;
 
   F one_ = F::One();
@@ -358,6 +368,8 @@ class CircuitPolynomialBuilder {
   std::vector<Evals> lookup_product_cosets_;
   std::vector<Evals> lookup_input_cosets_;
   std::vector<Evals> lookup_table_cosets_;
+
+  std::vector<Evals> shuffle_product_cosets_;
 
   MultiPhaseOwnedTable<Evals> table_;
 };
