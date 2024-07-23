@@ -90,6 +90,7 @@ class Verifier : public VerifierBase<PCS> {
     proof_reader.ReadBetaAndGamma();
     proof_reader.ReadPermutationProductCommitments();
     proof_reader.ReadLookupGrandCommitments();
+    proof_reader.ReadShuffleGrandCommitments();
     proof_reader.ReadVanishingRandomPolyCommitment();
     proof_reader.ReadY();
     proof_reader.ReadVanishingHPolyCommitments();
@@ -107,6 +108,7 @@ class Verifier : public VerifierBase<PCS> {
     proof_reader.ReadCommonPermutationEvals();
     proof_reader.ReadPermutationEvals();
     proof_reader.ReadLookupEvals();
+    proof_reader.ReadShuffleEvals();
     CHECK(proof_reader.Done());
 
     if (proof_out) {
