@@ -12,6 +12,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/verifier_impl.h"
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_verifying_key_type_traits.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/halo2/bn254.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/ls_type.h"
@@ -146,6 +147,7 @@ tachyon_halo2_bn254_verifier* tachyon_halo2_bn254_verifier_create_from_params(
   verifier->pcs_type = pcs_type;
   verifier->ls_type = ls_type;
   math::bn254::BN254Curve::Init();
+  math::halo2::OverrideSubgroupGenerator();
 
   switch (static_cast<zk::plonk::halo2::PCSType>(pcs_type)) {
     case zk::plonk::halo2::PCSType::kGWC: {

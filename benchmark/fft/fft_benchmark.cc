@@ -12,6 +12,7 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/halo2/bn254.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
@@ -137,6 +138,7 @@ int RealMain(int argc, char** argv) {
   using Evals = Domain::Evals;
 
   Field::Init();
+  math::halo2::OverrideSubgroupGenerator();
 
   FFTConfig config;
   FFTConfig::Options options;
