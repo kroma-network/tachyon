@@ -7,7 +7,7 @@ tachyon_cc_library(
     testonly = True,
     hdrs = ["random.h"],
     deps = [
-        "//tachyon/base/containers:container_util",
+        "//tachyon/base:parallelize",
         "//tachyon/math/elliptic_curves:points",
     ],
 )
