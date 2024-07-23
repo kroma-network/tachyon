@@ -20,7 +20,7 @@
 namespace tachyon::zk::plonk {
 
 template <typename F>
-std::string Identifier(const Expression<F>* input) {
+std::string GetIdentifier(const Expression<F>* input) {
   std::ostringstream ss;
   switch (input->type()) {
     case ExpressionType::kConstant:
@@ -28,21 +28,21 @@ std::string Identifier(const Expression<F>* input) {
       return ss.str();
     case ExpressionType::kNegated:
       ss << "(-";
-      ss << Identifier(input->ToNegated()->expr());
+      ss << GetIdentifier(input->ToNegated()->expr());
       ss << ")";
       return ss.str();
     case ExpressionType::kSum:
       ss << "(";
-      ss << Identifier(input->ToSum()->left());
+      ss << GetIdentifier(input->ToSum()->left());
       ss << "+";
-      ss << Identifier(input->ToSum()->right());
+      ss << GetIdentifier(input->ToSum()->right());
       ss << ")";
       return ss.str();
     case ExpressionType::kProduct:
       ss << "(";
-      ss << Identifier(input->ToProduct()->left());
+      ss << GetIdentifier(input->ToProduct()->left());
       ss << "*";
-      ss << Identifier(input->ToProduct()->right());
+      ss << GetIdentifier(input->ToProduct()->right());
       ss << ")";
       return ss.str();
     case ExpressionType::kScaled:

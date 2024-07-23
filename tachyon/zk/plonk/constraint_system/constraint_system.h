@@ -735,7 +735,7 @@ class ConstraintSystem {
       std::vector<std::unique_ptr<Expression<F>>>&& table_expressions) {
     std::stringstream table_expressions_ss;
     for (const std::unique_ptr<Expression<F>>& expr : table_expressions) {
-      table_expressions_ss << Identifier(expr.get());
+      table_expressions_ss << GetIdentifier(expr.get());
     }
 
     std::string table_expressions_identifier = table_expressions_ss.str();
