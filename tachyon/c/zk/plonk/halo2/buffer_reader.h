@@ -194,7 +194,7 @@ class BufferReader<tachyon::math::UnivariateDensePolynomial<F, MaxDegree>> {
     ReadBuffer(buffer, coeffs);
     return tachyon::math::UnivariateDensePolynomial<F, MaxDegree>(
         tachyon::math::UnivariateDenseCoefficients<F, MaxDegree>(
-            std::move(coeffs)));
+            std::move(coeffs), true));
   }
 };  // namespace tachyon::c::zk
 

@@ -198,18 +198,22 @@ where
 
             let mut sub_cs = vec![];
             for sub_range in ranges {
-                let advice = Arc::try_unwrap(self.advice_vec.clone())
-                    .expect("there must only one Arc for advice_vec")
-                    .iter_mut()
-                    .map(|advice| {
-                        advice.create_view(sub_range.start, sub_range.end - sub_range.start)
-                    })
-                    .collect::<Vec<_>>();
+                let advice_vec = self.advice_vec.clone();
+                let advice = unsafe {
+                    let ptr = Arc::as_ptr(&advice_vec) as *mut Vec<RationalEvals>;
+                    let mut_ref = &mut (*ptr);
+                    mut_ref
+                        .iter_mut()
+                        .map(|advice| {
+                            advice.create_view(sub_range.start, sub_range.end - sub_range.start)
+                        })
+                        .collect::<Vec<_>>()
+                };
 
                 sub_cs.push(Self {
                     k: 0,
                     current_phase: self.current_phase,
-                    advice_vec: self.advice_vec.clone(),
+                    advice_vec,
                     advice,
                     challenges: self.challenges,
                     instances: self.instances,
@@ -422,13 +426,15 @@ where
                 .zip(instances)
                 .enumerate()
             {
-                let mut advice_vec =
-                    Arc::new(vec![prover.empty_rational_evals(); num_advice_columns]);
-                let advice_slice = Arc::get_mut(&mut advice_vec)
-                    .unwrap()
-                    .iter_mut()
-                    .map(|advice| advice.create_view(0, advice.len()))
-                    .collect::<Vec<_>>();
+                let advice_vec = Arc::new(vec![prover.empty_rational_evals(); num_advice_columns]);
+                let advice_slice = unsafe {
+                    let ptr = Arc::as_ptr(&advice_vec) as *mut Vec<RationalEvals>;
+                    let mut_ref = &mut (*ptr);
+                    mut_ref
+                        .iter_mut()
+                        .map(|advice| advice.create_view(0, advice.len()))
+                        .collect::<Vec<_>>()
+                };
                 let mut witness = WitnessCollection {
                     k: prover.k(),
                     current_phase,
