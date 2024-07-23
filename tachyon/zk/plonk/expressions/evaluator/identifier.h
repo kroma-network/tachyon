@@ -20,62 +20,66 @@
 namespace tachyon::zk::plonk {
 
 template <typename F>
-class Identifier : public Evaluator<F, std::string> {
+class Identifier : public Evaluator<F, void> {
  public:
+  explicit Identifier(std::ostringstream& ss) : ss_(ss) {}
+
   // Evaluator methods
-  std::string Evaluate(const Expression<F>* input) override {
+  void Evaluate(const Expression<F>* input) override {
     switch (input->type()) {
       case ExpressionType::kConstant:
         ss_ << input->ToConstant()->value().ToString();
-        return ss_.str();
+        return;
       case ExpressionType::kNegated:
         ss_ << "(-";
-        ss_ << Evaluate(input->ToNegated()->expr());
+        Evaluate(input->ToNegated()->expr());
         ss_ << ")";
-        return ss_.str();
+        return;
       case ExpressionType::kSum:
         ss_ << "(";
-        ss_ << Evaluate(input->ToSum()->left());
+        Evaluate(input->ToSum()->left());
         ss_ << "+";
-        ss_ << Evaluate(input->ToSum()->right()) << ")";
-        return ss_.str();
+        Evaluate(input->ToSum()->right());
+        ss_ << ")";
+        return;
       case ExpressionType::kProduct:
         ss_ << "(";
-        ss_ << Evaluate(input->ToProduct()->left());
+        Evaluate(input->ToProduct()->left());
         ss_ << "*";
-        ss_ << Evaluate(input->ToProduct()->right()) << ")";
-        return ss_.str();
+        Evaluate(input->ToProduct()->right());
+        ss_ << ")";
+        return;
       case ExpressionType::kScaled:
         ss_ << "*";
         ss_ << input->ToScaled()->scale().ToString();
-        return ss_.str();
+        return;
       case ExpressionType::kFixed: {
         const FixedExpression<F>* fixed = input->ToFixed();
         ss_ << "fixed[" << fixed->query().column().index() << "]["
             << fixed->query().rotation().value() << "]";
-        return ss_.str();
+        return;
       }
       case ExpressionType::kAdvice: {
         const AdviceExpression<F>* advice = input->ToAdvice();
         ss_ << "advice[" << advice->query().column().index() << "]["
             << advice->query().rotation().value() << "]";
-        return ss_.str();
+        return;
       }
       case ExpressionType::kInstance: {
         const InstanceExpression<F>* instance = input->ToInstance();
         ss_ << "instance[" << instance->query().column().index() << "]["
             << instance->query().rotation().value() << "]";
-        return ss_.str();
+        return;
       }
       case ExpressionType::kChallenge: {
         const ChallengeExpression<F>* challenge = input->ToChallenge();
         ss_ << "challenge[" << challenge->challenge().index() << "]";
-        return ss_.str();
+        return;
       }
       case ExpressionType::kSelector: {
         const SelectorExpression<F>* selector = input->ToSelector();
         ss_ << "selector[" << selector->selector().index() << "]";
-        return ss_.str();
+        return;
       }
       case ExpressionType::kFirstRow:
       case ExpressionType::kLastRow:
@@ -86,17 +90,18 @@ class Identifier : public Evaluator<F, std::string> {
                      << " is not allowed in plonk!";
     }
     NOTREACHED();
-    return "";
   }
 
  private:
-  std::ostringstream ss_;
+  std::ostringstream& ss_;
 };
 
 template <typename F>
 std::string GetIdentifier(const Expression<F>* input) {
-  Identifier<F> identifier;
-  return identifier.Evaluate(input);
+  std::ostringstream ss;
+  Identifier<F> identifier(ss);
+  identifier.Evaluate(input);
+  return ss.str();
 }
 
 }  // namespace tachyon::zk::plonk
