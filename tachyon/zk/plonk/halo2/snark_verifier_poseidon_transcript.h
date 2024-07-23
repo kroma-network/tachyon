@@ -27,11 +27,11 @@ class SnarkVerifierPoseidonBase {
   SnarkVerifierPoseidonBase()
       : poseidon_(
             // See
-            // https://github.com/scroll-tech/snark-verifier/blob/58c46b74c73156b9e09dc27617369d2acfb4461b/snark-verifier-sdk/src/param.rs#L7-L10.
+            // https://github.com/scroll-tech/snark-verifier/blob/58c46b7/snark-verifier-sdk/src/param.rs#L7-L10.
             crypto::PoseidonConfig<ScalarField>::CreateCustom(4, 5, 8, 60, 0)),
         state_(poseidon_.config) {
     // See
-    // https://github.com/scroll-tech/snark-verifier/blob/58c46b74c73156b9e09dc27617369d2acfb4461b/snark-verifier/src/util/hash/poseidon.rs#L28-L31.
+    // https://github.com/scroll-tech/snark-verifier/blob/58c46b7/snark-verifier/src/util/hash/poseidon.rs#L28-L31.
     state_.elements[0] = FromUint128<ScalarField>(absl::uint128(1) << 64);
   }
 
@@ -62,12 +62,12 @@ class SnarkVerifierPoseidonBase {
       size_t start = i * rate;
       size_t len = std::min(start + rate, buf_.size()) - start;
       // See
-      // https://github.com/scroll-tech/snark-verifier/blob/58c46b74c73156b9e09dc27617369d2acfb4461b/snark-verifier/src/util/hash/poseidon.rs#L57-L61.
+      // https://github.com/scroll-tech/snark-verifier/blob/58c46b7/snark-verifier/src/util/hash/poseidon.rs#L57-L61.
       for (size_t j = 0; j < len; ++j) {
         state_[j + 1] += buf_[start + j];
       }
       // See
-      // https://github.com/scroll-tech/snark-verifier/blob/58c46b74c73156b9e09dc27617369d2acfb4461b/snark-verifier/src/util/hash/poseidon.rs#L70-L72.
+      // https://github.com/scroll-tech/snark-verifier/blob/58c46b7/snark-verifier/src/util/hash/poseidon.rs#L70-L72.
       if (len + 1 < state_.size()) {
         state_[len + 1] += ScalarField::One();
       }
@@ -76,7 +76,7 @@ class SnarkVerifierPoseidonBase {
 
     if (buf_.size() == num_chunks * rate) {
       // See
-      // https://github.com/scroll-tech/snark-verifier/blob/58c46b74c73156b9e09dc27617369d2acfb4461b/snark-verifier/src/util/hash/poseidon.rs#L70-L72.
+      // https://github.com/scroll-tech/snark-verifier/blob/58c46b7/snark-verifier/src/util/hash/poseidon.rs#L70-L72.
       state_[1] += ScalarField::One();
       poseidon_.Permute(state_);
     }
@@ -114,7 +114,7 @@ class SnarkVerifierPoseidonBase {
 
  private:
   // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/helpers.rs#L37-L58.
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/helpers.rs#L37-L58.
   ScalarField BaseToScalar(const BaseField& base) {
     constexpr size_t kByteNums = BaseField::BigIntTy::kByteNums;
 

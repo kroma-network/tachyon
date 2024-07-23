@@ -49,7 +49,7 @@ tachyon_cc_library(
     hdrs = if_x86_64(["packed_mersenne31_avx512.h"]),
     copts = if_x86_64([
         "-mavx512f",
-        # NOTE(chokobole): See https://gitlab.com/libeigen/eigen/-/blob/0b51f763cbbd0ed08168f88972724329f0375498/Eigen/src/Core/util/ConfigureVectorization.h#L248.
+        # NOTE(chokobole): See https://gitlab.com/libeigen/eigen/-/blob/0b51f76/Eigen/src/Core/util/ConfigureVectorization.h#L248.
         "-mfma",
     ]),
     deps = [

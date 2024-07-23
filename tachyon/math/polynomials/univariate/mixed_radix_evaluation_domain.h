@@ -332,7 +332,7 @@ class MixedRadixEvaluationDomain
       // TODO(chokobole): Come back and improve the speed, and make this a more
       // 'normal'
       // See
-      // https://github.com/arkworks-rs/algebra/blob/993a4e7ca4ac495c733397dcb7a881b53ab1b18d/poly/src/domain/utils.rs#L151
+      // https://github.com/arkworks-rs/algebra/blob/993a4e7/poly/src/domain/utils.rs#L151
       // Cooley-Tukey. This appears to be an FFT of the polynomial
       // |P(x) = Σ{c in num_cosets} a[i + c |coset|] * x^c|
       // onto this coset.

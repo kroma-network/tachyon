@@ -72,7 +72,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   }
 
   // This is taken and modified from
-  // https://github.com/arkworks-rs/algebra/blob/5dfeedf560da6937a5de0a2163b7958bd32cd551/ff/src/fields/mod.rs#L355-L418.
+  // https://github.com/arkworks-rs/algebra/blob/5dfeedf/ff/src/fields/mod.rs#L355-L418.
   // Batch inverse: [a₁, a₂, ..., aₙ] -> [a₁⁻¹, a₂⁻¹, ... , aₙ⁻¹]
   template <typename InputContainer, typename OutputContainer>
   [[nodiscard]] CONSTEXPR_IF_NOT_OPENMP static bool BatchInverse(

@@ -36,11 +36,11 @@ class PoseidonBase {
   PoseidonBase()
       : poseidon_(
             // See
-            // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/transcript/poseidon.rs#L28.
+            // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/transcript/poseidon.rs#L28.
             crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63, 0)),
         state_(poseidon_.config) {
     // See
-    // https://github.com/kroma-network/poseidon/blob/00a2fe049208860a5835b1f24d2a80105439b995/src/spec.rs#L15.
+    // https://github.com/kroma-network/poseidon/blob/00a2fe0/src/spec.rs#L15.
     state_.elements[0] = FromUint128<ScalarField>(absl::uint128(1) << 64);
   }
 
@@ -64,7 +64,7 @@ class PoseidonBase {
   }
 
   // See
-  // https://github.com/kroma-network/poseidon/blob/00a2fe049208860a5835b1f24d2a80105439b995/src/poseidon.rs#L47-L69
+  // https://github.com/kroma-network/poseidon/blob/00a2fe0/src/poseidon.rs#L47-L69
   ScalarField DoSqueeze() {
     std::vector<ScalarField> last_chunk = absorbing_;
 
@@ -87,7 +87,7 @@ class PoseidonBase {
   }
 
   // See
-  // https://github.com/kroma-network/poseidon/blob/00a2fe049208860a5835b1f24d2a80105439b995/src/poseidon.rs#L23-L45.
+  // https://github.com/kroma-network/poseidon/blob/00a2fe0/src/poseidon.rs#L23-L45.
   void DoUpdate(const ScalarField* data, size_t len) {
     std::vector<ScalarField> input_elements = absorbing_;
     input_elements.insert(input_elements.end(), data, data + len);
@@ -139,7 +139,7 @@ class PoseidonBase {
 
  private:
   // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/helpers.rs#L37-L58.
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/helpers.rs#L37-L58.
   ScalarField BaseToScalar(const BaseField& base) {
     constexpr size_t kByteNums = BaseField::BigIntTy::kByteNums;
 

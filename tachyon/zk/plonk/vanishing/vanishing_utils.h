@@ -34,7 +34,7 @@ constexpr F GetZeta() {
 
 // NOTE(TomTaehoonKim): The returning value of |GetZeta()| is different from the
 // one in
-// https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/bn256/fr.rs#L112-L118.
+// https://github.com/kroma-network/halo2curves/blob/c0ac193/src/bn256/fr.rs#L112-L118.
 // This is an ugly way to produce a same result with Halo2Curves but we will
 // remove once we don't have to match it against Halo2 any longer in the
 // future.

@@ -32,7 +32,7 @@ class QuadraticArithmeticProgram {
     std::vector<F> c(domain->size());
 
     // See
-    // https://github.com/iden3/rapidsnark/blob/b17e6fed08e9ceec3518edeffe4384313f91e9ad/src/groth16.cpp#L116-L156.
+    // https://github.com/iden3/rapidsnark/blob/b17e6fe/src/groth16.cpp#L116-L156.
 #if defined(TACHYON_HAS_OPENMP)
     constexpr size_t kNumLocks = 1024;
     omp_lock_t locks[kNumLocks];

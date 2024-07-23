@@ -12,7 +12,7 @@
 namespace tachyon::zk::plonk::halo2 {
 
 // See
-// https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/derive/field.rs#L301-L303.
+// https://github.com/kroma-network/halo2curves/blob/c0ac193/src/derive/field.rs#L301-L303.
 template <typename F>
 static F FromUint128(absl::uint128 value) {
   if constexpr (F::N != 4) {
@@ -24,7 +24,7 @@ static F FromUint128(absl::uint128 value) {
 }
 
 // See
-// https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/derive/field.rs#L29-L47.
+// https://github.com/kroma-network/halo2curves/blob/c0ac193/src/derive/field.rs#L29-L47.
 template <typename F>
 static F FromUint512(uint64_t limbs[8]) {
   if constexpr (F::N != 4) {

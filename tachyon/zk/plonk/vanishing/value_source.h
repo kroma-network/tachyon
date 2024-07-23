@@ -81,7 +81,7 @@ class TACHYON_EXPORT ValueSource {
 
   // NOTE(chokobole): I am not sure why this is needed. I implemented == and <=
   // only because I believe this is the only operator used. See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/evaluation.rs#L36-L37
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/evaluation.rs#L36-L37
   // and in |GraphEvaluator<F>::Evaluate()| in graph_evaluator.h.
   bool operator==(const ValueSource& other) const {
     if (type_ != other.type_) return false;

@@ -974,7 +974,7 @@ def _create_local_cuda_repository(repository_ctx):
     # Resolve all labels before doing any real work. Resolving causes the
     # function to be restarted with all previous state being lost. This
     # can easily lead to a O(n^2) runtime in the number of labels.
-    # See https://github.com/tensorflow/tensorflow/commit/62bd3534525a036f07d9851b3199d68212904778
+    # See https://github.com/tensorflow/tensorflow/commit/62bd353
     tpl_paths = {filename: _tpl_path(repository_ctx, filename) for filename in [
         "cuda:build_defs.bzl",
         "crosstool:clang/bin/crosstool_wrapper_driver_is_not_gcc",

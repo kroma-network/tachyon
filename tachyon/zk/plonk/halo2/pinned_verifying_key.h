@@ -68,7 +68,7 @@ class RustDebugStringifier<zk::plonk::halo2::PinnedVerifyingKey<F, C>> {
       const zk::plonk::halo2::PinnedVerifyingKey<F, C>& pinned_vk) {
     // NOTE(chokobole): Original name is PinnedVerificationKey not
     // PinnedVerifyingKey. See
-    // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk.rs#L252-L263.
+    // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk.rs#L252-L263.
     return os << fmt.DebugStruct("PinnedVerificationKey")
                      .Field("base_modulus", pinned_vk.base_modulus())
                      .Field("scalar_modulus", pinned_vk.scalar_modulus())

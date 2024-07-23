@@ -349,7 +349,7 @@ void Prover<Poly, Evals>::Evaluate(
 
   // THE ORDER IS IMPORTANT!! DO NOT CHANGE!
   // See
-  // https://github.com/scroll-tech/halo2/blob/1070391642dd64b2d68b47ec246cba9e35bd3c15/halo2_proofs/src/plonk/mv_lookup/prover.rs#L428-L453
+  // https://github.com/scroll-tech/halo2/blob/1070391/halo2_proofs/src/plonk/mv_lookup/prover.rs#L428-L453
   for (size_t i = 0; i < size; ++i) {
     const BlindedPolynomial<Poly, Evals>& grand_sum_poly = grand_sum_polys_[i];
     const BlindedPolynomial<Poly, Evals>& m_poly = m_polys_[i];
@@ -377,7 +377,7 @@ void Prover<Poly, Evals>::Open(
 
   // THE ORDER IS IMPORTANT!! DO NOT CHANGE!
   // See
-  // https://github.com/scroll-tech/halo2/blob/1070391642dd64b2d68b47ec246cba9e35bd3c15/halo2_proofs/src/plonk/mv_lookup/prover.rs#L455-L480
+  // https://github.com/scroll-tech/halo2/blob/1070391/halo2_proofs/src/plonk/mv_lookup/prover.rs#L455-L480
   for (size_t i = 0; i < size; ++i) {
     const BlindedPolynomial<Poly, Evals>& grand_sum_poly = grand_sum_polys_[i];
     const BlindedPolynomial<Poly, Evals>& m_poly = m_polys_[i];

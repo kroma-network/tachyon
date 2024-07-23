@@ -419,7 +419,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     //    = c2² * q - c0 * c1
     BaseField s1 = Config::MulByNonResidue(t2) - t3;
     // See
-    // https://github.com/arkworks-rs/algebra/blob/c92be0e8815875460e736086a6b02fed9e4273ff/ff/src/fields/models/cubic_extension.rs#L315
+    // https://github.com/arkworks-rs/algebra/blob/c92be0e/ff/src/fields/models/cubic_extension.rs#L315
     // s2 = t1 - t4
     //    = c1² - c0 * c2
     BaseField s2 = t1 - t4;

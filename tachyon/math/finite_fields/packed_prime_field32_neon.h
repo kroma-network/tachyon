@@ -236,7 +236,7 @@ ALWAYS_INLINE uint32x4_t GetReducedD(int32x4_t c_hi, int32x4_t qp_hi,
   uint32x4_t underflow = vcltq_s32(c_hi, qp_hi);
   // TODO(chokobole): add |ConfuseCompiler()|.
   // See
-  // https://github.com/Plonky3/Plonky3/blob/6034010ae178439fffee55fd71f8105f62577a35/baby-bear/src/aarch64_neon/packing.rs#L279.
+  // https://github.com/Plonky3/Plonky3/blob/6034010/baby-bear/src/aarch64_neon/packing.rs#L279.
   return vmlsq_u32(d, underflow, p);
 }
 

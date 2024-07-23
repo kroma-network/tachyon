@@ -13,7 +13,7 @@ std::array<Fr, N> GetPoseidon2InternalDiagonalVector() {
   // TODO(chokobole): Remove this function once we can generate these parameters
   // internally.
   // This is taken and modified from
-  // https://github.com/HorizenLabs/poseidon2/blob/bb476b9ca38198cf5092487283c8b8c5d4317c4e/plain_implementations/src/poseidon2/poseidon2_instance_bn256.rs.
+  // https://github.com/HorizenLabs/poseidon2/blob/bb476b9/plain_implementations/src/poseidon2/poseidon2_instance_bn256.rs.
   if constexpr (N == 3) {
     // Generated with rate: 2, alpha: 5, full_round: 8 and partial_round: 56.
     return {

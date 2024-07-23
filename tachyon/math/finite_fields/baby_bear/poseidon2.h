@@ -13,7 +13,7 @@ std::array<BabyBear, N> GetPoseidon2BabyBearInternalDiagonalVector() {
   // TODO(chokobole): Remove this function once we can generate these parameters
   // internally.
   // This is taken and modified from
-  // https://github.com/HorizenLabs/poseidon2/blob/bb476b9ca38198cf5092487283c8b8c5d4317c4e/plain_implementations/src/poseidon2/poseidon2_instance_babybear.rs.
+  // https://github.com/HorizenLabs/poseidon2/blob/bb476b9/plain_implementations/src/poseidon2/poseidon2_instance_babybear.rs.
   if constexpr (N == 16) {
     // Generated with rate: 15, alpha: 7, full_round: 8 and partial_round: 13.
     return {
@@ -44,7 +44,7 @@ std::array<BabyBear, N> GetPoseidon2BabyBearInternalDiagonalVector() {
 template <size_t N>
 std::array<uint8_t, N> GetPoseidon2BabyBearInternalShiftVector() {
   // This is taken and modified from
-  // https://github.com/Plonky3/Plonky3/blob/fde81db95b8eeb39e07890f4099a7d59daeec52f/baby-bear/src/poseidon2.rs.
+  // https://github.com/Plonky3/Plonky3/blob/fde81db/baby-bear/src/poseidon2.rs.
   if constexpr (N == 15) {
     return {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15};
   } else if constexpr (N == 23) {

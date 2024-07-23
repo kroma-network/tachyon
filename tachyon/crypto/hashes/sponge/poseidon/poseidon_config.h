@@ -73,7 +73,7 @@ struct PoseidonConfig : public PoseidonConfigBase<F> {
   math::Matrix<F> mds;
 
   // See
-  // https://github.com/privacy-scaling-explorations/poseidon/blob/d29f35d9744e0c58b63679a15730ff2fab470ef2/src/spec.rs#L122-L123
+  // https://github.com/privacy-scaling-explorations/poseidon/blob/d29f35d/src/spec.rs#L122-L123
   math::Matrix<F> pre_sparse_mds;
   std::vector<SparseMDSMatrix<F>> sparse_mds_matrices;
 

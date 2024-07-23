@@ -40,7 +40,7 @@ class SHPlonkExtension final
  public:
   // NOTE(dongchangYoo): The following values are pre-determined according to
   // the Commitment Opening Scheme.
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/poly/kzg/multiopen/shplonk/prover.rs#L111
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/poly/kzg/multiopen/shplonk/prover.rs#L111
   constexpr static bool kQueryInstance = false;
 
   using Base = UnivariatePolynomialCommitmentSchemeExtension<
