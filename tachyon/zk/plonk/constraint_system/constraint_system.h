@@ -652,6 +652,10 @@ class ConstraintSystem {
       // accounted for.
       degree = std::max(degree, ComputeLookupRequiredDegree());
 
+      // The shuffle argument also serves alongside the gates and must be
+      // accounted for.
+      degree = std::max(degree, ComputeShuffleRequiredDegree());
+
       // Account for each gate to ensure our quotient polynomial is the
       // correct degree and that our extended domain is the right size.
       degree = std::max(degree, ComputeGateRequiredDegree());
@@ -815,6 +819,17 @@ class ConstraintSystem {
   size_t ComputeLookupRequiredDegree() const {
     std::vector<size_t> required_degrees =
         base::Map(lookups_, [](const lookup::Argument<F>& argument) {
+          return argument.RequiredDegree();
+        });
+    auto max_required_degree =
+        std::max_element(required_degrees.begin(), required_degrees.end());
+    if (max_required_degree == required_degrees.end()) return 1;
+    return *max_required_degree;
+  }
+
+  size_t ComputeShuffleRequiredDegree() const {
+    std::vector<size_t> required_degrees =
+        base::Map(shuffles_, [](const shuffle::Argument<F>& argument) {
           return argument.RequiredDegree();
         });
     auto max_required_degree =
