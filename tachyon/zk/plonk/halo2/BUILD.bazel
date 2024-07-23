@@ -304,7 +304,9 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/permutation:permutation_verifier",
         "//tachyon/zk/plonk/vanishing:vanishing_utils",
         "//tachyon/zk/plonk/vanishing:vanishing_verifier",
+        "//tachyon/zk/shuffle:opening_point_set",
         "//tachyon/zk/shuffle:utils",
+        "//tachyon/zk/shuffle:verifier",
         "@com_google_googletest//:gtest_prod",
     ],
 )
