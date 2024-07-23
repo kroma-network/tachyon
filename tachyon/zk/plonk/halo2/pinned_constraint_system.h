@@ -18,6 +18,7 @@
 #include "tachyon/zk/plonk/halo2/stringifiers/permutation_argument_stringifier.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/phase_stringifier.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/query_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/shuffle_argument_stringifier.h"
 
 namespace tachyon {
 namespace zk::plonk::halo2 {
@@ -25,6 +26,11 @@ namespace zk::plonk::halo2 {
 template <typename F>
 class PinnedConstraintSystem {
  public:
+  // NOTE(chokobole): When serializing, Scroll Halo2 does not include shuffles,
+  // whereas PSE Halo2 does include shuffles. See
+  // https://github.com/scroll-tech/halo2/blob/e5ddf67/halo2_proofs/src/plonk/circuit.rs#L1679-L1705.
+  static bool s_include_shuffles;
+
   explicit PinnedConstraintSystem(const ConstraintSystem<F>& constraint_system)
       : lookup_type_(constraint_system.lookup_type()),
         num_fixed_columns_(constraint_system.num_fixed_columns()),
@@ -41,6 +47,7 @@ class PinnedConstraintSystem {
         permutation_(constraint_system.permutation()),
         lookups_(constraint_system.lookups()),
         lookups_map_(constraint_system.lookups_map()),
+        shuffles_(constraint_system.shuffles()),
         constants_(constraint_system.constants()),
         minimum_degree_(constraint_system.minimum_degree()) {}
 
@@ -71,6 +78,9 @@ class PinnedConstraintSystem {
   const absl::btree_map<std::string, LookupTracker<F>>& lookups_map() const {
     return lookups_map_;
   }
+  const std::vector<shuffle::Argument<F>>& shuffles() const {
+    return shuffles_;
+  }
   const std::vector<FixedColumnKey>& constants() const { return constants_; }
   const std::optional<size_t>& minimum_degree() const {
     return minimum_degree_;
@@ -92,14 +102,18 @@ class PinnedConstraintSystem {
   PermutationArgument permutation_;
   const std::vector<lookup::Argument<F>>& lookups_;
   const absl::btree_map<std::string, LookupTracker<F>>& lookups_map_;
+  const std::vector<shuffle::Argument<F>>& shuffles_;
   const std::vector<FixedColumnKey>& constants_;
   const std::optional<size_t>& minimum_degree_;
 };
 
+// static
+template <typename F>
+bool PinnedConstraintSystem<F>::s_include_shuffles = false;
+
 }  // namespace zk::plonk::halo2
 
 namespace base::internal {
-
 template <typename F>
 class RustDebugStringifier<zk::plonk::halo2::PinnedConstraintSystem<F>> {
  public:
@@ -128,6 +142,9 @@ class RustDebugStringifier<zk::plonk::halo2::PinnedConstraintSystem<F>> {
     } else if (constraint_system.lookup_type() ==
                zk::lookup::Type::kLogDerivativeHalo2) {
       debug_struct.Field("lookups_map", constraint_system.lookups_map());
+    }
+    if (zk::plonk::halo2::PinnedConstraintSystem<F>::s_include_shuffles) {
+      debug_struct.Field("shuffles", constraint_system.shuffles());
     }
     debug_struct.Field("constants", constraint_system.constants())
         .Field("minimum_degree", constraint_system.minimum_degree());

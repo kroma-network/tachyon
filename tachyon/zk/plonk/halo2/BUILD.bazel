@@ -103,6 +103,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/halo2/stringifiers:permutation_argument_stringifier",
         "//tachyon/zk/plonk/halo2/stringifiers:phase_stringifier",
         "//tachyon/zk/plonk/halo2/stringifiers:query_stringifier",
+        "//tachyon/zk/plonk/halo2/stringifiers:shuffle_argument_stringifier",
     ],
 )
 
