@@ -548,6 +548,18 @@ class ConstraintSystem {
             ReplaceSelectors(expression.get(), selector_replacements, true);
       }
     }
+    for (shuffle::Argument<F>& shuffle : shuffles_) {
+      for (std::unique_ptr<Expression<F>>& expression :
+           shuffle.input_expressions()) {
+        expression =
+            ReplaceSelectors(expression.get(), selector_replacements, true);
+      }
+      for (std::unique_ptr<Expression<F>>& expression :
+           shuffle.shuffle_expressions()) {
+        expression =
+            ReplaceSelectors(expression.get(), selector_replacements, true);
+      }
+    }
 
     return selector_compressor.combination_assignments();
   }
