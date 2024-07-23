@@ -51,6 +51,7 @@ class VanishingArgument {
         ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));
 
     evaluator.lookup_evaluator_.EvaluateLookups(constraint_system.lookups());
+    evaluator.shuffle_evaluator_.EvaluateShuffles(constraint_system.shuffles());
 
     return evaluator;
   }
@@ -68,7 +69,8 @@ class VanishingArgument {
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<LookupProver>& lookup_provers) {
+      const std::vector<LookupProver>& lookup_provers,
+      const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers) {
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 
@@ -76,9 +78,11 @@ class VanishingArgument {
         CircuitPolynomialBuilder<PCS, LS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
             prover->GetLastRow(), cs_degree, poly_tables, theta, beta, gamma, y,
-            zeta, proving_key, permutation_provers, lookup_provers);
+            zeta, proving_key, permutation_provers, lookup_provers,
+            shuffle_provers);
 
-    return builder.BuildExtendedCircuitColumn(custom_gates_, lookup_evaluator_);
+    return builder.BuildExtendedCircuitColumn(custom_gates_, lookup_evaluator_,
+                                              shuffle_evaluator_);
   }
 
  private:

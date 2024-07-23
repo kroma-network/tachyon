@@ -210,6 +210,7 @@ tachyon_cc_library(
         "//tachyon/zk/lookup/halo2:prover",
         "//tachyon/zk/plonk/permutation:permutation_prover",
         "//tachyon/zk/plonk/vanishing:vanishing_prover",
+        "//tachyon/zk/shuffle:prover",
     ],
 )
 
@@ -302,6 +303,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/permutation:permutation_verifier",
         "//tachyon/zk/plonk/vanishing:vanishing_utils",
         "//tachyon/zk/plonk/vanishing:vanishing_verifier",
+        "//tachyon/zk/shuffle:utils",
         "@com_google_googletest//:gtest_prod",
     ],
 )

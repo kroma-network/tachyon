@@ -102,6 +102,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/base:multi_phase_ref_table",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/permutation:permutation_prover",
+        "//tachyon/zk/shuffle:prover",
     ],
 )
 

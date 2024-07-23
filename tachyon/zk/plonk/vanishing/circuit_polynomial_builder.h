@@ -26,6 +26,7 @@
 #include "tachyon/zk/plonk/vanishing/evaluation_input.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
+#include "tachyon/zk/shuffle/prover.h"
 
 namespace tachyon::zk {
 namespace lookup::halo2 {
@@ -74,6 +75,7 @@ class CircuitPolynomialBuilder {
       const ProvingKey<LS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<LookupProver>& lookup_provers,
+      const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables)
       : omega_(omega),
         extended_omega_(extended_omega),
@@ -85,6 +87,7 @@ class CircuitPolynomialBuilder {
         proving_key_(proving_key),
         permutation_provers_(permutation_provers),
         lookup_provers_(lookup_provers),
+        shuffle_provers_(shuffle_provers),
         poly_tables_(poly_tables) {}
 
   static CircuitPolynomialBuilder Create(
@@ -94,10 +97,12 @@ class CircuitPolynomialBuilder {
       const F& beta, const F& gamma, const F& y, const F& zeta,
       const ProvingKey<LS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<LookupProver>& lookup_provers) {
+      const std::vector<LookupProver>& lookup_provers,
+      const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers) {
     CircuitPolynomialBuilder builder(
         domain->group_gen(), extended_domain->group_gen(), theta, beta, gamma,
-        y, zeta, proving_key, permutation_provers, lookup_provers, poly_tables);
+        y, zeta, proving_key, permutation_provers, lookup_provers,
+        shuffle_provers, poly_tables);
     builder.domain_ = domain;
     builder.extended_domain_ = extended_domain;
 
@@ -120,7 +125,8 @@ class CircuitPolynomialBuilder {
   // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
   ExtendedEvals BuildExtendedCircuitColumn(
       const GraphEvaluator<F>& custom_gate_evaluator,
-      LookupEvaluator& lookup_evaluator) {
+      LookupEvaluator& lookup_evaluator,
+      shuffle::Evaluator<Evals>& shuffle_evaluator) {
     std::vector<std::vector<F>> value_parts;
     value_parts.reserve(num_parts_);
     // Calculate the quotient polynomial for each part
@@ -152,15 +158,21 @@ class CircuitPolynomialBuilder {
         }
 
         if (lookup_polys_num > 0) lookup_evaluator.UpdateLookupCosets(*this, j);
+        // Do iff there are shuffle constraints.
+        if (shuffle_provers_[j].grand_product_polys().size() > 0)
+          shuffle_evaluator.UpdateShuffleCosets(*this, j);
         base::Parallelize(
             value_part,
-            [this, &custom_gate_evaluator, &lookup_evaluator](
-                absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+            [this, &custom_gate_evaluator, &lookup_evaluator,
+             &shuffle_evaluator](absl::Span<F> chunk, size_t chunk_offset,
+                                 size_t chunk_size) {
               UpdateChunkByCustomGates(custom_gate_evaluator, chunk,
                                        chunk_offset, chunk_size);
               UpdateChunkByPermutation(chunk, chunk_offset, chunk_size);
               lookup_evaluator.UpdateChunkByLookups(*this, chunk, chunk_offset,
                                                     chunk_size);
+              shuffle_evaluator.UpdateChunkByShuffles(*this, chunk,
+                                                      chunk_offset, chunk_size);
             });
       }
 
@@ -355,6 +367,7 @@ class CircuitPolynomialBuilder {
   const ProvingKey<LS>& proving_key_;
   const std::vector<PermutationProver<Poly, Evals>>& permutation_provers_;
   const std::vector<LookupProver>& lookup_provers_;
+  const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers_;
   const std::vector<MultiPhaseRefTable<Poly>>& poly_tables_;
 
   Evals l_first_;

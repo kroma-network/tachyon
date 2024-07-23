@@ -57,13 +57,14 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::CreateHEvals(
     const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& theta,
     const F& beta, const F& gamma, const F& y,
     const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-    const std::vector<LookupProver>& lookup_provers) {
+    const std::vector<LookupProver>& lookup_provers,
+    const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers) {
   VanishingArgument<LS> vanishing_argument = VanishingArgument<LS>::Create(
       proving_key.verifying_key().constraint_system());
   F zeta = GetHalo2Zeta<F>();
   h_evals_ = vanishing_argument.BuildExtendedCircuitColumn(
       prover, proving_key, tables, theta, beta, gamma, y, zeta,
-      permutation_provers, lookup_provers);
+      permutation_provers, lookup_provers, shuffle_provers);
 }
 
 template <typename Poly, typename Evals, typename ExtendedPoly,

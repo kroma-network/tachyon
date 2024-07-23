@@ -25,6 +25,7 @@
 #include "tachyon/zk/plonk/permutation/permutation_verifier.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verifier.h"
+#include "tachyon/zk/shuffle/utils.h"
 
 namespace tachyon::zk::plonk {
 

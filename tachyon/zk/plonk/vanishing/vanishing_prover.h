@@ -17,6 +17,7 @@
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_prover.h"
+#include "tachyon/zk/shuffle/prover.h"
 
 namespace tachyon::zk::plonk {
 
@@ -41,7 +42,8 @@ class VanishingProver {
       const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& theta,
       const F& beta, const F& gamma, const F& y,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<LookupProver>& lookup_provers);
+      const std::vector<LookupProver>& lookup_provers,
+      const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers);
 
   template <typename PCS>
   void CreateFinalHPoly(ProverBase<PCS>* prover,
