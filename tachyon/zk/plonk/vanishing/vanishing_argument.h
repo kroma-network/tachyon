@@ -15,7 +15,6 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/lookup/halo2/evaluator.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
