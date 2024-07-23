@@ -28,9 +28,11 @@ class QuadraticArithmeticProgram {
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
 
-    std::pmr::vector<F> a(domain->size());
-    std::pmr::vector<F> b(domain->size());
-    std::pmr::vector<F> c(domain->size());
+    std::vector<Evals> abc;
+    abc.reserve(3);
+    abc.emplace_back(std::pmr::vector<F>(domain->size()));
+    abc.emplace_back(std::pmr::vector<F>(domain->size()));
+    abc.emplace_back(std::pmr::vector<F>(domain->size()));
 
     // See
     // https://github.com/iden3/rapidsnark/blob/b17e6fe/src/groth16.cpp#L116-L156.
@@ -41,7 +43,8 @@ class QuadraticArithmeticProgram {
 #endif
     OPENMP_PARALLEL_FOR(size_t i = 0; i < coefficients.size(); i++) {
       const Coefficient<F>& c = coefficients[i];
-      std::pmr::vector<F>& ab = (c.matrix == 0) ? a : b;
+      std::pmr::vector<F>& ab =
+          (c.matrix == 0) ? abc[0].evaluations() : abc[1].evaluations();
 
 #if defined(TACHYON_HAS_OPENMP)
       omp_set_lock(&locks[c.constraint % kNumLocks]);
@@ -60,35 +63,27 @@ class QuadraticArithmeticProgram {
 #endif
 
     OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
-      c[i] = a[i] * b[i];
+      abc[2].evaluations()[i] =
+          abc[0].evaluations()[i] * abc[1].evaluations()[i];
     }
 
-    Evals a_evals(std::move(a));
-    DensePoly a_poly = domain->IFFT(std::move(a_evals));
-    Evals b_evals(std::move(b));
-    DensePoly b_poly = domain->IFFT(std::move(b_evals));
-    Evals c_evals(std::move(c));
-    DensePoly c_poly = domain->IFFT(std::move(c_evals));
+    std::vector<DensePoly> abc_polys = domain->IFFT(std::move(abc));
 
     F root_of_unity;
     CHECK(F::GetRootOfUnity(2 * domain->size(), &root_of_unity));
 
-    Domain::DistributePowers(a_poly, root_of_unity);
-    Domain::DistributePowers(b_poly, root_of_unity);
-    Domain::DistributePowers(c_poly, root_of_unity);
+    Domain::DistributePowers(abc_polys, root_of_unity);
 
-    a_evals = domain->FFT(std::move(a_poly));
-    b_evals = domain->FFT(std::move(b_poly));
-    c_evals = domain->FFT(std::move(c_poly));
+    std::vector<Evals> abc_evals = domain->FFT(std::move(abc_polys));
 
     // |h_evals[i]| = |a[i]| * |b[i]| - |c[i]|
     OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
-      F& h_evals_i = a_evals.at(i);
-      h_evals_i *= b_evals[i];
-      h_evals_i -= c_evals[i];
+      F& h_evals_i = abc_evals[0].at(i);
+      h_evals_i *= abc_evals[1][i];
+      h_evals_i -= abc_evals[2][i];
     }
 
-    return std::move(a_evals).TakeEvaluations();
+    return std::move(abc_evals[0]).TakeEvaluations();
   }
 };
 

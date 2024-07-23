@@ -126,9 +126,11 @@ class QuadraticArithmeticProgram {
 
     CHECK_GE(domain->size(), matrices.num_constraints);
 
-    std::pmr::vector<F> a(domain->size());
-    std::pmr::vector<F> b(domain->size());
-    std::pmr::vector<F> c(domain->size());
+    std::vector<Evals> abc;
+    abc.reserve(3);
+    abc.emplace_back(std::pmr::vector<F>(domain->size()));
+    abc.emplace_back(std::pmr::vector<F>(domain->size()));
+    abc.emplace_back(std::pmr::vector<F>(domain->size()));
 
     // clang-format off
     // |a[i]| = Σⱼ₌₀..ₘ (xⱼ * Aᵢ,ⱼ)    (if i < |num_constraints|)
@@ -142,38 +144,34 @@ class QuadraticArithmeticProgram {
     OMP_PARALLEL {
       OMP_FOR_NOWAIT
       for (size_t i = 0; i < matrices.num_constraints; ++i) {
-        a[i] = EvaluateConstraint(matrices.a[i], full_assignments);
+        abc[0].evaluations()[i] =
+            EvaluateConstraint(matrices.a[i], full_assignments);
       }
 
       OMP_FOR_NOWAIT
       for (size_t i = 0; i < matrices.num_constraints; ++i) {
-        b[i] = EvaluateConstraint(matrices.b[i], full_assignments);
+        abc[1].evaluations()[i] =
+            EvaluateConstraint(matrices.b[i], full_assignments);
       }
 
       OMP_FOR
       for (size_t i = 0; i < matrices.num_constraints; ++i) {
-        c[i] = EvaluateConstraint(matrices.c[i], full_assignments);
+        abc[2].evaluations()[i] =
+            EvaluateConstraint(matrices.c[i], full_assignments);
       }
     }
 
     for (size_t i = matrices.num_constraints;
          i < matrices.num_constraints + matrices.num_instance_variables; ++i) {
-      a[i] = full_assignments[i - matrices.num_constraints];
+      abc[0].evaluations()[i] = full_assignments[i - matrices.num_constraints];
     }
 
-    Evals a_evals(std::move(a));
-    DensePoly a_poly = domain->IFFT(std::move(a_evals));
-    Evals b_evals(std::move(b));
-    DensePoly b_poly = domain->IFFT(std::move(b_evals));
-    Evals c_evals(std::move(c));
-    DensePoly c_poly = domain->IFFT(std::move(c_evals));
+    std::vector<DensePoly> abc_polys = domain->IFFT(std::move(abc));
 
     std::unique_ptr<Domain> coset_domain =
         domain->GetCoset(F::FromMontgomery(F::Config::kSubgroupGenerator));
 
-    a_evals = coset_domain->FFT(std::move(a_poly));
-    b_evals = coset_domain->FFT(std::move(b_poly));
-    c_evals = coset_domain->FFT(std::move(c_poly));
+    std::vector<Evals> abc_evals = coset_domain->FFT(std::move(abc_polys));
 
     F vanishing_polynomial_over_coset =
         unwrap(domain
@@ -183,13 +181,13 @@ class QuadraticArithmeticProgram {
 
     // |h_evals[i]| = (|a[i]| * |b[i]| - |c[i]|)) / (g * ωⁿ⁺ˡ⁺¹ - 1)
     OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
-      F& h_evals_i = a_evals.at(i);
-      h_evals_i *= b_evals[i];
-      h_evals_i -= c_evals[i];
+      F& h_evals_i = abc_evals[0].at(i);
+      h_evals_i *= abc_evals[1][i];
+      h_evals_i -= abc_evals[2][i];
       h_evals_i *= vanishing_polynomial_over_coset;
     }
 
-    return coset_domain->IFFT(std::move(a_evals))
+    return coset_domain->IFFT(std::move(abc_evals[0]))
         .TakeCoefficients()
         .TakeCoefficients();
   }
