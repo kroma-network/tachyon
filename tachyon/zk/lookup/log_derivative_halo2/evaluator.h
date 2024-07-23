@@ -38,7 +38,7 @@ class Evaluator {
     return lookup_evaluators_pairs_;
   }
 
-  void EvaluateLookups(const std::vector<lookup::Argument<F>>& lookups) {
+  void EvaluateLookups(const std::vector<Argument<F>>& lookups) {
     lookup_evaluators_pairs_.reserve(lookups.size());
     for (const Argument<F>& lookup : lookups) {
       plonk::GraphEvaluator<F> graph_table;
