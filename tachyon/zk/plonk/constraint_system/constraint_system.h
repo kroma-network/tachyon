@@ -46,6 +46,8 @@
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
+#include "tachyon/zk/shuffle/argument.h"
+#include "tachyon/zk/shuffle/pair.h"
 
 namespace tachyon::zk::plonk {
 
@@ -59,6 +61,9 @@ class ConstraintSystem {
                                        LookupTableColumn>(VirtualCells<F>&)>;
   using LookupAnyCallback =
       base::OnceCallback<lookup::Pairs<std::unique_ptr<Expression<F>>>(
+          VirtualCells<F>&)>;
+  using ShuffleCallback =
+      base::OnceCallback<shuffle::Pairs<std::unique_ptr<Expression<F>>>(
           VirtualCells<F>&)>;
   using ConstrainCallback =
       base::OnceCallback<std::vector<Constraint<F>>(VirtualCells<F>&)>;
@@ -117,6 +122,10 @@ class ConstraintSystem {
 
   const absl::btree_map<std::string, LookupTracker<F>>& lookups_map() const {
     return lookups_map_;
+  }
+
+  const std::vector<shuffle::Argument<F>>& shuffles() const {
+    return shuffles_;
   }
 
   const absl::flat_hash_map<ColumnKeyBase, std::string>&
@@ -331,6 +340,28 @@ class ConstraintSystem {
         }
       }
     }
+  }
+
+  // Add a shuffle argument for some input expressions and shuffle expressions.
+  size_t Shuffle(std::string_view name, ShuffleCallback callback) {
+    VirtualCells cells(this);
+    shuffle::Pairs<std::unique_ptr<Expression<F>>> pairs =
+        std::move(callback).Run(cells);
+
+    std::vector<std::unique_ptr<Expression<F>>> input_expressions;
+    std::vector<std::unique_ptr<Expression<F>>> shuffle_expressions;
+
+    input_expressions.reserve(pairs.size());
+    shuffle_expressions.reserve(pairs.size());
+
+    for (shuffle::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
+      input_expressions.push_back(std::move(pair).TakeInput());
+      shuffle_expressions.push_back(std::move(pair).TakeShuffle());
+    }
+
+    shuffles_.emplace_back(name, std::move(input_expressions),
+                           std::move(shuffle_expressions));
+    return shuffles_.size() - 1;
   }
 
   size_t QueryFixedIndex(const FixedColumnKey& column, Rotation at) {
@@ -726,7 +757,8 @@ class ConstraintSystem {
        << ", blinding_factors: " << ComputeBlindingFactors()
        << ", max_phase: " << uint32_t{ComputeMaxPhase().value()}
        << ", permutations: " << permutation_.columns().size()
-       << ", lookups: " << lookups_.size();
+       << ", lookups: " << lookups_.size()
+       << ", shuffles: " << shuffles_.size();
     return ss.str();
   }
 
@@ -870,6 +902,11 @@ class ConstraintSystem {
   // btree_map with |table_expressions_identifier| as a key and |LookupTracker|
   // as values.
   absl::btree_map<std::string, LookupTracker<F>> lookups_map_;
+
+  // Vector of shuffle arguments, where each corresponds
+  // to a sequence of input expressions and a sequence
+  // of shuffle expressions involved in the shuffle.
+  std::vector<shuffle::Argument<F>> shuffles_;
 
   // List of indexes of Fixed columns which are associated to a
   // circuit-general Column tied to their annotation.
