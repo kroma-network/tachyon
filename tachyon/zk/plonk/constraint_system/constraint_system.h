@@ -421,7 +421,9 @@ class ConstraintSystem {
         std::move(cells).TakeQueriedCells();
 
     std::vector<std::string> constraint_names;
+    constraint_names.reserve(constraints.size());
     std::vector<std::unique_ptr<Expression<F>>> polys;
+    polys.reserve(constraints.size());
     for (Constraint<F>& constraint : constraints) {
       constraint_names.push_back(std::move(constraint).TakeName());
       polys.push_back(std::move(constraint).TakeExpression());
