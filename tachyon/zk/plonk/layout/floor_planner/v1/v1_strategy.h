@@ -67,7 +67,7 @@ SlotInResult<F> SlotIn(std::vector<RegionShape<F>>& region_shapes) {
     // Sort the region's columns to ensure determinism.
     // NOTE(TomTaehoonKim): Sorted result might be different from the original
     // See
-    // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/circuit/floor_planner/v1/strategy.rs#L171-L191
+    // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/circuit/floor_planner/v1/strategy.rs#L171-L191
     // - An unstable sort is fine, because region.columns() returns a set.
     // - The sort order relies on Column's Ord implementation!
     std::vector<RegionColumn> region_columns(region.columns().begin(),
@@ -101,7 +101,7 @@ SlotInBiggestAdviceFirstResult SlotInBiggestAdviceFirst(
   std::vector<RegionShape<F>> sorted_regions = region_shapes;
   // NOTE(TomTaehoonKim): Sorted result might be different from the original
   // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/layout/floor_planner/v1/strategy.rs#L202-L215
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/layout/floor_planner/v1/strategy.rs#L202-L215
   pdqsort(sorted_regions.begin(), sorted_regions.end(),
           [](const RegionShape<F>& lhs, const RegionShape<F>& rhs) {
             // Count the number of advice columns

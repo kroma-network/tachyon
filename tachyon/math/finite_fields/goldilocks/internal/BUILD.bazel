@@ -32,7 +32,7 @@ generate_fp2s(
     class_name = "Goldilocks2",
     is_packed = False,
     namespace = "tachyon::math",
-    # See https://github.com/Plonky3/Plonky3/blob/d9ef3902abcc6a34b75f6820da168460aee26763/goldilocks/src/extension.rs#L7-L11.
+    # See https://github.com/Plonky3/Plonky3/blob/d9ef390/goldilocks/src/extension.rs#L7-L11.
     non_residue = ["7"],
     deps = [":goldilocks"],
 )

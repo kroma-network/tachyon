@@ -100,7 +100,7 @@ class Blake2bBase {
 
 // TODO(TomTaehoonKim): We will replace Blake2b with an algebraic hash function
 // in a later version. See
-// https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/transcript/blake2b.rs#L25
+// https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/transcript/blake2b.rs#L25
 template <typename AffinePoint>
 class Blake2bReader : public crypto::TranscriptReader<AffinePoint>,
                       protected internal::Blake2bBase<AffinePoint> {

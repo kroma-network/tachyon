@@ -13,7 +13,7 @@ std::array<Goldilocks, N> GetPoseidon2GoldilocksInternalDiagonalVector() {
   // TODO(chokobole): Remove this function once we can generate these parameters
   // internally.
   // This is taken and modified from
-  // https://github.com/HorizenLabs/poseidon2/blob/bb476b9ca38198cf5092487283c8b8c5d4317c4e/plain_implementations/src/poseidon2/poseidon2_instance_goldilocks.rs.
+  // https://github.com/HorizenLabs/poseidon2/blob/bb476b9/plain_implementations/src/poseidon2/poseidon2_instance_goldilocks.rs.
   if constexpr (N == 8) {
     // Generated with rate: 7, alpha: 7, full_round: 8 and partial_round: 22.
     return {

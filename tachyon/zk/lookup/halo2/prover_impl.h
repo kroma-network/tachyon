@@ -197,7 +197,7 @@ void Prover<Poly, Evals>::Evaluate(ProverBase<PCS>* prover,
 
   // THE ORDER IS IMPORTANT!! DO NOT CHANGE!
   // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/lookup/prover.rs#L309-L337.
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/lookup/prover.rs#L309-L337.
   for (size_t i = 0; i < size; ++i) {
     const BlindedPolynomial<Poly, Evals>& grand_product_poly =
         grand_product_polys_[i];
@@ -231,7 +231,7 @@ void Prover<Poly, Evals>::Open(
 
   // THE ORDER IS IMPORTANT!! DO NOT CHANGE!
   // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/lookup/prover.rs#L340-L381.
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/lookup/prover.rs#L340-L381.
   for (size_t i = 0; i < size; ++i) {
     const BlindedPolynomial<Poly, Evals>& grand_product_poly =
         grand_product_polys_[i];

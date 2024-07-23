@@ -122,7 +122,7 @@ void PermutationProver<Poly, Evals>::Evaluate(
     const PermutationOpeningPointSet<F>& point_set) const {
   // THE ORDER IS IMPORTANT!! DO NOT CHANGE!
   // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/permutation/prover.rs#L231-L276.
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/permutation/prover.rs#L231-L276.
   for (size_t i = 0; i < grand_product_polys_.size(); ++i) {
     const Poly& poly = grand_product_polys_[i].poly();
     // Zₚ,ᵢ(x)
@@ -162,7 +162,7 @@ void PermutationProver<Poly, Evals>::Open(
 
   // THE ORDER IS IMPORTANT!! DO NOT CHANGE!
   // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/permutation/prover.rs#L279-L324.
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/permutation/prover.rs#L279-L324.
   for (const BlindedPolynomial<Poly, Evals>& grand_product_poly :
        grand_product_polys_) {
     const Poly& poly = grand_product_poly.poly();

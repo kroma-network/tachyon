@@ -37,7 +37,7 @@ class RustDebugStringifier<zk::plonk::ColumnKey<C>> {
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
                                       const zk::plonk::ColumnKey<C>& column) {
     // NOTE(chokobole): See
-    // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/circuit.rs#L26-L31.
+    // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/circuit.rs#L26-L31.
     if (column.phase() == zk::plonk::kFirstPhase) {
       return os << fmt.DebugStruct("Column")
                        .Field("index", column.index())

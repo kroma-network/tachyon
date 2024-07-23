@@ -81,7 +81,7 @@ class UnivariateDenseCoefficients {
 
   // Return dense coefficients according to the given |roots|.
   // This is taken and modified from
-  // https://github.com/Plonky3/Plonky3/blob/b21d54f13fd7949a2661c9478b91c01bc3abccbe/field/src/helpers.rs#L81-L92.
+  // https://github.com/Plonky3/Plonky3/blob/b21d54f/field/src/helpers.rs#L81-L92.
   template <typename Container>
   constexpr static UnivariateDenseCoefficients FromRoots(
       const Container& roots) {

@@ -18,7 +18,7 @@
 namespace tachyon::zk::plonk {
 
 // This is taken and modified from
-// https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/benches/dev_lookup.rs#L21-L26.
+// https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/benches/dev_lookup.rs#L21-L26.
 template <typename F, size_t Bits>
 class SimpleLookupConfig {
  public:
@@ -56,7 +56,7 @@ class SimpleLookupConfig {
 };
 
 // This is taken and modified from
-// https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/benches/dev_lookup.rs#L28-L91.
+// https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/benches/dev_lookup.rs#L28-L91.
 template <typename F, size_t Bits, template <typename> class _FloorPlanner>
 class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
  public:

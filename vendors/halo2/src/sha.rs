@@ -1,4 +1,4 @@
-// This is taken and modified from https://github.com/kroma-network/halo2-snark-aggregator/blob/2637b512397b255525782006439a9cedde5b79b8/halo2-snark-aggregator-api/src/transcript/sha.rs.
+// This is taken and modified from https://github.com/kroma-network/halo2-snark-aggregator/blob/2637b51/halo2-snark-aggregator-api/src/transcript/sha.rs.
 
 use std::{
     io::{self, Write},

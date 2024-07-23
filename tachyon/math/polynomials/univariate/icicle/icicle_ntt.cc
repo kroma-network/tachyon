@@ -22,7 +22,7 @@ bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
   //    See "vendors/circom/prover_main.cc".
   // 2. |fast_twiddles_mode| consumes a lot of memory, so we need to disable if
   //    the ram of the GPU is not enough. See
-  //    https://github.com/ingonyama-zk/icicle/blob/4fef5423462a72a37fe66cee89e24eae083cc112/icicle/include/ntt/ntt.cuh#L26-L40.
+  //    https://github.com/ingonyama-zk/icicle/blob/4fef542/icicle/include/ntt/ntt.cuh#L26-L40.
   gpuError_t error = tachyon_bn254_initialize_domain(
       reinterpret_cast<const ::bn254::scalar_t&>(group_gen_big_int), ctx,
       options.fast_twiddles_mode);
@@ -55,7 +55,7 @@ bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
   // |sizeof(::bn254::scalar_t)| and |sizeof(bn254::Fr)| are same. This is
   // because their alignment are different.
   // See
-  // https://github.com/ingonyama-zk/icicle/blob/4fef5423462a72a37fe66cee89e24eae083cc112/icicle/include/fields/storage.cuh.
+  // https://github.com/ingonyama-zk/icicle/blob/4fef542/icicle/include/fields/storage.cuh.
   ::ntt::NTTConfig<::bn254::scalar_t> config{
       config_->ctx,
       base::bit_cast<::bn254::scalar_t>(coset),

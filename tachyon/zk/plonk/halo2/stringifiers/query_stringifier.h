@@ -22,7 +22,7 @@ class RustDebugStringifier<zk::plonk::QueryData<C>> {
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
                                       const zk::plonk::QueryData<C>& query) {
     // NOTE(chokobole): See
-    // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/circuit.rs#L1382.
+    // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/circuit.rs#L1382.
     return os << fmt.DebugTuple("")
                      .Field(query.column())
                      .Field(query.rotation())

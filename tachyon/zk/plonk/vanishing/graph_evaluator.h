@@ -142,7 +142,7 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
           } else {
             // NOTE(chokobole): I don't know why this is needed.
             // See
-            // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/evaluation.rs#L709-L713.
+            // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/evaluation.rs#L709-L713.
             if (left_result <= right_result) {
               return AddCalculation(
                   Calculation::Add(left_result, right_result));
@@ -173,7 +173,7 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
           // NOTE(chokobole): we can do |left_result < right_result|.
           // But ValueSource only implements <= operator and original source
           // code also compares like below, too. See
-          // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/evaluation.rs#L732
+          // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/evaluation.rs#L732
           if (left_result <= right_result) {
             return AddCalculation(Calculation::Mul(left_result, right_result));
           } else {

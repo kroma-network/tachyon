@@ -84,7 +84,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   // libfqfft uses >
-  // https://github.com/scipr-lab/libfqfft/blob/e0183b2cef7d4c5deb21a6eaf3fe3b586d738fe0/libfqfft/evaluation_domain/domains/basic_radix2_domain.tcc#L33
+  // https://github.com/scipr-lab/libfqfft/blob/e0183b2/libfqfft/evaluation_domain/domains/basic_radix2_domain.tcc#L33
   // (See
   // https://github.com/arkworks-rs/algebra/blob/master/poly/src/domain/radix2/mod.rs#L62)
   constexpr static bool IsValidNumCoeffs(size_t num_coeffs) {

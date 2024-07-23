@@ -11,7 +11,7 @@ namespace tachyon::math {
 template <size_t N>
 std::array<uint8_t, N> GetPoseidon2Mersenne31InternalShiftVector() {
   // This is taken and modified from
-  // https://github.com/Plonky3/Plonky3/blob/fde81db95b8eeb39e07890f4099a7d59daeec52f/mersenne-31/src/poseidon2.rs.
+  // https://github.com/Plonky3/Plonky3/blob/fde81db/mersenne-31/src/poseidon2.rs.
   if constexpr (N == 15) {
     return {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 13, 14, 15, 16};
   } else if constexpr (N == 23) {

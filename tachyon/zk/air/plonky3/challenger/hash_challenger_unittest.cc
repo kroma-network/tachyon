@@ -62,6 +62,6 @@ TEST_F(HashChallengerTest, Sample) {
 // NOTE(chokobole): Grind is not tested since |HashChallenger| doesn't implement
 // |GrindingChallenger| traits.
 // See
-// https://github.com/Plonky3/Plonky3/blob/7bb6db50594e159010f11c97d110aa3ee121069b/challenger/src/grinding_challenger.rs.
+// https://github.com/Plonky3/Plonky3/blob/7bb6db5/challenger/src/grinding_challenger.rs.
 
 }  // namespace tachyon::zk::air::plonky3

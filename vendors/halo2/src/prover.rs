@@ -1,4 +1,4 @@
-// This is taken and modified from https://github.com/scroll-tech/halo2/blob/e5ddf67e5ae16be38d6368ed355c7c41906272ab/halo2_proofs/src/plonk/prover.rs#L37-L554.
+// This is taken and modified from https://github.com/scroll-tech/halo2/blob/e5ddf67/halo2_proofs/src/plonk/prover.rs#L37-L554.
 
 use std::{
     collections::{BTreeSet, HashMap},

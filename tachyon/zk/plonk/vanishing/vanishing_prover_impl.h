@@ -23,13 +23,13 @@ void VanishingProver<Poly, Evals, ExtendedPoly,
   // Sample a random polynomial of degree n - 1.
   // TODO(TomTaehoonKim): Figure out why it is named |random_poly|.
   // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/vanishing/prover.rs#L52-L54
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/vanishing/prover.rs#L52-L54
   Poly random_poly = Poly::One();
 
   // Sample a random blinding factor.
   // TODO(TomTaehoonKim): Figure out why it is named |random_blind|.
   // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/vanishing/prover.rs#L55-L56
+  // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/vanishing/prover.rs#L55-L56
   F random_blind = F::Zero();
 
   random_poly_ = {std::move(random_poly), std::move(random_blind)};

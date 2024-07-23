@@ -366,7 +366,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // This evaluates the vanishing polynomial for this domain at tau.
   // TODO(TomTaehoonKim): Consider precomputed exponentiation tables if we
   // need this to be faster. (See
-  // https://github.com/arkworks-rs/algebra/blob/4152c41769ae0178fc110bfd15cc699673a2ce4b/poly/src/domain/mod.rs#L232-L233)
+  // https://github.com/arkworks-rs/algebra/blob/4152c41/poly/src/domain/mod.rs#L232-L233)
   constexpr F EvaluateVanishingPolynomial(const F& tau) const {
     // Z_H(τ) = Π{i in m} (τ - h * gⁱ) = τᵐ - hᵐ,
     // where m = |size_| and hᵐ = |offset_pow_size_|.

@@ -13,7 +13,7 @@ namespace tachyon {
 namespace math {
 
 // See
-// https://gitlab.com/libeigen/eigen/-/blob/c29c800126982c561e8d0b9255dc65474cd98de3/Eigen/src/Core/util/ForwardDeclarations.h#L66-68.
+// https://gitlab.com/libeigen/eigen/-/blob/c29c800/Eigen/src/Core/util/ForwardDeclarations.h#L66-68.
 template <int Rows, int Cols>
 constexpr int GetDefaultEigenOptions() {
   return Eigen::AutoAlign | ((Rows == 1 && Cols != 1) ? Eigen::RowMajor
