@@ -43,7 +43,7 @@ class RustDebugStringifier<zk::Expression<F>> {
       case zk::ExpressionType::kFixed: {
         const zk::plonk::FixedQuery& query = expression.ToFixed()->query();
         return os << fmt.DebugStruct("Fixed")
-                         .Field("query_index", query.index())
+                         .Field("query_index", query.GetIndex())
                          .Field("column_index", query.column().index())
                          .Field("rotation", query.rotation())
                          .Finish();
@@ -51,7 +51,7 @@ class RustDebugStringifier<zk::Expression<F>> {
       case zk::ExpressionType::kAdvice: {
         const zk::plonk::AdviceQuery& query = expression.ToAdvice()->query();
         base::internal::DebugStruct debug_struct = fmt.DebugStruct("Advice");
-        debug_struct.Field("query_index", query.index())
+        debug_struct.Field("query_index", query.GetIndex())
             .Field("column_index", query.column().index())
             .Field("rotation", query.rotation());
         if (query.column().phase() != zk::plonk::kFirstPhase) {
@@ -63,7 +63,7 @@ class RustDebugStringifier<zk::Expression<F>> {
         const zk::plonk::InstanceQuery& query =
             expression.ToInstance()->query();
         return os << fmt.DebugStruct("Instance")
-                         .Field("query_index", query.index())
+                         .Field("query_index", query.GetIndex())
                          .Field("column_index", query.column().index())
                          .Field("rotation", query.rotation())
                          .Finish();

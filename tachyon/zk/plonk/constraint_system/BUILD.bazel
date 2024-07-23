@@ -89,6 +89,7 @@ tachyon_cc_library(
     name = "query",
     hdrs = ["query.h"],
     deps = [
+        "//tachyon/base/strings:string_util",
         "//tachyon/zk/base:rotation",
         "//tachyon/zk/plonk/base:column_key",
     ],
