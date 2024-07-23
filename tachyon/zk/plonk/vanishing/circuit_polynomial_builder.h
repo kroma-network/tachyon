@@ -206,7 +206,7 @@ class CircuitPolynomialBuilder {
       chunk[i] += l_last_[idx] * (last_coset[idx].Square() - last_coset[idx]);
 
       // Except for the first set, enforce:
-      // l_first(X) * (zⱼ(X) - zⱼ₋₁(w⁻¹X)) = 0
+      // l_first(X) * (zⱼ(X) - zⱼ₋₁(ω⁻¹X)) = 0
       RowIndex r_last = last_rotation_.GetIndex(idx, /*scale=*/1, n_);
       for (size_t j = 0; j < product_cosets.size(); ++j) {
         if (j == 0) continue;
@@ -216,7 +216,7 @@ class CircuitPolynomialBuilder {
       }
 
       // And for all the sets we enforce: (1 - (l_last(X) + l_blind(X))) *
-      // (zⱼ(wX) * Πⱼ(p(X) + βsⱼ(X) + γ) - zⱼ(X) Πⱼ(p(X) + δʲβX + γ))
+      // (zⱼ(ωX) * Πⱼ(p(X) + βsⱼ(X) + γ) - zⱼ(X) Πⱼ(p(X) + δʲβX + γ))
       F current_delta = delta_start_ * beta_term;
       RowIndex r_next = Rotation(1).GetIndex(idx, /*scale=*/1, n_);
 

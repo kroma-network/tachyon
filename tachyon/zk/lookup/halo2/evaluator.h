@@ -102,7 +102,7 @@ class Evaluator {
         // clang-format off
         // A * (B - C) = 0 where
         //  - A = 1 - (l_last(X) + l_blind(X))
-        //  - B = z(wX) * (a'(X) + β) * (s'(X) + γ)
+        //  - B = z(ωX) * (a'(X) + β) * (s'(X) + γ)
         //  - C = z(X) * (θᵐ⁻¹ a₀(X) + ... + aₘ₋₁(X) + β) * (θᵐ⁻¹ s₀(X) + ... + sₘ₋₁(X) + γ)
         // clang-format on
         chunk[j] *= builder.y_;
@@ -121,7 +121,7 @@ class Evaluator {
         // Check that each value in the permuted lookup input expression is
         // either equal to the value above it, or the value at the same
         // index in the permuted table expression. (1 - (l_last + l_blind)) *
-        // (a′(X) − s′(X)) * (a′(X) − a′(w⁻¹X)) = 0
+        // (a′(X) − s′(X)) * (a′(X) − a′(ω⁻¹X)) = 0
         chunk[j] *= builder.y_;
         chunk[j] += builder.l_active_row_[idx] * a_minus_s *
                     (input_coset[idx] - input_coset[r_prev]);
