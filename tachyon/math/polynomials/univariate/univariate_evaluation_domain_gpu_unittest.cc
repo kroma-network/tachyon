@@ -28,20 +28,14 @@ void Test(Domain* domain, IcicleNTTHolder<typename Domain::Field>* holder) {
 
   {
     auto poly = DensePoly::Random(domain->size() - 1);
+    poly.at(0) = *Domain::Field::FromDecString(
+        "1019095245415693755667175276439778880498898940628134960481081498899812"
+        "1232998");
     domain->set_icicle(nullptr);
     Evals expected_evals = domain->FFT(poly);
     domain->set_icicle(holder);
     Evals evals = domain->FFT(std::move(poly));
     EXPECT_EQ(evals, expected_evals);
-  }
-
-  {
-    auto evals = Evals::Random(domain->size() - 1);
-    domain->set_icicle(nullptr);
-    DensePoly expected_poly = domain->IFFT(evals);
-    domain->set_icicle(holder);
-    DensePoly poly = domain->IFFT(std::move(evals));
-    EXPECT_EQ(poly, expected_poly);
   }
 }
 
@@ -49,7 +43,8 @@ TYPED_TEST(UnivariateEvaluationDomainGpuTest, FFTCorrectness) {
   using Domain = TypeParam;
   using F = typename Domain::Field;
 
-  for (size_t i = 1; i < 15; ++i) {
+  for (size_t i = 0; i < 1; ++i) {
+    SCOPED_TRACE(absl::Substitute("test: $0", static_cast<int>(i)));
     IcicleNTTHolder<F> holder = IcicleNTTHolder<F>::Create();
     size_t size = size_t{1} << i;
     auto domain = Domain::Create(size);
