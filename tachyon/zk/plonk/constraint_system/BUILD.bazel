@@ -44,6 +44,7 @@ tachyon_cc_library(
         "//tachyon/zk/base:row_types",
         "//tachyon/zk/lookup:argument",
         "//tachyon/zk/lookup:type",
+        "//tachyon/zk/plonk/expressions/evaluator:cells_querier",
         "//tachyon/zk/plonk/expressions/evaluator:identifier",
         "//tachyon/zk/plonk/expressions/evaluator:selector_replacer",
         "//tachyon/zk/plonk/expressions/evaluator:simple_selector_extractor",

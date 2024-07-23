@@ -37,6 +37,7 @@
 #include "tachyon/zk/plonk/constraint_system/query.h"
 #include "tachyon/zk/plonk/constraint_system/selector_compressor.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cells.h"
+#include "tachyon/zk/plonk/expressions/evaluator/cells_querier.h"
 #include "tachyon/zk/plonk/expressions/evaluator/identifier.h"
 #include "tachyon/zk/plonk/expressions/evaluator/selector_replacer.h"
 #include "tachyon/zk/plonk/expressions/evaluator/simple_selector_extractor.h"
@@ -176,6 +177,8 @@ class ConstraintSystem {
                                          LookupTableColumn>& pair) {
               std::unique_ptr<Expression<F>> table =
                   cells.QueryLookupTable(pair, Rotation::Cur());
+              QueryCells(pair.input().get(), cells);
+              QueryCells(table.get(), cells);
               return lookup::Pair<std::unique_ptr<Expression<F>>>(
                   std::move(pair).TakeInput(), std::move(table));
             });
@@ -193,6 +196,8 @@ class ConstraintSystem {
                  pair : pairs) {
           std::unique_ptr<Expression<F>> table =
               cells.QueryLookupTable(pair, Rotation::Cur());
+          QueryCells(pair.input().get(), cells);
+          QueryCells(table.get(), cells);
           input_expressions.push_back(std::move(pair).TakeInput());
           table_expressions.push_back(std::move(table));
         }
@@ -425,6 +430,7 @@ class ConstraintSystem {
     std::vector<std::unique_ptr<Expression<F>>> polys;
     polys.reserve(constraints.size());
     for (Constraint<F>& constraint : constraints) {
+      QueryCells(constraint.expression().get(), cells);
       constraint_names.push_back(std::move(constraint).TakeName());
       polys.push_back(std::move(constraint).TakeExpression());
     }
