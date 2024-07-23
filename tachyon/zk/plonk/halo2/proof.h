@@ -13,6 +13,7 @@
 #include "tachyon/zk/lookup/type.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifier_data.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verifier_data.h"
+#include "tachyon/zk/shuffle/verifier_data.h"
 
 namespace tachyon {
 namespace zk::plonk::halo2 {
@@ -37,6 +38,9 @@ struct Proof {
   std::vector<std::vector<F>> permutation_product_evals_vec;
   std::vector<std::vector<F>> permutation_product_next_evals_vec;
   std::vector<std::vector<std::optional<F>>> permutation_product_last_evals_vec;
+  std::vector<std::vector<C>> shuffle_product_commitments_vec;
+  std::vector<std::vector<F>> shuffle_product_evals_vec;
+  std::vector<std::vector<F>> shuffle_product_next_evals_vec;
 
   // auxiliary values
   F l_first;
@@ -67,7 +71,12 @@ struct Proof {
            permutation_product_next_evals_vec ==
                other.permutation_product_next_evals_vec &&
            permutation_product_last_evals_vec ==
-               other.permutation_product_last_evals_vec;
+               other.permutation_product_last_evals_vec &&
+           shuffle_product_commitments_vec ==
+               other.shuffle_product_commitments_vec &&
+           shuffle_product_evals_vec == other.shuffle_product_evals_vec &&
+           shuffle_product_next_evals_vec ==
+               other.shuffle_product_next_evals_vec;
   }
   bool operator!=(const Proof& other) const { return !operator==(other); }
 
@@ -103,6 +112,20 @@ struct Proof {
         common_permutation_commitments,
         common_permutation_evals,
         beta,
+        gamma,
+    };
+  }
+
+  shuffle::VerifierData<F, C> ToShuffleVerifierData(size_t circuit_idx) const {
+    return {
+        fixed_evals,
+        advice_evals_vec[circuit_idx],
+        instance_evals_vec[circuit_idx],
+        challenges,
+        shuffle_product_commitments_vec[circuit_idx],
+        shuffle_product_evals_vec[circuit_idx],
+        shuffle_product_next_evals_vec[circuit_idx],
+        theta,
         gamma,
     };
   }
