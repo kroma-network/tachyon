@@ -56,6 +56,8 @@ class Query : public QueryData<C> {
       : QueryData<C>(rotation, column), index_(index) {}
 
   size_t GetIndex() const { return index_.value(); }
+  void SetIndex(size_t index) { index_ = index; }
+  bool HasIndex() const { return index_.has_value(); }
 
   bool operator==(const Query& other) const {
     return QueryData<C>::operator==(other) && index_ == other.index_;

@@ -14,6 +14,9 @@
 namespace tachyon::zk::plonk {
 
 template <typename F>
+class CellsQuerier;
+
+template <typename F>
 class ConstraintSystem;
 
 // Exposes the "virtual cells" that can be queried while creating a custom gate
@@ -101,6 +104,8 @@ class VirtualCells {
   }
 
  private:
+  friend class CellsQuerier<F>;
+
   // not owned
   ConstraintSystem<F>* const meta_;
   std::vector<Selector> queried_selectors_;
