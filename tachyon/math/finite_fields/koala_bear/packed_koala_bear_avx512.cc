@@ -48,6 +48,7 @@ PackedKoalaBearAVX512::PackedKoalaBearAVX512(uint32_t value) {
 
 // static
 void PackedKoalaBearAVX512::Init() {
+  KoalaBear::Init();
   kP = _mm512_set1_epi32(KoalaBear::Config::kModulus);
   kInv = _mm512_set1_epi32(KoalaBear::Config::kInverse32);
   kZero = _mm512_set1_epi32(0);

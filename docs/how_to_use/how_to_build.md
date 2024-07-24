@@ -197,11 +197,11 @@ sudo dpkg -i libtachyon-dev_0.3.0_amd64.deb
 ### Build package from source
 
 Build a Debian package with the supported scheme (only halo2 for now) and the options you want.
-To build the Halo2 Debian package, `halo2` and `has_openmp` options are recommended. Run the following commands:
+To build the Halo2 Debian package, the `has_openmp` option is recommended. Run the following commands:
 
 ```shell
-bazel build -c opt --config ${os} --config halo2 --//:has_openmp  --//:c_shared_object //scripts/packages/debian/runtime:debian
-bazel build -c opt --config ${os} --config halo2 --//:has_openmp  --//:c_shared_object //scripts/packages/debian/dev:debian
+bazel build -c opt --config ${os} --//:has_openmp  --//:c_shared_object //scripts/packages/debian/runtime:debian
+bazel build -c opt --config ${os} --//:has_openmp  --//:c_shared_object //scripts/packages/debian/dev:debian
 
 sudo dpkg -i bazel-bin/scripts/packages/debian/runtime/libtachyon_0.3.0_amd64.deb
 sudo dpkg -i bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.3.0_amd64.deb

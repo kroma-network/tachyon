@@ -35,6 +35,7 @@ tachyon_cc_library(
     deps = [
         ":prover_test",
         "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",
         "//tachyon/zk/base/commitments:gwc_extension",
         "//tachyon/zk/lookup/halo2:scheme",
     ],
@@ -47,6 +48,7 @@ tachyon_cc_library(
     deps = [
         ":prover_test",
         "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",
         "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/lookup/halo2:scheme",
     ],

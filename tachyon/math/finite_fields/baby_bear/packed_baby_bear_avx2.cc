@@ -50,6 +50,7 @@ PackedBabyBearAVX2::PackedBabyBearAVX2(uint32_t value) {
 
 // static
 void PackedBabyBearAVX2::Init() {
+  BabyBear::Init();
   kP = _mm256_set1_epi32(BabyBear::Config::kModulus);
   kInv = _mm256_set1_epi32(BabyBear::Config::kInverse32);
   kZero = _mm256_set1_epi32(0);

@@ -52,6 +52,7 @@ PackedBabyBearNeon::PackedBabyBearNeon(uint32_t value) {
 
 // static
 void PackedBabyBearNeon::Init() {
+  BabyBear::Init();
   kP = vdupq_n_u32(BabyBear::Config::kModulus);
   kInv = vdupq_n_u32(BabyBear::Config::kInverse32);
   kZero = vdupq_n_u32(0);

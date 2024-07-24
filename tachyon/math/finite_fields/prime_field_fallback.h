@@ -113,7 +113,10 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
     return FromBigInt(big_int);
   }
 
-  static void Init() { VLOG(1) << Config::kName << " initialized"; }
+  static void Init() {
+    Config::Init();
+    VLOG(1) << Config::kName << " initialized";
+  }
 
   const value_type& value() const { return value_; }
   size_t GetLimbSize() const { return N; }

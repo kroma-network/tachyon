@@ -32,16 +32,17 @@ class TACHYON_EXPORT %{class}Config {
   constexpr static bool kHasLargeSubgroupRootOfUnity = %{has_large_subgroup_root_of_unity};
 
 %{if kHasTwoAdicRootOfUnity}
-  constexpr static uint32_t kSubgroupGenerator = %{subgroup_generator};
+  static uint32_t kSubgroupGenerator;
   constexpr static uint32_t kTwoAdicity = %{two_adicity};
-  constexpr static uint32_t kTwoAdicRootOfUnity = %{two_adic_root_of_unity};
-
-%{if kHasLargeSubgroupRootOfUnity}
-  constexpr static uint32_t kSmallSubgroupBase = %{small_subgroup_base};
-  constexpr static uint32_t kSmallSubgroupAdicity = %{small_subgroup_adicity};
-  constexpr static uint32_t kLargeSubgroupRootOfUnity = %{large_subgroup_root_of_unity};
-%{endif kHasLargeSubgroupRootOfUnity}
+  static uint32_t kTwoAdicRootOfUnity;
 %{endif kHasTwoAdicRootOfUnity}
+
+  static void Init() {
+%{if kHasTwoAdicRootOfUnity}
+    kSubgroupGenerator = %{subgroup_generator};
+    kTwoAdicRootOfUnity = %{two_adic_root_of_unity};
+%{endif kHasTwoAdicRootOfUnity}
+  }
 
   constexpr static uint32_t AddMod(uint32_t a, uint32_t b) {
     // NOTE(chokobole): This assumes that the 2m - 2 < 2³², where m is modulus.

@@ -123,6 +123,7 @@ PackedMersenne31AVX512::PackedMersenne31AVX512(uint32_t value) {
 
 // static
 void PackedMersenne31AVX512::Init() {
+  Mersenne31::Init();
   kP = _mm512_set1_epi32(Mersenne31::Config::kModulus);
   kZero = _mm512_set1_epi32(0);
   kOne = _mm512_set1_epi32(1);

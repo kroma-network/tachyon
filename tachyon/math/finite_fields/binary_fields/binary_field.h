@@ -145,7 +145,10 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
     }
   }
 
-  static void Init() { VLOG(1) << Config::kName << " initialized"; }
+  static void Init() {
+    Config::Init();
+    VLOG(1) << Config::kName << " initialized";
+  }
 
   constexpr value_type value() const { return value_; }
 

@@ -26,6 +26,7 @@
 #include "tachyon/crypto/random/cha_cha20/cha_cha20_rng.h"
 #include "tachyon/crypto/random/rng_type.h"
 #include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/halo2/bn254.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/ls_type.h"
@@ -419,6 +420,7 @@ tachyon_halo2_bn254_prover* tachyon_halo2_bn254_prover_create_from_unsafe_setup(
   prover->pcs_type = pcs_type;
   prover->ls_type = ls_type;
   math::bn254::BN254Curve::Init();
+  math::halo2::OverrideSubgroupGenerator();
 
   switch (static_cast<zk::plonk::halo2::PCSType>(pcs_type)) {
     case zk::plonk::halo2::PCSType::kGWC: {
@@ -468,6 +470,7 @@ tachyon_halo2_bn254_prover* tachyon_halo2_bn254_prover_create_from_params(
   prover->pcs_type = pcs_type;
   prover->ls_type = ls_type;
   math::bn254::BN254Curve::Init();
+  math::halo2::OverrideSubgroupGenerator();
 
   switch (static_cast<zk::plonk::halo2::PCSType>(pcs_type)) {
     case zk::plonk::halo2::PCSType::kGWC: {

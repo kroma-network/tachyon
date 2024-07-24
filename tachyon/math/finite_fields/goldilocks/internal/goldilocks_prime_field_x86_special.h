@@ -48,7 +48,10 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsTachyonMathGoldilocks>>
   static PrimeField FromMontgomery(BigInt<N> big_int);
 #endif
 
-  static void Init() { VLOG(1) << Config::kName << " initialized"; }
+  static void Init() {
+    Config::Init();
+    VLOG(1) << Config::kName << " initialized";
+  }
 
   // NOTE(chokobole): To be consistent with `PrimeField<F>` defined in
   // prime_field_fallback.h, it returns the value as a `BigInt<N>`.

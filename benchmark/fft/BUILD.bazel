@@ -52,6 +52,7 @@ tachyon_cc_binary(
         "//benchmark/fft/halo2",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],

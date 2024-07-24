@@ -67,23 +67,32 @@ class TACHYON_EXPORT %{class}Config {
   constexpr static bool kHasLargeSubgroupRootOfUnity = %{has_large_subgroup_root_of_unity};
 
 %{if kHasTwoAdicRootOfUnity}
-  constexpr static BigInt<%{n}> kSubgroupGenerator = BigInt<%{n}>({
-    %{subgroup_generator}
-  });
+  static BigInt<%{n}> kSubgroupGenerator;
   constexpr static uint32_t kTwoAdicity = %{two_adicity};
-  constexpr static BigInt<%{n}> kTwoAdicRootOfUnity = BigInt<%{n}>({
-    %{two_adic_root_of_unity}
-  });
-
+  static BigInt<%{n}> kTwoAdicRootOfUnity;
 
 %{if kHasLargeSubgroupRootOfUnity}
   constexpr static uint32_t kSmallSubgroupBase = %{small_subgroup_base};
   constexpr static uint32_t kSmallSubgroupAdicity = %{small_subgroup_adicity};
-  constexpr static BigInt<%{n}> kLargeSubgroupRootOfUnity = BigInt<%{n}>({
-    %{large_subgroup_root_of_unity}
-  });
+  static BigInt<%{n}> kLargeSubgroupRootOfUnity;
 %{endif kHasLargeSubgroupRootOfUnity}
 %{endif kHasTwoAdicRootOfUnity}
+
+  static void Init() {
+%{if kHasTwoAdicRootOfUnity}
+    kSubgroupGenerator = BigInt<%{n}>({
+      %{subgroup_generator}
+    });
+    kTwoAdicRootOfUnity = BigInt<%{n}>({
+      %{two_adic_root_of_unity}
+    });
+%{if kHasLargeSubgroupRootOfUnity}
+    kLargeSubgroupRootOfUnity = BigInt<%{n}>({
+      %{large_subgroup_root_of_unity}
+    });
+%{endif kHasLargeSubgroupRootOfUnity}
+%{endif kHasTwoAdicRootOfUnity}
+  }
 };
 
 }  // namespace %{namespace}

@@ -17,6 +17,8 @@ class TACHYON_EXPORT %{class}Config {
   constexpr static %{modulus_type} kModulus = %{modulus};
 
   constexpr static %{value_type} kOne = %{value};
+
+  static void Init() {}
 };
 
 }  // namespace %{namespace}
