@@ -148,7 +148,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     std::unique_ptr<Radix2EvaluationDomain> domain =
         Radix2EvaluationDomain<F>::Create(rows);
     log_n = domain->log_size_of_group_;
-    mid_ = log_n / 2;
+    domain->mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
     domain->RunParallelRowChunks(mat, domain->roots_vec_[log_n - 1],
@@ -314,7 +314,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
         packed_roots_vec_[0][i] = PackedPrimeField::Broadcast(largest[i]);
         packed_inv_roots_vec_[0][i] =
             PackedPrimeField::Broadcast(largest_inv[i]);
-        packed_inv_roots_vec_[1][i] =
+        packed_roots_vec_[1][i] =
             PackedPrimeField::Broadcast(rev_roots_vec_[i]);
         packed_inv_roots_vec_[1][i] =
             PackedPrimeField::Broadcast(rev_inv_roots_vec_[i]);
