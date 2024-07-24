@@ -142,6 +142,15 @@ SafeLog2Ceiling(T n) {
   return static_cast<uint32_t>(std::max(base::bits::Log2Ceiling(n), 0));
 }
 
+// Returns Log2 of a number. Fails if the inputted number is not a power of two.
+template <typename T, int bits = sizeof(T) * 8>
+constexpr typename std::enable_if<std::is_unsigned<T>::value && sizeof(T) <= 8,
+                                  uint32_t>::type
+CheckedLog2(T n) {
+  CHECK(base::bits::IsPowerOfTwo(n));
+  return CountTrailingZeroBits(n);
+}
+
 // Returns a value of type T with a single bit set in the left-most position.
 // Can be used instead of manually shifting a 1 to the left.
 template <typename T>

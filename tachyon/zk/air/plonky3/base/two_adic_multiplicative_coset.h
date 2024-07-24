@@ -58,8 +58,7 @@ class TwoAdicMultiplicativeCoset {
 
   std::vector<TwoAdicMultiplicativeCoset<F>> SplitDomains(
       size_t num_chunks) const {
-    CHECK(base::bits::IsPowerOfTwo(num_chunks));
-    uint32_t log_chunks = base::bits::Log2Ceiling(num_chunks);
+    uint32_t log_chunks = base::bits::CheckedLog2(num_chunks);
     F f = domain_->offset();
     return base::CreateVector(num_chunks, [this, log_chunks, &f](size_t i) {
       TwoAdicMultiplicativeCoset ret{domain_->log_size_of_group() - log_chunks,

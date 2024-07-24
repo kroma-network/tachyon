@@ -20,11 +20,8 @@ std::vector<F> SwapBitRevElements(const std::pmr::vector<F>& vals) {
   if (n == 0) {
     return std::vector<F>();
   }
-  CHECK(base::bits::IsPowerOfTwo(n));
-  size_t log_n = base::bits::Log2Ceiling(n);
-
   std::vector<F> ret(vals.begin(), vals.end());
-  SwapBitRevElementsInPlace(ret, n, log_n);
+  SwapBitRevElementsInPlace(ret, n, base::bits::CheckedLog2(n));
   return ret;
 }
 
