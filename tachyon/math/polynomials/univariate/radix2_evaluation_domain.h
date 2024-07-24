@@ -110,7 +110,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(RowMajorMatrix<F>& mat,
-                                             size_t added_bits) {
+                                             size_t added_bits,
+                                             const F& shift) {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -133,9 +134,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     // - divide by number of rows (since we're doing an inverse DFT)
     // - multiply by powers of the coset shift (see default coset LDE impl for
     // an explanation)
-    std::vector<F> weights = F::GetSuccessivePowers(
-        this->size_, F::FromMontgomery(F::Config::kSubgroupGenerator),
-        this->size_inv_);
+    std::vector<F> weights =
+        F::GetSuccessivePowers(this->size_, shift, this->size_inv_);
     OPENMP_PARALLEL_FOR(size_t row = 0; row < weights.size(); ++row) {
       // Reverse bits because |mat| is encoded in bit-reversed order
       mat.row(base::bits::BitRev(row) >>

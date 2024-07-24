@@ -39,7 +39,7 @@ class TwoAdicSubgroup {
   // Compute the "coset DFT" of each column in |mat|. This can be viewed as
   // interpolation onto a coset of a multiplicative subgroup, rather than the
   // subgroup itself.
-  void CosetFFTBatch(RowMajorMatrix<F>& mat) {
+  void CosetFFTBatch(RowMajorMatrix<F>& mat, const F& shift) {
     static_assert(F::Config::kModulusBits <= 32);
     // Observe that
     // yᵢ = ∑ⱼ cⱼ (s gⁱ)ʲ
@@ -49,8 +49,7 @@ class TwoAdicSubgroup {
     Eigen::Index rows = mat.rows();
     Eigen::Index cols = mat.cols();
 
-    std::vector<F> weights = F::GetSuccessivePowers(
-        rows, F::FromMontgomery(F::Config::kSubgroupGenerator));
+    std::vector<F> weights = F::GetSuccessivePowers(rows, shift);
     OPENMP_PARALLEL_NESTED_FOR(Eigen::Index row = 0; row < rows; ++row) {
       for (Eigen::Index col = 0; col < cols; ++col) {
         mat(row, col) *= weights[row];
@@ -61,7 +60,8 @@ class TwoAdicSubgroup {
 
   // Compute the low-degree extension of each column in |mat| onto a coset of
   // a larger subgroup.
-  void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits) {
+  void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits,
+                     const F& shift) {
     static_assert(F::Config::kModulusBits <= 32);
     IFFTBatch(mat);
     Eigen::Index rows = mat.rows();
@@ -70,7 +70,7 @@ class TwoAdicSubgroup {
     // Possible crash if the new resized length overflows
     mat.conservativeResizeLike(
         RowMajorMatrix<F>::Zero(rows << added_bits, cols));
-    CosetFFTBatch(mat);
+    CosetFFTBatch(mat, shift);
   }
 };
 
