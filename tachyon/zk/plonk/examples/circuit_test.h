@@ -9,6 +9,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/halo2/bn254.h"
 #include "tachyon/zk/lookup/pair.h"
 #include "tachyon/zk/plonk/examples/circuit_test_type_traits.h"
 #include "tachyon/zk/plonk/examples/point.h"
@@ -39,7 +40,10 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
   using Commitment = typename PCS::Commitment;
   using RationalEvals = typename PCS::RationalEvals;
 
-  static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
+  static void SetUpTestSuite() {
+    math::bn254::BN254Curve::Init();
+    math::halo2::OverrideSubgroupGenerator();
+  }
 
   void ConfigureTest() {
     ConstraintSystem<F> constraint_system;

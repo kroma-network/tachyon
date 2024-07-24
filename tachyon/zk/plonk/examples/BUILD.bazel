@@ -51,6 +51,7 @@ tachyon_cc_library(
         ":point",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",
         "//tachyon/zk/lookup:pair",
         "//tachyon/zk/plonk/halo2:pinned_constraint_system",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
