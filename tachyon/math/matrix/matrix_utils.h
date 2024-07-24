@@ -53,13 +53,13 @@ MakeCirculant(const Eigen::MatrixBase<ArgType>& arg) {
 // NOTE(ashjeong): Important! |matrix| should carry the same amount of rows as
 // the parent matrix it is a block from. |PackRowHorizontally| currently only
 // supports row-major matrices.
-template <typename PackedPrimeField, typename Derived, typename PrimeField>
-std::vector<PackedPrimeField*> PackRowHorizontally(
+template <typename PackedField, typename Derived, typename PrimeField>
+std::vector<PackedField*> PackRowHorizontally(
     Eigen::Block<Derived>& matrix, size_t row,
     std::vector<PrimeField*>& remaining_values) {
   static_assert(Derived::Options & Eigen::RowMajorBit);
-  size_t num_packed = matrix.cols() / PackedPrimeField::N;
-  size_t remaining_start_idx = num_packed * PackedPrimeField::N;
+  size_t num_packed = matrix.cols() / PackedField::N;
+  size_t remaining_start_idx = num_packed * PackedField::N;
   remaining_values = base::CreateVector(
       matrix.cols() - remaining_start_idx,
       [row, remaining_start_idx, &matrix](size_t col) {
@@ -67,13 +67,13 @@ std::vector<PackedPrimeField*> PackRowHorizontally(
             matrix.data() + row * matrix.cols() + remaining_start_idx + col);
       });
   return base::CreateVector(num_packed, [row, &matrix](size_t col) {
-    return reinterpret_cast<PackedPrimeField*>(
-        matrix.data() + row * matrix.cols() + PackedPrimeField::N * col);
+    return reinterpret_cast<PackedField*>(matrix.data() + row * matrix.cols() +
+                                          PackedField::N * col);
   });
 }
 
-template <typename PackedPrimeField, typename Derived>
-std::vector<PackedPrimeField> PackRowVertically(
+template <typename PackedField, typename Derived>
+std::vector<PackedField> PackRowVertically(
     const Eigen::MatrixBase<Derived>& matrix, size_t row) {
   using Scalar = typename Eigen::internal::traits<Derived>::Scalar;
   if constexpr (FiniteFieldTraits<Scalar>::kIsExtensionField) {
@@ -83,13 +83,13 @@ std::vector<PackedPrimeField> PackRowVertically(
       size_t col = n / ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
       size_t idx =
           n - col * ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
-      return PackedPrimeField::From([row, col, idx, &matrix](size_t i) {
+      return PackedField::From([row, col, idx, &matrix](size_t i) {
         return matrix((row + i) % matrix.rows(), col)[idx];
       });
     });
   } else {
     return base::CreateVector(matrix.cols(), [row, &matrix](size_t col) {
-      return PackedPrimeField::From([row, col, &matrix](size_t i) {
+      return PackedField::From([row, col, &matrix](size_t i) {
         return matrix((row + i) % matrix.rows(), col);
       });
     });
