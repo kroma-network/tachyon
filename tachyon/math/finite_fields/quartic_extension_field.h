@@ -12,12 +12,14 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
+#include "tachyon/math/finite_fields/extension_field_base.h"
 
 namespace tachyon {
 namespace math {
 
 template <typename Derived>
-class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
+class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
+                              public ExtensionFieldBase<Derived> {
  public:
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
