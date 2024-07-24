@@ -111,9 +111,12 @@ tachyon_cc_library(
     hdrs = ["vanishing_utils.h"],
     deps = [
         "//tachyon/base:parallelize",
+        "//tachyon/base/types:always_false",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/constraint_system:gate",
+        "//tachyon/zk/plonk/halo2:config",
         "@com_google_absl//absl/types:span",
     ],
 )

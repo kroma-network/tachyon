@@ -13,15 +13,18 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/types/always_false.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"
+#include "tachyon/zk/plonk/halo2/config.h"
 
 namespace tachyon::zk::plonk {
 
 // Calculate ζ = g^((2ˢ * T) / 3).
 template <typename F>
-constexpr F GetZeta() {
+F GetZeta() {
   using BigInt = typename F::BigIntTy;
   CHECK_EQ(F::Config::kTrace % BigInt(3), BigInt(0));
   BigInt exp = F::Config::kTrace;
@@ -34,14 +37,29 @@ constexpr F GetZeta() {
 
 // NOTE(TomTaehoonKim): The returning value of |GetZeta()| is different from the
 // one in
-// https://github.com/kroma-network/halo2curves/blob/c0ac193/src/bn256/fr.rs#L112-L118.
+// https://github.com/privacy-scaling-explorations/halo2curves/blob/v0.6.1/src/bn256/fr.rs#L145-L151.
 // This is an ugly way to produce a same result with Halo2Curves but we will
 // remove once we don't have to match it against Halo2 any longer in the
 // future.
 // Calculate ζ = g^((2ˢ * T) / 3)².
 template <typename F>
-constexpr F GetHalo2Zeta() {
-  return GetZeta<F>().Square();
+F GetHalo2Zeta() {
+  static F cache = F::Zero();
+  if (cache.IsZero()) {
+    halo2::Config& config = halo2::GetConfig();
+    if constexpr (std::is_same_v<F, math::bn254::Fr>) {
+      if (config.vendor == halo2::Vendor::kScroll) {
+        // See
+        // https://github.com/scroll-tech/halo2curves/blob/3c268b4/src/bn256/fr.rs#L108-L114.
+        cache = GetZeta<F>();
+      } else {
+        cache = GetZeta<F>().Square();
+      }
+    } else {
+      static_assert(base::AlwaysFalse<F>);
+    }
+  }
+  return cache;
 }
 
 // This divides the polynomial (in the extended domain) by the vanishing
