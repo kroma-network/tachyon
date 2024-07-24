@@ -75,6 +75,39 @@ std::vector<PackedField*> PackRowHorizontally(
   });
 }
 
+// Creates a vector of packed fields for a given matrix row. If the length
+// of the row is not a multiple of |PackedField::N|, the last |PackedField|
+// element populates leftover values with |F::Zero()|.
+template <typename Expr, int BlockRows, int BlockCols, bool InnerPanel,
+          typename PackedField =
+              typename PackedFieldTraits<typename Expr::Scalar>::PackedField>
+std::vector<PackedField> PackRowHorizontallyPadded(
+    const Eigen::Block<Expr, BlockRows, BlockCols, InnerPanel>& matrix_row) {
+  size_t cols = static_cast<size_t>(matrix_row.cols());
+  using F = typename FiniteFieldTraits<PackedField>::PrimeField;
+  size_t num_full_packed = cols / PackedField::N;
+  bool full = cols % PackedField::N == 0;
+
+  std::vector<PackedField> ret;
+  ret.reserve(full ? num_full_packed : num_full_packed + 1);
+  for (size_t col = 0; col < num_full_packed; ++col) {
+    ret.push_back(PackedField::From(
+        [col, &matrix_row](size_t c) { return matrix_row(0, col + c); }));
+  }
+  // Add last padded |PackedField| element.
+  if (!full) {
+    size_t remaining_start_idx = num_full_packed * PackedField::N;
+    ret.push_back(
+        PackedField::From([cols, remaining_start_idx, &matrix_row](size_t i) {
+          if (remaining_start_idx + i < cols)
+            return matrix_row(0, remaining_start_idx + i);
+          else
+            return F::Zero();
+        }));
+  }
+  return ret;
+}
+
 // Packs |PackedField::N| rows, starting at the given row index. Each
 // |PackedField::N| selected elements in a column are converted into a
 // PackedField. Rows included wrap around to the starting index 0 to fully
