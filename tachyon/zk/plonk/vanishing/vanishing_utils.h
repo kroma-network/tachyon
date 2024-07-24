@@ -94,9 +94,9 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
 //
 // |into_coset| should be set to true when moving into the coset, and false
 // when moving out. This toggles the choice of ζ.
-template <typename ExtendedPoly>
-void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
-  using F = typename ExtendedPoly::Field;
+template <typename Poly>
+void DistributePowersZeta(Poly& poly, bool into_coset) {
+  using F = typename Poly::Field;
 
   F zeta = GetHalo2Zeta<F>();
   F zeta_inv = zeta.Square();
@@ -109,6 +109,22 @@ void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
     if (j == 0) continue;
     coeffs[i] *= coset_powers[j - 1];
   }
+}
+
+// This takes us from an n-length coefficient vector into a coset of the
+// extended evaluation domain.
+template <typename Poly, typename ExtendedDomain,
+          typename ExtendedEvals = typename ExtendedDomain::Evals>
+ExtendedEvals CoeffToExtended(Poly&& poly,
+                              const ExtendedDomain* extended_domain) {
+  using ExtendedPoly = typename ExtendedDomain::DensePoly;
+  using Coefficients = typename ExtendedPoly::Coefficients;
+
+  DistributePowersZeta(poly, true);
+
+  ExtendedPoly extended_poly(
+      Coefficients(std::move(poly).TakeCoefficients().TakeCoefficients()));
+  return extended_domain->FFT(std::move(extended_poly));
 }
 
 // This takes us from the extended evaluation domain and gets us the quotient
