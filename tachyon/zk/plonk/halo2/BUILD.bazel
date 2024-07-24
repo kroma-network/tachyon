@@ -269,6 +269,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "vendor",
+    srcs = ["vendor.cc"],
+    hdrs = ["vendor.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+    ],
+)
+
+tachyon_cc_library(
     name = "verifier",
     hdrs = ["verifier.h"],
     deps = [
