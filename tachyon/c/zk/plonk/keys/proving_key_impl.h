@@ -113,6 +113,7 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
     ReadBuffer(buffer, cs.permutation_);
     ReadBuffer(buffer, cs.lookups_map_);
     ReadBuffer(buffer, cs.lookups_);
+    ReadBuffer(buffer, cs.shuffles_);
     ReadBuffer(buffer, cs.constants_);
     ReadBuffer(buffer, cs.minimum_degree_);
   }
