@@ -176,65 +176,85 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     return absl::WrapUnique(new Radix2EvaluationDomain(*this));
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void DoFFT(Evals& evals) const override {
+  CONSTEXPR_IF_NOT_OPENMP void DoFFT(absl::Span<Evals> evals) const override {
     DegreeAwareFFTInPlace(evals);
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void DoIFFT(DensePoly& poly) const override {
-    poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
-    InOrderIFFTInPlace(poly);
-    poly.coefficients_.RemoveHighDegreeZeros();
+  CONSTEXPR_IF_NOT_OPENMP void DoIFFT(
+      absl::Span<DensePoly> polys) const override {
+    InOrderIFFTInPlace(polys);
   }
 
   // Degree aware FFT that runs in O(n log d) instead of O(n log n).
   // Implementation copied from libiop. (See
   // https://github.com/arkworks-rs/algebra/blob/master/poly/src/domain/radix2/fft.rs#L28)
-  CONSTEXPR_IF_NOT_OPENMP void DegreeAwareFFTInPlace(Evals& evals) const {
-    if (!this->offset_.IsOne()) {
-      Base::DistributePowers(evals, this->offset_);
-    }
-    size_t n = this->size_;
-    uint32_t log_n = this->log_size_of_group_;
-    size_t num_coeffs = evals.evaluations_.size();
-    uint32_t log_d = base::bits::SafeLog2Ceiling(num_coeffs);
+  CONSTEXPR_IF_NOT_OPENMP void DegreeAwareFFTInPlace(Evals& evals) const {}
+
+  CONSTEXPR_IF_NOT_OPENMP void DegreeAwareFFTInPlace(
+      absl::Span<Evals> evalss) const {
     // When the polynomial is of size k * |coset|, for k < 2ⁱ, the first i
-    // iterations of Cooley-Tukey are easily predictable. This is because they
-    // will be combining g(ω²) + ω * h(ω²), but g or h will always refer to a
-    // coefficient that is 0. Therefore those first i rounds have the effect
-    // of copying the evaluations into more locations, so we handle this in
-    // initialization, and reduce the number of loops that are performing
-    // arithmetic. The number of times we copy each initial non-zero element
-    // is as below:
-    CHECK_GE(log_n, log_d);
-    size_t duplicity_of_initials = size_t{1} << (log_n - log_d);
-    evals.evaluations_.resize(n, F::Zero());
-    this->SwapElements(evals, num_coeffs, log_n);
-    size_t start_gap = 1;
-    if (duplicity_of_initials >= kDegreeAwareFFTThresholdFactor) {
-      base::ParallelizeByChunkSize(evals.evaluations_, duplicity_of_initials,
-                                   [](absl::Span<F> chunk) {
-                                     const F& v = chunk[0];
-                                     for (size_t j = 1; j < chunk.size(); ++j) {
-                                       chunk[j] = v;
-                                     }
-                                   });
-      start_gap = duplicity_of_initials;
-    }
-    OutInHelper(evals, start_gap);
+    // iterations of Cooley-Tukey are easily predictable. This is because
+    // they will be combining g(ω²) + ω * h(ω²), but g or h will always
+    // refer to a coefficient that is 0. Therefore those first i rounds have
+    // the effect of copying the evaluations into more locations, so we
+    // handle this in initialization, and reduce the number of loops that
+    // are performing arithmetic. The number of times we copy each initial
+    // non-zero element is as below:
+    base::Parallelize(
+        evalss,
+        [this](absl::Span<Evals> eval_chunk, size_t eval_chunk_offset,
+               size_t eval_chunk_size) {
+          for (Evals& evals : eval_chunk) {
+            if (!this->offset_.IsOne()) {
+              Base::DistributePowers(evals, this->offset_);
+            }
+            size_t n = this->size_;
+            uint32_t log_n = this->log_size_of_group_;
+            size_t num_coeffs = evals.evaluations_.size();
+            uint32_t log_d = base::bits::SafeLog2Ceiling(num_coeffs);
+            CHECK_GE(log_n, log_d);
+            size_t duplicity_of_initials = size_t{1} << (log_n - log_d);
+            evals.evaluations_.resize(n, F::Zero());
+            this->SwapElements(evals, num_coeffs, log_n);
+            size_t start_gap = 1;
+            if (duplicity_of_initials >= kDegreeAwareFFTThresholdFactor) {
+              base::ParallelizeByChunkSize(
+                  evals.evaluations_, duplicity_of_initials,
+                  [](absl::Span<F> chunk) {
+                    const F& v = chunk[0];
+                    for (size_t j = 1; j < chunk.size(); ++j) {
+                      chunk[j] = v;
+                    }
+                  });
+              start_gap = duplicity_of_initials;
+            }
+            OutInHelper(evals, start_gap);
+          }
+        },
+        64);
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void InOrderIFFTInPlace(DensePoly& poly) const {
-    IFFTHelperInPlace(poly);
-    if (this->offset_.IsOne()) {
-      // clang-format off
-      OPENMP_PARALLEL_FOR(F& val : poly.coefficients_.coefficients_) {
-        // clang-format on
-        val *= this->size_inv_;
-      }
-    } else {
-      Base::DistributePowersAndMulByConst(poly, this->offset_inv_,
-                                          this->size_inv_);
-    }
+  CONSTEXPR_IF_NOT_OPENMP void InOrderIFFTInPlace(
+      absl::Span<DensePoly> polys) const {
+    base::Parallelize(
+        polys,
+        [this](absl::Span<DensePoly> poly_chunk, size_t poly_chunk_offset,
+               size_t poly_chunk_size) {
+          for (DensePoly& poly : poly_chunk) {
+            poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
+            IFFTHelperInPlace(poly);
+            if (this->offset_.IsOne()) {
+              OPENMP_PARALLEL_FOR(F & val : poly.coefficients_.coefficients_) {
+                val *= this->size_inv_;
+              }
+            } else {
+              Base::DistributePowersAndMulByConst(poly, this->offset_inv_,
+                                                  this->size_inv_);
+            }
+            poly.coefficients_.RemoveHighDegreeZeros();
+          }
+        },
+        64);
   }
 
   // Handles doing an IFFT with handling of being in order and out of order.

@@ -88,28 +88,44 @@ class MixedRadixEvaluationDomain
     return absl::WrapUnique(new MixedRadixEvaluationDomain(*this));
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void DoFFT(Evals& evals) const override {
-    if (!this->offset_.IsOne()) {
-      Base::DistributePowers(evals, this->offset_);
-    }
-    evals.evaluations_.resize(this->size_, F::Zero());
-    BestFFT(evals, this->group_gen_);
+  CONSTEXPR_IF_NOT_OPENMP void DoFFT(absl::Span<Evals> evalss) const override {
+    base::Parallelize(
+        evalss,
+        [this](absl::Span<Evals> chunk, size_t chunk_offset,
+               size_t chunk_size) {
+          for (Evals& evals : chunk) {
+            if (!this->offset_.IsOne()) {
+              Base::DistributePowers(evals, this->offset_);
+            }
+            evals.evaluations_.resize(this->size_, F::Zero());
+            BestFFT(evals, this->group_gen_);
+          }
+        },
+        64);
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void DoIFFT(DensePoly& poly) const override {
-    poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
-    BestFFT(poly, this->group_gen_inv_);
-    if (this->offset_.IsOne()) {
-      // clang-format off
-      OPENMP_PARALLEL_FOR(F& coeff : poly.coefficients_.coefficients_) {
-        // clang-format on
-        coeff *= this->size_inv_;
-      }
-    } else {
-      Base::DistributePowersAndMulByConst(poly, this->offset_inv_,
-                                          this->size_inv_);
-    }
-    poly.coefficients_.RemoveHighDegreeZeros();
+  CONSTEXPR_IF_NOT_OPENMP void DoIFFT(
+      absl::Span<DensePoly> polys) const override {
+    base::Parallelize(
+        polys,
+        [this](absl::Span<DensePoly> chunk, size_t chunk_offset,
+               size_t chunk_size) {
+          for (DensePoly& poly : chunk) {
+            poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
+            BestFFT(poly, this->group_gen_inv_);
+            if (this->offset_.IsOne()) {
+              OPENMP_PARALLEL_FOR(F & coeff
+                                  : poly.coefficients_.coefficients_) {
+                coeff *= this->size_inv_;
+              }
+            } else {
+              Base::DistributePowersAndMulByConst(poly, this->offset_inv_,
+                                                  this->size_inv_);
+            }
+            poly.coefficients_.RemoveHighDegreeZeros();
+          }
+        },
+        64);
   }
 
   constexpr static bool ComputeSizeAndFactors(size_t num_coeffs,

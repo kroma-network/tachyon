@@ -13,6 +13,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/types/span.h"
+
 #include "tachyon/base/bits.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
@@ -154,7 +156,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       }
     }
 #endif
-    DoFFT(evals);
+    DoFFT(absl::MakeSpan(&evals, 1));
     return evals;
   }
 
@@ -175,11 +177,32 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       }
     }
 #endif
-    DoFFT(evals);
+    DoFFT(absl::MakeSpan(&evals, 1));
     return evals;
   }
 
-  constexpr virtual void DoFFT(Evals& evals) const = 0;
+  [[nodiscard]] constexpr std::vector<Evals> FFT(
+      std::vector<DensePoly>&& polys) const {
+    std::vector<Evals> evalss(polys.size());
+    for (size_t i = 0; i < polys.size(); ++i) {
+      evalss[i].evaluations_ = std::move(polys[i].coefficients_.coefficients_);
+    }
+#if TACHYON_CUDA
+    // TODO(chokobole): Remove this condition.
+    if constexpr (std::is_same_v<F, bn254::Fr>) {
+      if (icicle_) {
+        evals.evaluations_.resize(size_);
+        CHECK((*icicle_)->FFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),
+                              offset_big_int_, evals));
+        return evals;
+      }
+    }
+#endif
+    DoFFT(absl::MakeSpan(evalss.data(), evalss.size()));
+    return evalss;
+  }
+
+  constexpr virtual void DoFFT(absl::Span<Evals> evals) const = 0;
 
   // Compute an IFFT.
   [[nodiscard]] constexpr DensePoly IFFT(const Evals& evals) const {
@@ -200,7 +223,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       }
     }
 #endif
-    DoIFFT(poly);
+    DoIFFT(absl::MakeSpan(&poly, 1));
     return poly;
   }
 
@@ -223,11 +246,34 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       }
     }
 #endif
-    DoIFFT(poly);
+    DoIFFT(absl::MakeSpan(&poly, 1));
     return poly;
   }
 
-  constexpr virtual void DoIFFT(DensePoly& poly) const = 0;
+  [[nodiscard]] constexpr std::vector<DensePoly> IFFT(
+      std::vector<Evals>&& evals) const {
+    // NOTE(chokobole): |evals.IsZero()| can be super slow!
+    // See https://github.com/kroma-network/tachyon/pull/104.
+    std::vector<DensePoly> polys(evals.size());
+    for (size_t i = 0; i < evals.size(); ++i) {
+      polys[i].coefficients_.coefficients_ = std::move(evals[i].evaluations_);
+    }
+#if TACHYON_CUDA
+    // TODO(chokobole): Remove this condition.
+    if constexpr (std::is_same_v<F, bn254::Fr>) {
+      if (icicle_) {
+        poly.coefficients_.coefficients_.resize(size_);
+        CHECK((*icicle_)->IFFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),
+                               offset_big_int_, poly));
+        return poly;
+      }
+    }
+#endif
+    DoIFFT(absl::MakeSpan(polys.data(), polys.size()));
+    return polys;
+  }
+
+  constexpr virtual void DoIFFT(absl::Span<DensePoly> poly) const = 0;
 
   // Computes the first |size| roots of unity for the entire domain.
   // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it
