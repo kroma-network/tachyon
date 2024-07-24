@@ -20,7 +20,7 @@ struct Scheme {
   using Prover = lookup::halo2::Prover<Poly, Evals>;
   using Verifier = lookup::halo2::Verifier<Field, Commitment>;
   using VerifierData = lookup::halo2::VerifierData<Field, Commitment>;
-  using Evaluator = lookup::halo2::Evaluator<Field, Evals>;
+  using Evaluator = lookup::halo2::Evaluator<Evals>;
   using Proof = plonk::halo2::Halo2Proof<Field, Commitment>;
 
   constexpr static Type type = Type::kHalo2;

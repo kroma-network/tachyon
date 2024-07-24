@@ -46,11 +46,12 @@ constexpr F GetHalo2Zeta() {
 
 // This divides the polynomial (in the extended domain) by the vanishing
 // polynomial of the 2ᵏ size domain.
-template <typename F, typename Domain, typename ExtendedDomain,
-          typename ExtendedEvals>
+template <typename Domain, typename ExtendedDomain, typename ExtendedEvals>
 ExtendedEvals& DivideByVanishingPolyInPlace(
     ExtendedEvals& evals, const ExtendedDomain* extended_domain,
     const Domain* domain) {
+  using F = typename ExtendedEvals::Field;
+
   CHECK_EQ(evals.NumElements(), extended_domain->size());
 
   const F zeta = GetHalo2Zeta<F>();
@@ -93,8 +94,10 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
 //
 // |into_coset| should be set to true when moving into the coset, and false
 // when moving out. This toggles the choice of ζ.
-template <typename F, typename ExtendedPoly>
+template <typename ExtendedPoly>
 void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
+  using F = typename ExtendedPoly::Field;
+
   F zeta = GetHalo2Zeta<F>();
   F zeta_inv = zeta.Square();
   F coset_powers[] = {into_coset ? zeta : zeta_inv,
@@ -112,8 +115,8 @@ void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
 // polynomial coefficients.
 //
 // This function will crash if the provided vector is not the correct length.
-template <typename F, typename ExtendedPoly, typename ExtendedEvals,
-          typename ExtendedDomain>
+template <typename ExtendedEvals, typename ExtendedDomain,
+          typename ExtendedPoly = typename ExtendedDomain::DensePoly>
 ExtendedPoly ExtendedToCoeff(ExtendedEvals&& evals,
                              const ExtendedDomain* extended_domain) {
   CHECK_EQ(evals.NumElements(), extended_domain->size());
@@ -122,7 +125,7 @@ ExtendedPoly ExtendedToCoeff(ExtendedEvals&& evals,
 
   // Distribute powers to move from coset; opposite from the
   // transformation we performed earlier.
-  DistributePowersZeta<F>(poly, false);
+  DistributePowersZeta(poly, false);
 
   return poly;
 }

@@ -74,12 +74,11 @@ void VanishingProver<Poly, Evals, ExtendedPoly,
                                                       const ConstraintSystem<F>&
                                                           constraint_system) {
   // Divide by t(X) = Xⁿ - 1.
-  DivideByVanishingPolyInPlace<F>(h_evals_, prover->extended_domain(),
-                                  prover->domain());
+  DivideByVanishingPolyInPlace(h_evals_, prover->extended_domain(),
+                               prover->domain());
 
   // Obtain final h(X) polynomial
-  h_poly_ = ExtendedToCoeff<F, ExtendedPoly>(std::move(h_evals_),
-                                             prover->extended_domain());
+  h_poly_ = ExtendedToCoeff(std::move(h_evals_), prover->extended_domain());
 
   // FIXME(TomTaehoonKim): Remove this if possible.
   const size_t quotient_poly_degree = constraint_system.ComputeDegree() - 1;

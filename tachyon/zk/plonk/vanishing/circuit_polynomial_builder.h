@@ -213,8 +213,8 @@ class CircuitPolynomialBuilder {
   }
 
  private:
-  friend class lookup::halo2::Evaluator<F, Evals>;
-  friend class lookup::log_derivative_halo2::Evaluator<F, Evals>;
+  friend class lookup::halo2::Evaluator<Evals>;
+  friend class lookup::log_derivative_halo2::Evaluator<Evals>;
 
   EvaluationInput<Evals> ExtractEvaluationInput(
       std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {

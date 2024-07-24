@@ -17,9 +17,11 @@
 
 namespace tachyon::zk::lookup::halo2 {
 
-template <typename F, typename Evals>
+template <typename Evals>
 class Evaluator {
  public:
+  using F = typename Evals::Field;
+
   const std::vector<plonk::GraphEvaluator<F>>& lookup_evaluators() const {
     return lookup_evaluators_;
   }
