@@ -203,6 +203,10 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return c0_;
   }
 
+  constexpr BaseField& operator[](size_t index) {
+    return const_cast<BaseField&>(std::as_const(*this).operator[](index));
+  }
+
   constexpr bool operator==(const Derived& other) const {
     return c0_ == other.c0_ && c1_ == other.c1_ && c2_ == other.c2_ &&
            c3_ == other.c3_;
