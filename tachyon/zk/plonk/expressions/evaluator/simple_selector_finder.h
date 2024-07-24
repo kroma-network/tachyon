@@ -17,45 +17,54 @@
 namespace tachyon::zk::plonk {
 
 template <typename F>
-bool ContainsSimpleSelector(const Expression<F>* input) {
-  switch (input->type()) {
-    case ExpressionType::kConstant:
-      return false;
-    case ExpressionType::kSelector:
-      return input->ToSelector()->selector().is_simple();
-    case ExpressionType::kFixed:
-      return false;
-    case ExpressionType::kAdvice:
-      return false;
-    case ExpressionType::kInstance:
-      return false;
-    case ExpressionType::kChallenge:
-      return false;
-    case ExpressionType::kNegated:
-      return ContainsSimpleSelector(input->ToNegated()->expr());
-    case ExpressionType::kSum: {
-      const SumExpression<F>* sum = input->ToSum();
-      return ContainsSimpleSelector(sum->left()) ||
-             ContainsSimpleSelector(sum->right());
+class SimpleSelectorFinder : public Evaluator<F, bool> {
+ public:
+  // Evaluator methods
+  bool Evaluate(const Expression<F>* input) override {
+    switch (input->type()) {
+      case ExpressionType::kConstant:
+        return false;
+      case ExpressionType::kSelector:
+        return input->ToSelector()->selector().is_simple();
+      case ExpressionType::kFixed:
+        return false;
+      case ExpressionType::kAdvice:
+        return false;
+      case ExpressionType::kInstance:
+        return false;
+      case ExpressionType::kChallenge:
+        return false;
+      case ExpressionType::kNegated:
+        return Evaluate(input->ToNegated()->expr());
+      case ExpressionType::kSum: {
+        const SumExpression<F>* sum = input->ToSum();
+        return Evaluate(sum->left()) || Evaluate(sum->right());
+      }
+      case ExpressionType::kProduct: {
+        const ProductExpression<F>* product = input->ToProduct();
+        return Evaluate(product->left()) || Evaluate(product->right());
+      }
+      case ExpressionType::kScaled: {
+        const ScaledExpression<F>* scaled = input->ToScaled();
+        return Evaluate(scaled->expr());
+      }
+      case ExpressionType::kFirstRow:
+      case ExpressionType::kLastRow:
+      case ExpressionType::kTransition:
+      case ExpressionType::kVariable:
+        NOTREACHED() << "AIR expression "
+                     << ExpressionTypeToString(input->type())
+                     << " is not allowed in plonk!";
     }
-    case ExpressionType::kProduct: {
-      const ProductExpression<F>* product = input->ToProduct();
-      return ContainsSimpleSelector(product->left()) ||
-             ContainsSimpleSelector(product->right());
-    }
-    case ExpressionType::kScaled: {
-      const ScaledExpression<F>* scaled = input->ToScaled();
-      return ContainsSimpleSelector(scaled->expr());
-    }
-    case ExpressionType::kFirstRow:
-    case ExpressionType::kLastRow:
-    case ExpressionType::kTransition:
-    case ExpressionType::kVariable:
-      NOTREACHED() << "AIR expression " << ExpressionTypeToString(input->type())
-                   << " is not allowed in plonk!";
+    NOTREACHED();
+    return false;
   }
-  NOTREACHED();
-  return false;
+};
+
+template <typename F>
+bool ContainsSimpleSelector(const Expression<F>* input) {
+  SimpleSelectorFinder<F> finder;
+  return finder.Evaluate(input);
 }
 
 }  // namespace tachyon::zk::plonk
