@@ -48,6 +48,11 @@ namespace {
 
 class ExtensionFieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
  public:
+  static void SetUpTestSuite() {
+    math::FiniteFieldTest<PackedF>::SetUpTestSuite();
+    ExtF::Init();
+  }
+
   void SetUp() override {
     Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
         15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
