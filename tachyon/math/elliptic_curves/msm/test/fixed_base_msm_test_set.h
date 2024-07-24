@@ -33,8 +33,8 @@ struct FixedBaseMSMTestSet {
   static FixedBaseMSMTestSet Random(size_t size, FixedBaseMSMMethod method) {
     FixedBaseMSMTestSet test_set;
     test_set.base = Point::Random();
-    test_set.scalars =
-        base::CreateVector(size, []() { return ScalarField::Random(); });
+    test_set.scalars = base::CreateVectorParallel(
+        size, []() { return ScalarField::Random(); });
     test_set.ComputeAnswer(method);
     return test_set;
   }

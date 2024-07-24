@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 
 namespace tachyon::math {
@@ -15,12 +15,17 @@ std::vector<Point> CreatePseudoRandomPoints(size_t size) {
   // generator. In most case, including MSM, bases doesn't affect to a
   // performance or test. So here it just produces pseudo random points by
   // doubling from a first selected random point.
-  Point p = Point::Random();
-  return base::CreateVector(size, [&p]() {
-    Point ret = p;
-    p = ConvertPoint<Point>(p.Double());
-    return ret;
+  // TODO(chokobole): make |ConvertPoints()| use |BatchInverse()| internally,
+  // and use |ConvertPoints()|.
+  std::vector<Point> ret(size);
+  base::Parallelize(ret, [](absl::Span<Point> chunk) {
+    Point r = Point::Random();
+    for (Point& p : chunk) {
+      p = ConvertPoint<Point>(r);
+      r = ConvertPoint<Point>(r.Double());
+    }
   });
+  return ret;
 }
 
 }  // namespace tachyon::math

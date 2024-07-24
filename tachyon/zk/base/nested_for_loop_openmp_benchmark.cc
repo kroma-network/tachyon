@@ -9,9 +9,10 @@ template <typename F>
 void BM_NestedForLoopParallelCols(benchmark::State& state) {
   size_t cols = state.range(0);
   size_t rows = state.range(1);
-  std::vector<std::vector<F>> table = base::CreateVector(cols, [rows]() {
-    return base::CreateVector(rows, []() { return F::Random(); });
-  });
+  std::vector<std::vector<F>> table =
+      base::CreateVectorParallel(cols, [rows]() {
+        return base::CreateVector(rows, []() { return F::Random(); });
+      });
   for (auto _ : state) {
     OPENMP_PARALLEL_FOR(size_t i = 0; i < cols; ++i) {
       for (size_t j = 0; j < rows; ++j) {
@@ -26,9 +27,10 @@ template <typename F>
 void BM_NestedForLoopParallelRows(benchmark::State& state) {
   size_t cols = state.range(0);
   size_t rows = state.range(1);
-  std::vector<std::vector<F>> table = base::CreateVector(cols, [rows]() {
-    return base::CreateVector(rows, []() { return F::Random(); });
-  });
+  std::vector<std::vector<F>> table =
+      base::CreateVectorParallel(cols, [rows]() {
+        return base::CreateVector(rows, []() { return F::Random(); });
+      });
   for (auto _ : state) {
     for (size_t i = 0; i < cols; ++i) {
       OPENMP_PARALLEL_FOR(size_t j = 0; j < rows; ++j) {
@@ -43,9 +45,10 @@ template <typename F>
 void BM_NestedForLoopParallelCollapse(benchmark::State& state) {
   size_t cols = state.range(0);
   size_t rows = state.range(1);
-  std::vector<std::vector<F>> table = base::CreateVector(cols, [rows]() {
-    return base::CreateVector(rows, []() { return F::Random(); });
-  });
+  std::vector<std::vector<F>> table =
+      base::CreateVectorParallel(cols, [rows]() {
+        return base::CreateVector(rows, []() { return F::Random(); });
+      });
   for (auto _ : state) {
     OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < cols; ++i) {
       for (size_t j = 0; j < rows; ++j) {

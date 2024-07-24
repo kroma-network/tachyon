@@ -8,7 +8,8 @@ namespace tachyon::zk {
 template <typename F>
 void BM_Parallelize(benchmark::State& state) {
   size_t n = state.range(0);
-  std::vector<F> vec = base::CreateVector(n, []() { return F::Random(); });
+  std::vector<F> vec =
+      base::CreateVectorParallel(n, []() { return F::Random(); });
   for (auto _ : state) {
     base::Parallelize(vec, [](absl::Span<F> chunk) {
       for (F& v : chunk) {
@@ -22,7 +23,8 @@ void BM_Parallelize(benchmark::State& state) {
 template <typename F>
 void BM_ForLoop(benchmark::State& state) {
   size_t n = state.range(0);
-  std::vector<F> vec = base::CreateVector(n, []() { return F::Random(); });
+  std::vector<F> vec =
+      base::CreateVectorParallel(n, []() { return F::Random(); });
   for (auto _ : state) {
     OPENMP_PARALLEL_FOR(size_t i = 0; i < n; ++i) { vec[i].DoubleInPlace(); }
   }

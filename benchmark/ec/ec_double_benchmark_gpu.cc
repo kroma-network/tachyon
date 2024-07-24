@@ -68,8 +68,8 @@ int RealMain(int argc, char** argv) {
   uint64_t max_point_num = point_nums.back();
   std::vector<bn254::G1AffinePoint> bases =
       CreatePseudoRandomPoints<bn254::G1AffinePoint>(max_point_num);
-  std::vector<bn254::Fr> scalars =
-      base::CreateVector(max_point_num, []() { return bn254::Fr::Random(); });
+  std::vector<bn254::Fr> scalars = base::CreateVectorParallel(
+      max_point_num, []() { return bn254::Fr::Random(); });
   std::cout << "Generation completed" << std::endl;
 
   std::vector<math::bn254::G1JacobianPoint> results_cpu;
