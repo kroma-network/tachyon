@@ -1,0 +1,14 @@
+load("//bazel:tachyon.bzl", "if_posix")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "sys_info",
+    srcs = if_posix(["sys_info_posix.cc"]),
+    hdrs = ["sys_info.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base/numerics:checked_math",
+    ],
+)

@@ -96,6 +96,21 @@ tachyon_objc_library(
 )
 
 tachyon_cc_library(
+    name = "memory_mapped_file",
+    srcs = ["memory_mapped_file.cc"] + if_posix(["memory_mapped_file_posix.cc"]),
+    hdrs = ["memory_mapped_file.h"],
+    deps = [
+        ":file",
+        ":file_util",
+        "//tachyon/base:logging",
+        "//tachyon/base/numerics:safe_math",
+        "//tachyon/base/system:sys_info",
+        "//tachyon/build:build_config",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
     name = "platform_file",
     hdrs = ["platform_file.h"],
     deps = [

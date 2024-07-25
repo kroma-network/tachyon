@@ -371,4 +371,56 @@ inline constexpr bool AnalyzerAssumeTrue(bool arg) {
 #define LOGICALLY_CONST
 #endif
 
+// UNSAFE_BUFFERS() wraps code that violates the -Wunsafe-buffer-usage warning,
+// such as:
+// - pointer arithmetic,
+// - pointer subscripting, and
+// - calls to functions annotated with UNSAFE_BUFFER_USAGE.
+//
+// This indicates code whose bounds correctness cannot be ensured
+// systematically, and thus requires manual review.
+//
+// ** USE OF THIS MACRO SHOULD BE VERY RARE.** This should only be used when
+// strictly necessary. Prefer to use `base::span` instead of pointers, or other
+// safer coding patterns (like std containers) that avoid the opportunity for
+// out-of-bounds bugs to creep into the code. Any use of UNSAFE_BUFFERS() can
+// lead to a critical security bug if any assumptions are wrong, or ever become
+// wrong in the future.
+//
+// The macro should be used to wrap the minimum necessary code, to make it clear
+// what is unsafe, and prevent accidentally opting extra things out of the
+// warning.
+//
+// All usage of UNSAFE_BUFFERS() should come with a `// SAFETY: ...` comment
+// that explains how we have guaranteed that the pointer usage can never go
+// out-of-bounds, or that the requirements of the UNSAFE_BUFFER_USAGE function
+// are met. The safety comment should allow a reader to check that all
+// requirements have been met, using only local invariants. Examples of local
+// invariants include:
+// - Runtime conditions or CHECKs near the UNSAFE_BUFFERS macros
+// - Invariants guaranteed by types in the surrounding code
+// - Invariants guaranteed by function calls in the surrounding code
+// - Caller requirements, if the containing function is itself marked with
+//   UNSAFE_BUFFER_USAGE
+//
+// The last case should be an option of last resort. It is less safe and will
+// require the caller also use the UNSAFE_BUFFERS() macro. Prefer directly
+// capturing such invariants in types like `base::span`.
+//
+// Safety explanations may not rely on invariants that are not fully
+// encapsulated close to the UNSAFE_BUFFERS() usage. Instead, use safer coding
+// patterns or stronger invariants.
+#if defined(__clang__)
+// clang-format off
+// Formatting is off so that we can put each _Pragma on its own line, as
+// recommended by the gcc docs.
+#define UNSAFE_BUFFERS(...)                  \
+  _Pragma("clang unsafe_buffer_usage begin") \
+  __VA_ARGS__                                \
+  _Pragma("clang unsafe_buffer_usage end")
+// clang-format on
+#else
+#define UNSAFE_BUFFERS(...) __VA_ARGS__
+#endif
+
 #endif  // TACHYON_BASE_COMPILER_SPECIFIC_H_
