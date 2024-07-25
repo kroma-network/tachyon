@@ -565,7 +565,7 @@ class SimpleLookupTestData : public CircuitTestData<Circuit, PCS, LS> {
       "0x19f2e881193a280d2d77a8bc0f9edf053732ec86f93279a580830fb2befeccd7";
 
   // clang-format off
-  constexpr static Point kLookupPermutedCommitmentsInputPoints[][1] = {
+  constexpr static Point kLookupPermutedCommitmentsInput[][1] = {
       {
           {"0x0570bae08fb2d8f086ef87cdba76c74d323b3829e63be2b8b1a0140a7c8263a1",
            "0x0eb968ee1f6663417be8e37d714a7dec22a717d74bc3c8bc1f4a4bd58da49eed"},
@@ -576,7 +576,7 @@ class SimpleLookupTestData : public CircuitTestData<Circuit, PCS, LS> {
       },
   };
 
-  constexpr static Point kLookupPermutedCommitmentsTablePoints[][1] = {
+  constexpr static Point kLookupPermutedCommitmentsTable[][1] = {
       {
           {"0x1f229d9bf8e868c447c012f97463d59ace9d0242b0a72731268ed1abd2a5126e",
            "0x29edba749b5dc16811d78ee18bce88c5c61cd56230ad68e73c578361062a317d"},

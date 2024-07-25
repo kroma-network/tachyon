@@ -72,8 +72,8 @@ Refer to the following files to learn more about these variables:
 1. :blue_square: kAdviceCommitments
 1. :blue_square: kChallenges
 1. :red_square: kTheta
-1. :blue_square: kLookupPermutedCommitmentsInputPoints
-1. :blue_square: kLookupPermutedCommitmentsTablePoints
+1. :blue_square: kLookupPermutedCommitmentsInput
+1. :blue_square: kLookupPermutedCommitmentsTable
 1. :blue_square: kLookupMPolyCommitments
 1. :red_square: kBeta
 1. :red_square: kGamma

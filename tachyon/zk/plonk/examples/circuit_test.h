@@ -295,14 +295,14 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
           expected_lookup_permuted_commitments_vec{
               CreateLookupPermutedCommitments(
                   base::ArrayToVector(
-                      TestData::kLookupPermutedCommitmentsInputPoints[0]),
+                      TestData::kLookupPermutedCommitmentsInput[0]),
                   base::ArrayToVector(
-                      TestData::kLookupPermutedCommitmentsTablePoints[0])),
+                      TestData::kLookupPermutedCommitmentsTable[0])),
               CreateLookupPermutedCommitments(
                   base::ArrayToVector(
-                      TestData::kLookupPermutedCommitmentsInputPoints[1]),
+                      TestData::kLookupPermutedCommitmentsInput[1]),
                   base::ArrayToVector(
-                      TestData::kLookupPermutedCommitmentsTablePoints[1])),
+                      TestData::kLookupPermutedCommitmentsTable[1])),
           };
       EXPECT_EQ(proof.lookup_permuted_commitments_vec,
                 expected_lookup_permuted_commitments_vec);
