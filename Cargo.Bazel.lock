@@ -1,5 +1,5 @@
 {
-  "checksum": "ad0fa670632dac1fa04401d06d366157173bff8f0a79a868a7fcfe935ab4d60f",
+  "checksum": "ca6d1b6a46ca837bae679fb8a8b4bd0e835f9c9a2e02f9f3c53ce3a1b8167f04",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -8350,7 +8350,7 @@
         "Git": {
           "remote": "https://github.com/kroma-network/halo2.git",
           "commitish": {
-            "Rev": "b95cf98"
+            "Rev": "28ceefb"
           },
           "strip_prefix": "halo2_proofs"
         }
