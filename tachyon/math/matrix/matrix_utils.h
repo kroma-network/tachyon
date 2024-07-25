@@ -139,7 +139,7 @@ void ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
   uint32_t log_n = base::bits::CheckedLog2(rows);
 
   OPENMP_PARALLEL_FOR(size_t row = 1; row < rows; ++row) {
-    size_t ridx = base::bits::BitRev(row) >> (sizeof(size_t) * 8 - log_n);
+    size_t ridx = base::bits::ReverseBitsLen(row, log_n);
     if (row < ridx) {
       mat.row(row).swap(mat.row(ridx));
     }

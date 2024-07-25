@@ -163,6 +163,10 @@ constexpr T LeftmostBit() {
 
 TACHYON_EXPORT uint64_t BitRev(uint64_t n);
 
+inline size_t ReverseBitsLen(size_t x, size_t bit_len) {
+  return BitRev(x) >> (sizeof(size_t) * 8 - bit_len);
+}
+
 }  // namespace bits
 }  // namespace tachyon::base
 

@@ -31,7 +31,7 @@ void SwapBitRevElementsInPlace(Container& container, size_t size,
                                size_t log_len) {
   if (size <= 1) return;
   OPENMP_PARALLEL_FOR(size_t idx = 1; idx < size; ++idx) {
-    size_t ridx = base::bits::BitRev(idx) >> (sizeof(size_t) * 8 - log_len);
+    size_t ridx = base::bits::ReverseBitsLen(idx, log_len);
     if (idx < ridx) {
       std::swap(container.at(idx), container.at(ridx));
     }

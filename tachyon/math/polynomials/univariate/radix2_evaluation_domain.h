@@ -139,8 +139,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
         F::GetSuccessivePowers(this->size_, shift, this->size_inv_);
     OPENMP_PARALLEL_FOR(size_t row = 0; row < weights.size(); ++row) {
       // Reverse bits because |mat| is encoded in bit-reversed order
-      mat.row(base::bits::BitRev(row) >>
-              (sizeof(size_t) * 8 - this->log_size_of_group_)) *= weights[row];
+      mat.row(base::bits::ReverseBitsLen(row, this->log_size_of_group_)) *=
+          weights[row];
     }
     ExpandInPlaceWithZeroPad<RowMajorMatrix<F>>(mat, added_bits);
 
