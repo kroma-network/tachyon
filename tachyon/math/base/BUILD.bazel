@@ -57,6 +57,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "byinverter",
+    hdrs = ["byinverter.h"],
+    deps = [
+        "//tachyon/base:bits",
+        "//tachyon/math/base:big_int",
+        "@com_google_absl//absl/numeric:int128",
+    ],
+)
+
+tachyon_cc_library(
     name = "egcd",
     hdrs = ["egcd.h"],
 )
@@ -154,6 +164,7 @@ tachyon_cc_unittest(
         "arithmetics_unittest.cc",
         "big_int_unittest.cc",
         "bit_iterator_unittest.cc",
+        "byinverter_unittest.cc",
         "egcd_unittest.cc",
         "field_unittest.cc",
         "groups_unittest.cc",
@@ -165,6 +176,7 @@ tachyon_cc_unittest(
     deps = [
         ":big_int",
         ":bit_iterator",
+        ":byinverter",
         ":egcd",
         ":groups",
         ":rational_field",

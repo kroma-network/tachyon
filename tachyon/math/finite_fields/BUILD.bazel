@@ -195,6 +195,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:adapters",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:arithmetics",
+        "//tachyon/math/base:byinverter",
         "//tachyon/math/base/gmp:gmp_util",
         "@com_google_googletest//:gtest_prod",
     ],

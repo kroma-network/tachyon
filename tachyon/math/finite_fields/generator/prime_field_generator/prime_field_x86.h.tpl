@@ -9,6 +9,7 @@
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
+#include "tachyon/math/base/byinverter.h"
 
 extern "C" void %{prefix}_rawAdd(uint64_t result[%{n}], const uint64_t a[%{n}], const uint64_t b[%{n}]);
 extern "C" void %{prefix}_rawSub(uint64_t result[%{n}], const uint64_t a[%{n}], const uint64_t b[%{n}]);
@@ -39,6 +40,9 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
 
   using CpuField = PrimeField<Config>;
   using GpuField = PrimeFieldGpu<Config>;
+  
+  constexpr static BYInverter<N> inverter =
+      BYInverter<N>(Config::kModulus, Config::kMontgomeryR2);
 
   constexpr PrimeField() = default;
   template <typename T,
@@ -230,8 +234,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   // MultiplicativeGroup methods
   constexpr std::optional<PrimeField> Inverse() const {
     PrimeField ret{};
-    if (LIKELY(value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
-            Config::kModulus, Config::kMontgomeryR2, ret.value_))) {
+    if (inverter.Invert(value_, ret.value_)) {
       return ret;
     }
     LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
@@ -239,8 +242,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   }
 
   [[nodiscard]] constexpr std::optional<PrimeField*> InverseInPlace() {
-    if (LIKELY(value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
-            Config::kModulus, Config::kMontgomeryR2, value_))) {
+    if (inverter.Invert(value_, value_)) {
       return this;
     }
     LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
