@@ -138,6 +138,8 @@ void CreateProof(const base::FilePath& zkey_path,
     std::pmr::vector<F> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
             domain.get(), coefficients, full_assignments);
+    std::cout << "Time taken for qap #" << i << ": "
+              << base::TimeTicks::Now() - start << std::endl;
     if (options.no_zk) {
       proof = zk::r1cs::groth16::CreateProofWithAssignmentNoZK(
           proving_key, absl::MakeConstSpan(h_evals),
@@ -154,7 +156,8 @@ void CreateProof(const base::FilePath& zkey_path,
 
     end = base::TimeTicks::Now();
     base::TimeDelta delta = end - start;
-    std::cout << "Time taken for proving #" << i << ": " << delta << std::endl;
+    std::cout << "Time taken for proving + qap #" << i << ": " << delta
+              << std::endl;
     prover_time.Add(delta);
     start = end;
   }
