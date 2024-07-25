@@ -18,7 +18,15 @@
 #elif ARCH_CPU_X86_64
 // See
 // https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/2021-8/intrinsics-for-multi-precision-arithmetic.html
+#if __GNUC__ > 10
+// See
+// https://github.com/gcc-mirror/gcc/blob/releases/gcc-11/gcc/config/i386/adxintrin.h#L25
 #include <x86gprintrin.h>
+#else
+// See
+// https://github.com/gcc-mirror/gcc/blob/releases/gcc-10/gcc/config/i386/adxintrin.h#L25
+#include <immintrin.h>
+#endif
 #endif
 
 namespace tachyon::math::internal {
