@@ -119,7 +119,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     }
 
     std::vector<std::vector<bool>> expected_selectors =
-        base::Array2DToVector2D(TestData::kCycleStoreSelectors);
+        base::Array2DToVector2D(TestData::kSelectors);
     EXPECT_EQ(assembly.selectors(), expected_selectors);
 
     EXPECT_EQ(assembly.usable_rows(), TestData::kUsableRows);

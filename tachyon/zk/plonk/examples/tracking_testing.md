@@ -57,7 +57,7 @@ Refer to the following files to learn more about these variables:
 1. :blue_square: kCycleStoreMapping
 1. :blue_square: kCycleStoreAux
 1. :blue_square: kCycleStoreSizes
-1. :red_square: kCycleStoreSelectors
+1. :red_square: kSelectors
 1. :green_square: kUsableRows
 1. :red_square: kPinnedVerifyingKey
 1. :red_square: kTranscriptRepr

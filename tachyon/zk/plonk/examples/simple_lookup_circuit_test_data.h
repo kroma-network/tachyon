@@ -129,7 +129,7 @@ class SimpleLookupTestData : public CircuitTestData<Circuit, PCS, LS> {
       },
   };
 
-  constexpr static bool kCycleStoreSelectors[][kN] = {
+  constexpr static bool kSelectors[][kN] = {
       {
           true,  true,  true,  true,  true,  true,  true,  true,
           true,  true,  true,  true,  true,  true,  true,  true,

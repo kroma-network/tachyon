@@ -214,7 +214,7 @@ class Fibonacci3TestData : public CircuitTestData<Circuit, PCS, LS> {
   // clang-format on
 
   // clang-format off
-  constexpr static bool kCycleStoreSelectors[][kN] = {
+  constexpr static bool kSelectors[][kN] = {
       {true, false, false, false, false, false, false, false,
        false, false, false, false, false, false, false, false}
   };

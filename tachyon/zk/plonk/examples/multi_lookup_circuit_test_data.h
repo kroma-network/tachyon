@@ -43,7 +43,7 @@ class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
 
   constexpr static std::string_view kPinnedConstraintSystem = "";
 
-  constexpr static bool kCycleStoreSelectors[][kN] = {{}};
+  constexpr static bool kSelectors[][kN] = {{}};
 
   constexpr static std::string_view kPinnedVerifyingKey = "";
 
@@ -470,7 +470,7 @@ class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsGWC<PCS>>>
 
   constexpr static std::string_view kPinnedConstraintSystem = "";
 
-  constexpr static bool kCycleStoreSelectors[][kN] = {{}};
+  constexpr static bool kSelectors[][kN] = {{}};
 
   constexpr static std::string_view kPinnedVerifyingKey = "";
 

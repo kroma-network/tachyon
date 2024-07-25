@@ -308,7 +308,7 @@ class ShuffleTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
   // clang-format on
 
   // clang-format off
-  constexpr static bool kCycleStoreSelectors[][kN] = {
+  constexpr static bool kSelectors[][kN] = {
       {true, true, true, true, true, true, true, true,
         false, false, false, false, false, false, false, false},
       {true, false, false, false, false, false, false, false,
@@ -1161,7 +1161,7 @@ class ShuffleTestData<Circuit, PCS, LS, std::enable_if_t<IsGWC<PCS>>>
   // clang-format on
 
   // clang-format off
-  constexpr static bool kCycleStoreSelectors[][kN] = {
+  constexpr static bool kSelectors[][kN] = {
       {true, true, true, true, true, true, true, true,
         false, false, false, false, false, false, false, false},
       {true, false, false, false, false, false, false, false,

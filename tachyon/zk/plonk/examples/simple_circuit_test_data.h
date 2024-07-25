@@ -203,7 +203,7 @@ class SimpleTestData<Circuit, PCS, LS,
   };
 
   // clang-format off
-  constexpr static bool kCycleStoreSelectors[][kN] = {
+  constexpr static bool kSelectors[][kN] = {
       {false, false, false,  true, false,  true, false,  true,
        false, false, false, false, false, false, false, false}
   };
@@ -1099,7 +1099,7 @@ class SimpleTestData<Circuit, PCS, LS,
   };
 
   // clang-format off
-  constexpr static bool kCycleStoreSelectors[][kN] = {
+  constexpr static bool kSelectors[][kN] = {
       {true, false, true, false, true, false, false, false,
        false, false, false, false, false, false, false, false}
   };
