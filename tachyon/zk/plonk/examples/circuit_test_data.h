@@ -35,6 +35,7 @@ class CircuitTestData {
   constexpr static bool kPermutationProductCommitmentsFlag = false;
   constexpr static bool kLookupProductCommitmentsFlag = false;
   constexpr static bool kLookupSumCommitmentsFlag = false;
+  constexpr static bool kShuffleProductCommitmentsFlag = false;
   constexpr static bool kAdviceEvalsFlag = false;
   constexpr static bool kFixedEvalsFlag = false;
   constexpr static bool kCommonPermutationEvalsFlag = false;
@@ -49,6 +50,8 @@ class CircuitTestData {
   constexpr static bool kLookupPermutedInputPrevEvalsFlag = false;
   constexpr static bool kLookupPermutedTableEvalsFlag = false;
   constexpr static bool kLookupMEvalsFlag = false;
+  constexpr static bool kShuffleProductEvalsFlag = false;
+  constexpr static bool kShuffleProductNextEvalsFlag = false;
 
   constexpr static base::Range<RowIndex> kUsableRows =
       base::Range<RowIndex>::Until(10);

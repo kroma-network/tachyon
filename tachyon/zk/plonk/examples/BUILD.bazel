@@ -97,6 +97,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "shuffle_api_circuit",
+    hdrs = ["shuffle_api_circuit.h"],
+    deps = [
+        "//tachyon/zk/plonk/constraint_system:circuit",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "shuffle_api_circuit_test_data",
+    testonly = True,
+    hdrs = ["shuffle_api_circuit_test_data.h"],
+    deps = COMMON_TEST_DATA_DEPS,
+)
+
+tachyon_cc_library(
     name = "simple_circuit",
     hdrs = ["simple_circuit.h"],
     deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
@@ -137,6 +153,15 @@ tachyon_cc_unittest(
     deps = COMMON_TEST_DEPS + [
         ":shuffle_circuit",
         ":shuffle_circuit_test_data",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "shuffle_api_circuit_test",
+    srcs = ["shuffle_api_circuit_test.cc"],
+    deps = COMMON_TEST_DEPS + [
+        ":shuffle_api_circuit",
+        ":shuffle_api_circuit_test_data",
     ],
 )
 
