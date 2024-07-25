@@ -46,6 +46,19 @@ tachyon_cc_library(
     deps = ["//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward"],
 )
 
+tachyon_cc_library(
+    name = "two_adic_fri_prover",
+    hdrs = ["two_adic_fri_prover.h"],
+    deps = [
+        ":two_adic_fri_config",
+        ":two_adic_fri_proof",
+        "//tachyon/base:bits",
+        "//tachyon/math/finite_fields:extension_field_traits_forward",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/zk/air/plonky3/challenger",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "fri_unittests",
     srcs = [
