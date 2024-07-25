@@ -40,7 +40,6 @@ class SimpleTestData<Circuit, PCS, LS,
   constexpr static bool kPermutationsPolysFlag = true;
   constexpr static bool kAdviceCommitmentsFlag = true;
   constexpr static bool kPermutationProductCommitmentsFlag = true;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = true;
   constexpr static bool kAdviceEvalsFlag = true;
   constexpr static bool kFixedEvalsFlag = true;
   constexpr static bool kCommonPermutationEvalsFlag = true;
@@ -203,7 +202,7 @@ class SimpleTestData<Circuit, PCS, LS,
   };
 
   // clang-format off
-  constexpr static bool kCycleStoreSelectors[][kN] = {
+  constexpr static bool kSelectors[][kN] = {
       {false, false, false,  true, false,  true, false,  true,
        false, false, false, false, false, false, false, false}
   };
@@ -936,7 +935,6 @@ class SimpleTestData<Circuit, PCS, LS,
   constexpr static bool kPermutationsPolysFlag = true;
   constexpr static bool kAdviceCommitmentsFlag = true;
   constexpr static bool kPermutationProductCommitmentsFlag = true;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = true;
   constexpr static bool kAdviceEvalsFlag = true;
   constexpr static bool kFixedEvalsFlag = true;
   constexpr static bool kCommonPermutationEvalsFlag = true;
@@ -1099,7 +1097,7 @@ class SimpleTestData<Circuit, PCS, LS,
   };
 
   // clang-format off
-  constexpr static bool kCycleStoreSelectors[][kN] = {
+  constexpr static bool kSelectors[][kN] = {
       {true, false, true, false, true, false, false, false,
        false, false, false, false, false, false, false, false}
   };

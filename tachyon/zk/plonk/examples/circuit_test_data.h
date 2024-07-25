@@ -30,12 +30,11 @@ class CircuitTestData {
   constexpr static bool kPermutationsPolysFlag = false;
   constexpr static bool kAdviceCommitmentsFlag = false;
   constexpr static bool kChallengesFlag = false;
-  constexpr static bool kLookupPermutedCommitmentsPointsFlag = false;
+  constexpr static bool kLookupPermutedCommitmentsFlag = false;
   constexpr static bool kLookupMPolyCommitmentsFlag = false;
   constexpr static bool kPermutationProductCommitmentsFlag = false;
   constexpr static bool kLookupProductCommitmentsFlag = false;
   constexpr static bool kLookupSumCommitmentsFlag = false;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = false;
   constexpr static bool kAdviceEvalsFlag = false;
   constexpr static bool kFixedEvalsFlag = false;
   constexpr static bool kCommonPermutationEvalsFlag = false;

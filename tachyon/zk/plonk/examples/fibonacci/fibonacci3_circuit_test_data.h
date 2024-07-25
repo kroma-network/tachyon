@@ -23,7 +23,6 @@ class Fibonacci3TestData : public CircuitTestData<Circuit, PCS, LS> {
   constexpr static bool kFixedColumnsFlag = true;
   constexpr static bool kFixedPolysFlag = true;
   constexpr static bool kAdviceCommitmentsFlag = true;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = true;
   constexpr static bool kAdviceEvalsFlag = true;
   constexpr static bool kFixedEvalsFlag = true;
 
@@ -214,7 +213,7 @@ class Fibonacci3TestData : public CircuitTestData<Circuit, PCS, LS> {
   // clang-format on
 
   // clang-format off
-  constexpr static bool kCycleStoreSelectors[][kN] = {
+  constexpr static bool kSelectors[][kN] = {
       {true, false, false, false, false, false, false, false,
        false, false, false, false, false, false, false, false}
   };

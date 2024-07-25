@@ -119,7 +119,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     }
 
     std::vector<std::vector<bool>> expected_selectors =
-        base::Array2DToVector2D(TestData::kCycleStoreSelectors);
+        base::Array2DToVector2D(TestData::kSelectors);
     EXPECT_EQ(assembly.selectors(), expected_selectors);
 
     EXPECT_EQ(assembly.usable_rows(), TestData::kUsableRows);
@@ -290,19 +290,19 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     F expected_theta = *F::FromHexString(TestData::kTheta);
     EXPECT_EQ(proof.theta, expected_theta);
 
-    if constexpr (TestData::kLookupPermutedCommitmentsPointsFlag) {
+    if constexpr (TestData::kLookupPermutedCommitmentsFlag) {
       std::vector<std::vector<lookup::Pair<Commitment>>>
           expected_lookup_permuted_commitments_vec{
               CreateLookupPermutedCommitments(
                   base::ArrayToVector(
-                      TestData::kLookupPermutedCommitmentsInputPoints[0]),
+                      TestData::kLookupPermutedCommitmentsInput[0]),
                   base::ArrayToVector(
-                      TestData::kLookupPermutedCommitmentsTablePoints[0])),
+                      TestData::kLookupPermutedCommitmentsTable[0])),
               CreateLookupPermutedCommitments(
                   base::ArrayToVector(
-                      TestData::kLookupPermutedCommitmentsInputPoints[1]),
+                      TestData::kLookupPermutedCommitmentsInput[1]),
                   base::ArrayToVector(
-                      TestData::kLookupPermutedCommitmentsTablePoints[1])),
+                      TestData::kLookupPermutedCommitmentsTable[1])),
           };
       EXPECT_EQ(proof.lookup_permuted_commitments_vec,
                 expected_lookup_permuted_commitments_vec);
@@ -368,15 +368,11 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     F expected_y = *F::FromHexString(TestData::kY);
     EXPECT_EQ(proof.y, expected_y);
 
-    if constexpr (TestData::kVanishingHPolyCommitmentsFlag) {
-      std::vector<Commitment> expected_vanishing_h_poly_commitments =
-          CreateCommitments(
-              base::ArrayToVector(TestData::kVanishingHPolyCommitments));
-      EXPECT_EQ(proof.vanishing_h_poly_commitments,
-                expected_vanishing_h_poly_commitments);
-    } else {
-      EXPECT_TRUE(proof.vanishing_h_poly_commitments.empty());
-    }
+    std::vector<Commitment> expected_vanishing_h_poly_commitments =
+        CreateCommitments(
+            base::ArrayToVector(TestData::kVanishingHPolyCommitments));
+    EXPECT_EQ(proof.vanishing_h_poly_commitments,
+              expected_vanishing_h_poly_commitments);
 
     F expected_x = *F::FromHexString(TestData::kX);
     EXPECT_EQ(proof.x, expected_x);
