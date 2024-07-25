@@ -368,15 +368,11 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     F expected_y = *F::FromHexString(TestData::kY);
     EXPECT_EQ(proof.y, expected_y);
 
-    if constexpr (TestData::kVanishingHPolyCommitmentsFlag) {
-      std::vector<Commitment> expected_vanishing_h_poly_commitments =
-          CreateCommitments(
-              base::ArrayToVector(TestData::kVanishingHPolyCommitments));
-      EXPECT_EQ(proof.vanishing_h_poly_commitments,
-                expected_vanishing_h_poly_commitments);
-    } else {
-      EXPECT_TRUE(proof.vanishing_h_poly_commitments.empty());
-    }
+    std::vector<Commitment> expected_vanishing_h_poly_commitments =
+        CreateCommitments(
+            base::ArrayToVector(TestData::kVanishingHPolyCommitments));
+    EXPECT_EQ(proof.vanishing_h_poly_commitments,
+              expected_vanishing_h_poly_commitments);
 
     F expected_x = *F::FromHexString(TestData::kX);
     EXPECT_EQ(proof.x, expected_x);

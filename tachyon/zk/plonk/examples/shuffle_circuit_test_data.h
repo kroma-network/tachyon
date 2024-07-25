@@ -30,7 +30,6 @@ class ShuffleTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
   constexpr static bool kFixedPolysFlag = true;
   constexpr static bool kAdviceCommitmentsFlag = true;
   constexpr static bool kChallengesFlag = true;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = true;
   constexpr static bool kAdviceEvalsFlag = true;
   constexpr static bool kFixedEvalsFlag = true;
 

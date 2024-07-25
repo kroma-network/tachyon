@@ -37,7 +37,6 @@ class Fibonacci1TestData<Circuit, PCS, LS,
   constexpr static bool kPermutationsPolysFlag = true;
   constexpr static bool kAdviceCommitmentsFlag = true;
   constexpr static bool kPermutationProductCommitmentsFlag = true;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = true;
   constexpr static bool kAdviceEvalsFlag = true;
   constexpr static bool kFixedEvalsFlag = true;
   constexpr static bool kCommonPermutationEvalsFlag = true;
@@ -841,7 +840,6 @@ class Fibonacci1TestData<Circuit, PCS, LS,
   constexpr static bool kPermutationsPolysFlag = true;
   constexpr static bool kAdviceCommitmentsFlag = true;
   constexpr static bool kPermutationProductCommitmentsFlag = true;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = true;
   constexpr static bool kAdviceEvalsFlag = true;
   constexpr static bool kFixedEvalsFlag = true;
   constexpr static bool kCommonPermutationEvalsFlag = true;

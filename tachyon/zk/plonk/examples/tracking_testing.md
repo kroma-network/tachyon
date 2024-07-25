@@ -81,7 +81,7 @@ Refer to the following files to learn more about these variables:
 1. :blue_square: kLookupProductCommitments
 1. :blue_square: kLookupSumCommitments
 1. :red_square: kY
-1. :blue_square: kVanishingHPolyCommitments
+1. :red_square: kVanishingHPolyCommitments
 1. :red_square: kX
 1. :blue_square: kAdviceEvals
 1. :blue_square: kFixedEvals

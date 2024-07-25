@@ -29,7 +29,6 @@ class SimpleLookupTestData : public CircuitTestData<Circuit, PCS, LS> {
   constexpr static bool kAdviceCommitmentsFlag = true;
   constexpr static bool kLookupPermutedCommitmentsPointsFlag = true;
   constexpr static bool kLookupProductCommitmentsFlag = true;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = true;
   constexpr static bool kAdviceEvalsFlag = true;
   constexpr static bool kFixedEvalsFlag = true;
   constexpr static bool kLookupProductEvalsFlag = true;

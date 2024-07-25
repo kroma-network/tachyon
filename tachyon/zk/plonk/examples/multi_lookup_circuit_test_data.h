@@ -28,7 +28,6 @@ class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
   constexpr static bool kLookupMPolyCommitmentsFlag = true;
   constexpr static bool kPermutationProductCommitmentsFlag = true;
   constexpr static bool kLookupSumCommitmentsFlag = true;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = true;
   constexpr static bool kAdviceEvalsFlag = true;
   constexpr static bool kFixedEvalsFlag = true;
   constexpr static bool kCommonPermutationEvalsFlag = true;
@@ -455,7 +454,6 @@ class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsGWC<PCS>>>
   constexpr static bool kLookupMPolyCommitmentsFlag = true;
   constexpr static bool kPermutationProductCommitmentsFlag = true;
   constexpr static bool kLookupSumCommitmentsFlag = true;
-  constexpr static bool kVanishingHPolyCommitmentsFlag = true;
   constexpr static bool kAdviceEvalsFlag = true;
   constexpr static bool kFixedEvalsFlag = true;
   constexpr static bool kCommonPermutationEvalsFlag = true;
