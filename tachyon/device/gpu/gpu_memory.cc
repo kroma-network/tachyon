@@ -162,4 +162,32 @@ gpuError_t GpuMemGetInfo(size_t* free, size_t* total) {
   return gpuMemGetInfo(free, total);
 }
 
+size_t GpuMemLimitInfo(MemoryUsage type) {
+  size_t free_memory, total_memory;
+  size_t available_memory = 0;
+
+  gpuError_t error = GpuMemGetInfo(&free_memory, &total_memory);
+  if (error != gpuSuccess) {
+    GPU_LOG(ERROR, error) << "Failed to GpuMemGetInfo()";
+    return available_memory;
+  }
+
+  // NOTE(GideokKim): CUDA is not guaranteed to be able to allocate all of the
+  // memory that the OS reports as free returned by |cudaMemGetInfo| function.
+  // Therefore, only a portion of free memory is used.
+  // See
+  // https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1g376b97f5ab20321ca46f7cfa9511b978
+  available_memory = free_memory;
+  switch (type) {
+    case MemoryUsage::kHigh:
+      return static_cast<size_t>(available_memory * 0.9);
+    case MemoryUsage::kMedium:
+      return static_cast<size_t>(available_memory * 0.8);
+    case MemoryUsage::kLow:
+      return static_cast<size_t>(available_memory * 0.7);
+  }
+  NOTREACHED();
+  return 0;
+}
+
 }  // namespace tachyon::device::gpu
