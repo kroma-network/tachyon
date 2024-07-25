@@ -14,6 +14,19 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "bin_file",
+    srcs = ["bin_file.cc"],
+    hdrs = ["bin_file.h"],
+    deps = [
+        ":file_util",
+        ":memory_mapped_file",
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "//tachyon/base/buffer:read_only_buffer",
+    ],
+)
+
+tachyon_cc_library(
     name = "file",
     srcs = ["file.cc"] + if_posix(["file_posix.cc"]),
     hdrs = ["file.h"],

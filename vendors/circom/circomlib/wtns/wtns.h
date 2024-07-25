@@ -4,18 +4,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/mman.h>
 
 #include <memory>
-#include <optional>
 #include <string>
 #include <utility>
-#include <vector>
 
 #include "circomlib/base/modulus.h"
 #include "circomlib/base/sections.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/buffer/read_only_buffer.h"
-#include "tachyon/base/files/file_util.h"
+#include "tachyon/base/files/bin_file.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/strings/string_util.h"
@@ -30,7 +29,7 @@ struct Wtns;
 
 template <typename F>
 struct Wtns {
-  explicit Wtns(std::vector<uint8_t>&& data) : data(std::move(data)) {}
+  explicit Wtns(base::BinFile bin_file) : bin_file(std::move(bin_file)) {}
   virtual ~Wtns() = default;
 
   virtual uint32_t GetVersion() const = 0;
@@ -43,21 +42,23 @@ struct Wtns {
 
   virtual absl::Span<const F> GetWitnesses() const = 0;
 
-  std::vector<uint8_t> data;
+  base::BinFile bin_file;
 };
 
 constexpr char kWtnsMagic[4] = {'w', 't', 'n', 's'};
 
 // Return nullptr if the parser failed to parse.
 template <typename F>
-std::unique_ptr<Wtns<F>> ParseWtns(const base::FilePath& path) {
-  std::optional<std::vector<uint8_t>> wtns_data = base::ReadFileToBytes(path);
-  if (!wtns_data.has_value()) {
-    LOG(ERROR) << "Failed to read file: " << path.value();
-    return nullptr;
+std::unique_ptr<Wtns<F>> ParseWtns(const base::FilePath& path,
+                                   bool use_mmap = true) {
+  base::BinFile bin_file;
+  CHECK(bin_file.Load(path, use_mmap));
+  if (use_mmap) {
+    PCHECK(madvise(bin_file.GetData(), bin_file.GetDataLength(),
+                   MADV_SEQUENTIAL) == 0);
   }
 
-  base::ReadOnlyBuffer buffer(wtns_data->data(), wtns_data->size());
+  base::ReadOnlyBuffer buffer = bin_file.ToReadOnlyBuffer();
   buffer.set_endian(base::Endian::kLittle);
   char magic[4];
   uint32_t version;
@@ -68,7 +69,7 @@ std::unique_ptr<Wtns<F>> ParseWtns(const base::FilePath& path) {
   }
   std::unique_ptr<Wtns<F>> wtns;
   if (version == 2) {
-    wtns.reset(new v2::Wtns<F>(std::move(wtns_data).value()));
+    wtns.reset(new v2::Wtns<F>(std::move(bin_file)));
     CHECK(wtns->ToV2()->Read(buffer));
   } else {
     LOG(ERROR) << "Invalid version: " << version;
@@ -140,8 +141,8 @@ struct Wtns : public circom::Wtns<F> {
   WtnsHeaderSection header;
   WtnsDataSection<F> data;
 
-  explicit Wtns(std::vector<uint8_t>&& data)
-      : circom::Wtns<F>(std::move(data)) {}
+  explicit Wtns(base::BinFile bin_file)
+      : circom::Wtns<F>(std::move(bin_file)) {}
 
   // circom::Wtns methods
   uint32_t GetVersion() const override { return 2; }

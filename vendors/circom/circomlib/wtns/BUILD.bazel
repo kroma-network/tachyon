@@ -13,7 +13,7 @@ tachyon_cc_library(
         "@kroma_network_tachyon//tachyon/base:openmp_util",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
         "@kroma_network_tachyon//tachyon/base/buffer:read_only_buffer",
-        "@kroma_network_tachyon//tachyon/base/files:file_util",
+        "@kroma_network_tachyon//tachyon/base/files:bin_file",
         "@kroma_network_tachyon//tachyon/base/strings:string_util",
     ],
 )
