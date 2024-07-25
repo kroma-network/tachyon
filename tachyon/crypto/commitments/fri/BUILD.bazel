@@ -41,6 +41,25 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "two_adic_fri_pcs",
+    hdrs = ["two_adic_fri_pcs.h"],
+    deps = [
+        ":two_adic_fri_proof",
+        ":two_adic_fri_prover",
+        ":two_adic_fri_verifier",
+        "//tachyon/base:bits",
+        "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward",
+        "//tachyon/math/finite_fields:extension_field_traits_forward",
+        "//tachyon/math/geometry:dimensions",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/math/matrix:matrix_utils",
+        "//tachyon/math/polynomials/univariate:evaluations_utils",
+        "@com_google_absl//absl/container:btree",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
+
+tachyon_cc_library(
     name = "two_adic_fri_proof",
     hdrs = ["two_adic_fri_proof.h"],
     deps = ["//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward"],
