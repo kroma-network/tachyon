@@ -29,6 +29,12 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "two_adic_fri_proof",
+    hdrs = ["two_adic_fri_proof.h"],
+    deps = ["//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward"],
+)
+
 tachyon_cc_unittest(
     name = "fri_unittests",
     srcs = ["fri_unittest.cc"],
