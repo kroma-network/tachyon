@@ -2,20 +2,22 @@
 
 ## Currently Tested Types
 
-| Circuit             | FloorPlanner       | PCS     | LS      |
-| ------------------- | ------------------ | ------- | ------- |
-| SimpleCircuit       | SimpleFloorPlanner | SHPlonk | Halo2LS |
-| SimpleCircuit       | V1FloorPlanner     | SHPlonk | Halo2LS |
-| SimpleLookupCircuit | SimpleFloorPlanner | SHPlonk | Halo2LS |
-| SimpleLookupCircuit | V1FloorPlanner     | SHPlonk | Halo2LS |
-| ShuffleCircuit      | SimpleFloorPlanner | SHPlonk | Halo2LS |
-| ShuffleCircuit      | V1FloorPlanner     | SHPlonk | Halo2LS |
-| Fibonacci1Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS |
-| Fibonacci1Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS |
-| Fibonacci2Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS |
-| Fibonacci2Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS |
-| Fibonacci3Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS |
-| Fibonacci3Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS |
+| Circuit             | FloorPlanner       | PCS     | LS                   |
+| ------------------- | ------------------ | ------- | -------------------- |
+| SimpleCircuit       | SimpleFloorPlanner | SHPlonk | Halo2LS              |
+| SimpleCircuit       | V1FloorPlanner     | SHPlonk | Halo2LS              |
+| SimpleLookupCircuit | SimpleFloorPlanner | SHPlonk | Halo2LS              |
+| SimpleLookupCircuit | V1FloorPlanner     | SHPlonk | Halo2LS              |
+| ShuffleCircuit      | SimpleFloorPlanner | SHPlonk | Halo2LS              |
+| ShuffleCircuit      | V1FloorPlanner     | SHPlonk | Halo2LS              |
+| Fibonacci1Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS              |
+| Fibonacci1Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS              |
+| Fibonacci2Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS              |
+| Fibonacci2Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS              |
+| Fibonacci3Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS              |
+| Fibonacci3Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS              |
+| MultiLookupCircuit  | SimpleFloorPlanner | SHPlonk | LogDerivativeHalo2LS |
+| MultiLookupCircuit  | SimpleFloorPlanner | GWC     | LogDerivativeHalo2LS |
 
 **In Progress**:
 
@@ -53,7 +55,7 @@ Refer to the following files to learn more about these variables:
 1. :red_square: kN
 1. :red_square: kPinnedConstraintSystem
 1. :blue_square: kAssemblyFixedColumns
-1. :blue_square: kAssemblyColumns
+1. :blue_square: kAssemblyPermutationColumns
 1. :blue_square: kCycleStoreMapping
 1. :blue_square: kCycleStoreAux
 1. :blue_square: kCycleStoreSizes
@@ -97,4 +99,4 @@ Refer to the following files to learn more about these variables:
 1. :blue_square: kLookupPermutedInputPrevEvals
 1. :blue_square: kLookupPermutedTableEvals
 1. :blue_square: kLookupMEvals
-1. :blue_square: kHEval
+1. :red_square: kHEval
