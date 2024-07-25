@@ -59,6 +59,18 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "two_adic_fri_verifier",
+    hdrs = ["two_adic_fri_verifier.h"],
+    deps = [
+        ":two_adic_fri_config",
+        ":two_adic_fri_proof",
+        "//tachyon/base:bits",
+        "//tachyon/math/geometry:dimensions",
+        "//tachyon/zk/air/plonky3/challenger",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "fri_unittests",
     srcs = [
