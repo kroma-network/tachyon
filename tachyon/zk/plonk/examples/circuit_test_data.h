@@ -30,7 +30,7 @@ class CircuitTestData {
   constexpr static bool kPermutationsPolysFlag = false;
   constexpr static bool kAdviceCommitmentsFlag = false;
   constexpr static bool kChallengesFlag = false;
-  constexpr static bool kLookupPermutedCommitmentsPointsFlag = false;
+  constexpr static bool kLookupPermutedCommitmentsFlag = false;
   constexpr static bool kLookupMPolyCommitmentsFlag = false;
   constexpr static bool kPermutationProductCommitmentsFlag = false;
   constexpr static bool kLookupProductCommitmentsFlag = false;

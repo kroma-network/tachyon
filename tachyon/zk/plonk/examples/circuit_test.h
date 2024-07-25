@@ -290,7 +290,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     F expected_theta = *F::FromHexString(TestData::kTheta);
     EXPECT_EQ(proof.theta, expected_theta);
 
-    if constexpr (TestData::kLookupPermutedCommitmentsPointsFlag) {
+    if constexpr (TestData::kLookupPermutedCommitmentsFlag) {
       std::vector<std::vector<lookup::Pair<Commitment>>>
           expected_lookup_permuted_commitments_vec{
               CreateLookupPermutedCommitments(
