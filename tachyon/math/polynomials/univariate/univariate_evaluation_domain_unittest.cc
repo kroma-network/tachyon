@@ -113,7 +113,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FilterPolynomial) {
         // Get all possible cosets of |subdomain| within |domain|.
         for (const bls12_381::Fr& offset : possible_offsets) {
           std::unique_ptr<BaseDomain> coset = subdomain->GetCoset(offset);
-          std::vector<bls12_381::Fr> coset_elements = coset->GetElements();
+          std::pmr::vector<bls12_381::Fr> coset_elements = coset->GetElements();
           DensePoly filter_poly = domain->GetFilterPolynomial(*coset);
           EXPECT_EQ(filter_poly.Degree(), domain_size - subdomain_size);
           for (const bls12_381::Fr& element : domain->GetElements()) {
@@ -153,7 +153,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, ContentsOfElements) {
   for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
     size_t size = size_t{1} << coeffs;
     this->TestDomains(size, [size](const BaseDomain& d) {
-      std::vector<F> elements = d.GetElements();
+      std::pmr::vector<F> elements = d.GetElements();
       for (size_t i = 0; i < size; ++i) {
         EXPECT_EQ(elements[i], d.offset() * d.group_gen().Pow(i));
         EXPECT_EQ(elements[i], d.GetElement(i));
@@ -178,10 +178,10 @@ TYPED_TEST(UnivariateEvaluationDomainTest, NonSystematicLagrangeCoefficients) {
     F actual_eval = rand_poly.Evaluate(rand_pt);
     this->TestDomains(domain_size, [domain_size, &rand_pt, &rand_poly,
                                     &actual_eval](const BaseDomain& d) {
-      std::vector<F> lagrange_coeffs =
+      std::pmr::vector<F> lagrange_coeffs =
           d.EvaluateAllLagrangeCoefficients(rand_pt);
 
-      std::vector<F> sub_lagrange_coeffs =
+      std::pmr::vector<F> sub_lagrange_coeffs =
           d.EvaluatePartialLagrangeCoefficients(
               rand_pt, base::Range<size_t>(1, domain_size - 1));
 
@@ -218,9 +218,10 @@ TYPED_TEST(UnivariateEvaluationDomainTest, SystematicLagrangeCoefficients) {
     this->TestDomains(domain_size, [domain_size](const BaseDomain& d) {
       for (size_t i = 0; i < domain_size; ++i) {
         F x = d.GetElement(i);
-        std::vector<F> lagrange_coeffs = d.EvaluateAllLagrangeCoefficients(x);
+        std::pmr::vector<F> lagrange_coeffs =
+            d.EvaluateAllLagrangeCoefficients(x);
 
-        std::vector<F> sub_lagrange_coeffs =
+        std::pmr::vector<F> sub_lagrange_coeffs =
             d.EvaluatePartialLagrangeCoefficients(
                 x, base::Range<size_t>(1, domain_size - 1));
 
@@ -316,7 +317,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, RootsOfUnity) {
       EXPECT_TRUE(domain->EvaluateVanishingPolynomial(value).IsZero());
     }
     EXPECT_EQ(actual_roots.size(), domain->size());
-    std::vector<F> expected_roots = domain->GetElements();
+    std::pmr::vector<F> expected_roots = domain->GetElements();
     EXPECT_EQ(absl::MakeConstSpan(actual_roots),
               absl::Span(expected_roots.data(), actual_roots.size()));
   }

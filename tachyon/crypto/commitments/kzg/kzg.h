@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -156,7 +157,8 @@ class KZG {
 
     // |g1_powers_of_tau_| = [τ⁰g₁, τ¹g₁, ... , τⁿ⁻¹g₁]
     G1Point g1 = G1Point::Generator();
-    std::vector<Field> powers_of_tau = Field::GetSuccessivePowers(size, tau);
+    std::pmr::vector<Field> powers_of_tau =
+        Field::GetSuccessivePowers(size, tau);
 
     g1_powers_of_tau_.resize(size);
     if (!G1Point::BatchMapScalarFieldToPoint(g1, powers_of_tau,
@@ -166,7 +168,7 @@ class KZG {
 
     // Get |g1_powers_of_tau_lagrange_| from τ and g₁.
     std::unique_ptr<Domain> domain = Domain::Create(size);
-    std::vector<Field> lagrange_coeffs =
+    std::pmr::vector<Field> lagrange_coeffs =
         domain->EvaluateAllLagrangeCoefficients(tau);
 
     g1_powers_of_tau_lagrange_.resize(size);
