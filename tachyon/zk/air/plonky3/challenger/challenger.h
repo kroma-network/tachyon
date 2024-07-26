@@ -112,6 +112,7 @@ class Challenger {
       return v != std::numeric_limits<uint32_t>::max();
     });
     CHECK(it != ret.end());
+    CheckWitness(bits, Field(*it));
     return Field(*it);
   }
 
