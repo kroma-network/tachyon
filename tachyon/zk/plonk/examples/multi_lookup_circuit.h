@@ -1,3 +1,12 @@
+// Copyright 2020-2022 The Electric Coin Company
+// Copyright 2022 The Halo2 developers
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
+// file.
+
+// This is taken and modified from
+// https://github.com/scroll-tech/halo2/blob/1070391/halo2_proofs/tests/plonk_api.rs.
+
 #ifndef TACHYON_ZK_PLONK_EXAMPLES_MULTI_LOOKUP_CIRCUIT_H_
 #define TACHYON_ZK_PLONK_EXAMPLES_MULTI_LOOKUP_CIRCUIT_H_
 
