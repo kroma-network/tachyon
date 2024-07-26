@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include <memory_resource>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -436,7 +437,7 @@ class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
 
   static std::vector<Evals> GetInstanceColumns() {
     F instance = F(2);
-    std::vector<F> instance_column = {std::move(instance)};
+    std::pmr::vector<F> instance_column = {std::move(instance)};
     return {Evals(std::move(instance_column))};
   }
 };
@@ -867,7 +868,7 @@ class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsGWC<PCS>>>
 
   static std::vector<Evals> GetInstanceColumns() {
     F instance = F(2);
-    std::vector<F> instance_column = {std::move(instance)};
+    std::pmr::vector<F> instance_column = {std::move(instance)};
     return {Evals(std::move(instance_column))};
   }
 };

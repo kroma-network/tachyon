@@ -1,5 +1,6 @@
 #include "tachyon/zk/base/blinder.h"
 
+#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -49,13 +50,13 @@ TEST(BlinderUnittest, Blind) {
 
     RowIndex blinded_rows = kBlindingFactors;
     if (include_last_row) ++blinded_rows;
-    std::vector<math::GF7> values = base::CreateVector(
+    std::pmr::vector<math::GF7> values = base::CreatePmrVector(
         blinded_rows - 1, []() { return math::GF7::Random(); });
     Evals evals(std::move(values));
     ASSERT_FALSE(blinder.Blind(evals, include_last_row));
 
     RowIndex rows = kBlindingFactors + 5;
-    values = base::CreateVector(rows, []() { return math::GF7::Random(); });
+    values = base::CreatePmrVector(rows, []() { return math::GF7::Random(); });
     evals = Evals(values);
     ASSERT_TRUE(blinder.Blind(evals, include_last_row));
 

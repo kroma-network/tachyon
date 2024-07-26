@@ -296,9 +296,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t vec_largest_size = this->size_ / 2;
 
     // Compute biggest vector of |root_vec_| and |inv_root_vec_| first.
-    std::vector<F> largest =
+    std::pmr::vector<F> largest =
         this->GetRootsOfUnity(vec_largest_size, this->group_gen_);
-    std::vector<F> largest_inv =
+    std::pmr::vector<F> largest_inv =
         this->GetRootsOfUnity(vec_largest_size, this->group_gen_inv_);
 
     if constexpr (F::Config::kModulusBits <= 32) {
@@ -363,7 +363,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   // This can be used as the first half of a parallelized butterfly network.
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunks(
-      RowMajorMatrix<F>& mat, const std::vector<F>& twiddles,
+      RowMajorMatrix<F>& mat, const std::pmr::vector<F>& twiddles,
       const std::vector<PackedPrimeField>& packed_twiddles_rev) {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -448,15 +448,15 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   CONSTEXPR_IF_NOT_OPENMP std::vector<F> ReverseSliceIndexBits(
-      const std::vector<F>& vals) {
+      const std::pmr::vector<F>& vals) {
     size_t n = vals.size();
     if (n == 0) {
-      return vals;
+      return std::vector<F>();
     }
     CHECK(base::bits::IsPowerOfTwo(n));
     size_t log_n = base::bits::Log2Ceiling(n);
 
-    std::vector<F> ret = vals;
+    std::vector<F> ret(vals.begin(), vals.end());
     this->SwapElements(ret, n, log_n);
     return ret;
   }
@@ -492,8 +492,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   std::vector<std::vector<PackedPrimeField>> packed_roots_vec_;
   std::vector<std::vector<PackedPrimeField>> packed_inv_roots_vec_;
   // For all finite fields
-  std::vector<std::vector<F>> roots_vec_;
-  std::vector<std::vector<F>> inv_roots_vec_;
+  std::vector<std::pmr::vector<F>> roots_vec_;
+  std::vector<std::pmr::vector<F>> inv_roots_vec_;
 };
 
 }  // namespace tachyon::math

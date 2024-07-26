@@ -10,6 +10,7 @@
 
 #include <functional>
 #include <memory>
+#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -111,13 +112,13 @@ class QuadraticArithmeticProgram {
                             constraint_system.witness_assignments().begin(),
                             constraint_system.witness_assignments().end());
 
-    std::vector<F> h_poly =
+    std::pmr::vector<F> h_poly =
         WitnessMapFromMatrices(domain, matrices.value(), full_assignments);
     return {std::move(h_poly), std::move(full_assignments)};
   }
 
   template <typename Domain>
-  static std::vector<F> WitnessMapFromMatrices(
+  static std::pmr::vector<F> WitnessMapFromMatrices(
       const Domain* domain, const ConstraintMatrices<F>& matrices,
       absl::Span<const F> full_assignments) {
     using Evals = typename Domain::Evals;
@@ -125,9 +126,9 @@ class QuadraticArithmeticProgram {
 
     CHECK_GE(domain->size(), matrices.num_constraints);
 
-    std::vector<F> a(domain->size());
-    std::vector<F> b(domain->size());
-    std::vector<F> c(domain->size());
+    std::pmr::vector<F> a(domain->size());
+    std::pmr::vector<F> b(domain->size());
+    std::pmr::vector<F> c(domain->size());
 
     // clang-format off
     // |a[i]| = Σⱼ₌₀..ₘ (xⱼ * Aᵢ,ⱼ)    (if i < |num_constraints|)

@@ -8,6 +8,7 @@
 #define TACHYON_ZK_PLONK_EXPRESSIONS_COMPRESS_EXPRESSION_H_
 
 #include <memory>
+#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -23,7 +24,7 @@ Evals CompressExpressions(
     const std::vector<std::unique_ptr<Expression<F>>>& expressions,
     const F& theta, const ProvingEvaluator<Evals>& evaluator_tpl) {
   Evals compressed_evals = domain->template Zero<Evals>();
-  std::vector<F>& compressed_values = compressed_evals.evaluations();
+  std::pmr::vector<F>& compressed_values = compressed_evals.evaluations();
 
   for (size_t expr_idx = 0; expr_idx < expressions.size(); ++expr_idx) {
     if (UNLIKELY(expr_idx == 0)) {

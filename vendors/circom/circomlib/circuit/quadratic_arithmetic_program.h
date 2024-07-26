@@ -6,6 +6,7 @@
 #ifndef VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_QUADRATIC_ARITHMETIC_PROGRAM_H_
 #define VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_QUADRATIC_ARITHMETIC_PROGRAM_H_
 
+#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -21,15 +22,15 @@ class QuadraticArithmeticProgram {
   QuadraticArithmeticProgram() = delete;
 
   template <typename Domain>
-  static std::vector<F> WitnessMapFromMatrices(
+  static std::pmr::vector<F> WitnessMapFromMatrices(
       const Domain* domain, absl::Span<const Coefficient<F>> coefficients,
       absl::Span<const F> full_assignments) {
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
 
-    std::vector<F> a(domain->size());
-    std::vector<F> b(domain->size());
-    std::vector<F> c(domain->size());
+    std::pmr::vector<F> a(domain->size());
+    std::pmr::vector<F> b(domain->size());
+    std::pmr::vector<F> c(domain->size());
 
     // See
     // https://github.com/iden3/rapidsnark/blob/b17e6fe/src/groth16.cpp#L116-L156.
@@ -40,7 +41,7 @@ class QuadraticArithmeticProgram {
 #endif
     OPENMP_PARALLEL_FOR(size_t i = 0; i < coefficients.size(); i++) {
       const Coefficient<F>& c = coefficients[i];
-      std::vector<F>& ab = (c.matrix == 0) ? a : b;
+      std::pmr::vector<F>& ab = (c.matrix == 0) ? a : b;
 
 #if defined(TACHYON_HAS_OPENMP)
       omp_set_lock(&locks[c.constraint % kNumLocks]);

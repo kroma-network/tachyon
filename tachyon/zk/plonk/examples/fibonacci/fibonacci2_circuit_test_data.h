@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -620,8 +621,8 @@ class Fibonacci2TestData : public CircuitTestData<Circuit, PCS, LS> {
     F a(1);
     F b(1);
     F out(55);
-    std::vector<F> instance_column = {std::move(a), std::move(b),
-                                      std::move(out)};
+    std::pmr::vector<F> instance_column = {std::move(a), std::move(b),
+                                           std::move(out)};
     return std::vector<Evals>{Evals(std::move(instance_column))};
   }
 };

@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <memory>
+#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -179,7 +180,7 @@ class Verifier : public VerifierBase<PCS> {
 
   std::vector<Commitment> CommitColumns(const std::vector<Evals>& columns) {
     return base::Map(columns, [this](const Evals& column) {
-      std::vector<F> expanded_evals = column.evaluations();
+      std::pmr::vector<F> expanded_evals = column.evaluations();
       expanded_evals.resize(this->pcs_.N());
       return this->Commit(Evals(expanded_evals));
     });
@@ -228,7 +229,7 @@ class Verifier : public VerifierBase<PCS> {
                                const InstanceQueryData& instance_query,
                                const std::vector<F>& partial_lagrange_coeffs,
                                size_t max_rotation) {
-    const std::vector<F>& instances =
+    const std::pmr::vector<F>& instances =
         instance_columns[instance_query.column().index()].evaluations();
     size_t offset = max_rotation - instance_query.rotation().value();
     absl::Span<const F> sub_partial_lagrange_coeffs(partial_lagrange_coeffs);

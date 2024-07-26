@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <memory_resource>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -35,7 +36,7 @@ class SelectorCompressor {
 
   SelectorCompressor() = default;
 
-  const std::vector<std::vector<F>>& combination_assignments() const {
+  const std::vector<std::pmr::vector<F>>& combination_assignments() const {
     return combination_assignments_;
   }
   const std::vector<SelectorAssignment<F>>& selector_assignments() const {
@@ -160,9 +161,9 @@ class SelectorCompressor {
       // appear in any gate constraint.
       std::unique_ptr<Expression<F>> expression = callback_.Run();
 
-      std::vector<F> combination_assignment =
-          base::Map(selector.activations(),
-                    [](bool b) { return b ? F::One() : F::Zero(); });
+      std::pmr::vector<F> combination_assignment =
+          base::PmrMap(selector.activations(),
+                       [](bool b) { return b ? F::One() : F::Zero(); });
       size_t combination_index = combination_assignments_.size();
       combination_assignments_.push_back(std::move(combination_assignment));
       selector_assignments_.push_back(SelectorAssignment<F>(
@@ -237,7 +238,7 @@ class SelectorCompressor {
   void ConstructCombinedSelector(
       size_t n, const std::vector<SelectorDescription>& combination) {
     // Now, compute the selector and combination assignments.
-    std::vector<F> combination_assignment(n);
+    std::pmr::vector<F> combination_assignment(n);
     size_t combination_len = combination.size();
     size_t combination_index = combination_assignments_.size();
     std::unique_ptr<Expression<F>> query = callback_.Run();
@@ -282,7 +283,7 @@ class SelectorCompressor {
     combination_assignments_.push_back(std::move(combination_assignment));
   }
 
-  std::vector<std::vector<F>> combination_assignments_;
+  std::vector<std::pmr::vector<F>> combination_assignments_;
   std::vector<SelectorAssignment<F>> selector_assignments_;
   AllocateFixedColumnCallback callback_;
   std::vector<SelectorDescription> selectors_;

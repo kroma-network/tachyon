@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -231,8 +232,9 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // Computes the first |size| roots of unity for the entire domain.
   // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it
   // computes [1, g, g², ..., g^{(n / 2) - 1}]
-  constexpr std::vector<F> GetRootsOfUnity(size_t size, const F& root) const {
-    return F::GetSuccessivePowers(size, root);
+  constexpr std::pmr::vector<F> GetRootsOfUnity(size_t size,
+                                                const F& root) const {
+    return F::GetSuccessivePowersPmr(size, root);
   }
 
   // Define the following as

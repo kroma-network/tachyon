@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include <memory_resource>
 #include <string>
 #include <utility>
 #include <vector>
@@ -49,11 +50,12 @@ class UnivariateEvaluations final
   using Field = F;
 
   constexpr UnivariateEvaluations() = default;
-  constexpr explicit UnivariateEvaluations(const std::vector<F>& evaluations)
+  constexpr explicit UnivariateEvaluations(
+      const std::pmr::vector<F>& evaluations)
       : evaluations_(evaluations) {
     CHECK_LE(Degree(), MaxDegree);
   }
-  constexpr explicit UnivariateEvaluations(std::vector<F>&& evaluations)
+  constexpr explicit UnivariateEvaluations(std::pmr::vector<F>&& evaluations)
       : evaluations_(std::move(evaluations)) {
     CHECK_LE(Degree(), MaxDegree);
   }
@@ -71,19 +73,21 @@ class UnivariateEvaluations final
 
   constexpr static UnivariateEvaluations One(size_t degree) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = std::vector<F>(degree + 1, F::One());
+    ret.evaluations_ = std::pmr::vector<F>(degree + 1, F::One());
     return ret;
   }
 
   constexpr static UnivariateEvaluations Random(size_t degree) {
     return UnivariateEvaluations(
-        base::CreateVector(degree + 1, []() { return F::Random(); }));
+        base::CreatePmrVector(degree + 1, []() { return F::Random(); }));
   }
 
-  constexpr const std::vector<F>& evaluations() const { return evaluations_; }
-  constexpr std::vector<F>& evaluations() { return evaluations_; }
+  constexpr const std::pmr::vector<F>& evaluations() const {
+    return evaluations_;
+  }
+  constexpr std::pmr::vector<F>& evaluations() { return evaluations_; }
 
-  constexpr std::vector<F>&& TakeEvaluations() && {
+  constexpr std::pmr::vector<F>&& TakeEvaluations() && {
     return std::move(evaluations_);
   }
 
@@ -250,11 +254,11 @@ class UnivariateEvaluations final
   // |degree| + 1.
   constexpr static UnivariateEvaluations Zero(size_t degree) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = std::vector<F>(degree + 1);
+    ret.evaluations_ = std::pmr::vector<F>(degree + 1);
     return ret;
   }
 
-  std::vector<F> evaluations_;
+  std::pmr::vector<F> evaluations_;
 };
 
 template <typename F, size_t MaxDegree>
@@ -293,7 +297,7 @@ class Copyable<math::UnivariateEvaluations<F, MaxDegree>> {
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::UnivariateEvaluations<F, MaxDegree>* evals) {
-    std::vector<F> evals_vec;
+    std::pmr::vector<F> evals_vec;
     if (!buffer.Read(&evals_vec)) return false;
     *evals = math::UnivariateEvaluations<F, MaxDegree>(evals_vec);
     return true;
@@ -320,7 +324,7 @@ class RapidJsonValueConverter<math::UnivariateEvaluations<F, MaxDegree>> {
   static bool To(const rapidjson::Value& json_value, std::string_view key,
                  math::UnivariateEvaluations<F, MaxDegree>* value,
                  std::string* error) {
-    std::vector<F> evals;
+    std::pmr::vector<F> evals;
     if (!ParseJsonElement(json_value, "evaluations", &evals, error))
       return false;
     *value = math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
