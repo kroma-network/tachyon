@@ -18,9 +18,7 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/zk/base/rotation.h"
-#include "tachyon/zk/lookup/halo2/evaluator.h"
 #include "tachyon/zk/lookup/halo2/prover.h"
-#include "tachyon/zk/lookup/log_derivative_halo2/evaluator.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/base/owned_table.h"
 #include "tachyon/zk/plonk/base/ref_table.h"
@@ -30,7 +28,22 @@
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 
-namespace tachyon::zk::plonk {
+namespace tachyon::zk {
+namespace lookup::halo2 {
+
+template <typename Evals>
+class Evaluator;
+
+}  // namespace lookup::halo2
+
+namespace lookup::log_derivative_halo2 {
+
+template <typename Evals>
+class Evaluator;
+
+}  // namespace lookup::log_derivative_halo2
+
+namespace plonk {
 
 // It generates "CircuitPolynomial" formed below:
 // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
@@ -349,6 +362,7 @@ class CircuitPolynomialBuilder {
   MultiPhaseOwnedTable<Evals> table_;
 };
 
-}  // namespace tachyon::zk::plonk
+}  // namespace plonk
+}  // namespace tachyon::zk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
