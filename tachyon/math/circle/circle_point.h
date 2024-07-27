@@ -19,7 +19,7 @@ namespace tachyon::math {
 
 // TODO(chokobole): Unify this into |AffinePoint|.
 template <typename _Circle>
-class CirclePoint : public AdditiveGroup<CirclePoint<_Circle>> {
+class CirclePoint final : public AdditiveGroup<CirclePoint<_Circle>> {
  public:
   using Circle = _Circle;
   using BaseField = typename Circle::BaseField;
