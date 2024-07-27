@@ -8,6 +8,7 @@ tachyon_cc_library(
     deps = [
         ":json_converter_forward",
         ":points",
+        "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:proof",
     ],
 )

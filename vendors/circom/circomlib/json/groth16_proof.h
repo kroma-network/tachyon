@@ -3,6 +3,7 @@
 
 #include "circomlib/json/json_converter_forward.h"
 #include "circomlib/json/points.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/zk/r1cs/groth16/proof.h"
 
 namespace tachyon::circom {

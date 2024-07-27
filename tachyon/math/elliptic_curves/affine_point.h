@@ -3,7 +3,6 @@
 
 #include <utility>
 
-#include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
 
 namespace tachyon::math {
@@ -14,8 +13,7 @@ class AffinePoint;
 template <typename ScalarField, typename Curve,
           std::enable_if_t<std::is_same_v<
               ScalarField, typename Curve::ScalarField>>* = nullptr>
-JacobianPoint<Curve> operator*(const ScalarField& v,
-                               const AffinePoint<Curve>& point) {
+auto operator*(const ScalarField& v, const AffinePoint<Curve>& point) {
   return point * v;
 }
 
