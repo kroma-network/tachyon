@@ -15,11 +15,11 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
-#include "tachyon/math/elliptic_curves/curve_type.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/semigroups.h"
+#include "tachyon/math/geometry/curve_type.h"
 #include "tachyon/math/geometry/point2.h"
 
 namespace tachyon {

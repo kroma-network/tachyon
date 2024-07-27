@@ -3,6 +3,11 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "curve_type",
+    hdrs = ["curve_type.h"],
+)
+
+tachyon_cc_library(
     name = "dimensions",
     hdrs = ["dimensions.h"],
     deps = [

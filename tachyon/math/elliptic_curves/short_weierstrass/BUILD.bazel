@@ -27,6 +27,7 @@ tachyon_cc_library(
         "//tachyon/base/json",
         "//tachyon/math/base:groups",
         "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/geometry:curve_type",
         "//tachyon/math/geometry:point2",
         "//tachyon/math/geometry:point3",
         "//tachyon/math/geometry:point4",
