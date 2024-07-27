@@ -1,7 +1,6 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/template_util.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"

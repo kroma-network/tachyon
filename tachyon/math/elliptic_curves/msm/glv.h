@@ -9,10 +9,6 @@
 #include "tachyon/math/base/bit_iterator.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/base/gmp/signed_value.h"
-#include "tachyon/math/elliptic_curves/affine_point.h"
-#include "tachyon/math/elliptic_curves/jacobian_point.h"
-#include "tachyon/math/elliptic_curves/point_xyzz.h"
-#include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/semigroups.h"
 #include "tachyon/math/matrix/gmp_num_traits.h"
 
