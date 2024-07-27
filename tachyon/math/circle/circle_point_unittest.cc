@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
-#include "tachyon/math/circle/stark/g1.h"
-#include "tachyon/math/circle/stark/g4.h"
+#include "tachyon/math/circle/m31/g1.h"
+#include "tachyon/math/circle/m31/g4.h"
 
 namespace tachyon::math {
 
@@ -11,8 +11,7 @@ class CirclePointTest : public testing::Test {
   static void SetUpTestSuite() { CirclePointType::Circle::Init(); }
 };
 
-using CirclePointTypes =
-    testing::Types<stark::G1CirclePoint, stark::G4CirclePoint>;
+using CirclePointTypes = testing::Types<m31::G1CirclePoint, m31::G4CirclePoint>;
 TYPED_TEST_SUITE(CirclePointTest, CirclePointTypes);
 
 TYPED_TEST(CirclePointTest, IsZero) {

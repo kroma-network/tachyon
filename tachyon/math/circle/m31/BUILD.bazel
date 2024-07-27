@@ -15,10 +15,10 @@ generate_circle_points(
     base_field_dep = "//tachyon/math/finite_fields/mersenne31",
     base_field_hdr = "tachyon/math/finite_fields/mersenne31/mersenne31.h",
     class_name = "G1",
-    namespace = "tachyon::math::stark",
+    namespace = "tachyon::math::m31",
     scalar_field = "Fr",
     scalar_field_dep = ":fr",
-    scalar_field_hdr = "tachyon/math/circle/stark/fr.h",
+    scalar_field_hdr = "tachyon/math/circle/m31/fr.h",
     x = ["2"],
     y = ["1268011823"],
 )
@@ -29,7 +29,7 @@ generate_prime_fields(
     # 2³¹
     # Hex: 0x80000000
     modulus = "2147483648",
-    namespace = "tachyon::math::stark",
+    namespace = "tachyon::math::m31",
     reduce32 = "return v & (kModulus - 1);",
     reduce64 = "return v & (kModulus - 1);",
     use_montgomery = False,
@@ -41,7 +41,7 @@ generate_fp2s(
     base_field_hdr = "tachyon/math/finite_fields/mersenne31/mersenne31.h",
     class_name = "Fq2",
     is_packed = False,
-    namespace = "tachyon::math::stark",
+    namespace = "tachyon::math::m31",
     non_residue = ["-1"],
     deps = ["//tachyon/math/finite_fields/mersenne31"],
 )
@@ -50,10 +50,10 @@ generate_fp4s(
     name = "fq4",
     base_field = "Fq2",
     base_field_degree = 2,
-    base_field_hdr = "tachyon/math/circle/stark/fq2.h",
+    base_field_hdr = "tachyon/math/circle/m31/fq2.h",
     class_name = "Fq4",
     is_packed = False,
-    namespace = "tachyon::math::stark",
+    namespace = "tachyon::math::m31",
     non_residue = [
         "2",
         "1",
@@ -67,7 +67,7 @@ generate_prime_fields(
     # (2³¹ - 1)⁴ - 1
     # Hex: 0xfffffff800000017ffffffe00000000
     modulus = "21267647892944572736998860269687930880",
-    namespace = "tachyon::math::stark",
+    namespace = "tachyon::math::m31",
     use_asm = False,
 )
 
@@ -76,12 +76,12 @@ generate_circle_points(
     base_field = "Fq4",
     base_field_degree = 4,
     base_field_dep = ":fq4",
-    base_field_hdr = "tachyon/math/circle/stark/fq4.h",
+    base_field_hdr = "tachyon/math/circle/m31/fq4.h",
     class_name = "G4",
-    namespace = "tachyon::math::stark",
+    namespace = "tachyon::math::m31",
     scalar_field = "Fr4",
     scalar_field_dep = ":fr4",
-    scalar_field_hdr = "tachyon/math/circle/stark/fr4.h",
+    scalar_field_hdr = "tachyon/math/circle/m31/fr4.h",
     x = [
         "1",
         "0",

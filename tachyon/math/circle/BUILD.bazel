@@ -34,7 +34,7 @@ tachyon_cc_unittest(
     name = "circle_unittests",
     srcs = ["circle_point_unittest.cc"],
     deps = [
-        "//tachyon/math/circle/stark:g1",
-        "//tachyon/math/circle/stark:g4",
+        "//tachyon/math/circle/m31:g1",
+        "//tachyon/math/circle/m31:g4",
     ],
 )
