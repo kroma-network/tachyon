@@ -22,7 +22,7 @@ tachyon_cc_library(
     name = "transcript_traits",
     hdrs = ["transcript_traits.h"],
     deps = [
-        "//tachyon/math/elliptic_curves:points",
         "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/geometry:affine_point",
     ],
 )

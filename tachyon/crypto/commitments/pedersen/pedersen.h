@@ -21,7 +21,7 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/crypto/commitments/vector_commitment_scheme.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
-#include "tachyon/math/elliptic_curves/point_conversions.h"
+#include "tachyon/math/geometry/point_conversions.h"
 
 #if TACHYON_CUDA
 #include "tachyon/device/gpu/scoped_mem_pool.h"

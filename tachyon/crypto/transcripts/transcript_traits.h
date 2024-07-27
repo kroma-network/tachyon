@@ -3,8 +3,8 @@
 
 #include <type_traits>
 
-#include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
+#include "tachyon/math/geometry/affine_point.h"
 
 namespace tachyon::crypto {
 

@@ -1,10 +1,10 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_POINT_XYZZ_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_POINT_XYZZ_H_
+#ifndef TACHYON_MATH_GEOMETRY_POINT_XYZZ_H_
+#define TACHYON_MATH_GEOMETRY_POINT_XYZZ_H_
 
 #include <utility>
 
-#include "tachyon/math/elliptic_curves/point_conversions_forward.h"
 #include "tachyon/math/geometry/point4.h"
+#include "tachyon/math/geometry/point_conversions_forward.h"
 
 namespace tachyon::math {
 
@@ -39,4 +39,4 @@ struct PointConversions<PointXYZZ<SrcCurve>, PointXYZZ<DstCurve>,
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_POINT_XYZZ_H_
+#endif  // TACHYON_MATH_GEOMETRY_POINT_XYZZ_H_

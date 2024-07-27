@@ -12,7 +12,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/math/base:bit_iterator",
         "//tachyon/math/base:semigroups",
-        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/geometry:point_conversions",
     ],
 )
 
@@ -23,7 +23,7 @@ tachyon_cc_library(
         "//tachyon/math/base:bit_iterator",
         "//tachyon/math/base/gmp:bit_traits",
         "//tachyon/math/base/gmp:signed_value",
-        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/elliptic_curves:semigroups",
         "//tachyon/math/matrix:gmp_num_traits",
     ],
 )

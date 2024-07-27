@@ -19,7 +19,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/commitments/batch_commitment_state.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
-#include "tachyon/math/elliptic_curves/point_conversions.h"
+#include "tachyon/math/geometry/point_conversions.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 
 #if TACHYON_CUDA

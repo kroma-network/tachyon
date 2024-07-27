@@ -13,9 +13,9 @@
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/device/gpu/scoped_stream.h"
-#include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
-#include "tachyon/math/elliptic_curves/point_conversions.h"
+#include "tachyon/math/geometry/affine_point.h"
+#include "tachyon/math/geometry/point_conversions.h"
 
 namespace tachyon::c::math {
 

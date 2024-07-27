@@ -8,6 +8,6 @@ tachyon_cc_library(
     hdrs = ["random.h"],
     deps = [
         "//tachyon/base:parallelize",
-        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/geometry:point_conversions",
     ],
 )

@@ -8,8 +8,8 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/semigroups.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
-#include "tachyon/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/test/random.h"
+#include "tachyon/math/geometry/point_conversions.h"
 
 namespace tachyon::math {
 

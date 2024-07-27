@@ -181,8 +181,8 @@ tachyon_cc_library(
     hdrs = ["proof_serializer.h"],
     deps = [
         "//tachyon/base/buffer",
-        "//tachyon/math/elliptic_curves:points",
         "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/geometry:affine_point",
     ],
 )
 

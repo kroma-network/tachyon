@@ -1,12 +1,12 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
+#ifndef TACHYON_MATH_GEOMETRY_POINT_CONVERSIONS_H_
+#define TACHYON_MATH_GEOMETRY_POINT_CONVERSIONS_H_
 
 #include "tachyon/base/template_util.h"
-#include "tachyon/math/elliptic_curves/affine_point.h"
-#include "tachyon/math/elliptic_curves/jacobian_point.h"
-#include "tachyon/math/elliptic_curves/point_conversions_forward.h"
-#include "tachyon/math/elliptic_curves/point_xyzz.h"
-#include "tachyon/math/elliptic_curves/projective_point.h"
+#include "tachyon/math/geometry/affine_point.h"
+#include "tachyon/math/geometry/jacobian_point.h"
+#include "tachyon/math/geometry/point_conversions_forward.h"
+#include "tachyon/math/geometry/point_xyzz.h"
+#include "tachyon/math/geometry/projective_point.h"
 
 namespace tachyon::math {
 
@@ -126,4 +126,4 @@ struct PointConversions<PointXYZZ<Curve>, JacobianPoint<Curve>> {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
+#endif  // TACHYON_MATH_GEOMETRY_POINT_CONVERSIONS_H_

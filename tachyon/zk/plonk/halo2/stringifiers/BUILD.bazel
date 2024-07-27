@@ -110,7 +110,7 @@ tachyon_cc_library(
     hdrs = ["point_stringifier.h"],
     deps = [
         ":field_stringifier",
-        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/geometry:affine_point",
     ],
 )
 

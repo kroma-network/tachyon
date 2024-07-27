@@ -5,7 +5,7 @@
 
 #include "pybind11/operators.h"
 
-#include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/geometry/affine_point.h"
 #include "tachyon/py/base/pybind11.h"
 
 namespace tachyon::py::math {

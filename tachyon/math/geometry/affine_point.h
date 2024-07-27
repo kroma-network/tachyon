@@ -1,9 +1,9 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_AFFINE_POINT_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_AFFINE_POINT_H_
+#ifndef TACHYON_MATH_GEOMETRY_AFFINE_POINT_H_
+#define TACHYON_MATH_GEOMETRY_AFFINE_POINT_H_
 
 #include <utility>
 
-#include "tachyon/math/elliptic_curves/point_conversions_forward.h"
+#include "tachyon/math/geometry/point_conversions_forward.h"
 
 namespace tachyon::math {
 
@@ -37,4 +37,4 @@ struct PointConversions<AffinePoint<SrcCurve>, AffinePoint<DstCurve>,
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_AFFINE_POINT_H_
+#endif  // TACHYON_MATH_GEOMETRY_AFFINE_POINT_H_

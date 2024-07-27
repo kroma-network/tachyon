@@ -34,7 +34,7 @@ tachyon_cc_library(
     hdrs = ["points.h"],
     deps = [
         "@com_github_tencent_rapidjson//:rapidjson",
-        "@kroma_network_tachyon//tachyon/math/elliptic_curves:points",
+        "@kroma_network_tachyon//tachyon/math/geometry:affine_point",
     ],
 )
 

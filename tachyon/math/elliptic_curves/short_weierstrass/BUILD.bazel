@@ -26,11 +26,15 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/json",
         "//tachyon/math/base:groups",
-        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/elliptic_curves:semigroups",
+        "//tachyon/math/geometry:affine_point",
         "//tachyon/math/geometry:curve_type",
+        "//tachyon/math/geometry:jacobian_point",
         "//tachyon/math/geometry:point2",
         "//tachyon/math/geometry:point3",
         "//tachyon/math/geometry:point4",
+        "//tachyon/math/geometry:point_xyzz",
+        "//tachyon/math/geometry:projective_point",
     ],
 )
 
@@ -39,7 +43,11 @@ tachyon_cc_library(
     srcs = ["sw_curve.h"],
     deps = [
         ":sw_curve_traits_forward",
-        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/geometry:affine_point",
+        "//tachyon/math/geometry:curve_type",
+        "//tachyon/math/geometry:jacobian_point",
+        "//tachyon/math/geometry:point_conversions",
+        "//tachyon/math/geometry:projective_point",
     ],
 )
 
