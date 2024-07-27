@@ -101,6 +101,16 @@ class CirclePoint : public AdditiveGroup<CirclePoint<_Circle>> {
                     x_ * other.y_ + y_ * other.x_};
   }
 
+  constexpr CirclePoint DoubleImpl() const {
+    return {x_.Square().Double() - BaseField::One(), x_.Double() * y_};
+  }
+
+  constexpr CirclePoint& DoubleImplInPlace() {
+    y_ *= x_.Double();
+    x_.SquareInPlace().DoubleInPlace() -= BaseField::One();
+    return *this;
+  }
+
   // AdditiveGroup methods
   constexpr CirclePoint Sub(const CirclePoint& other) const {
     return {x_ * other.x_ + y_ * other.y_, -x_ * other.y_ + y_ * other.x_};

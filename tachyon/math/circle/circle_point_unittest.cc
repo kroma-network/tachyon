@@ -87,10 +87,13 @@ TYPED_TEST(CirclePointTest, AdditiveGroupOperators) {
 
   EXPECT_EQ(c - a, b);
   EXPECT_EQ(c - b, a);
-  EXPECT_EQ(a.Double(), a + a);
+  CirclePoint doubled = a.Double();
+  EXPECT_EQ(doubled, a + a);
+  CirclePoint a_tmp = a;
+  EXPECT_EQ(a_tmp.DoubleInPlace(), doubled);
 
   EXPECT_EQ(a + CirclePoint::Zero(), a);
-  CirclePoint a_tmp = a;
+  a_tmp = a;
   a_tmp.NegateInPlace();
   EXPECT_EQ(a_tmp, -a);
 }
