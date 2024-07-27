@@ -69,7 +69,7 @@ class FRI final
         // Pᵢ₊₁(X) = Pᵢ_even(X²) + β * Pᵢ_odd(X²)
         beta = writer->SqueezeChallenge();
         VLOG(2) << "FRI(beta[" << i - 1 << "]): " << beta.ToHexString(true);
-        folded_poly = cur_poly->template Fold<false>(beta);
+        folded_poly = cur_poly->Fold(beta);
         BinaryMerkleTree<F, F, MaxDegree + 1> tree(storage_->GetLayer(i),
                                                    hasher_);
         evals = sub_domains_[i - 1]->FFT(folded_poly);
@@ -82,7 +82,7 @@ class FRI final
     beta = writer->SqueezeChallenge();
     VLOG(2) << "FRI(beta[" << num_layers - 1
             << "]): " << beta.ToHexString(true);
-    folded_poly = cur_poly->template Fold<false>(beta);
+    folded_poly = cur_poly->Fold(beta);
     return writer->WriteToProof(folded_poly[0]);
   }
 
