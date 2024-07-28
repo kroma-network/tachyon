@@ -96,8 +96,8 @@ def generate_circle_points(
         deps = [
             base_field_dep,
             scalar_field_dep,
+            "//tachyon/math/circle:affine_point",
             "//tachyon/math/circle:circle",
-            "//tachyon/math/circle:circle_point",
         ],
         **kwargs
     )

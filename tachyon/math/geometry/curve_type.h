@@ -4,6 +4,7 @@
 namespace tachyon::math {
 
 enum class CurveType {
+  kCircle,
   kShortWeierstrass,
   kTwistedEdwards,
 };

@@ -72,7 +72,7 @@ struct MultiplicativeSemigroupTraits {
   using ReturnTy = G;
 };
 
-template <typename G>
+template <typename G, typename SFINAE = void>
 struct AdditiveSemigroupTraits {
   using ReturnTy = G;
 };

@@ -1,8 +1,9 @@
 #ifndef TACHYON_MATH_CIRCLE_CIRCLE_H_
 #define TACHYON_MATH_CIRCLE_CIRCLE_H_
 
-#include "tachyon/math/circle/circle_point.h"
 #include "tachyon/math/circle/circle_traits_forward.h"
+#include "tachyon/math/geometry/affine_point.h"
+#include "tachyon/math/geometry/curve_type.h"
 
 namespace tachyon::math {
 
@@ -15,7 +16,9 @@ class Circle {
 
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
-  using Point = typename CircleTraits<Config>::PointTy;
+  using AffinePoint = typename CircleTraits<Config>::AffinePointTy;
+
+  constexpr static CurveType kType = CurveType::kCircle;
 
   static void Init() {
     BaseField::Init();
@@ -24,7 +27,7 @@ class Circle {
     Config::Init();
   }
 
-  constexpr static bool IsOnCircle(const Point& point) {
+  constexpr static bool IsOnCircle(const AffinePoint& point) {
     return (point.x().Square() + point.y().Square()).IsOne();
   }
 };
@@ -33,7 +36,7 @@ template <typename Config>
 struct CircleTraits {
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
-  using PointTy = CirclePoint<Circle<Config>>;
+  using AffinePointTy = AffinePoint<Circle<Config>>;
 };
 
 }  // namespace tachyon::math

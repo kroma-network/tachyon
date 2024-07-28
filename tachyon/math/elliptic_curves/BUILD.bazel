@@ -8,6 +8,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/math/base:semigroups",
         "//tachyon/math/geometry:affine_point",
+        "//tachyon/math/geometry:curve_type",
         "//tachyon/math/geometry:jacobian_point",
     ],
 )
