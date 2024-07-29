@@ -33,6 +33,12 @@ class BlindedPolynomial {
   const Evals& evals() const { return evals_; }
   const F& blind() const { return blind_; }
 
+  Poly&& TakePoly() { return std::move(poly_); }
+  Evals&& TakeEvals() { return std::move(evals_); }
+
+  void set_poly(Poly&& poly) { poly_ = std::move(poly); }
+  void set_evals(Evals&& evals) { evals_ = std::move(evals); }
+
   template <typename Domain>
   void TransformEvalsToPoly(const Domain* domain) {
     poly_ = domain->IFFT(std::move(evals_));
