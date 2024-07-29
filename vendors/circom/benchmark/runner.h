@@ -20,7 +20,7 @@ class Runner {
 
   virtual ~Runner() = default;
 
-  virtual void LoadZkey(const base::FilePath& zkey_path) = 0;
+  virtual void LoadZKey(const base::FilePath& zkey_path) = 0;
   virtual zk::r1cs::groth16::Proof<Curve> Run(
       const Domain* domain, const std::vector<F>& full_assignments,
       absl::Span<const F> public_inputs, base::TimeDelta& duration) = 0;

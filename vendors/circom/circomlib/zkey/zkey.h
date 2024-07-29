@@ -51,7 +51,7 @@ struct ZKey {
   base::BinFile bin_file;
 };
 
-constexpr char kZkeyMagic[4] = {'z', 'k', 'e', 'y'};
+constexpr char kZKeyMagic[4] = {'z', 'k', 'e', 'y'};
 
 // Return nullptr if the parser failed to parse.
 template <typename Curve>
@@ -69,7 +69,7 @@ std::unique_ptr<ZKey<Curve>> ParseZKey(const base::FilePath& path,
   char magic[4];
   uint32_t version;
   if (!buffer.ReadMany(magic, &version)) return nullptr;
-  if (memcmp(magic, kZkeyMagic, 4) != 0) {
+  if (memcmp(magic, kZKeyMagic, 4) != 0) {
     LOG(ERROR) << "Invalid magic: " << magic;
     return nullptr;
   }

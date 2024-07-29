@@ -52,7 +52,7 @@ TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerify) {
                                   zk::r1cs::QuadraticArithmeticProgram<F>>();
 }
 
-TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerifyUsingZkey) {
+TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerifyUsingZKey) {
   constexpr size_t kMaxDegree = 3;
 
   LoadRandomWitness();

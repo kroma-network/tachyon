@@ -79,7 +79,7 @@ int RealMain(int argc, char** argv) {
 
   for (size_t i = 0; i < runners.size(); ++i) {
     std::unique_ptr<Runner<Curve, kMaxDegree>>& runner = runners[i];
-    runner->LoadZkey(base::FilePath("benchmark/sha256_512.zkey"));
+    runner->LoadZKey(base::FilePath("benchmark/sha256_512.zkey"));
 
     std::unique_ptr<Domain> domain;
     if (i == 0) {

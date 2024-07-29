@@ -52,7 +52,7 @@ TEST_F(AdderCircuitTest, Groth16ProveAndVerify) {
                                   zk::r1cs::QuadraticArithmeticProgram<F>>();
 }
 
-TEST_F(AdderCircuitTest, Groth16ProveAndVerifyUsingZkey) {
+TEST_F(AdderCircuitTest, Groth16ProveAndVerifyUsingZKey) {
   constexpr size_t kMaxDegree = 127;
 
   LoadRandomWitness();

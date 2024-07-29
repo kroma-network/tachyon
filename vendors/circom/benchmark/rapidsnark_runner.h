@@ -56,7 +56,7 @@ class RapidsnarkRunner : public Runner<Curve, MaxDegree> {
     parse_key(verification_key_, key.dataAsString().c_str());
   }
 
-  void LoadZkey(const base::FilePath& zkey_path) override {
+  void LoadZKey(const base::FilePath& zkey_path) override {
     zkey_ = BinFileUtils::openExisting(zkey_path.value(), "zkey", 1);
     zkey_header_ = ZKeyUtils::loadHeader(zkey_.get());
     prover_ = Groth16::makeProver<Engine>(
