@@ -27,7 +27,7 @@ int main() {
   }
 
   // Perform the MSM operation
-  tachyon_bn254_g1_jacobian* result =
+  [[maybe_unused]] tachyon_bn254_g1_jacobian* result =
       tachyon_bn254_g1_affine_msm(msm, points, scalars, 32);
 
   return 0;
