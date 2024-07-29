@@ -7,7 +7,7 @@ namespace tachyon {
 
 SimplePoseidonBenchmarkReporter::SimplePoseidonBenchmarkReporter(
     std::string_view title, size_t repeating_num)
-    : SimpleBenchmarkReporter(title) {
+    : SimpleBenchmarkReporter(title, "Trial number") {
   targets_ = base::CreateVector(
       repeating_num, [](size_t i) { return base::NumberToString(i); });
   targets_.push_back("avg");

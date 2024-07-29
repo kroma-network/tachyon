@@ -63,6 +63,7 @@ void SimpleBenchmarkReporter::Show() {
   ax.set_title(Args(title_));
   ax.set_xticks(Args(py::reinterpret_borrow<py::tuple>(py::cast(x_positions)),
                      py::reinterpret_borrow<py::tuple>(py::cast(targets_))));
+  ax.set_xlabel(Args(x_label_));
   ax.set_ylabel(Args("Time (sec)"));
   ax.legend();
 

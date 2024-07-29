@@ -10,7 +10,7 @@ namespace tachyon {
 
 SimpleFFTBenchmarkReporter::SimpleFFTBenchmarkReporter(
     std::string_view title, const std::vector<size_t>& exponents)
-    : SimpleBenchmarkReporter(title), exponents_(exponents) {
+    : SimpleBenchmarkReporter(title, "Degree (2ˣ)"), exponents_(exponents) {
   targets_ = base::Map(exponents, [](size_t exponent) {
     return base::NumberToString(exponent);
   });
