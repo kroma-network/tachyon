@@ -69,6 +69,7 @@ struct ProverTime {
 
 struct CreateProofOptions {
   bool no_zk;
+  bool no_use_mmap;
   bool verify;
   size_t num_runs;
 #if TACHYON_CUDA
@@ -89,7 +90,8 @@ void CreateProof(const base::FilePath& zkey_path,
 
   base::TimeTicks start = base::TimeTicks::Now();
   std::cout << "Start parsing zkey" << std::endl;
-  std::unique_ptr<ZKey<Curve>> zkey = ParseZKey<Curve>(zkey_path);
+  std::unique_ptr<ZKey<Curve>> zkey =
+      ParseZKey<Curve>(zkey_path, !options.no_use_mmap);
   CHECK(zkey);
   zk::r1cs::groth16::ProvingKey<Curve> proving_key =
       zkey->GetProvingKey().ToNativeProvingKey();
@@ -100,7 +102,8 @@ void CreateProof(const base::FilePath& zkey_path,
   start = end;
 
   std::cout << "Start parsing witness" << std::endl;
-  std::unique_ptr<Wtns<F>> wtns = ParseWtns<F>(witness_path);
+  std::unique_ptr<Wtns<F>> wtns =
+      ParseWtns<F>(witness_path, !options.no_use_mmap);
   CHECK(wtns);
 
   end = base::TimeTicks::Now();
@@ -214,6 +217,14 @@ int RealMain(int argc, char** argv) {
       .set_help(
           "Create proof without zk. By default zk is enabled. Use this flag to "
           "compare the proof with rapidsnark.");
+  parser.AddFlag<base::BoolFlag>(&options.no_use_mmap)
+      .set_long_name("--no_use_mmap")
+      .set_default_value(false)
+      .set_help(
+          "Create proof not using mmap(2). By default, mmap(2) is enabled, "
+          "memory mapped file offers faster proof generation at the cost of "
+          "increased memory usage. Use this flag if you want to use less "
+          "memory.");
   parser.AddFlag<base::BoolFlag>(&options.verify)
       .set_long_name("--verify")
       .set_default_value(false)

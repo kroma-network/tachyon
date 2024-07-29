@@ -2,13 +2,12 @@
 #define VENDORS_CIRCOM_CIRCOMLIB_ZKEY_ZKEY_H_
 
 #include <string.h>
+#include <sys/mman.h>
 
 #include <algorithm>
 #include <memory>
-#include <optional>
 #include <string>
 #include <utility>
-#include <vector>
 
 #include "circomlib/base/modulus.h"
 #include "circomlib/base/sections.h"
@@ -17,7 +16,7 @@
 #include "tachyon/base/auto_reset.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/buffer/read_only_buffer.h"
-#include "tachyon/base/files/file_util.h"
+#include "tachyon/base/files/bin_file.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/strings/string_util.h"
@@ -34,7 +33,7 @@ template <typename Curve>
 struct ZKey {
   using F = typename Curve::G1Curve::ScalarField;
 
-  explicit ZKey(std::vector<uint8_t>&& data) : data(std::move(data)) {}
+  explicit ZKey(base::BinFile bin_file) : bin_file(std::move(bin_file)) {}
   virtual ~ZKey() = default;
 
   virtual uint32_t GetVersion() const = 0;
@@ -49,32 +48,34 @@ struct ZKey {
   virtual size_t GetNumInstanceVariables() const = 0;
   virtual size_t GetNumWitnessVariables() const = 0;
 
-  std::vector<uint8_t> data;
+  base::BinFile bin_file;
 };
 
-constexpr char kZkeyMagic[4] = {'z', 'k', 'e', 'y'};
+constexpr char kZKeyMagic[4] = {'z', 'k', 'e', 'y'};
 
 // Return nullptr if the parser failed to parse.
 template <typename Curve>
-std::unique_ptr<ZKey<Curve>> ParseZKey(const base::FilePath& path) {
-  std::optional<std::vector<uint8_t>> zkey_data = base::ReadFileToBytes(path);
-  if (!zkey_data.has_value()) {
-    LOG(ERROR) << "Failed to read file: " << path.value();
-    return nullptr;
+std::unique_ptr<ZKey<Curve>> ParseZKey(const base::FilePath& path,
+                                       bool use_mmap = true) {
+  base::BinFile bin_file;
+  CHECK(bin_file.Load(path, use_mmap));
+  if (use_mmap) {
+    PCHECK(madvise(bin_file.GetData(), bin_file.GetDataLength(),
+                   MADV_SEQUENTIAL) == 0);
   }
 
-  base::ReadOnlyBuffer buffer(zkey_data->data(), zkey_data->size());
+  base::ReadOnlyBuffer buffer = bin_file.ToReadOnlyBuffer();
   buffer.set_endian(base::Endian::kLittle);
   char magic[4];
   uint32_t version;
   if (!buffer.ReadMany(magic, &version)) return nullptr;
-  if (memcmp(magic, kZkeyMagic, 4) != 0) {
+  if (memcmp(magic, kZKeyMagic, 4) != 0) {
     LOG(ERROR) << "Invalid magic: " << magic;
     return nullptr;
   }
   std::unique_ptr<ZKey<Curve>> zkey;
   if (version == 1) {
-    zkey.reset(new v1::ZKey<Curve>(std::move(zkey_data).value()));
+    zkey.reset(new v1::ZKey<Curve>(std::move(bin_file)));
     CHECK(zkey->ToV1()->Read(buffer));
   } else {
     LOG(ERROR) << "Invalid version: " << version;
@@ -244,8 +245,8 @@ struct ZKey : public circom::ZKey<Curve> {
   PointsC1Section<G1AffinePoint> points_c1;
   PointsH1Section<G1AffinePoint> points_h1;
 
-  explicit ZKey(std::vector<uint8_t>&& data)
-      : circom::ZKey<Curve>(std::move(data)) {}
+  explicit ZKey(base::BinFile bin_file)
+      : circom::ZKey<Curve>(std::move(bin_file)) {}
 
   // circom::ZKey methods
   uint32_t GetVersion() const override { return 1; }

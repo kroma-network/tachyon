@@ -14,6 +14,19 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "bin_file",
+    srcs = ["bin_file.cc"],
+    hdrs = ["bin_file.h"],
+    deps = [
+        ":file_util",
+        ":memory_mapped_file",
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "//tachyon/base/buffer:read_only_buffer",
+    ],
+)
+
+tachyon_cc_library(
     name = "file",
     srcs = ["file.cc"] + if_posix(["file_posix.cc"]),
     hdrs = ["file.h"],
@@ -92,6 +105,21 @@ tachyon_objc_library(
         ":file_util_base",
         "//tachyon/base/mac:foundation_util",
         "//tachyon/base/strings:string_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "memory_mapped_file",
+    srcs = ["memory_mapped_file.cc"] + if_posix(["memory_mapped_file_posix.cc"]),
+    hdrs = ["memory_mapped_file.h"],
+    deps = [
+        ":file",
+        ":file_util",
+        "//tachyon/base:logging",
+        "//tachyon/base/numerics:safe_math",
+        "//tachyon/base/system:sys_info",
+        "//tachyon/build:build_config",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

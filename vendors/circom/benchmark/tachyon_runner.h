@@ -43,7 +43,7 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
     return zkey_->GetNumWitnessVariables();
   }
 
-  void LoadZkey(const base::FilePath& zkey_path) override {
+  void LoadZKey(const base::FilePath& zkey_path) override {
     zkey_ = ParseZKey<Curve>(zkey_path);
     CHECK(zkey_);
 
