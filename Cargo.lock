@@ -3570,24 +3570,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tachyon_halo2"
-version = "0.0.1"
-dependencies = [
- "cxx",
- "digest 0.10.7",
- "ff 0.13.0",
- "halo2_proofs 1.1.0 (git+https://github.com/kroma-network/halo2.git?rev=28ceefb)",
- "halo2curves",
- "log",
- "num-bigint 0.4.6",
- "rand_chacha",
- "rand_core 0.6.4",
- "rand_xorshift",
- "sha2",
- "tachyon_rs",
-]
-
-[[package]]
 name = "tachyon_plonky3"
 version = "0.0.1"
 dependencies = [
@@ -3606,6 +3588,24 @@ name = "tachyon_rs"
 version = "0.0.1"
 dependencies = [
  "zeroize",
+]
+
+[[package]]
+name = "tachyon_scroll_halo2"
+version = "0.0.1"
+dependencies = [
+ "cxx",
+ "digest 0.10.7",
+ "ff 0.13.0",
+ "halo2_proofs 1.1.0 (git+https://github.com/kroma-network/halo2.git?rev=28ceefb)",
+ "halo2curves",
+ "log",
+ "num-bigint 0.4.6",
+ "rand_chacha",
+ "rand_core 0.6.4",
+ "rand_xorshift",
+ "sha2",
+ "tachyon_rs",
 ]
 
 [[package]]

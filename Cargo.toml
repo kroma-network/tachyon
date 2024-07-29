@@ -10,7 +10,7 @@ members = [
     "benchmark/poseidon2/horizen",
     "benchmark/poseidon2/plonky3",
     "tachyon/rs",
-    "vendors/halo2",
+    "vendors/scroll_halo2",
     "vendors/plonky3",
     "vendors/sp1",
 ]
