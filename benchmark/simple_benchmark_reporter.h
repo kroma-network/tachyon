@@ -11,8 +11,8 @@ namespace tachyon {
 class SimpleBenchmarkReporter {
  public:
   SimpleBenchmarkReporter() = default;
-  explicit SimpleBenchmarkReporter(std::string_view title)
-      : title_(std::string(title)) {}
+  SimpleBenchmarkReporter(std::string_view title, std::string_view x_label)
+      : title_(std::string(title)), x_label_(std::string(x_label)) {}
   SimpleBenchmarkReporter(const SimpleBenchmarkReporter& other) = delete;
   SimpleBenchmarkReporter& operator=(const SimpleBenchmarkReporter& other) =
       delete;
@@ -23,6 +23,7 @@ class SimpleBenchmarkReporter {
 
  protected:
   std::string title_;
+  std::string x_label_;
   std::vector<std::string> column_headers_;
   std::vector<std::string> targets_;
   std::vector<std::vector<double>> times_;
