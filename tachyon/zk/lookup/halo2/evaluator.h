@@ -140,13 +140,21 @@ class Evaluator {
     lookup_product_cosets_.resize(num_lookups);
     lookup_input_cosets_.resize(num_lookups);
     lookup_table_cosets_.resize(num_lookups);
+    std::vector<typename PCS::Poly> batch_fft_input;
     for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_product_cosets_[i] = builder.coset_domain_->FFT(
+      batch_fft_input.emplace_back(
           lookup_prover.grand_product_polys()[i].poly());
-      lookup_input_cosets_[i] = builder.coset_domain_->FFT(
+      batch_fft_input.emplace_back(
           lookup_prover.permuted_pairs()[i].input().poly());
-      lookup_table_cosets_[i] = builder.coset_domain_->FFT(
+      batch_fft_input.emplace_back(
           lookup_prover.permuted_pairs()[i].table().poly());
+    }
+    std::vector<Evals> batch_fft_output =
+        builder.coset_domain_->FFT(std::move(batch_fft_input));
+    for (size_t i = 0; i < num_lookups; ++i) {
+      lookup_product_cosets_[i] = std::move(batch_fft_output[i * 3]);
+      lookup_input_cosets_[i] = std::move(batch_fft_output[i * 3 + 1]);
+      lookup_table_cosets_[i] = std::move(batch_fft_output[i * 3 + 2]);
     }
   }
 

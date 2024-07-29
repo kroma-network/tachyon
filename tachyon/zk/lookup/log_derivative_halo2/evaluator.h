@@ -181,11 +181,17 @@ class Evaluator {
     const LookupProver& lookup_prover = builder.lookup_provers_[circuit_idx];
     lookup_sum_cosets_.resize(num_lookups);
     lookup_m_cosets_.resize(num_lookups);
+    std::vector<typename PCS::Poly> batch_fft_input;
+    batch_fft_input.reserve(2 * num_lookups);
     for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_sum_cosets_[i] =
-          builder.coset_domain_->FFT(lookup_prover.grand_sum_polys()[i].poly());
-      lookup_m_cosets_[i] =
-          builder.coset_domain_->FFT(lookup_prover.m_polys()[i].poly());
+      batch_fft_input.emplace_back(lookup_prover.grand_sum_polys()[i].poly());
+      batch_fft_input.emplace_back(lookup_prover.m_polys()[i].poly());
+    }
+    std::vector<Evals> batch_fft_output =
+        builder.coset_domain_->FFT(std::move(batch_fft_input));
+    for (size_t i = 0; i < num_lookups; ++i) {
+      lookup_sum_cosets_[i] = std::move(batch_fft_output[2 * i]);
+      lookup_m_cosets_[i] = std::move(batch_fft_output[2 * i + 1]);
     }
   }
 

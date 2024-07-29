@@ -175,13 +175,25 @@ void Prover<Poly, Evals>::BatchCommitGrandProductPolys(
 template <typename Poly, typename Evals>
 template <typename Domain>
 void Prover<Poly, Evals>::TransformEvalsToPoly(const Domain* domain) {
+  std::vector<Evals> evals_batch;
+  evals_batch.reserve(permuted_pairs_.size() * 2 + grand_product_polys_.size());
+
   for (Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair : permuted_pairs_) {
-    permuted_pair.input().TransformEvalsToPoly(domain);
-    permuted_pair.table().TransformEvalsToPoly(domain);
+    evals_batch.emplace_back(std::move(permuted_pair.input().TakeEvals()));
+    evals_batch.emplace_back(std::move(permuted_pair.table().TakeEvals()));
   }
   for (BlindedPolynomial<Poly, Evals>& grand_product_poly :
        grand_product_polys_) {
-    grand_product_poly.TransformEvalsToPoly(domain);
+    evals_batch.emplace_back(std::move(grand_product_poly.TakeEvals()));
+  }
+  std::vector<Poly> polys = domain->IFFT(std::move(evals_batch));
+  for (size_t i = 0; i < permuted_pairs_.size(); ++i) {
+    permuted_pairs_[i].input().set_poly(std::move(polys[2 * i]));
+    permuted_pairs_[i].table().set_poly(std::move(polys[2 * i + 1]));
+  }
+  for (size_t i = 0; i < grand_product_polys_.size(); ++i) {
+    grand_product_polys_[i].set_poly(
+        std::move(polys[2 * permuted_pairs_.size() + i]));
   }
 }
 

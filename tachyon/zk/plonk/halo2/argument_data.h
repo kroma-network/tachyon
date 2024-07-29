@@ -108,12 +108,11 @@ class ArgumentData {
   void TransformEvalsToPoly(const Domain* domain) {
     VLOG(2) << "Transform advice columns to polys";
     CHECK(!advice_transformed_);
-    advice_polys_vec_ = base::Map(
-        advice_columns_vec_, [domain](std::vector<Evals>& advice_columns) {
-          return base::Map(advice_columns, [domain](Evals& advice_column) {
-            return domain->IFFT(std::move(advice_column));
-          });
-        });
+    advice_polys_vec_.resize(advice_columns_vec_.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < advice_columns_vec_.size(); ++i) {
+      advice_polys_vec_[i] =
+          std::move(domain->IFFT(std::move(advice_columns_vec_[i])));
+    }
     advice_transformed_ = true;
   }
 
