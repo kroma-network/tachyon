@@ -221,10 +221,10 @@ int RealMain(int argc, char** argv) {
       .set_long_name("--no_use_mmap")
       .set_default_value(false)
       .set_help(
-          "Create proof not using mmap(2). By default, mmap(2) is enabled, "
-          "memory mapped file offers faster proof generation at the cost of "
-          "increased memory usage. Use this flag if you want to use less "
-          "memory.");
+          "Create proof without mmap(2). By default, mmap(2) is enabled, "
+          "offering faster proof generation at the cost of increased memory "
+          "usage due to the memory mapped file. Use this flag if you want to "
+          "use less memory.");
   parser.AddFlag<base::BoolFlag>(&options.verify)
       .set_long_name("--verify")
       .set_default_value(false)
