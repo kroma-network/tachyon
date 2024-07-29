@@ -42,7 +42,7 @@ class KZGFamilyProverImpl : public ProverImplBase<PCS, LS> {
   }
 
  private:
-  CProjectivePoint* DoMSM(const std::vector<AffinePoint>& bases,
+  CProjectivePoint* DoMSM(const std::pmr::vector<AffinePoint>& bases,
                           const std::pmr::vector<ScalarField>& scalars) const {
     ProjectivePoint* ret = new ProjectivePoint();
     CHECK(this->pcs_.DoMSM(bases, scalars, ret));

@@ -55,8 +55,8 @@ class KZG {
 
   KZG() = default;
 
-  KZG(std::vector<G1Point>&& g1_powers_of_tau,
-      std::vector<G1Point>&& g1_powers_of_tau_lagrange)
+  KZG(std::pmr::vector<G1Point>&& g1_powers_of_tau,
+      std::pmr::vector<G1Point>&& g1_powers_of_tau_lagrange)
       : g1_powers_of_tau_(std::move(g1_powers_of_tau)),
         g1_powers_of_tau_lagrange_(std::move(g1_powers_of_tau_lagrange)) {
     CHECK_EQ(g1_powers_of_tau_.size(), g1_powers_of_tau_lagrange_.size());
@@ -66,11 +66,11 @@ class KZG {
 #endif
   }
 
-  const std::vector<G1Point>& g1_powers_of_tau() const {
+  const std::pmr::vector<G1Point>& g1_powers_of_tau() const {
     return g1_powers_of_tau_;
   }
 
-  const std::vector<G1Point>& g1_powers_of_tau_lagrange() const {
+  const std::pmr::vector<G1Point>& g1_powers_of_tau_lagrange() const {
     return g1_powers_of_tau_lagrange_;
   }
 
@@ -267,8 +267,8 @@ class KZG {
     return msm.Run(bases_span, scalars, &cpu_batch_commitments_[index]);
   }
 
-  std::vector<G1Point> g1_powers_of_tau_;
-  std::vector<G1Point> g1_powers_of_tau_lagrange_;
+  std::pmr::vector<G1Point> g1_powers_of_tau_;
+  std::pmr::vector<G1Point> g1_powers_of_tau_lagrange_;
   std::vector<Bucket> cpu_batch_commitments_;
 #if TACHYON_CUDA
   device::gpu::ScopedMemPool mem_pool_;
@@ -293,8 +293,8 @@ class Copyable<crypto::KZG<G1Point, MaxDegree, Commitment>> {
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer, PCS* pcs) {
-    std::vector<G1Point> g1_powers_of_tau;
-    std::vector<G1Point> g1_powers_of_tau_lagrange;
+    std::pmr::vector<G1Point> g1_powers_of_tau;
+    std::pmr::vector<G1Point> g1_powers_of_tau_lagrange;
     if (!buffer.ReadMany(&g1_powers_of_tau, &g1_powers_of_tau_lagrange)) {
       return false;
     }

@@ -523,14 +523,14 @@ class BufferReader<
     uint32_t k;
     CHECK(buffer.Read(&k));
     size_t n = size_t{1} << k;
-    std::vector<G1Point> g1_powers_of_tau =
-        tachyon::base::CreateVector(n, [&buffer]() {
+    std::pmr::vector<G1Point> g1_powers_of_tau =
+        tachyon::base::CreatePmrVector(n, [&buffer]() {
           G1Point point;
           ReadBuffer(buffer, point);
           return point;
         });
-    std::vector<G1Point> g1_powers_of_tau_lagrange =
-        tachyon::base::CreateVector(n, [&buffer]() {
+    std::pmr::vector<G1Point> g1_powers_of_tau_lagrange =
+        tachyon::base::CreatePmrVector(n, [&buffer]() {
           G1Point point;
           ReadBuffer(buffer, point);
           return point;
