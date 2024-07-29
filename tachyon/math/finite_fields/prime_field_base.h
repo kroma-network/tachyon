@@ -87,7 +87,7 @@ class PrimeFieldBase : public FiniteField<F> {
   //   1. n is not a power of 2.
   //   2. two-adicity of next power of 2 of n is greater than
   //   |Config::kTwoAdicity|.
-  static bool GetRootOfUnity(uint64_t n, F* ret) {
+  [[nodiscard]] static bool GetRootOfUnity(uint64_t n, F* ret) {
     static_assert(HasRootOfUnity());
     F omega;
     if constexpr (Config::kHasLargeSubgroupRootOfUnity) {
