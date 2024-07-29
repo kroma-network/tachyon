@@ -36,6 +36,7 @@ class TwoAdicMultiplicativeCoset {
   const math::Radix2EvaluationDomain<F>* domain() const {
     return domain_.get();
   }
+  math::Radix2EvaluationDomain<F>* domain() { return domain_.get(); }
 
   template <typename ExtField>
   ExtField GetNextPoint(const ExtField& x) const {
