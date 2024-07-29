@@ -57,13 +57,14 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::CreateHEvals(
     const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& theta,
     const F& beta, const F& gamma, const F& y,
     const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-    const std::vector<LookupProver>& lookup_provers) {
+    const std::vector<LookupProver>& lookup_provers,
+    const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers) {
   VanishingArgument<LS> vanishing_argument = VanishingArgument<LS>::Create(
       proving_key.verifying_key().constraint_system());
   F zeta = GetHalo2Zeta<F>();
   h_evals_ = vanishing_argument.BuildExtendedCircuitColumn(
       prover, proving_key, tables, theta, beta, gamma, y, zeta,
-      permutation_provers, lookup_provers);
+      permutation_provers, lookup_provers, shuffle_provers);
 }
 
 template <typename Poly, typename Evals, typename ExtendedPoly,
@@ -74,12 +75,11 @@ void VanishingProver<Poly, Evals, ExtendedPoly,
                                                       const ConstraintSystem<F>&
                                                           constraint_system) {
   // Divide by t(X) = Xⁿ - 1.
-  DivideByVanishingPolyInPlace<F>(h_evals_, prover->extended_domain(),
-                                  prover->domain());
+  DivideByVanishingPolyInPlace(h_evals_, prover->extended_domain(),
+                               prover->domain());
 
   // Obtain final h(X) polynomial
-  h_poly_ = ExtendedToCoeff<F, ExtendedPoly>(std::move(h_evals_),
-                                             prover->extended_domain());
+  h_poly_ = ExtendedToCoeff(std::move(h_evals_), prover->extended_domain());
 
   // FIXME(TomTaehoonKim): Remove this if possible.
   const size_t quotient_poly_degree = constraint_system.ComputeDegree() - 1;

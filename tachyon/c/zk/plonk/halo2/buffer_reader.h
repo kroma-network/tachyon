@@ -29,6 +29,7 @@
 #include "tachyon/zk/plonk/constraint_system/lookup_tracker.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
+#include "tachyon/zk/shuffle/argument.h"
 
 namespace tachyon::c::zk::plonk {
 
@@ -466,6 +467,21 @@ class BufferReader<tachyon::zk::plonk::LookupTracker<F>> {
     ReadBuffer(buffer, inputs);
     return tachyon::zk::plonk::LookupTracker<F>("", std::move(table),
                                                 std::move(inputs));
+  }
+};
+
+template <typename F>
+class BufferReader<tachyon::zk::shuffle::Argument<F>> {
+ public:
+  static tachyon::zk::shuffle::Argument<F> Read(
+      const tachyon::base::ReadOnlyBuffer& buffer) {
+    std::vector<std::unique_ptr<tachyon::zk::Expression<F>>> input_expressions;
+    ReadBuffer(buffer, input_expressions);
+    std::vector<std::unique_ptr<tachyon::zk::Expression<F>>>
+        shuffle_expressions;
+    ReadBuffer(buffer, shuffle_expressions);
+    return tachyon::zk::shuffle::Argument<F>("", std::move(input_expressions),
+                                             std::move(shuffle_expressions));
   }
 };
 

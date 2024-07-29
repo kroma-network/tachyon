@@ -37,6 +37,7 @@
 #include "tachyon/zk/plonk/constraint_system/query.h"
 #include "tachyon/zk/plonk/constraint_system/selector_compressor.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cells.h"
+#include "tachyon/zk/plonk/expressions/evaluator/cells_querier.h"
 #include "tachyon/zk/plonk/expressions/evaluator/identifier.h"
 #include "tachyon/zk/plonk/expressions/evaluator/selector_replacer.h"
 #include "tachyon/zk/plonk/expressions/evaluator/simple_selector_extractor.h"
@@ -45,6 +46,8 @@
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
+#include "tachyon/zk/shuffle/argument.h"
+#include "tachyon/zk/shuffle/pair.h"
 
 namespace tachyon::zk::plonk {
 
@@ -58,6 +61,9 @@ class ConstraintSystem {
                                        LookupTableColumn>(VirtualCells<F>&)>;
   using LookupAnyCallback =
       base::OnceCallback<lookup::Pairs<std::unique_ptr<Expression<F>>>(
+          VirtualCells<F>&)>;
+  using ShuffleCallback =
+      base::OnceCallback<shuffle::Pairs<std::unique_ptr<Expression<F>>>(
           VirtualCells<F>&)>;
   using ConstrainCallback =
       base::OnceCallback<std::vector<Constraint<F>>(VirtualCells<F>&)>;
@@ -118,6 +124,10 @@ class ConstraintSystem {
     return lookups_map_;
   }
 
+  const std::vector<shuffle::Argument<F>>& shuffles() const {
+    return shuffles_;
+  }
+
   const absl::flat_hash_map<ColumnKeyBase, std::string>&
   general_column_annotations() const {
     return general_column_annotations_;
@@ -176,6 +186,8 @@ class ConstraintSystem {
                                          LookupTableColumn>& pair) {
               std::unique_ptr<Expression<F>> table =
                   cells.QueryLookupTable(pair, Rotation::Cur());
+              QueryCells(pair.input().get(), cells);
+              QueryCells(table.get(), cells);
               return lookup::Pair<std::unique_ptr<Expression<F>>>(
                   std::move(pair).TakeInput(), std::move(table));
             });
@@ -193,6 +205,8 @@ class ConstraintSystem {
                  pair : pairs) {
           std::unique_ptr<Expression<F>> table =
               cells.QueryLookupTable(pair, Rotation::Cur());
+          QueryCells(pair.input().get(), cells);
+          QueryCells(table.get(), cells);
           input_expressions.push_back(std::move(pair).TakeInput());
           table_expressions.push_back(std::move(table));
         }
@@ -328,6 +342,28 @@ class ConstraintSystem {
     }
   }
 
+  // Add a shuffle argument for some input expressions and shuffle expressions.
+  size_t Shuffle(std::string_view name, ShuffleCallback callback) {
+    VirtualCells cells(this);
+    shuffle::Pairs<std::unique_ptr<Expression<F>>> pairs =
+        std::move(callback).Run(cells);
+
+    std::vector<std::unique_ptr<Expression<F>>> input_expressions;
+    std::vector<std::unique_ptr<Expression<F>>> shuffle_expressions;
+
+    input_expressions.reserve(pairs.size());
+    shuffle_expressions.reserve(pairs.size());
+
+    for (shuffle::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
+      input_expressions.push_back(std::move(pair).TakeInput());
+      shuffle_expressions.push_back(std::move(pair).TakeShuffle());
+    }
+
+    shuffles_.emplace_back(name, std::move(input_expressions),
+                           std::move(shuffle_expressions));
+    return shuffles_.size() - 1;
+  }
+
   size_t QueryFixedIndex(const FixedColumnKey& column, Rotation at) {
     // Return existing query, if it exists
     size_t index;
@@ -421,8 +457,11 @@ class ConstraintSystem {
         std::move(cells).TakeQueriedCells();
 
     std::vector<std::string> constraint_names;
+    constraint_names.reserve(constraints.size());
     std::vector<std::unique_ptr<Expression<F>>> polys;
+    polys.reserve(constraints.size());
     for (Constraint<F>& constraint : constraints) {
+      QueryCells(constraint.expression().get(), cells);
       constraint_names.push_back(std::move(constraint).TakeName());
       polys.push_back(std::move(constraint).TakeExpression());
     }
@@ -505,6 +544,18 @@ class ConstraintSystem {
       }
       for (std::unique_ptr<Expression<F>>& expression :
            lookup.table_expressions()) {
+        expression =
+            ReplaceSelectors(expression.get(), selector_replacements, true);
+      }
+    }
+    for (shuffle::Argument<F>& shuffle : shuffles_) {
+      for (std::unique_ptr<Expression<F>>& expression :
+           shuffle.input_expressions()) {
+        expression =
+            ReplaceSelectors(expression.get(), selector_replacements, true);
+      }
+      for (std::unique_ptr<Expression<F>>& expression :
+           shuffle.shuffle_expressions()) {
         expression =
             ReplaceSelectors(expression.get(), selector_replacements, true);
       }
@@ -613,6 +664,10 @@ class ConstraintSystem {
       // accounted for.
       degree = std::max(degree, ComputeLookupRequiredDegree());
 
+      // The shuffle argument also serves alongside the gates and must be
+      // accounted for.
+      degree = std::max(degree, ComputeShuffleRequiredDegree());
+
       // Account for each gate to ensure our quotient polynomial is the
       // correct degree and that our extended domain is the right size.
       degree = std::max(degree, ComputeGateRequiredDegree());
@@ -718,7 +773,8 @@ class ConstraintSystem {
        << ", blinding_factors: " << ComputeBlindingFactors()
        << ", max_phase: " << uint32_t{ComputeMaxPhase().value()}
        << ", permutations: " << permutation_.columns().size()
-       << ", lookups: " << lookups_.size();
+       << ", lookups: " << lookups_.size()
+       << ", shuffles: " << shuffles_.size();
     return ss.str();
   }
 
@@ -775,6 +831,17 @@ class ConstraintSystem {
   size_t ComputeLookupRequiredDegree() const {
     std::vector<size_t> required_degrees =
         base::Map(lookups_, [](const lookup::Argument<F>& argument) {
+          return argument.RequiredDegree();
+        });
+    auto max_required_degree =
+        std::max_element(required_degrees.begin(), required_degrees.end());
+    if (max_required_degree == required_degrees.end()) return 1;
+    return *max_required_degree;
+  }
+
+  size_t ComputeShuffleRequiredDegree() const {
+    std::vector<size_t> required_degrees =
+        base::Map(shuffles_, [](const shuffle::Argument<F>& argument) {
           return argument.RequiredDegree();
         });
     auto max_required_degree =
@@ -862,6 +929,11 @@ class ConstraintSystem {
   // btree_map with |table_expressions_identifier| as a key and |LookupTracker|
   // as values.
   absl::btree_map<std::string, LookupTracker<F>> lookups_map_;
+
+  // Vector of shuffle arguments, where each corresponds
+  // to a sequence of input expressions and a sequence
+  // of shuffle expressions involved in the shuffle.
+  std::vector<shuffle::Argument<F>> shuffles_;
 
   // List of indexes of Fixed columns which are associated to a
   // circuit-general Column tied to their annotation.

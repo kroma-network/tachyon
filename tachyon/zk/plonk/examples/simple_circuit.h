@@ -4,6 +4,9 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
+// This is taken and modified from
+// https://github.com/privacy-scaling-explorations/halo2/blob/bc857a7/halo2_proofs/examples/simple-example.rs.
+
 #ifndef TACHYON_ZK_PLONK_EXAMPLES_SIMPLE_CIRCUIT_H_
 #define TACHYON_ZK_PLONK_EXAMPLES_SIMPLE_CIRCUIT_H_
 

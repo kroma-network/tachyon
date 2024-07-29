@@ -9,6 +9,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/halo2/bn254.h"
 #include "tachyon/zk/lookup/pair.h"
 #include "tachyon/zk/plonk/examples/circuit_test_type_traits.h"
 #include "tachyon/zk/plonk/examples/point.h"
@@ -39,7 +40,10 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
   using Commitment = typename PCS::Commitment;
   using RationalEvals = typename PCS::RationalEvals;
 
-  static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
+  static void SetUpTestSuite() {
+    math::bn254::BN254Curve::Init();
+    math::halo2::OverrideSubgroupGenerator();
+  }
 
   void ConfigureTest() {
     ConstraintSystem<F> constraint_system;
@@ -360,6 +364,20 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
                 expected_lookup_sum_commitments_commitments_vec);
     }
 
+    if constexpr (TestData::kShuffleProductCommitmentsFlag) {
+      std::vector<std::vector<Commitment>>
+          expected_shuffle_product_commitments_vec{
+              CreateCommitments(
+                  base::ArrayToVector(TestData::kShuffleProductCommitments[0])),
+              CreateCommitments(
+                  base::ArrayToVector(TestData::kShuffleProductCommitments[1])),
+          };
+      EXPECT_EQ(proof.shuffle_product_commitments_vec,
+                expected_shuffle_product_commitments_vec);
+    } else {
+      EXPECT_TRUE(proof.shuffle_product_commitments_vec[0].empty());
+    }
+
     Commitment expected_vanishing_random_poly_commitment =
         CreateCommitment(TestData::kVanishingRandomPolyCommitment);
     EXPECT_EQ(proof.vanishing_random_poly_commitment,
@@ -520,6 +538,30 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
           CreateEvals(base::ArrayToVector(TestData::kLookupMEvals[1])),
       };
       EXPECT_EQ(proof.lookup_m_evals_vec, expected_lookup_m_evals_vec);
+    }
+
+    if constexpr (TestData::kShuffleProductEvalsFlag) {
+      std::vector<std::vector<F>> expected_shuffle_product_evals_vec{
+          CreateEvals(base::ArrayToVector(TestData::kShuffleProductEvals[0])),
+          CreateEvals(base::ArrayToVector(TestData::kShuffleProductEvals[1])),
+      };
+      EXPECT_EQ(proof.shuffle_product_evals_vec,
+                expected_shuffle_product_evals_vec);
+    } else {
+      EXPECT_TRUE(proof.shuffle_product_evals_vec[0].empty());
+    }
+
+    if constexpr (TestData::kShuffleProductNextEvalsFlag) {
+      std::vector<std::vector<F>> expected_shuffle_product_next_evals_vec{
+          CreateEvals(
+              base::ArrayToVector(TestData::kShuffleProductNextEvals[0])),
+          CreateEvals(
+              base::ArrayToVector(TestData::kShuffleProductNextEvals[1])),
+      };
+      EXPECT_EQ(proof.shuffle_product_next_evals_vec,
+                expected_shuffle_product_next_evals_vec);
+    } else {
+      EXPECT_TRUE(proof.shuffle_product_next_evals_vec[0].empty());
     }
 
     // TODO(ashjeong): get |h_eval| for fibonacci tests

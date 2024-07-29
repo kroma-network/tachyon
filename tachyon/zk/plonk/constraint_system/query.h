@@ -7,10 +7,12 @@
 #ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_QUERY_H_
 #define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_QUERY_H_
 
+#include <optional>
 #include <string>
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/rotation.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 
@@ -49,10 +51,13 @@ template <ColumnType C>
 class Query : public QueryData<C> {
  public:
   Query() = default;
-  Query(size_t index, Rotation rotation, const ColumnKey<C>& column)
+  Query(std::optional<size_t> index, Rotation rotation,
+        const ColumnKey<C>& column)
       : QueryData<C>(rotation, column), index_(index) {}
 
-  size_t index() const { return index_; }
+  size_t GetIndex() const { return index_.value(); }
+  void SetIndex(size_t index) { index_ = index; }
+  bool HasIndex() const { return index_.has_value(); }
 
   bool operator==(const Query& other) const {
     return QueryData<C>::operator==(other) && index_ == other.index_;
@@ -60,13 +65,13 @@ class Query : public QueryData<C> {
   bool operator!=(const Query& other) const { return !operator==(other); }
 
   std::string ToString() const {
-    return absl::Substitute("{index: $0, rotation: $1, column: $2}", index_,
-                            this->rotation_.ToString(),
-                            this->column_.ToString());
+    return absl::Substitute(
+        "{index: $0, rotation: $1, column: $2}", base::OptionalToString(index_),
+        this->rotation_.ToString(), this->column_.ToString());
   }
 
  private:
-  size_t index_ = 0;
+  std::optional<size_t> index_;
 };
 
 using FixedQuery = Query<ColumnType::kFixed>;

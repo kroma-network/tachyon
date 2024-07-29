@@ -15,11 +15,11 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/lookup/halo2/evaluator.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
+#include "tachyon/zk/shuffle/evaluator.h"
 
 namespace tachyon::zk::plonk {
 
@@ -51,12 +51,16 @@ class VanishingArgument {
         ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));
 
     evaluator.lookup_evaluator_.EvaluateLookups(constraint_system.lookups());
+    evaluator.shuffle_evaluator_.EvaluateShuffles(constraint_system.shuffles());
 
     return evaluator;
   }
 
   const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
   const LookupEvaluator& lookup_evaluator() const { return lookup_evaluator_; }
+  const shuffle::Evaluator<Evals>& shuffle_evaluator() const {
+    return shuffle_evaluator_;
+  }
 
   template <typename PCS, typename Poly,
             typename ExtendedEvals = typename PCS::ExtendedEvals>
@@ -65,7 +69,8 @@ class VanishingArgument {
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<LookupProver>& lookup_provers) {
+      const std::vector<LookupProver>& lookup_provers,
+      const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers) {
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 
@@ -73,14 +78,17 @@ class VanishingArgument {
         CircuitPolynomialBuilder<PCS, LS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
             prover->GetLastRow(), cs_degree, poly_tables, theta, beta, gamma, y,
-            zeta, proving_key, permutation_provers, lookup_provers);
+            zeta, proving_key, permutation_provers, lookup_provers,
+            shuffle_provers);
 
-    return builder.BuildExtendedCircuitColumn(custom_gates_, lookup_evaluator_);
+    return builder.BuildExtendedCircuitColumn(custom_gates_, lookup_evaluator_,
+                                              shuffle_evaluator_);
   }
 
  private:
   GraphEvaluator<F> custom_gates_;
   LookupEvaluator lookup_evaluator_;
+  shuffle::Evaluator<Evals> shuffle_evaluator_;
 };
 
 }  // namespace tachyon::zk::plonk

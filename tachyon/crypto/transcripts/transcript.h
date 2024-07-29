@@ -114,16 +114,18 @@ class TranscriptReaderImpl<Commitment, false> : public Transcript<Commitment> {
   // Read a |commitment| from the proof. Note that it also writes the
   // |commitment| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool ReadFromProof(Commitment* commitment) {
+    if (!DoReadFromProof(commitment)) return false;
     VLOG(3) << "Proof[" << proof_idx_++
             << "]: " << commitment->ToHexString(true);
-    return DoReadFromProof(commitment) && this->WriteToTranscript(*commitment);
+    return this->WriteToTranscript(*commitment);
   }
 
   // Read a |value| from the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool ReadFromProof(Field* value) {
+    if (!DoReadFromProof(value)) return false;
     VLOG(3) << "Proof[" << proof_idx_++ << "]: " << value->ToHexString(true);
-    return DoReadFromProof(value) && this->WriteToTranscript(*value);
+    return this->WriteToTranscript(*value);
   }
 
  protected:
@@ -151,8 +153,9 @@ class TranscriptReaderImpl<Field, true> : public Transcript<Field> {
   // Read a |value| from the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool ReadFromProof(Field* value) {
+    if (!DoReadFromProof(value)) return false;
     VLOG(3) << "Proof[" << proof_idx_++ << "]: " << value->ToHexString(true);
-    return DoReadFromProof(value) && this->WriteToTranscript(*value);
+    return this->WriteToTranscript(*value);
   }
 
  protected:

@@ -13,15 +13,18 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/types/always_false.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"
+#include "tachyon/zk/plonk/halo2/config.h"
 
 namespace tachyon::zk::plonk {
 
 // Calculate ζ = g^((2ˢ * T) / 3).
 template <typename F>
-constexpr F GetZeta() {
+F GetZeta() {
   using BigInt = typename F::BigIntTy;
   CHECK_EQ(F::Config::kTrace % BigInt(3), BigInt(0));
   BigInt exp = F::Config::kTrace;
@@ -34,23 +37,39 @@ constexpr F GetZeta() {
 
 // NOTE(TomTaehoonKim): The returning value of |GetZeta()| is different from the
 // one in
-// https://github.com/kroma-network/halo2curves/blob/c0ac193/src/bn256/fr.rs#L112-L118.
+// https://github.com/privacy-scaling-explorations/halo2curves/blob/v0.6.1/src/bn256/fr.rs#L145-L151.
 // This is an ugly way to produce a same result with Halo2Curves but we will
 // remove once we don't have to match it against Halo2 any longer in the
 // future.
 // Calculate ζ = g^((2ˢ * T) / 3)².
 template <typename F>
-constexpr F GetHalo2Zeta() {
-  return GetZeta<F>().Square();
+F GetHalo2Zeta() {
+  static F cache = F::Zero();
+  if (cache.IsZero()) {
+    halo2::Config& config = halo2::GetConfig();
+    if constexpr (std::is_same_v<F, math::bn254::Fr>) {
+      if (config.vendor == halo2::Vendor::kScroll) {
+        // See
+        // https://github.com/scroll-tech/halo2curves/blob/3c268b4/src/bn256/fr.rs#L108-L114.
+        cache = GetZeta<F>();
+      } else {
+        cache = GetZeta<F>().Square();
+      }
+    } else {
+      static_assert(base::AlwaysFalse<F>);
+    }
+  }
+  return cache;
 }
 
 // This divides the polynomial (in the extended domain) by the vanishing
 // polynomial of the 2ᵏ size domain.
-template <typename F, typename Domain, typename ExtendedDomain,
-          typename ExtendedEvals>
+template <typename Domain, typename ExtendedDomain, typename ExtendedEvals>
 ExtendedEvals& DivideByVanishingPolyInPlace(
     ExtendedEvals& evals, const ExtendedDomain* extended_domain,
     const Domain* domain) {
+  using F = typename ExtendedEvals::Field;
+
   CHECK_EQ(evals.NumElements(), extended_domain->size());
 
   const F zeta = GetHalo2Zeta<F>();
@@ -93,8 +112,10 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
 //
 // |into_coset| should be set to true when moving into the coset, and false
 // when moving out. This toggles the choice of ζ.
-template <typename F, typename ExtendedPoly>
-void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
+template <typename Poly>
+void DistributePowersZeta(Poly& poly, bool into_coset) {
+  using F = typename Poly::Field;
+
   F zeta = GetHalo2Zeta<F>();
   F zeta_inv = zeta.Square();
   F coset_powers[] = {into_coset ? zeta : zeta_inv,
@@ -108,12 +129,28 @@ void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
   }
 }
 
+// This takes us from an n-length coefficient vector into a coset of the
+// extended evaluation domain.
+template <typename Poly, typename ExtendedDomain,
+          typename ExtendedEvals = typename ExtendedDomain::Evals>
+ExtendedEvals CoeffToExtended(Poly&& poly,
+                              const ExtendedDomain* extended_domain) {
+  using ExtendedPoly = typename ExtendedDomain::DensePoly;
+  using Coefficients = typename ExtendedPoly::Coefficients;
+
+  DistributePowersZeta(poly, true);
+
+  ExtendedPoly extended_poly(
+      Coefficients(std::move(poly).TakeCoefficients().TakeCoefficients()));
+  return extended_domain->FFT(std::move(extended_poly));
+}
+
 // This takes us from the extended evaluation domain and gets us the quotient
 // polynomial coefficients.
 //
 // This function will crash if the provided vector is not the correct length.
-template <typename F, typename ExtendedPoly, typename ExtendedEvals,
-          typename ExtendedDomain>
+template <typename ExtendedEvals, typename ExtendedDomain,
+          typename ExtendedPoly = typename ExtendedDomain::DensePoly>
 ExtendedPoly ExtendedToCoeff(ExtendedEvals&& evals,
                              const ExtendedDomain* extended_domain) {
   CHECK_EQ(evals.NumElements(), extended_domain->size());
@@ -122,7 +159,7 @@ ExtendedPoly ExtendedToCoeff(ExtendedEvals&& evals,
 
   // Distribute powers to move from coset; opposite from the
   // transformation we performed earlier.
-  DistributePowersZeta<F>(poly, false);
+  DistributePowersZeta(poly, false);
 
   return poly;
 }

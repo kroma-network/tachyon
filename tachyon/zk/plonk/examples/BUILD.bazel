@@ -48,17 +48,10 @@ tachyon_cc_library(
     testonly = True,
     hdrs = ["circuit_test.h"],
     deps = [
-        ":multi_lookup_circuit",
-        ":multi_lookup_circuit_test_data",
         ":point",
-        ":shuffle_circuit",
-        ":shuffle_circuit_test_data",
-        ":simple_circuit",
-        ":simple_circuit_test_data",
-        ":simple_lookup_circuit",
-        ":simple_lookup_circuit_test_data",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",
         "//tachyon/zk/lookup:pair",
         "//tachyon/zk/plonk/halo2:pinned_constraint_system",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
@@ -104,6 +97,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "shuffle_api_circuit",
+    hdrs = ["shuffle_api_circuit.h"],
+    deps = [
+        "//tachyon/zk/plonk/constraint_system:circuit",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "shuffle_api_circuit_test_data",
+    testonly = True,
+    hdrs = ["shuffle_api_circuit_test_data.h"],
+    deps = COMMON_TEST_DATA_DEPS,
+)
+
+tachyon_cc_library(
     name = "simple_circuit",
     hdrs = ["simple_circuit.h"],
     deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
@@ -144,6 +153,15 @@ tachyon_cc_unittest(
     deps = COMMON_TEST_DEPS + [
         ":shuffle_circuit",
         ":shuffle_circuit_test_data",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "shuffle_api_circuit_test",
+    srcs = ["shuffle_api_circuit_test.cc"],
+    deps = COMMON_TEST_DEPS + [
+        ":shuffle_api_circuit",
+        ":shuffle_api_circuit_test_data",
     ],
 )
 

@@ -25,6 +25,9 @@
 #include "tachyon/zk/plonk/permutation/permutation_verifier.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verifier.h"
+#include "tachyon/zk/shuffle/opening_point_set.h"
+#include "tachyon/zk/shuffle/utils.h"
+#include "tachyon/zk/shuffle/verifier.h"
 
 namespace tachyon::zk::plonk {
 
@@ -89,6 +92,7 @@ class Verifier : public VerifierBase<PCS> {
     proof_reader.ReadBetaAndGamma();
     proof_reader.ReadPermutationProductCommitments();
     proof_reader.ReadLookupGrandCommitments();
+    proof_reader.ReadShuffleGrandCommitments();
     proof_reader.ReadVanishingRandomPolyCommitment();
     proof_reader.ReadY();
     proof_reader.ReadVanishingHPolyCommitments();
@@ -106,6 +110,7 @@ class Verifier : public VerifierBase<PCS> {
     proof_reader.ReadCommonPermutationEvals();
     proof_reader.ReadPermutationEvals();
     proof_reader.ReadLookupEvals();
+    proof_reader.ReadShuffleEvals();
     CHECK(proof_reader.Done());
 
     if (proof_out) {
@@ -299,7 +304,8 @@ class Verifier : public VerifierBase<PCS> {
         GetNumPermutationEvals(
             num_circuits, proof.permutation_product_commitments_vec[0].size()) +
         lookup::halo2::GetNumEvals(LS::type, num_circuits,
-                                   constraint_system.lookups().size());
+                                   constraint_system.lookups().size()) +
+        shuffle::GetNumEvals(num_circuits, constraint_system.shuffles().size());
     std::vector<F> evals;
     evals.reserve(size);
 
@@ -322,6 +328,10 @@ class Verifier : public VerifierBase<PCS> {
 
       LookupVerifier lookup_verifier(proof, i, l_values);
       lookup_verifier.Evaluate(constraint_system.lookups(), evals);
+
+      shuffle::Verifier<F, Commitment> shuffle_verifier(
+          proof.ToShuffleVerifierData(i), l_values);
+      shuffle_verifier.Evaluate(constraint_system.shuffles(), evals);
     }
     DCHECK_EQ(evals.size(), size);
     F expected_h_eval =
@@ -345,7 +355,9 @@ class Verifier : public VerifierBase<PCS> {
             num_circuits, proof.permutation_product_commitments_vec[0].size(),
             vkey.permutation_verifying_key().commitments().size()) +
         lookup::halo2::GetNumOpenings(LS::type, num_circuits,
-                                      constraint_system.lookups().size());
+                                      constraint_system.lookups().size()) +
+        shuffle::GetNumOpenings(num_circuits,
+                                constraint_system.shuffles().size());
     std::vector<Opening> openings;
     openings.reserve(size);
 
@@ -353,6 +365,7 @@ class Verifier : public VerifierBase<PCS> {
                                                         proof.x_last);
     lookup::halo2::OpeningPointSet<F> lookup_point_set(proof.x, proof.x_prev,
                                                        proof.x_next);
+    shuffle::OpeningPointSet<F> shuffle_point_set(proof.x, proof.x_next);
 
     for (size_t i = 0; i < num_circuits; ++i) {
       VanishingVerifierData<F, Commitment> vanishing_verifier_data =
@@ -372,6 +385,10 @@ class Verifier : public VerifierBase<PCS> {
 
       LookupVerifier lookup_verifier(proof, i);
       lookup_verifier.Open(lookup_point_set, openings);
+
+      shuffle::Verifier<F, Commitment> shuffle_verifier(
+          proof.ToShuffleVerifierData(i));
+      shuffle_verifier.Open(shuffle_point_set, openings);
 
       if (i == num_circuits - 1) {
         vanishing_verifier.template OpenFixedColumns<Poly>(

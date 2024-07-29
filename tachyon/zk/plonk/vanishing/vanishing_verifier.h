@@ -25,7 +25,7 @@ class VanishingVerifier {
 
   void Evaluate(const ConstraintSystem<F>& constraint_system,
                 std::vector<F>& evals) {
-    plonk::VerifyingEvaluator<F> evaluator(data_);
+    VerifyingEvaluator<F> evaluator(data_);
     for (const Gate<F>& gate : constraint_system.gates()) {
       for (const std::unique_ptr<Expression<F>>& poly : gate.polys()) {
         evals.push_back(poly->Evaluate(&evaluator));

@@ -141,3 +141,12 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/constraint_system:selector",
     ],
 )
+
+tachyon_cc_library(
+    name = "shuffle_argument_stringifier",
+    hdrs = ["shuffle_argument_stringifier.h"],
+    deps = [
+        ":expression_stringifier",
+        "//tachyon/zk/shuffle:argument",
+    ],
+)

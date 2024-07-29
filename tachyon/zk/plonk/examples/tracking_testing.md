@@ -10,6 +10,8 @@
 | SimpleLookupCircuit | V1FloorPlanner     | SHPlonk | Halo2LS              |
 | ShuffleCircuit      | SimpleFloorPlanner | SHPlonk | Halo2LS              |
 | ShuffleCircuit      | V1FloorPlanner     | SHPlonk | Halo2LS              |
+| ShuffleAPICircuit   | SimpleFloorPlanner | SHPlonk | LogDerivativeHalo2LS |
+| ShuffleAPICircuit   | V1FloorPlanner     | SHPlonk | LogDerivativeHalo2LS |
 | Fibonacci1Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS              |
 | Fibonacci1Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS              |
 | Fibonacci2Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS              |
@@ -32,6 +34,7 @@ The following circuits result in the same test data when using `SimpleFloorPlann
 
 - SimpleLookupCircuit
 - ShuffleCircuit
+- ShuffleAPICircuit
 - Fibonacci2Circuit
 - Fibonacci3Circuit
 
@@ -49,6 +52,7 @@ Refer to the following files to learn more about these variables:
 - [circuit_test.cc](circuit_test_data.cc)
 - Any `...test_data.h` file:
   - [shuffle_circuit_test_data.h](shuffle_circuit_test_data.h)
+  - [shuffle_api_circuit_test_data.h](shuffle_api_circuit_test_data.h)
   - [simple_circuit_test_data.h](simple_circuit_test_data.h)
   - [simple_lookup_circuit_test_data.h](simple_lookup_circuit_test_data.h)
 
@@ -82,6 +86,7 @@ Refer to the following files to learn more about these variables:
 1. :blue_square: kPermutationProductCommitments
 1. :blue_square: kLookupProductCommitments
 1. :blue_square: kLookupSumCommitments
+1. :blue_square: kShuffleProductCommitments
 1. :red_square: kY
 1. :red_square: kVanishingHPolyCommitments
 1. :red_square: kX
@@ -99,4 +104,6 @@ Refer to the following files to learn more about these variables:
 1. :blue_square: kLookupPermutedInputPrevEvals
 1. :blue_square: kLookupPermutedTableEvals
 1. :blue_square: kLookupMEvals
+1. :blue_square: kShuffleProductEvals
+1. :blue_square: kShuffleProductNextEvals
 1. :red_square: kHEval

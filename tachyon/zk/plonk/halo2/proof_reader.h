@@ -19,6 +19,7 @@ enum class ProofCursor {
   kBetaAndGamma,
   kPermutationProductCommitments,
   kLookupGrandCommitments,
+  kShuffleGrandCommitments,
   kVanishingRandomPolyCommitment,
   kY,
   kVanishingHPolyCommitments,
@@ -30,6 +31,7 @@ enum class ProofCursor {
   kCommonPermutationEvals,
   kPermutationEvals,
   kLookupEvalsVec,
+  kShuffleEvalsVec,
   kDone,
 };
 
@@ -145,6 +147,15 @@ class ProofReader {
       static_assert(base::AlwaysFalse<LS>);
     }
 
+    cursor_ = ProofCursor::kShuffleGrandCommitments;
+  }
+
+  void ReadShuffleGrandCommitments() {
+    CHECK_EQ(cursor_, ProofCursor::kShuffleGrandCommitments);
+    size_t num_shuffles = verifying_key_.constraint_system().shuffles().size();
+    proof_.shuffle_product_commitments_vec = base::CreateVector(
+        num_circuits_,
+        [this, num_shuffles]() { return ReadMany<C>(num_shuffles); });
     cursor_ = ProofCursor::kVanishingRandomPolyCommitment;
   }
 
@@ -285,6 +296,24 @@ class ProofReader {
       }
     } else {
       static_assert(base::AlwaysFalse<LS>);
+    }
+
+    cursor_ = ProofCursor::kShuffleEvalsVec;
+  }
+
+  void ReadShuffleEvals() {
+    CHECK_EQ(cursor_, ProofCursor::kShuffleEvalsVec);
+
+    proof_.shuffle_product_evals_vec.resize(num_circuits_);
+    proof_.shuffle_product_next_evals_vec.resize(num_circuits_);
+    for (size_t i = 0; i < num_circuits_; ++i) {
+      size_t size = proof_.shuffle_product_commitments_vec[i].size();
+      proof_.shuffle_product_evals_vec[i].reserve(size);
+      proof_.shuffle_product_next_evals_vec[i].reserve(size);
+      for (size_t j = 0; j < size; ++j) {
+        proof_.shuffle_product_evals_vec[i].push_back(Read<F>());
+        proof_.shuffle_product_next_evals_vec[i].push_back(Read<F>());
+      }
     }
 
     cursor_ = ProofCursor::kDone;

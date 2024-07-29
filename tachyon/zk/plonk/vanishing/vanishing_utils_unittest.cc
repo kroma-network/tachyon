@@ -36,7 +36,6 @@ TEST_F(VanishingUtilsTest, GetZeta) {
   EXPECT_EQ(zeta.Pow(3), F::One());
   F halo2_zeta = GetHalo2Zeta<F>();
   EXPECT_EQ(halo2_zeta.Pow(3), F::One());
-  EXPECT_EQ(zeta * halo2_zeta, F::One());
 }
 
 TEST_F(VanishingUtilsTest, BuildExtendedColumnWithColumns) {

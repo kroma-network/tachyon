@@ -39,17 +39,17 @@ class VerifyingEvaluator : public Evaluator<F, F> {
       case ExpressionType::kFixed: {
         const FixedExpression<F>* fixed_expr = input->ToFixed();
         const FixedQuery& query = fixed_expr->query();
-        return data_.fixed_evals[query.index()];
+        return data_.fixed_evals[query.GetIndex()];
       }
       case ExpressionType::kAdvice: {
         const AdviceExpression<F>* advice_expr = input->ToAdvice();
         const AdviceQuery& query = advice_expr->query();
-        return data_.advice_evals[query.index()];
+        return data_.advice_evals[query.GetIndex()];
       }
       case ExpressionType::kInstance: {
         const InstanceExpression<F>* instance_expr = input->ToInstance();
         const InstanceQuery& query = instance_expr->query();
-        return data_.instance_evals[query.index()];
+        return data_.instance_evals[query.GetIndex()];
       }
       case ExpressionType::kChallenge: {
         const ChallengeExpression<F>* challenge_expr = input->ToChallenge();

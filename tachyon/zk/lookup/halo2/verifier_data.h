@@ -12,7 +12,7 @@ struct VerifierData : public plonk::MultiPhaseEvaluations<F> {
                absl::Span<const F> advice_evals,
                absl::Span<const F> instance_evals,
                absl::Span<const F> challenges,
-               absl::Span<const lookup::Pair<C>> permuted_commitments,
+               absl::Span<const Pair<C>> permuted_commitments,
                absl::Span<const C> grand_product_commitments,
                absl::Span<const F> grand_product_evals,
                absl::Span<const F> grand_product_next_evals,
@@ -34,7 +34,7 @@ struct VerifierData : public plonk::MultiPhaseEvaluations<F> {
         gamma(gamma) {}
 
   // [{A'ᵢ(τ), S'ᵢ(τ)}]₁
-  absl::Span<const lookup::Pair<C>> permuted_commitments;
+  absl::Span<const Pair<C>> permuted_commitments;
   // [Zₗ,ᵢ(τ)]₁
   absl::Span<const C> grand_product_commitments;
   // Zₗ,ᵢ(x)

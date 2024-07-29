@@ -194,6 +194,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/constraint_system:lookup_tracker",
         "//tachyon/zk/plonk/permutation:permutation_argument",
         "//tachyon/zk/plonk/permutation:permutation_proving_key",
+        "//tachyon/zk/shuffle:argument",
         "@com_google_absl//absl/container:btree",
     ],
 )

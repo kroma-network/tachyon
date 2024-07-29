@@ -34,7 +34,7 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
            const plonk::LValues<F>& l_values)
       : data_(proof.ToLookupVerifierData(circuit_idx)), l_values_(&l_values) {}
 
-  void DoEvaluate(const std::vector<lookup::Argument<F>>& arguments,
+  void DoEvaluate(const std::vector<Argument<F>>& arguments,
                   std::vector<F>& evals) {
     plonk::VerifyingEvaluator<F> evaluator(data_);
 
@@ -100,7 +100,7 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
     return compressed_value;
   }
 
-  F CreateGrandProductEvaluation(size_t i, const lookup::Argument<F>& argument,
+  F CreateGrandProductEvaluation(size_t i, const Argument<F>& argument,
                                  plonk::VerifyingEvaluator<F>& evaluator) {
     // Zₗ,ᵢ(ω * x) * (A'ᵢ(x) + β) * (S'ᵢ(x) + γ)
     // - Zₗ,ᵢ(x) * (A_compressedᵢ(x) + β) * (S_compressedᵢ(x) + γ)

@@ -19,6 +19,7 @@
 #include "tachyon/zk/plonk/halo2/verifier.h"
 #include "tachyon/zk/plonk/permutation/permutation_prover.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_prover.h"
+#include "tachyon/zk/shuffle/prover.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
@@ -120,6 +121,7 @@ class Prover : public ProverBase<PCS> {
 
     size_t num_circuits = argument_data->GetNumCircuits();
     std::vector<LookupProver> lookup_provers(num_circuits);
+    std::vector<shuffle::Prover<Poly, Evals>> shuffle_provers(num_circuits);
     std::vector<PermutationProver<Poly, Evals>> permutation_provers(
         num_circuits);
     VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals> vanishing_prover;
@@ -181,6 +183,11 @@ class Prover : public ProverBase<PCS> {
       static_assert(base::AlwaysFalse<LS>);
     }
 
+    shuffle::Prover<Poly, Evals>::BatchCompressPairs(
+        shuffle_provers, domain, cs.shuffles(), theta, column_tables);
+    shuffle::Prover<Poly, Evals>::BatchCreateGrandProductPolys(shuffle_provers,
+                                                               this, gamma);
+
     vanishing_prover.CreateRandomPoly(this);
 
     if constexpr (PCS::kSupportsBatchMode) {
@@ -198,6 +205,8 @@ class Prover : public ProverBase<PCS> {
           PermutationProver<Poly, Evals>::GetNumGrandProductPolysCommitments(
               permutation_provers) +
           num_lookup_poly +
+          shuffle::Prover<Poly, Evals>::GetNumGrandProductPolysCommitments(
+              shuffle_provers) +
           VanishingProver<Poly, Evals, ExtendedPoly,
                           ExtendedEvals>::GetNumRandomPolyCommitment());
     }
@@ -212,6 +221,8 @@ class Prover : public ProverBase<PCS> {
     } else {
       static_assert(base::AlwaysFalse<LS>);
     }
+    shuffle::Prover<Poly, Evals>::BatchCommitGrandProductPolys(
+        shuffle_provers, this, commit_idx);
     vanishing_prover.CommitRandomPoly(this, commit_idx);
     if constexpr (PCS::kSupportsBatchMode) {
       this->RetrieveAndWriteBatchCommitmentsToProof();
@@ -224,6 +235,7 @@ class Prover : public ProverBase<PCS> {
     PermutationProver<Poly, Evals>::TransformEvalsToPoly(permutation_provers,
                                                          domain);
     LookupProver::TransformEvalsToPoly(lookup_provers, domain);
+    shuffle::Prover<Poly, Evals>::TransformEvalsToPoly(shuffle_provers, domain);
 
     argument_data->DeallocateAllColumnsVec();
     proving_key.fixed_columns().clear();
@@ -233,8 +245,8 @@ class Prover : public ProverBase<PCS> {
         argument_data->ExportPolyTables(proving_key.fixed_polys());
 
     vanishing_prover.CreateHEvals(this, proving_key, poly_tables, theta, beta,
-                                  gamma, y, permutation_provers,
-                                  lookup_provers);
+                                  gamma, y, permutation_provers, lookup_provers,
+                                  shuffle_provers);
     vanishing_prover.CreateFinalHPoly(this, cs);
 
     if constexpr (PCS::kSupportsBatchMode) {
@@ -259,14 +271,15 @@ class Prover : public ProverBase<PCS> {
                                                                 x_last);
     lookup::halo2::OpeningPointSet<F> lookup_opening_point_set(x, x_prev,
                                                                x_next);
+    shuffle::OpeningPointSet<F> shuffle_opening_point_set(x, x_next);
     Evaluate(proving_key, poly_tables, vanishing_prover, permutation_provers,
-             lookup_provers, permutation_opening_point_set,
-             lookup_opening_point_set);
+             lookup_provers, shuffle_provers, permutation_opening_point_set,
+             lookup_opening_point_set, shuffle_opening_point_set);
 
     std::vector<crypto::PolynomialOpening<Poly>> openings =
         Open(proving_key, poly_tables, vanishing_prover, permutation_provers,
-             lookup_provers, permutation_opening_point_set,
-             lookup_opening_point_set);
+             lookup_provers, shuffle_provers, permutation_opening_point_set,
+             lookup_opening_point_set, shuffle_opening_point_set);
     CHECK(this->pcs_.CreateOpeningProof(openings, this->GetWriter()));
   }
 
@@ -277,8 +290,10 @@ class Prover : public ProverBase<PCS> {
           vanishing_prover,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<LookupProver>& lookup_provers,
+      const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers,
       const PermutationOpeningPointSet<F>& permutation_opening_point_set,
-      const lookup::halo2::OpeningPointSet<F>& lookup_opening_point_set) {
+      const lookup::halo2::OpeningPointSet<F>& lookup_opening_point_set,
+      const shuffle::OpeningPointSet<F>& shuffle_opening_point_set) {
     const ConstraintSystem<F>& constraint_system =
         proving_key.verifying_key().constraint_system();
 
@@ -292,6 +307,8 @@ class Prover : public ProverBase<PCS> {
     PermutationProver<Poly, Evals>::BatchEvaluate(
         permutation_provers, this, permutation_opening_point_set);
     LookupProver::BatchEvaluate(lookup_provers, this, lookup_opening_point_set);
+    shuffle::Prover<Poly, Evals>::BatchEvaluate(shuffle_provers, this,
+                                                shuffle_opening_point_set);
   }
 
   std::vector<crypto::PolynomialOpening<Poly>> Open(
@@ -301,8 +318,10 @@ class Prover : public ProverBase<PCS> {
           vanishing_prover,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<LookupProver>& lookup_provers,
+      const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers,
       const PermutationOpeningPointSet<F>& permutation_opening_point_set,
-      const lookup::halo2::OpeningPointSet<F>& lookup_opening_point_set) const {
+      const lookup::halo2::OpeningPointSet<F>& lookup_opening_point_set,
+      const shuffle::OpeningPointSet<F>& shuffle_opening_point_set) const {
     const ConstraintSystem<F>& constraint_system =
         proving_key.verifying_key().constraint_system();
     const Domain* domain = this->domain();
@@ -318,7 +337,9 @@ class Prover : public ProverBase<PCS> {
             num_circuits, permutation_provers[0].grand_product_polys().size(),
             proving_key.permutation_proving_key().permutations().size()) +
         lookup::halo2::GetNumOpenings(LS::type, lookup_provers.size(),
-                                      constraint_system.lookups().size());
+                                      constraint_system.lookups().size()) +
+        shuffle::GetNumOpenings(shuffle_provers.size(),
+                                constraint_system.shuffles().size());
     openings.reserve(size);
 
     const F& x = permutation_opening_point_set.x;
@@ -328,6 +349,7 @@ class Prover : public ProverBase<PCS> {
                                                   poly_tables[i], x, openings);
       permutation_provers[i].Open(permutation_opening_point_set, openings);
       lookup_provers[i].Open(lookup_opening_point_set, openings);
+      shuffle_provers[i].Open(shuffle_opening_point_set, openings);
     }
     VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::OpenFixedColumns(
         domain, constraint_system, poly_tables[0], x, openings);

@@ -21,7 +21,7 @@ struct Scheme {
   using Verifier = lookup::log_derivative_halo2::Verifier<Field, Commitment>;
   using VerifierData =
       lookup::log_derivative_halo2::VerifierData<Field, Commitment>;
-  using Evaluator = lookup::log_derivative_halo2::Evaluator<Field, Evals>;
+  using Evaluator = lookup::log_derivative_halo2::Evaluator<Evals>;
   using Proof = plonk::halo2::LogDerivativeHalo2Proof<Field, Commitment>;
 
   constexpr static Type type = Type::kLogDerivativeHalo2;
