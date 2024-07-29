@@ -31,6 +31,7 @@ void Run(const FFTConfig& config) {
     name = "FFT Benchmark GPU";
   }
   SimpleFFTBenchmarkReporter reporter(name, config.exponents());
+  reporter.AddVendor("tachyon_cpu");
   reporter.AddVendor("tachyon_gpu");
 
   std::vector<size_t> degrees = config.GetDegrees();

@@ -15,7 +15,6 @@ SimpleFFTBenchmarkReporter::SimpleFFTBenchmarkReporter(
     return base::NumberToString(exponent);
   });
   times_.resize(exponents.size());
-  AddVendor("tachyon");
 }
 
 void SimpleFFTBenchmarkReporter::AddVendor(std::string_view name) {

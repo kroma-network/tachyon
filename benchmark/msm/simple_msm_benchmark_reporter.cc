@@ -15,7 +15,6 @@ SimpleMSMBenchmarkReporter::SimpleMSMBenchmarkReporter(
     return base::NumberToString(exponent);
   });
   times_.resize(exponents.size());
-  AddVendor("tachyon");
 }
 
 void SimpleMSMBenchmarkReporter::AddVendor(std::string_view name) {

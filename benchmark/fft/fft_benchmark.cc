@@ -74,6 +74,7 @@ void Run(const FFTConfig& config) {
     name = "FFT Benchmark";
   }
   SimpleFFTBenchmarkReporter reporter(name, config.exponents());
+  reporter.AddVendor("tachyon");
   for (const FFTConfig::Vendor vendor : config.vendors()) {
     reporter.AddVendor(FFTConfig::VendorToString(vendor));
   }

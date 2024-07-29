@@ -99,7 +99,7 @@ bazel run -c opt --config cuda --//:has_openmp --//:has_rtti --//:has_matplotlib
 
 #### On RTX-4090
 
-| Exponent | Tachyon     | Tachyon GPU  |
+| Exponent | Tachyon CPU | Tachyon GPU  |
 | :------: | ----------- | ------------ |
 |    16    | **0.00097** | 0.001231     |
 |    17    | 0.002156    | **0.000667** |
