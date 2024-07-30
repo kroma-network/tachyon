@@ -133,14 +133,14 @@ class CircuitPolynomialBuilder {
 
       coset_domain_ = domain_->GetCoset(zeta_ * current_extended_omega_);
 
-      UpdateLPolys();
+      UpdateLPolyCosets();
 
       std::vector<F> value_part(static_cast<size_t>(n_));
       size_t circuit_num = poly_tables_.size();
       for (size_t j = 0; j < circuit_num; ++j) {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
                 << j + 1 << " / " << circuit_num << ")";
-        UpdateTable(j);
+        UpdateTableCosets(j);
         // Do iff there are permutation constraints.
         if (permutation_provers_[j].grand_product_polys().size() > 0)
           UpdatePermutationCosets(j);
@@ -288,7 +288,7 @@ class CircuitPolynomialBuilder {
     }
   }
 
-  void UpdateLPolys() {
+  void UpdateLPolyCosets() {
     l_first_ = coset_domain_->FFT(proving_key_.l_first());
     l_last_ = coset_domain_->FFT(proving_key_.l_last());
     l_active_row_ = coset_domain_->FFT(proving_key_.l_active_row());
@@ -311,7 +311,7 @@ class CircuitPolynomialBuilder {
     }
   }
 
-  void UpdateTable(size_t circuit_idx) {
+  void UpdateTableCosets(size_t circuit_idx) {
     absl::Span<const Poly> new_fixed_columns =
         poly_tables_[circuit_idx].GetFixedColumns();
     std::vector<Evals>& fixed_columns = table_.fixed_columns();
