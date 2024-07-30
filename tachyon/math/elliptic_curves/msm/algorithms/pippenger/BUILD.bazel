@@ -13,6 +13,7 @@ tachyon_cc_library(
     deps = [
         ":pippenger_base",
         "//tachyon/base:openmp_util",
+        "//tachyon/math/elliptic_curves:semigroups",
         "//tachyon/math/elliptic_curves/msm:msm_ctx",
         "//tachyon/math/elliptic_curves/msm:msm_util",
     ],
@@ -30,7 +31,8 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/containers:adapters",
         "//tachyon/math/base:semigroups",
-        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/geometry:affine_point",
+        "//tachyon/math/geometry:point_xyzz",
         "@com_google_absl//absl/types:span",
     ],
 )

@@ -8,6 +8,7 @@ tachyon_cc_library(
     deps = [
         ":json_converter_forward",
         ":points",
+        "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:proof",
     ],
 )
@@ -33,7 +34,7 @@ tachyon_cc_library(
     hdrs = ["points.h"],
     deps = [
         "@com_github_tencent_rapidjson//:rapidjson",
-        "@kroma_network_tachyon//tachyon/math/elliptic_curves:points",
+        "@kroma_network_tachyon//tachyon/math/geometry:affine_point",
     ],
 )
 

@@ -10,7 +10,7 @@
 
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/pairing/pairing.h"
-#include "tachyon/math/elliptic_curves/point_conversions.h"
+#include "tachyon/math/geometry/point_conversions.h"
 #include "tachyon/zk/r1cs/groth16/prepared_verifying_key.h"
 #include "tachyon/zk/r1cs/groth16/proof.h"
 

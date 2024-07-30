@@ -5,7 +5,7 @@
 
 #include "rapidjson/document.h"
 
-#include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/geometry/affine_point.h"
 
 namespace tachyon::circom::internal {
 

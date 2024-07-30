@@ -10,8 +10,8 @@
 
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/math/base/semigroups.h"
-#include "tachyon/math/elliptic_curves/affine_point.h"
-#include "tachyon/math/elliptic_curves/point_xyzz.h"
+#include "tachyon/math/geometry/affine_point.h"
+#include "tachyon/math/geometry/point_xyzz.h"
 
 namespace tachyon::math {
 

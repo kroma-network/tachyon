@@ -67,8 +67,8 @@ tachyon_cc_library(
     deps = [
         ":prepared_verifying_key",
         ":proof",
-        "//tachyon/math/elliptic_curves:points",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+        "//tachyon/math/geometry:point_conversions",
     ],
 )
 

@@ -11,7 +11,10 @@ tachyon_pybind_library(
         "projective_point.h",
     ],
     deps = [
-        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/geometry:affine_point",
+        "//tachyon/math/geometry:jacobian_point",
+        "//tachyon/math/geometry:point_xyzz",
+        "//tachyon/math/geometry:projective_point",
         "//tachyon/py/base:pybind11",
     ],
 )

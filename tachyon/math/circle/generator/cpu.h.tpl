@@ -1,7 +1,7 @@
 // clang-format off
 #include "tachyon/base/logging.h"
+#include "tachyon/math/circle/affine_point.h"
 #include "tachyon/math/circle/circle.h"
-#include "tachyon/math/circle/circle_point.h"
 #include "tachyon/math/geometry/point2.h"
 #include "%{base_field_hdr}"
 #include "%{scalar_field_hdr}"
@@ -29,7 +29,7 @@ template <typename BaseField, typename ScalarField>
 Point2<BaseField> %{class}CircleConfig<BaseField, ScalarField>::kGenerator;
 
 using %{class}Circle = tachyon::math::Circle<%{class}CircleConfig<%{base_field}, %{scalar_field}>>;
-using %{class}CirclePoint = tachyon::math::CirclePoint<%{class}Circle>;
+using %{class}AffinePoint = tachyon::math::AffinePoint<%{class}Circle>;
 
 }  // namespace %{namespace}
 // clang-format on

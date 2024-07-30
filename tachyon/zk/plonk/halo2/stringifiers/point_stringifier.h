@@ -10,7 +10,7 @@
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/geometry/affine_point.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/field_stringifier.h"
 
 namespace tachyon::base::internal {

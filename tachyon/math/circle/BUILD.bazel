@@ -3,26 +3,25 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "circle",
-    hdrs = ["circle.h"],
-    deps = [":circle_traits_forward"],
-)
-
-tachyon_cc_library(
-    name = "circle_point",
-    hdrs = ["circle_point.h"],
+    name = "affine_point",
+    hdrs = ["affine_point.h"],
     deps = [
-        ":circle_point_forward",
         "//tachyon/base:logging",
         "//tachyon/math/base:groups",
+        "//tachyon/math/geometry:curve_type",
         "//tachyon/math/geometry:point2",
         "@com_google_absl//absl/strings",
     ],
 )
 
 tachyon_cc_library(
-    name = "circle_point_forward",
-    hdrs = ["circle_point_forward.h"],
+    name = "circle",
+    hdrs = ["circle.h"],
+    deps = [
+        ":circle_traits_forward",
+        "//tachyon/math/geometry:affine_point",
+        "//tachyon/math/geometry:curve_type",
+    ],
 )
 
 tachyon_cc_library(
@@ -32,9 +31,9 @@ tachyon_cc_library(
 
 tachyon_cc_unittest(
     name = "circle_unittests",
-    srcs = ["circle_point_unittest.cc"],
+    srcs = ["affine_point_unittest.cc"],
     deps = [
-        "//tachyon/math/circle/stark:g1",
-        "//tachyon/math/circle/stark:g4",
+        "//tachyon/math/circle/m31:g1",
+        "//tachyon/math/circle/m31:g4",
     ],
 )

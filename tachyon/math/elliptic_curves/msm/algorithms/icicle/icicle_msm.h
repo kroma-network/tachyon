@@ -13,7 +13,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_bn254_g1.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_bn254_g2.h"
-#include "tachyon/math/elliptic_curves/projective_point.h"
+#include "tachyon/math/geometry/projective_point.h"
 
 namespace tachyon::math {
 

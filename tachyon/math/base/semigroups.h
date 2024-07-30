@@ -72,7 +72,7 @@ struct MultiplicativeSemigroupTraits {
   using ReturnTy = G;
 };
 
-template <typename G>
+template <typename G, typename SFINAE = void>
 struct AdditiveSemigroupTraits {
   using ReturnTy = G;
 };
@@ -320,25 +320,25 @@ class AdditiveSemigroup {
         case 2:
           return Double();
         case 3:
-          return Double() * g;
+          return Double() + g;
         case 4:
           return Double().Double();
         case 5: {
           AddResult g4 = Double();
           g4.DoubleInPlace();
-          return g4 * g;
+          return g4 + g;
         }
         case 6: {
           AddResult g2 = Double();
           AddResult g4 = g2;
           g4.DoubleInPlace();
-          return g4 * g2;
+          return g4 + g2;
         }
         case 7: {
           AddResult g2 = Double();
           AddResult g4 = g2;
           g4.DoubleInPlace();
-          return g4 * g2 * g;
+          return g4 + g2 + g;
         }
         default:
           return DoScalarMul(BigInt<1>(scalar));

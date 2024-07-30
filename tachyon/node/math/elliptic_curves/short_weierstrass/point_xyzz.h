@@ -1,7 +1,7 @@
 #ifndef TACHYON_NODE_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 #define TACHYON_NODE_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 
-#include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/geometry/affine_point.h"
 #include "tachyon/node/base/node_module.h"
 
 namespace tachyon::node::math {

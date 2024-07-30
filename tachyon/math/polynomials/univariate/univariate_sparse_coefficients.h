@@ -227,36 +227,25 @@ class UnivariateSparseCoefficients {
 
   // Return coefficients where the original coefficients reduce their degree
   // by categorizing coefficients into even and odd degrees,
-  // multiplying either set of coefficients by a specified random field |r|,
+  // multiplying coefficients with odd degrees by a specified random field |r|,
   // and summing them together.
-  template <bool MulRandomWithEvens>
   constexpr UnivariateSparseCoefficients Fold(const Field& r) const {
     std::vector<Term> terms;
     terms.reserve(terms_.size() >> 1);
     bool r_is_zero = r.IsZero();
     for (const Term& term : terms_) {
       if (term.degree % 2 == 0) {
-        if constexpr (MulRandomWithEvens) {
-          if (!r_is_zero) {
-            terms.push_back({term.degree >> 1, term.coefficient * r});
-          }
-        } else {
-          terms.push_back({term.degree >> 1, term.coefficient});
-        }
+        terms.push_back({term.degree >> 1, term.coefficient});
       } else {
         if (!terms.empty() && terms.back().degree == (term.degree >> 1)) {
-          if constexpr (MulRandomWithEvens) {
-            terms.back() += term.coefficient;
-          } else if (!r_is_zero) {
+          if (!r_is_zero) {
             terms.back() += (term.coefficient * r);
           }
           if (terms.back().coefficient.IsZero()) {
             terms.pop_back();
           }
         } else {
-          if constexpr (MulRandomWithEvens) {
-            terms.push_back({term.degree >> 1, term.coefficient});
-          } else if (!r_is_zero) {
+          if (!r_is_zero) {
             terms.push_back({term.degree >> 1, term.coefficient * r});
           }
         }

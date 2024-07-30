@@ -6,7 +6,7 @@
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/g2.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
-#include "tachyon/math/elliptic_curves/point_conversions.h"
+#include "tachyon/math/geometry/point_conversions.h"
 
 namespace tachyon::math {
 

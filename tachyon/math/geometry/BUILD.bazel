@@ -3,6 +3,17 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "affine_point",
+    hdrs = ["affine_point.h"],
+    deps = [":point_conversions_forward"],
+)
+
+tachyon_cc_library(
+    name = "curve_type",
+    hdrs = ["curve_type.h"],
+)
+
+tachyon_cc_library(
     name = "dimensions",
     hdrs = ["dimensions.h"],
     deps = [
@@ -10,6 +21,15 @@ tachyon_cc_library(
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/json",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "jacobian_point",
+    hdrs = ["jacobian_point.h"],
+    deps = [
+        ":point3",
+        ":point_conversions_forward",
     ],
 )
 
@@ -40,6 +60,42 @@ tachyon_cc_library(
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/json",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "point_conversions_forward",
+    hdrs = ["point_conversions_forward.h"],
+)
+
+tachyon_cc_library(
+    name = "point_conversions",
+    hdrs = ["point_conversions.h"],
+    deps = [
+        ":affine_point",
+        ":jacobian_point",
+        ":point_conversions_forward",
+        ":point_xyzz",
+        ":projective_point",
+        "//tachyon/base:template_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "point_xyzz",
+    hdrs = ["point_xyzz.h"],
+    deps = [
+        ":point4",
+        ":point_conversions_forward",
+    ],
+)
+
+tachyon_cc_library(
+    name = "projective_point",
+    hdrs = ["projective_point.h"],
+    deps = [
+        ":point3",
+        ":point_conversions_forward",
     ],
 )
 

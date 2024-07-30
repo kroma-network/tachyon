@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "tachyon/base/parallelize.h"
-#include "tachyon/math/elliptic_curves/point_conversions.h"
+#include "tachyon/math/geometry/point_conversions.h"
 
 namespace tachyon::math {
 

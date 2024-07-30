@@ -15,7 +15,7 @@
 #include "tachyon/math/base/bit_iterator.h"
 #include "tachyon/math/base/semigroups.h"
 #include "tachyon/math/elliptic_curves/msm/msm_ctx.h"
-#include "tachyon/math/elliptic_curves/point_conversions.h"
+#include "tachyon/math/geometry/point_conversions.h"
 
 namespace tachyon::math {
 

@@ -31,8 +31,8 @@ tachyon_cc_library(
         "//tachyon/base:bit_cast",
         "//tachyon/device/gpu:gpu_device_functions",
         "//tachyon/device/gpu:gpu_enums",
-        "//tachyon/math/elliptic_curves:points",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
+        "//tachyon/math/geometry:jacobian_point",
     ],
 )
