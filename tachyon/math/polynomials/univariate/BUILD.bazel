@@ -163,6 +163,7 @@ tachyon_cc_unittest(
         "univariate_evaluations_unittest.cc",
         "univariate_sparse_polynomial_unittest.cc",
     ],
+    tags = ["exclusive"],
     deps = [
         ":lagrange_interpolation",
         ":mixed_radix_evaluation_domain",
