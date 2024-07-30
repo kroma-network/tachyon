@@ -92,7 +92,7 @@ class Evaluator {
 
         // l_first(X) * (1 - z(X)) = 0
         chunk[j] *= builder.y_;
-        chunk[j] += builder.l_first_[idx] * (builder.one_ - product_coset[idx]);
+        chunk[j] += builder.l_first_[idx] * (F::One() - product_coset[idx]);
 
         // l_last(X) * (z(X)² - z(X)) = 0
         chunk[j] *= builder.y_;

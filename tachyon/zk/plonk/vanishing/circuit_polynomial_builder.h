@@ -207,7 +207,7 @@ class CircuitPolynomialBuilder {
 
       // Enforce only for the first set: l_first(X) * (1 - z₀(X)) = 0
       chunk[i] *= y_;
-      chunk[i] += (one_ - product_cosets.front()[idx]) * l_first_[idx];
+      chunk[i] += (F::One() - product_cosets.front()[idx]) * l_first_[idx];
 
       // Enforce only for the last set: l_last(X) * (z_l(X)² - z_l(X)) = 0
       const Evals& last_coset = product_cosets.back();
@@ -344,7 +344,6 @@ class CircuitPolynomialBuilder {
   const ExtendedDomain* extended_domain_ = nullptr;
   std::unique_ptr<Domain> coset_domain_;
 
-  F one_ = F::One();
   F current_extended_omega_ = F::One();
 
   int32_t n_ = 0;
