@@ -118,10 +118,6 @@ class CircuitPolynomialBuilder {
     return builder;
   }
 
-  void UpdateCurrentExtendedOmega() {
-    current_extended_omega_ *= extended_omega_;
-  }
-
   // Returns an evaluation-formed polynomial as below.
   // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
   ExtendedEvals BuildExtendedCircuitColumn(
@@ -178,7 +174,7 @@ class CircuitPolynomialBuilder {
       }
 
       value_parts.push_back(std::move(value_part));
-      UpdateCurrentExtendedOmega();
+      current_extended_omega_ *= extended_omega_;
     }
     std::pmr::vector<F> extended = BuildExtendedColumnWithColumns(value_parts);
     return ExtendedEvals(std::move(extended));
