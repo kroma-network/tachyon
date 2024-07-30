@@ -10,10 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/buffer/copyable.h"
-
-namespace tachyon {
-namespace zk::plonk {
+namespace tachyon::zk::plonk {
 
 template <typename Commitment>
 class PermutationVerifyingKey {
@@ -42,35 +39,6 @@ class PermutationVerifyingKey {
   Commitments commitments_;
 };
 
-}  // namespace zk::plonk
-
-namespace base {
-
-template <typename Commitment>
-class Copyable<zk::plonk::PermutationVerifyingKey<Commitment>> {
- public:
-  static bool WriteTo(const zk::plonk::PermutationVerifyingKey<Commitment>& vk,
-                      Buffer* buffer) {
-    return buffer->Write(vk.commitments());
-  }
-
-  static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       zk::plonk::PermutationVerifyingKey<Commitment>* vk) {
-    typename zk::plonk::PermutationVerifyingKey<Commitment>::Commitments
-        commitments;
-    if (!buffer.Read(&commitments)) return false;
-    *vk =
-        zk::plonk::PermutationVerifyingKey<Commitment>(std::move(commitments));
-    return true;
-  }
-
-  static size_t EstimateSize(
-      const zk::plonk::PermutationVerifyingKey<Commitment>& vk) {
-    return base::EstimateSize(vk.commitments());
-  }
-};
-
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_VERIFYING_KEY_H_

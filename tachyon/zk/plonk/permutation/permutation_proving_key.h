@@ -10,10 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/buffer/copyable.h"
-
-namespace tachyon {
-namespace zk::plonk {
+namespace tachyon::zk::plonk {
 
 template <typename Poly, typename Evals>
 class PermutationProvingKey {
@@ -44,36 +41,6 @@ class PermutationProvingKey {
   std::vector<Poly> polys_;
 };
 
-}  // namespace zk::plonk
-
-namespace base {
-
-template <typename Poly, typename Evals>
-class Copyable<zk::plonk::PermutationProvingKey<Poly, Evals>> {
- public:
-  static bool WriteTo(const zk::plonk::PermutationProvingKey<Poly, Evals>& pk,
-                      Buffer* buffer) {
-    return buffer->WriteMany(pk.permutations(), pk.polys());
-  }
-
-  static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       zk::plonk::PermutationProvingKey<Poly, Evals>* pk) {
-    std::vector<Evals> perms;
-    std::vector<Poly> poly;
-    if (!buffer.ReadMany(&perms, &poly)) return false;
-
-    *pk = zk::plonk::PermutationProvingKey<Poly, Evals>(std::move(perms),
-                                                        std::move(poly));
-    return true;
-  }
-
-  static size_t EstimateSize(
-      const zk::plonk::PermutationProvingKey<Poly, Evals>& pk) {
-    return base::EstimateSize(pk.permutations(), pk.polys());
-  }
-};
-
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_PROVING_KEY_H_
