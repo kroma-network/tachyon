@@ -47,7 +47,7 @@ template <typename F>
 F GetHalo2Zeta() {
   static F cache = F::Zero();
   if (cache.IsZero()) {
-    halo2::Config& config = halo2::GetConfig();
+    auto& config = halo2::Config::Get();
     if constexpr (std::is_same_v<F, math::bn254::Fr>) {
       if (config.vendor == halo2::Vendor::kScroll) {
         // See

@@ -12,9 +12,9 @@ struct TACHYON_EXPORT Config {
   // By default, halo2 behaves like scroll halo2 v1.1.
   Vendor vendor = Vendor::kScroll;
   uint32_t version = 10100;
-};
 
-TACHYON_EXPORT Config& GetConfig();
+  static Config& Get();
+};
 
 }  // namespace tachyon::zk::plonk::halo2
 
