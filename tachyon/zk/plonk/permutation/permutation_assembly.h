@@ -93,12 +93,9 @@ class TACHYON_EXPORT PermutationAssembly {
     const Domain* domain = prover->domain();
 
     // The polynomials of permutations with coefficients.
-    std::vector<Poly> polys;
-    polys.reserve(columns_.size());
-    for (size_t i = 0; i < columns_.size(); ++i) {
-      Poly poly = domain->IFFT(permutations[i]);
-      polys.push_back(std::move(poly));
-    }
+    std::vector<Poly> polys =
+        base::Map(permutations,
+                  [domain](const Evals& evals) { return domain->IFFT(evals); });
 
     return PermutationProvingKey<Poly, Evals>(std::move(permutations),
                                               std::move(polys));
