@@ -33,7 +33,7 @@ class ProvingKey : public Key {
   using C = typename LS::Commitment;
 
   using PolyOrExtendedEvals =
-      std::conditional_t<Vendor == halo2::Vendor::kScroll, Poly, ExtendedEvals>;
+      std::conditional_t<Vendor == halo2::Vendor::kPSE, ExtendedEvals, Poly>;
 
   ProvingKey() = default;
 
@@ -47,7 +47,8 @@ class ProvingKey : public Key {
   const std::vector<PolyOrExtendedEvals>& fixed_cosets() const {
     return fixed_cosets_;
   }
-  const PermutationProvingKey<Poly, Evals>& permutation_proving_key() const {
+  const PermutationProvingKey<Poly, Evals, ExtendedEvals>&
+  permutation_proving_key() const {
     return permutation_proving_key_;
   }
 
@@ -106,7 +107,7 @@ class ProvingKey : public Key {
     }
 
     permutation_proving_key_ =
-        pre_load_result.assembly.permutation().BuildProvingKey(
+        pre_load_result.assembly.permutation().template BuildProvingKey<Vendor>(
             prover, std::move(permutations));
 
     // Compute l_first(X).
@@ -202,7 +203,7 @@ class ProvingKey : public Key {
   // https://github.com/privacy-scaling-explorations/halo2/blob/bc857a7/halo2_backend/src/plonk.rs#L260-L270
   // https://github.com/scroll-tech/halo2/blob/1070391/halo2_proofs/src/plonk.rs#L263-L272
   std::vector<ExtendedEvals> fixed_cosets_;
-  PermutationProvingKey<Poly, Evals> permutation_proving_key_;
+  PermutationProvingKey<Poly, Evals, ExtendedEvals> permutation_proving_key_;
   VanishingArgument<LS> vanishing_argument_;
 };
 

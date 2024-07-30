@@ -50,13 +50,14 @@ void PermutationProver<Poly, Evals>::CreateGrandProductPolys(
 
 // static
 template <typename Poly, typename Evals>
-template <typename PCS>
+template <typename PCS, typename ExtendedEvals>
 void PermutationProver<Poly, Evals>::BatchCreateGrandProductPolys(
     std::vector<PermutationProver>& permutation_provers,
     ProverBase<PCS>* prover, const PermutationArgument& argument,
     const std::vector<MultiPhaseRefTable<Evals>>& tables,
     size_t constraint_system_degree,
-    const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
+    const PermutationProvingKey<Poly, Evals, ExtendedEvals>&
+        permutation_proving_key,
     const F& beta, const F& gamma) {
   // How many columns can be included in a single permutation polynomial?
   // We need to multiply by z(X) and (1 - (l_last(X) + l_blind(X))). This
@@ -141,10 +142,10 @@ void PermutationProver<Poly, Evals>::Evaluate(
 
 // static
 template <typename Poly, typename Evals>
-template <typename PCS>
+template <typename PCS, typename ExtendedEvals>
 void PermutationProver<Poly, Evals>::EvaluateProvingKey(
     ProverBase<PCS>* prover,
-    const PermutationProvingKey<Poly, Evals>& proving_key,
+    const PermutationProvingKey<Poly, Evals, ExtendedEvals>& proving_key,
     const PermutationOpeningPointSet<F>& point_set) {
   for (const Poly& poly : proving_key.polys()) {
     prover->EvaluateAndWriteToProof(poly, point_set.x);
@@ -183,8 +184,9 @@ void PermutationProver<Poly, Evals>::Open(
 
 // static
 template <typename Poly, typename Evals>
+template <typename ExtendedEvals>
 void PermutationProver<Poly, Evals>::OpenPermutationProvingKey(
-    const PermutationProvingKey<Poly, Evals>& proving_key,
+    const PermutationProvingKey<Poly, Evals, ExtendedEvals>& proving_key,
     const PermutationOpeningPointSet<F>& point_set,
     std::vector<crypto::PolynomialOpening<Poly>>& openings) {
 #define OPENING(poly, point) \

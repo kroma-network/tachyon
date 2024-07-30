@@ -67,7 +67,11 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<Vendor, LS> {
     ReadBuffer(buffer, this->l_active_row_);
     ReadBuffer(buffer, this->fixed_columns_);
     ReadBuffer(buffer, this->fixed_polys_);
-    ReadBuffer(buffer, this->permutation_proving_key_);
+    ReadBuffer(buffer, this->permutation_proving_key_.permutations_);
+    ReadBuffer(buffer, this->permutation_proving_key_.polys_);
+    if constexpr (Vendor == tachyon::zk::plonk::halo2::Vendor::kPSE) {
+      ReadBuffer(buffer, this->permutation_proving_key_.cosets_);
+    }
     this->vanishing_argument_ =
         tachyon::zk::plonk::VanishingArgument<LS>::Create(
             this->verifying_key_.constraint_system_);

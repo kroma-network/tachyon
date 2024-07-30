@@ -14,12 +14,14 @@
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/export.h"
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/plonk/halo2/vendor.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 #include "tachyon/zk/plonk/permutation/unpermuted_table.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 
 namespace tachyon::zk::plonk {
 
@@ -84,9 +86,11 @@ class TACHYON_EXPORT PermutationAssembly {
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
-  template <typename PCS, typename Poly = typename PCS::Poly,
-            typename Evals = typename PCS::Evals>
-  constexpr PermutationProvingKey<Poly, Evals> BuildProvingKey(
+  template <halo2::Vendor Vendor, typename PCS,
+            typename Poly = typename PCS::Poly,
+            typename Evals = typename PCS::Evals,
+            typename ExtendedEvals = typename PCS::ExtendedEvals>
+  constexpr PermutationProvingKey<Poly, Evals, ExtendedEvals> BuildProvingKey(
       const ProverBase<PCS>* prover, std::vector<Evals>&& permutations) const {
     using Domain = typename PCS::Domain;
 
@@ -97,8 +101,18 @@ class TACHYON_EXPORT PermutationAssembly {
         base::Map(permutations,
                   [domain](const Evals& evals) { return domain->IFFT(evals); });
 
-    return PermutationProvingKey<Poly, Evals>(std::move(permutations),
-                                              std::move(polys));
+    std::vector<ExtendedEvals> cosets;
+    if constexpr (Vendor == halo2::Vendor::kPSE) {
+      using ExtendedDomain = typename PCS::ExtendedDomain;
+
+      const ExtendedDomain* extended_domain = prover->extended_domain();
+      cosets = base::Map(polys, [extended_domain](const Poly& poly) {
+        return CoeffToExtended(poly, extended_domain);
+      });
+    }
+
+    return PermutationProvingKey<Poly, Evals, ExtendedEvals>(
+        std::move(permutations), std::move(polys), std::move(cosets));
   }
 
   // Generate the permutation polynomials based on the accumulated copy

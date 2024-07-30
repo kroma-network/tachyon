@@ -57,8 +57,9 @@ TEST_F(PermutationAssemblyTest, BuildKeys) {
       assembly_.BuildVerifyingKey(prover_.get(), permutations);
   EXPECT_EQ(permutations_size, vk.commitments().size());
 
-  PermutationProvingKey<Poly, Evals> pk =
-      assembly_.BuildProvingKey(prover_.get(), std::move(permutations));
+  PermutationProvingKey<Poly, Evals, ExtendedEvals> pk =
+      assembly_.BuildProvingKey<halo2::Vendor::kScroll>(
+          prover_.get(), std::move(permutations));
   EXPECT_EQ(permutations_size, pk.polys().size());
 
   for (size_t i = 0; i < columns_.size(); ++i) {
