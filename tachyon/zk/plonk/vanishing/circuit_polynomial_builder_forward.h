@@ -7,9 +7,11 @@
 #ifndef TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_FORWARD_H_
 #define TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_FORWARD_H_
 
+#include "tachyon/zk/plonk/halo2/vendor.h"
+
 namespace tachyon::zk::plonk {
 
-template <typename PCS, typename LS>
+template <halo2::Vendor Vendor, typename PCS, typename LS>
 class CircuitPolynomialBuilder;
 
 }  // namespace tachyon::zk::plonk

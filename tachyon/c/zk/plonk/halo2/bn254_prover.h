@@ -240,7 +240,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_transcript_state(
     tachyon_halo2_bn254_prover* prover, const uint8_t* state, size_t state_len);
 
 /**
- * @brief Sets the extended domain for the prover based on the proving key.
+ * @brief Sets the extended domain for the scroll versioned prover based on the
+ * proving key.
  *
  * This function allows the prover to operate over an extended domain, which is
  * necessary for certain types of proofs that require a larger evaluation
@@ -249,19 +250,19 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_transcript_state(
  * @param prover A pointer to the prover.
  * @param pk A pointer to the proving key that contains the extended domain.
  */
-TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_extended_domain(
+TACHYON_C_EXPORT void tachyon_halo2_bn254_scroll_prover_set_extended_domain(
     tachyon_halo2_bn254_prover* prover,
     const tachyon_bn254_plonk_proving_key* pk);
 
 /**
- * @brief Initiates the proof creation process using the prover, proving key,
- * and argument data.
+ * @brief Initiates the proof creation process using the scroll versioned
+ * prover, proving key, and argument data.
  *
  * @param prover A pointer to the prover.
  * @param pk A pointer to the proving key used for generating the proof.
  * @param data A pointer to the argument data required for the proof.
  */
-TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_create_proof(
+TACHYON_C_EXPORT void tachyon_halo2_bn254_scroll_prover_create_proof(
     tachyon_halo2_bn254_prover* prover, tachyon_bn254_plonk_proving_key* pk,
     tachyon_halo2_bn254_argument_data* data);
 
@@ -282,8 +283,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_get_proof(
     size_t* proof_len);
 
 /**
- * @brief Sets the representation of the transcript for the prover based on the
- * proving key.
+ * @brief Sets the representation of the transcript for the scroll versioned
+ * prover based on the proving key.
  *
  * This function configures how the prover should interpret the transcript,
  * impacting the format and structure of the generated proof.
@@ -292,7 +293,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_get_proof(
  * @param pk A pointer to the proving key that dictates the transcript
  * representation.
  */
-TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_transcript_repr(
+TACHYON_C_EXPORT void tachyon_halo2_bn254_scroll_prover_set_transcript_repr(
     const tachyon_halo2_bn254_prover* prover,
     tachyon_bn254_plonk_proving_key* pk);
 

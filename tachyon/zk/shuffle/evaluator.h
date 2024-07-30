@@ -69,10 +69,10 @@ class Evaluator {
     }
   }
 
-  template <typename PCS, typename LS>
-  void UpdateChunkByShuffles(plonk::CircuitPolynomialBuilder<PCS, LS>& builder,
-                             absl::Span<F> chunk, size_t chunk_offset,
-                             size_t chunk_size) {
+  template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
+  void UpdateChunkByShuffles(
+      plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+      absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
     for (size_t i = 0; i < shuffle_evaluators_.size(); i += 2) {
       const plonk::GraphEvaluator<F>& input_evaluator = shuffle_evaluators_[i];
       const plonk::GraphEvaluator<F>& shuffle_evaluator =
@@ -122,9 +122,10 @@ class Evaluator {
     }
   }
 
-  template <typename PCS, typename LS>
-  void UpdateShuffleCosets(plonk::CircuitPolynomialBuilder<PCS, LS>& builder,
-                           size_t circuit_idx) {
+  template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
+  void UpdateShuffleCosets(
+      plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+      size_t circuit_idx) {
     using Poly = typename PCS::Poly;
     using ShuffleProver = Prover<Poly, Evals>;
 

@@ -57,7 +57,7 @@ namespace plonk {
 // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
 // You can find more detailed theory in "Halo2 book"
 // https://zcash.github.io/halo2/design/proving-system/vanishing.html
-template <typename PCS, typename LS>
+template <halo2::Vendor Vendor, typename PCS, typename LS>
 class CircuitPolynomialBuilder {
  public:
   using F = typename PCS::Field;
@@ -73,7 +73,7 @@ class CircuitPolynomialBuilder {
   CircuitPolynomialBuilder(
       const F& omega, const F& extended_omega, const F& theta, const F& beta,
       const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<LS>& proving_key,
+      const ProvingKey<Vendor, LS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<LookupProver>& lookup_provers,
       const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers,
@@ -96,7 +96,7 @@ class CircuitPolynomialBuilder {
       RowOffset last_row, size_t cs_degree,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<LS>& proving_key,
+      const ProvingKey<Vendor, LS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<LookupProver>& lookup_provers,
       const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers) {
@@ -365,7 +365,7 @@ class CircuitPolynomialBuilder {
   Rotation last_rotation_;
   F delta_start_;
 
-  const ProvingKey<LS>& proving_key_;
+  const ProvingKey<Vendor, LS>& proving_key_;
   const std::vector<PermutationProver<Poly, Evals>>& permutation_provers_;
   const std::vector<LookupProver>& lookup_provers_;
   const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers_;

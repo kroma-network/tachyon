@@ -26,7 +26,8 @@ namespace tachyon {
 namespace c::zk::plonk::halo2::bn254 {
 
 template <typename LS>
-using ProvingKey = plonk::ProvingKeyImpl<LS>;
+using ScrollProvingKey =
+    plonk::ProvingKeyImpl<tachyon::zk::plonk::halo2::Vendor::kScroll, LS>;
 
 template <typename PCS, typename LS>
 using Verifier = tachyon::zk::plonk::halo2::Verifier<PCS, LS>;
@@ -48,7 +49,7 @@ bool VerifyProof(NativeVerifier* verifier,
   using LS = typename NativeVerifier::LS;
 
   std::cout << "deserializing proving key" << std::endl;
-  ProvingKey<LS> pk(pk_bytes, /*read_only_vk=*/true);
+  ScrollProvingKey<LS> pk(pk_bytes, /*read_only_vk=*/true);
   std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(

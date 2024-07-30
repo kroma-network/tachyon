@@ -62,10 +62,10 @@ class VanishingArgument {
     return shuffle_evaluator_;
   }
 
-  template <typename PCS, typename Poly,
+  template <typename PCS, halo2::Vendor Vendor, typename Poly,
             typename ExtendedEvals = typename PCS::ExtendedEvals>
   ExtendedEvals BuildExtendedCircuitColumn(
-      ProverBase<PCS>* prover, const ProvingKey<LS>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<Vendor, LS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
@@ -74,8 +74,8 @@ class VanishingArgument {
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 
-    CircuitPolynomialBuilder<PCS, LS> builder =
-        CircuitPolynomialBuilder<PCS, LS>::Create(
+    CircuitPolynomialBuilder<Vendor, PCS, LS> builder =
+        CircuitPolynomialBuilder<Vendor, PCS, LS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
             prover->GetLastRow(), cs_degree, poly_tables, theta, beta, gamma, y,
             zeta, proving_key, permutation_provers, lookup_provers,

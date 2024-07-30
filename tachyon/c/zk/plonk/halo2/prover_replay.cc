@@ -40,7 +40,8 @@ template <typename PCS, typename LS>
 using Prover = KZGFamilyProverImpl<PCS, LS>;
 
 template <typename LS>
-using ProvingKey = plonk::ProvingKeyImpl<LS>;
+using ScrollProvingKey =
+    plonk::ProvingKeyImpl<tachyon::zk::plonk::halo2::Vendor::kScroll, LS>;
 
 template <typename PCS>
 ArgumentData<PCS> DeserializeArgumentData(
@@ -91,7 +92,7 @@ void CreateProof(NativeProver* prover, tachyon_halo2_bn254_prover* c_prover,
   using LS = typename NativeProver::LS;
 
   std::cout << "deserializing proving key" << std::endl;
-  ProvingKey<LS> pk(pk_bytes, /*read_only_vk=*/false);
+  ScrollProvingKey<LS> pk(pk_bytes, /*read_only_vk=*/false);
   std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(

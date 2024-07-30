@@ -155,7 +155,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     Circuit circuit = TestData::GetCircuit();
 
     for (size_t i = 0; i < 2; ++i) {
-      ProvingKey<LS> pkey;
+      ProvingKey<halo2::Vendor::kScroll, LS> pkey;
       bool load_verifying_key = i == 0;
       SCOPED_TRACE(
           absl::Substitute("load_verifying_key: $0", load_verifying_key));
@@ -238,7 +238,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     std::vector<std::vector<Evals>> instance_columns_vec = {
         instance_columns, std::move(instance_columns)};
 
-    ProvingKey<LS> pkey;
+    ProvingKey<halo2::Vendor::kScroll, LS> pkey;
     ASSERT_TRUE(pkey.Load(this->prover_.get(), circuits[0]));
     this->prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 

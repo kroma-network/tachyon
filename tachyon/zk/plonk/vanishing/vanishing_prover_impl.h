@@ -52,9 +52,10 @@ void VanishingProver<Poly, Evals, ExtendedPoly,
 
 template <typename Poly, typename Evals, typename ExtendedPoly,
           typename ExtendedEvals>
-template <typename PCS, typename LS, typename LookupProver>
+template <typename PCS, halo2::Vendor Vendor, typename LS,
+          typename LookupProver>
 void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::CreateHEvals(
-    ProverBase<PCS>* prover, const ProvingKey<LS>& proving_key,
+    ProverBase<PCS>* prover, const ProvingKey<Vendor, LS>& proving_key,
     const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& theta,
     const F& beta, const F& gamma, const F& y,
     const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,

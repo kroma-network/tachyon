@@ -14,12 +14,13 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/zk/plonk/halo2/buffer_reader.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
+#include "tachyon/zk/plonk/halo2/vendor.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
 namespace tachyon::c::zk::plonk {
 
-template <typename LS>
-class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
+template <tachyon::zk::plonk::halo2::Vendor Vendor, typename LS>
+class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<Vendor, LS> {
  public:
   using F = typename LS::Field;
   using C = typename LS::Commitment;

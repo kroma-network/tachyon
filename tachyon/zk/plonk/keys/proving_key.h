@@ -12,6 +12,7 @@
 
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/plonk/halo2/vendor.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
@@ -20,7 +21,7 @@ namespace tachyon {
 
 namespace zk::plonk {
 
-template <typename LS>
+template <halo2::Vendor Vendor, typename LS>
 class ProvingKey : public Key {
  public:
   using F = typename LS::Field;
@@ -67,7 +68,7 @@ class ProvingKey : public Key {
   }
 
  private:
-  friend class c::zk::plonk::ProvingKeyImpl<LS>;
+  friend class c::zk::plonk::ProvingKeyImpl<Vendor, LS>;
 
   template <typename PCS, typename RationalEvals>
   bool DoLoad(ProverBase<PCS>* prover,

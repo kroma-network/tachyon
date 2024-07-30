@@ -64,10 +64,10 @@ class Evaluator {
     }
   }
 
-  template <typename PCS, typename LS>
-  void UpdateChunkByLookups(plonk::CircuitPolynomialBuilder<PCS, LS>& builder,
-                            absl::Span<F> chunk, size_t chunk_offset,
-                            size_t chunk_size) {
+  template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
+  void UpdateChunkByLookups(
+      plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+      absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
     for (size_t i = 0; i < lookup_evaluators_.size(); ++i) {
       const plonk::GraphEvaluator<F>& ev = lookup_evaluators_[i];
       const Evals& input_coset = lookup_input_cosets_[i];
@@ -129,9 +129,10 @@ class Evaluator {
     }
   }
 
-  template <typename PCS, typename LS>
-  void UpdateLookupCosets(plonk::CircuitPolynomialBuilder<PCS, LS>& builder,
-                          size_t circuit_idx) {
+  template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
+  void UpdateLookupCosets(
+      plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+      size_t circuit_idx) {
     using LookupProver = Prover<typename PCS::Poly, Evals>;
 
     size_t num_lookups =

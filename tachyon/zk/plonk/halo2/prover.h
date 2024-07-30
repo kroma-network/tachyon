@@ -59,8 +59,8 @@ class Prover : public ProverBase<PCS> {
     return ret;
   }
 
-  template <typename Circuit>
-  void CreateProof(ProvingKey<LS>& proving_key,
+  template <halo2::Vendor Vendor, typename Circuit>
+  void CreateProof(ProvingKey<Vendor, LS>& proving_key,
                    std::vector<std::vector<Evals>>&& instance_columns_vec,
                    std::vector<Circuit>& circuits) {
     size_t num_circuits = circuits.size();
@@ -104,7 +104,8 @@ class Prover : public ProverBase<PCS> {
         Blinder<F>(generator_.get(), this->blinder_.blinding_factors());
   }
 
-  void CreateProof(ProvingKey<LS>& proving_key,
+  template <halo2::Vendor Vendor>
+  void CreateProof(ProvingKey<Vendor, LS>& proving_key,
                    ArgumentData<Poly, Evals>* argument_data) {
     CHECK_EQ(proving_key.verifying_key().constraint_system().lookup_type(),
              LS::type);
@@ -283,8 +284,9 @@ class Prover : public ProverBase<PCS> {
     CHECK(this->pcs_.CreateOpeningProof(openings, this->GetWriter()));
   }
 
+  template <halo2::Vendor Vendor>
   void Evaluate(
-      const ProvingKey<LS>& proving_key,
+      const ProvingKey<Vendor, LS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables,
       VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
           vanishing_prover,
@@ -311,8 +313,9 @@ class Prover : public ProverBase<PCS> {
                                                 shuffle_opening_point_set);
   }
 
+  template <halo2::Vendor Vendor>
   std::vector<crypto::PolynomialOpening<Poly>> Open(
-      const ProvingKey<LS>& proving_key,
+      const ProvingKey<Vendor, LS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables,
       const VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
           vanishing_prover,

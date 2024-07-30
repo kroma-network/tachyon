@@ -67,8 +67,9 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS, LS> {
     this->transcript_ = std::move(writer);
   }
 
+  template <tachyon::zk::plonk::halo2::Vendor Vendor>
   void CreateProof(
-      tachyon::zk::plonk::ProvingKey<LS>& proving_key,
+      tachyon::zk::plonk::ProvingKey<Vendor, LS>& proving_key,
       tachyon::zk::plonk::halo2::ArgumentData<Poly, Evals>* argument_data) {
     std::string_view arg_data_str;
     if (tachyon::base::Environment::Get("TACHYON_ARG_DATA_LOG_PATH",
