@@ -72,6 +72,10 @@ std::vector<PackedField*> PackRowHorizontally(
   });
 }
 
+// Packs |PackedField::N| rows, starting at the given row index. Each
+// |PackedField::N| selected elements in a column are converted into a
+// PackedField. Rows included wrap around to the starting index 0 to fully
+// populate the packed fields.
 template <typename PackedField, typename Derived>
 std::vector<PackedField> PackRowVertically(
     const Eigen::MatrixBase<Derived>& matrix, size_t row) {
