@@ -150,6 +150,16 @@ ExtendedEvals CoeffToExtended(Poly&& poly,
   return extended_domain->FFT(std::move(extended_poly));
 }
 
+// This takes us from an n-length coefficient vector into a coset of the
+// extended evaluation domain.
+template <typename Poly, typename ExtendedDomain,
+          typename ExtendedEvals = typename ExtendedDomain::Evals>
+ExtendedEvals CoeffToExtended(const Poly& poly,
+                              const ExtendedDomain* extended_domain) {
+  Poly poly_tmp = poly;
+  return CoeffToExtended(std::move(poly_tmp), extended_domain);
+}
+
 // This takes us from the extended evaluation domain and gets us the quotient
 // polynomial coefficients.
 //

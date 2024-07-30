@@ -42,6 +42,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/halo2:vendor",
         "//tachyon/zk/plonk/permutation:permutation_proving_key",
         "//tachyon/zk/plonk/vanishing:vanishing_argument",
+        "//tachyon/zk/plonk/vanishing:vanishing_utils",
     ],
 )
 
