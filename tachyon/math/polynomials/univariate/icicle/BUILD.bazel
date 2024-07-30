@@ -34,6 +34,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/device/gpu:gpu_device_functions",
         "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/polynomials/univariate:univariate_evaluations",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",

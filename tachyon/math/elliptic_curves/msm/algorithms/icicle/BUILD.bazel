@@ -32,6 +32,7 @@ tachyon_cc_library(
         "//tachyon/base:bits",
         "//tachyon/device/gpu:gpu_device_functions",
         "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",

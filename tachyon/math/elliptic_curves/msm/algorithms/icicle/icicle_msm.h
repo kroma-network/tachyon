@@ -10,6 +10,7 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/device/gpu/gpu_enums.h"
+#include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/export.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
@@ -189,7 +190,10 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(const BaseContainer& cpu_bases,
         reinterpret_cast<const ::bn254::scalar_t*>(&cpu_scalars[start_idx]),
         reinterpret_cast<const ::bn254::affine_t*>(&cpu_bases[start_idx]),
         data_size, *config_, &ret);
-    if (error != gpuSuccess) return false;
+    if (error != gpuSuccess) {
+      GPU_LOG(ERROR, error) << "Failed to tachyon_bn254_g1_msm_cuda()";
+      return false;
+    }
     final_value = final_value + ret;
   }
   final_value = ::bn254::projective_t::to_montgomery(final_value);
@@ -235,7 +239,10 @@ bool IcicleMSM<bn254::G2AffinePoint>::Run(const BaseContainer& cpu_bases,
         reinterpret_cast<const ::bn254::scalar_t*>(&cpu_scalars[start_idx]),
         reinterpret_cast<const ::bn254::g2_affine_t*>(&cpu_bases[start_idx]),
         data_size, *config_, &ret);
-    if (error != gpuSuccess) return false;
+    if (error != gpuSuccess) {
+      GPU_LOG(ERROR, error) << "Failed to tachyon_bn254_g2_msm_cuda()";
+      return false;
+    }
     final_value = final_value + ret;
   }
   final_value = ::bn254::g2_projective_t::to_montgomery(final_value);
