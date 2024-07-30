@@ -15,7 +15,8 @@ using Evals = tachyon::math::UnivariateEvaluations<tachyon::math::bn254::Fr,
                                                    c::math::kMaxDegree>;
 using Commitment = tachyon::math::bn254::G1AffinePoint;
 using LogDerivativeHalo2LS =
-    tachyon::zk::lookup::log_derivative_halo2::Scheme<Poly, Evals, Commitment>;
+    tachyon::zk::lookup::log_derivative_halo2::Scheme<Poly, Evals, Commitment,
+                                                      Poly, Evals>;
 
 }  // namespace tachyon::c::zk::plonk::halo2::bn254
 

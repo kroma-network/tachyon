@@ -23,14 +23,15 @@ using BN254SHPlonk =
 using BN254GWC =
     GWCExtension<math::bn254::BN254Curve, halo2::kMaxDegree,
                  halo2::kMaxExtendedDegree, math::bn254::G1AffinePoint>;
-using BN254Halo2LS = lookup::halo2::Scheme<typename BN254SHPlonk::Poly,
-                                           typename BN254SHPlonk::Evals,
-                                           typename BN254SHPlonk::Commitment>;
+using BN254Halo2LS = lookup::halo2::Scheme<
+    typename BN254SHPlonk::Poly, typename BN254SHPlonk::Evals,
+    typename BN254SHPlonk::Commitment, typename BN254SHPlonk::ExtendedPoly,
+    typename BN254SHPlonk::ExtendedEvals>;
 
-using BN254LogDerivativeHalo2LS =
-    lookup::log_derivative_halo2::Scheme<typename BN254SHPlonk::Poly,
-                                         typename BN254SHPlonk::Evals,
-                                         typename BN254SHPlonk::Commitment>;
+using BN254LogDerivativeHalo2LS = lookup::log_derivative_halo2::Scheme<
+    typename BN254SHPlonk::Poly, typename BN254SHPlonk::Evals,
+    typename BN254SHPlonk::Commitment, typename BN254SHPlonk::ExtendedPoly,
+    typename BN254SHPlonk::ExtendedEvals>;
 
 template <typename Circuit>
 constexpr bool IsSimpleFloorPlanner =
@@ -75,8 +76,10 @@ struct IsHalo2LSImpl {
   static constexpr bool value = false;
 };
 
-template <typename Poly, typename Evals, typename Commitment>
-struct IsHalo2LSImpl<lookup::halo2::Scheme<Poly, Evals, Commitment>> {
+template <typename Poly, typename Evals, typename Commitment,
+          typename ExtendedPoly, typename ExtendedEvals>
+struct IsHalo2LSImpl<lookup::halo2::Scheme<Poly, Evals, Commitment,
+                                           ExtendedPoly, ExtendedEvals>> {
   static constexpr bool value = true;
 };
 
