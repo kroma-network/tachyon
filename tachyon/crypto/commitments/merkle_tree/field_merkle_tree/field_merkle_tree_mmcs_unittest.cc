@@ -78,17 +78,20 @@ TEST_F(FieldMerkleTreeMMCSTest, Commit) {
 
   {
     std::array<F, kChunk> commitment;
-    ASSERT_TRUE(mmcs_->Commit(vector, &commitment));
+    Tree prover_data;
+    ASSERT_TRUE(mmcs_->Commit(vector, &commitment, &prover_data));
     EXPECT_EQ(commitment, tree.GetRoot());
   }
   {
     std::array<F, kChunk> commitment;
-    ASSERT_TRUE(mmcs_->Commit(std::move(matrix), &commitment));
+    Tree prover_data;
+    ASSERT_TRUE(mmcs_->Commit(std::move(matrix), &commitment, &prover_data));
     EXPECT_EQ(commitment, tree.GetRoot());
   }
   {
     std::array<F, kChunk> commitment;
-    ASSERT_TRUE(mmcs_->Commit(std::move(matrices), &commitment));
+    Tree prover_data;
+    ASSERT_TRUE(mmcs_->Commit(std::move(matrices), &commitment, &prover_data));
     EXPECT_EQ(commitment, tree.GetRoot());
   }
 }
@@ -130,11 +133,13 @@ TEST_F(FieldMerkleTreeMMCSTest, CommitAndVerify) {
     }
 
     std::array<F, kChunk> commitment;
-    ASSERT_TRUE(mmcs_->Commit(std::move(matrices), &commitment));
+    Tree prover_data;
+    ASSERT_TRUE(mmcs_->Commit(std::move(matrices), &commitment, &prover_data));
 
     std::vector<std::vector<F>> openings;
     std::vector<std::array<F, kChunk>> proof;
-    ASSERT_TRUE(mmcs_->CreateOpeningProof(test.index, &openings, &proof));
+    ASSERT_TRUE(
+        mmcs_->CreateOpeningProof(test.index, prover_data, &openings, &proof));
     ASSERT_TRUE(mmcs_->VerifyOpeningProof(commitment, dimensions_vec,
                                           test.index, openings, proof));
   }

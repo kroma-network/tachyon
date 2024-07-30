@@ -34,6 +34,7 @@ class FieldMerkleTreeMMCS final
                          F>;
   using Commitment = std::array<PrimeField, N>;
   using Digest = Commitment;
+  using ProverData = FieldMerkleTree<F, N>;
   using Proof = std::vector<Digest>;
 
   FieldMerkleTreeMMCS(const Hasher& hasher, const PackedHasher& packed_hasher,
@@ -51,9 +52,6 @@ class FieldMerkleTreeMMCS final
         compressor_(std::move(compressor)),
         packed_compressor_(std::move(packed_compressor)) {}
 
-  const FieldMerkleTree<F, N>& field_merkle_tree() const {
-    return field_merkle_tree_;
-  }
   const Hasher& hasher() const { return hasher_; }
   const PackedHasher& packed_hasher() const { return packed_hasher_; }
   const Compressor& compressor() const { return compressor_; }
@@ -75,27 +73,30 @@ class FieldMerkleTreeMMCS final
   };
 
   [[nodiscard]] bool DoCommit(std::vector<math::RowMajorMatrix<F>>&& matrices,
-                              Commitment* result) {
-    field_merkle_tree_ =
+                              Commitment* commitment, ProverData* prover_data) {
+    *prover_data =
         FieldMerkleTree<F, N>::Build(hasher_, packed_hasher_, compressor_,
                                      packed_compressor_, std::move(matrices));
-    *result = field_merkle_tree_.GetRoot();
+    *commitment = prover_data->GetRoot();
+
     return true;
   }
 
-  const std::vector<math::RowMajorMatrix<F>>& DoGetMatrices() const {
-    return field_merkle_tree_.leaves();
+  const std::vector<math::RowMajorMatrix<F>>& DoGetMatrices(
+      const ProverData& prover_data) const {
+    return prover_data.leaves();
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(size_t index,
+                                          const ProverData& prover_data,
                                           std::vector<std::vector<F>>* openings,
                                           Proof* proof) const {
-    size_t max_row_size = this->GetMaxRowSize();
+    size_t max_row_size = this->GetMaxRowSize(prover_data);
     size_t log_max_row_size = base::bits::Log2Ceiling(max_row_size);
 
     // TODO(chokobole): Is it able to be parallelized?
     *openings = base::Map(
-        field_merkle_tree_.leaves(),
+        prover_data.leaves(),
         [log_max_row_size, index](const math::RowMajorMatrix<F>& matrix) {
           size_t log_row_size =
               base::bits::Log2Ceiling(static_cast<size_t>(matrix.rows()));
@@ -107,11 +108,12 @@ class FieldMerkleTreeMMCS final
                                     });
         });
 
-    *proof = base::CreateVector(log_max_row_size, [this, index](size_t i) {
-      // NOTE(chokobole): Let v be |index >> i|. If v is even, v ^ 1 is v + 1.
-      // Otherwise, v ^ 1 is v - 1.
-      return field_merkle_tree_.digest_layers()[i][(index >> i) ^ 1];
-    });
+    *proof =
+        base::CreateVector(log_max_row_size, [prover_data, index](size_t i) {
+          // NOTE(chokobole): Let v be |index >> i|. If v is even, v ^ 1 is v
+          // + 1. Otherwise, v ^ 1 is v - 1.
+          return prover_data.digest_layers()[i][(index >> i) ^ 1];
+        });
 
     return true;
   }
@@ -220,7 +222,6 @@ class FieldMerkleTreeMMCS final
     }
   }
 
-  FieldMerkleTree<F, N> field_merkle_tree_;
   Hasher hasher_;
   PackedHasher packed_hasher_;
   Compressor compressor_;
@@ -238,6 +239,7 @@ struct MixedMatrixCommitmentSchemeTraits<FieldMerkleTreeMMCS<
                          typename math::ExtensionFieldTraits<F>::BasePrimeField,
                          F>;
   using Commitment = std::array<PrimeField, N>;
+  using ProverData = FieldMerkleTree<F, N>;
   using Proof = std::vector<std::array<PrimeField, N>>;
 };
 

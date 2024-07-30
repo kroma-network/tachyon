@@ -20,6 +20,8 @@ class ExtensionFieldMerkleTreeMMCS final
  public:
   using Commitment =
       typename MixedMatrixCommitmentSchemeTraits<InnerMMCS>::Commitment;
+  using ProverData =
+      typename MixedMatrixCommitmentSchemeTraits<InnerMMCS>::ProverData;
   using Digest = Commitment;
   using Proof = std::vector<Digest>;
 
@@ -34,19 +36,19 @@ class ExtensionFieldMerkleTreeMMCS final
 
   [[nodiscard]] bool DoCommit(
       std::vector<math::RowMajorMatrix<ExtensionField>>&& matrices,
-      Commitment* result) {
-    return inner_.Commit(std::move(matrices), result);
+      Commitment* commitment, ProverData* prover_data) {
+    return inner_.Commit(std::move(matrices), commitment, prover_data);
   }
 
-  const std::vector<math::RowMajorMatrix<ExtensionField>>& DoGetMatrices()
-      const {
-    return inner_.GetMatrices();
+  const std::vector<math::RowMajorMatrix<ExtensionField>>& DoGetMatrices(
+      const ProverData& prover_data) const {
+    return prover_data.leaves();
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(
-      size_t index, std::vector<std::vector<ExtensionField>>* openings,
-      Proof* proof) const {
-    return inner_.CreateOpeningProof(index, openings, proof);
+      size_t index, const ProverData& prover_data,
+      std::vector<std::vector<ExtensionField>>* openings, Proof* proof) const {
+    return inner_.CreateOpeningProof(index, prover_data, openings, proof);
   }
 
   [[nodiscard]] bool DoVerifyOpeningProof(
@@ -68,6 +70,8 @@ struct MixedMatrixCommitmentSchemeTraits<
   using Field = ExtensionField;
   using Commitment =
       typename MixedMatrixCommitmentSchemeTraits<InnerMMCS>::Commitment;
+  using ProverData =
+      typename MixedMatrixCommitmentSchemeTraits<InnerMMCS>::ProverData;
   using Proof = typename MixedMatrixCommitmentSchemeTraits<InnerMMCS>::Proof;
 };
 
