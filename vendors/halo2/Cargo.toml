@@ -18,7 +18,7 @@ publish = false
 cxx = "1.0"
 digest = "0.10.3"
 ff = "0.13"
-log = "0.4.17"
+log = "0.4.22"
 num-bigint = { version = "0.4", features = ["rand"] }
 halo2_proofs = { git = "https://github.com/kroma-network/halo2.git", rev = "28ceefb" }
 halo2curves = { version = "0.1.0", features = ["derive_serde"] }

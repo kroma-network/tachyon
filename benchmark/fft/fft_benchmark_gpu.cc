@@ -47,24 +47,26 @@ void Run(const FFTConfig& config) {
   CHECK(icicle_ntt_holder->Init(domains.back()->group_gen()));
 
   FFTRunner<Domain, PolyOrEvals> runner(&reporter);
-  runner.SetInputs(&polys, std::move(domains));
+  runner.set_polys(polys);
+  runner.set_domains(absl::MakeSpan(domains));
 
   std::vector<RetPoly> results;
   std::vector<RetPoly> results_gpu;
+  bool kShouldRecord = true;
   if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
     runner.Run(tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
-               &results);
+               &results, kShouldRecord);
     runner.SwitchToIcicle(&icicle_ntt_holder);
     runner.Run(tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
-               &results_gpu);
+               &results_gpu, kShouldRecord);
     // NOLINTNEXTLINE(readability/braces)
   } else if constexpr (std::is_same_v<PolyOrEvals,
                                       typename Domain::DensePoly>) {
     runner.Run(tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
-               &results);
+               &results, kShouldRecord);
     runner.SwitchToIcicle(&icicle_ntt_holder);
     runner.Run(tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
-               &results_gpu);
+               &results_gpu, kShouldRecord);
   }
   if (config.check_results()) {
     CHECK(results == results_gpu) << "Results not matched";
