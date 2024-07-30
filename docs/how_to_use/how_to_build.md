@@ -227,6 +227,14 @@ For example, add the following to `.bazelrc.user` to build rust on linux:
 build --build_tag_filters -objc,-cuda
 ```
 
+### Build Rust code
+
+Since the current toolchain is using the nightly channel, the following build flag is needed. Add this to your `.bazelrc.user`.
+
+```
+build --@rules_rust//rust/toolchain/channel=nightly
+```
+
 ### Build SP1 Rust code
 
 Since [scale-info](https://crates.io/crates/scale-info) needs a `CARGO` environment variable, add this to your `.bazelrc.user`.
