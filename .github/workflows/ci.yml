@@ -21,7 +21,16 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Bazel
-        uses: bazelbuild/setup-bazelisk@v3
+        uses: bazel-contrib/setup-bazel@0.8.5
+        with:
+          # Avoid downloading Bazel every time.
+          bazelisk-cache: true
+          # Share a single build cache between workflows.
+          disk-cache: ${{ github.workflow }}
+          # Share repository cache between workflows.
+          repository-cache: true
+          # Enable external repositories caches
+          external-cache: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
