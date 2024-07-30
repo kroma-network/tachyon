@@ -6,6 +6,8 @@ namespace tachyon::zk::plonk::halo2 {
 
 std::string_view VendorToString(Vendor vendor) {
   switch (vendor) {
+    case Vendor::kPSE:
+      return "pse";
     case Vendor::kScroll:
       return "scroll";
   }

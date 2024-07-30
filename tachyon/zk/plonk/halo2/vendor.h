@@ -8,6 +8,7 @@
 namespace tachyon::zk::plonk::halo2 {
 
 enum class Vendor {
+  kPSE,
   kScroll,
 };
 
