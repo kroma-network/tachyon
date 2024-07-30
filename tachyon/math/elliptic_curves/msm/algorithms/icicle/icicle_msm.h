@@ -168,14 +168,32 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(const BaseContainer& cpu_bases,
     return false;
   }
 
-  ::bn254::projective_t ret;
-  gpuError_t error = tachyon_bn254_g1_msm_cuda(
-      reinterpret_cast<const ::bn254::scalar_t*>(std::data(cpu_scalars)),
-      reinterpret_cast<const ::bn254::affine_t*>(std::data(cpu_bases)),
-      bases_size, *config_, &ret);
-  if (error != gpuSuccess) return false;
-  ret = ::bn254::projective_t::to_montgomery(ret);
-  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(ret);
+  size_t bitsize = static_cast<size_t>(
+      (config_->bitsize == 0) ? ::bn254::scalar_t::NBITS : config_->bitsize);
+
+  size_t divisions = DetermineMsmDivisionsForMemory(
+      sizeof(::bn254::scalar_t), sizeof(::bn254::affine_t),
+      sizeof(::bn254::projective_t), bases_size, config_->c, bitsize,
+      static_cast<size_t>(config_->precompute_factor),
+      static_cast<size_t>(config_->batch_size));
+
+  size_t offset = bases_size / divisions;
+  size_t remainder = bases_size % divisions;
+  ::bn254::projective_t final_value = ::bn254::projective_t::zero();
+  for (size_t idx = 0; idx < divisions; ++idx) {
+    size_t start_idx = idx * offset;
+    size_t data_size =
+        ((idx == divisions - 1) && (remainder != 0)) ? remainder : offset;
+    ::bn254::projective_t ret;
+    gpuError_t error = tachyon_bn254_g1_msm_cuda(
+        reinterpret_cast<const ::bn254::scalar_t*>(&cpu_scalars[start_idx]),
+        reinterpret_cast<const ::bn254::affine_t*>(&cpu_bases[start_idx]),
+        data_size, *config_, &ret);
+    if (error != gpuSuccess) return false;
+    final_value = final_value + ret;
+  }
+  final_value = ::bn254::projective_t::to_montgomery(final_value);
+  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(final_value);
   return true;
 }
 
@@ -196,14 +214,32 @@ bool IcicleMSM<bn254::G2AffinePoint>::Run(const BaseContainer& cpu_bases,
     return false;
   }
 
-  ::bn254::g2_projective_t ret;
-  gpuError_t error = tachyon_bn254_g2_msm_cuda(
-      reinterpret_cast<const ::bn254::scalar_t*>(std::data(cpu_scalars)),
-      reinterpret_cast<const ::bn254::g2_affine_t*>(std::data(cpu_bases)),
-      bases_size, *config_, &ret);
-  if (error != gpuSuccess) return false;
-  ret = ::bn254::g2_projective_t::to_montgomery(ret);
-  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(ret);
+  size_t bitsize = static_cast<size_t>(
+      (config_->bitsize == 0) ? ::bn254::scalar_t::NBITS : config_->bitsize);
+
+  size_t divisions = DetermineMsmDivisionsForMemory(
+      sizeof(::bn254::scalar_t), sizeof(::bn254::g2_affine_t),
+      sizeof(::bn254::g2_projective_t), bases_size, config_->c, bitsize,
+      static_cast<size_t>(config_->precompute_factor),
+      static_cast<size_t>(config_->batch_size));
+
+  size_t offset = bases_size / divisions;
+  size_t remainder = bases_size % divisions;
+  ::bn254::g2_projective_t final_value = ::bn254::g2_projective_t::zero();
+  for (size_t idx = 0; idx < divisions; ++idx) {
+    size_t start_idx = idx * offset;
+    size_t data_size =
+        ((idx == divisions - 1) && (remainder != 0)) ? remainder : offset;
+    ::bn254::g2_projective_t ret;
+    gpuError_t error = tachyon_bn254_g2_msm_cuda(
+        reinterpret_cast<const ::bn254::scalar_t*>(&cpu_scalars[start_idx]),
+        reinterpret_cast<const ::bn254::g2_affine_t*>(&cpu_bases[start_idx]),
+        data_size, *config_, &ret);
+    if (error != gpuSuccess) return false;
+    final_value = final_value + ret;
+  }
+  final_value = ::bn254::g2_projective_t::to_montgomery(final_value);
+  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(final_value);
   return true;
 }
 
