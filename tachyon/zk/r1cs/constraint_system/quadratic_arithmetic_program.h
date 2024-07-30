@@ -203,12 +203,17 @@ class QuadraticArithmeticProgram {
                                                           size_t chunk_size) {
       size_t i = chunk_index * chunk_size;
       F x_i = x.Pow(i);
-      for (F& v : chunk) {
+
+      // NOTE: It is not possible to have empty chunk so this is safe
+      for (size_t i = 0; i < chunk.size() - 1; ++i) {
         // (xⁱ * t(x)) / δ
-        v = x_i * t_x;
-        v *= delta_inverse;
+        chunk[i] = x_i * t_x;
+        chunk[i] *= delta_inverse;
         x_i *= x;
       }
+      chunk.back() = std::move(x_i);
+      chunk.back() *= t_x;
+      chunk.back() *= delta_inverse;
     });
     return h_query;
   }

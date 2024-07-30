@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <memory_resource>
+#include <utility>
 #include <vector>
 
 #include "absl/types/span.h"
@@ -206,10 +207,13 @@ class MultiplicativeSemigroup {
                               size_t chunk_size) {
           MulResult pow = generator.Pow(chunk_offset * chunk_size);
           if (!c.IsOne()) pow *= c;
-          for (G& v : chunk) {
-            v = pow;
+
+          // NOTE: It is not possible to have empty chunk so this is safe
+          for (size_t i = 0; i < chunk.size() - 1; ++i) {
+            chunk[i] = pow;
             pow *= generator;
           }
+          chunk.back() = std::move(pow);
         });
     return ret;
   }
@@ -391,10 +395,13 @@ class AdditiveSemigroup {
         ret, [&generator](absl::Span<G> chunk, size_t chunk_offset,
                           size_t chunk_size) {
           AddResult scalar_mul = generator.ScalarMul(chunk_offset * chunk_size);
-          for (G& v : chunk) {
-            v = scalar_mul;
+
+          // NOTE: It is not possible to have empty chunk so this is safe
+          for (size_t i = 0; i < chunk.size() - 1; ++i) {
+            chunk[i] = scalar_mul;
             scalar_mul += generator;
           }
+          chunk.back() = std::move(scalar_mul);
         });
     return ret;
   }

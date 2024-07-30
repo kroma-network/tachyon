@@ -90,10 +90,14 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
                                        size_t chunk_size) {
     size_t start = chunk_offset * chunk_size;
     F zeta_i = zeta_pow_n * coset_gen_pow_n.Pow(start);
-    for (F& coeff : chunk) {
-      coeff = zeta_i - F::One();
+
+    // NOTE: It is not possible to have empty chunk so this is safe
+    for (size_t i = 0; i < chunk.size() - 1; ++i) {
+      chunk[i] = zeta_i - F::One();
       zeta_i *= coset_gen_pow_n;
     }
+    chunk.back() = std::move(zeta_i);
+    chunk.back() -= F::One();
     CHECK(F::BatchInverseInPlaceSerial(chunk));
   });
 

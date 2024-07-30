@@ -341,14 +341,18 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
             size_t n = chunk_idx * chunk_size;
             F l_i_pow = l_i * group_gen_inv_.Pow(n);
             F negative_omega_i_pow = negative_omega_i * group_gen_.Pow(n);
-            for (F& c : chunk) {
+
+            // NOTE: It is not possible to have empty chunk so this is safe
+            for (size_t i = 0; i < chunk.size() - 1; ++i) {
               // (Z_H(τ) * vᵢ)⁻¹ * (τ - h * gⁱ)
-              c = l_i_pow * (tau + negative_omega_i_pow);
+              chunk[i] = l_i_pow * (tau + negative_omega_i_pow);
               // lᵢ₊₁ = g⁻¹ * lᵢ
               l_i_pow *= group_gen_inv_;
               // (- h * gⁱ) * g
               negative_omega_i_pow *= group_gen_;
             }
+            chunk.back() = std::move(l_i_pow);
+            chunk.back() *= tau + negative_omega_i_pow;
           });
 
       // Invert |lagrange_coefficients_inverse| to get the actual
