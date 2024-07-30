@@ -311,29 +311,31 @@ class CircuitPolynomialBuilder {
   void UpdateTableCosets(size_t circuit_idx) {
     absl::Span<const Poly> new_fixed_columns =
         poly_tables_[circuit_idx].GetFixedColumns();
-    std::vector<Evals>& fixed_columns = table_.fixed_columns();
-    fixed_columns.resize(new_fixed_columns.size());
+    fixed_column_cosets_.resize(new_fixed_columns.size());
     for (size_t i = 0; i < new_fixed_columns.size(); ++i) {
-      fixed_columns[i] = coset_domain_->FFT(new_fixed_columns[i]);
+      fixed_column_cosets_[i] = coset_domain_->FFT(new_fixed_columns[i]);
     }
 
     absl::Span<const Poly> new_advice_columns =
         poly_tables_[circuit_idx].GetAdviceColumns();
-    std::vector<Evals>& advice_columns = table_.advice_columns();
-    advice_columns.resize(new_advice_columns.size());
+    advice_column_cosets_.resize(new_advice_columns.size());
     for (size_t i = 0; i < new_advice_columns.size(); ++i) {
-      advice_columns[i] = coset_domain_->FFT(new_advice_columns[i]);
+      advice_column_cosets_[i] = coset_domain_->FFT(new_advice_columns[i]);
     }
 
     absl::Span<const Poly> new_instance_columns =
         poly_tables_[circuit_idx].GetInstanceColumns();
-    std::vector<Evals>& instance_columns = table_.instance_columns();
-    instance_columns.resize(new_instance_columns.size());
+    instance_column_cosets_.resize(new_instance_columns.size());
     for (size_t i = 0; i < new_instance_columns.size(); ++i) {
-      instance_columns[i] = coset_domain_->FFT(new_instance_columns[i]);
+      instance_column_cosets_[i] = coset_domain_->FFT(new_instance_columns[i]);
     }
 
-    table_.set_challenges(poly_tables_[circuit_idx].challenges());
+    table_ = {
+        fixed_column_cosets_,
+        advice_column_cosets_,
+        instance_column_cosets_,
+        poly_tables_[circuit_idx].challenges(),
+    };
   }
 
   // not owned
@@ -376,7 +378,11 @@ class CircuitPolynomialBuilder {
 
   std::vector<Evals> shuffle_product_cosets_;
 
-  MultiPhaseOwnedTable<Evals> table_;
+  std::vector<Evals> fixed_column_cosets_;
+  std::vector<Evals> advice_column_cosets_;
+  std::vector<Evals> instance_column_cosets_;
+
+  MultiPhaseRefTable<Evals> table_;
 };
 
 }  // namespace plonk

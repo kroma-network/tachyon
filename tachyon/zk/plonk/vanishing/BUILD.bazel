@@ -41,7 +41,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "evaluation_input",
     hdrs = ["evaluation_input.h"],
-    deps = ["//tachyon/zk/plonk/base:multi_phase_owned_table"],
+    deps = ["//tachyon/zk/plonk/base:multi_phase_ref_table"],
 )
 
 tachyon_cc_library(
