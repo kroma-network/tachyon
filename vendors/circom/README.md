@@ -75,6 +75,7 @@ Optional arguments:
 
 --curve             The curve type among ('bn254', bls12_381'), by default 'bn254'
 --no_zk             Create proof without zk. By default zk is enabled. Use this flag in case you want to compare the proof with rapidsnark.
+--no_use_mmap       Create proof without mmap(2). By default, mmap(2) is enabled, offering faster proof generation at the cost of increased memory usage due to the memory mapped file. Use this flag if you want to use less memory.
 --verify            Verify the proof. By default verify is disabled. Use this flag to verify the proof with the public inputs.
 -n, --num_runs      The number of times to run the proof generation
 --disable_fast_twiddles_mode
