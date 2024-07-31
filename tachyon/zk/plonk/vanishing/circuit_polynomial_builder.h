@@ -155,23 +155,21 @@ class CircuitPolynomialBuilder {
           static_assert(base::AlwaysFalse<LS>);
         }
 
-        if (lookup_polys_num > 0) lookup_evaluator.UpdateLookupCosets(*this, j);
+        if (lookup_polys_num > 0) lookup_evaluator.UpdateCosets(*this, j);
         // Do iff there are shuffle constraints.
         if (shuffle_provers_[j].grand_product_polys().size() > 0)
-          shuffle_evaluator.UpdateShuffleCosets(*this, j);
-        base::Parallelize(
-            value_part,
-            [this, &custom_gate_evaluator, &lookup_evaluator,
-             &shuffle_evaluator](absl::Span<F> chunk, size_t chunk_offset,
-                                 size_t chunk_size) {
-              UpdateChunkByCustomGates(custom_gate_evaluator, chunk,
-                                       chunk_offset, chunk_size);
-              UpdateChunkByPermutation(chunk, chunk_offset, chunk_size);
-              lookup_evaluator.UpdateChunkByLookups(*this, chunk, chunk_offset,
-                                                    chunk_size);
-              shuffle_evaluator.UpdateChunkByShuffles(*this, chunk,
-                                                      chunk_offset, chunk_size);
-            });
+          shuffle_evaluator.UpdateCosets(*this, j);
+        base::Parallelize(value_part, [this, &custom_gate_evaluator,
+                                       &lookup_evaluator,
+                                       &shuffle_evaluator](absl::Span<F> chunk,
+                                                           size_t chunk_offset,
+                                                           size_t chunk_size) {
+          EvaluateByCustomGates(custom_gate_evaluator, chunk, chunk_offset,
+                                chunk_size);
+          EvaluateByPermutation(chunk, chunk_offset, chunk_size);
+          lookup_evaluator.Evaluate(*this, chunk, chunk_offset, chunk_size);
+          shuffle_evaluator.Evaluate(*this, chunk, chunk_offset, chunk_size);
+        });
       }
 
       value_parts.push_back(std::move(value_part));
@@ -181,8 +179,8 @@ class CircuitPolynomialBuilder {
     return ExtendedEvals(std::move(extended));
   }
 
-  void UpdateChunkByPermutation(absl::Span<F> chunk, size_t chunk_offset,
-                                size_t chunk_size) {
+  void EvaluateByPermutation(absl::Span<F> chunk, size_t chunk_offset,
+                             size_t chunk_size) {
     if (permutation_product_cosets_.empty()) return;
 
     const std::vector<EvalsOrExtendedEvals>& product_cosets =
@@ -279,9 +277,9 @@ class CircuitPolynomialBuilder {
     return right;
   }
 
-  void UpdateChunkByCustomGates(const GraphEvaluator<F>& custom_gate_evaluator,
-                                absl::Span<F> chunk, size_t chunk_offset,
-                                size_t chunk_size) {
+  void EvaluateByCustomGates(const GraphEvaluator<F>& custom_gate_evaluator,
+                             absl::Span<F> chunk, size_t chunk_offset,
+                             size_t chunk_size) {
     EvaluationInput<EvalsOrExtendedEvals> evaluation_input =
         ExtractEvaluationInput(
             custom_gate_evaluator.CreateInitialIntermediates(),

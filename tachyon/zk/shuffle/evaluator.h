@@ -27,7 +27,7 @@ class Evaluator {
     return shuffle_evaluators_;
   }
 
-  void EvaluateShuffles(const std::vector<Argument<F>>& shuffles) {
+  void Construct(const std::vector<Argument<F>>& shuffles) {
     // NOTE (chokobole): When constructing the graph, Scroll Halo2 uses beta,
     // whereas PSE Halo2 uses gamma. However, using beta here prevents the proof
     // from being verified. See
@@ -70,9 +70,8 @@ class Evaluator {
   }
 
   template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
-  void UpdateChunkByShuffles(
-      plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
-      absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+  void Evaluate(plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+                absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
     for (size_t i = 0; i < shuffle_evaluators_.size(); i += 2) {
       const plonk::GraphEvaluator<F>& input_evaluator = shuffle_evaluators_[i];
       const plonk::GraphEvaluator<F>& shuffle_evaluator =
@@ -123,9 +122,8 @@ class Evaluator {
   }
 
   template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
-  void UpdateShuffleCosets(
-      plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
-      size_t circuit_idx) {
+  void UpdateCosets(plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+                    size_t circuit_idx) {
     using Poly = typename PCS::Poly;
     using Evals = typename PCS::Evals;
     using ShuffleProver = Prover<Poly, Evals>;

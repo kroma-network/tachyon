@@ -55,8 +55,8 @@ class VanishingArgument {
     evaluator.custom_gates_.AddCalculation(Calculation::Horner(
         ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));
 
-    evaluator.lookup_evaluator_.EvaluateLookups(constraint_system.lookups());
-    evaluator.shuffle_evaluator_.EvaluateShuffles(constraint_system.shuffles());
+    evaluator.lookup_evaluator_.Construct(constraint_system.lookups());
+    evaluator.shuffle_evaluator_.Construct(constraint_system.shuffles());
 
     return evaluator;
   }
