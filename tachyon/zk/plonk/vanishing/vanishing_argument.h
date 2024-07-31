@@ -18,6 +18,7 @@
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
+#include "tachyon/zk/plonk/permutation/permutation_evaluator.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 #include "tachyon/zk/shuffle/evaluator.h"
@@ -79,12 +80,14 @@ class VanishingArgument {
             zeta, proving_key, permutation_provers, lookup_provers,
             shuffle_provers);
 
-    return builder.BuildExtendedCircuitColumn(custom_gates_, lookup_evaluator_,
-                                              shuffle_evaluator_);
+    return builder.BuildExtendedCircuitColumn(
+        custom_gates_, permutation_evaluator_, lookup_evaluator_,
+        shuffle_evaluator_);
   }
 
  private:
   GraphEvaluator<F> custom_gates_;
+  PermutationEvaluator<EvalsOrExtendedEvals> permutation_evaluator_;
   LookupEvaluator lookup_evaluator_;
   shuffle::Evaluator<EvalsOrExtendedEvals> shuffle_evaluator_;
 };

@@ -83,6 +83,7 @@ tachyon_cc_library(
         ":graph_evaluator",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/plonk/constraint_system",
+        "//tachyon/zk/plonk/permutation:permutation_evaluator",
         "//tachyon/zk/shuffle:evaluator",
     ],
 )
