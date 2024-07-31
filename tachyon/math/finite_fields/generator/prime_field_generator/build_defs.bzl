@@ -295,11 +295,13 @@ def _do_generate_prime_fields(
                 "@kroma_network_tachyon//:linux_x86_64": [
                     ":{}_object".format(name),
                     ":{}_fail".format(name),
+                    "//tachyon/math/base:byinverter",
                     "//tachyon/math/finite_fields:prime_field_base",
                 ],
                 "@kroma_network_tachyon//:macos_x86_64": [
                     ":{}_object".format(name),
                     ":{}_fail".format(name),
+                    "//tachyon/math/base:byinverter",
                     "//tachyon/math/finite_fields:prime_field_base",
                 ],
                 "//conditions:default": ["//tachyon/math/finite_fields:prime_field_fallback"],
