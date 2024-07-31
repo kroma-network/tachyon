@@ -15,6 +15,7 @@
 #include "tachyon/zk/lookup/log_derivative_halo2/prover.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder_forward.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 
 namespace tachyon::zk::lookup::log_derivative_halo2 {
 
@@ -29,10 +30,10 @@ struct LookupEvaluatorsPair {
         table_evaluator(std::move(table_evaluator)) {}
 };
 
-template <typename Evals>
+template <typename EvalsOrExtendedEvals>
 class Evaluator {
  public:
-  using F = typename Evals::Field;
+  using F = typename EvalsOrExtendedEvals::Field;
 
   const std::vector<LookupEvaluatorsPair<F>>& lookup_evaluators_pairs() const {
     return lookup_evaluators_pairs_;
@@ -88,18 +89,19 @@ class Evaluator {
           lookup_evaluators_pairs_[lookup_idx].inputs_evaluator;
       const plonk::GraphEvaluator<F>& table_evaluator =
           lookup_evaluators_pairs_[lookup_idx].table_evaluator;
-      const Evals& sum_coset = lookup_sum_cosets_[lookup_idx];
-      const Evals& m_coset = lookup_m_cosets_[lookup_idx];
+      const EvalsOrExtendedEvals& sum_coset = lookup_sum_cosets_[lookup_idx];
+      const EvalsOrExtendedEvals& m_coset = lookup_m_cosets_[lookup_idx];
 
-      std::vector<plonk::EvaluationInput<Evals>> inputs_eval_data = base::Map(
-          inputs_evaluator,
-          [&builder](const plonk::GraphEvaluator<F>& input_evaluator) {
-            return builder.ExtractEvaluationInput(
-                input_evaluator.CreateInitialIntermediates(),
-                input_evaluator.CreateEmptyRotations());
-          });
+      std::vector<plonk::EvaluationInput<EvalsOrExtendedEvals>>
+          inputs_eval_data = base::Map(
+              inputs_evaluator,
+              [&builder](const plonk::GraphEvaluator<F>& input_evaluator) {
+                return builder.ExtractEvaluationInput(
+                    input_evaluator.CreateInitialIntermediates(),
+                    input_evaluator.CreateEmptyRotations());
+              });
 
-      plonk::EvaluationInput<Evals> table_eval_data =
+      plonk::EvaluationInput<EvalsOrExtendedEvals> table_eval_data =
           builder.ExtractEvaluationInput(
               table_evaluator.CreateInitialIntermediates(),
               table_evaluator.CreateEmptyRotations());
@@ -121,7 +123,8 @@ class Evaluator {
         std::vector<F> inputs_value = base::Map(
             inputs_eval_data,
             [&inputs_evaluator, &cur_idx](
-                size_t i, plonk::EvaluationInput<Evals>& input_eval_data) {
+                size_t i,
+                plonk::EvaluationInput<EvalsOrExtendedEvals>& input_eval_data) {
               return inputs_evaluator[i].Evaluate(input_eval_data, cur_idx,
                                                   /*scale=*/1, F::Zero());
             });
@@ -175,7 +178,9 @@ class Evaluator {
   void UpdateLookupCosets(
       plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
       size_t circuit_idx) {
-    using LookupProver = Prover<typename PCS::Poly, Evals>;
+    using Poly = typename PCS::Poly;
+    using Evals = typename PCS::Evals;
+    using LookupProver = Prover<Poly, Evals>;
 
     size_t num_lookups =
         builder.lookup_provers_[circuit_idx].grand_sum_polys().size();
@@ -183,17 +188,25 @@ class Evaluator {
     lookup_sum_cosets_.resize(num_lookups);
     lookup_m_cosets_.resize(num_lookups);
     for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_sum_cosets_[i] =
-          builder.coset_domain_->FFT(lookup_prover.grand_sum_polys()[i].poly());
-      lookup_m_cosets_[i] =
-          builder.coset_domain_->FFT(lookup_prover.m_polys()[i].poly());
+      if constexpr (Vendor == plonk::halo2::Vendor::kPSE) {
+        lookup_sum_cosets_[i] =
+            plonk::CoeffToExtended(lookup_prover.grand_sum_polys()[i].poly(),
+                                   builder.extended_domain_);
+        lookup_m_cosets_[i] = plonk::CoeffToExtended(
+            lookup_prover.m_polys()[i].poly(), builder.extended_domain_);
+      } else {
+        lookup_sum_cosets_[i] = builder.coset_domain_->FFT(
+            lookup_prover.grand_sum_polys()[i].poly());
+        lookup_m_cosets_[i] =
+            builder.coset_domain_->FFT(lookup_prover.m_polys()[i].poly());
+      }
     }
   }
 
  private:
   std::vector<LookupEvaluatorsPair<F>> lookup_evaluators_pairs_;
-  std::vector<Evals> lookup_sum_cosets_;
-  std::vector<Evals> lookup_m_cosets_;
+  std::vector<EvalsOrExtendedEvals> lookup_sum_cosets_;
+  std::vector<EvalsOrExtendedEvals> lookup_m_cosets_;
 };
 
 }  // namespace tachyon::zk::lookup::log_derivative_halo2

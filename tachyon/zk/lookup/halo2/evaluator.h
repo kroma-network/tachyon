@@ -14,13 +14,14 @@
 #include "tachyon/zk/lookup/halo2/prover.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder_forward.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 
 namespace tachyon::zk::lookup::halo2 {
 
-template <typename Evals>
+template <typename EvalsOrExtendedEvals>
 class Evaluator {
  public:
-  using F = typename Evals::Field;
+  using F = typename EvalsOrExtendedEvals::Field;
 
   const std::vector<plonk::GraphEvaluator<F>>& lookup_evaluators() const {
     return lookup_evaluators_;
@@ -70,11 +71,11 @@ class Evaluator {
       absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
     for (size_t i = 0; i < lookup_evaluators_.size(); ++i) {
       const plonk::GraphEvaluator<F>& ev = lookup_evaluators_[i];
-      const Evals& input_coset = lookup_input_cosets_[i];
-      const Evals& table_coset = lookup_table_cosets_[i];
-      const Evals& product_coset = lookup_product_cosets_[i];
+      const EvalsOrExtendedEvals& input_coset = lookup_input_cosets_[i];
+      const EvalsOrExtendedEvals& table_coset = lookup_table_cosets_[i];
+      const EvalsOrExtendedEvals& product_coset = lookup_product_cosets_[i];
 
-      plonk::EvaluationInput<Evals> evaluation_input =
+      plonk::EvaluationInput<EvalsOrExtendedEvals> evaluation_input =
           builder.ExtractEvaluationInput(ev.CreateInitialIntermediates(),
                                          ev.CreateEmptyRotations());
 
@@ -133,7 +134,9 @@ class Evaluator {
   void UpdateLookupCosets(
       plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
       size_t circuit_idx) {
-    using LookupProver = Prover<typename PCS::Poly, Evals>;
+    using Poly = typename PCS::Poly;
+    using Evals = typename PCS::Evals;
+    using LookupProver = Prover<Poly, Evals>;
 
     size_t num_lookups =
         builder.lookup_provers_[circuit_idx].grand_product_polys().size();
@@ -142,20 +145,32 @@ class Evaluator {
     lookup_input_cosets_.resize(num_lookups);
     lookup_table_cosets_.resize(num_lookups);
     for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_product_cosets_[i] = builder.coset_domain_->FFT(
-          lookup_prover.grand_product_polys()[i].poly());
-      lookup_input_cosets_[i] = builder.coset_domain_->FFT(
-          lookup_prover.permuted_pairs()[i].input().poly());
-      lookup_table_cosets_[i] = builder.coset_domain_->FFT(
-          lookup_prover.permuted_pairs()[i].table().poly());
+      if constexpr (Vendor == plonk::halo2::Vendor::kPSE) {
+        lookup_product_cosets_[i] = plonk::CoeffToExtended(
+            lookup_prover.grand_product_polys()[i].poly(),
+            builder.extended_domain_);
+        lookup_input_cosets_[i] = plonk::CoeffToExtended(
+            lookup_prover.permuted_pairs()[i].input().poly(),
+            builder.extended_domain_);
+        lookup_table_cosets_[i] = plonk::CoeffToExtended(
+            lookup_prover.permuted_pairs()[i].table().poly(),
+            builder.extended_domain_);
+      } else {
+        lookup_product_cosets_[i] = builder.coset_domain_->FFT(
+            lookup_prover.grand_product_polys()[i].poly());
+        lookup_input_cosets_[i] = builder.coset_domain_->FFT(
+            lookup_prover.permuted_pairs()[i].input().poly());
+        lookup_table_cosets_[i] = builder.coset_domain_->FFT(
+            lookup_prover.permuted_pairs()[i].table().poly());
+      }
     }
   }
 
  private:
   std::vector<plonk::GraphEvaluator<F>> lookup_evaluators_;
-  std::vector<Evals> lookup_product_cosets_;
-  std::vector<Evals> lookup_input_cosets_;
-  std::vector<Evals> lookup_table_cosets_;
+  std::vector<EvalsOrExtendedEvals> lookup_product_cosets_;
+  std::vector<EvalsOrExtendedEvals> lookup_input_cosets_;
+  std::vector<EvalsOrExtendedEvals> lookup_table_cosets_;
 };
 
 }  // namespace tachyon::zk::lookup::halo2

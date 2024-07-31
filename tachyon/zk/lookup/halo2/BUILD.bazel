@@ -9,6 +9,7 @@ tachyon_cc_library(
         ":prover",
         "//tachyon/zk/plonk/vanishing:circuit_polynomial_builder_forward",
         "//tachyon/zk/plonk/vanishing:graph_evaluator",
+        "//tachyon/zk/plonk/vanishing:vanishing_utils",
     ],
 )
 

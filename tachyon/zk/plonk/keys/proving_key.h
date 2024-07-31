@@ -187,8 +187,8 @@ class ProvingKey : public Key {
       l_active_row_ = std::move(l_active_row);
     }
 
-    vanishing_argument_ =
-        VanishingArgument<LS>::Create(verifying_key_.constraint_system());
+    vanishing_argument_ = VanishingArgument<Vendor, LS>::Create(
+        verifying_key_.constraint_system());
     return true;
   }
 
@@ -204,7 +204,7 @@ class ProvingKey : public Key {
   // https://github.com/scroll-tech/halo2/blob/1070391/halo2_proofs/src/plonk.rs#L263-L272
   std::vector<ExtendedEvals> fixed_cosets_;
   PermutationProvingKey<Poly, Evals, ExtendedEvals> permutation_proving_key_;
-  VanishingArgument<LS> vanishing_argument_;
+  VanishingArgument<Vendor, LS> vanishing_argument_;
 };
 
 }  // namespace zk::plonk

@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include <memory>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -23,13 +24,17 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename LS>
+template <halo2::Vendor Vendor, typename LS>
 class VanishingArgument {
  public:
   using F = typename LS::Field;
   using Evals = typename LS::Evals;
+  using ExtendedEvals = typename LS::ExtendedEvals;
   using LookupEvaluator = typename LS::Evaluator;
   using LookupProver = typename LS::Prover;
+
+  using EvalsOrExtendedEvals =
+      std::conditional_t<Vendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;
 
   VanishingArgument() = default;
 
@@ -58,12 +63,11 @@ class VanishingArgument {
 
   const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
   const LookupEvaluator& lookup_evaluator() const { return lookup_evaluator_; }
-  const shuffle::Evaluator<Evals>& shuffle_evaluator() const {
+  const shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator() const {
     return shuffle_evaluator_;
   }
 
-  template <typename PCS, halo2::Vendor Vendor, typename Poly,
-            typename ExtendedEvals = typename PCS::ExtendedEvals>
+  template <typename PCS, typename Poly>
   ExtendedEvals BuildExtendedCircuitColumn(
       ProverBase<PCS>* prover, const ProvingKey<Vendor, LS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
@@ -88,7 +92,7 @@ class VanishingArgument {
  private:
   GraphEvaluator<F> custom_gates_;
   LookupEvaluator lookup_evaluator_;
-  shuffle::Evaluator<Evals> shuffle_evaluator_;
+  shuffle::Evaluator<EvalsOrExtendedEvals> shuffle_evaluator_;
 };
 
 }  // namespace tachyon::zk::plonk

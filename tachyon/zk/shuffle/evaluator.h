@@ -18,10 +18,10 @@
 
 namespace tachyon::zk::shuffle {
 
-template <typename Evals>
+template <typename EvalsOrExtendedEvals>
 class Evaluator {
  public:
-  using F = typename Evals::Field;
+  using F = typename EvalsOrExtendedEvals::Field;
 
   const std::vector<plonk::GraphEvaluator<F>>& shuffle_evaluators() const {
     return shuffle_evaluators_;
@@ -77,13 +77,13 @@ class Evaluator {
       const plonk::GraphEvaluator<F>& input_evaluator = shuffle_evaluators_[i];
       const plonk::GraphEvaluator<F>& shuffle_evaluator =
           shuffle_evaluators_[i + 1];
-      const Evals& product_coset = shuffle_product_cosets_[i];
+      const EvalsOrExtendedEvals& product_coset = shuffle_product_cosets_[i];
 
-      plonk::EvaluationInput<Evals> input_eval_data =
+      plonk::EvaluationInput<EvalsOrExtendedEvals> input_eval_data =
           builder.ExtractEvaluationInput(
               input_evaluator.CreateInitialIntermediates(),
               input_evaluator.CreateEmptyRotations());
-      plonk::EvaluationInput<Evals> shuffle_eval_data =
+      plonk::EvaluationInput<EvalsOrExtendedEvals> shuffle_eval_data =
           builder.ExtractEvaluationInput(
               shuffle_evaluator.CreateInitialIntermediates(),
               shuffle_evaluator.CreateEmptyRotations());
@@ -127,37 +127,29 @@ class Evaluator {
       plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
       size_t circuit_idx) {
     using Poly = typename PCS::Poly;
+    using Evals = typename PCS::Evals;
     using ShuffleProver = Prover<Poly, Evals>;
 
     size_t num_shuffles =
         builder.shuffle_provers_[circuit_idx].grand_product_polys().size();
     const ShuffleProver& shuffle_prover = builder.shuffle_provers_[circuit_idx];
     shuffle_product_cosets_.resize(num_shuffles);
+
     for (size_t i = 0; i < num_shuffles; ++i) {
-      Poly poly = shuffle_prover.grand_product_polys()[i].poly();
-      shuffle_product_cosets_[i] = builder.coset_domain_->FFT(
-          shuffle_prover.grand_product_polys()[i].poly());
-      // TODO(chokobole): Both PSE and Scroll Halo2 use coeff_to_extended() to
-      // retrieve evaluations. However, Scroll Halo2 only uses
-      // coeff_to_extended() for the shuffle argument, while other cases use
-      // coeff_to_extended_part(). Using coeff_to_extended() here makes it
-      // impossible to verify the proof in Scroll Halo2. Therefore, we use
-      // builder.coset_domain_->FFT(), which behaves similarly to
-      // coeff_to_extended_part(). This comment should be enabled when PSE Halo2
-      // support is added.
-      //
-      // ExtendedEvals extended_evals =
-      //     plonk::CoeffToExtended(std::move(poly), builder.extended_domain_);
-      // std::vector<F> evaluations =
-      // std::move(extended_evals).TakeEvaluations();
-      // evaluations.resize(builder.domain_->size());
-      // shuffle_product_cosets_[i] = Evals(std::move(evaluations));
+      if constexpr (Vendor == plonk::halo2::Vendor::kPSE) {
+        shuffle_product_cosets_[i] = plonk::CoeffToExtended(
+            shuffle_prover.grand_product_polys()[i].poly(),
+            builder.extended_domain_);
+      } else {
+        shuffle_product_cosets_[i] = builder.coset_domain_->FFT(
+            shuffle_prover.grand_product_polys()[i].poly());
+      }
     }
   }
 
  private:
   std::vector<plonk::GraphEvaluator<F>> shuffle_evaluators_;
-  std::vector<Evals> shuffle_product_cosets_;
+  std::vector<EvalsOrExtendedEvals> shuffle_product_cosets_;
 };
 
 }  // namespace tachyon::zk::shuffle

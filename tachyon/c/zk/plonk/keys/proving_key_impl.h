@@ -73,7 +73,7 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<Vendor, LS> {
       ReadBuffer(buffer, this->permutation_proving_key_.cosets_);
     }
     this->vanishing_argument_ =
-        tachyon::zk::plonk::VanishingArgument<LS>::Create(
+        tachyon::zk::plonk::VanishingArgument<Vendor, LS>::Create(
             this->verifying_key_.constraint_system_);
     CHECK(buffer.Done());
   }
