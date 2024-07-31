@@ -5,7 +5,6 @@
 #include "tachyon/zk/lookup/log_derivative_halo2/verifier.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/verifier_data.h"
 #include "tachyon/zk/lookup/type.h"
-#include "tachyon/zk/plonk/halo2/proof.h"
 
 namespace tachyon::zk::lookup::log_derivative_halo2 {
 
@@ -23,7 +22,6 @@ struct Scheme {
   using Verifier = lookup::log_derivative_halo2::Verifier<Field, Commitment>;
   using VerifierData =
       lookup::log_derivative_halo2::VerifierData<Field, Commitment>;
-  using Proof = plonk::halo2::LogDerivativeHalo2Proof<Field, Commitment>;
 
   constexpr static Type kType = Type::kLogDerivativeHalo2;
 };

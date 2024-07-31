@@ -48,7 +48,7 @@ class Verifier : public VerifierBase<PCS> {
   using Opening = crypto::PolynomialOpening<Poly, Commitment>;
   using LS = _LS;
   using LookupVerifier = typename LS::Verifier;
-  using Proof = typename LS::Proof;
+  using Proof = halo2::Proof<LS::kType, F, Commitment>;
 
   using VerifierBase<PCS>::VerifierBase;
 

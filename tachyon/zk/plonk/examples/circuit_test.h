@@ -248,7 +248,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
   }
 
   void VerifyProofTest() {
-    using Proof = typename TestArguments::LS::Proof;
+    using Proof = halo2::Proof<LS::kType, F, Commitment>;
     CHECK(this->prover_->pcs().UnsafeSetup(TestData::kN, F(2)));
     this->prover_->set_domain(Domain::Create(TestData::kN));
 

@@ -40,7 +40,7 @@ class ProofReader {
  public:
   using F = typename PCS::Field;
   using C = typename PCS::Commitment;
-  using Proof = typename LS::Proof;
+  using Proof = halo2::Proof<LS::kType, F, C>;
 
   ProofReader(const VerifyingKey<F, C>& verifying_key,
               crypto::TranscriptReader<C>* transcript, size_t num_circuits)
