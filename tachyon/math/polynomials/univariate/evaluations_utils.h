@@ -15,7 +15,7 @@
 namespace tachyon::math {
 
 template <typename F>
-std::vector<F> ReverseSliceIndexBits(const std::pmr::vector<F>& vals) {
+std::vector<F> SwapBitRevElements(const std::pmr::vector<F>& vals) {
   size_t n = vals.size();
   if (n == 0) {
     return std::vector<F>();
