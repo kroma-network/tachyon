@@ -291,6 +291,7 @@ tachyon_cc_unittest(
         "bn254_prover_unittest.cc",
         "bn254_transcript_unittest.cc",
     ],
+    tags = ["exclusive"],
     deps = [
         ":bn254_prover",
         "//tachyon/c/crypto/random:rng",

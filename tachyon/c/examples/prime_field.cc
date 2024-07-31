@@ -9,35 +9,35 @@ int main() {
   printf("Random prime field elements a and b have been generated.\n");
 
   // Addition
-  tachyon_bn254_fr sum = tachyon_bn254_fr_add(&a, &b);
+  [[maybe_unused]] tachyon_bn254_fr sum = tachyon_bn254_fr_add(&a, &b);
   printf("a + b computed.\n");
 
   // Subtraction
-  tachyon_bn254_fr difference = tachyon_bn254_fr_sub(&a, &b);
+  [[maybe_unused]] tachyon_bn254_fr difference = tachyon_bn254_fr_sub(&a, &b);
   printf("a - b computed.\n");
 
   // Multiplication
-  tachyon_bn254_fr product = tachyon_bn254_fr_mul(&a, &b);
+  [[maybe_unused]] tachyon_bn254_fr product = tachyon_bn254_fr_mul(&a, &b);
   printf("a * b computed.\n");
 
   // Division
-  tachyon_bn254_fr quotient = tachyon_bn254_fr_div(&a, &b);
+  [[maybe_unused]] tachyon_bn254_fr quotient = tachyon_bn254_fr_div(&a, &b);
   printf("a / b computed.\n");
 
   // Negation
-  tachyon_bn254_fr negation = tachyon_bn254_fr_neg(&a);
+  [[maybe_unused]] tachyon_bn254_fr negation = tachyon_bn254_fr_neg(&a);
   printf("-a computed.\n");
 
   // Doubling
-  tachyon_bn254_fr doubled = tachyon_bn254_fr_dbl(&a);
+  [[maybe_unused]] tachyon_bn254_fr doubled = tachyon_bn254_fr_dbl(&a);
   printf("2a computed.\n");
 
   // Squaring
-  tachyon_bn254_fr squared = tachyon_bn254_fr_sqr(&a);
+  [[maybe_unused]] tachyon_bn254_fr squared = tachyon_bn254_fr_sqr(&a);
   printf("a^2 computed.\n");
 
   // Inversion
-  tachyon_bn254_fr inverse = tachyon_bn254_fr_inv(&a);
+  [[maybe_unused]] tachyon_bn254_fr inverse = tachyon_bn254_fr_inv(&a);
   printf("a^-1 computed.\n");
 
   // Equality check

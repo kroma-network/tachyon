@@ -70,6 +70,7 @@ tachyon_cc_unittest(
     name = "fibonacci1_circuit_test",
     testonly = True,
     srcs = ["fibonacci1_circuit_test.cc"],
+    tags = ["exclusive"],
     deps = COMMON_TEST_DEPS + [
         "fibonacci1_circuit_test_data",
         ":fibonacci1_circuit",
@@ -80,6 +81,7 @@ tachyon_cc_unittest(
     name = "fibonacci2_circuit_test",
     testonly = True,
     srcs = ["fibonacci2_circuit_test.cc"],
+    tags = ["exclusive"],
     deps = COMMON_TEST_DEPS + [
         "fibonacci2_circuit_test_data",
         ":fibonacci2_circuit",
@@ -90,6 +92,7 @@ tachyon_cc_unittest(
     name = "fibonacci3_circuit_test",
     testonly = True,
     srcs = ["fibonacci3_circuit_test.cc"],
+    tags = ["exclusive"],
     deps = COMMON_TEST_DEPS + [
         "fibonacci3_circuit_test_data",
         ":fibonacci3_circuit",

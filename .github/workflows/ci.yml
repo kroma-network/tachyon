@@ -10,18 +10,36 @@ jobs:
   test:
     strategy:
       matrix:
+        os: [ubuntu-latest, macos-latest-xlarge]
+        build_flag: [fastbuild, opt]
+        openmp: ['openmp', 'no-openmp']
         include:
           - os: ubuntu-latest
             bazel_config: linux
           - os: macos-latest-xlarge
             bazel_config: macos_arm64
+          - openmp: 'openmp'
+            has_openmp: '--//:has_openmp'
+        exclude:
+          - build_flag: fastbuild
+            openmp: 'openmp'
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Bazel
-        uses: bazelbuild/setup-bazelisk@v3
+        uses: bazel-contrib/setup-bazel@0.8.5
+        with:
+          # Avoid downloading Bazel every time.
+          bazelisk-cache: true
+          # Share a single build cache between workflows.
+          disk-cache: ${{ matrix.os }}-${{ matrix.build_flag }}-${{ matrix.openmp }}
+          # Share repository cache between workflows.
+          repository-cache: true
+          # Enable external repositories caches
+          external-cache: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -32,11 +50,11 @@ jobs:
         run: python3 -m pip install numpy
 
       - name: Install OpenMP on linux
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.openmp == 'openmp'
         run: sudo apt-get install -y libomp-dev
 
       - name: Install OpenMP on macos
-        if: matrix.os == 'macos-latest-xlarge'
+        if: matrix.os == 'macos-latest-xlarge' && matrix.openmp == 'openmp'
         run: brew install libomp
 
       - name: Add .bazelrc.user on linux
@@ -52,37 +70,27 @@ jobs:
              echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user
 
       - name: Build
-        run: bazel build -c fastbuild //...
+        run: bazel build -c ${{ matrix.build_flag }} ${{ matrix.has_openmp }} //...
 
-      - name: Test Tachyon (fastbuild)
+      - name: Test
         # NOTE(chokobole): Test timeouts are overridden 1.5x of the default timeout due to timeout failure on GitHub Actions.
         # See https://github.com/kroma-network/tachyon/actions/runs/9581476338/job/26418352737.
-        run: bazel test -c fastbuild --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
-
-      - name: Test Tachyon (optimized)
-        run: bazel test -c opt --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
-
-      - name: Test OpenMP
-        # NOTE(TomTaehoonKim): Test timeouts are overridden 1.5x of the default timeout due to timeout failure on GitHub Actions by change in
-        # https://github.com/kroma-network/tachyon/pull/309. See https://github.com/kroma-network/tachyon/actions/runs/7984233709/job/21800735269.
-        run: bazel test -c fastbuild --//:has_openmp --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
+        run: bazel test -c ${{ matrix.build_flag }} ${{ matrix.has_openmp }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
 
       - name: Test Node Binding
         run: |
           cd tachyon/node/test
-          bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
+          bazel test --config ${{ matrix.bazel_config }} -c ${{ matrix.build_flag}} --test_output=errors //...
 
       - name: Test Py Binding
-        # TODO(chokobole): Remove this condition once we fix https://github.com/kroma-network/tachyon/issues/197.
-        if: matrix.os == 'ubuntu-latest'
         run: |
           cd tachyon/py/test
-          bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
+          bazel test --config ${{ matrix.bazel_config }} -c ${{ matrix.build_flag}} --test_output=errors //...
 
       - name: Test Circom
         run: |
           cd vendors/circom
-          CARGO_BAZEL_REPIN=true bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
+          CARGO_BAZEL_REPIN=true bazel test --config ${{ matrix.bazel_config }} -c ${{ matrix.build_flag}} --test_output=errors //...
 
   lint:
     runs-on: ubuntu-latest

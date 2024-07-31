@@ -21,21 +21,21 @@ int main() {
       tachyon_bn254_g2_jacobian_generator();
 
   // Perform addition on G1 and G2 curves
-  tachyon_bn254_g1_jacobian g1_sum =
+  [[maybe_unused]] tachyon_bn254_g1_jacobian g1_sum =
       tachyon_bn254_g1_jacobian_add(&g1_random_point, &g1_generator_point);
-  tachyon_bn254_g2_jacobian g2_sum =
+  [[maybe_unused]] tachyon_bn254_g2_jacobian g2_sum =
       tachyon_bn254_g2_jacobian_add(&g2_random_point, &g2_generator_point);
 
   // Perform negation on G1 and G2 curves
-  tachyon_bn254_g1_jacobian g1_neg =
+  [[maybe_unused]] tachyon_bn254_g1_jacobian g1_neg =
       tachyon_bn254_g1_jacobian_neg(&g1_random_point);
-  tachyon_bn254_g2_jacobian g2_neg =
+  [[maybe_unused]] tachyon_bn254_g2_jacobian g2_neg =
       tachyon_bn254_g2_jacobian_neg(&g2_random_point);
 
   // Double the points on G1 and G2 curves
-  tachyon_bn254_g1_jacobian g1_doubled =
+  [[maybe_unused]] tachyon_bn254_g1_jacobian g1_doubled =
       tachyon_bn254_g1_jacobian_dbl(&g1_random_point);
-  tachyon_bn254_g2_jacobian g2_doubled =
+  [[maybe_unused]] tachyon_bn254_g2_jacobian g2_doubled =
       tachyon_bn254_g2_jacobian_dbl(&g2_random_point);
 
   printf("Jacobian point operations on G1 and G2 curves completed.\n");
