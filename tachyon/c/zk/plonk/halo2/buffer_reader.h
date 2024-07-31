@@ -2,6 +2,7 @@
 #define TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_
 
 #include <memory>
+#include <memory_resource>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -106,6 +107,16 @@ class BufferReader<std::vector<T>> {
  public:
   static std::vector<T> Read(const tachyon::base::ReadOnlyBuffer& buffer) {
     return tachyon::base::CreateVector(ReadU32AsSizeT(buffer), [&buffer]() {
+      return BufferReader<T>::Read(buffer);
+    });
+  }
+};
+
+template <typename T>
+class BufferReader<std::pmr::vector<T>> {
+ public:
+  static std::pmr::vector<T> Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    return tachyon::base::CreatePmrVector(ReadU32AsSizeT(buffer), [&buffer]() {
       return BufferReader<T>::Read(buffer);
     });
   }

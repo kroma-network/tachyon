@@ -215,6 +215,22 @@ class MultiplicativeSemigroup {
     return ret;
   }
 
+  constexpr static std::pmr::vector<MulResult> GetSuccessivePowersPmr(
+      size_t size, const G& generator, const G& c = G::One()) {
+    std::pmr::vector<MulResult> ret(size);
+    base::Parallelize(
+        ret, [&generator, &c](absl::Span<G> chunk, size_t chunk_offset,
+                              size_t chunk_size) {
+          MulResult pow = generator.Pow(chunk_offset * chunk_size);
+          if (!c.IsOne()) pow *= c;
+          for (G& v : chunk) {
+            v = pow;
+            pow *= generator;
+          }
+        });
+    return ret;
+  }
+
   constexpr auto ExpPowOfTwo(uint32_t log_n) const {
     G val = *static_cast<const G*>(this);
     for (size_t i = 0; i < log_n; ++i) {

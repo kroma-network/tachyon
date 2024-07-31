@@ -2,6 +2,7 @@
 #define TACHYON_BASE_BUFFER_COPYABLE_H_
 
 #include <array>
+#include <memory_resource>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -133,10 +134,10 @@ class Copyable<T[N]> {
   }
 };
 
-template <typename T>
-class Copyable<std::vector<T>> {
+template <typename V, typename T = typename V::value_type>
+class CopyableVectorImpl {
  public:
-  static bool WriteTo(const std::vector<T>& values, Buffer* buffer) {
+  static bool WriteTo(const V& values, Buffer* buffer) {
     if (!buffer->Write(values.size())) return false;
     for (const T& value : values) {
       if (!buffer->Write(value)) return false;
@@ -144,7 +145,7 @@ class Copyable<std::vector<T>> {
     return true;
   }
 
-  static bool ReadFrom(const ReadOnlyBuffer& buffer, std::vector<T>* values) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, V* values) {
     size_t size;
     if (!buffer.Read(&size)) return false;
     values->resize(size);
@@ -154,13 +155,19 @@ class Copyable<std::vector<T>> {
     return true;
   }
 
-  static size_t EstimateSize(const std::vector<T>& values) {
+  static size_t EstimateSize(const V& values) {
     return std::accumulate(values.begin(), values.end(), sizeof(size_t),
                            [](size_t total, const T& value) {
                              return total + base::EstimateSize(value);
                            });
   }
 };
+
+template <typename T>
+class Copyable<std::vector<T>> : public CopyableVectorImpl<std::vector<T>> {};
+template <typename T>
+class Copyable<std::pmr::vector<T>>
+    : public CopyableVectorImpl<std::pmr::vector<T>> {};
 
 template <typename T, size_t N>
 class Copyable<std::array<T, N>> {

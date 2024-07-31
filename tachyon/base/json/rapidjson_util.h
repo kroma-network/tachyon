@@ -1,6 +1,7 @@
 #ifndef TACHYON_BASE_JSON_RAPIDJSON_UTIL_H_
 #define TACHYON_BASE_JSON_RAPIDJSON_UTIL_H_
 
+#include <memory_resource>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -237,12 +238,11 @@ class RapidJsonValueConverter<T, std::enable_if_t<std::is_enum<T>::value>> {
   }
 };
 
-template <typename T>
-class RapidJsonValueConverter<std::vector<T>> {
+template <typename V, typename T = typename V::value_type>
+class RapidJsonValueConverterVectorImpl {
  public:
   template <typename Allocator>
-  static rapidjson::Value From(const std::vector<T>& value,
-                               Allocator& allocator) {
+  static rapidjson::Value From(const V& value, Allocator& allocator) {
     rapidjson::Value array(rapidjson::kArrayType);
     for (size_t i = 0; i < value.size(); ++i) {
       array.PushBack(RapidJsonValueConverter<T>::From(value[i], allocator),
@@ -252,12 +252,12 @@ class RapidJsonValueConverter<std::vector<T>> {
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
-                 std::vector<T>* value, std::string* error) {
+                 V* value, std::string* error) {
     if (!json_value.IsArray()) {
       *error = RapidJsonMismatchedTypeError(key, "array", json_value);
       return false;
     }
-    std::vector<T> value_tmp;
+    V value_tmp;
     for (auto it = json_value.Begin(); it != json_value.End(); ++it) {
       T v;
       if (!RapidJsonValueConverter<T>::To(*it, key, &v, error)) return false;
@@ -267,6 +267,13 @@ class RapidJsonValueConverter<std::vector<T>> {
     return true;
   }
 };
+
+template <typename T>
+class RapidJsonValueConverter<std::vector<T>>
+    : public RapidJsonValueConverterVectorImpl<std::vector<T>> {};
+template <typename T>
+class RapidJsonValueConverter<std::pmr::vector<T>>
+    : public RapidJsonValueConverterVectorImpl<std::pmr::vector<T>> {};
 
 template <typename T>
 class RapidJsonValueConverter<std::optional<T>> {
