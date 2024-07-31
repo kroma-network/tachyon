@@ -61,12 +61,6 @@ class VanishingArgument {
     return evaluator;
   }
 
-  const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
-  const LookupEvaluator& lookup_evaluator() const { return lookup_evaluator_; }
-  const shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator() const {
-    return shuffle_evaluator_;
-  }
-
   template <typename PCS, typename Poly>
   ExtendedEvals BuildExtendedCircuitColumn(
       ProverBase<PCS>* prover, const ProvingKey<Vendor, LS>& proving_key,

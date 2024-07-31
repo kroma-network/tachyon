@@ -23,10 +23,6 @@ class Evaluator {
  public:
   using F = typename EvalsOrExtendedEvals::Field;
 
-  const std::vector<plonk::GraphEvaluator<F>>& shuffle_evaluators() const {
-    return shuffle_evaluators_;
-  }
-
   void Construct(const std::vector<Argument<F>>& shuffles) {
     // NOTE (chokobole): When constructing the graph, Scroll Halo2 uses beta,
     // whereas PSE Halo2 uses gamma. However, using beta here prevents the proof

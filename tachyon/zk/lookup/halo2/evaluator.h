@@ -23,10 +23,6 @@ class Evaluator {
  public:
   using F = typename EvalsOrExtendedEvals::Field;
 
-  const std::vector<plonk::GraphEvaluator<F>>& lookup_evaluators() const {
-    return lookup_evaluators_;
-  }
-
   void Construct(const std::vector<Argument<F>>& lookups) {
     lookup_evaluators_.reserve(lookups.size());
     for (const Argument<F>& lookup : lookups) {
