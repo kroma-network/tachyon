@@ -102,6 +102,8 @@ class PermutationEvaluator {
 
     size_t num_permutations =
         builder.permutation_provers_[circuit_idx].grand_product_polys().size();
+    if (num_permutations == 0) return;
+
     const PermutationProver<Poly, Evals>& prover =
         builder.permutation_provers_[circuit_idx];
     product_cosets_.resize(num_permutations);

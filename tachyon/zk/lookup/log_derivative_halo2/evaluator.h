@@ -178,6 +178,8 @@ class Evaluator {
 
     size_t num_lookups =
         builder.lookup_provers_[circuit_idx].grand_sum_polys().size();
+    if (num_lookups == 0) return;
+
     const LookupProver& prover = builder.lookup_provers_[circuit_idx];
     sum_cosets_.resize(num_lookups);
     m_cosets_.resize(num_lookups);

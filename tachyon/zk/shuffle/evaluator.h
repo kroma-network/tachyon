@@ -124,6 +124,8 @@ class Evaluator {
 
     size_t num_shuffles =
         builder.shuffle_provers_[circuit_idx].grand_product_polys().size();
+    if (num_shuffles == 0) return;
+
     const ShuffleProver& prover = builder.shuffle_provers_[circuit_idx];
     product_cosets_.resize(num_shuffles);
 

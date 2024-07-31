@@ -149,23 +149,10 @@ class CircuitPolynomialBuilder {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
                 << j + 1 << " / " << circuit_num << ")";
         custom_gate_evaluator.UpdateCosets(*this, j);
-        // Do iff there are permutation constraints.
-        if (permutation_provers_[j].grand_product_polys().size() > 0)
-          permutation_evaluator.UpdateCosets(*this, j);
-        // Do iff there are lookup constraints.
-        size_t lookup_polys_num = 0;
-        if constexpr (LS::type == lookup::Type::kHalo2) {
-          lookup_polys_num = lookup_provers_[j].grand_product_polys().size();
-        } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
-          lookup_polys_num = lookup_provers_[j].grand_sum_polys().size();
-        } else {
-          static_assert(base::AlwaysFalse<LS>);
-        }
+        permutation_evaluator.UpdateCosets(*this, j);
+        lookup_evaluator.UpdateCosets(*this, j);
+        shuffle_evaluator.UpdateCosets(*this, j);
 
-        if (lookup_polys_num > 0) lookup_evaluator.UpdateCosets(*this, j);
-        // Do iff there are shuffle constraints.
-        if (shuffle_provers_[j].grand_product_polys().size() > 0)
-          shuffle_evaluator.UpdateCosets(*this, j);
         base::Parallelize(
             value_part,
             [this, &custom_gate_evaluator, &permutation_evaluator,
