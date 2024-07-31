@@ -1,6 +1,6 @@
 use zeroize::Zeroize;
 
-#[repr(C, align(32))]
+#[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Hash, Zeroize)]
 pub struct Point2<T> {
     pub x: T,
