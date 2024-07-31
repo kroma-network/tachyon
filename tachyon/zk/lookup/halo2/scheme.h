@@ -26,7 +26,7 @@ struct Scheme {
   using Evaluator = lookup::halo2::Evaluator<Evals>;
   using Proof = plonk::halo2::Halo2Proof<Field, Commitment>;
 
-  constexpr static Type type = Type::kHalo2;
+  constexpr static Type kType = Type::kHalo2;
 };
 
 }  // namespace tachyon::zk::lookup::halo2

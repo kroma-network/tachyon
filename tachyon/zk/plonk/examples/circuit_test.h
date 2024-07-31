@@ -48,7 +48,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
 
   void ConfigureTest() {
     ConstraintSystem<F> constraint_system;
-    constraint_system.set_lookup_type(TestArguments::LS::type);
+    constraint_system.set_lookup_type(TestArguments::LS::kType);
 
     auto config = Circuit::Configure(constraint_system);
 
@@ -69,7 +69,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     const Domain* domain = this->prover_->domain();
 
     ConstraintSystem<F> constraint_system;
-    constraint_system.set_lookup_type(TestArguments::LS::type);
+    constraint_system.set_lookup_type(TestArguments::LS::kType);
 
     auto config = Circuit::Configure(constraint_system);
     Assembly<RationalEvals> assembly =
@@ -138,7 +138,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
 
     VerifyingKey<F, Commitment> vkey;
     ASSERT_TRUE(
-        vkey.Load(this->prover_.get(), circuit, TestArguments::LS::type));
+        vkey.Load(this->prover_.get(), circuit, TestArguments::LS::kType));
 
     halo2::PinnedVerifyingKey pinned_vkey(this->prover_.get(), vkey);
     EXPECT_EQ(base::ToRustDebugString(pinned_vkey),
@@ -162,7 +162,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
       if (load_verifying_key) {
         VerifyingKey<F, Commitment> vkey;
         ASSERT_TRUE(
-            vkey.Load(this->prover_.get(), circuit, TestArguments::LS::type));
+            vkey.Load(this->prover_.get(), circuit, TestArguments::LS::kType));
         ASSERT_TRUE(pkey.LoadWithVerifyingKey(this->prover_.get(), circuit,
                                               std::move(vkey)));
       } else {
@@ -256,7 +256,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
 
     VerifyingKey<F, Commitment> vkey;
     ASSERT_TRUE(
-        vkey.Load(this->prover_.get(), circuit, TestArguments::LS::type));
+        vkey.Load(this->prover_.get(), circuit, TestArguments::LS::kType));
 
     std::vector<uint8_t> owned_proof = base::ArrayToVector(TestData::kProof);
 

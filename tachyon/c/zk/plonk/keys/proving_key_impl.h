@@ -26,11 +26,11 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<Vendor, LS> {
   using C = typename LS::Commitment;
 
   ProvingKeyImpl() {
-    this->verifying_key_.constraint_system_.set_lookup_type(LS::type);
+    this->verifying_key_.constraint_system_.set_lookup_type(LS::kType);
   }
   ProvingKeyImpl(absl::Span<const uint8_t> state, bool read_only_vk)
       : read_only_vk_(read_only_vk) {
-    this->verifying_key_.constraint_system_.set_lookup_type(LS::type);
+    this->verifying_key_.constraint_system_.set_lookup_type(LS::kType);
 
     std::string_view pk_str;
     if (tachyon::base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {

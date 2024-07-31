@@ -305,7 +305,7 @@ class Verifier : public VerifierBase<PCS> {
         GetNumVanishingEvals(num_circuits, constraint_system.gates()) +
         GetNumPermutationEvals(
             num_circuits, proof.permutation_product_commitments_vec[0].size()) +
-        lookup::halo2::GetNumEvals(LS::type, num_circuits,
+        lookup::halo2::GetNumEvals(LS::kType, num_circuits,
                                    constraint_system.lookups().size()) +
         shuffle::GetNumEvals(num_circuits, constraint_system.shuffles().size());
     std::vector<F> evals;
@@ -356,7 +356,7 @@ class Verifier : public VerifierBase<PCS> {
         GetNumPermutationOpenings(
             num_circuits, proof.permutation_product_commitments_vec[0].size(),
             vkey.permutation_verifying_key().commitments().size()) +
-        lookup::halo2::GetNumOpenings(LS::type, num_circuits,
+        lookup::halo2::GetNumOpenings(LS::kType, num_circuits,
                                       constraint_system.lookups().size()) +
         shuffle::GetNumOpenings(num_circuits,
                                 constraint_system.shuffles().size());

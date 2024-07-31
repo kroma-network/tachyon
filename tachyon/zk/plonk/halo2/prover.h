@@ -108,7 +108,7 @@ class Prover : public ProverBase<PCS> {
   void CreateProof(ProvingKey<Vendor, LS>& proving_key,
                    ArgumentData<Poly, Evals>* argument_data) {
     CHECK_EQ(proving_key.verifying_key().constraint_system().lookup_type(),
-             LS::type);
+             LS::kType);
     // NOTE(chokobole): This is an entry point fom Halo2 rust. So this is the
     // earliest time to log constraint system.
     VLOG(1) << "PCS name: " << this->pcs_.Name() << ", k: " << this->pcs_.K()
@@ -138,7 +138,7 @@ class Prover : public ProverBase<PCS> {
         argument_data->ExportColumnTables(proving_key.fixed_columns());
 
     size_t commit_idx = 0;
-    if constexpr (LS::type == lookup::Type::kHalo2) {
+    if constexpr (LS::kType == lookup::Type::kHalo2) {
       LookupProver::BatchCompressPairs(lookup_provers, domain, cs.lookups(),
                                        theta, column_tables);
       LookupProver::BatchPermutePairs(lookup_provers, this);
@@ -148,7 +148,7 @@ class Prover : public ProverBase<PCS> {
             LookupProver::GetNumPermutedPairsCommitments(lookup_provers));
       }
       LookupProver::BatchCommitPermutedPairs(lookup_provers, this, commit_idx);
-    } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
+    } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
       LookupProver::BatchCompressPairs(lookup_provers, domain, cs.lookups(),
                                        theta, column_tables);
       LookupProver::BatchComputeMPolys(lookup_provers, this);
@@ -175,10 +175,10 @@ class Prover : public ProverBase<PCS> {
         permutation_provers, this, cs.permutation(), column_tables,
         cs.ComputeDegree(), proving_key.permutation_proving_key(), beta, gamma);
 
-    if constexpr (LS::type == lookup::Type::kHalo2) {
+    if constexpr (LS::kType == lookup::Type::kHalo2) {
       LookupProver::BatchCreateGrandProductPolys(lookup_provers, this, beta,
                                                  gamma);
-    } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
+    } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
       LookupProver::BatchCreateGrandSumPolys(lookup_provers, this, beta);
     } else {
       static_assert(base::AlwaysFalse<LS>);
@@ -193,10 +193,10 @@ class Prover : public ProverBase<PCS> {
 
     if constexpr (PCS::kSupportsBatchMode) {
       size_t num_lookup_poly;
-      if constexpr (LS::type == lookup::Type::kHalo2) {
+      if constexpr (LS::kType == lookup::Type::kHalo2) {
         num_lookup_poly =
             LookupProver::GetNumGrandProductPolysCommitments(lookup_provers);
-      } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
+      } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
         num_lookup_poly =
             LookupProver::GetNumGrandSumPolysCommitments(lookup_provers);
       } else {
@@ -214,10 +214,10 @@ class Prover : public ProverBase<PCS> {
     commit_idx = 0;
     PermutationProver<Poly, Evals>::BatchCommitGrandProductPolys(
         permutation_provers, this, commit_idx);
-    if constexpr (LS::type == lookup::Type::kHalo2) {
+    if constexpr (LS::kType == lookup::Type::kHalo2) {
       LookupProver::BatchCommitGrandProductPolys(lookup_provers, this,
                                                  commit_idx);
-    } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
+    } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
       LookupProver::BatchCommitGrandSumPolys(lookup_provers, this, commit_idx);
     } else {
       static_assert(base::AlwaysFalse<LS>);
@@ -339,7 +339,7 @@ class Prover : public ProverBase<PCS> {
         GetNumPermutationOpenings(
             num_circuits, permutation_provers[0].grand_product_polys().size(),
             proving_key.permutation_proving_key().permutations().size()) +
-        lookup::halo2::GetNumOpenings(LS::type, lookup_provers.size(),
+        lookup::halo2::GetNumOpenings(LS::kType, lookup_provers.size(),
                                       constraint_system.lookups().size()) +
         shuffle::GetNumOpenings(shuffle_provers.size(),
                                 constraint_system.shuffles().size());

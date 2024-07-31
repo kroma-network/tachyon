@@ -27,7 +27,7 @@ struct Scheme {
   using Evaluator = lookup::log_derivative_halo2::Evaluator<Evals>;
   using Proof = plonk::halo2::LogDerivativeHalo2Proof<Field, Commitment>;
 
-  constexpr static Type type = Type::kLogDerivativeHalo2;
+  constexpr static Type kType = Type::kLogDerivativeHalo2;
 };
 
 }  // namespace tachyon::zk::lookup::log_derivative_halo2
