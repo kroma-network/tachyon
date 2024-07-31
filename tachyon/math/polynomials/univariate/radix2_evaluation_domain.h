@@ -208,7 +208,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     CHECK_GE(log_n, log_d);
     size_t duplicity_of_initials = size_t{1} << (log_n - log_d);
     evals.evaluations_.resize(n, F::Zero());
-    SwapElements(evals, num_coeffs, log_n);
+    SwapBitRevElementsInPlace(evals, num_coeffs, log_n);
     size_t start_gap = 1;
     if (duplicity_of_initials >= kDegreeAwareFFTThresholdFactor) {
       base::ParallelizeByChunkSize(evals.evaluations_, duplicity_of_initials,
@@ -242,8 +242,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // caller to do.
   CONSTEXPR_IF_NOT_OPENMP void IFFTHelperInPlace(DensePoly& poly) const {
     InOutHelper(poly);
-    SwapElements(poly, poly.coefficients_.coefficients_.size(),
-                 this->log_size_of_group_);
+    SwapBitRevElementsInPlace(poly, poly.coefficients_.coefficients_.size(),
+                              this->log_size_of_group_);
   }
 
   template <FFTOrder Order, typename PolyOrEvals>

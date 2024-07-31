@@ -264,7 +264,7 @@ class MixedRadixEvaluationDomain
       }
     } else {
       // Swapping in place (from Storer's book)
-      SwapElements(a, n, two_adicity);
+      SwapBitRevElementsInPlace(a, n, two_adicity);
     }
 
     for (size_t i = 0; i < two_adicity; ++i) {

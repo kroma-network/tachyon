@@ -24,7 +24,7 @@ std::vector<F> ReverseSliceIndexBits(const std::pmr::vector<F>& vals) {
   size_t log_n = base::bits::Log2Ceiling(n);
 
   std::vector<F> ret(vals.begin(), vals.end());
-  SwapElements(ret, n, log_n);
+  SwapBitRevElementsInPlace(ret, n, log_n);
   return ret;
 }
 
@@ -33,7 +33,8 @@ std::vector<F> ReverseSliceIndexBits(const std::pmr::vector<F>& vals) {
 // ex. For a vector of size 8, the element at index 1(001) and the
 //     element at index 4(100) are swapped.
 template <typename Container>
-void SwapElements(Container& container, size_t size, size_t log_len) {
+void SwapBitRevElementsInPlace(Container& container, size_t size,
+                               size_t log_len) {
   OPENMP_PARALLEL_FOR(size_t idx = 1; idx < size; ++idx) {
     size_t ridx = base::bits::BitRev(idx) >> (sizeof(size_t) * 8 - log_len);
     if (idx < ridx) {
