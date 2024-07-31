@@ -29,6 +29,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Cleanup Cache
+        if: github.event.pull_request.merged == true
+        run: |
+          # get the ref key
+          ref_key="refs/pull/${{ github.event.pull_request.number }}/merge"
+
+          # delete cache
+          gh cache list --ref $ref_key --limit 100 | cut -f 1 | xargs -n1 gh cache delete
+        continue-on-error: true
+
       - name: Set up Bazel
         uses: bazel-contrib/setup-bazel@0.8.5
         with:
@@ -37,9 +47,9 @@ jobs:
           # Share a single build cache between workflows.
           disk-cache: ${{ matrix.os }}-${{ matrix.build_flag }}-${{ matrix.openmp }}
           # Share repository cache between workflows.
-          repository-cache: true
-          # Enable external repositories caches
-          external-cache: true
+          repository-cache: false
+          # Cache external repositories
+          external-cache: false
 
       - name: Setup Python
         uses: actions/setup-python@v5
