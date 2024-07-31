@@ -39,6 +39,7 @@
 #include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
+#include "tachyon/math/polynomials/univariate/evaluations_utils.h"
 #include "tachyon/math/polynomials/univariate/two_adic_subgroup.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -207,7 +208,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     CHECK_GE(log_n, log_d);
     size_t duplicity_of_initials = size_t{1} << (log_n - log_d);
     evals.evaluations_.resize(n, F::Zero());
-    this->SwapElements(evals, num_coeffs, log_n);
+    SwapElements(evals, num_coeffs, log_n);
     size_t start_gap = 1;
     if (duplicity_of_initials >= kDegreeAwareFFTThresholdFactor) {
       base::ParallelizeByChunkSize(evals.evaluations_, duplicity_of_initials,
@@ -241,8 +242,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // caller to do.
   CONSTEXPR_IF_NOT_OPENMP void IFFTHelperInPlace(DensePoly& poly) const {
     InOutHelper(poly);
-    uint32_t log_n = this->log_size_of_group_;
-    this->SwapElements(poly, poly.coefficients_.coefficients_.size(), log_n);
+    SwapElements(poly, poly.coefficients_.coefficients_.size(),
+                 this->log_size_of_group_);
   }
 
   template <FFTOrder Order, typename PolyOrEvals>
@@ -445,20 +446,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
         ApplyButterflyToRows(submat, lo, hi, twiddle, packed_twiddle);
       }
     }
-  }
-
-  CONSTEXPR_IF_NOT_OPENMP std::vector<F> ReverseSliceIndexBits(
-      const std::vector<F>& vals) {
-    size_t n = vals.size();
-    if (n == 0) {
-      return vals;
-    }
-    CHECK(base::bits::IsPowerOfTwo(n));
-    size_t log_n = base::bits::Log2Ceiling(n);
-
-    std::vector<F> ret = vals;
-    this->SwapElements(ret, n, log_n);
-    return ret;
   }
 
   CONSTEXPR_IF_NOT_OPENMP void ApplyButterflyToRows(

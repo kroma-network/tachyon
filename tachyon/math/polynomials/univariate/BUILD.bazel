@@ -9,6 +9,15 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "evaluations_utils",
+    hdrs = ["evaluations_utils.h"],
+    deps = [
+        "//tachyon/base:bits",
+        "//tachyon/base:openmp_util",
+    ],
+)
+
+tachyon_cc_library(
     name = "fft_algorithm",
     srcs = ["fft_algorithm.cc"],
     hdrs = ["fft_algorithm.h"],
@@ -32,6 +41,7 @@ tachyon_cc_library(
     name = "mixed_radix_evaluation_domain",
     hdrs = ["mixed_radix_evaluation_domain.h"],
     deps = [
+        ":evaluations_utils",
         ":univariate_evaluation_domain",
         "//tachyon/base/numerics:checked_math",
         "//tachyon/math/base/gmp:gmp_util",
@@ -53,6 +63,7 @@ tachyon_cc_library(
     name = "radix2_evaluation_domain",
     hdrs = ["radix2_evaluation_domain.h"],
     deps = [
+        ":evaluations_utils",
         ":two_adic_subgroup",
         ":univariate_evaluation_domain",
         "//tachyon/base:bits",
@@ -82,6 +93,7 @@ tachyon_cc_library(
     name = "univariate_evaluation_domain",
     hdrs = ["univariate_evaluation_domain.h"],
     deps = [
+        ":evaluations_utils",
         ":fft_algorithm",
         ":univariate_evaluation_domain_forwards",
         ":univariate_evaluations",

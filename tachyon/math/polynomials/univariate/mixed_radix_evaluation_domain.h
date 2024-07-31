@@ -30,6 +30,7 @@
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
+#include "tachyon/math/polynomials/univariate/evaluations_utils.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 
 namespace tachyon::math {
@@ -263,7 +264,7 @@ class MixedRadixEvaluationDomain
       }
     } else {
       // Swapping in place (from Storer's book)
-      UnivariateEvaluationDomain<F, MaxDegree>::SwapElements(a, n, two_adicity);
+      SwapElements(a, n, two_adicity);
     }
 
     for (size_t i = 0; i < two_adicity; ++i) {
