@@ -2,6 +2,7 @@
 #define TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_
 
 #include <memory>
+#include <memory_resource>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -111,6 +112,16 @@ class BufferReader<std::vector<T>> {
   }
 };
 
+template <typename T>
+class BufferReader<std::pmr::vector<T>> {
+ public:
+  static std::pmr::vector<T> Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    return tachyon::base::CreatePmrVector(ReadU32AsSizeT(buffer), [&buffer]() {
+      return BufferReader<T>::Read(buffer);
+    });
+  }
+};
+
 template <typename K, typename V>
 class BufferReader<absl::btree_map<K, V>> {
  public:
@@ -191,7 +202,7 @@ class BufferReader<tachyon::math::UnivariateDensePolynomial<F, MaxDegree>> {
  public:
   static tachyon::math::UnivariateDensePolynomial<F, MaxDegree> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
-    std::vector<F> coeffs;
+    std::pmr::vector<F> coeffs;
     ReadBuffer(buffer, coeffs);
     return tachyon::math::UnivariateDensePolynomial<F, MaxDegree>(
         tachyon::math::UnivariateDenseCoefficients<F, MaxDegree>(
@@ -204,7 +215,7 @@ class BufferReader<tachyon::math::UnivariateEvaluations<F, MaxDegree>> {
  public:
   static tachyon::math::UnivariateEvaluations<F, MaxDegree> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
-    std::vector<F> evals;
+    std::pmr::vector<F> evals;
     ReadBuffer(buffer, evals);
     return tachyon::math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
   }
@@ -512,14 +523,14 @@ class BufferReader<
     uint32_t k;
     CHECK(buffer.Read(&k));
     size_t n = size_t{1} << k;
-    std::vector<G1Point> g1_powers_of_tau =
-        tachyon::base::CreateVector(n, [&buffer]() {
+    std::pmr::vector<G1Point> g1_powers_of_tau =
+        tachyon::base::CreatePmrVector(n, [&buffer]() {
           G1Point point;
           ReadBuffer(buffer, point);
           return point;
         });
-    std::vector<G1Point> g1_powers_of_tau_lagrange =
-        tachyon::base::CreateVector(n, [&buffer]() {
+    std::pmr::vector<G1Point> g1_powers_of_tau_lagrange =
+        tachyon::base::CreatePmrVector(n, [&buffer]() {
           G1Point point;
           ReadBuffer(buffer, point);
           return point;

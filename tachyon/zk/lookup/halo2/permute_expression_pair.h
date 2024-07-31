@@ -8,6 +8,7 @@
 #define TACHYON_ZK_LOOKUP_HALO2_PERMUTE_EXPRESSION_PAIR_H_
 
 #include <algorithm>
+#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -32,7 +33,7 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
   size_t domain_size = prover->domain()->size();
   RowIndex usable_rows = prover->GetUsableRows();
 
-  std::vector<F> permuted_input_expressions = in.input().evaluations();
+  std::pmr::vector<F> permuted_input_expressions = in.input().evaluations();
 
   // sort input lookup expression values
   pdqsort(permuted_input_expressions.begin(),
@@ -52,7 +53,7 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
     }
   }
 
-  std::vector<F> permuted_table_expressions(domain_size);
+  std::pmr::vector<F> permuted_table_expressions(domain_size);
 
   std::vector<RowIndex> repeated_input_rows;
   repeated_input_rows.reserve(usable_rows - 1);

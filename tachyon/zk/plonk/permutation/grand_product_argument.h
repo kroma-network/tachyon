@@ -1,6 +1,7 @@
 #ifndef TACHYON_ZK_PLONK_PERMUTATION_GRAND_PRODUCT_ARGUMENT_H_
 #define TACHYON_ZK_PLONK_PERMUTATION_GRAND_PRODUCT_ARGUMENT_H_
 
+#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -44,7 +45,7 @@ class GrandProductArgument {
 
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
-    std::vector<F> z(size + 1);
+    std::pmr::vector<F> z(size + 1);
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
     for (RowIndex i = 0; i < size; ++i) {
@@ -74,7 +75,7 @@ class GrandProductArgument {
                                    size_t num_cols, F& last_z) {
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
-    std::vector<F> z(size + 1, F::One());
+    std::pmr::vector<F> z(size + 1, F::One());
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
     size_t chunk_size = base::GetNumElementsPerThread(grand_product);
@@ -105,7 +106,7 @@ class GrandProductArgument {
  private:
   template <typename PCS, typename F, typename Evals = typename PCS::Evals>
   static Evals DoCreatePoly(ProverBase<PCS>* prover, F& last_z,
-                            std::vector<F>&& grand_product) {
+                            std::pmr::vector<F>&& grand_product) {
     RowIndex usable_rows = prover->GetUsableRows();
 
     // TODO(chokobole): Apply the same optimization trick used in grand sum.

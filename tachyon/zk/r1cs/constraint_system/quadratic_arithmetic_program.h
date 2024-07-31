@@ -10,6 +10,7 @@
 
 #include <functional>
 #include <memory>
+#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -59,7 +60,7 @@ class QuadraticArithmeticProgram {
     // t(x) = xⁿ⁺ˡ⁺¹ - 1
     F t_x = domain->EvaluateVanishingPolynomial(x);
 
-    std::vector<F> l = domain->EvaluateAllLagrangeCoefficients(x);
+    std::pmr::vector<F> l = domain->EvaluateAllLagrangeCoefficients(x);
 
     // |num_qap_variables| = m = (l + 1 - 1) + m - l
     size_t num_qap_variables =
@@ -111,13 +112,13 @@ class QuadraticArithmeticProgram {
                             constraint_system.witness_assignments().begin(),
                             constraint_system.witness_assignments().end());
 
-    std::vector<F> h_poly =
+    std::pmr::vector<F> h_poly =
         WitnessMapFromMatrices(domain, matrices.value(), full_assignments);
     return {std::move(h_poly), std::move(full_assignments)};
   }
 
   template <typename Domain>
-  static std::vector<F> WitnessMapFromMatrices(
+  static std::pmr::vector<F> WitnessMapFromMatrices(
       const Domain* domain, const ConstraintMatrices<F>& matrices,
       absl::Span<const F> full_assignments) {
     using Evals = typename Domain::Evals;
@@ -125,9 +126,9 @@ class QuadraticArithmeticProgram {
 
     CHECK_GE(domain->size(), matrices.num_constraints);
 
-    std::vector<F> a(domain->size());
-    std::vector<F> b(domain->size());
-    std::vector<F> c(domain->size());
+    std::pmr::vector<F> a(domain->size());
+    std::pmr::vector<F> b(domain->size());
+    std::pmr::vector<F> c(domain->size());
 
     // clang-format off
     // |a[i]| = Σⱼ₌₀..ₘ (xⱼ * Aᵢ,ⱼ)    (if i < |num_constraints|)
@@ -202,12 +203,17 @@ class QuadraticArithmeticProgram {
                                                           size_t chunk_size) {
       size_t i = chunk_index * chunk_size;
       F x_i = x.Pow(i);
-      for (F& v : chunk) {
+
+      // NOTE: It is not possible to have empty chunk so this is safe
+      for (size_t i = 0; i < chunk.size() - 1; ++i) {
         // (xⁱ * t(x)) / δ
-        v = x_i * t_x;
-        v *= delta_inverse;
+        chunk[i] = x_i * t_x;
+        chunk[i] *= delta_inverse;
         x_i *= x;
       }
+      chunk.back() = std::move(x_i);
+      chunk.back() *= t_x;
+      chunk.back() *= delta_inverse;
     });
     return h_query;
   }

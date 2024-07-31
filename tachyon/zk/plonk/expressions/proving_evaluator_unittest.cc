@@ -1,6 +1,7 @@
 #include "tachyon/zk/plonk/expressions/proving_evaluator.h"
 
 #include <memory>
+#include <memory_resource>
 
 #include "tachyon/zk/plonk/expressions/evaluator/test/evaluator_test.h"
 #include "tachyon/zk/plonk/expressions/expression_factory.h"
@@ -18,11 +19,11 @@ using Expr = std::unique_ptr<Expression<GF7>>;
 class ProvingEvaluatorTest : public EvaluatorTest {
  public:
   void SetUp() override {
-    std::vector<GF7> evaluations;
+    std::pmr::vector<GF7> evaluations;
 
     for (size_t i = 0; i < 5; ++i) {
       evaluations =
-          base::CreateVector(kMaxDegree + 1, []() { return GF7::Random(); });
+          base::CreatePmrVector(kMaxDegree + 1, []() { return GF7::Random(); });
       fixed_columns_.push_back(Evals(evaluations));
       advice_columns_.push_back(Evals(evaluations));
       instance_columns_.push_back(Evals(evaluations));

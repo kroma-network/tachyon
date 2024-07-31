@@ -2,6 +2,7 @@
 #define VENDORS_CIRCOM_BENCHMARK_TACHYON_RUNNER_H_
 
 #include <memory>
+#include <memory_resource>
 #include <optional>
 #include <vector>
 
@@ -57,7 +58,7 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
                                       base::TimeDelta& delta) override {
     base::TimeTicks now = base::TimeTicks::Now();
 
-    std::vector<F> h_evals =
+    std::pmr::vector<F> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
             domain, coefficients_, full_assignments);
 

@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <memory_resource>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -478,7 +479,7 @@ class ConstraintSystem {
   // find which fixed column corresponds with a given |Selector|.
   //
   // Do not call this twice. Yes, this should be a builder pattern instead.
-  std::vector<std::vector<F>> CompressSelectors(
+  std::vector<std::pmr::vector<F>> CompressSelectors(
       const std::vector<std::vector<bool>>& selectors) {
     // The number of provided selector assignments must be the number we
     // counted for this constraint system.
