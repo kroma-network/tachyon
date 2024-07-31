@@ -56,7 +56,6 @@ tachyon_cc_library(
     deps = [
         ":prover",
         ":verifier",
-        ":verifier_data",
         "//tachyon/zk/lookup:type",
     ],
 )
