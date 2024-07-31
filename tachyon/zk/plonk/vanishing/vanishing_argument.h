@@ -14,13 +14,12 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/permutation/permutation_evaluator.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
-#include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
+#include "tachyon/zk/plonk/vanishing/custom_gate_evaluator.h"
 #include "tachyon/zk/shuffle/evaluator.h"
 
 namespace tachyon::zk::plonk {
@@ -42,23 +41,9 @@ class VanishingArgument {
   static VanishingArgument Create(
       const ConstraintSystem<F>& constraint_system) {
     VanishingArgument evaluator;
-
-    std::vector<ValueSource> parts;
-    for (const Gate<F>& gate : constraint_system.gates()) {
-      std::vector<ValueSource> tmp = base::Map(
-          gate.polys(),
-          [&evaluator](const std::unique_ptr<Expression<F>>& expression) {
-            return evaluator.custom_gates_.AddExpression(expression.get());
-          });
-      parts.insert(parts.end(), std::make_move_iterator(tmp.begin()),
-                   std::make_move_iterator(tmp.end()));
-    }
-    evaluator.custom_gates_.AddCalculation(Calculation::Horner(
-        ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));
-
+    evaluator.custom_gate_evaluator_.Construct(constraint_system.gates());
     evaluator.lookup_evaluator_.Construct(constraint_system.lookups());
     evaluator.shuffle_evaluator_.Construct(constraint_system.shuffles());
-
     return evaluator;
   }
 
@@ -81,12 +66,12 @@ class VanishingArgument {
             shuffle_provers);
 
     return builder.BuildExtendedCircuitColumn(
-        custom_gates_, permutation_evaluator_, lookup_evaluator_,
+        custom_gate_evaluator_, permutation_evaluator_, lookup_evaluator_,
         shuffle_evaluator_);
   }
 
  private:
-  GraphEvaluator<F> custom_gates_;
+  CustomGateEvaluator<EvalsOrExtendedEvals> custom_gate_evaluator_;
   PermutationEvaluator<EvalsOrExtendedEvals> permutation_evaluator_;
   LookupEvaluator lookup_evaluator_;
   shuffle::Evaluator<EvalsOrExtendedEvals> shuffle_evaluator_;

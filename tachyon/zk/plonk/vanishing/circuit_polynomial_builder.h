@@ -52,6 +52,9 @@ class Evaluator;
 namespace plonk {
 
 template <typename EvalsOrExtendedEvals>
+class CustomGateEvaluator;
+
+template <typename EvalsOrExtendedEvals>
 class PermutationEvaluator;
 
 // It generates "CircuitPolynomial" formed below:
@@ -125,7 +128,7 @@ class CircuitPolynomialBuilder {
   // Returns an evaluation-formed polynomial as below.
   // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
   ExtendedEvals BuildExtendedCircuitColumn(
-      const GraphEvaluator<F>& custom_gate_evaluator,
+      CustomGateEvaluator<Evals>& custom_gate_evaluator,
       PermutationEvaluator<Evals>& permutation_evaluator,
       LookupEvaluator& lookup_evaluator,
       shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
@@ -145,7 +148,7 @@ class CircuitPolynomialBuilder {
       for (size_t j = 0; j < circuit_num; ++j) {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
                 << j + 1 << " / " << circuit_num << ")";
-        UpdateTableCosets(j);
+        custom_gate_evaluator.UpdateCosets(*this, j);
         // Do iff there are permutation constraints.
         if (permutation_provers_[j].grand_product_polys().size() > 0)
           permutation_evaluator.UpdateCosets(*this, j);
@@ -168,9 +171,8 @@ class CircuitPolynomialBuilder {
             [this, &custom_gate_evaluator, &permutation_evaluator,
              &lookup_evaluator, &shuffle_evaluator](
                 absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
-              EvaluateByCustomGates(custom_gate_evaluator, chunk, chunk_offset,
-                                    chunk_size);
-
+              custom_gate_evaluator.Evaluate(*this, chunk, chunk_offset,
+                                             chunk_size);
               permutation_evaluator.Evaluate(*this, chunk, chunk_offset,
                                              chunk_size);
               lookup_evaluator.Evaluate(*this, chunk, chunk_offset, chunk_size);
@@ -187,6 +189,7 @@ class CircuitPolynomialBuilder {
   }
 
  private:
+  friend class CustomGateEvaluator<EvalsOrExtendedEvals>;
   friend class PermutationEvaluator<EvalsOrExtendedEvals>;
   friend class lookup::halo2::Evaluator<EvalsOrExtendedEvals>;
   friend class lookup::log_derivative_halo2::Evaluator<EvalsOrExtendedEvals>;
@@ -199,54 +202,10 @@ class CircuitPolynomialBuilder {
                                                  theta_, beta_, gamma_, y_, n_);
   }
 
-  void EvaluateByCustomGates(const GraphEvaluator<F>& custom_gate_evaluator,
-                             absl::Span<F> chunk, size_t chunk_offset,
-                             size_t chunk_size) {
-    EvaluationInput<EvalsOrExtendedEvals> evaluation_input =
-        ExtractEvaluationInput(
-            custom_gate_evaluator.CreateInitialIntermediates(),
-            custom_gate_evaluator.CreateEmptyRotations());
-    size_t start = chunk_offset * chunk_size;
-    for (size_t i = 0; i < chunk.size(); ++i) {
-      chunk[i] = custom_gate_evaluator.Evaluate(evaluation_input, start + i,
-                                                /*scale=*/1, chunk[i]);
-    }
-  }
-
   void UpdateLPolyCosets() {
     l_first_ = coset_domain_->FFT(proving_key_.l_first());
     l_last_ = coset_domain_->FFT(proving_key_.l_last());
     l_active_row_ = coset_domain_->FFT(proving_key_.l_active_row());
-  }
-
-  void UpdateTableCosets(size_t circuit_idx) {
-    absl::Span<const Poly> new_fixed_columns =
-        poly_tables_[circuit_idx].GetFixedColumns();
-    fixed_column_cosets_.resize(new_fixed_columns.size());
-    for (size_t i = 0; i < new_fixed_columns.size(); ++i) {
-      fixed_column_cosets_[i] = coset_domain_->FFT(new_fixed_columns[i]);
-    }
-
-    absl::Span<const Poly> new_advice_columns =
-        poly_tables_[circuit_idx].GetAdviceColumns();
-    advice_column_cosets_.resize(new_advice_columns.size());
-    for (size_t i = 0; i < new_advice_columns.size(); ++i) {
-      advice_column_cosets_[i] = coset_domain_->FFT(new_advice_columns[i]);
-    }
-
-    absl::Span<const Poly> new_instance_columns =
-        poly_tables_[circuit_idx].GetInstanceColumns();
-    instance_column_cosets_.resize(new_instance_columns.size());
-    for (size_t i = 0; i < new_instance_columns.size(); ++i) {
-      instance_column_cosets_[i] = coset_domain_->FFT(new_instance_columns[i]);
-    }
-
-    table_ = {
-        fixed_column_cosets_,
-        advice_column_cosets_,
-        instance_column_cosets_,
-        poly_tables_[circuit_idx].challenges(),
-    };
   }
 
   // not owned
@@ -279,10 +238,6 @@ class CircuitPolynomialBuilder {
   EvalsOrExtendedEvals l_first_;
   EvalsOrExtendedEvals l_last_;
   EvalsOrExtendedEvals l_active_row_;
-
-  std::vector<EvalsOrExtendedEvals> fixed_column_cosets_;
-  std::vector<EvalsOrExtendedEvals> advice_column_cosets_;
-  std::vector<EvalsOrExtendedEvals> instance_column_cosets_;
 
   MultiPhaseRefTable<EvalsOrExtendedEvals> table_;
 };
