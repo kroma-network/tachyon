@@ -72,7 +72,6 @@ class CircuitPolynomialBuilder {
   using ExtendedDomain = typename PCS::ExtendedDomain;
   using ExtendedEvals = typename PCS::ExtendedEvals;
   using LookupProver = typename LS::Prover;
-  using LookupEvaluator = typename LS::Evaluator;
 
   using EvalsOrExtendedEvals =
       std::conditional_t<Vendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;
@@ -130,7 +129,7 @@ class CircuitPolynomialBuilder {
   ExtendedEvals BuildExtendedCircuitColumn(
       CustomGateEvaluator<Evals>& custom_gate_evaluator,
       PermutationEvaluator<Evals>& permutation_evaluator,
-      LookupEvaluator& lookup_evaluator,
+      lookup::Evaluator<LS::kType, Evals>& lookup_evaluator,
       shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
     std::vector<std::vector<F>> value_parts;
     value_parts.reserve(num_parts_);

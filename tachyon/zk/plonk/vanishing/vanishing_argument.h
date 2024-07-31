@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/lookup/evaluator.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/permutation/permutation_evaluator.h"
@@ -30,7 +31,6 @@ class VanishingArgument {
   using F = typename LS::Field;
   using Evals = typename LS::Evals;
   using ExtendedEvals = typename LS::ExtendedEvals;
-  using LookupEvaluator = typename LS::Evaluator;
   using LookupProver = typename LS::Prover;
 
   using EvalsOrExtendedEvals =
@@ -73,7 +73,7 @@ class VanishingArgument {
  private:
   CustomGateEvaluator<EvalsOrExtendedEvals> custom_gate_evaluator_;
   PermutationEvaluator<EvalsOrExtendedEvals> permutation_evaluator_;
-  LookupEvaluator lookup_evaluator_;
+  lookup::Evaluator<LS::kType, EvalsOrExtendedEvals> lookup_evaluator_;
   shuffle::Evaluator<EvalsOrExtendedEvals> shuffle_evaluator_;
 };
 

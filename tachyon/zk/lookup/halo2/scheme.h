@@ -1,7 +1,6 @@
 #ifndef TACHYON_ZK_LOOKUP_HALO2_SCHEME_H_
 #define TACHYON_ZK_LOOKUP_HALO2_SCHEME_H_
 
-#include "tachyon/zk/lookup/halo2/evaluator.h"
 #include "tachyon/zk/lookup/halo2/prover.h"
 #include "tachyon/zk/lookup/halo2/verifier.h"
 #include "tachyon/zk/lookup/halo2/verifier_data.h"
@@ -23,7 +22,6 @@ struct Scheme {
   using Prover = lookup::halo2::Prover<Poly, Evals>;
   using Verifier = lookup::halo2::Verifier<Field, Commitment>;
   using VerifierData = lookup::halo2::VerifierData<Field, Commitment>;
-  using Evaluator = lookup::halo2::Evaluator<Evals>;
   using Proof = plonk::halo2::Halo2Proof<Field, Commitment>;
 
   constexpr static Type kType = Type::kHalo2;

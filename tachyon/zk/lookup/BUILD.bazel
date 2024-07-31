@@ -12,6 +12,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "evaluator",
+    hdrs = ["evaluator.h"],
+    deps = [
+        ":type",
+        "//tachyon/zk/lookup/halo2:evaluator",
+        "//tachyon/zk/lookup/log_derivative_halo2:evaluator",
+    ],
+)
+
+tachyon_cc_library(
     name = "pair",
     hdrs = ["pair.h"],
     deps = ["//tachyon/base/json"],

@@ -93,6 +93,7 @@ tachyon_cc_library(
     deps = [
         ":circuit_polynomial_builder",
         ":custom_gate_evaluator",
+        "//tachyon/zk/lookup:evaluator",
         "//tachyon/zk/plonk/constraint_system",
         "//tachyon/zk/plonk/permutation:permutation_evaluator",
         "//tachyon/zk/shuffle:evaluator",

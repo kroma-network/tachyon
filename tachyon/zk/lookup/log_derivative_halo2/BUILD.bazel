@@ -37,7 +37,6 @@ tachyon_cc_library(
     name = "scheme",
     hdrs = ["scheme.h"],
     deps = [
-        ":evaluator",
         ":prover",
         ":verifier",
         ":verifier_data",
