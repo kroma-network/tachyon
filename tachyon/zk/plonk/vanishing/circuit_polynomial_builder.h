@@ -378,12 +378,6 @@ class CircuitPolynomialBuilder {
   std::vector<EvalsOrExtendedEvals> permutation_product_cosets_;
   std::vector<EvalsOrExtendedEvals> permutation_cosets_;
 
-  std::vector<EvalsOrExtendedEvals> lookup_product_cosets_;
-  std::vector<EvalsOrExtendedEvals> lookup_input_cosets_;
-  std::vector<EvalsOrExtendedEvals> lookup_table_cosets_;
-
-  std::vector<EvalsOrExtendedEvals> shuffle_product_cosets_;
-
   std::vector<EvalsOrExtendedEvals> fixed_column_cosets_;
   std::vector<EvalsOrExtendedEvals> advice_column_cosets_;
   std::vector<EvalsOrExtendedEvals> instance_column_cosets_;
