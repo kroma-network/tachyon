@@ -2,7 +2,6 @@
 #define TACHYON_ZK_LOOKUP_HALO2_SCHEME_H_
 
 #include "tachyon/zk/lookup/halo2/prover.h"
-#include "tachyon/zk/lookup/halo2/verifier.h"
 #include "tachyon/zk/lookup/type.h"
 
 namespace tachyon::zk::lookup::halo2 {
@@ -18,7 +17,6 @@ struct Scheme {
   using Field = typename Poly::Field;
 
   using Prover = lookup::halo2::Prover<Poly, Evals>;
-  using Verifier = lookup::halo2::Verifier<Field, Commitment>;
 
   constexpr static Type kType = Type::kHalo2;
 };

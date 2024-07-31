@@ -36,8 +36,9 @@ tachyon_cc_library(
     name = "verifier",
     hdrs = ["verifier.h"],
     deps = [
-        ":argument",
-        ":verifier_traits_forward",
+        ":type",
+        "//tachyon/zk/lookup/halo2:verifier",
+        "//tachyon/zk/lookup/log_derivative_halo2:verifier",
     ],
 )
 

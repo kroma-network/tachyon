@@ -14,16 +14,14 @@
 #include "tachyon/zk/lookup/argument.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/halo2/verifier_data.h"
-#include "tachyon/zk/lookup/verifier.h"
 #include "tachyon/zk/plonk/base/l_values.h"
 #include "tachyon/zk/plonk/expressions/verifying_evaluator.h"
 #include "tachyon/zk/plonk/halo2/proof.h"
 
-namespace tachyon::zk::lookup {
-namespace halo2 {
+namespace tachyon::zk::lookup::halo2 {
 
 template <typename F, typename C>
-class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
+class Verifier {
  public:
   using Proof = plonk::halo2::Halo2Proof<F, C>;
 
@@ -34,8 +32,8 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
            const plonk::LValues<F>& l_values)
       : data_(proof.ToLookupVerifierData(circuit_idx)), l_values_(&l_values) {}
 
-  void DoEvaluate(const std::vector<Argument<F>>& arguments,
-                  std::vector<F>& evals) {
+  void Evaluate(const std::vector<Argument<F>>& arguments,
+                std::vector<F>& evals) {
     plonk::VerifyingEvaluator<F> evaluator(data_);
 
     F active_rows = F::One() - (l_values_->last + l_values_->blind);
@@ -65,8 +63,8 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
   }
 
   template <typename Poly>
-  void DoOpen(const OpeningPointSet<F>& point_set,
-              std::vector<crypto::PolynomialOpening<Poly, C>>& openings) const {
+  void Open(const OpeningPointSet<F>& point_set,
+            std::vector<crypto::PolynomialOpening<Poly, C>>& openings) const {
     if (data_.grand_product_commitments.empty()) return;
 
 #define OPENING(commitment, point, eval) \
@@ -121,13 +119,6 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
   const plonk::LValues<F>* l_values_ = nullptr;
 };
 
-}  // namespace halo2
-
-template <typename F, typename C>
-struct VerifierTraits<halo2::Verifier<F, C>> {
-  using Field = F;
-};
-
-}  // namespace tachyon::zk::lookup
+}  // namespace tachyon::zk::lookup::halo2
 
 #endif  // TACHYON_ZK_LOOKUP_HALO2_VERIFIER_H_

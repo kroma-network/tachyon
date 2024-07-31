@@ -38,7 +38,6 @@ tachyon_cc_library(
     hdrs = ["scheme.h"],
     deps = [
         ":prover",
-        ":verifier",
         "//tachyon/zk/lookup:type",
     ],
 )
@@ -50,7 +49,6 @@ tachyon_cc_library(
         ":verifier_data",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/lookup:argument",
-        "//tachyon/zk/lookup:verifier",
         "//tachyon/zk/lookup/halo2:opening_point_set",
         "//tachyon/zk/plonk/base:l_values",
         "//tachyon/zk/plonk/expressions:verifying_evaluator",
