@@ -1,7 +1,6 @@
 #ifndef TACHYON_ZK_LOOKUP_HALO2_SCHEME_H_
 #define TACHYON_ZK_LOOKUP_HALO2_SCHEME_H_
 
-#include "tachyon/zk/lookup/halo2/prover.h"
 #include "tachyon/zk/lookup/type.h"
 
 namespace tachyon::zk::lookup::halo2 {
@@ -15,8 +14,6 @@ struct Scheme {
   using ExtendedPoly = _ExtendedPoly;
   using ExtendedEvals = _ExtendedEvals;
   using Field = typename Poly::Field;
-
-  using Prover = lookup::halo2::Prover<Poly, Evals>;
 
   constexpr static Type kType = Type::kHalo2;
 };

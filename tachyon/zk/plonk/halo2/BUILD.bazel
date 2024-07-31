@@ -208,7 +208,7 @@ tachyon_cc_library(
         ":verifier",
         "//tachyon/base/types:always_false",
         "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/lookup/halo2:prover",
+        "//tachyon/zk/lookup:prover",
         "//tachyon/zk/plonk/permutation:permutation_prover",
         "//tachyon/zk/plonk/vanishing:vanishing_prover",
         "//tachyon/zk/shuffle:prover",

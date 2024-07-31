@@ -19,6 +19,7 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/zk/base/rotation.h"
+#include "tachyon/zk/lookup/prover.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/permutation/permutation_prover.h"
@@ -71,7 +72,7 @@ class CircuitPolynomialBuilder {
   using Domain = typename PCS::Domain;
   using ExtendedDomain = typename PCS::ExtendedDomain;
   using ExtendedEvals = typename PCS::ExtendedEvals;
-  using LookupProver = typename LS::Prover;
+  using LookupProver = lookup::Prover<LS::kType, Poly, Evals>;
 
   using EvalsOrExtendedEvals =
       std::conditional_t<Vendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;

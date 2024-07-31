@@ -29,9 +29,10 @@ template <halo2::Vendor Vendor, typename LS>
 class VanishingArgument {
  public:
   using F = typename LS::Field;
+  using Poly = typename LS::Poly;
   using Evals = typename LS::Evals;
   using ExtendedEvals = typename LS::ExtendedEvals;
-  using LookupProver = typename LS::Prover;
+  using LookupProver = lookup::Prover<LS::kType, Poly, Evals>;
 
   using EvalsOrExtendedEvals =
       std::conditional_t<Vendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;

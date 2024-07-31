@@ -13,6 +13,7 @@
 
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/lookup/prover.h"
 #include "tachyon/zk/plonk/halo2/argument_data.h"
 #include "tachyon/zk/plonk/halo2/c_prover_impl_base_forward.h"
 #include "tachyon/zk/plonk/halo2/random_field_generator.h"
@@ -34,7 +35,7 @@ class Prover : public ProverBase<PCS> {
   using ExtendedEvals = typename PCS::ExtendedEvals;
   using Commitment = typename PCS::Commitment;
   using LS = _LS;
-  using LookupProver = typename LS::Prover;
+  using LookupProver = lookup::Prover<LS::kType, Poly, Evals>;
 
   static Prover Create(
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,

@@ -26,8 +26,11 @@
 #include "tachyon/zk/lookup/argument.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/base/phase.h"
+#include "tachyon/zk/plonk/constraint_system/challenge.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"
 #include "tachyon/zk/plonk/constraint_system/lookup_tracker.h"
+#include "tachyon/zk/plonk/constraint_system/query.h"
+#include "tachyon/zk/plonk/expressions/expression_factory.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/shuffle/argument.h"
 
