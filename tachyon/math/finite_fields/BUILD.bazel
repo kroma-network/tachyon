@@ -334,6 +334,7 @@ tachyon_cc_unittest(
     }),
     deps = [
         ":modulus",
+        ":packed_field_traits_forward",
         ":prime_field_base",
         ":prime_field_gpu_debug",
         "//tachyon/base:auto_reset",

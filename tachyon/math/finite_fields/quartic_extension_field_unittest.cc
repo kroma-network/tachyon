@@ -1,5 +1,6 @@
 #include <optional>
 
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
@@ -252,6 +253,13 @@ TYPED_TEST(QuarticExtensionFieldTest, JsonValueConverter) {
     std::string json = base::WriteToJson(p);
     EXPECT_EQ(json, expected_json);
   }
+}
+
+TYPED_TEST(QuarticExtensionFieldTest, Hash) {
+  using F4 = TypeParam;
+
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(F4::Zero(), F4::One(), F4::Random())));
 }
 
 }  // namespace tachyon::math

@@ -1,6 +1,8 @@
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/build/build_config.h"
+#include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 #if ARCH_CPU_X86_64
@@ -238,6 +240,14 @@ TYPED_TEST(PackedPrimeFieldTest, Inverse) {
       EXPECT_EQ((*c)[i], test.a[i]);
     }
   }
+}
+
+TYPED_TEST(PackedPrimeFieldTest, Hash) {
+  using PackedPrimeField = TypeParam;
+  using F = typename PackedFieldTraits<PackedPrimeField>::Field;
+
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(F::Zero(), F::One(), F::Random())));
 }
 
 }  // namespace tachyon::math
