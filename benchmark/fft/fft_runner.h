@@ -40,10 +40,10 @@ class FFTRunner {
   explicit FFTRunner(SimpleFFTBenchmarkReporter* reporter)
       : reporter_(reporter) {}
 
-  void SetInputs(const std::vector<PolyOrEvals>* polys,
-                 std::vector<std::unique_ptr<Domain>>&& domains) {
-    polys_ = polys;
-    domains_ = std::move(domains);
+  void set_polys(absl::Span<const PolyOrEvals> polys) { polys_ = polys; }
+
+  void set_domains(absl::Span<std::unique_ptr<Domain>> domains) {
+    domains_ = domains;
   }
 
 #if TACHYON_CUDA
@@ -64,13 +64,15 @@ class FFTRunner {
                 tachyon_bn254_univariate_evaluations,
                 tachyon_bn254_univariate_dense_polynomial>>
   void Run(Fn fn, const std::vector<size_t>& degrees,
-           std::vector<RetPoly>* results) {
+           std::vector<RetPoly>* results, bool should_record) {
     for (size_t i = 0; i < degrees.size(); ++i) {
-      PolyOrEvals poly = (*polys_)[i];
+      PolyOrEvals poly = polys_[i];
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CRetPoly> ret;
       ret.reset(fn(c::base::c_cast(domains_[i].get()), c::base::c_cast(&poly)));
-      reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
+      if (should_record) {
+        reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
+      }
       results->push_back(*c::base::native_cast(ret.get()));
     }
   }
@@ -86,7 +88,7 @@ class FFTRunner {
       if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
         const F& omega_inv = domains_[i]->group_gen_inv();
         ret.reset(c::base::native_cast(
-            fn(c::base::c_cast((*polys_)[i].evaluations().data()), n,
+            fn(c::base::c_cast(polys_[i].evaluations().data()), n,
                c::base::c_cast(&omega_inv), exponents[i], &duration_in_us)));
         std::pmr::vector<F> res_vec(ret.get(), ret.get() + n);
         results->emplace_back(
@@ -95,9 +97,9 @@ class FFTRunner {
       } else if constexpr (std::is_same_v<PolyOrEvals,
                                           typename Domain::DensePoly>) {
         const F& omega = domains_[i]->group_gen();
-        ret.reset(c::base::native_cast(fn(
-            c::base::c_cast((*polys_)[i].coefficients().coefficients().data()),
-            n, c::base::c_cast(&omega), exponents[i], &duration_in_us)));
+        ret.reset(c::base::native_cast(
+            fn(c::base::c_cast(polys_[i].coefficients().coefficients().data()),
+               n, c::base::c_cast(&omega), exponents[i], &duration_in_us)));
         std::pmr::vector<F> res_vec(ret.get(), ret.get() + n);
         results->emplace_back(std::move(res_vec));
       }
@@ -108,9 +110,8 @@ class FFTRunner {
  private:
   // not owned
   SimpleFFTBenchmarkReporter* reporter_ = nullptr;
-  // not owned
-  const std::vector<PolyOrEvals>* polys_ = nullptr;
-  std::vector<std::unique_ptr<Domain>> domains_;
+  absl::Span<const PolyOrEvals> polys_;
+  absl::Span<std::unique_ptr<Domain>> domains_;
 };
 
 }  // namespace tachyon

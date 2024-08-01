@@ -17,6 +17,6 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ark-test-curves = { git = "https://github.com/kroma-network/algebra.git", rev = "53f396c" }
+ark-bn254 = { git = "https://github.com/arkworks-rs/curves.git", tag = "v0.4.0-alpha.2" }
 ark-poly = { version = "0.4.2", features = ["parallel"] }
 tachyon_rs = { path = "../../../tachyon/rs" }

@@ -31,9 +31,7 @@ rules_rust_dependencies()
 
 rust_register_toolchains(
     edition = "2021",
-    versions = [
-        "1.77.1",
-    ],
+    versions = ["nightly/2024-04-17"],
 )
 
 load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
@@ -45,15 +43,8 @@ load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository")
 crates_repository(
     name = "crate_index",
     annotations = {
-        "ring": [crate.annotation(
-            build_script_env = {
-                "CARGO_MANIFEST_LINKS": "ring_core_0_17_8",
-            },
-        )],
         "sp1-prover": [crate.annotation(
-            data = [
-                "src/fibonacci/program/elf/riscv32im-succinct-zkvm-elf",
-            ],
+            data = ["elf/riscv32im-succinct-zkvm-elf"],
         )],
     },
     cargo_lockfile = "//:Cargo.lock",
@@ -87,6 +78,7 @@ crates_repository(
             version = "0.3.9",
         ),
     },
+    rust_version = "nightly/2024-04-17",
 )
 
 load(

@@ -1,5 +1,5 @@
+use ark_bn254::Fr;
 use ark_poly::domain::{EvaluationDomain, Radix2EvaluationDomain};
-use ark_test_curves::bn254::Fr;
 use std::{mem, slice, time::Instant};
 use tachyon_rs::math::elliptic_curves::bn::bn254::Fr as CppFr;
 

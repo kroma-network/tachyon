@@ -60,14 +60,16 @@ jobs:
       - name: Add .bazelrc.user on linux
         if: matrix.os == 'ubuntu-latest'
         run: echo "build --config linux" > .bazelrc.user &&
-             echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user
+             echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user &&
+             echo "build --@rules_rust//rust/toolchain/channel=nightly" >> .bazelrc.user
 
       - name: Add .bazelrc.user on macos
         if: matrix.os == 'macos-latest-xlarge'
         run: brew install coreutils &&
              export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH" &&
              echo "build --config macos_arm64" > .bazelrc.user &&
-             echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user
+             echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user &&
+             echo "build --@rules_rust//rust/toolchain/channel=nightly" >> .bazelrc.user
 
       - name: Build
         run: bazel build -c ${{ matrix.build_flag }} ${{ matrix.has_openmp }} //...
