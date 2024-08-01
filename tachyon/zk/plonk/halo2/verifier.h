@@ -83,8 +83,8 @@ class Verifier : public VerifierBase<PCS> {
       WriteColumnsVecToTranscript(transcript, instance_columns_vec);
     }
 
-    ProofReader<PCS, LS> proof_reader(vkey, transcript,
-                                      instance_commitments_vec.size());
+    ProofReader<LS::kType, F, Commitment> proof_reader(
+        vkey, transcript, instance_commitments_vec.size());
     Proof& proof = proof_reader.proof();
     proof_reader.ReadAdviceCommitmentsVecAndChallenges();
     proof_reader.ReadTheta();

@@ -35,12 +35,10 @@ enum class ProofCursor {
   kDone,
 };
 
-template <typename PCS, typename LS>
+template <lookup::Type Type, typename F, typename C>
 class ProofReader {
  public:
-  using F = typename PCS::Field;
-  using C = typename PCS::Commitment;
-  using Proof = halo2::Proof<LS::kType, F, C>;
+  using Proof = halo2::Proof<Type, F, C>;
 
   ProofReader(const VerifyingKey<F, C>& verifying_key,
               crypto::TranscriptReader<C>* transcript, size_t num_circuits)
@@ -93,7 +91,7 @@ class ProofReader {
   void ReadLookupPreparedCommitments() {
     CHECK_EQ(cursor_, ProofCursor::kLookupPreparedCommitments);
     size_t num_lookups = verifying_key_.constraint_system().lookups().size();
-    if constexpr (LS::kType == lookup::Type::kHalo2) {
+    if constexpr (Type == lookup::Type::kHalo2) {
       proof_.lookup_permuted_commitments_vec =
           base::CreateVector(num_circuits_, [this, num_lookups]() {
             return base::CreateVector(num_lookups, [this]() {
@@ -102,12 +100,12 @@ class ProofReader {
               return lookup::Pair<C>(std::move(input), std::move(table));
             });
           });
-    } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
+    } else if constexpr (Type == lookup::Type::kLogDerivativeHalo2) {
       proof_.lookup_m_poly_commitments_vec = base::CreateVector(
           num_circuits_,
           [this, num_lookups]() { return ReadMany<C>(num_lookups); });
     } else {
-      static_assert(base::AlwaysFalse<LS>);
+      NOTREACHED();
     }
     cursor_ = ProofCursor::kBetaAndGamma;
   }
@@ -135,16 +133,16 @@ class ProofReader {
   void ReadLookupGrandCommitments() {
     CHECK_EQ(cursor_, ProofCursor::kLookupGrandCommitments);
     size_t num_lookups = verifying_key_.constraint_system().lookups().size();
-    if constexpr (LS::kType == lookup::Type::kHalo2) {
+    if constexpr (Type == lookup::Type::kHalo2) {
       proof_.lookup_product_commitments_vec = base::CreateVector(
           num_circuits_,
           [this, num_lookups]() { return ReadMany<C>(num_lookups); });
-    } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
+    } else if constexpr (Type == lookup::Type::kLogDerivativeHalo2) {
       proof_.lookup_sum_commitments_vec = base::CreateVector(
           num_circuits_,
           [this, num_lookups]() { return ReadMany<C>(num_lookups); });
     } else {
-      static_assert(base::AlwaysFalse<LS>);
+      NOTREACHED();
     }
 
     cursor_ = ProofCursor::kShuffleGrandCommitments;
@@ -258,7 +256,7 @@ class ProofReader {
   void ReadLookupEvals() {
     CHECK_EQ(cursor_, ProofCursor::kLookupEvalsVec);
 
-    if constexpr (LS::kType == lookup::Type::kHalo2) {
+    if constexpr (Type == lookup::Type::kHalo2) {
       proof_.lookup_product_evals_vec.resize(num_circuits_);
       proof_.lookup_product_next_evals_vec.resize(num_circuits_);
       proof_.lookup_permuted_input_evals_vec.resize(num_circuits_);
@@ -279,7 +277,7 @@ class ProofReader {
           proof_.lookup_permuted_table_evals_vec[i].push_back(Read<F>());
         }
       }
-    } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
+    } else if constexpr (Type == lookup::Type::kLogDerivativeHalo2) {
       proof_.lookup_sum_evals_vec.resize(num_circuits_);
       proof_.lookup_sum_next_evals_vec.resize(num_circuits_);
       proof_.lookup_m_evals_vec.resize(num_circuits_);
@@ -295,7 +293,7 @@ class ProofReader {
         }
       }
     } else {
-      static_assert(base::AlwaysFalse<LS>);
+      NOTREACHED();
     }
 
     cursor_ = ProofCursor::kShuffleEvalsVec;
