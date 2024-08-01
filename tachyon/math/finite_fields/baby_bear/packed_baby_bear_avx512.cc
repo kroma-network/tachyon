@@ -3,6 +3,8 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
+#if defined(TACHYON_HAS_AVX512)
+
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_avx512.h"
 
 #include <immintrin.h>
@@ -92,3 +94,5 @@ PackedBabyBearAVX512 PackedBabyBearAVX512::Mul(
 }
 
 }  // namespace tachyon::math
+
+#endif  // defined(TACHYON_HAS_AVX512)
