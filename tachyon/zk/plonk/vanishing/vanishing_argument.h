@@ -48,7 +48,7 @@ class VanishingArgument {
     return evaluator;
   }
 
-  template <typename PCS, typename Poly>
+  template <typename PCS>
   ExtendedEvals BuildExtendedCircuitColumn(
       ProverBase<PCS>* prover, const ProvingKey<Vendor, LS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
