@@ -30,6 +30,7 @@ class QuadraticExtensionField
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
   using BasePrimeField = typename Config::BasePrimeField;
+  using ConstIterator = typename ExtensionFieldBase<Derived>::ConstIterator;
 
   constexpr QuadraticExtensionField() = default;
   // NOTE(chokobole): This is needed by Eigen matrix.
@@ -75,6 +76,8 @@ class QuadraticExtensionField
   }
 
   constexpr std::array<BaseField, 2> ToBaseFields() const { return {c0_, c1_}; }
+
+  ConstIterator end() const { return {static_cast<const Derived&>(*this), 2}; }
 
   constexpr bool IsZero() const { return c0_.IsZero() && c1_.IsZero(); }
 

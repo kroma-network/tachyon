@@ -29,6 +29,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
   using BasePrimeField = typename Config::BasePrimeField;
+  using ConstIterator = typename ExtensionFieldBase<Derived>::ConstIterator;
 
   constexpr CubicExtensionField() = default;
   // NOTE(chokobole): This is needed by Eigen matrix.
@@ -81,6 +82,8 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
   constexpr std::array<BaseField, 3> ToBaseFields() const {
     return {c0_, c1_, c2_};
   }
+
+  ConstIterator end() const { return {static_cast<const Derived&>(*this), 3}; }
 
   constexpr bool IsZero() const {
     return c0_.IsZero() && c1_.IsZero() && c2_.IsZero();

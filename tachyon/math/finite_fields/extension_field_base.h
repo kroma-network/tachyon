@@ -6,10 +6,12 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_EXTENSION_FIELD_BASE_H_
 #define TACHYON_MATH_FINITE_FIELDS_EXTENSION_FIELD_BASE_H_
 
+#include <iterator>
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/finite_fields/extended_packed_field_traits_forward.h"
+#include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 
 namespace tachyon::math {
@@ -17,6 +19,44 @@ namespace tachyon::math {
 template <typename Derived>
 class ExtensionFieldBase {
  public:
+  class ConstIterator {
+   public:
+    using difference_type = std::ptrdiff_t;
+    using value_type = typename ExtensionFieldTraits<Derived>::BaseField;
+    using pointer = value_type*;
+    using reference = value_type&;
+    using iterator_category = std::forward_iterator_tag;
+
+    ConstIterator(const Derived& derived, size_t idx)
+        : derived_(derived), idx_(idx) {}
+
+    bool operator==(const ConstIterator& other) const {
+      return &derived_ == &other.derived_ && idx_ == other.idx_;
+    }
+    bool operator!=(const ConstIterator& other) const {
+      return !(*this == other);
+    }
+
+    ConstIterator& operator++() {
+      ++idx_;
+      return *this;
+    }
+
+    ConstIterator operator++(int) {
+      ConstIterator iterator(*this);
+      ++(*this);
+      return iterator;
+    }
+
+    const pointer operator->() const { return &derived_[idx_]; }
+
+    const value_type& operator*() const { return derived_[idx_]; }
+
+   private:
+    const Derived& derived_;
+    size_t idx_;
+  };
+
   template <
       typename T,
       typename ExtendedPackedField =
@@ -58,6 +98,10 @@ class ExtensionFieldBase {
       ret.emplace_back(ret[i] * multiplier);
     }
     return ret;
+  }
+
+  ConstIterator begin() const {
+    return {static_cast<const Derived&>(*this), 0};
   }
 };
 

@@ -42,6 +42,7 @@ tachyon_cc_library(
     hdrs = ["extension_field_base.h"],
     deps = [
         ":extended_packed_field_traits_forward",
+        ":extension_field_traits_forward",
         ":packed_field_traits_forward",
         "//tachyon/base/containers:container_util",
     ],
