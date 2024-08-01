@@ -646,6 +646,11 @@ Derived operator*(const BaseField& element,
   return static_cast<const Derived&>(f) * element;
 }
 
+template <typename H, typename Derived>
+H AbslHashValue(H h, const QuarticExtensionField<Derived>& f) {
+  return H::combine(std::move(h), f.c0(), f.c1(), f.c2(), f.c3());
+}
+
 }  // namespace math
 
 namespace base {

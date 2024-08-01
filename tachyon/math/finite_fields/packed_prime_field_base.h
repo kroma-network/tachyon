@@ -6,6 +6,7 @@
 #include <array>
 #include <optional>
 #include <string>
+#include <utility>
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/functional/callback.h"
@@ -150,6 +151,11 @@ class PackedPrimeFieldBase : public Field<Derived> {
  protected:
   std::array<PrimeField, N> values_;
 };
+
+template <typename H, typename Derived>
+H AbslHashValue(H h, const PackedPrimeFieldBase<Derived>& f) {
+  return H::combine(std::move(h), f.values());
+}
 
 }  // namespace tachyon::math
 
