@@ -43,6 +43,7 @@ int RealMain(int argc, char** argv) {
   }
 
   SimpleMSMBenchmarkReporter reporter("MSM Benchmark", config.exponents());
+  reporter.AddVendor("tachyon");
   for (const MSMConfig::Vendor vendor : config.vendors()) {
     reporter.AddVendor(MSMConfig::VendorToString(vendor));
   }

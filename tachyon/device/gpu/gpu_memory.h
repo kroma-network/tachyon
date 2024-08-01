@@ -13,6 +13,12 @@
 
 namespace tachyon::device::gpu {
 
+// Memory usage is as follows:
+// kHigh    - 90% of available memory
+// kMedium  - 80% of available memory
+// kLow     - 70% of available memory
+enum class MemoryUsage { kHigh, kMedium, kLow };
+
 enum class GpuMemoryType {
   kUnregistered,
   kDevice,
@@ -88,6 +94,8 @@ TACHYON_EXPORT gpuError_t
 GpuPointerGetAttributes(gpuPointerAttributes* attributes, const void* ptr);
 
 TACHYON_EXPORT gpuError_t GpuMemGetInfo(size_t* free, size_t* total);
+
+TACHYON_EXPORT size_t GpuMemLimitInfo(MemoryUsage type);
 
 #define COMPUTE_LEN(from, len)                                         \
   do {                                                                 \

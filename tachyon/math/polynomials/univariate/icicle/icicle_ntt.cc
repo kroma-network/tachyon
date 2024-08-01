@@ -4,6 +4,7 @@
 
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/device/gpu/gpu_enums.h"
+#include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/math/polynomials/univariate/icicle/icicle_ntt_bn254.h"
 
 namespace tachyon::math {
@@ -26,7 +27,10 @@ bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
   gpuError_t error = tachyon_bn254_initialize_domain(
       reinterpret_cast<const ::bn254::scalar_t&>(group_gen_big_int), ctx,
       options.fast_twiddles_mode);
-  if (error != gpuSuccess) return false;
+  if (error != gpuSuccess) {
+    GPU_LOG(ERROR, error) << "Failed to tachyon_bn254_initialize_domain()";
+    return false;
+  }
   VLOG(1) << "IcicleNTT is initialized";
 
   config_.reset(new ::ntt::NTTConfig<bn254::Fr>{
@@ -71,7 +75,11 @@ bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
   gpuError_t error = tachyon_bn254_ntt_cuda(
       reinterpret_cast<const ::bn254::scalar_t*>(inout), size, dir, config,
       reinterpret_cast<::bn254::scalar_t*>(inout));
-  return error == gpuSuccess;
+  if (error != gpuSuccess) {
+    GPU_LOG(ERROR, error) << "Failed to tachyon_bn254_ntt_cuda()";
+    return false;
+  }
+  return true;
 }
 
 template <>
@@ -82,7 +90,11 @@ bool IcicleNTT<bn254::Fr>::Release() {
 
   ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
   gpuError_t error = tachyon_bn254_release_domain(ctx);
-  return error == gpuSuccess;
+  if (error != gpuSuccess) {
+    GPU_LOG(ERROR, error) << "Failed to tachyon_bn254_release_domain()";
+    return false;
+  }
+  return true;
 }
 
 }  // namespace tachyon::math
