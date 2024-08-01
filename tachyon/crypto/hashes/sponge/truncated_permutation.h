@@ -22,6 +22,7 @@ class TruncatedPermutation final
  public:
   using F = typename CryptographicSpongeTraits<Derived>::F;
 
+  TruncatedPermutation() = default;
   explicit TruncatedPermutation(const Derived& derived) : derived_(derived) {}
   explicit TruncatedPermutation(Derived&& derived)
       : derived_(std::move(derived)) {}

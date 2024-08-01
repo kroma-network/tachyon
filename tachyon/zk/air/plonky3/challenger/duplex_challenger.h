@@ -21,6 +21,7 @@ class DuplexChallenger final
  public:
   using F = typename Permutation::F;
 
+  DuplexChallenger() = default;
   explicit DuplexChallenger(Permutation&& permutation)
       : permutation_(std::move(permutation)) {}
 

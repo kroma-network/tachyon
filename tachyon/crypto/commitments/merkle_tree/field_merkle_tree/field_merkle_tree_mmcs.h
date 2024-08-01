@@ -37,6 +37,7 @@ class FieldMerkleTreeMMCS final
   using ProverData = FieldMerkleTree<F, N>;
   using Proof = std::vector<Digest>;
 
+  FieldMerkleTreeMMCS() = default;
   FieldMerkleTreeMMCS(const Hasher& hasher, const PackedHasher& packed_hasher,
                       const Compressor& compressor,
                       const PackedCompressor& packed_compressor)
