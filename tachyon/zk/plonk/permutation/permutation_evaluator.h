@@ -119,19 +119,23 @@ class PermutationEvaluator {
       }
     }
 
-    if constexpr (kVendor == halo2::Vendor::kScroll) {
+    if constexpr (kVendor == halo2::Vendor::kPSE) {
+      cosets_ = builder.proving_key_.permutation_proving_key().cosets();
+    } else {
       const std::vector<Poly>& polys =
           builder.proving_key_.permutation_proving_key().polys();
-      cosets_.resize(polys.size());
+      owned_cosets_.resize(polys.size());
       for (size_t i = 0; i < polys.size(); ++i) {
-        cosets_[i] = builder.coset_domain_->FFT(polys[i]);
+        owned_cosets_[i] = builder.coset_domain_->FFT(polys[i]);
       }
+      cosets_ = absl::MakeConstSpan(owned_cosets_);
     }
   }
 
  private:
   std::vector<EvalsOrExtendedEvals> product_cosets_;
-  std::vector<EvalsOrExtendedEvals> cosets_;
+  std::vector<EvalsOrExtendedEvals> owned_cosets_;
+  absl::Span<const EvalsOrExtendedEvals> cosets_;
 };
 
 }  // namespace tachyon::zk::plonk
