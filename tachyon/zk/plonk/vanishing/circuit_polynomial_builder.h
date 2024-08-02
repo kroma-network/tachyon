@@ -170,8 +170,30 @@ class CircuitPolynomialBuilder {
       PermutationEvaluator<Evals>& permutation_evaluator,
       lookup::Evaluator<kLookupType, Evals>& lookup_evaluator,
       shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
-    NOTREACHED();
-    return {};
+    ExtendedEvals ret = extended_domain_->template Zero<ExtendedEvals>();
+    size_t circuit_num = poly_tables_.size();
+    for (size_t i = 0; i < circuit_num; ++i) {
+      VLOG(1) << "BuildExtendedCircuitColumn circuit: (" << i + 1 << " / "
+              << circuit_num << ")";
+      custom_gate_evaluator.UpdateCosets(*this, i);
+      permutation_evaluator.UpdateCosets(*this, i);
+      lookup_evaluator.UpdateCosets(*this, i);
+      shuffle_evaluator.UpdateCosets(*this, i);
+
+      base::Parallelize(
+          ret.evaluations(),
+          [this, &custom_gate_evaluator, &permutation_evaluator,
+           &lookup_evaluator, &shuffle_evaluator](
+              absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+            custom_gate_evaluator.Evaluate(*this, chunk, chunk_offset,
+                                           chunk_size);
+            permutation_evaluator.Evaluate(*this, chunk, chunk_offset,
+                                           chunk_size);
+            lookup_evaluator.Evaluate(*this, chunk, chunk_offset, chunk_size);
+            shuffle_evaluator.Evaluate(*this, chunk, chunk_offset, chunk_size);
+          });
+    }
+    return ret;
   }
 
   ExtendedEvals BuildExtendedCircuitColumnScroll(
