@@ -11,7 +11,7 @@
 namespace tachyon::base {
 
 TEST(AlignedMemoryTest, DynamicAllocation) {
-  void* p = AlignedAlloc(8, 8);
+  void *p = AlignedAlloc(8, 8);
   EXPECT_TRUE(p);
   EXPECT_TRUE(IsAligned(p, 8));
   AlignedFree(p);
@@ -34,12 +34,12 @@ TEST(AlignedMemoryTest, DynamicAllocation) {
 
 TEST(AlignedMemoryTest, ScopedDynamicAllocation) {
   std::unique_ptr<float, AlignedFreeDeleter> p(
-      static_cast<float*>(AlignedAlloc(8, 8)));
+      static_cast<float *>(AlignedAlloc(8, 8)));
   EXPECT_TRUE(p.get());
   EXPECT_TRUE(IsAligned(p.get(), 8));
 
   // Make sure IsAligned() can check const pointers as well.
-  const float* const_p = p.get();
+  const float *const_p = p.get();
   EXPECT_TRUE(IsAligned(const_p, 8));
 }
 
@@ -69,8 +69,8 @@ TEST(AlignedMemoryTest, IsAligned) {
   EXPECT_TRUE(IsAligned(0x2000, 8 << 10));
   EXPECT_TRUE(IsAligned(1, 1));
   EXPECT_TRUE(IsAligned(7, 1));
-  EXPECT_TRUE(IsAligned(reinterpret_cast<void*>(0x1000), 4 << 10));
-  EXPECT_TRUE(IsAligned(reinterpret_cast<int*>(0x1000), 4 << 10));
+  EXPECT_TRUE(IsAligned(reinterpret_cast<void *>(0x1000), 4 << 10));
+  EXPECT_TRUE(IsAligned(reinterpret_cast<int *>(0x1000), 4 << 10));
 
   EXPECT_FALSE(IsAligned(3, 2));
   EXPECT_FALSE(IsAligned(7, 4));

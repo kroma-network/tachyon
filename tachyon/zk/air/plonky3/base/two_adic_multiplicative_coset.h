@@ -96,7 +96,7 @@ class TwoAdicMultiplicativeCoset {
     // TODO(ashjeong): Reduce the number of thread joins since |evals| and |xs|
     // can be created independently.
     // Evals of Z_H(X) = Xⁿ - 1
-    std::pmr::vector<F> evals =
+    std::vector<F, base::memory::ReusingAllocator<F>> evals =
         F::GetSuccessivePowers(1 << rate_bits, domain_->group_gen(), s_pow_n);
     std::vector<F> inv_denoms_inv_zeroifier(evals.size());
     base::Parallelize(evals, [&evals, &inv_denoms_inv_zeroifier](
@@ -114,7 +114,7 @@ class TwoAdicMultiplicativeCoset {
     });
 
     size_t sz = coset.domain()->size();
-    std::pmr::vector<F> xs =
+    std::vector<F, base::memory::ReusingAllocator<F>> xs =
         F::GetSuccessivePowers(sz, coset.domain()->group_gen(), coset_shift);
 
     F coset_i = domain_->group_gen().Pow(domain_->size() - 1);

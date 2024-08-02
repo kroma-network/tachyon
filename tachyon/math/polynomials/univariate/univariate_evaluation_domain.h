@@ -8,13 +8,13 @@
 
 #include <algorithm>
 #include <memory>
-#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
 #include "tachyon/base/range.h"
@@ -232,8 +232,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // Computes the first |size| roots of unity for the entire domain.
   // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it
   // computes [1, g, g², ..., g^{(n / 2) - 1}]
-  constexpr std::pmr::vector<F> GetRootsOfUnity(size_t size,
-                                                const F& root) const {
+  constexpr std::vector<F, base::memory::ReusingAllocator<F>> GetRootsOfUnity(
+      size_t size, const F& root) const {
     return F::GetSuccessivePowers(size, root);
   }
 
@@ -273,8 +273,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // is computed in time O(m). Then given the evaluations of a degree d
   // polynomial P over H, where d < m, P(τ) can be computed as P(τ) =
   // Σ{i in m} Lᵢ_H(τ) * P(gⁱ).
-  constexpr std::pmr::vector<F> EvaluateAllLagrangeCoefficients(
-      const F& tau) const {
+  constexpr std::vector<F, base::memory::ReusingAllocator<F>>
+  EvaluateAllLagrangeCoefficients(const F& tau) const {
     return EvaluatePartialLagrangeCoefficients(
         tau, base::Range<size_t>::Until(size_));
   }
@@ -284,7 +284,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // TODO(chokobole): If we want to accept IsStartInclusive as a template
   // parameter, we need a way to get a starting index from |range|.
   template <typename T, bool IsEndInclusive>
-  constexpr std::pmr::vector<F> EvaluatePartialLagrangeCoefficients(
+  constexpr std::vector<F, base::memory::ReusingAllocator<F>>
+  EvaluatePartialLagrangeCoefficients(
       const F& tau, base::Range<T, true, IsEndInclusive> range) const {
     size_t size = range.GetSize();
     CHECK_LE(size, size_);
@@ -305,7 +306,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       // Then i-th lagrange coefficient in this case is then simply 1,
       // and all other lagrange coefficients are 0.
       // Thus we find i by brute force.
-      std::pmr::vector<F> u(size, F::Zero());
+      std::vector<F, base::memory::ReusingAllocator<F>> u(size, F::Zero());
       F omega_i = GetElement(range.from);
       for (F& u_i : u) {
         if (omega_i == tau) {
@@ -333,7 +334,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       //    = (Z_H(τ) * gᵢ * v₀)⁻¹
       F l_i = unwrap((z_h_at_tau * omega_i).Inverse()) * t;
       F negative_omega_i = -omega_i;
-      std::pmr::vector<F> lagrange_coefficients_inverse(size);
+      std::vector<F, base::memory::ReusingAllocator<F>>
+          lagrange_coefficients_inverse(size);
       base::Parallelize(
           lagrange_coefficients_inverse,
           [this, &l_i, &tau, &negative_omega_i](
@@ -433,7 +435,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   }
 
   // Returns all the elements of the domain.
-  CONSTEXPR_IF_NOT_OPENMP std::pmr::vector<F> GetElements() const {
+  CONSTEXPR_IF_NOT_OPENMP std::vector<F, base::memory::ReusingAllocator<F>>
+  GetElements() const {
     return F::GetSuccessivePowers(size_, group_gen_, offset_);
   }
 

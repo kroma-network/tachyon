@@ -1,7 +1,6 @@
 #ifndef TACHYON_BASE_JSON_RAPIDJSON_UTIL_H_
 #define TACHYON_BASE_JSON_RAPIDJSON_UTIL_H_
 
-#include <memory_resource>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -14,6 +13,7 @@
 #include "rapidjson/writer.h"
 
 #include "tachyon/base/bit_cast.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/numerics/safe_conversions.h"
 #include "tachyon/export.h"
 
@@ -272,8 +272,9 @@ template <typename T>
 class RapidJsonValueConverter<std::vector<T>>
     : public RapidJsonValueConverterVectorImpl<std::vector<T>> {};
 template <typename T>
-class RapidJsonValueConverter<std::pmr::vector<T>>
-    : public RapidJsonValueConverterVectorImpl<std::pmr::vector<T>> {};
+class RapidJsonValueConverter<std::vector<T, base::memory::ReusingAllocator<T>>>
+    : public RapidJsonValueConverterVectorImpl<
+          std::vector<T, base::memory::ReusingAllocator<T>>> {};
 
 template <typename T>
 class RapidJsonValueConverter<std::optional<T>> {

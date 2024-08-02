@@ -1,10 +1,10 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_rational_evaluations.h"
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_rational_evaluations_type_traits.h"
@@ -76,7 +76,8 @@ tachyon_bn254_univariate_rational_evaluations_batch_evaluate(
     const tachyon_bn254_univariate_rational_evaluations* rational_evals) {
   const RationalEvals& cpp_rational_eval =
       c::base::native_cast(*rational_evals);
-  std::pmr::vector<math::bn254::Fr> cpp_values(cpp_rational_eval.NumElements());
+  std::vector<math::bn254::Fr, base::memory::ReusingAllocator<math::bn254::Fr>>
+      cpp_values(cpp_rational_eval.NumElements());
   CHECK(math::RationalField<math::bn254::Fr>::BatchEvaluate(
       cpp_rational_eval.evaluations(), &cpp_values));
   Evals* cpp_evals = new Evals(Evals(std::move(cpp_values)));

@@ -8,13 +8,13 @@
 #define TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
 
 #include <memory>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
 #include "absl/types/span.h"
 
 #include "tachyon/base/containers/adapters.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/types/always_false.h"
@@ -180,7 +180,8 @@ class CircuitPolynomialBuilder {
       value_parts.push_back(std::move(value_part));
       UpdateCurrentExtendedOmega();
     }
-    std::pmr::vector<F> extended = BuildExtendedColumnWithColumns(value_parts);
+    std::vector<F, base::memory::ReusingAllocator<F>> extended =
+        BuildExtendedColumnWithColumns(value_parts);
     return ExtendedEvals(std::move(extended));
   }
 

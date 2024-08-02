@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/zk/plonk/examples/circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/circuit_test_type_traits.h"
 #include "tachyon/zk/plonk/examples/point.h"
@@ -621,8 +621,8 @@ class Fibonacci2TestData : public CircuitTestData<Circuit, PCS, LS> {
     F a(1);
     F b(1);
     F out(55);
-    std::pmr::vector<F> instance_column = {std::move(a), std::move(b),
-                                           std::move(out)};
+    std::vector<F, base::memory::ReusingAllocator<F>> instance_column = {
+        std::move(a), std::move(b), std::move(out)};
     return std::vector<Evals>{Evals(std::move(instance_column))};
   }
 };

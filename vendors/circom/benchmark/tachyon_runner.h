@@ -2,9 +2,10 @@
 #define VENDORS_CIRCOM_BENCHMARK_TACHYON_RUNNER_H_
 
 #include <memory>
-#include <memory_resource>
 #include <optional>
 #include <vector>
+
+#include "tachyon/base/memory/reusing_allocator.h"
 
 // clang-format off
 #include "benchmark/runner.h"
@@ -58,7 +59,7 @@ class TachyonRunner : public Runner<Curve, MaxDegree> {
                                       base::TimeDelta& delta) override {
     base::TimeTicks now = base::TimeTicks::Now();
 
-    std::pmr::vector<F> h_evals =
+    std::vector<F, base::memory::ReusingAllocator<F>> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
             domain, coefficients_, full_assignments);
 

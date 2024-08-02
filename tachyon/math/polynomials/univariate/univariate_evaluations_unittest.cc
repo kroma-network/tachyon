@@ -227,8 +227,9 @@ TEST_F(UnivariateEvaluationsTest, MulScalar) {
   Poly poly = Poly::Random(kMaxDegree);
   GF7 scalar = GF7::Random();
 
-  std::pmr::vector<GF7> expected_evals;
-  const std::pmr::vector<GF7>& evals = poly.evaluations();
+  std::vector<GF7, base::memory::ReusingAllocator<GF7>> expected_evals;
+  const std::vector<GF7, base::memory::ReusingAllocator<GF7>>& evals =
+      poly.evaluations();
   expected_evals.reserve(evals.size());
   for (size_t i = 0; i < evals.size(); ++i) {
     expected_evals.push_back(evals[i] * scalar);
@@ -248,8 +249,9 @@ TEST_F(UnivariateEvaluationsTest, DivScalar) {
     scalar = GF7::Random();
   }
 
-  std::pmr::vector<GF7> expected_evals;
-  const std::pmr::vector<GF7>& evals = poly.evaluations();
+  std::vector<GF7, base::memory::ReusingAllocator<GF7>> expected_evals;
+  const std::vector<GF7, base::memory::ReusingAllocator<GF7>>& evals =
+      poly.evaluations();
   expected_evals.reserve(evals.size());
   for (size_t i = 0; i < evals.size(); ++i) {
     expected_evals.push_back(unwrap(evals[i] / scalar));
@@ -278,7 +280,9 @@ TEST_F(UnivariateEvaluationsTest, Copyable) {
 
 TEST_F(UnivariateEvaluationsTest, Hash) {
   EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(std::make_tuple(
-      Poly(), Poly::Zero(), Poly({std::pmr::vector<GF7>(kMaxDegree + 1)}),
+      Poly(), Poly::Zero(),
+      Poly({std::vector<GF7, base::memory::ReusingAllocator<GF7>>(kMaxDegree +
+                                                                  1)}),
       Poly::One(kMaxDegree), Poly::Random(kMaxDegree),
       Poly::Random(kMaxDegree))));
 }

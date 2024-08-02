@@ -135,7 +135,7 @@ void CreateProof(const base::FilePath& zkey_path,
   ProverTime prover_time;
   size_t num_instance_variables = zkey->GetNumInstanceVariables();
   for (size_t i = 0; i < options.num_runs; ++i) {
-    std::pmr::vector<F> h_evals =
+    std::vector<F, base::memory::ReusingAllocator<F>> h_evals =
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
             domain.get(), coefficients, full_assignments);
     if (options.no_zk) {

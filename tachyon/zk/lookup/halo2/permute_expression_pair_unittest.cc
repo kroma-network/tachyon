@@ -7,7 +7,6 @@
 #include "tachyon/zk/lookup/halo2/permute_expression_pair.h"
 
 #include <algorithm>
-#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -15,6 +14,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/random.h"
 #include "tachyon/zk/plonk/halo2/bn254_shplonk_prover_test.h"
 
@@ -28,10 +28,10 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
   size_t n = prover_->pcs().N();
   RowIndex usable_rows = prover_->GetUsableRows();
 
-  std::pmr::vector<F> table_evals =
+  std::vector<F, base::memory::ReusingAllocator<F>> table_evals =
       base::CreatePmrVector(n, []() { return F::Random(); });
 
-  std::pmr::vector<F> input_evals =
+  std::vector<F, base::memory::ReusingAllocator<F>> input_evals =
       base::CreatePmrVector(n, [usable_rows, &table_evals]() {
         return table_evals[base::Uniform(
             base::Range<RowIndex>::Until(usable_rows))];
@@ -58,10 +58,10 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
 TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTestWrong) {
   // set input_evals not included within table_evals;
   size_t n = prover_->pcs().N();
-  std::pmr::vector<F> input_evals =
+  std::vector<F, base::memory::ReusingAllocator<F>> input_evals =
       base::CreatePmrVector(n, [](size_t i) { return F(i * 2); });
 
-  std::pmr::vector<F> table_evals =
+  std::vector<F, base::memory::ReusingAllocator<F>> table_evals =
       base::CreatePmrVector(n, [](size_t i) { return F(i * 3); });
 
   Pair<Evals> input = {Evals(std::move(input_evals)),

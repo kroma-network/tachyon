@@ -16,6 +16,7 @@ tachyon_cc_library(
         ":buffer",
         ":copyable_forward",
         "//tachyon/base:logging",
+        "//tachyon/base/memory:reusing_allocator",
         "@com_google_absl//absl/types:span",
     ],
 )

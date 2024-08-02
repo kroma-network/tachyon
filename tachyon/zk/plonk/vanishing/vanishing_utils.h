@@ -7,12 +7,12 @@
 #ifndef TACHYON_ZK_PLONK_VANISHING_VANISHING_UTILS_H_
 #define TACHYON_ZK_PLONK_VANISHING_VANISHING_UTILS_H_
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
 #include "absl/types/span.h"
 
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
@@ -103,7 +103,8 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
 
   // Multiply the inverse to obtain the quotient polynomial in the coset
   // evaluation domain.
-  std::pmr::vector<F>& evaluations = evals.evaluations();
+  std::vector<F, base::memory::ReusingAllocator<F>>& evaluations =
+      evals.evaluations();
   OPENMP_PARALLEL_FOR(size_t i = 0; i < evaluations.size(); ++i) {
     evaluations[i] *= t_evaluations[i % t_evaluations.size()];
   }
@@ -126,7 +127,8 @@ void DistributePowersZeta(Poly& poly, bool into_coset) {
   F coset_powers[] = {into_coset ? zeta : zeta_inv,
                       into_coset ? zeta_inv : zeta};
 
-  std::pmr::vector<F>& coeffs = poly.coefficients().coefficients();
+  std::vector<F, base::memory::ReusingAllocator<F>>& coeffs =
+      poly.coefficients().coefficients();
   OPENMP_PARALLEL_FOR(size_t i = 0; i < coeffs.size(); ++i) {
     size_t j = i % 3;
     if (j == 0) continue;
@@ -170,13 +172,14 @@ ExtendedPoly ExtendedToCoeff(ExtendedEvals&& evals,
 }
 
 template <typename F>
-std::pmr::vector<F> BuildExtendedColumnWithColumns(
-    const std::vector<std::vector<F>>& columns) {
+std::vector<F, base::memory::ReusingAllocator<F>>
+BuildExtendedColumnWithColumns(const std::vector<std::vector<F>>& columns) {
   CHECK(!columns.empty());
   size_t cols = columns.size();
   size_t rows = columns[0].size();
 
-  std::pmr::vector<F> flattened_transposed_columns(cols * rows);
+  std::vector<F, base::memory::ReusingAllocator<F>>
+      flattened_transposed_columns(cols * rows);
   OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < columns.size(); ++i) {
     for (size_t j = 0; j < rows; ++j) {
       flattened_transposed_columns[j * cols + i] = columns[i][j];

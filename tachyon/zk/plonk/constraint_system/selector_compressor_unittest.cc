@@ -109,19 +109,21 @@ TEST_F(SelectorCompressorTest, ConstructCombinedSelector) {
       {6, &selectors_in_[6], 7},
   };
   selector_compressor.ConstructCombinedSelector(9, before_combination);
-  std::pmr::vector<F> expected_combination_assignment = {
-      F(1), F(2), F(3), F(3), F(3), F(2), F(2), F(2), F(1)};
+  std::vector<F, base::memory::ReusingAllocator<F>>
+      expected_combination_assignment = {F(1), F(2), F(3), F(3), F(3),
+                                         F(2), F(2), F(2), F(1)};
   EXPECT_EQ(selector_compressor.combination_assignments()[0],
             expected_combination_assignment);
 }
 
 TEST_F(SelectorCompressorTest, Process) {
-  std::vector<std::pmr::vector<F>> expected_polys = {
-      {F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(1)},
-      {F(1), F(2), F(3), F(3), F(3), F(2), F(2), F(2), F(1)},
-      {F(1), F(2), F(3), F(3), F(2), F(3), F(2), F(1), F(2)},
-      {F(1), F(2), F(3), F(2), F(3), F(3), F(1), F(2), F(2)},
-  };
+  std::vector<std::vector<F, base::memory::ReusingAllocator<F>>>
+      expected_polys = {
+          {F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(1), F(1)},
+          {F(1), F(2), F(3), F(3), F(3), F(2), F(2), F(2), F(1)},
+          {F(1), F(2), F(3), F(3), F(2), F(3), F(2), F(1), F(2)},
+          {F(1), F(2), F(3), F(2), F(3), F(3), F(1), F(2), F(2)},
+      };
 
   std::vector<size_t> expected_selector_indices = {9, 0, 3, 6, 1,
                                                    4, 7, 2, 5, 8};

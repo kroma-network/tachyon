@@ -2,7 +2,6 @@
 #define VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_CIRCUIT_TEST_H_
 
 #include <memory>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -11,6 +10,7 @@
 #include "circomlib/circuit/circuit.h"
 #include "circomlib/r1cs/r1cs.h"
 #include "circomlib/zkey/zkey.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/r1cs/groth16/prove.h"
@@ -58,8 +58,9 @@ class CircuitTest : public testing::Test {
     absl::Span<const Coefficient<F>> coefficients = zkey.GetCoefficients();
 
     std::unique_ptr<Domain> domain = Domain::Create(zkey.GetDomainSize());
-    std::pmr::vector<F> h_evals = QAP::WitnessMapFromMatrices(
-        domain.get(), coefficients, full_assignments);
+    std::vector<F, base::memory::ReusingAllocator<F>> h_evals =
+        QAP::WitnessMapFromMatrices(domain.get(), coefficients,
+                                    full_assignments);
 
     size_t num_instance_variables = zkey.GetNumInstanceVariables();
     zk::r1cs::groth16::Proof<Curve> proof =

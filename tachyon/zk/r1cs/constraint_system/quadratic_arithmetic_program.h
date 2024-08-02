@@ -10,12 +10,12 @@
 
 #include <functional>
 #include <memory>
-#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/optional.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/r1cs/constraint_system/constraint_system.h"
@@ -60,7 +60,8 @@ class QuadraticArithmeticProgram {
     // t(x) = xⁿ⁺ˡ⁺¹ - 1
     F t_x = domain->EvaluateVanishingPolynomial(x);
 
-    std::pmr::vector<F> l = domain->EvaluateAllLagrangeCoefficients(x);
+    std::vector<F, base::memory::ReusingAllocator<F>> l =
+        domain->EvaluateAllLagrangeCoefficients(x);
 
     // |num_qap_variables| = m = (l + 1 - 1) + m - l
     size_t num_qap_variables =
@@ -112,23 +113,24 @@ class QuadraticArithmeticProgram {
                             constraint_system.witness_assignments().begin(),
                             constraint_system.witness_assignments().end());
 
-    std::pmr::vector<F> h_poly =
+    std::vector<F, base::memory::ReusingAllocator<F>> h_poly =
         WitnessMapFromMatrices(domain, matrices.value(), full_assignments);
     return {std::move(h_poly), std::move(full_assignments)};
   }
 
   template <typename Domain>
-  static std::pmr::vector<F> WitnessMapFromMatrices(
-      const Domain* domain, const ConstraintMatrices<F>& matrices,
-      absl::Span<const F> full_assignments) {
+  static std::vector<F, base::memory::ReusingAllocator<F>>
+  WitnessMapFromMatrices(const Domain* domain,
+                         const ConstraintMatrices<F>& matrices,
+                         absl::Span<const F> full_assignments) {
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
 
     CHECK_GE(domain->size(), matrices.num_constraints);
 
-    std::pmr::vector<F> a(domain->size());
-    std::pmr::vector<F> b(domain->size());
-    std::pmr::vector<F> c(domain->size());
+    std::vector<F, base::memory::ReusingAllocator<F>> a(domain->size());
+    std::vector<F, base::memory::ReusingAllocator<F>> b(domain->size());
+    std::vector<F, base::memory::ReusingAllocator<F>> c(domain->size());
 
     // clang-format off
     // |a[i]| = Σⱼ₌₀..ₘ (xⱼ * Aᵢ,ⱼ)    (if i < |num_constraints|)

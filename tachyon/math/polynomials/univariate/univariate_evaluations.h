@@ -8,7 +8,6 @@
 
 #include <stddef.h>
 
-#include <memory_resource>
 #include <string>
 #include <utility>
 #include <vector>
@@ -19,6 +18,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/polynomial.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
@@ -51,11 +51,12 @@ class UnivariateEvaluations final
 
   constexpr UnivariateEvaluations() = default;
   constexpr explicit UnivariateEvaluations(
-      const std::pmr::vector<F>& evaluations)
+      const std::vector<F, base::memory::ReusingAllocator<F>>& evaluations)
       : evaluations_(evaluations) {
     CHECK_LE(Degree(), MaxDegree);
   }
-  constexpr explicit UnivariateEvaluations(std::pmr::vector<F>&& evaluations)
+  constexpr explicit UnivariateEvaluations(
+      std::vector<F, base::memory::ReusingAllocator<F>>&& evaluations)
       : evaluations_(std::move(evaluations)) {
     CHECK_LE(Degree(), MaxDegree);
   }
@@ -73,7 +74,8 @@ class UnivariateEvaluations final
 
   constexpr static UnivariateEvaluations One(size_t degree) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = std::pmr::vector<F>(degree + 1, F::One());
+    ret.evaluations_ =
+        std::vector<F, base::memory::ReusingAllocator<F>>(degree + 1, F::One());
     return ret;
   }
 
@@ -82,12 +84,16 @@ class UnivariateEvaluations final
         base::CreatePmrVector(degree + 1, []() { return F::Random(); }));
   }
 
-  constexpr const std::pmr::vector<F>& evaluations() const {
+  constexpr const std::vector<F, base::memory::ReusingAllocator<F>>&
+  evaluations() const {
     return evaluations_;
   }
-  constexpr std::pmr::vector<F>& evaluations() { return evaluations_; }
+  constexpr std::vector<F, base::memory::ReusingAllocator<F>>& evaluations() {
+    return evaluations_;
+  }
 
-  constexpr std::pmr::vector<F>&& TakeEvaluations() && {
+  constexpr std::vector<F, base::memory::ReusingAllocator<F>>&&
+  TakeEvaluations() && {
     return std::move(evaluations_);
   }
 
@@ -254,11 +260,12 @@ class UnivariateEvaluations final
   // |degree| + 1.
   constexpr static UnivariateEvaluations Zero(size_t degree) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = std::pmr::vector<F>(degree + 1);
+    ret.evaluations_ =
+        std::vector<F, base::memory::ReusingAllocator<F>>(degree + 1);
     return ret;
   }
 
-  std::pmr::vector<F> evaluations_;
+  std::vector<F, base::memory::ReusingAllocator<F>> evaluations_;
 };
 
 template <typename F, size_t MaxDegree>
@@ -297,7 +304,7 @@ class Copyable<math::UnivariateEvaluations<F, MaxDegree>> {
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::UnivariateEvaluations<F, MaxDegree>* evals) {
-    std::pmr::vector<F> evals_vec;
+    std::vector<F, base::memory::ReusingAllocator<F>> evals_vec;
     if (!buffer.Read(&evals_vec)) return false;
     *evals = math::UnivariateEvaluations<F, MaxDegree>(evals_vec);
     return true;
@@ -324,7 +331,7 @@ class RapidJsonValueConverter<math::UnivariateEvaluations<F, MaxDegree>> {
   static bool To(const rapidjson::Value& json_value, std::string_view key,
                  math::UnivariateEvaluations<F, MaxDegree>* value,
                  std::string* error) {
-    std::pmr::vector<F> evals;
+    std::vector<F, base::memory::ReusingAllocator<F>> evals;
     if (!ParseJsonElement(json_value, "evaluations", &evals, error))
       return false;
     *value = math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));

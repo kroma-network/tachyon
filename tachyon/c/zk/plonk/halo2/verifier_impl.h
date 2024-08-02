@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -31,13 +30,19 @@ class VerifierImpl : public tachyon::zk::plonk::halo2::Verifier<PCS, LS> {
 
   [[nodiscard]] bool VerifyProof(
       const tachyon::zk::plonk::VerifyingKey<F, Commitment>& vkey,
-      std::vector<std::vector<std::pmr::vector<F>>>& instance_columns_vec) {
+      std::vector<std::vector<
+          std::vector<F, tachyon::base::memory::ReusingAllocator<F>>>>&
+          instance_columns_vec) {
     std::vector<std::vector<Evals>> cpp_instance_columns_vec =
         tachyon::base::Map(
             instance_columns_vec,
-            [](std::vector<std::pmr::vector<F>>& instance_columns) {
+            [](std::vector<
+                std::vector<F, tachyon::base::memory::ReusingAllocator<F>>>&
+                   instance_columns) {
               return tachyon::base::Map(
-                  instance_columns, [](std::pmr::vector<F>& instance_column) {
+                  instance_columns,
+                  [](std::vector<F, tachyon::base::memory::ReusingAllocator<F>>&
+                         instance_column) {
                     return Evals(std::move(instance_column));
                   });
             });

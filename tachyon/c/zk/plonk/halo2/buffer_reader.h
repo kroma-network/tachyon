@@ -2,7 +2,6 @@
 #define TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_
 
 #include <memory>
-#include <memory_resource>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -14,6 +13,7 @@
 #include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/math/finite_fields/cubic_extension_field.h"
@@ -113,9 +113,10 @@ class BufferReader<std::vector<T>> {
 };
 
 template <typename T>
-class BufferReader<std::pmr::vector<T>> {
+class BufferReader<std::vector<T, tachyon::base::memory::ReusingAllocator<T>>> {
  public:
-  static std::pmr::vector<T> Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+  static std::vector<T, tachyon::base::memory::ReusingAllocator<T>> Read(
+      const tachyon::base::ReadOnlyBuffer& buffer) {
     return tachyon::base::CreatePmrVector(ReadU32AsSizeT(buffer), [&buffer]() {
       return BufferReader<T>::Read(buffer);
     });
@@ -202,7 +203,7 @@ class BufferReader<tachyon::math::UnivariateDensePolynomial<F, MaxDegree>> {
  public:
   static tachyon::math::UnivariateDensePolynomial<F, MaxDegree> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
-    std::pmr::vector<F> coeffs;
+    std::vector<F, tachyon::base::memory::ReusingAllocator<F>> coeffs;
     ReadBuffer(buffer, coeffs);
     return tachyon::math::UnivariateDensePolynomial<F, MaxDegree>(
         tachyon::math::UnivariateDenseCoefficients<F, MaxDegree>(
@@ -215,7 +216,7 @@ class BufferReader<tachyon::math::UnivariateEvaluations<F, MaxDegree>> {
  public:
   static tachyon::math::UnivariateEvaluations<F, MaxDegree> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
-    std::pmr::vector<F> evals;
+    std::vector<F, tachyon::base::memory::ReusingAllocator<F>> evals;
     ReadBuffer(buffer, evals);
     return tachyon::math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
   }
@@ -523,18 +524,20 @@ class BufferReader<
     uint32_t k;
     CHECK(buffer.Read(&k));
     size_t n = size_t{1} << k;
-    std::pmr::vector<G1Point> g1_powers_of_tau =
-        tachyon::base::CreatePmrVector(n, [&buffer]() {
+    std::vector<G1Point, tachyon::base::memory::ReusingAllocator<G1Point>>
+        g1_powers_of_tau = tachyon::base::CreatePmrVector(n, [&buffer]() {
           G1Point point;
           ReadBuffer(buffer, point);
           return point;
         });
-    std::pmr::vector<G1Point> g1_powers_of_tau_lagrange =
-        tachyon::base::CreatePmrVector(n, [&buffer]() {
-          G1Point point;
-          ReadBuffer(buffer, point);
-          return point;
-        });
+
+    std::vector<G1Point, tachyon::base::memory::ReusingAllocator<G1Point>>
+        g1_powers_of_tau_lagrange =
+            tachyon::base::CreatePmrVector(n, [&buffer]() {
+              G1Point point;
+              ReadBuffer(buffer, point);
+              return point;
+            });
 
     // NOTE(dongchangYoo): read |g2| but do not use it.
     G2Point g2;

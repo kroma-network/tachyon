@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <memory>
-#include <memory_resource>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -28,6 +27,7 @@
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/row_types.h"
 #include "tachyon/zk/lookup/argument.h"
@@ -479,8 +479,8 @@ class ConstraintSystem {
   // find which fixed column corresponds with a given |Selector|.
   //
   // Do not call this twice. Yes, this should be a builder pattern instead.
-  std::vector<std::pmr::vector<F>> CompressSelectors(
-      const std::vector<std::vector<bool>>& selectors) {
+  std::vector<std::vector<F, base::memory::ReusingAllocator<F>>>
+  CompressSelectors(const std::vector<std::vector<bool>>& selectors) {
     // The number of provided selector assignments must be the number we
     // counted for this constraint system.
     CHECK_EQ(selectors.size(), GetNumSelectors());

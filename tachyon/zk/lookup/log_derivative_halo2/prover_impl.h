@@ -8,11 +8,11 @@
 
 #include <algorithm>
 #include <memory>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/prover.h"
@@ -121,7 +121,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
   }
 
   // Convert atomic |m_values| to |Evals|.
-  std::pmr::vector<F> m_values(prover->pcs().N());
+  std::vector<F, base::memory::ReusingAllocator<F>> m_values(prover->pcs().N());
   OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
     m_values[i] =
         F(storage.m_values_atomic[i].exchange(0, std::memory_order_relaxed));
@@ -220,7 +220,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
   // 1 / τ(X)
   ComputeLogDerivatives(compressed_table, beta, storage.table_log_derivatives);
 
-  std::pmr::vector<F> grand_sum(n);
+  std::vector<F, base::memory::ReusingAllocator<F>> grand_sum(n);
   grand_sum[0] = F::Zero();
 
   // (Σ 1/φᵢ(X)) - m(X) / τ(X)

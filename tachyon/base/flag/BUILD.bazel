@@ -16,6 +16,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base/containers:contains",
         "//tachyon/base/files:file_path",
+        "//tachyon/base/memory:reusing_allocator",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
         "@com_google_googletest//:gtest_prod",

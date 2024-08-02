@@ -9,7 +9,6 @@
 #include <stddef.h>
 
 #include <functional>
-#include <memory_resource>
 #include <numeric>
 #include <sstream>
 #include <string>
@@ -21,6 +20,7 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/univariate/support_poly_operators.h"
@@ -50,14 +50,16 @@ class UnivariateDenseCoefficients {
 
   constexpr UnivariateDenseCoefficients() = default;
   constexpr explicit UnivariateDenseCoefficients(
-      const std::pmr::vector<F>& coefficients, bool cleanup = false)
+      const std::vector<F, base::memory::ReusingAllocator<F>>& coefficients,
+      bool cleanup = false)
       : coefficients_(coefficients) {
     if (cleanup) RemoveHighDegreeZeros();
     CHECK_LE(Degree(), kMaxDegree);
   }
 
   constexpr explicit UnivariateDenseCoefficients(
-      std::pmr::vector<F>&& coefficients, bool cleanup = false)
+      std::vector<F, base::memory::ReusingAllocator<F>>&& coefficients,
+      bool cleanup = false)
       : coefficients_(std::move(coefficients)) {
     if (cleanup) RemoveHighDegreeZeros();
     CHECK_LE(Degree(), kMaxDegree);
@@ -72,7 +74,7 @@ class UnivariateDenseCoefficients {
   }
 
   constexpr static UnivariateDenseCoefficients Random(size_t degree) {
-    std::pmr::vector<F> v =
+    std::vector<F, base::memory::ReusingAllocator<F>> v =
         base::CreatePmrVector(degree + 1, []() { return F::Random(); });
     if (v[degree].IsZero()) {
       v[degree] = F::One();
@@ -108,7 +110,8 @@ class UnivariateDenseCoefficients {
     // i = 3 | x₀x₁x₂x₃ | -(x₀x₁x₂ + x₀x₁x₃ + x₀x₂x₃ + x₁x₂x₃) | x₀x₁ + x₀x₂ + x₀x₃ + x₁x₂ + x₁x₃ + x₂x₃ | -(x₀ + x₁ + x₂ + x₃) |    1 |
     // clang-format on
 
-    std::pmr::vector<F> coefficients(std::size(roots) + 1);
+    std::vector<F, base::memory::ReusingAllocator<F>> coefficients(
+        std::size(roots) + 1);
     coefficients[0] = F::One();
     for (size_t i = 0; i < std::size(roots); ++i) {
       for (size_t j = i + 1; j > 0; --j) {
@@ -122,12 +125,15 @@ class UnivariateDenseCoefficients {
     return ret;
   }
 
-  constexpr const std::pmr::vector<F>& coefficients() const {
+  constexpr const std::vector<F, base::memory::ReusingAllocator<F>>&
+  coefficients() const {
     return coefficients_;
   }
-  constexpr std::pmr::vector<F>& coefficients() { return coefficients_; }
+  constexpr std::vector<F, base::memory::ReusingAllocator<F>>& coefficients() {
+    return coefficients_;
+  }
 
-  std::pmr::vector<F>&& TakeCoefficients() && {
+  std::vector<F, base::memory::ReusingAllocator<F>>&& TakeCoefficients() && {
     return std::move(coefficients_);
   }
 
@@ -183,7 +189,8 @@ class UnivariateDenseCoefficients {
   CONSTEXPR_IF_NOT_OPENMP UnivariateDenseCoefficients
   Fold(const Field& r) const {
     size_t size = coefficients_.size();
-    std::pmr::vector<F> coefficients((size + 1) >> 1);
+    std::vector<F, base::memory::ReusingAllocator<F>> coefficients((size + 1) >>
+                                                                   1);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += 2) {
       coefficients[i >> 1] = coefficients_[i + 1] * r;
       coefficients[i >> 1] += coefficients_[i];
@@ -247,7 +254,8 @@ class UnivariateDenseCoefficients {
   // with |IsZero()|, it returns false. So please use it carefully!
   constexpr static UnivariateDenseCoefficients Zero(size_t degree) {
     UnivariateDenseCoefficients ret;
-    ret.coefficients_ = std::pmr::vector<F>(degree + 1);
+    ret.coefficients_ =
+        std::vector<F, base::memory::ReusingAllocator<F>>(degree + 1);
     return ret;
   }
 
@@ -279,7 +287,7 @@ class UnivariateDenseCoefficients {
                            });
   }
 
-  std::pmr::vector<F> coefficients_;
+  std::vector<F, base::memory::ReusingAllocator<F>> coefficients_;
 };
 
 template <typename H, typename F, size_t MaxDegree>
@@ -315,7 +323,7 @@ class Copyable<math::UnivariateDenseCoefficients<F, MaxDegree>> {
   static bool ReadFrom(
       const ReadOnlyBuffer& buffer,
       math::UnivariateDenseCoefficients<F, MaxDegree>* coeffs) {
-    std::pmr::vector<F> raw_coeff;
+    std::vector<F, base::memory::ReusingAllocator<F>> raw_coeff;
     if (!buffer.Read(&raw_coeff)) return false;
     *coeffs =
         math::UnivariateDenseCoefficients<F, MaxDegree>(std::move(raw_coeff));
@@ -343,7 +351,7 @@ class RapidJsonValueConverter<math::UnivariateDenseCoefficients<F, MaxDegree>> {
   static bool To(const rapidjson::Value& json_value, std::string_view key,
                  math::UnivariateDenseCoefficients<F, MaxDegree>* value,
                  std::string* error) {
-    std::pmr::vector<F> coeffs;
+    std::vector<F, base::memory::ReusingAllocator<F>> coeffs;
     if (!ParseJsonElement(json_value, "coefficients", &coeffs, error))
       return false;
     *value = math::UnivariateDenseCoefficients<F, MaxDegree>(std::move(coeffs));

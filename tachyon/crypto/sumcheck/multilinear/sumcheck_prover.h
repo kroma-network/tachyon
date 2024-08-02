@@ -6,10 +6,10 @@
 #ifndef TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_PROVER_H_
 #define TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_PROVER_H_
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/crypto/sumcheck/multilinear/sumcheck_prover_msg.h"
 #include "tachyon/crypto/sumcheck/multilinear/sumcheck_proving_key.h"
 #include "tachyon/crypto/sumcheck/multilinear/sumcheck_verifier_msg.h"
@@ -97,8 +97,10 @@ class SumcheckProver {
     size_t chunk_size = (size + thread_nums - 1) / thread_nums;
     size_t num_chunks = (size + chunk_size - 1) / chunk_size;
 
-    std::vector<std::pmr::vector<F>> finished_evaluations(
-        num_chunks, std::pmr::vector<F>(max_evaluations_ + 1, F::Zero()));
+    std::vector<std::vector<F, base::memory::ReusingAllocator<F>>>
+        finished_evaluations(num_chunks,
+                             std::vector<F, base::memory::ReusingAllocator<F>>(
+                                 max_evaluations_ + 1, F::Zero()));
 
     OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
       size_t begin = i * chunk_size;

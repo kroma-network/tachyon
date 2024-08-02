@@ -6,9 +6,9 @@
 
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 
-#include <memory_resource>
 #include <vector>
 
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
@@ -43,7 +43,8 @@ TEST_F(VanishingUtilsTest, BuildExtendedColumnWithColumns) {
   std::vector<std::vector<F>> columns =
       base::CreateVector(4, [](size_t i) { return std::vector<F>(N, F(i)); });
 
-  std::pmr::vector<F> extended = BuildExtendedColumnWithColumns(columns);
+  std::vector<F, base::memory::ReusingAllocator<F>> extended =
+      BuildExtendedColumnWithColumns(columns);
   EXPECT_EQ(extended.size(), 4 * N);
   for (size_t i = 0; i < extended.size(); ++i) {
     EXPECT_EQ(F(i % 4), extended[i]);

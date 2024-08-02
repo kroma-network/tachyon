@@ -26,7 +26,7 @@ TEST_F(CompressExpressionTest, CompressExpressions) {
 
   size_t n = prover_->pcs().N();
   ProvingEvaluator<Evals> evaluator = evaluator_;
-  std::pmr::vector<F> expected(n);
+  std::vector<F, base::memory::ReusingAllocator<F>> expected(n);
   for (size_t i = 0; i < expressions.size(); ++i) {
     F value = evaluator.Evaluate(expressions[i].get());
     for (size_t j = 0; j < n; ++j) {

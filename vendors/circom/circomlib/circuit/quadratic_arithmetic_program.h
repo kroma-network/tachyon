@@ -6,12 +6,12 @@
 #ifndef VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_QUADRATIC_ARITHMETIC_PROGRAM_H_
 #define VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_QUADRATIC_ARITHMETIC_PROGRAM_H_
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
 #include "circomlib/zkey/coefficient.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/zk/r1cs/constraint_system/quadratic_arithmetic_program.h"
 
 namespace tachyon::circom {
@@ -22,15 +22,16 @@ class QuadraticArithmeticProgram {
   QuadraticArithmeticProgram() = delete;
 
   template <typename Domain>
-  static std::pmr::vector<F> WitnessMapFromMatrices(
-      const Domain* domain, absl::Span<const Coefficient<F>> coefficients,
-      absl::Span<const F> full_assignments) {
+  static std::vector<F, base::memory::ReusingAllocator<F>>
+  WitnessMapFromMatrices(const Domain* domain,
+                         absl::Span<const Coefficient<F>> coefficients,
+                         absl::Span<const F> full_assignments) {
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
 
-    std::pmr::vector<F> a(domain->size());
-    std::pmr::vector<F> b(domain->size());
-    std::pmr::vector<F> c(domain->size());
+    std::vector<F, base::memory::ReusingAllocator<F>> a(domain->size());
+    std::vector<F, base::memory::ReusingAllocator<F>> b(domain->size());
+    std::vector<F, base::memory::ReusingAllocator<F>> c(domain->size());
 
     // See
     // https://github.com/iden3/rapidsnark/blob/b17e6fe/src/groth16.cpp#L116-L156.
@@ -41,7 +42,8 @@ class QuadraticArithmeticProgram {
 #endif
     OPENMP_PARALLEL_FOR(size_t i = 0; i < coefficients.size(); i++) {
       const Coefficient<F>& c = coefficients[i];
-      std::pmr::vector<F>& ab = (c.matrix == 0) ? a : b;
+      std::vector<F, base::memory::ReusingAllocator<F>>& ab =
+          (c.matrix == 0) ? a : b;
 
 #if defined(TACHYON_HAS_OPENMP)
       omp_set_lock(&locks[c.constraint % kNumLocks]);

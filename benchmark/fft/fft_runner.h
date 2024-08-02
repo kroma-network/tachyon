@@ -5,10 +5,11 @@
 #include <stdint.h>
 
 #include <memory>
-#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
+
+#include "tachyon/base/memory/reusing_allocator.h"
 
 // clang-format off
 #include "benchmark/fft/simple_fft_benchmark_reporter.h"
@@ -90,7 +91,8 @@ class FFTRunner {
         ret.reset(c::base::native_cast(
             fn(c::base::c_cast(polys_[i].evaluations().data()), n,
                c::base::c_cast(&omega_inv), exponents[i], &duration_in_us)));
-        std::pmr::vector<F> res_vec(ret.get(), ret.get() + n);
+        std::vector<F, base::memory::ReusingAllocator<F>> res_vec(
+            ret.get(), ret.get() + n);
         results->emplace_back(
             typename RetPoly::Coefficients(std::move(res_vec)));
         // NOLINTNEXTLINE(readability/braces)
@@ -100,7 +102,8 @@ class FFTRunner {
         ret.reset(c::base::native_cast(
             fn(c::base::c_cast(polys_[i].coefficients().coefficients().data()),
                n, c::base::c_cast(&omega), exponents[i], &duration_in_us)));
-        std::pmr::vector<F> res_vec(ret.get(), ret.get() + n);
+        std::vector<F, base::memory::ReusingAllocator<F>> res_vec(
+            ret.get(), ret.get() + n);
         results->emplace_back(std::move(res_vec));
       }
       reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());

@@ -18,6 +18,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon:export",
         "//tachyon/base:bit_cast",
+        "//tachyon/base/memory:reusing_allocator",
         "//tachyon/base/numerics:safe_conversions",
         "@com_github_tencent_rapidjson//:rapidjson",
         "@com_google_absl//absl/strings",

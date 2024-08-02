@@ -1,7 +1,6 @@
 #ifndef TACHYON_ZK_PLONK_EXAMPLES_CIRCUIT_TEST_H_
 #define TACHYON_ZK_PLONK_EXAMPLES_CIRCUIT_TEST_H_
 
-#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -9,6 +8,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/halo2/bn254.h"
 #include "tachyon/zk/lookup/pair.h"
@@ -596,9 +596,10 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
   }
 
   static Evals CreateColumn(const std::vector<std::string_view>& column) {
-    std::pmr::vector<F> evaluations = base::PmrMap(
-        column,
-        [](std::string_view coeff) { return *F::FromHexString(coeff); });
+    std::vector<F, base::memory::ReusingAllocator<F>> evaluations =
+        base::PmrMap(column, [](std::string_view coeff) {
+          return *F::FromHexString(coeff);
+        });
     return Evals(std::move(evaluations));
   }
 
@@ -609,8 +610,9 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
 
   static RationalEvals CreateRationalColumn(
       const std::vector<std::string_view>& column) {
-    std::pmr::vector<math::RationalField<F>> evaluations =
-        base::PmrMap(column, [](std::string_view coeff) {
+    std::vector<math::RationalField<F>,
+                base::memory::ReusingAllocator<math::RationalField<F>>>
+        evaluations = base::PmrMap(column, [](std::string_view coeff) {
           return math::RationalField<F>(*F::FromHexString(coeff));
         });
     return RationalEvals(std::move(evaluations));
@@ -622,8 +624,10 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
   }
 
   static Poly CreatePoly(const std::vector<std::string_view>& poly) {
-    std::pmr::vector<F> coefficients = base::PmrMap(
-        poly, [](std::string_view coeff) { return *F::FromHexString(coeff); });
+    std::vector<F, base::memory::ReusingAllocator<F>> coefficients =
+        base::PmrMap(poly, [](std::string_view coeff) {
+          return *F::FromHexString(coeff);
+        });
     return Poly(math::UnivariateDenseCoefficients<F, halo2::kMaxDegree>(
         std::move(coefficients), true));
   }

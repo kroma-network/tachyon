@@ -10,11 +10,11 @@
 
 namespace tachyon::base {
 
-void* AlignedAlloc(size_t size, size_t alignment) {
+void *AlignedAlloc(size_t size, size_t alignment) {
   DCHECK_GT(size, 0U);
   DCHECK(bits::IsPowerOfTwo(alignment));
-  DCHECK_EQ(alignment % sizeof(void*), 0U);
-  void* ptr = nullptr;
+  DCHECK_EQ(alignment % sizeof(void *), 0U);
+  void *ptr = nullptr;
 #if defined(COMPILER_MSVC)
   ptr = _aligned_malloc(size, alignment);
 #elif BUILDFLAG(IS_ANDROID)

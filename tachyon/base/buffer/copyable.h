@@ -2,7 +2,6 @@
 #define TACHYON_BASE_BUFFER_COPYABLE_H_
 
 #include <array>
-#include <memory_resource>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -12,6 +11,7 @@
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/base/buffer/copyable_forward.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 
 namespace tachyon::base {
 
@@ -166,8 +166,9 @@ class CopyableVectorImpl {
 template <typename T>
 class Copyable<std::vector<T>> : public CopyableVectorImpl<std::vector<T>> {};
 template <typename T>
-class Copyable<std::pmr::vector<T>>
-    : public CopyableVectorImpl<std::pmr::vector<T>> {};
+class Copyable<std::vector<T, base::memory::ReusingAllocator<T>>>
+    : public CopyableVectorImpl<
+          std::vector<T, base::memory::ReusingAllocator<T>>> {};
 
 template <typename T, size_t N>
 class Copyable<std::array<T, N>> {

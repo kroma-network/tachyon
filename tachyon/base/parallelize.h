@@ -8,6 +8,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/functional/functor_traits.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/openmp_util.h"
 
 namespace tachyon::base {

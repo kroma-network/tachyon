@@ -1,14 +1,15 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_instance_columns_vec.h"
 
-#include <memory_resource>
 #include <vector>
 
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_instance_columns_vec_type_traits.h"
 
 using namespace tachyon;
 
-using ColumnsVec = std::vector<std::vector<std::pmr::vector<math::bn254::Fr>>>;
+using ColumnsVec = std::vector<std::vector<std::vector<
+    math::bn254::Fr, base::memory::ReusingAllocator<math::bn254::Fr>>>>;
 
 tachyon_halo2_bn254_instance_columns_vec*
 tachyon_halo2_bn254_instance_columns_vec_create(size_t num_circuits) {

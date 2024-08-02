@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 #include <limits>
-#include <memory_resource>
 #include <numeric>
 #include <string>
 #include <type_traits>
@@ -17,6 +16,7 @@
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 
 namespace tachyon::base {
@@ -165,8 +165,9 @@ template <typename T>
 class FlagValueTraits<std::vector<T>>
     : public FlagValueTraitsVectorImpl<std::vector<T>> {};
 template <typename T>
-class FlagValueTraits<std::pmr::vector<T>>
-    : public FlagValueTraitsVectorImpl<std::pmr::vector<T>> {};
+class FlagValueTraits<std::vector<T, base::memory::ReusingAllocator<T>>>
+    : public FlagValueTraitsVectorImpl<
+          std::vector<T, base::memory::ReusingAllocator<T>>> {};
 
 }  // namespace tachyon::base
 

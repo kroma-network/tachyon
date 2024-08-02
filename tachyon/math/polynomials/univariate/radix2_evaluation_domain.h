@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
-#include <memory_resource>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -35,6 +34,7 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/math/finite_fields/packed_field_traits_forward.h"
@@ -134,9 +134,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     // - divide by number of rows (since we're doing an inverse DFT)
     // - multiply by powers of the coset shift (see default coset LDE impl for
     // an explanation)
-    std::pmr::vector<F> weights = F::GetSuccessivePowers(
-        this->size_, F::FromMontgomery(F::Config::kSubgroupGenerator),
-        this->size_inv_);
+    std::vector<F, base::memory::ReusingAllocator<F>> weights =
+        F::GetSuccessivePowers(this->size_,
+                               F::FromMontgomery(F::Config::kSubgroupGenerator),
+                               this->size_inv_);
     OPENMP_PARALLEL_FOR(size_t row = 0; row < weights.size(); ++row) {
       // Reverse bits because |mat| is encoded in bit-reversed order
       mat.row(base::bits::BitRev(row) >>
@@ -297,9 +298,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t vec_largest_size = this->size_ / 2;
 
     // Compute biggest vector of |root_vec_| and |inv_root_vec_| first.
-    std::pmr::vector<F> largest =
+    std::vector<F, base::memory::ReusingAllocator<F>> largest =
         this->GetRootsOfUnity(vec_largest_size, this->group_gen_);
-    std::pmr::vector<F> largest_inv =
+    std::vector<F, base::memory::ReusingAllocator<F>> largest_inv =
         this->GetRootsOfUnity(vec_largest_size, this->group_gen_inv_);
 
     if constexpr (F::Config::kModulusBits <= 32) {
@@ -364,7 +365,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   // This can be used as the first half of a parallelized butterfly network.
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunks(
-      RowMajorMatrix<F>& mat, const std::pmr::vector<F>& twiddles,
+      RowMajorMatrix<F>& mat,
+      const std::vector<F, base::memory::ReusingAllocator<F>>& twiddles,
       const std::vector<PackedPrimeField>& packed_twiddles_rev) {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -449,7 +451,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   CONSTEXPR_IF_NOT_OPENMP std::vector<F> ReverseSliceIndexBits(
-      const std::pmr::vector<F>& vals) {
+      const std::vector<F, base::memory::ReusingAllocator<F>>& vals) {
     size_t n = vals.size();
     if (n == 0) {
       return std::vector<F>();
@@ -493,8 +495,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   std::vector<std::vector<PackedPrimeField>> packed_roots_vec_;
   std::vector<std::vector<PackedPrimeField>> packed_inv_roots_vec_;
   // For all finite fields
-  std::vector<std::pmr::vector<F>> roots_vec_;
-  std::vector<std::pmr::vector<F>> inv_roots_vec_;
+  std::vector<std::vector<F, base::memory::ReusingAllocator<F>>> roots_vec_;
+  std::vector<std::vector<F, base::memory::ReusingAllocator<F>>> inv_roots_vec_;
 };
 
 }  // namespace tachyon::math

@@ -1,12 +1,12 @@
 #include "tachyon/zk/base/blinder.h"
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/random.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -50,8 +50,9 @@ TEST(BlinderUnittest, Blind) {
 
     RowIndex blinded_rows = kBlindingFactors;
     if (include_last_row) ++blinded_rows;
-    std::pmr::vector<math::GF7> values = base::CreatePmrVector(
-        blinded_rows - 1, []() { return math::GF7::Random(); });
+    std::vector<math::GF7, base::memory::ReusingAllocator<math::GF7>> values =
+        base::CreatePmrVector(blinded_rows - 1,
+                              []() { return math::GF7::Random(); });
     Evals evals(std::move(values));
     ASSERT_FALSE(blinder.Blind(evals, include_last_row));
 

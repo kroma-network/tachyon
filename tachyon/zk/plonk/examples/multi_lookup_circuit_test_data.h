@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-#include <memory_resource>
 #include <string_view>
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/zk/plonk/examples/circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/circuit_test_type_traits.h"
 
@@ -437,7 +437,8 @@ class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
 
   static std::vector<Evals> GetInstanceColumns() {
     F instance = F(2);
-    std::pmr::vector<F> instance_column = {std::move(instance)};
+    std::vector<F, base::memory::ReusingAllocator<F>> instance_column = {
+        std::move(instance)};
     return {Evals(std::move(instance_column))};
   }
 };
@@ -868,7 +869,8 @@ class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsGWC<PCS>>>
 
   static std::vector<Evals> GetInstanceColumns() {
     F instance = F(2);
-    std::pmr::vector<F> instance_column = {std::move(instance)};
+    std::vector<F, base::memory::ReusingAllocator<F>> instance_column = {
+        std::move(instance)};
     return {Evals(std::move(instance_column))};
   }
 };

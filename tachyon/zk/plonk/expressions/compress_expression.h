@@ -8,11 +8,11 @@
 #define TACHYON_ZK_PLONK_EXPRESSIONS_COMPRESS_EXPRESSION_H_
 
 #include <memory>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/compiler_specific.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/zk/plonk/expressions/proving_evaluator.h"
 
@@ -24,7 +24,8 @@ Evals CompressExpressions(
     const std::vector<std::unique_ptr<Expression<F>>>& expressions,
     const F& theta, const ProvingEvaluator<Evals>& evaluator_tpl) {
   Evals compressed_evals = domain->template Zero<Evals>();
-  std::pmr::vector<F>& compressed_values = compressed_evals.evaluations();
+  std::vector<F, base::memory::ReusingAllocator<F>>& compressed_values =
+      compressed_evals.evaluations();
 
   for (size_t expr_idx = 0; expr_idx < expressions.size(); ++expr_idx) {
     if (UNLIKELY(expr_idx == 0)) {

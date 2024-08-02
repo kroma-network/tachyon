@@ -7,10 +7,10 @@
 #ifndef TACHYON_ZK_PLONK_VANISHING_VANISHING_PROVER_IMPL_H_
 #define TACHYON_ZK_PLONK_VANISHING_VANISHING_PROVER_IMPL_H_
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_prover.h"
 
@@ -100,7 +100,8 @@ void VanishingProver<Poly, Evals, ExtendedPoly,
   // Truncate it to match the size of the quotient polynomial; the
   // evaluation domain might be slightly larger than necessary because
   // it always lies on a power-of-two boundary.
-  std::pmr::vector<F>& h_coeffs = h_poly_.coefficients().coefficients();
+  std::vector<F, base::memory::ReusingAllocator<F>>& h_coeffs =
+      h_poly_.coefficients().coefficients();
   const size_t quotient_poly_degree = constraint_system.ComputeDegree() - 1;
   size_t n = prover->pcs().N();
   h_coeffs.resize(n * quotient_poly_degree, F::Zero());
@@ -169,7 +170,7 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::BatchEvaluate(
   std::vector<absl::Span<F>> h_pieces =
       base::Map(h_chunks.begin(), h_chunks.end(),
                 [](absl::Span<F> h_piece) { return h_piece; });
-  std::pmr::vector<F> coeffs(n);
+  std::vector<F, base::memory::ReusingAllocator<F>> coeffs(n);
   for (size_t i = h_pieces.size() - 1; i != SIZE_MAX; --i) {
     OPENMP_PARALLEL_FOR(size_t j = 0; j < n; ++j) {
       coeffs[j] *= x_n;

@@ -45,7 +45,8 @@ class UnpermutedTableTest : public math::FiniteFieldTest<F> {
 
 TEST_F(UnpermutedTableTest, Construct) {
   const F& omega = domain_->group_gen();
-  std::pmr::vector<F> omega_powers = domain_->GetRootsOfUnity(kRows, omega);
+  std::vector<F, base::memory::ReusingAllocator<F>> omega_powers =
+      domain_->GetRootsOfUnity(kRows, omega);
 
   const F delta = GetDelta<F>();
   for (size_t i = 1; i < kCols; ++i) {
@@ -59,7 +60,8 @@ TEST_F(UnpermutedTableTest, Construct) {
 TEST_F(UnpermutedTableTest, GetColumns) {
   const F& omega = domain_->group_gen();
   const F delta = GetDelta<F>();
-  std::pmr::vector<F> omega_powers = domain_->GetRootsOfUnity(kRows, omega);
+  std::vector<F, base::memory::ReusingAllocator<F>> omega_powers =
+      domain_->GetRootsOfUnity(kRows, omega);
   for (F& omega_power : omega_powers) {
     omega_power *= delta;
   }

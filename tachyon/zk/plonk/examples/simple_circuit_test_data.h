@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-#include <memory_resource>
 #include <string_view>
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/zk/plonk/examples/circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/circuit_test_type_traits.h"
 #include "tachyon/zk/plonk/examples/point.h"
@@ -907,7 +907,8 @@ class SimpleTestData<Circuit, PCS, LS,
     F a(2);
     F b(3);
     F c = std::move(constant) * std::move(a).Square() * std::move(b).Square();
-    std::pmr::vector<F> instance_column = {std::move(c)};
+    std::vector<F, base::memory::ReusingAllocator<F>> instance_column = {
+        std::move(c)};
     return {Evals(std::move(instance_column))};
   }
 };
@@ -1801,7 +1802,8 @@ class SimpleTestData<Circuit, PCS, LS,
     F a(2);
     F b(3);
     F c = std::move(constant) * std::move(a).Square() * std::move(b).Square();
-    std::pmr::vector<F> instance_column = {std::move(c)};
+    std::vector<F, base::memory::ReusingAllocator<F>> instance_column = {
+        std::move(c)};
     return {Evals(std::move(instance_column))};
   }
 };

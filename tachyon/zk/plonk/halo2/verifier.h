@@ -9,13 +9,13 @@
 
 #include <functional>
 #include <memory>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
@@ -126,7 +126,7 @@ class Verifier : public VerifierBase<PCS> {
   void ComputeAuxValues(const ConstraintSystem<F>& constraint_system,
                         Proof& proof) const {
     RowIndex blinding_factors = constraint_system.ComputeBlindingFactors();
-    std::pmr::vector<F> l_evals =
+    std::vector<F, base::memory::ReusingAllocator<F>> l_evals =
         this->domain_->EvaluatePartialLagrangeCoefficients(
             proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
                                  /*IsEndInclusive=*/true>(
@@ -181,7 +181,8 @@ class Verifier : public VerifierBase<PCS> {
 
   std::vector<Commitment> CommitColumns(const std::vector<Evals>& columns) {
     return base::Map(columns, [this](const Evals& column) {
-      std::pmr::vector<F> expanded_evals = column.evaluations();
+      std::vector<F, base::memory::ReusingAllocator<F>> expanded_evals =
+          column.evaluations();
       expanded_evals.resize(this->pcs_.N());
       return this->Commit(Evals(expanded_evals));
     });
@@ -229,8 +230,10 @@ class Verifier : public VerifierBase<PCS> {
   static F ComputeInstanceEval(
       const std::vector<Evals>& instance_columns,
       const InstanceQueryData& instance_query,
-      const std::pmr::vector<F>& partial_lagrange_coeffs, size_t max_rotation) {
-    const std::pmr::vector<F>& instances =
+      const std::vector<F, base::memory::ReusingAllocator<F>>&
+          partial_lagrange_coeffs,
+      size_t max_rotation) {
+    const std::vector<F, base::memory::ReusingAllocator<F>>& instances =
         instance_columns[instance_query.column().index()].evaluations();
     size_t offset = max_rotation - instance_query.rotation().value();
     absl::Span<const F> sub_partial_lagrange_coeffs(partial_lagrange_coeffs);
@@ -242,7 +245,9 @@ class Verifier : public VerifierBase<PCS> {
   static std::vector<F> ComputeInstanceEvals(
       const std::vector<Evals>& instance_columns,
       const std::vector<InstanceQueryData>& instance_queries,
-      const std::pmr::vector<F>& partial_lagrange_coeffs, size_t max_rotation) {
+      const std::vector<F, base::memory::ReusingAllocator<F>>&
+          partial_lagrange_coeffs,
+      size_t max_rotation) {
     return base::Map(instance_queries,
                      [&instance_columns, &partial_lagrange_coeffs,
                       max_rotation](const InstanceQueryData& instance_query) {
@@ -281,7 +286,7 @@ class Verifier : public VerifierBase<PCS> {
     RowIndex max_instances_row =
         max_instances_row_it != max_instances_rows.end() ? *max_instances_row_it
                                                          : 0;
-    std::pmr::vector<F> partial_lagrange_coeffs =
+    std::vector<F, base::memory::ReusingAllocator<F>> partial_lagrange_coeffs =
         this->domain_->EvaluatePartialLagrangeCoefficients(
             x, base::Range<int32_t>(-range.max,
                                     static_cast<int32_t>(max_instances_row) +

@@ -39,6 +39,7 @@ tachyon_cc_library(
         "//tachyon/base:openmp_util",
         "//tachyon/base:random",
         "//tachyon/base/functional:functor_traits",
+        "//tachyon/base/memory:reusing_allocator",
         "//tachyon/base/numerics:checked_math",
     ],
 )
