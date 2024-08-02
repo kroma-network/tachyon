@@ -64,7 +64,7 @@ tachyon_halo2_bn254_prover_create_from_unsafe_setup(uint8_t pcs_type,
  * parameters, facilitating the proof generation process for given circuits.
  *
  * @param pcs_type Identifier for the pcs type.
- * * @param ls_type Identifier for the ls type.
+ * @param ls_type Identifier for the ls type.
  * @param transcript_type The type of transcript to be used.
  * @param k The circuit size parameter.
  * @param params A pointer to the parameters used for prover creation.
