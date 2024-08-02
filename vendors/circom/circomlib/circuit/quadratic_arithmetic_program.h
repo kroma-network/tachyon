@@ -11,6 +11,7 @@
 
 #include "circomlib/zkey/coefficient.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/time/time.h"
 #include "tachyon/base/memory/reusing_allocator.h"
 #include "tachyon/zk/r1cs/constraint_system/quadratic_arithmetic_program.h"
 
@@ -29,9 +30,16 @@ class QuadraticArithmeticProgram {
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
 
+    base::TimeTicks start = base::TimeTicks::Now();
+    F* f_buffer = reinterpret_cast<F*>(malloc(sizeof(F) * domain->size() * 2));
     std::vector<F, base::memory::ReusingAllocator<F>> a(domain->size());
-    std::vector<F, base::memory::ReusingAllocator<F>> b(domain->size());
-    std::vector<F, base::memory::ReusingAllocator<F>> c(domain->size());
+    std::vector<F, base::memory::ReusingAllocator<F>> b(domain->size(), base::memory::ReusingAllocator<F>(f_buffer, domain->size()));
+    std::vector<F, base::memory::ReusingAllocator<F>> c(domain->size(), base::memory::ReusingAllocator<F>(f_buffer + domain->size(), domain->size()));
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
+      b[i] = F::Zero();
+      c[i] = F::Zero();
+    }
+    std::cout << "Time taken for qap #" << base::TimeTicks::Now() - start << std::endl;
 
     // See
     // https://github.com/iden3/rapidsnark/blob/b17e6fe/src/groth16.cpp#L116-L156.
