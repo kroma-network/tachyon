@@ -32,17 +32,29 @@ void ParallelizeByChunkSize(Container& container, size_t chunk_size,
                             Callable callback) {
   if (chunk_size == 0) return;
   size_t num_chunks = (std::size(container) + chunk_size - 1) / chunk_size;
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-    size_t len = i == num_chunks - 1 ? std::size(container) - i * chunk_size
-                                     : chunk_size;
-    SpanTy chunk(std::data(container) + i * chunk_size, len);
+  if (num_chunks == 1) {
+    SpanTy chunk(std::data(container), std::size(container));
     if constexpr (ArgNum == 1) {
       callback(chunk);
     } else if constexpr (ArgNum == 2) {
-      callback(chunk, i);
+      callback(chunk, 0);
     } else {
       static_assert(ArgNum == 3);
-      callback(chunk, i, chunk_size);
+      callback(chunk, 0, chunk_size);
+    }
+  } else {
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+      size_t len = i == num_chunks - 1 ? std::size(container) - i * chunk_size
+                                       : chunk_size;
+      SpanTy chunk(std::data(container) + i * chunk_size, len);
+      if constexpr (ArgNum == 1) {
+        callback(chunk);
+      } else if constexpr (ArgNum == 2) {
+        callback(chunk, i);
+      } else {
+        static_assert(ArgNum == 3);
+        callback(chunk, i, chunk_size);
+      }
     }
   }
 }
@@ -77,6 +89,18 @@ std::vector<ReturnType> ParallelizeMapByChunkSize(Container& container,
   if (chunk_size == 0) return {};
   size_t num_chunks = (std::size(container) + chunk_size - 1) / chunk_size;
   std::vector<ReturnType> values(num_chunks);
+  if (num_chunks == 1) {
+    SpanTy chunk(std::data(container), std::size(container));
+    if constexpr (ArgNum == 1) {
+      values[0] = callback(chunk);
+    } else if constexpr (ArgNum == 2) {
+      values[0] = callback(chunk, 0);
+    } else {
+      static_assert(ArgNum == 3);
+      values[0] = callback(chunk, 0, chunk_size);
+    }
+    return values;
+  }
   OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
     size_t len = i == num_chunks - 1 ? std::size(container) - i * chunk_size
                                      : chunk_size;
