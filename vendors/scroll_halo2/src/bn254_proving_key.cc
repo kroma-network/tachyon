@@ -44,14 +44,12 @@ rust::Vec<size_t> GetFixedColumns(
 
 }  // namespace
 
-ProvingKey::ProvingKey(rust::Slice<const uint8_t> pk_bytes)
-    : pk_(tachyon_bn254_plonk_scroll_proving_key_create_from_state(
-          TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS, pk_bytes.data(),
+ProvingKey::ProvingKey(uint8_t pcs_type, rust::Slice<const uint8_t> pk_bytes)
+    : pk_(tachyon_bn254_plonk_proving_key_create_from_state(
+          TACHYON_HALO2_SCROLL_VENDOR, pcs_type, pk_bytes.data(),
           pk_bytes.size())) {}
 
-ProvingKey::~ProvingKey() {
-  tachyon_bn254_plonk_scroll_proving_key_destroy(pk_);
-}
+ProvingKey::~ProvingKey() { tachyon_bn254_plonk_proving_key_destroy(pk_); }
 
 rust::Vec<uint8_t> ProvingKey::advice_column_phases() const {
   return DoGetPhases(
@@ -96,7 +94,7 @@ rust::Vec<uint8_t> ProvingKey::phases() const {
 }
 
 const tachyon_bn254_plonk_verifying_key* ProvingKey::GetVerifyingKey() const {
-  return tachyon_bn254_plonk_scroll_proving_key_get_verifying_key(pk_);
+  return tachyon_bn254_plonk_proving_key_get_verifying_key(pk_);
 }
 
 const tachyon_bn254_plonk_constraint_system* ProvingKey::GetConstraintSystem()
@@ -106,8 +104,8 @@ const tachyon_bn254_plonk_constraint_system* ProvingKey::GetConstraintSystem()
 }
 
 std::unique_ptr<ProvingKey> new_proving_key(
-    rust::Slice<const uint8_t> pk_bytes) {
-  return std::make_unique<ProvingKey>(pk_bytes);
+    uint8_t pcs_type, rust::Slice<const uint8_t> pk_bytes) {
+  return std::make_unique<ProvingKey>(pcs_type, pk_bytes);
 }
 
 }  // namespace tachyon::halo2_api::bn254

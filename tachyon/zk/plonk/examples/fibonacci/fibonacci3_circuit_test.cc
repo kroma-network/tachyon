@@ -15,16 +15,15 @@ template <typename TestArguments>
 class Fibonacci3CircuitTest
     : public CircuitTest<TestArguments,
                          Fibonacci3TestData<typename TestArguments::Circuit,
-                                            typename TestArguments::PCS,
-                                            typename TestArguments::LS>> {};
+                                            typename TestArguments::PS>> {};
 
 }  // namespace
 
 using Fibonacci3TestArgumentsList = testing::Types<
     TestArguments<Fibonacci3Circuit<BN254SHPlonk::Field, SimpleFloorPlanner>,
-                  BN254SHPlonk, BN254Halo2LS>,
+                  BN254SHPlonkHalo2>,
     TestArguments<Fibonacci3Circuit<BN254SHPlonk::Field, V1FloorPlanner>,
-                  BN254SHPlonk, BN254Halo2LS>>;
+                  BN254SHPlonkHalo2>>;
 
 TYPED_TEST_SUITE(Fibonacci3CircuitTest, Fibonacci3TestArgumentsList);
 

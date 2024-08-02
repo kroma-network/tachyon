@@ -14,9 +14,10 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename Circuit, typename PCS, typename LS, typename SFINAE = void>
-class SimpleLookupTestData : public CircuitTestData<Circuit, PCS, LS> {
+template <typename Circuit, typename PS, typename SFINAE = void>
+class SimpleLookupTestData : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
 
   // Set flags of values to be used as true

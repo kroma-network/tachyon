@@ -19,9 +19,10 @@ constexpr size_t kMaxDomainSize = kMaxDegree + 1;
 constexpr size_t kMaxExtendedDegree = (size_t{1} << 8) - 1;
 constexpr size_t kMaxExtendedDomainSize = kMaxExtendedDegree + 1;
 
-template <typename PCS, typename LS>
+template <typename PS>
 class ProverTest : public testing::Test {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
   using Commitment = typename PCS::Commitment;
   using Poly = typename PCS::Poly;
@@ -41,9 +42,9 @@ class ProverTest : public testing::Test {
 
     auto rng = std::make_unique<crypto::XORShiftRNG>();
     CHECK(rng->SetSeed(kXORShiftSeed));
-    prover_ = std::make_unique<Prover<PCS, LS>>(
-        Prover<PCS, LS>::Create(std::move(pcs), std::move(writer),
-                                std::move(rng), /*blinding_factors=*/0));
+    prover_ = std::make_unique<Prover<PS>>(
+        Prover<PS>::Create(std::move(pcs), std::move(writer), std::move(rng),
+                           /*blinding_factors=*/0));
     prover_->set_domain(Domain::Create(kMaxDomainSize));
     prover_->set_extended_domain(
         ExtendedDomain::Create(kMaxExtendedDomainSize));
@@ -53,13 +54,13 @@ class ProverTest : public testing::Test {
   }
 
  protected:
-  Verifier<PCS, LS> CreateVerifier(base::Buffer read_buf) {
+  Verifier<PS> CreateVerifier(base::Buffer read_buf) {
     std::unique_ptr<crypto::TranscriptReader<Commitment>> reader =
         std::make_unique<Blake2bReader<Commitment>>(std::move(read_buf));
     return prover_->ToVerifier(std::move(reader));
   }
 
-  std::unique_ptr<Prover<PCS, LS>> prover_;
+  std::unique_ptr<Prover<PS>> prover_;
 };
 
 }  // namespace tachyon::zk::plonk::halo2

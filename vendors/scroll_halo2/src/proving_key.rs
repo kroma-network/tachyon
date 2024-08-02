@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test {
-    use crate::bn254::ProvingKey;
     use crate::circuits::simple_circuit::SimpleCircuit;
+    use crate::{bn254::ProvingKey, consts::PCSType};
     use halo2_proofs::{circuit::Value, plonk::keygen_pk2, poly::kzg::commitment::ParamsKZG};
     use halo2curves::bn256::{Bn256, Fr, G1Affine};
 
@@ -30,7 +30,7 @@ mod test {
         let pk = keygen_pk2(&params, &circuit).expect("vk should not fail");
         let mut pk_bytes: Vec<u8> = vec![];
         pk.write_including_cs(&mut pk_bytes).unwrap();
-        let tachyon_pk = ProvingKey::<G1Affine>::from(pk_bytes.as_slice());
+        let tachyon_pk = ProvingKey::<G1Affine>::from(PCSType::GWC, pk_bytes.as_slice());
 
         assert_eq!(
             pk.get_vk().cs().advice_column_phase,

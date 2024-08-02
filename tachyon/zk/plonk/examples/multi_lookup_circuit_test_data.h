@@ -12,14 +12,16 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename Circuit, typename PCS, typename LS, typename SFINAE = void>
-class MultiLookupTestData : public CircuitTestData<Circuit, PCS, LS> {};
+template <typename Circuit, typename PS, typename SFINAE = void>
+class MultiLookupTestData : public CircuitTestData<Circuit, PS> {};
 
 // PCS = SHPlonk
-template <typename Circuit, typename PCS, typename LS>
-class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
-    : public CircuitTestData<Circuit, PCS, LS> {
+template <typename Circuit, typename PS>
+class MultiLookupTestData<Circuit, PS,
+                          std::enable_if_t<IsSHPlonk<typename PS::PCS>>>
+    : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
   using Evals = typename PCS::Evals;
 
@@ -442,10 +444,12 @@ class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
 };
 
 // PCS = GWC
-template <typename Circuit, typename PCS, typename LS>
-class MultiLookupTestData<Circuit, PCS, LS, std::enable_if_t<IsGWC<PCS>>>
-    : public CircuitTestData<Circuit, PCS, LS> {
+template <typename Circuit, typename PS>
+class MultiLookupTestData<Circuit, PS,
+                          std::enable_if_t<IsGWC<typename PS::PCS>>>
+    : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
   using Evals = typename PCS::Evals;
 

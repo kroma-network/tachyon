@@ -16,10 +16,7 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
 #include "tachyon/c/zk/base/bn254_blinder_type_traits.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_halo2_ls.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_log_derivative_halo2_ls.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_ps.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
 #include "tachyon/c/zk/plonk/halo2/test/bn254_halo2_params_data.h"
@@ -28,12 +25,12 @@
 #include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
-#include "tachyon/zk/plonk/halo2/ls_type.h"
 #include "tachyon/zk/plonk/halo2/pcs_type.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/sha256_transcript.h"
 #include "tachyon/zk/plonk/halo2/snark_verifier_poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
+#include "tachyon/zk/plonk/halo2/vendor.h"
 
 namespace tachyon::zk::plonk::halo2::bn254 {
 
@@ -41,21 +38,21 @@ namespace {
 
 using GWCPCS = c::zk::plonk::halo2::bn254::GWCPCS;
 using SHPlonkPCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
-using Halo2LS = c::zk::plonk::halo2::bn254::Halo2LS;
-using LogDerivativeHalo2LS = c::zk::plonk::halo2::bn254::LogDerivativeHalo2LS;
+using PSEGWC = c::zk::plonk::halo2::bn254::PSEGWC;
+using PSESHPlonk = c::zk::plonk::halo2::bn254::PSESHPlonk;
+using ScrollGWC = c::zk::plonk::halo2::bn254::ScrollGWC;
+using ScrollSHPlonk = c::zk::plonk::halo2::bn254::ScrollSHPlonk;
 
-template <typename PCS, typename LS>
-using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS, LS>;
+template <typename PS>
+using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PS>;
 
 struct Param {
+  uint8_t vendor;
   uint8_t pcs_type;
-  uint8_t ls_type;
   uint8_t transcript_type;
 
-  Param(uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type)
-      : pcs_type(pcs_type),
-        ls_type(ls_type),
-        transcript_type(transcript_type) {}
+  Param(uint8_t vendor, uint8_t pcs_type, uint8_t transcript_type)
+      : vendor(vendor), pcs_type(pcs_type), transcript_type(transcript_type) {}
 };
 
 class ProverTest : public testing::TestWithParam<Param> {
@@ -67,7 +64,7 @@ class ProverTest : public testing::TestWithParam<Param> {
     s_ = math::bn254::Fr(2);
     const tachyon_bn254_fr& c_s = c::base::c_cast(s_);
     prover_ = tachyon_halo2_bn254_prover_create_from_unsafe_setup(
-        param.pcs_type, param.ls_type, param.transcript_type, k_, &c_s);
+        param.vendor, param.pcs_type, param.transcript_type, k_, &c_s);
   }
 
   void TearDown() override { tachyon_halo2_bn254_prover_destroy(prover_); }
@@ -83,37 +80,37 @@ class ProverTest : public testing::TestWithParam<Param> {
 INSTANTIATE_TEST_SUITE_P(
     ProverTest, ProverTest,
     testing::Values(
-        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_HALO2_LS,
+        Param(TACHYON_HALO2_PSE_VENDOR, TACHYON_HALO2_GWC_PCS,
               TACHYON_HALO2_BLAKE2B_TRANSCRIPT),
-        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_HALO2_LS,
+        Param(TACHYON_HALO2_PSE_VENDOR, TACHYON_HALO2_GWC_PCS,
               TACHYON_HALO2_POSEIDON_TRANSCRIPT),
-        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_HALO2_LS,
+        Param(TACHYON_HALO2_PSE_VENDOR, TACHYON_HALO2_GWC_PCS,
               TACHYON_HALO2_SHA256_TRANSCRIPT),
-        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_HALO2_LS,
+        Param(TACHYON_HALO2_PSE_VENDOR, TACHYON_HALO2_GWC_PCS,
               TACHYON_HALO2_SNARK_VERIFIER_POSEIDON_TRANSCRIPT),
-        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+        Param(TACHYON_HALO2_SCROLL_VENDOR, TACHYON_HALO2_GWC_PCS,
               TACHYON_HALO2_BLAKE2B_TRANSCRIPT),
-        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+        Param(TACHYON_HALO2_SCROLL_VENDOR, TACHYON_HALO2_GWC_PCS,
               TACHYON_HALO2_POSEIDON_TRANSCRIPT),
-        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+        Param(TACHYON_HALO2_SCROLL_VENDOR, TACHYON_HALO2_GWC_PCS,
               TACHYON_HALO2_SHA256_TRANSCRIPT),
-        Param(TACHYON_HALO2_GWC_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+        Param(TACHYON_HALO2_SCROLL_VENDOR, TACHYON_HALO2_GWC_PCS,
               TACHYON_HALO2_SNARK_VERIFIER_POSEIDON_TRANSCRIPT),
-        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_HALO2_LS,
+        Param(TACHYON_HALO2_PSE_VENDOR, TACHYON_HALO2_SHPLONK_PCS,
               TACHYON_HALO2_BLAKE2B_TRANSCRIPT),
-        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_HALO2_LS,
+        Param(TACHYON_HALO2_PSE_VENDOR, TACHYON_HALO2_SHPLONK_PCS,
               TACHYON_HALO2_POSEIDON_TRANSCRIPT),
-        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_HALO2_LS,
+        Param(TACHYON_HALO2_PSE_VENDOR, TACHYON_HALO2_SHPLONK_PCS,
               TACHYON_HALO2_SHA256_TRANSCRIPT),
-        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_HALO2_LS,
+        Param(TACHYON_HALO2_PSE_VENDOR, TACHYON_HALO2_SHPLONK_PCS,
               TACHYON_HALO2_SNARK_VERIFIER_POSEIDON_TRANSCRIPT),
-        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+        Param(TACHYON_HALO2_SCROLL_VENDOR, TACHYON_HALO2_SHPLONK_PCS,
               TACHYON_HALO2_BLAKE2B_TRANSCRIPT),
-        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+        Param(TACHYON_HALO2_SCROLL_VENDOR, TACHYON_HALO2_SHPLONK_PCS,
               TACHYON_HALO2_POSEIDON_TRANSCRIPT),
-        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+        Param(TACHYON_HALO2_SCROLL_VENDOR, TACHYON_HALO2_SHPLONK_PCS,
               TACHYON_HALO2_SHA256_TRANSCRIPT),
-        Param(TACHYON_HALO2_SHPLONK_PCS, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS,
+        Param(TACHYON_HALO2_SCROLL_VENDOR, TACHYON_HALO2_SHPLONK_PCS,
               TACHYON_HALO2_SNARK_VERIFIER_POSEIDON_TRANSCRIPT)));
 
 TEST_P(ProverTest, Constructor) {
@@ -121,7 +118,7 @@ TEST_P(ProverTest, Constructor) {
 
   tachyon_halo2_bn254_prover* prover_from_halo2_parmas =
       tachyon_halo2_bn254_prover_create_from_params(
-          param.pcs_type, param.ls_type, param.transcript_type, k_,
+          param.vendor, param.pcs_type, param.transcript_type, k_,
           reinterpret_cast<const uint8_t*>(
               c::zk::plonk::halo2::bn254::kExpectedHalo2Params),
           std::size(c::zk::plonk::halo2::bn254::kExpectedHalo2Params));
@@ -136,10 +133,9 @@ TEST_P(ProverTest, Constructor) {
 
 TEST_P(ProverTest, Getters) {
   Param param = GetParam();
-  if (param.ls_type != TACHYON_HALO2_HALO2_LS ||
+  if (param.vendor != TACHYON_HALO2_PSE_VENDOR ||
       param.transcript_type != TACHYON_HALO2_BLAKE2B_TRANSCRIPT) {
-    GTEST_SKIP()
-        << "Getters test is not related to ls_type and transcript_type";
+    GTEST_SKIP() << "Getters test is not related to vendor and transcript_type";
   }
 
   EXPECT_EQ(tachyon_halo2_bn254_prover_get_k(prover_), k_);
@@ -198,40 +194,35 @@ TEST_P(ProverTest, Commit) {
       tachyon_halo2_bn254_prover_commit(prover_, c::base::c_cast(&poly));
 
   math::bn254::G1ProjectivePoint expected;
-  switch (static_cast<PCSType>(prover_->pcs_type)) {
-    case PCSType::kGWC: {
-      switch (static_cast<LSType>(prover_->ls_type)) {
-        case LSType::kHalo2: {
-          expected =
-              reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
-                  ->Commit(poly)
-                  .ToProjective();
+  switch (static_cast<Vendor>(prover_->vendor)) {
+    case Vendor::kPSE: {
+      switch (static_cast<PCSType>(prover_->pcs_type)) {
+        case PCSType::kGWC: {
+          expected = reinterpret_cast<ProverImpl<PSEGWC>*>(prover_->extra)
+                         ->Commit(poly)
+                         .ToProjective();
           break;
         }
-        case LSType::kLogDerivativeHalo2: {
-          expected =
-              reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
-                  prover_->extra)
-                  ->Commit(poly)
-                  .ToProjective();
+        case PCSType::kSHPlonk: {
+          expected = reinterpret_cast<ProverImpl<PSESHPlonk>*>(prover_->extra)
+                         ->Commit(poly)
+                         .ToProjective();
           break;
         }
       }
       break;
     }
-    case PCSType::kSHPlonk: {
-      switch (static_cast<LSType>(prover_->ls_type)) {
-        case LSType::kHalo2: {
-          expected =
-              reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(prover_->extra)
-                  ->Commit(poly)
-                  .ToProjective();
+    case Vendor::kScroll: {
+      switch (static_cast<PCSType>(prover_->pcs_type)) {
+        case PCSType::kGWC: {
+          expected = reinterpret_cast<ProverImpl<ScrollGWC>*>(prover_->extra)
+                         ->Commit(poly)
+                         .ToProjective();
           break;
         }
-        case LSType::kLogDerivativeHalo2: {
+        case PCSType::kSHPlonk: {
           expected =
-              reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
-                  prover_->extra)
+              reinterpret_cast<ProverImpl<ScrollSHPlonk>*>(prover_->extra)
                   ->Commit(poly)
                   .ToProjective();
           break;
@@ -259,40 +250,35 @@ TEST_P(ProverTest, CommitLagrange) {
                                                  c::base::c_cast(&evals));
 
   math::bn254::G1ProjectivePoint expected;
-  switch (static_cast<PCSType>(prover_->pcs_type)) {
-    case PCSType::kGWC: {
-      switch (static_cast<LSType>(prover_->ls_type)) {
-        case LSType::kHalo2: {
-          expected =
-              reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
-                  ->Commit(evals)
-                  .ToProjective();
+  switch (static_cast<Vendor>(prover_->vendor)) {
+    case Vendor::kPSE: {
+      switch (static_cast<PCSType>(prover_->pcs_type)) {
+        case PCSType::kGWC: {
+          expected = reinterpret_cast<ProverImpl<PSEGWC>*>(prover_->extra)
+                         ->Commit(evals)
+                         .ToProjective();
           break;
         }
-        case LSType::kLogDerivativeHalo2: {
-          expected =
-              reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
-                  prover_->extra)
-                  ->Commit(evals)
-                  .ToProjective();
+        case PCSType::kSHPlonk: {
+          expected = reinterpret_cast<ProverImpl<PSESHPlonk>*>(prover_->extra)
+                         ->Commit(evals)
+                         .ToProjective();
           break;
         }
       }
       break;
     }
-    case PCSType::kSHPlonk: {
-      switch (static_cast<LSType>(prover_->ls_type)) {
-        case LSType::kHalo2: {
-          expected =
-              reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(prover_->extra)
-                  ->Commit(evals)
-                  .ToProjective();
+    case Vendor::kScroll: {
+      switch (static_cast<PCSType>(prover_->pcs_type)) {
+        case PCSType::kGWC: {
+          expected = reinterpret_cast<ProverImpl<ScrollGWC>*>(prover_->extra)
+                         ->Commit(evals)
+                         .ToProjective();
           break;
         }
-        case LSType::kLogDerivativeHalo2: {
+        case PCSType::kSHPlonk: {
           expected =
-              reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
-                  prover_->extra)
+              reinterpret_cast<ProverImpl<ScrollSHPlonk>*>(prover_->extra)
                   ->Commit(evals)
                   .ToProjective();
           break;
@@ -331,37 +317,32 @@ TEST_P(ProverTest, BatchCommit) {
   for (size_t i = 0; i < points.size(); ++i) {
     const Poly& poly = polys[i];
     math::bn254::G1AffinePoint expected;
-    switch (static_cast<PCSType>(prover_->pcs_type)) {
-      case PCSType::kGWC: {
-        switch (static_cast<LSType>(prover_->ls_type)) {
-          case LSType::kHalo2: {
-            expected =
-                reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
-                    ->Commit(poly);
+    switch (static_cast<Vendor>(prover_->vendor)) {
+      case Vendor::kPSE: {
+        switch (static_cast<PCSType>(prover_->pcs_type)) {
+          case PCSType::kGWC: {
+            expected = reinterpret_cast<ProverImpl<PSEGWC>*>(prover_->extra)
+                           ->Commit(poly);
             break;
           }
-          case LSType::kLogDerivativeHalo2: {
-            expected =
-                reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
-                    prover_->extra)
-                    ->Commit(poly);
+          case PCSType::kSHPlonk: {
+            expected = reinterpret_cast<ProverImpl<PSESHPlonk>*>(prover_->extra)
+                           ->Commit(poly);
             break;
           }
         }
         break;
       }
-      case PCSType::kSHPlonk: {
-        switch (static_cast<LSType>(prover_->ls_type)) {
-          case LSType::kHalo2: {
-            expected = reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(
-                           prover_->extra)
+      case Vendor::kScroll: {
+        switch (static_cast<PCSType>(prover_->pcs_type)) {
+          case PCSType::kGWC: {
+            expected = reinterpret_cast<ProverImpl<ScrollGWC>*>(prover_->extra)
                            ->Commit(poly);
             break;
           }
-          case LSType::kLogDerivativeHalo2: {
+          case PCSType::kSHPlonk: {
             expected =
-                reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
-                    prover_->extra)
+                reinterpret_cast<ProverImpl<ScrollSHPlonk>*>(prover_->extra)
                     ->Commit(poly);
             break;
           }
@@ -400,37 +381,32 @@ TEST_P(ProverTest, BatchCommitLagrange) {
   for (size_t i = 0; i < points.size(); ++i) {
     const Evals& evals = evals_vec[i];
     math::bn254::G1AffinePoint expected;
-    switch (static_cast<PCSType>(prover_->pcs_type)) {
-      case PCSType::kGWC: {
-        switch (static_cast<LSType>(prover_->ls_type)) {
-          case LSType::kHalo2: {
-            expected =
-                reinterpret_cast<ProverImpl<GWCPCS, Halo2LS>*>(prover_->extra)
-                    ->Commit(evals);
+    switch (static_cast<Vendor>(prover_->vendor)) {
+      case Vendor::kPSE: {
+        switch (static_cast<PCSType>(prover_->pcs_type)) {
+          case PCSType::kGWC: {
+            expected = reinterpret_cast<ProverImpl<PSEGWC>*>(prover_->extra)
+                           ->Commit(evals);
             break;
           }
-          case LSType::kLogDerivativeHalo2: {
-            expected =
-                reinterpret_cast<ProverImpl<GWCPCS, LogDerivativeHalo2LS>*>(
-                    prover_->extra)
-                    ->Commit(evals);
+          case PCSType::kSHPlonk: {
+            expected = reinterpret_cast<ProverImpl<PSESHPlonk>*>(prover_->extra)
+                           ->Commit(evals);
             break;
           }
         }
         break;
       }
-      case PCSType::kSHPlonk: {
-        switch (static_cast<LSType>(prover_->ls_type)) {
-          case LSType::kHalo2: {
-            expected = reinterpret_cast<ProverImpl<SHPlonkPCS, Halo2LS>*>(
-                           prover_->extra)
+      case Vendor::kScroll: {
+        switch (static_cast<PCSType>(prover_->pcs_type)) {
+          case PCSType::kGWC: {
+            expected = reinterpret_cast<ProverImpl<ScrollGWC>*>(prover_->extra)
                            ->Commit(evals);
             break;
           }
-          case LSType::kLogDerivativeHalo2: {
+          case PCSType::kSHPlonk: {
             expected =
-                reinterpret_cast<ProverImpl<SHPlonkPCS, LogDerivativeHalo2LS>*>(
-                    prover_->extra)
+                reinterpret_cast<ProverImpl<ScrollSHPlonk>*>(prover_->extra)
                     ->Commit(evals);
             break;
           }
@@ -481,9 +457,9 @@ void SetRngTestImpl(tachyon_halo2_bn254_prover* prover, uint8_t rng_type) {
 
 TEST_P(ProverTest, SetRng) {
   Param param = GetParam();
-  if (param.ls_type != TACHYON_HALO2_HALO2_LS ||
+  if (param.vendor != TACHYON_HALO2_PSE_VENDOR ||
       param.transcript_type != TACHYON_HALO2_BLAKE2B_TRANSCRIPT) {
-    GTEST_SKIP() << "SetRng test is not related to ls_type and transcript_type";
+    GTEST_SKIP() << "SetRng test is not related to vendor and transcript_type";
   }
 
   SetRngTestImpl<crypto::XORShiftRNG>(prover_, TACHYON_RNG_XOR_SHIFT);
@@ -492,8 +468,8 @@ TEST_P(ProverTest, SetRng) {
 
 TEST_P(ProverTest, SetTranscript) {
   Param param = GetParam();
-  if (param.ls_type != TACHYON_HALO2_HALO2_LS) {
-    GTEST_SKIP() << "SetRng test is not related to ls_type";
+  if (param.vendor != TACHYON_HALO2_PSE_VENDOR) {
+    GTEST_SKIP() << "SetRng test is not related to vendor";
   }
 
   uint8_t transcript_type = param.transcript_type;

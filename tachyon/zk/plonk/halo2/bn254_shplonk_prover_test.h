@@ -6,19 +6,16 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/halo2/bn254.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
-#include "tachyon/zk/lookup/halo2/scheme.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/zk/plonk/halo2/proving_scheme.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
 using PCS = SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
                              kMaxExtendedDegree, math::bn254::G1AffinePoint>;
-using LS =
-    lookup::halo2::Scheme<typename PCS::Poly, typename PCS::Evals,
-                          typename PCS::Commitment, typename PCS::ExtendedPoly,
-                          typename PCS::ExtendedEvals>;
+using PS = ProvingScheme<Vendor::kScroll, lookup::Type::kHalo2, PCS>;
 
-class BN254SHPlonkProverTest : public ProverTest<PCS, LS> {
+class BN254SHPlonkProverTest : public ProverTest<PS> {
  public:
   static void SetUpTestSuite() {
     math::bn254::BN254Curve::Init();

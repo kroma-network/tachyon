@@ -12,14 +12,16 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename Circuit, typename PCS, typename LS, typename SFINAE = void>
-class ShuffleTestData : public CircuitTestData<Circuit, PCS, LS> {};
+template <typename Circuit, typename PS, typename SFINAE = void>
+class ShuffleTestData : public CircuitTestData<Circuit, PS> {};
 
 // PCS = SHPlonk
-template <typename Circuit, typename PCS, typename LS>
-class ShuffleTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
-    : public CircuitTestData<Circuit, PCS, LS> {
+template <typename Circuit, typename PS>
+class ShuffleTestData<Circuit, PS,
+                      std::enable_if_t<IsSHPlonk<typename PS::PCS>>>
+    : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
 
   // Set flags of values to be used as true
@@ -880,10 +882,11 @@ class ShuffleTestData<Circuit, PCS, LS, std::enable_if_t<IsSHPlonk<PCS>>>
 
 // TODO(ashjeong): Obtain all data for the GWC version and run
 // PCS = GWC
-template <typename Circuit, typename PCS, typename LS>
-class ShuffleTestData<Circuit, PCS, LS, std::enable_if_t<IsGWC<PCS>>>
-    : public CircuitTestData<Circuit, PCS, LS> {
+template <typename Circuit, typename PS>
+class ShuffleTestData<Circuit, PS, std::enable_if_t<IsGWC<typename PS::PCS>>>
+    : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
 
   constexpr static size_t kW = 2;

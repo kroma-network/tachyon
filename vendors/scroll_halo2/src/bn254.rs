@@ -130,7 +130,7 @@ pub mod ffi {
 
         type ProvingKey;
 
-        fn new_proving_key(data: &[u8]) -> UniquePtr<ProvingKey>;
+        fn new_proving_key(pcs_type: u8, data: &[u8]) -> UniquePtr<ProvingKey>;
         fn advice_column_phases(&self) -> Vec<u8>;
         fn blinding_factors(&self) -> u32;
         fn challenge_phases(&self) -> Vec<u8>;
@@ -693,9 +693,9 @@ pub struct ProvingKey<C: CurveAffine> {
 }
 
 impl<C: CurveAffine> ProvingKey<C> {
-    pub fn from(data: &[u8]) -> ProvingKey<C> {
+    pub fn from(pcs_type: PCSType, data: &[u8]) -> ProvingKey<C> {
         ProvingKey {
-            inner: ffi::new_proving_key(data),
+            inner: ffi::new_proving_key(pcs_type as u8, data),
             _marker: PhantomData,
         }
     }

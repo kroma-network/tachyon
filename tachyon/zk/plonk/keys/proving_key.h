@@ -23,17 +23,22 @@ namespace tachyon {
 
 namespace zk::plonk {
 
-template <halo2::Vendor Vendor, typename LS>
+template <typename PS>
 class ProvingKey : public Key {
  public:
-  using F = typename LS::Field;
-  using Poly = typename LS::Poly;
-  using Evals = typename LS::Evals;
-  using ExtendedEvals = typename LS::ExtendedEvals;
-  using C = typename LS::Commitment;
+  constexpr static halo2::Vendor kVendor = PS::kVendor;
+  constexpr static lookup::Type kLookupType = PS::kLookupType;
+
+  using PCS = typename PS::PCS;
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+  using RationalEvals = typename PCS::RationalEvals;
+  using ExtendedEvals = typename PCS::ExtendedEvals;
+  using C = typename PCS::Commitment;
 
   using PolyOrExtendedEvals =
-      std::conditional_t<Vendor == halo2::Vendor::kPSE, ExtendedEvals, Poly>;
+      std::conditional_t<kVendor == halo2::Vendor::kPSE, ExtendedEvals, Poly>;
 
   ProvingKey() = default;
 
@@ -53,10 +58,9 @@ class ProvingKey : public Key {
   }
 
   // Return true if it is able to load from an instance of |circuit|.
-  template <typename PCS, typename Circuit>
+  template <typename Circuit>
   [[nodiscard]] bool Load(ProverBase<PCS>* prover, const Circuit& circuit) {
-    using RationalEvals = typename PCS::RationalEvals;
-    KeyPreLoadResult<Evals, RationalEvals> pre_load_result(LS::kType);
+    KeyPreLoadResult<Evals, RationalEvals> pre_load_result(kLookupType);
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     VerifyingKeyLoadResult<Evals> vk_result;
     if (!verifying_key_.DoLoad(prover, std::move(pre_load_result), &vk_result))
@@ -66,21 +70,19 @@ class ProvingKey : public Key {
 
   // Return true if it is able to load from an instance of |circuit| and a
   // |verifying_key|.
-  template <typename PCS, typename Circuit>
+  template <typename Circuit>
   [[nodiscard]] bool LoadWithVerifyingKey(ProverBase<PCS>* prover,
                                           const Circuit& circuit,
                                           VerifyingKey<F, C>&& verifying_key) {
-    using RationalEvals = typename PCS::RationalEvals;
-    KeyPreLoadResult<Evals, RationalEvals> pre_load_result(LS::kType);
+    KeyPreLoadResult<Evals, RationalEvals> pre_load_result(kLookupType);
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     verifying_key_ = std::move(verifying_key);
     return DoLoad(prover, std::move(pre_load_result), nullptr);
   }
 
  private:
-  friend class c::zk::plonk::ProvingKeyImpl<Vendor, LS>;
+  friend class c::zk::plonk::ProvingKeyImpl<PS>;
 
-  template <typename PCS, typename RationalEvals>
   bool DoLoad(ProverBase<PCS>* prover,
               KeyPreLoadResult<Evals, RationalEvals>&& pre_load_result,
               VerifyingKeyLoadResult<Evals>* vk_load_result) {
@@ -107,8 +109,8 @@ class ProvingKey : public Key {
     }
 
     permutation_proving_key_ =
-        pre_load_result.assembly.permutation().template BuildProvingKey<Vendor>(
-            prover, std::move(permutations));
+        pre_load_result.assembly.permutation()
+            .template BuildProvingKey<kVendor>(prover, std::move(permutations));
 
     // Compute l_first(X).
     // if |blinding_factors| = 3 and |pcs.N()| = 8,
@@ -169,7 +171,7 @@ class ProvingKey : public Key {
     }
     Poly l_active_row = domain->IFFT(std::move(evals));
 
-    if constexpr (Vendor == halo2::Vendor::kPSE) {
+    if constexpr (kVendor == halo2::Vendor::kPSE) {
       using ExtendedDomain = typename PCS::ExtendedDomain;
 
       const ExtendedDomain* extended_domain = prover->extended_domain();
@@ -187,8 +189,8 @@ class ProvingKey : public Key {
       l_active_row_ = std::move(l_active_row);
     }
 
-    vanishing_argument_ = VanishingArgument<Vendor, LS>::Create(
-        verifying_key_.constraint_system());
+    vanishing_argument_ =
+        VanishingArgument<PS>::Create(verifying_key_.constraint_system());
     return true;
   }
 
@@ -204,7 +206,7 @@ class ProvingKey : public Key {
   // https://github.com/scroll-tech/halo2/blob/1070391/halo2_proofs/src/plonk.rs#L263-L272
   std::vector<ExtendedEvals> fixed_cosets_;
   PermutationProvingKey<Poly, Evals, ExtendedEvals> permutation_proving_key_;
-  VanishingArgument<Vendor, LS> vanishing_argument_;
+  VanishingArgument<PS> vanishing_argument_;
 };
 
 }  // namespace zk::plonk

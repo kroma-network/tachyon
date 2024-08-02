@@ -11,14 +11,14 @@ namespace tachyon::halo2_api::bn254 {
 Prover::Prover(uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
                const Fr& s)
     : prover_(tachyon_halo2_bn254_prover_create_from_unsafe_setup(
-          pcs_type, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS, transcript_type, k,
+          TACHYON_HALO2_SCROLL_VENDOR, pcs_type, transcript_type, k,
           reinterpret_cast<const tachyon_bn254_fr*>(&s))) {}
 
 Prover::Prover(uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
                const uint8_t* params, size_t params_len)
     : prover_(tachyon_halo2_bn254_prover_create_from_params(
-          pcs_type, TACHYON_HALO2_LOG_DERIVATIVE_HALO2_LS, transcript_type, k,
-          params, params_len)) {}
+          TACHYON_HALO2_SCROLL_VENDOR, pcs_type, transcript_type, k, params,
+          params_len)) {}
 
 Prover::~Prover() { tachyon_halo2_bn254_prover_destroy(prover_); }
 
@@ -105,7 +105,7 @@ void Prover::set_transcript(rust::Slice<const uint8_t> state) {
 }
 
 void Prover::set_extended_domain(const ProvingKey& pk) {
-  tachyon_halo2_bn254_scroll_prover_set_extended_domain(prover_, pk.pk());
+  tachyon_halo2_bn254_prover_set_extended_domain(prover_, pk.pk());
 }
 
 void Prover::create_proof(ProvingKey& key,
@@ -115,7 +115,7 @@ void Prover::create_proof(ProvingKey& key,
   tachyon_bn254_blinder* blinder =
       tachyon_halo2_bn254_prover_get_blinder(prover_);
   const tachyon_bn254_plonk_verifying_key* vk =
-      tachyon_bn254_plonk_scroll_proving_key_get_verifying_key(key.pk());
+      tachyon_bn254_plonk_proving_key_get_verifying_key(key.pk());
   const tachyon_bn254_plonk_constraint_system* cs =
       tachyon_bn254_plonk_verifying_key_get_constraint_system(vk);
   uint32_t blinding_factors =
@@ -190,7 +190,7 @@ void Prover::create_proof(ProvingKey& key,
     CHECK(buffer.Done());
   }
 
-  tachyon_halo2_bn254_scroll_prover_create_proof(prover_, key.pk(), data);
+  tachyon_halo2_bn254_prover_create_proof(prover_, key.pk(), data);
   tachyon_halo2_bn254_argument_data_destroy(data);
 }
 
@@ -220,10 +220,10 @@ std::unique_ptr<Prover> new_prover_from_params(
 }
 
 rust::Box<Fr> ProvingKey::transcript_repr(const Prover& prover) {
-  tachyon_halo2_bn254_scroll_prover_set_transcript_repr(prover.prover(), pk_);
+  tachyon_halo2_bn254_prover_set_transcript_repr(prover.prover(), pk_);
   tachyon_bn254_fr* ret = new tachyon_bn254_fr;
   tachyon_bn254_fr repr = tachyon_bn254_plonk_verifying_key_get_transcript_repr(
-      tachyon_bn254_plonk_scroll_proving_key_get_verifying_key(pk_));
+      tachyon_bn254_plonk_proving_key_get_verifying_key(pk_));
   memcpy(ret->limbs, repr.limbs, sizeof(uint64_t) * 4);
   return rust::Box<Fr>::from_raw(reinterpret_cast<Fr*>(ret));
 }

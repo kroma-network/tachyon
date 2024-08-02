@@ -36,14 +36,14 @@ class VanishingProver {
   template <typename PCS>
   void CommitRandomPoly(ProverBase<PCS>* prover, size_t& commit_idx) const;
 
-  template <typename PCS, halo2::Vendor Vendor, typename LS,
-            typename LookupProver = lookup::Prover<LS::kType, Poly, Evals>>
+  template <typename PCS, typename PS>
   void CreateHEvals(
-      ProverBase<PCS>* prover, const ProvingKey<Vendor, LS>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<PS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& theta,
       const F& beta, const F& gamma, const F& y,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<LookupProver>& lookup_provers,
+      const std::vector<lookup::Prover<PS::kLookupType, Poly, Evals>>&
+          lookup_provers,
       const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers);
 
   template <typename PCS>

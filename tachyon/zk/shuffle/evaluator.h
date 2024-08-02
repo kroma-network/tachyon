@@ -65,8 +65,8 @@ class Evaluator {
     }
   }
 
-  template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
-  void Evaluate(plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+  template <typename PS>
+  void Evaluate(plonk::CircuitPolynomialBuilder<PS>& builder,
                 absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
     for (size_t i = 0; i < evaluators_.size(); i += 2) {
       const plonk::GraphEvaluator<F>& input_evaluator = evaluators_[i];
@@ -115,9 +115,10 @@ class Evaluator {
     }
   }
 
-  template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
-  void UpdateCosets(plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+  template <typename PS>
+  void UpdateCosets(plonk::CircuitPolynomialBuilder<PS>& builder,
                     size_t circuit_idx) {
+    using PCS = typename PS::PCS;
     using Poly = typename PCS::Poly;
     using Evals = typename PCS::Evals;
     using ShuffleProver = Prover<Poly, Evals>;
@@ -130,7 +131,7 @@ class Evaluator {
     product_cosets_.resize(num_shuffles);
 
     for (size_t i = 0; i < num_shuffles; ++i) {
-      if constexpr (Vendor == plonk::halo2::Vendor::kPSE) {
+      if constexpr (PS::kVendor == plonk::halo2::Vendor::kPSE) {
         product_cosets_[i] = plonk::CoeffToExtended(
             prover.grand_product_polys()[i].poly(), builder.extended_domain_);
       } else {

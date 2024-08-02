@@ -4,44 +4,41 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_halo2_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_instance_columns_vec_type_traits.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_log_derivative_halo2_ls.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_ps.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/verifier_impl.h"
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_verifying_key_type_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/halo2/bn254.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
-#include "tachyon/zk/plonk/halo2/ls_type.h"
 #include "tachyon/zk/plonk/halo2/pcs_type.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/sha256_transcript.h"
 #include "tachyon/zk/plonk/halo2/snark_verifier_poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
+#include "tachyon/zk/plonk/halo2/vendor.h"
 
 using namespace tachyon;
 
-using GWCPCS = c::zk::plonk::halo2::bn254::GWCPCS;
-using SHPlonkPCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
-using Halo2LS = c::zk::plonk::halo2::bn254::Halo2LS;
-using LogDerivativeHalo2LS = c::zk::plonk::halo2::bn254::LogDerivativeHalo2LS;
+using PSEGWC = c::zk::plonk::halo2::bn254::PSEGWC;
+using PSESHPlonk = c::zk::plonk::halo2::bn254::PSESHPlonk;
+using ScrollGWC = c::zk::plonk::halo2::bn254::ScrollGWC;
+using ScrollSHPlonk = c::zk::plonk::halo2::bn254::ScrollSHPlonk;
 
-template <typename PCS, typename LS>
-using Verifier = c::zk::plonk::halo2::VerifierImpl<PCS, LS>;
+template <typename PS>
+using Verifier = c::zk::plonk::halo2::VerifierImpl<PS>;
 
 namespace {
 
-template <typename PCS, typename LS>
-Verifier<PCS, LS>* CreateVerifierFromParams(uint8_t transcript_type, uint32_t k,
-                                            const uint8_t* params,
-                                            size_t params_len,
-                                            const uint8_t* proof,
-                                            size_t proof_len) {
-  return new Verifier<PCS, LS>(
+template <typename PS>
+Verifier<PS>* CreateVerifierFromParams(uint8_t transcript_type, uint32_t k,
+                                       const uint8_t* params, size_t params_len,
+                                       const uint8_t* proof, size_t proof_len) {
+  return new Verifier<PS>(
       [transcript_type, k, params, params_len, proof, proof_len]() {
+        using PCS = typename PS::PCS;
+
         PCS pcs;
         base::ReadOnlyBuffer read_buf(params, params_len);
         CHECK(read_buf.Read(&pcs));
@@ -77,8 +74,8 @@ Verifier<PCS, LS>* CreateVerifierFromParams(uint8_t transcript_type, uint32_t k,
           }
         }
         CHECK(reader);
-        zk::plonk::halo2::Verifier<PCS, LS> verifier(std::move(pcs),
-                                                     std::move(reader));
+        zk::plonk::halo2::Verifier<PS> verifier(std::move(pcs),
+                                                std::move(reader));
         verifier.set_domain(PCS::Domain::Create(size_t{1} << k));
         return verifier;
       },
@@ -102,81 +99,76 @@ bool VerifyProof(
 
 }  // namespace
 
-#define INVOKE_VERIFIER(Method, ...)                                         \
-  switch (static_cast<zk::plonk::halo2::PCSType>(verifier->pcs_type)) {      \
-    case zk::plonk::halo2::PCSType::kGWC: {                                  \
-      switch (static_cast<zk::plonk::halo2::LSType>(verifier->ls_type)) {    \
-        case zk::plonk::halo2::LSType::kHalo2: {                             \
-          return Method(                                                     \
-              reinterpret_cast<Verifier<GWCPCS, Halo2LS>*>(verifier->extra), \
-              ##__VA_ARGS__);                                                \
-        }                                                                    \
-        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {                \
-          return Method(                                                     \
-              reinterpret_cast<Verifier<GWCPCS, LogDerivativeHalo2LS>*>(     \
-                  verifier->extra),                                          \
-              ##__VA_ARGS__);                                                \
-        }                                                                    \
-      }                                                                      \
-      break;                                                                 \
-    }                                                                        \
-    case zk::plonk::halo2::PCSType::kSHPlonk: {                              \
-      switch (static_cast<zk::plonk::halo2::LSType>(verifier->ls_type)) {    \
-        case zk::plonk::halo2::LSType::kHalo2: {                             \
-          return Method(reinterpret_cast<Verifier<SHPlonkPCS, Halo2LS>*>(    \
-                            verifier->extra),                                \
-                        ##__VA_ARGS__);                                      \
-        }                                                                    \
-        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {                \
-          return Method(                                                     \
-              reinterpret_cast<Verifier<SHPlonkPCS, LogDerivativeHalo2LS>*>( \
-                  verifier->extra),                                          \
-              ##__VA_ARGS__);                                                \
-        }                                                                    \
-      }                                                                      \
-      break;                                                                 \
-    }                                                                        \
-  }                                                                          \
+#define INVOKE_VERIFIER(Method, ...)                                          \
+  switch (static_cast<zk::plonk::halo2::Vendor>(verifier->vendor)) {          \
+    case zk::plonk::halo2::Vendor::kPSE: {                                    \
+      switch (static_cast<zk::plonk::halo2::PCSType>(verifier->pcs_type)) {   \
+        case zk::plonk::halo2::PCSType::kGWC: {                               \
+          return Method(reinterpret_cast<Verifier<PSEGWC>*>(verifier->extra), \
+                        ##__VA_ARGS__);                                       \
+        }                                                                     \
+        case zk::plonk::halo2::PCSType::kSHPlonk: {                           \
+          return Method(                                                      \
+              reinterpret_cast<Verifier<PSESHPlonk>*>(verifier->extra),       \
+              ##__VA_ARGS__);                                                 \
+        }                                                                     \
+      }                                                                       \
+      break;                                                                  \
+    }                                                                         \
+    case zk::plonk::halo2::Vendor::kScroll: {                                 \
+      switch (static_cast<zk::plonk::halo2::PCSType>(verifier->pcs_type)) {   \
+        case zk::plonk::halo2::PCSType::kGWC: {                               \
+          return Method(                                                      \
+              reinterpret_cast<Verifier<ScrollGWC>*>(verifier->extra),        \
+              ##__VA_ARGS__);                                                 \
+        }                                                                     \
+        case zk::plonk::halo2::PCSType::kSHPlonk: {                           \
+          return Method(                                                      \
+              reinterpret_cast<Verifier<ScrollSHPlonk>*>(verifier->extra),    \
+              ##__VA_ARGS__);                                                 \
+        }                                                                     \
+      }                                                                       \
+      break;                                                                  \
+    }                                                                         \
+  }                                                                           \
   NOTREACHED()
 
 tachyon_halo2_bn254_verifier* tachyon_halo2_bn254_verifier_create_from_params(
-    uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+    uint8_t vendor, uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
     const uint8_t* params, size_t params_len, const uint8_t* proof,
     size_t proof_len) {
   tachyon_halo2_bn254_verifier* verifier = new tachyon_halo2_bn254_verifier;
+  verifier->vendor = vendor;
   verifier->pcs_type = pcs_type;
-  verifier->ls_type = ls_type;
   math::bn254::BN254Curve::Init();
   math::halo2::OverrideSubgroupGenerator();
 
-  switch (static_cast<zk::plonk::halo2::PCSType>(pcs_type)) {
-    case zk::plonk::halo2::PCSType::kGWC: {
-      switch (static_cast<zk::plonk::halo2::LSType>(ls_type)) {
-        case zk::plonk::halo2::LSType::kHalo2: {
-          verifier->extra = CreateVerifierFromParams<GWCPCS, Halo2LS>(
+  switch (static_cast<zk::plonk::halo2::Vendor>(vendor)) {
+    case zk::plonk::halo2::Vendor::kPSE: {
+      switch (static_cast<zk::plonk::halo2::PCSType>(pcs_type)) {
+        case zk::plonk::halo2::PCSType::kGWC: {
+          verifier->extra = CreateVerifierFromParams<PSEGWC>(
               transcript_type, k, params, params_len, proof, proof_len);
           return verifier;
         }
-        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
-          verifier->extra =
-              CreateVerifierFromParams<GWCPCS, LogDerivativeHalo2LS>(
-                  transcript_type, k, params, params_len, proof, proof_len);
+        case zk::plonk::halo2::PCSType::kSHPlonk: {
+          verifier->extra = CreateVerifierFromParams<PSESHPlonk>(
+              transcript_type, k, params, params_len, proof, proof_len);
           return verifier;
         }
       }
       break;
     }
-    case zk::plonk::halo2::PCSType::kSHPlonk: {
-      switch (static_cast<zk::plonk::halo2::LSType>(ls_type)) {
-        case zk::plonk::halo2::LSType::kHalo2: {
-          verifier->extra = CreateVerifierFromParams<SHPlonkPCS, Halo2LS>(
+    case zk::plonk::halo2::Vendor::kScroll: {
+      switch (static_cast<zk::plonk::halo2::PCSType>(pcs_type)) {
+        case zk::plonk::halo2::PCSType::kGWC: {
+          verifier->extra = CreateVerifierFromParams<ScrollGWC>(
               transcript_type, k, params, params_len, proof, proof_len);
           return verifier;
         }
-        case zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
-          verifier->extra =
-              CreateVerifierFromParams<SHPlonkPCS, LogDerivativeHalo2LS>(
-                  transcript_type, k, params, params_len, proof, proof_len);
+        case zk::plonk::halo2::PCSType::kSHPlonk: {
+          verifier->extra = CreateVerifierFromParams<ScrollSHPlonk>(
+              transcript_type, k, params, params_len, proof, proof_len);
           return verifier;
         }
       }

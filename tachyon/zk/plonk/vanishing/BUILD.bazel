@@ -47,7 +47,6 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "circuit_polynomial_builder_forward",
     hdrs = ["circuit_polynomial_builder_forward.h"],
-    deps = ["//tachyon/zk/plonk/halo2:vendor"],
 )
 
 tachyon_cc_library(

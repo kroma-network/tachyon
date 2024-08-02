@@ -15,10 +15,11 @@
 
 namespace tachyon::c::zk::plonk::halo2 {
 
-template <typename PCS, typename LS>
-class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS, LS> {
+template <typename PS>
+class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PS> {
  public:
-  using Base = tachyon::zk::plonk::halo2::Prover<PCS, LS>;
+  using Base = tachyon::zk::plonk::halo2::Prover<PS>;
+  using PCS = typename Base::PCS;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
   using Commitment = typename PCS::Commitment;
@@ -67,9 +68,8 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS, LS> {
     this->transcript_ = std::move(writer);
   }
 
-  template <tachyon::zk::plonk::halo2::Vendor Vendor>
   void CreateProof(
-      tachyon::zk::plonk::ProvingKey<Vendor, LS>& proving_key,
+      tachyon::zk::plonk::ProvingKey<PS>& proving_key,
       tachyon::zk::plonk::halo2::ArgumentData<Poly, Evals>* argument_data) {
     std::string_view arg_data_str;
     if (tachyon::base::Environment::Get("TACHYON_ARG_DATA_LOG_PATH",

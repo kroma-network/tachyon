@@ -60,9 +60,13 @@ class PermutationEvaluator;
 // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
 // You can find more detailed theory in "Halo2 book"
 // https://zcash.github.io/halo2/design/proving-system/vanishing.html
-template <halo2::Vendor Vendor, typename PCS, typename LS>
+template <typename PS>
 class CircuitPolynomialBuilder {
  public:
+  constexpr static halo2::Vendor kVendor = PS::kVendor;
+  constexpr static lookup::Type kLookupType = PS::kLookupType;
+
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
   using C = typename PCS::Commitment;
   using Poly = typename PCS::Poly;
@@ -70,15 +74,15 @@ class CircuitPolynomialBuilder {
   using Domain = typename PCS::Domain;
   using ExtendedDomain = typename PCS::ExtendedDomain;
   using ExtendedEvals = typename PCS::ExtendedEvals;
-  using LookupProver = lookup::Prover<LS::kType, Poly, Evals>;
+  using LookupProver = lookup::Prover<kLookupType, Poly, Evals>;
 
   using EvalsOrExtendedEvals =
-      std::conditional_t<Vendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;
+      std::conditional_t<kVendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;
 
   CircuitPolynomialBuilder(
       const F& omega, const F& extended_omega, const F& theta, const F& beta,
       const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<Vendor, LS>& proving_key,
+      const ProvingKey<PS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<LookupProver>& lookup_provers,
       const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers,
@@ -101,7 +105,7 @@ class CircuitPolynomialBuilder {
       RowOffset last_row, size_t cs_degree,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<Vendor, LS>& proving_key,
+      const ProvingKey<PS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<LookupProver>& lookup_provers,
       const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers) {
@@ -128,9 +132,9 @@ class CircuitPolynomialBuilder {
   ExtendedEvals BuildExtendedCircuitColumn(
       CustomGateEvaluator<Evals>& custom_gate_evaluator,
       PermutationEvaluator<Evals>& permutation_evaluator,
-      lookup::Evaluator<LS::kType, Evals>& lookup_evaluator,
+      lookup::Evaluator<kLookupType, Evals>& lookup_evaluator,
       shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
-    if constexpr (Vendor == halo2::Vendor::kPSE) {
+    if constexpr (kVendor == halo2::Vendor::kPSE) {
       return BuildExtendedCircuitColumnPSE(custom_gate_evaluator,
                                            permutation_evaluator,
                                            lookup_evaluator, shuffle_evaluator);
@@ -164,7 +168,7 @@ class CircuitPolynomialBuilder {
   ExtendedEvals BuildExtendedCircuitColumnPSE(
       CustomGateEvaluator<Evals>& custom_gate_evaluator,
       PermutationEvaluator<Evals>& permutation_evaluator,
-      lookup::Evaluator<LS::kType, Evals>& lookup_evaluator,
+      lookup::Evaluator<kLookupType, Evals>& lookup_evaluator,
       shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
     NOTREACHED();
     return {};
@@ -173,7 +177,7 @@ class CircuitPolynomialBuilder {
   ExtendedEvals BuildExtendedCircuitColumnScroll(
       CustomGateEvaluator<Evals>& custom_gate_evaluator,
       PermutationEvaluator<Evals>& permutation_evaluator,
-      lookup::Evaluator<LS::kType, Evals>& lookup_evaluator,
+      lookup::Evaluator<kLookupType, Evals>& lookup_evaluator,
       shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
     std::vector<std::vector<F>> value_parts;
     value_parts.reserve(num_parts_);
@@ -239,7 +243,7 @@ class CircuitPolynomialBuilder {
   Rotation last_rotation_;
   F delta_start_;
 
-  const ProvingKey<Vendor, LS>& proving_key_;
+  const ProvingKey<PS>& proving_key_;
   const std::vector<PermutationProver<Poly, Evals>>& permutation_provers_;
   const std::vector<LookupProver>& lookup_provers_;
   const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers_;

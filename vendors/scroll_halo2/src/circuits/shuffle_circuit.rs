@@ -262,7 +262,7 @@ mod test {
             TachyonProver,
         },
         cha_cha20_rng::ChaCha20Rng,
-        consts::{TranscriptType, CHA_CHA20_SEED, XOR_SHIFT_SEED},
+        consts::{PCSType, TranscriptType, CHA_CHA20_SEED, XOR_SHIFT_SEED},
         prover::create_proof as tachyon_create_proof,
         sha::ShaWrite,
         xor_shift_rng::XORShiftRng,
@@ -307,7 +307,7 @@ mod test {
             let mut prover =
                 GWCProver::<KZGCommitmentScheme<Bn256>>::new(TranscriptType::Blake2b as u8, K, &s);
 
-            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
+            let mut tachyon_pk = TachyonProvingKey::from(PCSType::GWC, pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
             tachyon_create_proof::<_, _, _, _, _, _>(
@@ -350,7 +350,7 @@ mod test {
             let mut prover =
                 GWCProver::<KZGCommitmentScheme<Bn256>>::new(TranscriptType::Blake2b as u8, K, &s);
 
-            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
+            let mut tachyon_pk = TachyonProvingKey::from(PCSType::GWC, pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
             tachyon_create_proof::<_, _, _, _, _, _>(
@@ -415,7 +415,7 @@ mod test {
                 &s,
             );
 
-            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
+            let mut tachyon_pk = TachyonProvingKey::from(PCSType::SHPlonk, pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
             tachyon_create_proof::<_, _, _, _, _, _>(
@@ -466,7 +466,7 @@ mod test {
                 &s,
             );
 
-            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
+            let mut tachyon_pk = TachyonProvingKey::from(PCSType::SHPlonk, pk_bytes.as_slice());
             let mut transcript = TachyonPoseidonWrite::init(vec![]);
 
             tachyon_create_proof::<_, _, _, _, _, _>(
@@ -517,7 +517,7 @@ mod test {
                 &s,
             );
 
-            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
+            let mut tachyon_pk = TachyonProvingKey::from(PCSType::SHPlonk, pk_bytes.as_slice());
             let mut transcript = TachyonSha256Write::init(vec![]);
 
             tachyon_create_proof::<_, _, _, _, _, _>(

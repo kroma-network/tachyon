@@ -10,9 +10,10 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename Circuit, typename PCS, typename LS>
+template <typename Circuit, typename PS>
 class CircuitTestData {
  public:
+  using PCS = typename PS::PCS;
   using Evals = typename PCS::Evals;
   using RationalEvals = typename PCS::RationalEvals;
 

@@ -779,7 +779,7 @@ class ConstraintSystem {
   }
 
  private:
-  template <tachyon::zk::plonk::halo2::Vendor Vendor, typename LS>
+  template <typename PS>
   friend class c::zk::plonk::ProvingKeyImpl;
 
   FRIEND_TEST(ConstraintSystemTest, Lookup);

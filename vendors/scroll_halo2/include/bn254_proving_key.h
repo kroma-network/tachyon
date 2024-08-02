@@ -17,7 +17,7 @@ class Prover;
 
 class ProvingKey {
  public:
-  explicit ProvingKey(rust::Slice<const uint8_t> pk_bytes);
+  ProvingKey(uint8_t pcs_type, rust::Slice<const uint8_t> pk_bytes);
   ProvingKey(const ProvingKey& other) = delete;
   ProvingKey& operator=(const ProvingKey& other) = delete;
   ~ProvingKey();
@@ -43,7 +43,7 @@ class ProvingKey {
 };
 
 std::unique_ptr<ProvingKey> new_proving_key(
-    rust::Slice<const uint8_t> pk_bytes);
+    uint8_t pcs_type, rust::Slice<const uint8_t> pk_bytes);
 
 }  // namespace tachyon::halo2_api::bn254
 
