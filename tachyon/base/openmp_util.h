@@ -3,6 +3,10 @@
 
 #include <algorithm>
 #include <optional>
+// NOTE(chokobole): There's no specific header for |std::size()|, but it causes
+// an compiler error on g++-12. See
+// https://en.cppreference.com/w/cpp/iterator/size.
+#include <vector>
 
 #if defined(TACHYON_HAS_OPENMP)
 #include <omp.h>
