@@ -135,6 +135,13 @@ TEST_P(ProverTest, Constructor) {
 }
 
 TEST_P(ProverTest, Getters) {
+  Param param = GetParam();
+  if (param.ls_type != TACHYON_HALO2_HALO2_LS ||
+      param.transcript_type != TACHYON_HALO2_BLAKE2B_TRANSCRIPT) {
+    GTEST_SKIP()
+        << "Getters test is not related to ls_type and transcript_type";
+  }
+
   EXPECT_EQ(tachyon_halo2_bn254_prover_get_k(prover_), k_);
   EXPECT_EQ(tachyon_halo2_bn254_prover_get_n(prover_), size_t{1} << k_);
   tachyon_bn254_blinder* blinder =
@@ -178,6 +185,11 @@ TEST_P(ProverTest, Getters) {
 }
 
 TEST_P(ProverTest, Commit) {
+  Param param = GetParam();
+  if (param.transcript_type != TACHYON_HALO2_BLAKE2B_TRANSCRIPT) {
+    GTEST_SKIP() << "Commit test is not related to transcript type";
+  }
+
   using Poly =
       math::UnivariateDensePolynomial<math::bn254::Fr, c::math::kMaxDegree>;
   Poly poly = Poly::Random(5);
@@ -233,6 +245,11 @@ TEST_P(ProverTest, Commit) {
 }
 
 TEST_P(ProverTest, CommitLagrange) {
+  Param param = GetParam();
+  if (param.transcript_type != TACHYON_HALO2_BLAKE2B_TRANSCRIPT) {
+    GTEST_SKIP() << "CommitLagrange test is not related to transcript type";
+  }
+
   using Evals =
       math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
   Evals evals = Evals::Random(5);
@@ -289,6 +306,11 @@ TEST_P(ProverTest, CommitLagrange) {
 }
 
 TEST_P(ProverTest, BatchCommit) {
+  Param param = GetParam();
+  if (param.transcript_type != TACHYON_HALO2_BLAKE2B_TRANSCRIPT) {
+    GTEST_SKIP() << "BatchCommit test is not related to transcript type";
+  }
+
   using Poly =
       math::UnivariateDensePolynomial<math::bn254::Fr, c::math::kMaxDegree>;
   std::vector<Poly> polys =
@@ -352,6 +374,12 @@ TEST_P(ProverTest, BatchCommit) {
 }
 
 TEST_P(ProverTest, BatchCommitLagrange) {
+  Param param = GetParam();
+  if (param.transcript_type != TACHYON_HALO2_BLAKE2B_TRANSCRIPT) {
+    GTEST_SKIP()
+        << "BatchCommitLagrange test is not related to transcript type";
+  }
+
   using Evals =
       math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
   std::vector<Evals> evals_vec =
@@ -452,12 +480,23 @@ void SetRngTestImpl(tachyon_halo2_bn254_prover* prover, uint8_t rng_type) {
 }
 
 TEST_P(ProverTest, SetRng) {
+  Param param = GetParam();
+  if (param.ls_type != TACHYON_HALO2_HALO2_LS ||
+      param.transcript_type != TACHYON_HALO2_BLAKE2B_TRANSCRIPT) {
+    GTEST_SKIP() << "SetRng test is not related to ls_type and transcript_type";
+  }
+
   SetRngTestImpl<crypto::XORShiftRNG>(prover_, TACHYON_RNG_XOR_SHIFT);
   SetRngTestImpl<crypto::ChaCha20RNG>(prover_, TACHYON_RNG_CHA_CHA20);
 }
 
 TEST_P(ProverTest, SetTranscript) {
-  uint8_t transcript_type = GetParam().transcript_type;
+  Param param = GetParam();
+  if (param.ls_type != TACHYON_HALO2_HALO2_LS) {
+    GTEST_SKIP() << "SetRng test is not related to ls_type";
+  }
+
+  uint8_t transcript_type = param.transcript_type;
 
   tachyon_halo2_bn254_transcript_writer* transcript =
       tachyon_halo2_bn254_transcript_writer_create(transcript_type);

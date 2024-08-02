@@ -1,5 +1,10 @@
 load("//bazel:tachyon.bzl", "if_gpu_is_configured")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_unittest",
+    "tachyon_openmp_num_threads_env",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -163,7 +168,7 @@ tachyon_cc_unittest(
         "univariate_evaluations_unittest.cc",
         "univariate_sparse_polynomial_unittest.cc",
     ],
-    tags = ["exclusive"],
+    env = tachyon_openmp_num_threads_env(4),
     deps = [
         ":lagrange_interpolation",
         ":mixed_radix_evaluation_domain",
