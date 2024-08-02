@@ -34,7 +34,6 @@ tachyon_cc_library(
         ":vanishing_utils",
         "//tachyon/base:parallelize",
         "//tachyon/base/containers:adapters",
-        "//tachyon/base/types:always_false",
         "//tachyon/zk/base:rotation",
         "//tachyon/zk/lookup:prover",
         "//tachyon/zk/plonk/base:column_key",

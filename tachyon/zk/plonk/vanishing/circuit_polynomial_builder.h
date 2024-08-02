@@ -16,7 +16,6 @@
 
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/parallelize.h"
-#include "tachyon/base/types/always_false.h"
 #include "tachyon/zk/base/rotation.h"
 #include "tachyon/zk/lookup/prover.h"
 #include "tachyon/zk/plonk/base/column_key.h"
