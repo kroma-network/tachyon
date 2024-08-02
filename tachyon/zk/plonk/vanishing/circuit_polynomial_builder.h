@@ -130,6 +130,51 @@ class CircuitPolynomialBuilder {
       PermutationEvaluator<Evals>& permutation_evaluator,
       lookup::Evaluator<LS::kType, Evals>& lookup_evaluator,
       shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
+    if constexpr (Vendor == halo2::Vendor::kPSE) {
+      return BuildExtendedCircuitColumnPSE(custom_gate_evaluator,
+                                           permutation_evaluator,
+                                           lookup_evaluator, shuffle_evaluator);
+    } else {
+      return BuildExtendedCircuitColumnScroll(
+          custom_gate_evaluator, permutation_evaluator, lookup_evaluator,
+          shuffle_evaluator);
+    }
+  }
+
+ private:
+  friend class CustomGateEvaluator<EvalsOrExtendedEvals>;
+  friend class PermutationEvaluator<EvalsOrExtendedEvals>;
+  friend class lookup::halo2::Evaluator<EvalsOrExtendedEvals>;
+  friend class lookup::log_derivative_halo2::Evaluator<EvalsOrExtendedEvals>;
+  friend class shuffle::Evaluator<EvalsOrExtendedEvals>;
+
+  EvaluationInput<EvalsOrExtendedEvals> ExtractEvaluationInput(
+      std::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
+    return EvaluationInput<EvalsOrExtendedEvals>(std::move(intermediates),
+                                                 std::move(rotations), table_,
+                                                 theta_, beta_, gamma_, y_, n_);
+  }
+
+  void UpdateLPolyCosets() {
+    l_first_ = coset_domain_->FFT(proving_key_.l_first());
+    l_last_ = coset_domain_->FFT(proving_key_.l_last());
+    l_active_row_ = coset_domain_->FFT(proving_key_.l_active_row());
+  }
+
+  ExtendedEvals BuildExtendedCircuitColumnPSE(
+      CustomGateEvaluator<Evals>& custom_gate_evaluator,
+      PermutationEvaluator<Evals>& permutation_evaluator,
+      lookup::Evaluator<LS::kType, Evals>& lookup_evaluator,
+      shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
+    NOTREACHED();
+    return {};
+  }
+
+  ExtendedEvals BuildExtendedCircuitColumnScroll(
+      CustomGateEvaluator<Evals>& custom_gate_evaluator,
+      PermutationEvaluator<Evals>& permutation_evaluator,
+      lookup::Evaluator<LS::kType, Evals>& lookup_evaluator,
+      shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
     std::vector<std::vector<F>> value_parts;
     value_parts.reserve(num_parts_);
     // Calculate the quotient polynomial for each part
@@ -171,26 +216,6 @@ class CircuitPolynomialBuilder {
     }
     std::vector<F> extended = BuildExtendedColumnWithColumns(value_parts);
     return ExtendedEvals(std::move(extended));
-  }
-
- private:
-  friend class CustomGateEvaluator<EvalsOrExtendedEvals>;
-  friend class PermutationEvaluator<EvalsOrExtendedEvals>;
-  friend class lookup::halo2::Evaluator<EvalsOrExtendedEvals>;
-  friend class lookup::log_derivative_halo2::Evaluator<EvalsOrExtendedEvals>;
-  friend class shuffle::Evaluator<EvalsOrExtendedEvals>;
-
-  EvaluationInput<EvalsOrExtendedEvals> ExtractEvaluationInput(
-      std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
-    return EvaluationInput<EvalsOrExtendedEvals>(std::move(intermediates),
-                                                 std::move(rotations), table_,
-                                                 theta_, beta_, gamma_, y_, n_);
-  }
-
-  void UpdateLPolyCosets() {
-    l_first_ = coset_domain_->FFT(proving_key_.l_first());
-    l_last_ = coset_domain_->FFT(proving_key_.l_last());
-    l_active_row_ = coset_domain_->FFT(proving_key_.l_active_row());
   }
 
   // not owned
