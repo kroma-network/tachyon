@@ -1,4 +1,9 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_unittest",
+    "tachyon_openmp_num_threads_env",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -141,7 +146,7 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "multi_lookup_circuit_test",
     srcs = ["multi_lookup_circuit_test.cc"],
-    tags = ["exclusive"],
+    env = tachyon_openmp_num_threads_env(4),
     deps = COMMON_TEST_DEPS + [
         ":multi_lookup_circuit",
         ":multi_lookup_circuit_test_data",
@@ -151,7 +156,7 @@ tachyon_cc_unittest(
 tachyon_cc_unittest(
     name = "shuffle_circuit_test",
     srcs = ["shuffle_circuit_test.cc"],
-    tags = ["exclusive"],
+    env = tachyon_openmp_num_threads_env(4),
     deps = COMMON_TEST_DEPS + [
         ":shuffle_circuit",
         ":shuffle_circuit_test_data",
@@ -161,7 +166,7 @@ tachyon_cc_unittest(
 tachyon_cc_unittest(
     name = "shuffle_api_circuit_test",
     srcs = ["shuffle_api_circuit_test.cc"],
-    tags = ["exclusive"],
+    env = tachyon_openmp_num_threads_env(4),
     deps = COMMON_TEST_DEPS + [
         ":shuffle_api_circuit",
         ":shuffle_api_circuit_test_data",
@@ -171,7 +176,7 @@ tachyon_cc_unittest(
 tachyon_cc_unittest(
     name = "simple_circuit_test",
     srcs = ["simple_circuit_test.cc"],
-    tags = ["exclusive"],
+    env = tachyon_openmp_num_threads_env(4),
     deps = COMMON_TEST_DEPS + [
         ":simple_circuit",
         ":simple_circuit_test_data",
@@ -181,7 +186,7 @@ tachyon_cc_unittest(
 tachyon_cc_unittest(
     name = "simple_lookup_circuit_test",
     srcs = ["simple_lookup_circuit_test.cc"],
-    tags = ["exclusive"],
+    env = tachyon_openmp_num_threads_env(4),
     deps = COMMON_TEST_DEPS + [
         ":simple_lookup_circuit",
         ":simple_lookup_circuit_test_data",

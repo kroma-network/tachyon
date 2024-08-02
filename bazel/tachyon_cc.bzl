@@ -92,6 +92,11 @@ def tachyon_openmp_linkopts():
 def tachyon_linkopts():
     return tachyon_openmp_linkopts()
 
+def tachyon_openmp_num_threads_env(n):
+    return if_has_openmp({
+        "OMP_NUM_THREADS": "{}".format(n),
+    }, {})
+
 def tachyon_cc_library(
         name,
         copts = [],
