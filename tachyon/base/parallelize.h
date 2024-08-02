@@ -51,9 +51,10 @@ void ParallelizeByChunkSize(Container& container, size_t chunk_size,
 // See parallelize_unittest.cc for more details.
 template <typename Container, typename Callable>
 void Parallelize(Container& container, Callable callback,
-                 std::optional<size_t> threshold = std::nullopt) {
+                 std::optional<size_t> threshold = std::nullopt,
+                 std::optional<size_t> num_of_threads = std::nullopt) {
   size_t num_elements_per_thread =
-      GetNumElementsPerThread(container, threshold);
+      GetNumElementsPerThread(container, threshold, num_of_threads);
   ParallelizeByChunkSize(container, num_elements_per_thread,
                          std::move(callback));
 }
