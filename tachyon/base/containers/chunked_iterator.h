@@ -12,11 +12,13 @@
 
 namespace tachyon::base {
 
-template <typename Iter, bool IsConst>
+template <typename Iter>
 class ChunkedIterator {
  public:
+  constexpr static bool kIsConst = base::is_const_iterator_v<Iter>;
   using underlying_value_type =
-      std::conditional_t<IsConst, const iter_value_t<Iter>, iter_value_t<Iter>>;
+      std::conditional_t<kIsConst, const iter_value_t<Iter>,
+                         iter_value_t<Iter>>;
 
   using difference_type = iter_difference_t<Iter>;
   using value_type = absl::Span<underlying_value_type>;
@@ -104,27 +106,14 @@ class ChunkedIterator {
 template <typename T>
 auto ChunkedBegin(T& t, size_t chunk_size) {
   using Iter = decltype(std::begin(std::declval<T&>()));
-  return ChunkedIterator<Iter, false>(
-      std::begin(t), chunk_size, std::distance(std::begin(t), std::end(t)));
+  return ChunkedIterator<Iter>(std::begin(t), chunk_size,
+                               std::distance(std::begin(t), std::end(t)));
 }
 
 template <typename T>
 auto ChunkedEnd(T& t, size_t chunk_size) {
   using Iter = decltype(std::end(std::declval<T&>()));
-  return ChunkedIterator<Iter, false>(std::end(t), chunk_size);
-}
-
-template <typename T>
-auto ChunkedConstBegin(T& t, size_t chunk_size) {
-  using Iter = decltype(std::cbegin(std::declval<T&>()));
-  return ChunkedIterator<Iter, true>(
-      std::cbegin(t), chunk_size, std::distance(std::cbegin(t), std::cend(t)));
-}
-
-template <typename T>
-auto ChunkedConstEnd(T& t, size_t chunk_size) {
-  using Iter = decltype(std::cend(std::declval<T&>()));
-  return ChunkedIterator<Iter, true>(std::cend(t), chunk_size);
+  return ChunkedIterator<Iter>(std::end(t), chunk_size);
 }
 
 }  // namespace tachyon::base

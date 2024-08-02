@@ -47,20 +47,8 @@ class ChunkedAdapter {
 
   ChunkedAdapter& operator=(const ChunkedAdapter& ca) = delete;
 
-  auto begin() const {
-    if constexpr (std::is_const_v<T>) {
-      return ChunkedConstBegin(t_, chunk_size_);
-    } else {
-      return ChunkedBegin(t_, chunk_size_);
-    }
-  }
-  auto end() const {
-    if constexpr (std::is_const_v<T>) {
-      return ChunkedConstEnd(t_, chunk_size_);
-    } else {
-      return ChunkedEnd(t_, chunk_size_);
-    }
-  }
+  auto begin() const { return ChunkedBegin(t_, chunk_size_); }
+  auto end() const { return ChunkedEnd(t_, chunk_size_); }
 
  private:
   T& t_;

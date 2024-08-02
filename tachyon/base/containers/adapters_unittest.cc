@@ -64,6 +64,9 @@ void TestChunked(T&& v) {
 TEST(AdaptersTest, Chunked) {
   std::vector<int> v{1, 2, 3};
   TestChunked<int>(v);
+
+  absl::Span<const int> v_span = v;
+  TestChunked<const int>(v_span);
 }
 
 TEST(AdaptersTest, ChunkedArray) {
