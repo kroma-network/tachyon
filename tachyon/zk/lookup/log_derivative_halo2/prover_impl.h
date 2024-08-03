@@ -106,24 +106,26 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
   std::stable_sort(storage.sorted_table_with_indices.begin(),
                    storage.sorted_table_with_indices.end());
 
-  OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < compressed_inputs.size(); ++i) {
-    for (RowIndex j = 0; j < usable_rows; ++j) {
-      BigInt input = compressed_inputs[i][j].ToBigInt();
-      auto it = base::BinarySearchByKey(
-          storage.sorted_table_with_indices.begin(),
-          storage.sorted_table_with_indices.end(), input, LessThan<BigInt>{});
-      if (it != storage.sorted_table_with_indices.end()) {
-        storage.m_values_atomic[it->index].fetch_add(1,
-                                                     std::memory_order_relaxed);
+  std::vector<F> m_values(prover->pcs().N());
+  OMP_PARALLEL {
+    OMP_NESTED_FOR(size_t i = 0; i < compressed_inputs.size(); ++i) {
+      for (RowIndex j = 0; j < usable_rows; ++j) {
+        BigInt input = compressed_inputs[i][j].ToBigInt();
+        auto it = base::BinarySearchByKey(
+            storage.sorted_table_with_indices.begin(),
+            storage.sorted_table_with_indices.end(), input, LessThan<BigInt>{});
+        if (it != storage.sorted_table_with_indices.end()) {
+          storage.m_values_atomic[it->index].fetch_add(
+              1, std::memory_order_relaxed);
+        }
       }
     }
-  }
 
-  // Convert atomic |m_values| to |Evals|.
-  std::vector<F> m_values(prover->pcs().N());
-  OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
-    m_values[i] =
-        F(storage.m_values_atomic[i].exchange(0, std::memory_order_relaxed));
+    // Convert atomic |m_values| to |Evals|.
+    OMP_FOR(RowIndex i = 0; i < usable_rows; ++i) {
+      m_values[i] =
+          F(storage.m_values_atomic[i].exchange(0, std::memory_order_relaxed));
+    }
   }
 
   BlindedPolynomial<Poly, Evals> m_poly(Evals(std::move(m_values)),

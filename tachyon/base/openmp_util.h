@@ -16,6 +16,7 @@
 #define CONSTEXPR_IF_NOT_OPENMP
 #define OMP_FOR(expr) _Pragma("omp for") for (expr)
 #define OMP_FOR_NOWAIT(expr) _Pragma("omp for nowait") for (expr)
+#define OMP_NESTED_FOR(expr) _Pragma("omp for collapse(2)") for (expr)
 #define OMP_PARALLEL _Pragma("omp parallel")
 #define OPENMP_PARALLEL_FOR(expr) _Pragma("omp parallel for") for (expr)
 #define OPENMP_PARALLEL_NESTED_FOR(expr) \
@@ -25,6 +26,7 @@
 #define CONSTEXPR_IF_NOT_OPENMP constexpr
 #define OMP_FOR(expr) for (expr)
 #define OMP_FOR_NOWAIT(expr) for (expr)
+#define OMP_NESTED_FOR(expr) for (expr)
 #define OMP_PARALLEL
 #define OPENMP_PARALLEL_FOR(expr) for (expr)
 #define OPENMP_PARALLEL_NESTED_FOR(expr) for (expr)
