@@ -1,4 +1,4 @@
-"""loads the hwloc library, used by Tachyon."""
+"""loads the pdqsort library, used by Tachyon."""
 
 load("//third_party:repo.bzl", "tachyon_http_archive", "tf_mirror_urls")
 
