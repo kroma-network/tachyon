@@ -322,8 +322,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       }
     }
 
-    roots_vec_[this->log_size_of_group_ - 1] = largest;
-    inv_roots_vec_[0] = largest_inv;
+    roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
+    inv_roots_vec_[0] = std::move(largest_inv);
 
     // Prepare space in each vector for the others.
     size_t size = this->size_ / 2;
