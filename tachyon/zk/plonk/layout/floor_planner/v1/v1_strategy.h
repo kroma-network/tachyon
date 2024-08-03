@@ -15,10 +15,10 @@
 #include <vector>
 
 #include "absl/container/flat_hash_map.h"
-#include "third_party/pdqsort/include/pdqsort.h"
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/sort.h"
 #include "tachyon/export.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/base/column_type.h"
@@ -72,10 +72,10 @@ SlotInResult<F> SlotIn(std::vector<RegionShape<F>>& region_shapes) {
     // - The sort order relies on Column's Ord implementation!
     std::vector<RegionColumn> region_columns(region.columns().begin(),
                                              region.columns().end());
-    pdqsort(region_columns.begin(), region_columns.end(),
-            [](const RegionColumn& lhs, const RegionColumn& rhs) {
-              return lhs < rhs;
-            });
+    base::UnstableSort(region_columns.begin(), region_columns.end(),
+                       [](const RegionColumn& lhs, const RegionColumn& rhs) {
+                         return lhs < rhs;
+                       });
 
     std::optional<RowIndex> region_start =
         FirstFitRegion(&column_allocations, region_columns, region.row_count(),
@@ -102,41 +102,43 @@ SlotInBiggestAdviceFirstResult SlotInBiggestAdviceFirst(
   // NOTE(TomTaehoonKim): Sorted result might be different from the original
   // See
   // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/layout/floor_planner/v1/strategy.rs#L202-L215
-  pdqsort(sorted_regions.begin(), sorted_regions.end(),
-          [](const RegionShape<F>& lhs, const RegionShape<F>& rhs) {
-            // Count the number of advice columns
-            size_t lhs_advice_cols = 0;
-            for (const RegionColumn& column : lhs.columns()) {
-              if (column.type() == RegionColumn::Type::kColumn) {
-                const AnyColumnKey& c = column.column();
-                if (c.type() == ColumnType::kAdvice) {
-                  ++lhs_advice_cols;
-                }
-              }
-            }
-            size_t rhs_advice_cols = 0;
-            for (const RegionColumn& column : rhs.columns()) {
-              if (column.type() == RegionColumn::Type::kColumn) {
-                const AnyColumnKey& c = column.column();
-                if (c.type() == ColumnType::kAdvice) {
-                  ++rhs_advice_cols;
-                }
-              }
-            }
-            // Sort by advice area (since this has the most contention).
-            return lhs_advice_cols * lhs.row_count() <
-                   rhs_advice_cols * rhs.row_count();
-          });
+  base::UnstableSort(sorted_regions.begin(), sorted_regions.end(),
+                     [](const RegionShape<F>& lhs, const RegionShape<F>& rhs) {
+                       // Count the number of advice columns
+                       size_t lhs_advice_cols = 0;
+                       for (const RegionColumn& column : lhs.columns()) {
+                         if (column.type() == RegionColumn::Type::kColumn) {
+                           const AnyColumnKey& c = column.column();
+                           if (c.type() == ColumnType::kAdvice) {
+                             ++lhs_advice_cols;
+                           }
+                         }
+                       }
+                       size_t rhs_advice_cols = 0;
+                       for (const RegionColumn& column : rhs.columns()) {
+                         if (column.type() == RegionColumn::Type::kColumn) {
+                           const AnyColumnKey& c = column.column();
+                           if (c.type() == ColumnType::kAdvice) {
+                             ++rhs_advice_cols;
+                           }
+                         }
+                       }
+                       // Sort by advice area (since this has the most
+                       // contention).
+                       return lhs_advice_cols * lhs.row_count() <
+                              rhs_advice_cols * rhs.row_count();
+                     });
   std::reverse(sorted_regions.begin(), sorted_regions.end());
 
   // Lay out the sorted regions.
   SlotInResult<F> result = SlotIn(sorted_regions);
 
   // Un-sort the regions so they match the original indexing.
-  pdqsort(result.regions.begin(), result.regions.end(),
-          [](const RegionInfo<F>& lhs, const RegionInfo<F>& rhs) {
-            return lhs.region.region_index() < rhs.region.region_index();
-          });
+  base::UnstableSort(result.regions.begin(), result.regions.end(),
+                     [](const RegionInfo<F>& lhs, const RegionInfo<F>& rhs) {
+                       return lhs.region.region_index() <
+                              rhs.region.region_index();
+                     });
   std::vector<RowIndex> region_starts = base::Map(
       result.regions,
       [](const RegionInfo<F>& region) { return region.region_start; });

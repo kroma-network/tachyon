@@ -154,6 +154,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base:optional",
         "//tachyon/base:parallelize",
+        "//tachyon/base:sort",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
@@ -166,7 +167,6 @@ tachyon_cc_library(
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/numeric:bits",
         "@com_google_absl//absl/types:span",
-        "@pdqsort",
     ],
 )
 

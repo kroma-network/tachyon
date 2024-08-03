@@ -67,12 +67,12 @@ tachyon_cc_library(
     deps = [
         "//tachyon:export",
         "//tachyon/base:logging",
+        "//tachyon/base:sort",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/base:column_type",
         "//tachyon/zk/plonk/layout:region_shape",
         "//tachyon/zk/plonk/layout/floor_planner:allocations",
         "@com_google_absl//absl/container:flat_hash_map",
-        "@pdqsort",
     ],
 )

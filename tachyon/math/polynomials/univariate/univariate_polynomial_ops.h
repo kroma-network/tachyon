@@ -12,10 +12,9 @@
 #include <utility>
 #include <vector>
 
-#include "third_party/pdqsort/include/pdqsort.h"
-
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
+#include "tachyon/base/sort.h"
 #include "tachyon/math/base/arithmetics_results.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -850,7 +849,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
         }
       }
     }
-    pdqsort(c_terms.begin(), c_terms.end());
+    base::UnstableSort(c_terms.begin(), c_terms.end());
     c.coefficients_ = S(std::move(c_terms));
   }
 };
