@@ -97,7 +97,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
     const Evals& compressed_table, ComputeMPolysTempStorage<BigInt>& storage) {
   RowIndex usable_rows = prover->GetUsableRows();
 
-  OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
+  OMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
     storage.sorted_table_with_indices[i] = {i, compressed_table[i].ToBigInt()};
   }
 
@@ -208,11 +208,11 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
     ComputeLogDerivatives(compressed_inputs[i], beta, input_log_derivatives);
 
     if (i == 0) {
-      OPENMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
+      OMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
         storage.inputs_log_derivatives[j] = input_log_derivatives[j];
       }
     } else {
-      OPENMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
+      OMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
         storage.inputs_log_derivatives[j] += input_log_derivatives[j];
       }
     }
@@ -229,7 +229,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
   // |storage.inputs_log_derivatives| since the current values of
   // |storage.inputs_log_derivatives| are not needed anymore.
   std::vector<F>& log_derivatives_diff = storage.inputs_log_derivatives;
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < usable_rows; ++i) {
+  OMP_PARALLEL_FOR(size_t i = 0; i < usable_rows; ++i) {
     log_derivatives_diff[i] -= m_values[i] * storage.table_log_derivatives[i];
     if (i != usable_rows - 1) {
       grand_sum[i + 1] = log_derivatives_diff[i];

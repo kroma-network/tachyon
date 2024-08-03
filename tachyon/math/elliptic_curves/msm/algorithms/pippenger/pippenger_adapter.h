@@ -82,7 +82,7 @@ class PippengerAdapter {
       size_t num_chunks = (scalars_size + chunk_size - 1) / chunk_size;
       std::vector<Result> results;
       results.resize(num_chunks);
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
         size_t start = i * chunk_size;
         size_t len = i == num_chunks - 1 ? scalars_size - start : chunk_size;
         Pippenger<Point> pippenger;

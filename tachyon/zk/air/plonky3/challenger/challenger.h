@@ -97,7 +97,7 @@ class Challenger {
     uint32_t chunk_size = range.GetSize() / thread_nums;
     std::vector<uint32_t> ret(thread_nums,
                               std::numeric_limits<uint32_t>::max());
-    OPENMP_PARALLEL_FOR(uint32_t i = 0; i < thread_nums; ++i) {
+    OMP_PARALLEL_FOR(uint32_t i = 0; i < thread_nums; ++i) {
       uint32_t start = range.from + i * chunk_size;
       uint32_t end = start + std::min(range.to - start, chunk_size);
       for (uint32_t j = start; j < end; ++j) {

@@ -215,7 +215,7 @@ struct CoefficientsSection {
     if (!buffer.ReadPtr(&ptr, num_coefficients)) return false;
     coefficients = {ptr, num_coefficients};
 
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < coefficients.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < coefficients.size(); ++i) {
       coefficients[i].value =
           F::FromMontgomery(coefficients[i].value.ToBigInt());
     }

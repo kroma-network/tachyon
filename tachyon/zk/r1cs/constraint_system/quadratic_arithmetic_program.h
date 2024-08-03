@@ -178,7 +178,7 @@ class QuadraticArithmeticProgram {
                    .Inverse());
 
     // |h_evals[i]| = (|a[i]| * |b[i]| - |c[i]|)) / (g * ωⁿ⁺ˡ⁺¹ - 1)
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
       F& h_evals_i = a_evals.at(i);
       h_evals_i *= b_evals[i];
       h_evals_i -= c_evals[i];

@@ -59,7 +59,7 @@ template <typename Generator,
 std::vector<ReturnType> CreateVectorParallel(size_t size,
                                              Generator&& generator) {
   std::vector<ReturnType> ret(size);
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) { ret[i] = generator(); }
+  OMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) { ret[i] = generator(); }
   return ret;
 }
 
@@ -93,7 +93,7 @@ template <typename Generator,
 std::vector<ReturnType> CreateVectorParallel(size_t size,
                                              Generator&& generator) {
   std::vector<ReturnType> ret(size);
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) { ret[i] = generator(i); }
+  OMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) { ret[i] = generator(i); }
   return ret;
 }
 

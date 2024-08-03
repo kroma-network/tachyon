@@ -43,7 +43,7 @@ math::Vector<F> MulMatVec(const Eigen::MatrixBase<Derived>& matrix,
   static_assert(std::is_same_v<F, typename Derived2::Scalar>);
 
   math::Vector<F> ret = math::Vector<F>::Constant(vector.size(), F::Zero());
-  OPENMP_PARALLEL_FOR(Eigen::Index i = 0; i < matrix.rows(); ++i) {
+  OMP_PARALLEL_FOR(Eigen::Index i = 0; i < matrix.rows(); ++i) {
     for (Eigen::Index j = 0; j < matrix.cols(); ++j) {
       ret[i] += matrix(i, j) * vector[j];
     }
@@ -75,13 +75,13 @@ math::Vector<F> MulMatVec(
 
   math::Vector<F> ret = math::Vector<F>::Constant(vector.size(), F::Zero());
   if (vector.rows() == 1) {
-    OPENMP_PARALLEL_FOR(Eigen::Index i = 0; i < matrix.rows(); ++i) {
+    OMP_PARALLEL_FOR(Eigen::Index i = 0; i < matrix.rows(); ++i) {
       for (Eigen::Index j = 0; j < matrix.cols(); ++j) {
         ret[i] += matrix(i, j) * vector(0, j);
       }
     }
   } else if (vector.cols() == 1) {
-    OPENMP_PARALLEL_FOR(Eigen::Index i = 0; i < matrix.rows(); ++i) {
+    OMP_PARALLEL_FOR(Eigen::Index i = 0; i < matrix.rows(); ++i) {
       for (Eigen::Index j = 0; j < matrix.cols(); ++j) {
         ret[i] += matrix(i, j) * vector(j, 0);
       }
@@ -127,7 +127,7 @@ math::Matrix<F> MulMatMat(const Eigen::MatrixBase<Derived>& matrix,
 
   math::Matrix<F> ret =
       math::Matrix<F>::Constant(matrix.rows(), matrix2.cols(), F::Zero());
-  OPENMP_PARALLEL_FOR(Eigen::Index i = 0; i < matrix.rows(); ++i) {
+  OMP_PARALLEL_FOR(Eigen::Index i = 0; i < matrix.rows(); ++i) {
     for (Eigen::Index j = 0; j < matrix.cols(); ++j) {
       for (Eigen::Index k = 0; k < matrix2.cols(); ++k) {
         ret(i, k) += matrix(i, j) * matrix2(j, k);

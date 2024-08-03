@@ -137,7 +137,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     // an explanation)
     std::vector<F> weights =
         F::GetSuccessivePowers(this->size_, shift, this->size_inv_);
-    OPENMP_PARALLEL_FOR(size_t row = 0; row < weights.size(); ++row) {
+    OMP_PARALLEL_FOR(size_t row = 0; row < weights.size(); ++row) {
       // Reverse bits because |mat| is encoded in bit-reversed order
       mat.row(base::bits::ReverseBitsLen(row, this->log_size_of_group_)) *=
           weights[row];
@@ -227,7 +227,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     IFFTHelperInPlace(poly);
     if (this->offset_.IsOne()) {
       // clang-format off
-      OPENMP_PARALLEL_FOR(F& val : poly.coefficients_.coefficients_) {
+      OMP_PARALLEL_FOR(F& val : poly.coefficients_.coefficients_) {
         // clang-format on
         val *= this->size_inv_;
       }
@@ -262,8 +262,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
     // Each butterfly cluster uses 2 * |gap| positions.
     size_t chunk_size = 2 * gap;
-    OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < poly_or_evals.NumElements();
-                               i += chunk_size) {
+    OMP_PARALLEL_NESTED_FOR(size_t i = 0; i < poly_or_evals.NumElements();
+                            i += chunk_size) {
       for (size_t j = 0; j < gap; ++j) {
         fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap), roots[j]);
       }
@@ -334,7 +334,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
 
     // Assign every element based on the biggest vector.
-    OPENMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
       for (size_t j = 0; j < this->size_ / std::pow(2, i + 1); ++j) {
         size_t k = std::pow(2, i) * j;
         roots_vec_[this->log_size_of_group_ - i - 1][j] = roots_vec_.back()[k];
@@ -374,8 +374,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t chunk_rows = 1 << mid_;
 
     // max block size: 2^|mid_|
-    // TODO(ashjeong): benchmark between |OPENMP_PARALLEL_FOR| here vs
-    // |OPENMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
+    // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
+    // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
     for (size_t block_start = 0; block_start < this->size_;
          block_start += chunk_rows) {
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
@@ -400,8 +400,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t chunk_rows = 1 << (this->log_size_of_group_ - mid_);
 
     // max block size: 2^(|this->log_size_of_group_| - |mid_|)
-    // TODO(ashjeong): benchmark between |OPENMP_PARALLEL_FOR| here vs
-    // |OPENMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
+    // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
+    // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
     for (size_t block_start = 0; block_start < this->size_;
          block_start += chunk_rows) {
       size_t thread = block_start / chunk_rows;
@@ -433,8 +433,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t sub_rows = static_cast<size_t>(submat.rows());
     DCHECK_GE(sub_rows, block_size);
 
-    OPENMP_PARALLEL_NESTED_FOR(size_t block_start = 0; block_start < sub_rows;
-                               block_start += block_size) {
+    OMP_PARALLEL_NESTED_FOR(size_t block_start = 0; block_start < sub_rows;
+                            block_start += block_size) {
       for (size_t i = 0; i < half_block_size; ++i) {
         size_t lo = block_start + i;
         size_t hi = lo + half_block_size;
@@ -464,7 +464,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     std::vector<PackedPrimeField*> shorts_2 =
         PackRowHorizontally<PackedPrimeField>(row_2_block, suffix_2);
 
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < shorts_1.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < shorts_1.size(); ++i) {
       UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<
           PackedPrimeField>(*shorts_1[i], *shorts_2[i], packed_twiddle);
     }

@@ -144,7 +144,7 @@ class Pippenger : public PippengerBase<Point> {
       FillDigits(scalars[i], ctx_.window_bits, &scalar_digits[i]);
     }
     if (parallel_windows_) {
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < ctx_.window_count; ++i) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < ctx_.window_count; ++i) {
         AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
                                      &(*window_sums)[i],
                                      i == ctx_.window_count - 1);
@@ -203,7 +203,7 @@ class Pippenger : public PippengerBase<Point> {
                             absl::Span<const BigInt<N>> scalars,
                             std::vector<Bucket>* window_sums) {
     if (parallel_windows_) {
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < ctx_.window_count; ++i) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < ctx_.window_count; ++i) {
         AccumulateSingleWindowSum(bases_first, scalars, ctx_.window_bits * i,
                                   &(*window_sums)[i]);
       }

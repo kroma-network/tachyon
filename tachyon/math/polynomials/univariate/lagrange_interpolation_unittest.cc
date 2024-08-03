@@ -24,7 +24,7 @@ TEST(LagrangeInterpolationTest, LagrangeInterpolate) {
   UnivariateDensePolynomial<F, kDegree> poly;
   EXPECT_TRUE(LagrangeInterpolate(points, evals, &poly));
 
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < points.size(); ++i) {
+  OMP_PARALLEL_FOR(size_t i = 0; i < points.size(); ++i) {
     EXPECT_EQ(poly.Evaluate(points[i]), evals[i]);
   }
 }

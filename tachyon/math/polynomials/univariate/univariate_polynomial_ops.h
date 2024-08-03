@@ -43,7 +43,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     std::vector<F>& o_coefficients = ret.coefficients_.coefficients_;
     o_coefficients.resize(
         std::max(l_coefficients.size(), r_coefficients.size()));
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
       o_coefficients[i] = self.coefficients_[i] + other.coefficients_[i];
     }
 
@@ -63,7 +63,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
     l_coefficients.resize(
         std::max(l_coefficients.size(), r_coefficients.size()));
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
       l_coefficients[i] += r_coefficients[i];
     }
 
@@ -84,7 +84,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     UnivariatePolynomial<D> ret;
     std::vector<F>& o_coefficients = ret.coefficients_.coefficients_;
     o_coefficients.resize(std::max(degree, other_degree) + 1);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
       o_coefficients[i] = self.coefficients_[i] + other.coefficients()[i];
     }
 
@@ -109,7 +109,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
     const std::vector<Term>& r_terms = other.coefficients().terms_;
-    OPENMP_PARALLEL_FOR(const Term& r_term : r_terms) {
+    OMP_PARALLEL_FOR(const Term& r_term : r_terms) {
       if (r_term.degree <= degree) {
         l_coefficients[r_term.degree] += r_term.coefficient;
       } else {
@@ -138,7 +138,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     std::vector<F>& o_coefficients = ret.coefficients_.coefficients_;
     o_coefficients.resize(
         std::max(l_coefficients.size(), r_coefficients.size()));
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
       o_coefficients[i] = self.coefficients_[i] - other.coefficients_[i];
     }
 
@@ -158,7 +158,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
     l_coefficients.resize(
         std::max(l_coefficients.size(), r_coefficients.size()));
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
       l_coefficients[i] -= r_coefficients[i];
     }
 
@@ -179,7 +179,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     UnivariatePolynomial<D> ret;
     std::vector<F>& o_coefficients = ret.coefficients_.coefficients_;
     o_coefficients.resize(std::max(degree, other_degree) + 1);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
       o_coefficients[i] = self.coefficients_[i] - other.coefficients()[i];
     }
 
@@ -204,7 +204,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
     const std::vector<Term>& r_terms = other.coefficients().terms_;
-    OPENMP_PARALLEL_FOR(const Term& r_term : r_terms) {
+    OMP_PARALLEL_FOR(const Term& r_term : r_terms) {
       if (r_term.degree <= degree) {
         l_coefficients[r_term.degree] -= r_term.coefficient;
       } else {
@@ -225,7 +225,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     }
     const std::vector<F>& i_coefficients = self.coefficients_.coefficients_;
     std::vector<F> o_coefficients(i_coefficients.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
       o_coefficients[i] = -i_coefficients[i];
     }
     return UnivariatePolynomial<D>(D(std::move(o_coefficients)));
@@ -237,7 +237,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     }
     std::vector<F>& coefficients = self.coefficients_.coefficients_;
     // clang-format off
-    OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
+    OMP_PARALLEL_FOR(F& coefficient : coefficients) {
       // clang-format on
       coefficient.NegateInPlace();
     }
@@ -254,7 +254,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     }
     const std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
     std::vector<F> o_coefficients(l_coefficients.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_coefficients.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < l_coefficients.size(); ++i) {
       o_coefficients[i] = l_coefficients[i] * scalar;
     }
     return UnivariatePolynomial<D>(D(std::move(o_coefficients)));
@@ -267,7 +267,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     }
     std::vector<F>& coefficients = self.coefficients_.coefficients_;
     // clang-format off
-    OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
+    OMP_PARALLEL_FOR(F& coefficient : coefficients) {
       // clang-format on
       coefficient *= scalar;
     }
@@ -446,7 +446,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     l_coefficients = std::vector<F>(other.Degree() + 1);
 
     const std::vector<Term>& r_terms = other.coefficients().terms_;
-    OPENMP_PARALLEL_FOR(const Term& r_term : r_terms) {
+    OMP_PARALLEL_FOR(const Term& r_term : r_terms) {
       if constexpr (NEGATION) {
         l_coefficients[r_term.degree] = -r_term.coefficient;
       } else {
@@ -762,9 +762,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     }
     size_t size = self.Degree() + 1;
     std::vector<F> coefficients(size);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
-      coefficients[i] = self[i];
-    }
+    OMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) { coefficients[i] = self[i]; }
     return UnivariatePolynomial<D>(D(std::move(coefficients)));
   }
 

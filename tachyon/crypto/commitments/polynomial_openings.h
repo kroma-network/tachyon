@@ -155,7 +155,7 @@ struct GroupedPolynomialOpenings {
       const Field& r, const std::vector<Poly>& low_degree_extensions) const {
     // numerators: [P₀(X) - R₀(X), P₁(X) - R₁(X), P₂(X) - R₂(X)]
     std::vector<Poly> numerators(low_degree_extensions.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < low_degree_extensions.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < low_degree_extensions.size(); ++i) {
       numerators[i] =
           *poly_openings_vec[i].poly_oracle - low_degree_extensions[i];
     }

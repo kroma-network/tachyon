@@ -28,7 +28,7 @@ class MixedMatrixCommitmentScheme {
   [[nodiscard]] bool Commit(const std::vector<Field>& vector,
                             Commitment* commitment, ProverData* prover_data) {
     math::RowMajorMatrix<Field> matrix(vector.size(), 1);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < vector.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < vector.size(); ++i) {
       matrix(i, 0) = vector[i];
     }
     return Commit(std::move(matrix), commitment, prover_data);

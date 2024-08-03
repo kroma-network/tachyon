@@ -190,7 +190,7 @@ F InterpolateUniPoly(const std::vector<F>& poly, const F& evaluation_point) {
   std::vector<F> products(num_chunks, F::One());
   std::vector<F> denom_ups(num_chunks, F::One());
   std::vector<std::vector<F>> list_of_evals(num_chunks);
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+  OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
     size_t begin = i * chunk_size;
     size_t len = (i == num_chunks - 1) ? poly_size - begin : chunk_size;
     list_of_evals[i].reserve(len);

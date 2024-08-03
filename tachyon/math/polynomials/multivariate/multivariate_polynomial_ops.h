@@ -79,7 +79,7 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
     }
     const Terms& i_terms = self.coefficients_.terms_;
     Terms o_terms(i_terms.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_terms.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < o_terms.size(); ++i) {
       o_terms[i] = -i_terms[i];
     }
     return MultivariatePolynomial<S>(
@@ -93,7 +93,7 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
     }
     Terms& terms = self.coefficients_.terms_;
     // clang-format off
-    OPENMP_PARALLEL_FOR(Term& term : terms) { term.coefficient.NegateInPlace(); }
+    OMP_PARALLEL_FOR(Term& term : terms) { term.coefficient.NegateInPlace(); }
     // clang-format on
     return self;
   }

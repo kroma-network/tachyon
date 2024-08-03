@@ -70,7 +70,7 @@ class UnpermutedTable {
     // Assign [δⁱω⁰, δⁱω¹, δⁱω², ..., δⁱωⁿ⁻¹] to each col.
     for (size_t i = 1; i < cols; ++i) {
       std::vector<F> col(rows);
-      OPENMP_PARALLEL_FOR(RowIndex j = 0; j < rows; ++j) {
+      OMP_PARALLEL_FOR(RowIndex j = 0; j < rows; ++j) {
         col[j] = unpermuted_table[i - 1][j] * delta;
       }
       unpermuted_table.push_back(Evals(std::move(col)));

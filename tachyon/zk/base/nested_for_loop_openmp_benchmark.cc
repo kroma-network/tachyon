@@ -14,7 +14,7 @@ void BM_NestedForLoopParallelCols(benchmark::State& state) {
         return base::CreateVector(rows, []() { return F::Random(); });
       });
   for (auto _ : state) {
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < cols; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < cols; ++i) {
       for (size_t j = 0; j < rows; ++j) {
         table[i][j].DoubleInPlace();
       }
@@ -33,7 +33,7 @@ void BM_NestedForLoopParallelRows(benchmark::State& state) {
       });
   for (auto _ : state) {
     for (size_t i = 0; i < cols; ++i) {
-      OPENMP_PARALLEL_FOR(size_t j = 0; j < rows; ++j) {
+      OMP_PARALLEL_FOR(size_t j = 0; j < rows; ++j) {
         table[i][j].DoubleInPlace();
       }
     }
@@ -50,7 +50,7 @@ void BM_NestedForLoopParallelCollapse(benchmark::State& state) {
         return base::CreateVector(rows, []() { return F::Random(); });
       });
   for (auto _ : state) {
-    OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < cols; ++i) {
+    OMP_PARALLEL_NESTED_FOR(size_t i = 0; i < cols; ++i) {
       for (size_t j = 0; j < rows; ++j) {
         table[i][j].DoubleInPlace();
       }

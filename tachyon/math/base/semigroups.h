@@ -556,7 +556,7 @@ class AdditiveSemigroup {
       LOG(ERROR) << "scalars and bases are empty";
       return false;
     }
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
       (*outputs)[i] = bases[i].ScalarMul(scalars[i]);
     }
     return true;
@@ -572,7 +572,7 @@ class AdditiveSemigroup {
       LOG(ERROR) << "scalars are empty";
       return false;
     }
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
       (*outputs)[i] = base.ScalarMul(scalars[i]);
     }
     return true;
@@ -589,7 +589,7 @@ class AdditiveSemigroup {
       LOG(ERROR) << "bases are empty";
       return false;
     }
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
       (*outputs)[i] = bases[i].ScalarMul(scalar);
     }
     return true;

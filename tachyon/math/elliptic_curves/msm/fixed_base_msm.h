@@ -127,7 +127,7 @@ class FixedBaseMSM {
       LOG(ERROR) << "the size of scalar and output iterators don't match ";
       return false;
     }
-    OPENMP_PARALLEL_FOR(difference_type i = 0; i < size; ++i) {
+    OMP_PARALLEL_FOR(difference_type i = 0; i < size; ++i) {
       *(outputs_first + i) = ScalarMul(*(scalars_first + i));
     }
     return true;
@@ -201,7 +201,7 @@ class FixedBaseMSM {
 
     base_multiples_ = std::vector<std::vector<AddResult>>(
         window_count, std::vector<AddResult>(window_size));
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < window_count; ++i) {
       size_t cur_window_size =
           i == window_count - 1 ? last_window_size : window_size;
 

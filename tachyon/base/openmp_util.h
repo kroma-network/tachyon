@@ -18,8 +18,8 @@
 #define OMP_FOR_NOWAIT(expr) _Pragma("omp for nowait") for (expr)
 #define OMP_NESTED_FOR(expr) _Pragma("omp for collapse(2)") for (expr)
 #define OMP_PARALLEL _Pragma("omp parallel")
-#define OPENMP_PARALLEL_FOR(expr) _Pragma("omp parallel for") for (expr)
-#define OPENMP_PARALLEL_NESTED_FOR(expr) \
+#define OMP_PARALLEL_FOR(expr) _Pragma("omp parallel for") for (expr)
+#define OMP_PARALLEL_NESTED_FOR(expr) \
   _Pragma("omp parallel for collapse(2)") for (expr)
 #else
 #define CONSTEXPR_IF_NOT_OPENMP constexpr
@@ -27,8 +27,8 @@
 #define OMP_FOR_NOWAIT(expr) for (expr)
 #define OMP_NESTED_FOR(expr) for (expr)
 #define OMP_PARALLEL
-#define OPENMP_PARALLEL_FOR(expr) for (expr)
-#define OPENMP_PARALLEL_NESTED_FOR(expr) for (expr)
+#define OMP_PARALLEL_FOR(expr) for (expr)
+#define OMP_PARALLEL_NESTED_FOR(expr) for (expr)
 #endif  // defined(TACHYON_HAS_OPENMP)
 
 namespace tachyon::base {

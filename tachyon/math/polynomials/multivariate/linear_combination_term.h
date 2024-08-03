@@ -51,7 +51,7 @@ struct LinearCombinationTerm {
     size_t num_chunks = (size + chunk_size - 1) / chunk_size;
 
     std::vector<F> sums(num_chunks, F::Zero());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
       size_t start = i * chunk_size;
       size_t len = (i == num_chunks - 1) ? size - start : chunk_size;
       for (size_t j = start; j < start + len; ++j) {

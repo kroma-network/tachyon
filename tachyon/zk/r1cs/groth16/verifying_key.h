@@ -91,7 +91,7 @@ class VerifyingKey : public Key {
     const std::vector<F>& a = qap_instance_map_result.a;
     const std::vector<F>& b = qap_instance_map_result.b;
     const std::vector<F>& c = qap_instance_map_result.c;
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < l.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < l.size(); ++i) {
       l[i] = ComputeABC(a[i], b[i], c[i], toxic_waste, gamma_inverse);
     }
 

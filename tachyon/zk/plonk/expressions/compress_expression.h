@@ -27,13 +27,13 @@ Evals CompressExpressions(
 
   for (size_t expr_idx = 0; expr_idx < expressions.size(); ++expr_idx) {
     if (UNLIKELY(expr_idx == 0)) {
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < compressed_values.size(); ++i) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < compressed_values.size(); ++i) {
         ProvingEvaluator<Evals> evaluator = evaluator_tpl;
         evaluator.set_idx(i);
         compressed_values[i] = evaluator.Evaluate(expressions[expr_idx].get());
       }
     } else {
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < compressed_values.size(); ++i) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < compressed_values.size(); ++i) {
         ProvingEvaluator<Evals> evaluator = evaluator_tpl;
         evaluator.set_idx(i);
         compressed_values[i] *= theta;

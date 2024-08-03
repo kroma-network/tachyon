@@ -164,7 +164,7 @@ class ProvingKey : public Key {
     // | 5 | 0               |
     // | 6 | 0               |
     // | 7 | 0               |
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < usable_rows; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < usable_rows; ++i) {
       // NOTE(chokobole): It's safe to access since we created |domain->size()|
       // |evals|, which is greater than |usable_rows|.
       evals.at(i) = F::One();
