@@ -139,18 +139,15 @@ class QuadraticArithmeticProgram {
     // where x is |full_assignments|.
     // clang-format on
     OMP_PARALLEL {
-      OMP_FOR_NOWAIT
-      for (size_t i = 0; i < matrices.num_constraints; ++i) {
+      OMP_FOR_NOWAIT(size_t i = 0; i < matrices.num_constraints; ++i) {
         a[i] = EvaluateConstraint(matrices.a[i], full_assignments);
       }
 
-      OMP_FOR_NOWAIT
-      for (size_t i = 0; i < matrices.num_constraints; ++i) {
+      OMP_FOR_NOWAIT(size_t i = 0; i < matrices.num_constraints; ++i) {
         b[i] = EvaluateConstraint(matrices.b[i], full_assignments);
       }
 
-      OMP_FOR
-      for (size_t i = 0; i < matrices.num_constraints; ++i) {
+      OMP_FOR(size_t i = 0; i < matrices.num_constraints; ++i) {
         c[i] = EvaluateConstraint(matrices.c[i], full_assignments);
       }
     }

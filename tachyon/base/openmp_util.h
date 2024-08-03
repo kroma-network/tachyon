@@ -14,8 +14,8 @@
 
 #if defined(TACHYON_HAS_OPENMP)
 #define CONSTEXPR_IF_NOT_OPENMP
-#define OMP_FOR _Pragma("omp for")
-#define OMP_FOR_NOWAIT _Pragma("omp for nowait")
+#define OMP_FOR(expr) _Pragma("omp for") for (expr)
+#define OMP_FOR_NOWAIT(expr) _Pragma("omp for nowait") for (expr)
 #define OMP_PARALLEL _Pragma("omp parallel")
 #define OPENMP_PARALLEL_FOR(expr) _Pragma("omp parallel for") for (expr)
 #define OPENMP_PARALLEL_NESTED_FOR(expr) \
@@ -23,8 +23,8 @@
 #define OPENMP_FOR(expr) _Pragma("omp for") for (expr)
 #else
 #define CONSTEXPR_IF_NOT_OPENMP constexpr
-#define OMP_FOR
-#define OMP_FOR_NOWAIT
+#define OMP_FOR(expr) for (expr)
+#define OMP_FOR_NOWAIT(expr) for (expr)
 #define OMP_PARALLEL
 #define OPENMP_PARALLEL_FOR(expr) for (expr)
 #define OPENMP_PARALLEL_NESTED_FOR(expr) for (expr)
