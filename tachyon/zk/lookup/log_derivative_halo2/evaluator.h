@@ -110,19 +110,28 @@ class Evaluator {
       //     = Σᵢ(τ(X) * Π_{j != i} φⱼ(X)) - m(X) * Π(φᵢ(X))
       //
       // (1 - (l_last(X) + l_blind(X))) * (LHS - RHS) = 0
+      std::vector<F> inputs_value;
       size_t start = chunk_offset * chunk_size;
       for (size_t idx = 0; idx < chunk.size(); ++idx) {
         size_t cur_idx = start + idx;
 
         // φᵢ(X) = fᵢ(X) + β
-        std::vector<F> inputs_value = base::Map(
-            inputs_eval_data,
-            [&inputs_evaluator, &cur_idx](
-                size_t i,
-                plonk::EvaluationInput<EvalsOrExtendedEvals>& input_eval_data) {
-              return inputs_evaluator[i].Evaluate(input_eval_data, cur_idx,
-                                                  /*scale=*/1, F::Zero());
-            });
+        if (idx == 0) {
+          inputs_value = base::Map(
+              inputs_eval_data,
+              [&inputs_evaluator, &cur_idx](
+                  size_t i, plonk::EvaluationInput<EvalsOrExtendedEvals>&
+                                input_eval_data) {
+                return inputs_evaluator[i].Evaluate(input_eval_data, cur_idx,
+                                                    /*scale=*/1, F::Zero());
+              });
+        } else {
+          for (size_t i = 0; i < inputs_value.size(); ++i) {
+            inputs_value[i] =
+                inputs_evaluator[i].Evaluate(inputs_eval_data[i], cur_idx,
+                                             /*scale=*/1, F::Zero());
+          }
+        }
 
         // Π(φᵢ(X))
         F inputs_prod = std::accumulate(
