@@ -32,6 +32,7 @@ tachyon_cc_library(
     deps = [
         ":field_merkle_tree",
         "//tachyon/base:bits",
+        "//tachyon/base:sort",
         "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme",
     ],
 )
