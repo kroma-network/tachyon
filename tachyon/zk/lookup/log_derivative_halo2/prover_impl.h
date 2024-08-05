@@ -14,6 +14,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/ref.h"
+#include "tachyon/base/sort.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/prover.h"
 #include "tachyon/zk/plonk/expressions/compress_expression.h"
 
@@ -101,9 +102,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
     storage.sorted_table_with_indices[i] = {i, compressed_table[i].ToBigInt()};
   }
 
-  // TODO(chokobole): Use https://github.com/timsort/cpp-TimSort or
-  // https://github.com/sebawild/powersort for better performance.
-  std::stable_sort(storage.sorted_table_with_indices.begin(),
+  base::StableSort(storage.sorted_table_with_indices.begin(),
                    storage.sorted_table_with_indices.end());
 
   std::vector<F> m_values(prover->pcs().N());

@@ -32,6 +32,12 @@ struct TableEvalWithIndex {
   bool operator<(const TableEvalWithIndex& other) const {
     return eval < other.eval;
   }
+  bool operator<=(const TableEvalWithIndex& other) const {
+    return eval <= other.eval;
+  }
+  bool operator>(const TableEvalWithIndex& other) const {
+    return eval > other.eval;
+  }
 };
 
 template <typename BigInt>
