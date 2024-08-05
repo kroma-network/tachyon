@@ -59,7 +59,7 @@ MakeCirculant(const Eigen::MatrixBase<ArgType>& arg) {
 template <typename PackedField, typename PrimeField, typename Expr,
           int BlockRows, int BlockCols, bool InnerPanel>
 std::vector<PackedField*> PackRowHorizontally(
-    Eigen::Block<Expr, BlockRows, BlockCols, InnerPanel> matrix_row,
+    Eigen::Block<Expr, BlockRows, BlockCols, InnerPanel>& matrix_row,
     std::vector<PrimeField*>& remaining_values) {
   size_t num_packed = matrix_row.cols() / PackedField::N;
   size_t remaining_start_idx = num_packed * PackedField::N;
