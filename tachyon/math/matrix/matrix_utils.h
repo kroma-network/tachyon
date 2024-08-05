@@ -151,9 +151,10 @@ void ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
 // |num_chunks| amount of rows of a given matrix |mat| using vertical
 // striding.
 template <typename Derived>
-std::vector<Eigen::Block<Derived>> SplitMat(size_t num_chunks,
+std::vector<Eigen::Block<Derived>> SplitMat(Eigen::Index num_chunks,
                                             Eigen::MatrixBase<Derived>& mat) {
   Eigen::Index total_span = mat.rows() - num_chunks + 1;
+  CHECK_GE(mat.rows(), num_chunks);
   Eigen::Index num_cols = mat.cols();
   return base::CreateVector(num_chunks, [&mat, total_span, num_cols](size_t i) {
     return mat.block(i, 0, total_span, num_cols);
