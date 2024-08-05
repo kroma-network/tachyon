@@ -56,8 +56,8 @@ class SHPlonkExtension final
       crypto::SHPlonk<Curve, MaxDegree, Commitment>&& shplonk)
       : shplonk_(std::move(shplonk)) {}
 
-  SHPlonkExtension(std::pmr::vector<G1Point>&& g1_powers_of_tau,
-                   std::pmr::vector<G1Point>&& g1_powers_of_tau_lagrange,
+  SHPlonkExtension(std::vector<G1Point>&& g1_powers_of_tau,
+                   std::vector<G1Point>&& g1_powers_of_tau_lagrange,
                    G2Point&& s_g2) {
     crypto::KZG<G1Point, MaxDegree, Commitment> kzg(
         std::move(g1_powers_of_tau), std::move(g1_powers_of_tau_lagrange));
@@ -157,11 +157,11 @@ class SHPlonkExtension final
   friend class base::Copyable<
       SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
 
-  const std::pmr::vector<G1Point>& GetG1PowersOfTau() const {
+  const std::vector<G1Point>& GetG1PowersOfTau() const {
     return this->shplonk_.kzg().g1_powers_of_tau();
   }
 
-  const std::pmr::vector<G1Point>& GetG1PowersOfTauLagrange() const {
+  const std::vector<G1Point>& GetG1PowersOfTauLagrange() const {
     return this->shplonk_.kzg().g1_powers_of_tau_lagrange();
   }
 
