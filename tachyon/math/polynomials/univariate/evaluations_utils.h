@@ -15,12 +15,9 @@
 namespace tachyon::math {
 
 template <typename F>
-std::vector<F> SwapBitRevElements(const std::pmr::vector<F>& vals) {
+std::vector<F> SwapBitRevElements(const std::vector<F>& vals) {
   size_t n = vals.size();
-  if (n == 0) {
-    return std::vector<F>();
-  }
-  std::vector<F> ret(vals.begin(), vals.end());
+  std::vector<F> ret = vals;
   SwapBitRevElementsInPlace(ret, n, base::bits::CheckedLog2(n));
   return ret;
 }
@@ -32,6 +29,7 @@ std::vector<F> SwapBitRevElements(const std::pmr::vector<F>& vals) {
 template <typename Container>
 void SwapBitRevElementsInPlace(Container& container, size_t size,
                                size_t log_len) {
+  if (size <= 1) return;
   OPENMP_PARALLEL_FOR(size_t idx = 1; idx < size; ++idx) {
     size_t ridx = base::bits::BitRev(idx) >> (sizeof(size_t) * 8 - log_len);
     if (idx < ridx) {
