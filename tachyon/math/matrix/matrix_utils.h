@@ -137,7 +137,7 @@ void ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
     return;
   }
   CHECK(base::bits::IsPowerOfTwo(rows));
-  size_t log_n = base::bits::Log2Ceiling(rows);
+  uint32_t log_n = base::bits::Log2Ceiling(rows);
 
   OPENMP_PARALLEL_FOR(size_t row = 1; row < rows; ++row) {
     size_t ridx = base::bits::BitRev(row) >> (sizeof(size_t) * 8 - log_n);
