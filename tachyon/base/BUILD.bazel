@@ -149,7 +149,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "sort",
     hdrs = ["sort.h"],
-    deps = ["@pdqsort"],
+    deps = [
+        "@pdqsort",
+        "@powersort",
+    ],
 )
 
 tachyon_cc_library(

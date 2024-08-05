@@ -1,0 +1,13 @@
+diff --git a/src/algorithms.h b/src/algorithms.h
+index 4b94d9b..a2a2576 100644
+--- a/src/algorithms.h
++++ b/src/algorithms.h
+@@ -16,7 +16,7 @@ namespace algorithms {
+ 
+ 	/** superclass for sorting methods */
+ 	template<typename Iterator>
+-	class sorter : std::binary_function<Iterator, Iterator, void> {
++	class sorter {
+ 	protected:
+ 		using elem_t = typename std::iterator_traits<Iterator>::value_type ;
+ 		using diff_t = typename std::iterator_traits<Iterator>::difference_type ;

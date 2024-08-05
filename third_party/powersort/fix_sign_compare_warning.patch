@@ -1,0 +1,31 @@
+diff --git a/src/sorts/powersort.h b/src/sorts/powersort.h
+index 54ab704..93d2ace 100644
+--- a/src/sorts/powersort.h
++++ b/src/sorts/powersort.h
+@@ -69,7 +69,7 @@ namespace algorithms {
+     power_t node_power_bitwise(size_t begin, size_t end,
+ 	                            size_t beginA, size_t beginB, size_t endB) {
+ 		size_t n = end - begin;
+-		assert (n < (1L << 63));
++		assert (n < (size_t{1} << 63));
+ 		size_t l = beginA - begin + beginB - begin;
+ 		size_t r = beginB - begin + endB - begin;
+ 		// a and b are given by l/(2*n) and r/(2*n), both are in [0,1).
+@@ -90,7 +90,7 @@ namespace algorithms {
+     power_t node_power_clz(size_t begin, size_t end,
+ 	                        size_t beginA, size_t beginB, size_t endB) {
+ 		size_t n = end - begin;
+-		assert(n <= (1L << 31));
++		assert(n <= (size_t{1} << 31));
+ 		unsigned long l2 = beginA + beginB - 2*begin; // 2*l
+ 		unsigned long r2 = beginB + endB - 2*begin;   // 2*r
+ 		auto a = static_cast<unsigned int>((l2 << 30) / n);
+@@ -103,7 +103,7 @@ namespace algorithms {
+ 	                                      ptrdiff_t beginA, ptrdiff_t beginB, ptrdiff_t endB) {
+ 		assert(begin <= beginA && beginA <= beginB && beginB <= endB && endB <= end);
+ 		auto n = static_cast<size_t>(end - begin);
+-		assert(n < (1L << 63));
++		assert(n < (size_t{1} << 63));
+ 		auto l2 = static_cast<size_t>((beginA - begin) + (beginB - begin)); // 2*l
+ 		auto r2 = static_cast<size_t>((beginB - begin) + (endB - begin));   // 2*r
+ 		static_assert(sizeof(size_t) == 8, "assume 64bit size_t"); // can compute with 64 bits
