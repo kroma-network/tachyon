@@ -12,7 +12,9 @@ class FlagValueTraits<Poseidon2Config::PrimeField> {
   static bool ParseValue(std::string_view input,
                          Poseidon2Config::PrimeField* value,
                          std::string* reason) {
-    if (input == "bn254_fr") {
+    if (input == "baby_bear") {
+      *value = Poseidon2Config::PrimeField::kBabyBear;
+    } else if (input == "bn254_fr") {
       *value = Poseidon2Config::PrimeField::kBn254Fr;
     } else {
       *reason = absl::Substitute("Unknown prime field: $0", input);

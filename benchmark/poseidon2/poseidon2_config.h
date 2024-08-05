@@ -11,6 +11,7 @@ namespace tachyon {
 class Poseidon2Config {
  public:
   enum class PrimeField {
+    kBabyBear,
     kBn254Fr,
   };
 

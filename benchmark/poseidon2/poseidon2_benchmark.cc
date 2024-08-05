@@ -8,16 +8,22 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
+#include "tachyon/c/math/finite_fields/baby_bear/baby_bear.h"
+#include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/poseidon2.h"
+#include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
+#include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 
 namespace tachyon {
 
 using namespace crypto;
 
-using Field = math::bn254::Fr;
-
+extern "C" tachyon_baby_bear* run_poseidon_horizen_baby_bear(
+    uint64_t* duration);
+extern "C" tachyon_baby_bear* run_poseidon_plonky3_baby_bear(
+    uint64_t* duration);
 extern "C" tachyon_bn254_fr* run_poseidon_horizen_bn254_fr(uint64_t* duration);
 extern "C" tachyon_bn254_fr* run_poseidon_plonky3_bn254_fr(uint64_t* duration);
 
@@ -28,10 +34,14 @@ void Run(SimplePoseidonBenchmarkReporter& reporter,
 
   PoseidonBenchmarkRunner<Field> runner(&reporter, &config);
 
-  crypto::Poseidon2Config<Field> poseidon2_config =
-      crypto::Poseidon2Config<Field>::CreateCustom(
-          2, 5, 8, 56, math::bn254::GetPoseidon2InternalDiagonalVector<3>());
-
+  crypto::Poseidon2Config<Field> poseidon2_config;
+  if constexpr (std::is_same_v<Field, math::BabyBear>) {
+    poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
+        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalDiagonalVector<16>());
+  } else {
+    poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
+        2, 5, 8, 56, math::bn254::GetPoseidon2InternalDiagonalVector<3>());
+  }
   Field result = runner.Run(poseidon2_config);
   for (const tachyon::Poseidon2Config::Vendor vendor : config.vendors()) {
     Field result_vendor;
@@ -64,6 +74,11 @@ int RealMain(int argc, char** argv) {
   }
 
   switch (config.prime_field()) {
+    case tachyon::Poseidon2Config::PrimeField::kBabyBear: {
+      Run<math::BabyBear>(reporter, config, run_poseidon_horizen_baby_bear,
+                          run_poseidon_plonky3_baby_bear);
+      break;
+    }
     case tachyon::Poseidon2Config::PrimeField::kBn254Fr: {
       Run<math::bn254::Fr>(reporter, config, run_poseidon_horizen_bn254_fr,
                            run_poseidon_plonky3_bn254_fr);

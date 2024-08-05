@@ -1,5 +1,5 @@
 {
-  "checksum": "d9a69b7b7c2e8f7447076811098173ebe669c22af14223e2e9dfeb933bf91d26",
+  "checksum": "5d4563b52a4fb67e240f27d8b902c760a53d92fd0b9afc3a6e6c6b6f33bb5236",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -13490,6 +13490,10 @@
             {
               "id": "ff 0.13.0",
               "target": "ff"
+            },
+            {
+              "id": "p3-baby-bear 0.1.3-succinct",
+              "target": "p3_baby_bear"
             },
             {
               "id": "p3-bn254-fr 0.1.3-succinct",

@@ -1,13 +1,21 @@
 use ff::PrimeField;
+use p3_baby_bear::BabyBear;
 use p3_bn254_fr::{Bn254Fr, DiffusionMatrixBN254, FFBn254Fr};
 use p3_field::AbstractField;
 use p3_poseidon2::{Poseidon2, Poseidon2ExternalMatrixHL};
 use p3_symmetric::Permutation;
 use std::time::Instant;
-use tachyon_rs::math::elliptic_curves::bn::bn254::Fr as CppFr;
+use tachyon_rs::math::{
+    elliptic_curves::bn::bn254::Fr as CppBn254Fr, finite_fields::baby_bear::BabyBear as CppBabyBear,
+};
 use zkhash::ark_ff::{BigInteger, PrimeField as ark_PrimeField};
 use zkhash::fields::bn256::FpBN256 as ark_FpBN256;
 use zkhash::poseidon2::poseidon2_instance_bn256::RC3;
+
+#[no_mangle]
+pub extern "C" fn run_poseidon_plonky3_baby_bear(duration: *mut u64) -> *mut CppBabyBear {
+    Box::into_raw(Box::new(BabyBear::zero())) as *mut CppBabyBear
+}
 
 fn bn254_from_ark_ff(input: ark_FpBN256) -> Bn254Fr {
     let bytes = input.into_bigint().to_bytes_le();
@@ -30,7 +38,7 @@ fn bn254_from_ark_ff(input: ark_FpBN256) -> Bn254Fr {
 }
 
 #[no_mangle]
-pub extern "C" fn run_poseidon_plonky3_bn254_fr(duration: *mut u64) -> *mut CppFr {
+pub extern "C" fn run_poseidon_plonky3_bn254_fr(duration: *mut u64) -> *mut CppBn254Fr {
     const WIDTH: usize = 3;
     const D: u64 = 5;
     const ROUNDS_F: usize = 8;
@@ -78,5 +86,5 @@ pub extern "C" fn run_poseidon_plonky3_bn254_fr(duration: *mut u64) -> *mut CppF
         duration.write(start.elapsed().as_micros() as u64);
     }
 
-    Box::into_raw(Box::new(input[1])) as *mut CppFr
+    Box::into_raw(Box::new(input[1])) as *mut CppBn254Fr
 }
