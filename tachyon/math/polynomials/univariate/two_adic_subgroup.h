@@ -6,7 +6,6 @@
 #ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_TWO_ADIC_SUBGROUP_H_
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_TWO_ADIC_SUBGROUP_H_
 
-#include <memory_resource>
 #include <optional>
 #include <vector>
 
@@ -50,7 +49,7 @@ class TwoAdicSubgroup {
     Eigen::Index rows = mat.rows();
     Eigen::Index cols = mat.cols();
 
-    std::pmr::vector<F> weights = F::GetSuccessivePowers(
+    std::vector<F> weights = F::GetSuccessivePowers(
         rows, F::FromMontgomery(F::Config::kSubgroupGenerator));
     OPENMP_PARALLEL_NESTED_FOR(Eigen::Index row = 0; row < rows; ++row) {
       for (Eigen::Index col = 0; col < cols; ++col) {

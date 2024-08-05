@@ -126,11 +126,10 @@ class Verifier : public VerifierBase<PCS> {
   void ComputeAuxValues(const ConstraintSystem<F>& constraint_system,
                         Proof& proof) const {
     RowIndex blinding_factors = constraint_system.ComputeBlindingFactors();
-    std::pmr::vector<F> l_evals =
-        this->domain_->EvaluatePartialLagrangeCoefficients(
-            proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
-                                 /*IsEndInclusive=*/true>(
-                         -static_cast<int32_t>(blinding_factors + 1), 0));
+    std::vector<F> l_evals = this->domain_->EvaluatePartialLagrangeCoefficients(
+        proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
+                             /*IsEndInclusive=*/true>(
+                     -static_cast<int32_t>(blinding_factors + 1), 0));
     proof.l_first = l_evals[1 + blinding_factors];
     proof.l_blind = std::accumulate(
         l_evals.begin() + 1, l_evals.begin() + 1 + blinding_factors, F::Zero(),
@@ -226,10 +225,10 @@ class Verifier : public VerifierBase<PCS> {
     return *std::max_element(rows.begin(), rows.end());
   }
 
-  static F ComputeInstanceEval(
-      const std::vector<Evals>& instance_columns,
-      const InstanceQueryData& instance_query,
-      const std::pmr::vector<F>& partial_lagrange_coeffs, size_t max_rotation) {
+  static F ComputeInstanceEval(const std::vector<Evals>& instance_columns,
+                               const InstanceQueryData& instance_query,
+                               const std::vector<F>& partial_lagrange_coeffs,
+                               size_t max_rotation) {
     const std::pmr::vector<F>& instances =
         instance_columns[instance_query.column().index()].evaluations();
     size_t offset = max_rotation - instance_query.rotation().value();
@@ -242,7 +241,7 @@ class Verifier : public VerifierBase<PCS> {
   static std::vector<F> ComputeInstanceEvals(
       const std::vector<Evals>& instance_columns,
       const std::vector<InstanceQueryData>& instance_queries,
-      const std::pmr::vector<F>& partial_lagrange_coeffs, size_t max_rotation) {
+      const std::vector<F>& partial_lagrange_coeffs, size_t max_rotation) {
     return base::Map(instance_queries,
                      [&instance_columns, &partial_lagrange_coeffs,
                       max_rotation](const InstanceQueryData& instance_query) {
@@ -281,7 +280,7 @@ class Verifier : public VerifierBase<PCS> {
     RowIndex max_instances_row =
         max_instances_row_it != max_instances_rows.end() ? *max_instances_row_it
                                                          : 0;
-    std::pmr::vector<F> partial_lagrange_coeffs =
+    std::vector<F> partial_lagrange_coeffs =
         this->domain_->EvaluatePartialLagrangeCoefficients(
             x, base::Range<int32_t>(-range.max,
                                     static_cast<int32_t>(max_instances_row) +

@@ -60,7 +60,7 @@ class QuadraticArithmeticProgram {
     // t(x) = xⁿ⁺ˡ⁺¹ - 1
     F t_x = domain->EvaluateVanishingPolynomial(x);
 
-    std::pmr::vector<F> l = domain->EvaluateAllLagrangeCoefficients(x);
+    std::vector<F> l = domain->EvaluateAllLagrangeCoefficients(x);
 
     // |num_qap_variables| = m = (l + 1 - 1) + m - l
     size_t num_qap_variables =

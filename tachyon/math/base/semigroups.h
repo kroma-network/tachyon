@@ -199,7 +199,28 @@ class MultiplicativeSemigroup {
     return g;
   }
 
-  constexpr static std::pmr::vector<MulResult> GetSuccessivePowers(
+  // generator: g
+  // return: [c, c * g, c * g², ..., c * g^{|size| - 1}]
+  constexpr static std::vector<MulResult> GetSuccessivePowers(
+      size_t size, const G& generator, const G& c = G::One()) {
+    std::vector<MulResult> ret(size);
+    base::Parallelize(
+        ret, [&generator, &c](absl::Span<G> chunk, size_t chunk_offset,
+                              size_t chunk_size) {
+          MulResult pow = generator.Pow(chunk_offset * chunk_size);
+          if (!c.IsOne()) pow *= c;
+
+          // NOTE: It is not possible to have empty chunk so this is safe
+          for (size_t i = 0; i < chunk.size() - 1; ++i) {
+            chunk[i] = pow;
+            pow *= generator;
+          }
+          chunk.back() = std::move(pow);
+        });
+    return ret;
+  }
+
+  constexpr static std::pmr::vector<MulResult> GetSuccessivePowersPmr(
       size_t size, const G& generator, const G& c = G::One()) {
     std::pmr::vector<MulResult> ret(size);
     base::Parallelize(

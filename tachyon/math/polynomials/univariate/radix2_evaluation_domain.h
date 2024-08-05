@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
-#include <memory_resource>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -134,7 +133,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     // - divide by number of rows (since we're doing an inverse DFT)
     // - multiply by powers of the coset shift (see default coset LDE impl for
     // an explanation)
-    std::pmr::vector<F> weights = F::GetSuccessivePowers(
+    std::vector<F> weights = F::GetSuccessivePowers(
         this->size_, F::FromMontgomery(F::Config::kSubgroupGenerator),
         this->size_inv_);
     OPENMP_PARALLEL_FOR(size_t row = 0; row < weights.size(); ++row) {

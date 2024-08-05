@@ -6,7 +6,6 @@
 #ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_NAIVE_BATCH_FFT_H_
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_NAIVE_BATCH_FFT_H_
 
-#include <memory_resource>
 #include <vector>
 
 #include "tachyon/base/bits.h"
@@ -26,12 +25,11 @@ class NaiveBatchFFT : public TwoAdicSubgroup<F> {
 
     RowMajorMatrix<F> res = RowMajorMatrix<F>::Zero(rows, cols);
 
-    std::pmr::vector<F> points = F::GetSuccessivePowers(rows, g);
+    std::vector<F> points = F::GetSuccessivePowers(rows, g);
     size_t num_points = points.size();
 
     for (size_t res_r = 0; res_r < num_points; ++res_r) {
-      std::pmr::vector<F> point_powers =
-          F::GetSuccessivePowers(rows, points[res_r]);
+      std::vector<F> point_powers = F::GetSuccessivePowers(rows, points[res_r]);
       for (size_t src_r = 0; src_r < num_points; ++src_r) {
         for (Eigen::Index col = 0; col < cols; ++col) {
           res(res_r, col) += point_powers[src_r] * mat(src_r, col);
