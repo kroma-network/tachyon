@@ -41,7 +41,10 @@ tachyon_cc_binary(
         "//benchmark/poseidon:simple_poseidon_benchmark_reporter",
         "//benchmark/poseidon2/horizen",
         "//benchmark/poseidon2/plonky3",
+        "//tachyon/base/containers:contains",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/c/math/finite_fields/baby_bear",
         "//tachyon/math/elliptic_curves/bn/bn254:poseidon2",
+        "//tachyon/math/finite_fields/baby_bear:poseidon2",
     ],
 )

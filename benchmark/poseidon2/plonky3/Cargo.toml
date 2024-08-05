@@ -17,6 +17,7 @@ publish = false
 
 [dependencies]
 ff = { version = "0.13", features = ["derive", "derive_bits"] }
+p3-baby-bear = "0.1.3-succinct"
 p3-bn254-fr = "0.1.3-succinct"
 p3-field = "0.1.3-succinct"
 p3-poseidon2 = "0.1.3-succinct"
