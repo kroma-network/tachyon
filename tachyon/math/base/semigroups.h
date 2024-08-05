@@ -243,6 +243,21 @@ class MultiplicativeSemigroup {
     return ret;
   }
 
+  // Refer to |GetSuccessivePowers()| for basic approach.
+  // Populates bit-reversed index instead of given index in a serial way.
+  constexpr static std::vector<MulResult> GetBitRevIndexSuccessivePowersSerial(
+      size_t size, const G& generator, const G& c = G::One()) {
+    std::vector<MulResult> ret(size);
+    size_t log_size = base::bits::CheckedLog2(size);
+    MulResult pow = c.IsOne() ? G::One() : c;
+    for (size_t idx = 0; idx < size - 1; ++idx) {
+      ret[base::bits::ReverseBitsLen(idx, log_size)] = pow;
+      pow *= generator;
+    }
+    ret[base::bits::ReverseBitsLen(size - 1, log_size)] = std::move(pow);
+    return ret;
+  }
+
   constexpr auto ExpPowOfTwo(uint32_t log_n) const {
     G val = *static_cast<const G*>(this);
     for (size_t i = 0; i < log_n; ++i) {
