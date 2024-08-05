@@ -6,7 +6,6 @@
 #ifndef TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_VERIFIER_H_
 #define TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_VERIFIER_H_
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -17,8 +16,7 @@
 namespace tachyon::crypto {
 
 template <typename F>
-F InterpolateUniPoly(const std::pmr::vector<F>& poly,
-                     const F& evaluation_point);
+F InterpolateUniPoly(const std::vector<F>& poly, const F& evaluation_point);
 
 // Subclaim created when verifier is convinced.
 template <typename F>
@@ -90,7 +88,7 @@ class SumcheckVerifier {
     F expected = asserted_sum;
 
     for (size_t i = 0; i < num_variables_; ++i) {
-      const std::pmr::vector<F>& evaluations = polynomials_received_[i];
+      const std::vector<F>& evaluations = polynomials_received_[i];
       // Incorrect number of evaluations.
       CHECK_EQ(evaluations.size(), max_evaluations_ + 1);
 
@@ -116,7 +114,7 @@ class SumcheckVerifier {
   std::vector<F> randomness_;
   // A list storing the univariate polynomial in evaluation form sent by the
   // prover at each round.
-  std::vector<std::pmr::vector<F>> polynomials_received_;
+  std::vector<std::vector<F>> polynomials_received_;
 };
 
 // Interpolates the unique univariate polynomial |poly| of degree at most
@@ -125,8 +123,7 @@ class SumcheckVerifier {
 // |evaluation_point|:
 //   ∑ poly[i] * ∏ⱼ≠ᵢ(|evaluation_point| - j)/(i - j), (i = 0,1,...,|poly_size|)
 template <typename F>
-F InterpolateUniPoly(const std::pmr::vector<F>& poly,
-                     const F& evaluation_point) {
+F InterpolateUniPoly(const std::vector<F>& poly, const F& evaluation_point) {
   constexpr size_t kParallelFactor = 16;
 
   using BigInt = typename F::BigIntTy;

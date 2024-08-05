@@ -204,7 +204,7 @@ class BufferReader<tachyon::math::UnivariateDensePolynomial<F, MaxDegree>> {
  public:
   static tachyon::math::UnivariateDensePolynomial<F, MaxDegree> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
-    std::pmr::vector<F> coeffs;
+    std::vector<F> coeffs;
     ReadBuffer(buffer, coeffs);
     return tachyon::math::UnivariateDensePolynomial<F, MaxDegree>(
         tachyon::math::UnivariateDenseCoefficients<F, MaxDegree>(
@@ -217,7 +217,7 @@ class BufferReader<tachyon::math::UnivariateEvaluations<F, MaxDegree>> {
  public:
   static tachyon::math::UnivariateEvaluations<F, MaxDegree> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
-    std::pmr::vector<F> evals;
+    std::vector<F> evals;
     ReadBuffer(buffer, evals);
     return tachyon::math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
   }

@@ -8,7 +8,6 @@
 
 #include <algorithm>
 #include <atomic>
-#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -25,8 +24,8 @@ class UnivariateEvaluationsOp {
   using Poly = UnivariateEvaluations<F, MaxDegree>;
 
   static Poly Add(const Poly& self, const Poly& other) {
-    const std::pmr::vector<F>& l_evaluations = self.evaluations_;
-    const std::pmr::vector<F>& r_evaluations = other.evaluations_;
+    const std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty()) {
       // 0 + g(x)
       return other;
@@ -36,7 +35,7 @@ class UnivariateEvaluationsOp {
       return self;
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
-    std::pmr::vector<F> o_evaluations(r_evaluations.size());
+    std::vector<F> o_evaluations(r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] + r_evaluations[i];
     }
@@ -44,8 +43,8 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly& AddInPlace(Poly& self, const Poly& other) {
-    std::pmr::vector<F>& l_evaluations = self.evaluations_;
-    const std::pmr::vector<F>& r_evaluations = other.evaluations_;
+    std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty()) {
       // 0 + g(x)
       return self = other;
@@ -62,8 +61,8 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly Sub(const Poly& self, const Poly& other) {
-    const std::pmr::vector<F>& l_evaluations = self.evaluations_;
-    const std::pmr::vector<F>& r_evaluations = other.evaluations_;
+    const std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty()) {
       // 0 - g(x)
       return -other;
@@ -73,7 +72,7 @@ class UnivariateEvaluationsOp {
       return self;
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
-    std::pmr::vector<F> o_evaluations(r_evaluations.size());
+    std::vector<F> o_evaluations(r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] - r_evaluations[i];
     }
@@ -81,8 +80,8 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly& SubInPlace(Poly& self, const Poly& other) {
-    std::pmr::vector<F>& l_evaluations = self.evaluations_;
-    const std::pmr::vector<F>& r_evaluations = other.evaluations_;
+    std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty()) {
       // 0 - g(x)
       return self = -other;
@@ -99,11 +98,11 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly Negate(const Poly& self) {
-    const std::pmr::vector<F>& i_evaluations = self.evaluations_;
+    const std::vector<F>& i_evaluations = self.evaluations_;
     if (i_evaluations.empty()) {
       return self;
     }
-    std::pmr::vector<F> o_evaluations(i_evaluations.size());
+    std::vector<F> o_evaluations(i_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < i_evaluations.size(); ++i) {
       o_evaluations[i] = -i_evaluations[i];
     }
@@ -111,7 +110,7 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly& NegateInPlace(Poly& self) {
-    std::pmr::vector<F>& evaluations = self.evaluations_;
+    std::vector<F>& evaluations = self.evaluations_;
     if (evaluations.empty()) {
       return self;
     }
@@ -124,14 +123,14 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly Mul(const Poly& self, const Poly& other) {
-    const std::pmr::vector<F>& l_evaluations = self.evaluations_;
-    const std::pmr::vector<F>& r_evaluations = other.evaluations_;
+    const std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty() || r_evaluations.empty()) {
       // 0 * g(x) or f(x) * 0
       return Poly::Zero();
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
-    std::pmr::vector<F> o_evaluations(r_evaluations.size());
+    std::vector<F> o_evaluations(r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] * r_evaluations[i];
     }
@@ -139,8 +138,8 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly& MulInPlace(Poly& self, const Poly& other) {
-    std::pmr::vector<F>& l_evaluations = self.evaluations_;
-    const std::pmr::vector<F>& r_evaluations = other.evaluations_;
+    std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty()) {
       // 0 * g(x)
       return self;
@@ -158,7 +157,7 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly Mul(const Poly& self, const F& scalar) {
-    const std::pmr::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& l_evaluations = self.evaluations_;
     if (l_evaluations.empty() || scalar.IsZero()) {
       // 0 * s or f(x) * 0
       return Poly::Zero();
@@ -167,7 +166,7 @@ class UnivariateEvaluationsOp {
       // f(x) * 1
       return self;
     }
-    std::pmr::vector<F> o_evaluations(l_evaluations.size());
+    std::vector<F> o_evaluations(l_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] * scalar;
     }
@@ -175,7 +174,7 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly& MulInPlace(Poly& self, const F& scalar) {
-    std::pmr::vector<F>& l_evaluations = self.evaluations_;
+    std::vector<F>& l_evaluations = self.evaluations_;
     if (l_evaluations.empty() || scalar.IsOne()) {
       // 0 * s or f(x) * 1
       return self;
@@ -188,8 +187,8 @@ class UnivariateEvaluationsOp {
 
   CONSTEXPR_IF_NOT_OPENMP static std::optional<Poly> Div(const Poly& self,
                                                          const Poly& other) {
-    const std::pmr::vector<F>& l_evaluations = self.evaluations_;
-    const std::pmr::vector<F>& r_evaluations = other.evaluations_;
+    const std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
     // f(x) / 0
     if (UNLIKELY(r_evaluations.empty())) {
       LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
@@ -204,7 +203,7 @@ class UnivariateEvaluationsOp {
       LOG_IF_NOT_GPU(ERROR) << "Evaluation sizes unequal for division";
       return std::nullopt;
     }
-    std::pmr::vector<F> o_evaluations(r_evaluations.size());
+    std::vector<F> o_evaluations(r_evaluations.size());
     std::atomic<bool> check_valid(true);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       const std::optional<F> div = l_evaluations[i] / r_evaluations[i];
@@ -223,8 +222,8 @@ class UnivariateEvaluationsOp {
 
   [[nodiscard]] CONSTEXPR_IF_NOT_OPENMP static std::optional<Poly*> DivInPlace(
       Poly& self, const Poly& other) {
-    std::pmr::vector<F>& l_evaluations = self.evaluations_;
-    const std::pmr::vector<F>& r_evaluations = other.evaluations_;
+    std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
     // f(x) / 0
     if (UNLIKELY(r_evaluations.empty())) {
       LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";

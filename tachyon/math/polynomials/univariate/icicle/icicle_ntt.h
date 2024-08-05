@@ -2,7 +2,6 @@
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_ICICLE_ICICLE_NTT_H_
 
 #include <memory>
-#include <memory_resource>
 #include <vector>
 
 #include "third_party/icicle/include/ntt/ntt.cu.h"
@@ -48,7 +47,7 @@ class IcicleNTT {
   template <size_t MaxDegree>
   [[nodiscard]] bool FFT(::ntt::NttAlgorithm algorithm, const BigInt& coset,
                          UnivariateEvaluations<F, MaxDegree>& evals) const {
-    const std::pmr::vector<F>& evaluations = evals.evaluations();
+    const std::vector<F>& evaluations = evals.evaluations();
     return Run(algorithm, coset, const_cast<F*>(evaluations.data()),
                evaluations.size(), ::ntt::NTTDir::kForward);
   }
@@ -56,8 +55,7 @@ class IcicleNTT {
   template <size_t MaxDegree>
   [[nodiscard]] bool IFFT(::ntt::NttAlgorithm algorithm, const BigInt& coset,
                           UnivariateDensePolynomial<F, MaxDegree>& poly) const {
-    const std::pmr::vector<F>& coefficients =
-        poly.coefficients().coefficients();
+    const std::vector<F>& coefficients = poly.coefficients().coefficients();
     return Run(algorithm, coset, const_cast<F*>(coefficients.data()),
                coefficients.size(), ::ntt::NTTDir::kInverse);
   }

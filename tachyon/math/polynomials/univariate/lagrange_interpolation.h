@@ -7,7 +7,6 @@
 #ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_LAGRANGE_INTERPOLATION_H_
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_LAGRANGE_INTERPOLATION_H_
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -52,7 +51,7 @@ bool LagrangeInterpolate(
     CHECK(F::BatchInverseInPlaceSerial(chunk));
   });
 
-  std::vector<std::pmr::vector<F>> coeffs_sums = base::ParallelizeMap(
+  std::vector<std::vector<F>> coeffs_sums = base::ParallelizeMap(
       evals, [&points, &denoms](absl::Span<const F> chunk, size_t chunk_offset,
                                 size_t chunk_size) {
         // See comments in |UnivariateDenseCoefficients::FromRoots()|.
@@ -63,8 +62,8 @@ bool LagrangeInterpolate(
         // |coeffs[i]| = cᵢ
         // clang-format on
 
-        std::pmr::vector<F> coeffs(points.size());
-        std::pmr::vector<F> coeffs_sum(points.size());
+        std::vector<F> coeffs(points.size());
+        std::vector<F> coeffs_sum(points.size());
 
         size_t start = chunk_offset * chunk_size;
         for (size_t chunk_idx = 0; chunk_idx < chunk.size(); ++chunk_idx) {
