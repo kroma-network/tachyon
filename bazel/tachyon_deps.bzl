@@ -159,6 +159,15 @@ def tachyon_deps():
             patches = ["@kroma_network_tachyon//third_party/cxx_rs:add_more_args_to_cxx_bridge.patch"],
         )
 
+    if not native.existing_rule("perfetto"):
+        http_archive(
+            name = "perfetto",
+            sha256 = "dfc9b645c020d7a7469bae73d7432545b8005411c8176f46f04875058df0aa97",
+            strip_prefix = "perfetto-46.0",
+            urls = ["https://github.com/google/perfetto/archive/refs/tags/v46.0.tar.gz"],
+            build_file = "@kroma_network_tachyon//third_party:perfetto/perfetto.BUILD",
+        )
+
     if not native.existing_rule("rules_pkg"):
         http_archive(
             name = "rules_pkg",
