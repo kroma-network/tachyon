@@ -12,20 +12,21 @@ namespace tachyon::zk::plonk {
 
 namespace {
 
-class Bn254PlonkProvingKeyTest : public math::FiniteFieldTest<math::bn254::Fr> {
-};
+class Bn254PlonkScrollProvingKeyTest
+    : public math::FiniteFieldTest<math::bn254::Fr> {};
 
 }  // namespace
 
-TEST_F(Bn254PlonkProvingKeyTest, GetVerifyingKey) {
+TEST_F(Bn254PlonkScrollProvingKeyTest, GetVerifyingKey) {
   using PkeyImpl =
-      c::zk::plonk::ProvingKeyImpl<c::zk::plonk::halo2::bn254::Halo2LS>;
+      c::zk::plonk::ProvingKeyImpl<halo2::Vendor::kScroll,
+                                   c::zk::plonk::halo2::bn254::Halo2LS>;
   PkeyImpl cpp_pkey;
 
   tachyon_bn254_plonk_proving_key pkey;
   pkey.ls_type = TACHYON_HALO2_HALO2_LS;
   pkey.extra = &cpp_pkey;
-  EXPECT_EQ(tachyon_bn254_plonk_proving_key_get_verifying_key(&pkey),
+  EXPECT_EQ(tachyon_bn254_plonk_scroll_proving_key_get_verifying_key(&pkey),
             c::base::c_cast(&cpp_pkey.verifying_key()));
 }
 

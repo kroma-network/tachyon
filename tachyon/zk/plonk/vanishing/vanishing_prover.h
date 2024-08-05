@@ -14,6 +14,7 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/lookup/prover.h"
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_prover.h"
@@ -35,10 +36,10 @@ class VanishingProver {
   template <typename PCS>
   void CommitRandomPoly(ProverBase<PCS>* prover, size_t& commit_idx) const;
 
-  template <typename PCS, typename LS,
-            typename LookupProver = typename LS::Prover>
+  template <typename PCS, halo2::Vendor Vendor, typename LS,
+            typename LookupProver = lookup::Prover<LS::kType, Poly, Evals>>
   void CreateHEvals(
-      ProverBase<PCS>* prover, const ProvingKey<LS>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<Vendor, LS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& theta,
       const F& beta, const F& gamma, const F& y,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,

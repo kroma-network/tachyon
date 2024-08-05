@@ -38,13 +38,14 @@ class PermutationProver {
   //
   // See Halo2 book to figure out logic in detail.
   // https://zcash.github.io/halo2/design/proving-system/permutation.html
-  template <typename PCS>
+  template <typename PCS, typename ExtendedEvals = typename PCS::ExtendedEvals>
   static void BatchCreateGrandProductPolys(
       std::vector<PermutationProver>& permutation_provers,
       ProverBase<PCS>* prover, const PermutationArgument& argument,
       const std::vector<MultiPhaseRefTable<Evals>>& tables,
       size_t constraint_system_degree,
-      const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
+      const PermutationProvingKey<Poly, Evals, ExtendedEvals>&
+          permutation_proving_key,
       const F& beta, const F& gamma);
 
   constexpr static size_t GetNumGrandProductPolysCommitments(
@@ -78,17 +79,18 @@ class PermutationProver {
     }
   }
 
-  template <typename PCS>
+  template <typename PCS, typename ExtendedEvals = typename PCS::ExtendedEvals>
   static void EvaluateProvingKey(
       ProverBase<PCS>* prover,
-      const PermutationProvingKey<Poly, Evals>& proving_key,
+      const PermutationProvingKey<Poly, Evals, ExtendedEvals>& proving_key,
       const PermutationOpeningPointSet<F>& point_set);
 
   void Open(const PermutationOpeningPointSet<F>& point_set,
             std::vector<crypto::PolynomialOpening<Poly>>& openings) const;
 
+  template <typename ExtendedEvals>
   static void OpenPermutationProvingKey(
-      const PermutationProvingKey<Poly, Evals>& proving_key,
+      const PermutationProvingKey<Poly, Evals, ExtendedEvals>& proving_key,
       const PermutationOpeningPointSet<F>& point_set,
       std::vector<crypto::PolynomialOpening<Poly>>& openings);
 

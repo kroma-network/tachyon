@@ -47,7 +47,7 @@ template <typename F>
 F GetHalo2Zeta() {
   static F cache = F::Zero();
   if (cache.IsZero()) {
-    halo2::Config& config = halo2::GetConfig();
+    auto& config = halo2::Config::Get();
     if constexpr (std::is_same_v<F, math::bn254::Fr>) {
       if (config.vendor == halo2::Vendor::kScroll) {
         // See
@@ -148,6 +148,16 @@ ExtendedEvals CoeffToExtended(Poly&& poly,
   ExtendedPoly extended_poly(
       Coefficients(std::move(poly).TakeCoefficients().TakeCoefficients()));
   return extended_domain->FFT(std::move(extended_poly));
+}
+
+// This takes us from an n-length coefficient vector into a coset of the
+// extended evaluation domain.
+template <typename Poly, typename ExtendedDomain,
+          typename ExtendedEvals = typename ExtendedDomain::Evals>
+ExtendedEvals CoeffToExtended(const Poly& poly,
+                              const ExtendedDomain* extended_domain) {
+  Poly poly_tmp = poly;
+  return CoeffToExtended(std::move(poly_tmp), extended_domain);
 }
 
 // This takes us from the extended evaluation domain and gets us the quotient

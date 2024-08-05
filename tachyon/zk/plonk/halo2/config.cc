@@ -2,7 +2,8 @@
 
 namespace tachyon::zk::plonk::halo2 {
 
-Config& GetConfig() {
+// static
+Config& Config::Get() {
   static Config config;
   return config;
 }

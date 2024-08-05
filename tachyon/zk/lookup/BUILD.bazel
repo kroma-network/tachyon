@@ -12,9 +12,29 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "evaluator",
+    hdrs = ["evaluator.h"],
+    deps = [
+        ":type",
+        "//tachyon/zk/lookup/halo2:evaluator",
+        "//tachyon/zk/lookup/log_derivative_halo2:evaluator",
+    ],
+)
+
+tachyon_cc_library(
     name = "pair",
     hdrs = ["pair.h"],
     deps = ["//tachyon/base/json"],
+)
+
+tachyon_cc_library(
+    name = "prover",
+    hdrs = ["prover.h"],
+    deps = [
+        ":type",
+        "//tachyon/zk/lookup/halo2:prover",
+        "//tachyon/zk/lookup/log_derivative_halo2:prover",
+    ],
 )
 
 tachyon_cc_library(
@@ -26,8 +46,9 @@ tachyon_cc_library(
     name = "verifier",
     hdrs = ["verifier.h"],
     deps = [
-        ":argument",
-        ":verifier_traits_forward",
+        ":type",
+        "//tachyon/zk/lookup/halo2:verifier",
+        "//tachyon/zk/lookup/log_derivative_halo2:verifier",
     ],
 )
 

@@ -14,22 +14,23 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/zk/plonk/halo2/buffer_reader.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
+#include "tachyon/zk/plonk/halo2/vendor.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
 namespace tachyon::c::zk::plonk {
 
-template <typename LS>
-class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
+template <tachyon::zk::plonk::halo2::Vendor Vendor, typename LS>
+class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<Vendor, LS> {
  public:
   using F = typename LS::Field;
   using C = typename LS::Commitment;
 
   ProvingKeyImpl() {
-    this->verifying_key_.constraint_system_.set_lookup_type(LS::type);
+    this->verifying_key_.constraint_system_.set_lookup_type(LS::kType);
   }
   ProvingKeyImpl(absl::Span<const uint8_t> state, bool read_only_vk)
       : read_only_vk_(read_only_vk) {
-    this->verifying_key_.constraint_system_.set_lookup_type(LS::type);
+    this->verifying_key_.constraint_system_.set_lookup_type(LS::kType);
 
     std::string_view pk_str;
     if (tachyon::base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {
@@ -66,9 +67,13 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<LS> {
     ReadBuffer(buffer, this->l_active_row_);
     ReadBuffer(buffer, this->fixed_columns_);
     ReadBuffer(buffer, this->fixed_polys_);
-    ReadBuffer(buffer, this->permutation_proving_key_);
+    ReadBuffer(buffer, this->permutation_proving_key_.permutations_);
+    ReadBuffer(buffer, this->permutation_proving_key_.polys_);
+    if constexpr (Vendor == tachyon::zk::plonk::halo2::Vendor::kPSE) {
+      ReadBuffer(buffer, this->permutation_proving_key_.cosets_);
+    }
     this->vanishing_argument_ =
-        tachyon::zk::plonk::VanishingArgument<LS>::Create(
+        tachyon::zk::plonk::VanishingArgument<Vendor, LS>::Create(
             this->verifying_key_.constraint_system_);
     CHECK(buffer.Done());
   }

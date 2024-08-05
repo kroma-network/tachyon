@@ -7,9 +7,11 @@
 #ifndef TACHYON_ZK_PLONK_KEYS_C_PROVING_KEY_IMPL_FORWARD_H_
 #define TACHYON_ZK_PLONK_KEYS_C_PROVING_KEY_IMPL_FORWARD_H_
 
+#include "tachyon/zk/plonk/halo2/vendor.h"
+
 namespace tachyon::c::zk::plonk {
 
-template <typename LS>
+template <tachyon::zk::plonk::halo2::Vendor Vendor, typename LS>
 class ProvingKeyImpl;
 
 }  // namespace tachyon::c::zk::plonk

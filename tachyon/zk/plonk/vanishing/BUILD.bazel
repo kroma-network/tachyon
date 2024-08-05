@@ -14,6 +14,18 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "custom_gate_evaluator",
+    hdrs = ["custom_gate_evaluator.h"],
+    deps = [
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/plonk/constraint_system:gate",
+        "//tachyon/zk/plonk/vanishing:circuit_polynomial_builder_forward",
+        "//tachyon/zk/plonk/vanishing:graph_evaluator",
+        "//tachyon/zk/plonk/vanishing:vanishing_utils",
+    ],
+)
+
+tachyon_cc_library(
     name = "circuit_polynomial_builder",
     hdrs = ["circuit_polynomial_builder.h"],
     deps = [
@@ -22,12 +34,10 @@ tachyon_cc_library(
         ":vanishing_utils",
         "//tachyon/base:parallelize",
         "//tachyon/base/containers:adapters",
-        "//tachyon/base/numerics:checked_math",
         "//tachyon/base/types:always_false",
         "//tachyon/zk/base:rotation",
+        "//tachyon/zk/lookup:prover",
         "//tachyon/zk/plonk/base:column_key",
-        "//tachyon/zk/plonk/base:multi_phase_owned_table",
-        "//tachyon/zk/plonk/base:multi_phase_ref_table",
         "//tachyon/zk/plonk/keys:proving_key_forward",
         "//tachyon/zk/plonk/permutation:permutation_prover",
         "//tachyon/zk/shuffle:prover",
@@ -38,12 +48,13 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "circuit_polynomial_builder_forward",
     hdrs = ["circuit_polynomial_builder_forward.h"],
+    deps = ["//tachyon/zk/plonk/halo2:vendor"],
 )
 
 tachyon_cc_library(
     name = "evaluation_input",
     hdrs = ["evaluation_input.h"],
-    deps = ["//tachyon/zk/plonk/base:multi_phase_owned_table"],
+    deps = ["//tachyon/zk/plonk/base:multi_phase_ref_table"],
 )
 
 tachyon_cc_library(
@@ -82,9 +93,10 @@ tachyon_cc_library(
     hdrs = ["vanishing_argument.h"],
     deps = [
         ":circuit_polynomial_builder",
-        ":graph_evaluator",
-        "//tachyon/base/containers:container_util",
+        ":custom_gate_evaluator",
+        "//tachyon/zk/lookup:evaluator",
         "//tachyon/zk/plonk/constraint_system",
+        "//tachyon/zk/plonk/permutation:permutation_evaluator",
         "//tachyon/zk/shuffle:evaluator",
     ],
 )
@@ -99,6 +111,7 @@ tachyon_cc_library(
         ":vanishing_argument",
         ":vanishing_utils",
         "//tachyon/crypto/commitments:polynomial_openings",
+        "//tachyon/zk/lookup:prover",
         "//tachyon/zk/plonk/base:multi_phase_ref_table",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/permutation:permutation_prover",

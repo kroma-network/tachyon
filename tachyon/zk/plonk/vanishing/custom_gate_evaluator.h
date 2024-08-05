@@ -1,0 +1,122 @@
+// Copyright 2020-2022 The Electric Coin Company
+// Copyright 2022 The Halo2 developers
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
+// file.
+
+#ifndef TACHYON_ZK_PLONK_VANISHING_CUSTOM_GATE_EVALUATOR_H_
+#define TACHYON_ZK_PLONK_VANISHING_CUSTOM_GATE_EVALUATOR_H_
+
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "tachyon/base/containers/container_util.h"
+#include "tachyon/zk/plonk/constraint_system/gate.h"
+#include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder_forward.h"
+#include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
+
+namespace tachyon::zk::plonk {
+
+template <typename EvalsOrExtendedEvals>
+class CustomGateEvaluator {
+ public:
+  using F = typename EvalsOrExtendedEvals::Field;
+
+  void Construct(const std::vector<Gate<F>>& gates) {
+    std::vector<ValueSource> parts;
+    for (const Gate<F>& gate : gates) {
+      std::vector<ValueSource> tmp =
+          base::Map(gate.polys(),
+                    [this](const std::unique_ptr<Expression<F>>& expression) {
+                      return evaluator_.AddExpression(expression.get());
+                    });
+      parts.insert(parts.end(), std::make_move_iterator(tmp.begin()),
+                   std::make_move_iterator(tmp.end()));
+    }
+    evaluator_.AddCalculation(Calculation::Horner(
+        ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));
+  }
+
+  template <halo2::Vendor Vendor, typename PCS, typename LS>
+  void Evaluate(CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+                absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+    EvaluationInput<EvalsOrExtendedEvals> evaluation_input =
+        builder.ExtractEvaluationInput(evaluator_.CreateInitialIntermediates(),
+                                       evaluator_.CreateEmptyRotations());
+    size_t start = chunk_offset * chunk_size;
+    for (size_t i = 0; i < chunk.size(); ++i) {
+      chunk[i] = evaluator_.Evaluate(evaluation_input, start + i,
+                                     /*scale=*/1, chunk[i]);
+    }
+  }
+
+  template <halo2::Vendor Vendor, typename PCS, typename LS>
+  void UpdateCosets(CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+                    size_t circuit_idx) {
+    using Poly = typename PCS::Poly;
+
+    if constexpr (Vendor == halo2::Vendor::kScroll) {
+      absl::Span<const Poly> new_fixed_columns =
+          builder.poly_tables_[circuit_idx].GetFixedColumns();
+      fixed_column_cosets_.resize(new_fixed_columns.size());
+      for (size_t i = 0; i < new_fixed_columns.size(); ++i) {
+        fixed_column_cosets_[i] =
+            builder.coset_domain_->FFT(new_fixed_columns[i]);
+      }
+    }
+
+    absl::Span<const Poly> new_advice_columns =
+        builder.poly_tables_[circuit_idx].GetAdviceColumns();
+    advice_column_cosets_.resize(new_advice_columns.size());
+    for (size_t i = 0; i < new_advice_columns.size(); ++i) {
+      if constexpr (Vendor == halo2::Vendor::kPSE) {
+        advice_column_cosets_[i] =
+            CoeffToExtended(new_advice_columns[i], builder.extended_domain_);
+      } else {
+        advice_column_cosets_[i] =
+            builder.coset_domain_->FFT(new_advice_columns[i]);
+      }
+    }
+
+    absl::Span<const Poly> new_instance_columns =
+        builder.poly_tables_[circuit_idx].GetInstanceColumns();
+    instance_column_cosets_.resize(new_instance_columns.size());
+    for (size_t i = 0; i < new_instance_columns.size(); ++i) {
+      if constexpr (Vendor == halo2::Vendor::kPSE) {
+        instance_column_cosets_[i] =
+            CoeffToExtended(new_instance_columns[i], builder.extended_domain_);
+      } else {
+        instance_column_cosets_[i] =
+            builder.coset_domain_->FFT(new_instance_columns[i]);
+      }
+    }
+
+    if constexpr (Vendor == halo2::Vendor::kPSE) {
+      builder.table_ = {
+          builder.proving_key_.fixed_cosets(),
+          advice_column_cosets_,
+          instance_column_cosets_,
+          builder.poly_tables_[circuit_idx].challenges(),
+      };
+    } else {
+      builder.table_ = {
+          fixed_column_cosets_,
+          advice_column_cosets_,
+          instance_column_cosets_,
+          builder.poly_tables_[circuit_idx].challenges(),
+      };
+    }
+  }
+
+ private:
+  GraphEvaluator<F> evaluator_;
+  std::vector<EvalsOrExtendedEvals> fixed_column_cosets_;
+  std::vector<EvalsOrExtendedEvals> advice_column_cosets_;
+  std::vector<EvalsOrExtendedEvals> instance_column_cosets_;
+};
+
+}  // namespace tachyon::zk::plonk
+
+#endif  // TACHYON_ZK_PLONK_VANISHING_CUSTOM_GATE_EVALUATOR_H_

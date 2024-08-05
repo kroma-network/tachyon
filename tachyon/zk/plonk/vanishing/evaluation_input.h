@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/base/multi_phase_owned_table.h"
+#include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 
 namespace tachyon::zk::plonk {
 
@@ -23,7 +23,7 @@ class EvaluationInput {
 
   EvaluationInput(std::vector<F>&& intermediates,
                   std::vector<int32_t>&& rotations,
-                  const MultiPhaseOwnedTable<Evals>& table, const F& theta,
+                  const MultiPhaseRefTable<Evals>& table, const F& theta,
                   const F& beta, const F& gamma, const F& y, int32_t n)
       : intermediates_(std::move(intermediates)),
         rotations_(std::move(rotations)),
@@ -38,7 +38,7 @@ class EvaluationInput {
   std::vector<F>& intermediates() { return intermediates_; }
   const std::vector<int32_t>& rotations() const { return rotations_; }
   std::vector<int32_t>& rotations() { return rotations_; }
-  const MultiPhaseOwnedTable<Evals>& table() const { return table_; }
+  const MultiPhaseRefTable<Evals>& table() const { return table_; }
   const F& theta() const { return theta_; }
   const F& beta() const { return beta_; }
   const F& gamma() const { return gamma_; }
@@ -48,7 +48,7 @@ class EvaluationInput {
  private:
   std::vector<F> intermediates_;
   std::vector<int32_t> rotations_;
-  const MultiPhaseOwnedTable<Evals>& table_;
+  const MultiPhaseRefTable<Evals>& table_;
   const F& theta_;
   const F& beta_;
   const F& gamma_;

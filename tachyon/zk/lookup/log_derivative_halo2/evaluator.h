@@ -15,6 +15,7 @@
 #include "tachyon/zk/lookup/log_derivative_halo2/prover.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder_forward.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 
 namespace tachyon::zk::lookup::log_derivative_halo2 {
 
@@ -29,21 +30,17 @@ struct LookupEvaluatorsPair {
         table_evaluator(std::move(table_evaluator)) {}
 };
 
-template <typename Evals>
+template <typename EvalsOrExtendedEvals>
 class Evaluator {
  public:
-  using F = typename Evals::Field;
+  using F = typename EvalsOrExtendedEvals::Field;
 
-  const std::vector<LookupEvaluatorsPair<F>>& lookup_evaluators_pairs() const {
-    return lookup_evaluators_pairs_;
-  }
-
-  void EvaluateLookups(const std::vector<Argument<F>>& lookups) {
-    lookup_evaluators_pairs_.reserve(lookups.size());
-    for (const Argument<F>& lookup : lookups) {
+  void Construct(const std::vector<Argument<F>>& arguments) {
+    evaluators_pairs_.reserve(arguments.size());
+    for (const Argument<F>& argument : arguments) {
       plonk::GraphEvaluator<F> graph_table;
       std::vector<plonk::GraphEvaluator<F>> graph_inputs(
-          lookup.inputs_expressions().size());
+          argument.inputs_expressions().size());
 
       auto compress =
           [](plonk::GraphEvaluator<F>& graph,
@@ -58,48 +55,48 @@ class Evaluator {
                 plonk::ValueSource::Theta()));
           };
 
-      for (size_t i = 0; i < lookup.inputs_expressions().size(); ++i) {
+      for (size_t i = 0; i < argument.inputs_expressions().size(); ++i) {
         // f_compressed(X) = θᵐ⁻¹f₀(X) + θᵐ⁻²f₁(X) + ... + θfₘ₋₂(X) + fₘ₋₁(X)
         plonk::ValueSource compressed_input_coset =
-            compress(graph_inputs[i], lookup.inputs_expressions()[i]);
+            compress(graph_inputs[i], argument.inputs_expressions()[i]);
         // f_compressed(X) + β
         graph_inputs[i].AddCalculation(plonk::Calculation::Add(
             compressed_input_coset, plonk::ValueSource::Beta()));
       }
       // t_compressed(X) = θᵐ⁻¹t₀(X) + θᵐ⁻²t₁(X) + ... + θtₘ₋₂(X) + tₘ₋₁(X)
       plonk::ValueSource compressed_table_coset =
-          compress(graph_table, lookup.table_expressions());
+          compress(graph_table, argument.table_expressions());
       // t_compressed(X) + β
       graph_table.AddCalculation(plonk::Calculation::Add(
           compressed_table_coset, plonk::ValueSource::Beta()));
 
-      lookup_evaluators_pairs_.push_back(LookupEvaluatorsPair<F>(
+      evaluators_pairs_.push_back(LookupEvaluatorsPair<F>(
           std::move(graph_inputs), std::move(graph_table)));
     }
   }
 
-  template <typename PCS, typename LS>
-  void UpdateChunkByLookups(plonk::CircuitPolynomialBuilder<PCS, LS>& builder,
-                            absl::Span<F> chunk, size_t chunk_offset,
-                            size_t chunk_size) {
-    for (size_t lookup_idx = 0; lookup_idx < lookup_evaluators_pairs_.size();
+  template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
+  void Evaluate(plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+                absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+    for (size_t lookup_idx = 0; lookup_idx < evaluators_pairs_.size();
          ++lookup_idx) {
       const std::vector<plonk::GraphEvaluator<F>>& inputs_evaluator =
-          lookup_evaluators_pairs_[lookup_idx].inputs_evaluator;
+          evaluators_pairs_[lookup_idx].inputs_evaluator;
       const plonk::GraphEvaluator<F>& table_evaluator =
-          lookup_evaluators_pairs_[lookup_idx].table_evaluator;
-      const Evals& sum_coset = lookup_sum_cosets_[lookup_idx];
-      const Evals& m_coset = lookup_m_cosets_[lookup_idx];
+          evaluators_pairs_[lookup_idx].table_evaluator;
+      const EvalsOrExtendedEvals& sum_coset = sum_cosets_[lookup_idx];
+      const EvalsOrExtendedEvals& m_coset = m_cosets_[lookup_idx];
 
-      std::vector<plonk::EvaluationInput<Evals>> inputs_eval_data = base::Map(
-          inputs_evaluator,
-          [&builder](const plonk::GraphEvaluator<F>& input_evaluator) {
-            return builder.ExtractEvaluationInput(
-                input_evaluator.CreateInitialIntermediates(),
-                input_evaluator.CreateEmptyRotations());
-          });
+      std::vector<plonk::EvaluationInput<EvalsOrExtendedEvals>>
+          inputs_eval_data = base::Map(
+              inputs_evaluator,
+              [&builder](const plonk::GraphEvaluator<F>& input_evaluator) {
+                return builder.ExtractEvaluationInput(
+                    input_evaluator.CreateInitialIntermediates(),
+                    input_evaluator.CreateEmptyRotations());
+              });
 
-      plonk::EvaluationInput<Evals> table_eval_data =
+      plonk::EvaluationInput<EvalsOrExtendedEvals> table_eval_data =
           builder.ExtractEvaluationInput(
               table_evaluator.CreateInitialIntermediates(),
               table_evaluator.CreateEmptyRotations());
@@ -121,7 +118,8 @@ class Evaluator {
         std::vector<F> inputs_value = base::Map(
             inputs_eval_data,
             [&inputs_evaluator, &cur_idx](
-                size_t i, plonk::EvaluationInput<Evals>& input_eval_data) {
+                size_t i,
+                plonk::EvaluationInput<EvalsOrExtendedEvals>& input_eval_data) {
               return inputs_evaluator[i].Evaluate(input_eval_data, cur_idx,
                                                   /*scale=*/1, F::Zero());
             });
@@ -171,28 +169,38 @@ class Evaluator {
     }
   }
 
-  template <typename PCS, typename LS>
-  void UpdateLookupCosets(plonk::CircuitPolynomialBuilder<PCS, LS>& builder,
-                          size_t circuit_idx) {
-    using LookupProver = Prover<typename PCS::Poly, Evals>;
+  template <plonk::halo2::Vendor Vendor, typename PCS, typename LS>
+  void UpdateCosets(plonk::CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
+                    size_t circuit_idx) {
+    using Poly = typename PCS::Poly;
+    using Evals = typename PCS::Evals;
+    using LookupProver = Prover<Poly, Evals>;
 
     size_t num_lookups =
         builder.lookup_provers_[circuit_idx].grand_sum_polys().size();
-    const LookupProver& lookup_prover = builder.lookup_provers_[circuit_idx];
-    lookup_sum_cosets_.resize(num_lookups);
-    lookup_m_cosets_.resize(num_lookups);
+    if (num_lookups == 0) return;
+
+    const LookupProver& prover = builder.lookup_provers_[circuit_idx];
+    sum_cosets_.resize(num_lookups);
+    m_cosets_.resize(num_lookups);
     for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_sum_cosets_[i] =
-          builder.coset_domain_->FFT(lookup_prover.grand_sum_polys()[i].poly());
-      lookup_m_cosets_[i] =
-          builder.coset_domain_->FFT(lookup_prover.m_polys()[i].poly());
+      if constexpr (Vendor == plonk::halo2::Vendor::kPSE) {
+        sum_cosets_[i] = plonk::CoeffToExtended(
+            prover.grand_sum_polys()[i].poly(), builder.extended_domain_);
+        m_cosets_[i] = plonk::CoeffToExtended(prover.m_polys()[i].poly(),
+                                              builder.extended_domain_);
+      } else {
+        sum_cosets_[i] =
+            builder.coset_domain_->FFT(prover.grand_sum_polys()[i].poly());
+        m_cosets_[i] = builder.coset_domain_->FFT(prover.m_polys()[i].poly());
+      }
     }
   }
 
  private:
-  std::vector<LookupEvaluatorsPair<F>> lookup_evaluators_pairs_;
-  std::vector<Evals> lookup_sum_cosets_;
-  std::vector<Evals> lookup_m_cosets_;
+  std::vector<LookupEvaluatorsPair<F>> evaluators_pairs_;
+  std::vector<EvalsOrExtendedEvals> sum_cosets_;
+  std::vector<EvalsOrExtendedEvals> m_cosets_;
 };
 
 }  // namespace tachyon::zk::lookup::log_derivative_halo2

@@ -20,6 +20,7 @@
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/halo2/utils.h"
+#include "tachyon/zk/lookup/verifier.h"
 #include "tachyon/zk/plonk/halo2/proof_reader.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
@@ -47,8 +48,7 @@ class Verifier : public VerifierBase<PCS> {
   using Coefficients = typename Poly::Coefficients;
   using Opening = crypto::PolynomialOpening<Poly, Commitment>;
   using LS = _LS;
-  using LookupVerifier = typename LS::Verifier;
-  using Proof = typename LS::Proof;
+  using Proof = halo2::Proof<LS::kType, F, Commitment>;
 
   using VerifierBase<PCS>::VerifierBase;
 
@@ -305,7 +305,7 @@ class Verifier : public VerifierBase<PCS> {
         GetNumVanishingEvals(num_circuits, constraint_system.gates()) +
         GetNumPermutationEvals(
             num_circuits, proof.permutation_product_commitments_vec[0].size()) +
-        lookup::halo2::GetNumEvals(LS::type, num_circuits,
+        lookup::halo2::GetNumEvals(LS::kType, num_circuits,
                                    constraint_system.lookups().size()) +
         shuffle::GetNumEvals(num_circuits, constraint_system.shuffles().size());
     std::vector<F> evals;
@@ -328,7 +328,8 @@ class Verifier : public VerifierBase<PCS> {
       permutation_verifier.Evaluate(constraint_system, proof.x, l_values,
                                     evals);
 
-      LookupVerifier lookup_verifier(proof, i, l_values);
+      lookup::Verifier<LS::kType, F, Commitment> lookup_verifier(proof, i,
+                                                                 l_values);
       lookup_verifier.Evaluate(constraint_system.lookups(), evals);
 
       shuffle::Verifier<F, Commitment> shuffle_verifier(
@@ -356,7 +357,7 @@ class Verifier : public VerifierBase<PCS> {
         GetNumPermutationOpenings(
             num_circuits, proof.permutation_product_commitments_vec[0].size(),
             vkey.permutation_verifying_key().commitments().size()) +
-        lookup::halo2::GetNumOpenings(LS::type, num_circuits,
+        lookup::halo2::GetNumOpenings(LS::kType, num_circuits,
                                       constraint_system.lookups().size()) +
         shuffle::GetNumOpenings(num_circuits,
                                 constraint_system.shuffles().size());
@@ -385,7 +386,7 @@ class Verifier : public VerifierBase<PCS> {
           permutation_verifier_data);
       permutation_verifier.template Open<Poly>(permutation_point_set, openings);
 
-      LookupVerifier lookup_verifier(proof, i);
+      lookup::Verifier<LS::kType, F, Commitment> lookup_verifier(proof, i);
       lookup_verifier.Open(lookup_point_set, openings);
 
       shuffle::Verifier<F, Commitment> shuffle_verifier(

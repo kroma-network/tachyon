@@ -13,8 +13,10 @@ namespace tachyon::zk::plonk::halo2 {
 
 using PCS = GWCExtension<math::bn254::BN254Curve, kMaxDegree,
                          kMaxExtendedDegree, math::bn254::G1AffinePoint>;
-using LS = lookup::halo2::Scheme<typename PCS::Poly, typename PCS::Evals,
-                                 typename PCS::Commitment>;
+using LS =
+    lookup::halo2::Scheme<typename PCS::Poly, typename PCS::Evals,
+                          typename PCS::Commitment, typename PCS::ExtendedPoly,
+                          typename PCS::ExtendedEvals>;
 
 class BN254GWCProverTest : public ProverTest<PCS, LS> {
  public:

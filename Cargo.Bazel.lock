@@ -1,5 +1,5 @@
 {
-  "checksum": "2708778b7ba033db1ebe4ec7316d9765ae45bbf23f0caca325e162ece2bfbdab",
+  "checksum": "d9a69b7b7c2e8f7447076811098173ebe669c22af14223e2e9dfeb933bf91d26",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -18401,91 +18401,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "tachyon_halo2 0.0.1": {
-      "name": "tachyon_halo2",
-      "version": "0.0.1",
-      "repository": null,
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "tachyon_halo2",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "tachyon_halo2",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "crate_features": {
-          "common": [
-            "default"
-          ],
-          "selects": {}
-        },
-        "deps": {
-          "common": [
-            {
-              "id": "cxx 1.0.122",
-              "target": "cxx"
-            },
-            {
-              "id": "digest 0.10.7",
-              "target": "digest"
-            },
-            {
-              "id": "ff 0.13.0",
-              "target": "ff"
-            },
-            {
-              "id": "halo2_proofs 1.1.0",
-              "target": "halo2_proofs"
-            },
-            {
-              "id": "halo2curves 0.1.0",
-              "target": "halo2curves"
-            },
-            {
-              "id": "log 0.4.22",
-              "target": "log"
-            },
-            {
-              "id": "num-bigint 0.4.6",
-              "target": "num_bigint"
-            },
-            {
-              "id": "rand_core 0.6.4",
-              "target": "rand_core"
-            },
-            {
-              "id": "sha2 0.10.8",
-              "target": "sha2"
-            }
-          ],
-          "selects": {}
-        },
-        "deps_dev": {
-          "common": [
-            {
-              "id": "rand_chacha 0.3.1",
-              "target": "rand_chacha"
-            },
-            {
-              "id": "rand_xorshift 0.3.0",
-              "target": "rand_xorshift"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.0.1"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "tachyon_plonky3 0.0.1": {
       "name": "tachyon_plonky3",
       "version": "0.0.1",
@@ -18580,6 +18495,91 @@
             {
               "id": "zeroize 1.8.1",
               "target": "zeroize"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "tachyon_scroll_halo2 0.0.1": {
+      "name": "tachyon_scroll_halo2",
+      "version": "0.0.1",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tachyon_scroll_halo2",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "tachyon_scroll_halo2",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "default"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "cxx 1.0.122",
+              "target": "cxx"
+            },
+            {
+              "id": "digest 0.10.7",
+              "target": "digest"
+            },
+            {
+              "id": "ff 0.13.0",
+              "target": "ff"
+            },
+            {
+              "id": "halo2_proofs 1.1.0",
+              "target": "halo2_proofs"
+            },
+            {
+              "id": "halo2curves 0.1.0",
+              "target": "halo2curves"
+            },
+            {
+              "id": "log 0.4.22",
+              "target": "log"
+            },
+            {
+              "id": "num-bigint 0.4.6",
+              "target": "num_bigint"
+            },
+            {
+              "id": "rand_core 0.6.4",
+              "target": "rand_core"
+            },
+            {
+              "id": "sha2 0.10.8",
+              "target": "sha2"
+            }
+          ],
+          "selects": {}
+        },
+        "deps_dev": {
+          "common": [
+            {
+              "id": "rand_chacha 0.3.1",
+              "target": "rand_chacha"
+            },
+            {
+              "id": "rand_xorshift 0.3.0",
+              "target": "rand_xorshift"
             }
           ],
           "selects": {}
@@ -22046,9 +22046,9 @@
     "halo2_msm_benchmark 0.0.1": "benchmark/msm/halo2",
     "horizen_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/horizen",
     "plonky3_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/plonky3",
-    "tachyon_halo2 0.0.1": "vendors/halo2",
     "tachyon_plonky3 0.0.1": "vendors/plonky3",
     "tachyon_rs 0.0.1": "tachyon/rs",
+    "tachyon_scroll_halo2 0.0.1": "vendors/scroll_halo2",
     "tachyon_sp1 0.0.1": "vendors/sp1"
   },
   "conditions": {

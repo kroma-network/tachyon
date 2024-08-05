@@ -54,6 +54,7 @@ tachyon_cc_library(
         "//tachyon/base/files:file_util",
         "//tachyon/c/zk/plonk/halo2:buffer_reader",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
+        "//tachyon/zk/plonk/halo2:vendor",
         "//tachyon/zk/plonk/keys:proving_key",
         "@com_google_absl//absl/types:span",
     ],

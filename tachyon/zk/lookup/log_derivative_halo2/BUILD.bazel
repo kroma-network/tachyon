@@ -9,6 +9,7 @@ tachyon_cc_library(
         ":prover",
         "//tachyon/zk/plonk/vanishing:circuit_polynomial_builder_forward",
         "//tachyon/zk/plonk/vanishing:graph_evaluator",
+        "//tachyon/zk/plonk/vanishing:vanishing_utils",
     ],
 )
 
@@ -35,13 +36,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "scheme",
     hdrs = ["scheme.h"],
-    deps = [
-        ":evaluator",
-        ":prover",
-        ":verifier",
-        ":verifier_data",
-        "//tachyon/zk/lookup:type",
-    ],
+    deps = ["//tachyon/zk/lookup:type"],
 )
 
 tachyon_cc_library(
@@ -51,7 +46,6 @@ tachyon_cc_library(
         ":verifier_data",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/lookup:argument",
-        "//tachyon/zk/lookup:verifier",
         "//tachyon/zk/lookup/halo2:opening_point_set",
         "//tachyon/zk/plonk/base:l_values",
         "//tachyon/zk/plonk/expressions:verifying_evaluator",

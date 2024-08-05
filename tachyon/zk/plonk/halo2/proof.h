@@ -3,6 +3,7 @@
 
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -19,7 +20,7 @@ namespace tachyon {
 namespace zk::plonk::halo2 {
 
 template <typename F, typename C>
-struct Proof {
+struct ProofBase {
   std::vector<std::vector<C>> advices_commitments_vec;
   std::vector<F> challenges;
   F theta;
@@ -51,7 +52,7 @@ struct Proof {
   F x_last;
   F x_n;
 
-  bool operator==(const Proof& other) const {
+  bool operator==(const ProofBase& other) const {
     return advices_commitments_vec == other.advices_commitments_vec &&
            challenges == other.challenges && theta == other.theta &&
            beta == other.beta && gamma == other.gamma &&
@@ -78,7 +79,7 @@ struct Proof {
            shuffle_product_next_evals_vec ==
                other.shuffle_product_next_evals_vec;
   }
-  bool operator!=(const Proof& other) const { return !operator==(other); }
+  bool operator!=(const ProofBase& other) const { return !operator==(other); }
 
   VanishingVerifierData<F, C> ToVanishingVerifierData(
       size_t circuit_idx, absl::Span<const C> fixed_commitments,
@@ -132,7 +133,7 @@ struct Proof {
 };
 
 template <typename F, typename C>
-struct Halo2Proof : public Proof<F, C> {
+struct Halo2Proof : public ProofBase<F, C> {
   std::vector<std::vector<lookup::Pair<C>>> lookup_permuted_commitments_vec;
   std::vector<std::vector<C>> lookup_product_commitments_vec;
   std::vector<std::vector<F>> lookup_product_evals_vec;
@@ -142,7 +143,7 @@ struct Halo2Proof : public Proof<F, C> {
   std::vector<std::vector<F>> lookup_permuted_table_evals_vec;
 
   bool operator==(const Halo2Proof& other) const {
-    return Proof<F, C>::operator==(other) &&
+    return ProofBase<F, C>::operator==(other) &&
            lookup_permuted_commitments_vec ==
                other.lookup_permuted_commitments_vec &&
            lookup_product_commitments_vec ==
@@ -181,7 +182,7 @@ struct Halo2Proof : public Proof<F, C> {
 };
 
 template <typename F, typename C>
-struct LogDerivativeHalo2Proof : public Proof<F, C> {
+struct LogDerivativeHalo2Proof : public ProofBase<F, C> {
   std::vector<std::vector<C>> lookup_m_poly_commitments_vec;
   std::vector<std::vector<C>> lookup_sum_commitments_vec;
   std::vector<std::vector<F>> lookup_sum_evals_vec;
@@ -189,7 +190,7 @@ struct LogDerivativeHalo2Proof : public Proof<F, C> {
   std::vector<std::vector<F>> lookup_m_evals_vec;
 
   bool operator==(const LogDerivativeHalo2Proof& other) const {
-    return Proof<F, C>::operator==(other) &&
+    return ProofBase<F, C>::operator==(other) &&
            lookup_m_poly_commitments_vec ==
                other.lookup_m_poly_commitments_vec &&
            lookup_sum_commitments_vec == other.lookup_sum_commitments_vec &&
@@ -219,15 +220,19 @@ struct LogDerivativeHalo2Proof : public Proof<F, C> {
   }
 };
 
+template <lookup::Type Type, typename F, typename C>
+using Proof = std::conditional_t<Type == lookup::Type::kHalo2, Halo2Proof<F, C>,
+                                 LogDerivativeHalo2Proof<F, C>>;
+
 }  // namespace zk::plonk::halo2
 
 namespace base {
 
 template <typename F, typename C>
-class RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>> {
+class RapidJsonValueConverter<zk::plonk::halo2::ProofBase<F, C>> {
  public:
   template <typename Allocator>
-  static rapidjson::Value From(const zk::plonk::halo2::Proof<F, C>& value,
+  static rapidjson::Value From(const zk::plonk::halo2::ProofBase<F, C>& value,
                                Allocator& allocator) {
     rapidjson::Value object(rapidjson::kObjectType);
     AddJsonElement(object, "advices_commitments_vec",
@@ -263,8 +268,9 @@ class RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>> {
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
-                 zk::plonk::halo2::Proof<F, C>* proof_out, std::string* error) {
-    zk::plonk::halo2::Proof<F, C> proof;
+                 zk::plonk::halo2::ProofBase<F, C>* proof_out,
+                 std::string* error) {
+    zk::plonk::halo2::ProofBase<F, C> proof;
     if (!ParseJsonElement(json_value, "advices_commitments_vec",
                           &proof.advices_commitments_vec, error))
       return false;
@@ -331,8 +337,8 @@ class RapidJsonValueConverter<zk::plonk::halo2::Halo2Proof<F, C>> {
   static rapidjson::Value From(const zk::plonk::halo2::Halo2Proof<F, C>& value,
                                Allocator& allocator) {
     rapidjson::Value object =
-        RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>>::From(value,
-                                                                     allocator);
+        RapidJsonValueConverter<zk::plonk::halo2::ProofBase<F, C>>::From(
+            value, allocator);
     AddJsonElement(object, "lookup_permuted_commitments_vec",
                    value.lookup_permuted_commitments_vec, allocator);
     AddJsonElement(object, "lookup_product_commitments_vec",
@@ -354,7 +360,7 @@ class RapidJsonValueConverter<zk::plonk::halo2::Halo2Proof<F, C>> {
                  zk::plonk::halo2::Halo2Proof<F, C>* proof_out,
                  std::string* error) {
     zk::plonk::halo2::Halo2Proof<F, C> proof;
-    if (!RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>>::To(
+    if (!RapidJsonValueConverter<zk::plonk::halo2::ProofBase<F, C>>::To(
             json_value, key, &proof, error))
       return false;
     if (!ParseJsonElement(json_value, "lookup_permuted_commitments_vec",
@@ -392,8 +398,8 @@ class RapidJsonValueConverter<zk::plonk::halo2::LogDerivativeHalo2Proof<F, C>> {
       const zk::plonk::halo2::LogDerivativeHalo2Proof<F, C>& value,
       Allocator& allocator) {
     rapidjson::Value object =
-        RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>>::From(value,
-                                                                     allocator);
+        RapidJsonValueConverter<zk::plonk::halo2::ProofBase<F, C>>::From(
+            value, allocator);
     AddJsonElement(object, "lookup_m_poly_commitments_vec",
                    value.lookup_m_poly_commitments_vec, allocator);
     AddJsonElement(object, "lookup_sum_commitments_vec",
@@ -411,7 +417,7 @@ class RapidJsonValueConverter<zk::plonk::halo2::LogDerivativeHalo2Proof<F, C>> {
                  zk::plonk::halo2::LogDerivativeHalo2Proof<F, C>* proof_out,
                  std::string* error) {
     zk::plonk::halo2::LogDerivativeHalo2Proof<F, C> proof;
-    if (!RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>>::To(
+    if (!RapidJsonValueConverter<zk::plonk::halo2::ProofBase<F, C>>::To(
             json_value, key, &proof, error))
       return false;
     if (!ParseJsonElement(json_value, "lookup_m_poly_commitments_vec",

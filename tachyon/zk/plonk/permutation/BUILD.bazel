@@ -54,6 +54,18 @@ tachyon_cc_library(
         "//tachyon/base:openmp_util",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:prover_base",
+        "//tachyon/zk/plonk/halo2:vendor",
+        "//tachyon/zk/plonk/vanishing:vanishing_utils",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permutation_evaluator",
+    hdrs = ["permutation_evaluator.h"],
+    deps = [
+        ":permutation_prover",
+        "//tachyon/zk/plonk/vanishing:circuit_polynomial_builder_forward",
+        "//tachyon/zk/plonk/vanishing:vanishing_utils",
     ],
 )
 
@@ -88,7 +100,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "permutation_proving_key",
     hdrs = ["permutation_proving_key.h"],
-    deps = ["//tachyon/base/buffer:copyable"],
+    deps = ["//tachyon/zk/plonk/keys:c_proving_key_impl_forward"],
 )
 
 tachyon_cc_library(
@@ -136,9 +148,6 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "permutation_verifying_key",
     hdrs = ["permutation_verifying_key.h"],
-    deps = [
-        "//tachyon/base/buffer:copyable",
-    ],
 )
 
 tachyon_cc_library(
@@ -169,16 +178,13 @@ tachyon_cc_unittest(
     srcs = [
         "cycle_store_unittest.cc",
         "permutation_assembly_unittest.cc",
-        "permutation_proving_key_unittest.cc",
         "permutation_table_store_unittest.cc",
         "permutation_utils_unittest.cc",
-        "permutation_verifying_key_unittest.cc",
         "unpermuted_table_unittest.cc",
     ],
     deps = [
         ":permutation_assembly",
         ":permutation_table_store",
-        "//tachyon/base/buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
         "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
         "//tachyon/math/finite_fields/test:finite_field_test",
