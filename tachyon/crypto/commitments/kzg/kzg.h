@@ -183,6 +183,12 @@ class KZG {
 
 #if TACHYON_CUDA
     SetupForGpu(size);
+    CHECK(d_g1_powers_of_tau_.CopyFromAsync(
+        reinterpret_cast<const G1Point*>(std::data(g1_powers_of_tau_)),
+        device::gpu::GpuMemoryType::kHost, stream_.get(), 0, size));
+    CHECK(d_g1_powers_of_tau_lagrange_.CopyFromAsync(
+        reinterpret_cast<const G1Point*>(std::data(g1_powers_of_tau_lagrange_)),
+        device::gpu::GpuMemoryType::kHost, stream_.get(), 0, size));
 #endif
     return true;
   }
