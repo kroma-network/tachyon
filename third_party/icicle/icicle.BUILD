@@ -25,22 +25,6 @@ tachyon_cuda_library(
 )
 
 tachyon_cuda_library(
-    name = "curves",
-    include_prefix = "third_party/icicle/src",
-    includes = ["icicle/src/curves"],
-    strip_include_prefix = "icicle/src",
-    deps = [":hdrs"],
-)
-
-tachyon_cuda_library(
-    name = "fields",
-    include_prefix = "third_party/icicle/src",
-    includes = ["icicle/src/fields"],
-    strip_include_prefix = "icicle/src",
-    deps = [":hdrs"],
-)
-
-tachyon_cuda_library(
     name = "hash",
     srcs = if_gpu_is_configured([
         "icicle/src/hash/keccak/keccak.cu.cc",
