@@ -203,24 +203,36 @@ class KZG {
 
   template <typename ScalarContainer>
   [[nodiscard]] bool Commit(const ScalarContainer& v, Commitment* out) const {
+#if TACHYON_CUDA
+    return DoMSM(d_g1_powers_of_tau_, v, out);
+#endif
     return DoMSM(g1_powers_of_tau_, v, out);
   }
 
   template <typename ScalarContainer>
   [[nodiscard]] bool Commit(const ScalarContainer& v,
                             BatchCommitmentState& state, size_t index) {
+#if TACHYON_CUDA
+    return DoMSM(d_g1_powers_of_tau_, v, state, index);
+#endif
     return DoMSM(g1_powers_of_tau_, v, state, index);
   }
 
   template <typename ScalarContainer>
   [[nodiscard]] bool CommitLagrange(const ScalarContainer& v,
                                     Commitment* out) const {
+#if TACHYON_CUDA
+    return DoMSM(d_g1_powers_of_tau_lagrange_, v, out);
+#endif
     return DoMSM(g1_powers_of_tau_lagrange_, v, out);
   }
 
   template <typename ScalarContainer>
   [[nodiscard]] bool CommitLagrange(const ScalarContainer& v,
                                     BatchCommitmentState& state, size_t index) {
+#if TACHYON_CUDA
+    return DoMSM(d_g1_powers_of_tau_lagrange_, v, state, index);
+#endif
     return DoMSM(g1_powers_of_tau_lagrange_, v, state, index);
   }
 
@@ -237,14 +249,12 @@ class KZG {
              OutCommitment* out) const {
 #if TACHYON_CUDA
     if (msm_gpu_) {
-      absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
-          bases.data(), std::min(bases.size(), scalars.size()));
       if constexpr (std::is_same_v<OutCommitment,
                                    math::ProjectivePoint<Curve>>) {
-        return msm_gpu_->Run(bases_span, scalars, out);
+        return msm_gpu_->Run(bases, scalars, out);
       } else {
         math::ProjectivePoint<Curve> result;
-        if (!msm_gpu_->Run(bases_span, scalars, &result)) return false;
+        if (!msm_gpu_->Run(bases, scalars, &result)) return false;
         *out = math::ConvertPoint<OutCommitment>(result);
         return true;
       }
@@ -268,9 +278,7 @@ class KZG {
              BatchCommitmentState& state, size_t index) {
 #if TACHYON_CUDA
     if (msm_gpu_) {
-      absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
-          bases.data(), std::min(bases.size(), scalars.size()));
-      return msm_gpu_->Run(bases_span, scalars, &gpu_batch_commitments_[index]);
+      return msm_gpu_->Run(bases, scalars, &gpu_batch_commitments_[index]);
     }
 #endif
     math::VariableBaseMSM<G1Point> msm;

@@ -161,18 +161,20 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(const BaseContainer& cpu_bases,
 #error Only Bn254 is supported
 #endif
 
-  size_t bases_size = std::size(cpu_bases);
+  // size_t bases_size = cpu_bases.size();
   size_t scalars_size = std::size(cpu_scalars);
 
-  if (bases_size != scalars_size) {
-    LOG(ERROR) << "bases_size and scalars_size don't match";
-    return false;
-  }
+  // if (bases_size != scalars_size) {
+  //   std::cout << "bases_size" << bases_size << std::endl;
+  //   std::cout << "scalars_size" << scalars_size << std::endl;
+  //   LOG(ERROR) << "bases_size and scalars_size don't match";
+  //   return false;
+  // }
 
   device::gpu::gpuPointerAttributes bases_attributes{};
-  RETURN_AND_LOG_IF_GPU_ERROR(device::gpu::GpuPointerGetAttributes(
-                                  &bases_attributes, std::data(cpu_bases)),
-                              "Failed to GpuPointerGetAttributes()");
+  RETURN_AND_LOG_IF_GPU_ERROR(
+      device::gpu::GpuPointerGetAttributes(&bases_attributes, &cpu_bases),
+      "Failed to GpuPointerGetAttributes()");
 
   bool copy_bases = bases_attributes.type == gpuMemoryTypeUnregistered ||
                     bases_attributes.type == gpuMemoryTypeHost;
@@ -189,12 +191,12 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(const BaseContainer& cpu_bases,
 
   size_t divisions = DetermineMsmDivisionsForMemory(
       sizeof(::bn254::scalar_t), sizeof(::bn254::affine_t),
-      sizeof(::bn254::projective_t), bases_size, config_->c, bitsize,
+      sizeof(::bn254::projective_t), scalars_size, config_->c, bitsize,
       static_cast<size_t>(config_->precompute_factor),
       static_cast<size_t>(config_->batch_size));
 
-  size_t offset = bases_size / divisions;
-  size_t remainder = bases_size % divisions;
+  size_t offset = scalars_size / divisions;
+  size_t remainder = scalars_size % divisions;
   ::bn254::projective_t final_value = ::bn254::projective_t::zero();
   for (size_t idx = 0; idx < divisions; ++idx) {
     size_t start_idx = idx * offset;
@@ -225,18 +227,20 @@ bool IcicleMSM<bn254::G2AffinePoint>::Run(const BaseContainer& cpu_bases,
 #error Only Bn254 is supported
 #endif
 
-  size_t bases_size = std::size(cpu_bases);
+  // size_t bases_size = cpu_bases.size();
   size_t scalars_size = std::size(cpu_scalars);
 
-  if (bases_size != scalars_size) {
-    LOG(ERROR) << "bases_size and scalars_size don't match";
-    return false;
-  }
+  // if (bases_size != scalars_size) {
+  //   std::cout << "bases_size" << bases_size << std::endl;
+  //   std::cout << "scalars_size" << scalars_size << std::endl;
+  //   LOG(ERROR) << "bases_size and scalars_size don't match";
+  //   return false;
+  // }
 
   device::gpu::gpuPointerAttributes bases_attributes{};
-  RETURN_AND_LOG_IF_GPU_ERROR(device::gpu::GpuPointerGetAttributes(
-                                  &bases_attributes, std::data(cpu_bases)),
-                              "Failed to GpuPointerGetAttributes()");
+  RETURN_AND_LOG_IF_GPU_ERROR(
+      device::gpu::GpuPointerGetAttributes(&bases_attributes, &cpu_bases),
+      "Failed to GpuPointerGetAttributes()");
 
   bool copy_bases = bases_attributes.type == gpuMemoryTypeUnregistered ||
                     bases_attributes.type == gpuMemoryTypeHost;
@@ -253,12 +257,12 @@ bool IcicleMSM<bn254::G2AffinePoint>::Run(const BaseContainer& cpu_bases,
 
   size_t divisions = DetermineMsmDivisionsForMemory(
       sizeof(::bn254::scalar_t), sizeof(::bn254::g2_affine_t),
-      sizeof(::bn254::g2_projective_t), bases_size, config_->c, bitsize,
+      sizeof(::bn254::g2_projective_t), scalars_size, config_->c, bitsize,
       static_cast<size_t>(config_->precompute_factor),
       static_cast<size_t>(config_->batch_size));
 
-  size_t offset = bases_size / divisions;
-  size_t remainder = bases_size % divisions;
+  size_t offset = scalars_size / divisions;
+  size_t remainder = scalars_size % divisions;
   ::bn254::g2_projective_t final_value = ::bn254::g2_projective_t::zero();
   for (size_t idx = 0; idx < divisions; ++idx) {
     size_t start_idx = idx * offset;

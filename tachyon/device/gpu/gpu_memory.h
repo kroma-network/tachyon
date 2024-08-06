@@ -182,6 +182,9 @@ class GpuMemory {
   T* get() { return ptr_; }
   const T* get() const { return ptr_; }
 
+  T* data() { return ptr_; }
+  const T* data() const { return ptr_; }
+
   T& operator[](size_t idx) { return ptr_[idx]; }
   const T& operator[](size_t idx) const { return ptr_[idx]; }
 
