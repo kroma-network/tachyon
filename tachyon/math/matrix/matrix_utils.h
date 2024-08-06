@@ -50,24 +50,27 @@ MakeCirculant(const Eigen::MatrixBase<ArgType>& arg) {
                                  CirculantFunctor<ArgType>(arg.derived()));
 }
 
-// NOTE(ashjeong): Important! |matrix| should carry the same amount of rows as
-// the parent matrix it is a block from. |PackRowHorizontally| currently only
+// Packs a given row of a matrix. Results in a vector of packed fields and a
+// vector of remaining values if the number of cols is not a factor of the
+// packed field size.
+//
+// NOTE(ashjeong): |PackRowHorizontally| currently only
 // supports row-major matrices.
-template <typename PackedField, typename Derived, typename PrimeField>
+template <typename PackedField, typename PrimeField, typename Expr,
+          int BlockRows, int BlockCols, bool InnerPanel>
 std::vector<PackedField*> PackRowHorizontally(
-    Eigen::Block<Derived>& matrix, size_t row,
+    Eigen::Block<Expr, BlockRows, BlockCols, InnerPanel> matrix_row,
     std::vector<PrimeField*>& remaining_values) {
-  static_assert(Derived::Options & Eigen::RowMajorBit);
-  size_t num_packed = matrix.cols() / PackedField::N;
+  size_t num_packed = matrix_row.cols() / PackedField::N;
   size_t remaining_start_idx = num_packed * PackedField::N;
-  remaining_values = base::CreateVector(
-      matrix.cols() - remaining_start_idx,
-      [row, remaining_start_idx, &matrix](size_t col) {
-        return reinterpret_cast<PrimeField*>(
-            matrix.data() + row * matrix.cols() + remaining_start_idx + col);
-      });
-  return base::CreateVector(num_packed, [row, &matrix](size_t col) {
-    return reinterpret_cast<PackedField*>(matrix.data() + row * matrix.cols() +
+  remaining_values =
+      base::CreateVector(matrix_row.cols() - remaining_start_idx,
+                         [remaining_start_idx, &matrix_row](size_t col) {
+                           return reinterpret_cast<PrimeField*>(
+                               matrix_row.data() + remaining_start_idx + col);
+                         });
+  return base::CreateVector(num_packed, [&matrix_row](size_t col) {
+    return reinterpret_cast<PackedField*>(matrix_row.data() +
                                           PackedField::N * col);
   });
 }

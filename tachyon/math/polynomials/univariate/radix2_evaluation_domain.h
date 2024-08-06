@@ -458,9 +458,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     std::vector<F*> suffix_2;
 
     std::vector<PackedPrimeField*> shorts_1 =
-        PackRowHorizontally<PackedPrimeField>(mat, row_1, suffix_1);
+        PackRowHorizontally<PackedPrimeField>(mat.row(row_1), suffix_1);
     std::vector<PackedPrimeField*> shorts_2 =
-        PackRowHorizontally<PackedPrimeField>(mat, row_2, suffix_2);
+        PackRowHorizontally<PackedPrimeField>(mat.row(row_2), suffix_2);
 
     OPENMP_PARALLEL_FOR(size_t i = 0; i < shorts_1.size(); ++i) {
       UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<

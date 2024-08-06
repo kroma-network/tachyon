@@ -33,7 +33,7 @@ TEST_F(MatrixPackingTest, PackRowHorizontally) {
         matrix.block(0, 0, matrix.rows(), matrix.cols());
     std::vector<BabyBear*> remaining_values;
     std::vector<PackedBabyBear*> packed_values =
-        PackRowHorizontally<PackedBabyBear>(mat, R, remaining_values);
+        PackRowHorizontally<PackedBabyBear>(mat.row(R), remaining_values);
     ASSERT_TRUE(remaining_values.empty());
     ASSERT_EQ(packed_values.size(), 2);
     for (size_t i = 0; i < packed_values.size(); ++i) {
@@ -49,7 +49,7 @@ TEST_F(MatrixPackingTest, PackRowHorizontally) {
         matrix.block(0, 0, matrix.rows(), matrix.cols());
     std::vector<BabyBear*> remaining_values;
     std::vector<PackedBabyBear*> packed_values =
-        PackRowHorizontally<PackedBabyBear>(mat, R, remaining_values);
+        PackRowHorizontally<PackedBabyBear>(mat.row(R), remaining_values);
     ASSERT_EQ(remaining_values.size(), N - 1);
     ASSERT_EQ(packed_values.size(), 1);
     for (size_t i = 0; i < remaining_values.size(); ++i) {
