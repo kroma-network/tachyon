@@ -29,11 +29,10 @@ TEST_F(MatrixPackingTest, PackRowHorizontally) {
   {
     RowMajorMatrix<BabyBear> matrix =
         RowMajorMatrix<BabyBear>::Random(2 * N, 2 * N);
-    Eigen::Block<RowMajorMatrix<BabyBear>> mat =
-        matrix.block(0, 0, matrix.rows(), matrix.cols());
+    auto mat_row = matrix.row(R);
     std::vector<BabyBear*> remaining_values;
     std::vector<PackedBabyBear*> packed_values =
-        PackRowHorizontally<PackedBabyBear>(mat, R, remaining_values);
+        PackRowHorizontally<PackedBabyBear>(mat_row, remaining_values);
     ASSERT_TRUE(remaining_values.empty());
     ASSERT_EQ(packed_values.size(), 2);
     for (size_t i = 0; i < packed_values.size(); ++i) {
@@ -45,11 +44,10 @@ TEST_F(MatrixPackingTest, PackRowHorizontally) {
   {
     RowMajorMatrix<BabyBear> matrix =
         RowMajorMatrix<BabyBear>::Random(2 * N - 1, 2 * N - 1);
-    Eigen::Block<RowMajorMatrix<BabyBear>> mat =
-        matrix.block(0, 0, matrix.rows(), matrix.cols());
+    auto mat_row = matrix.row(R);
     std::vector<BabyBear*> remaining_values;
     std::vector<PackedBabyBear*> packed_values =
-        PackRowHorizontally<PackedBabyBear>(mat, R, remaining_values);
+        PackRowHorizontally<PackedBabyBear>(mat_row, remaining_values);
     ASSERT_EQ(remaining_values.size(), N - 1);
     ASSERT_EQ(packed_values.size(), 1);
     for (size_t i = 0; i < remaining_values.size(); ++i) {
@@ -95,9 +93,9 @@ TEST_F(MatrixPackingTest, PackRowVerticallyWithExtensionField) {
   }
 }
 
-TEST_F(MatrixPackingTest, SplitEvals) {
+TEST_F(MatrixPackingTest, SplitMat) {
   Matrix<BabyBear> matrix = Matrix<BabyBear>::Random(10, 10);
-  std::vector<Eigen::Block<Matrix<BabyBear>>> result = SplitEvals(4, matrix);
+  std::vector<Eigen::Block<Matrix<BabyBear>>> result = SplitMat(4, matrix);
   for (size_t i = 0; i < result.size(); ++i) {
     EXPECT_EQ(result[i], matrix.block(i, 0, 7, matrix.cols()));
   }

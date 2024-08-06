@@ -39,6 +39,7 @@
 #include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
+#include "tachyon/math/polynomials/univariate/evaluations_utils.h"
 #include "tachyon/math/polynomials/univariate/two_adic_subgroup.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -110,7 +111,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(RowMajorMatrix<F>& mat,
-                                             size_t added_bits) {
+                                             size_t added_bits,
+                                             const F& shift) {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -133,13 +135,12 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     // - divide by number of rows (since we're doing an inverse DFT)
     // - multiply by powers of the coset shift (see default coset LDE impl for
     // an explanation)
-    std::vector<F> weights = F::GetSuccessivePowers(
-        this->size_, F::FromMontgomery(F::Config::kSubgroupGenerator),
-        this->size_inv_);
+    std::vector<F> weights =
+        F::GetSuccessivePowers(this->size_, shift, this->size_inv_);
     OPENMP_PARALLEL_FOR(size_t row = 0; row < weights.size(); ++row) {
       // Reverse bits because |mat| is encoded in bit-reversed order
-      mat.row(base::bits::BitRev(row) >>
-              (sizeof(size_t) * 8 - this->log_size_of_group_)) *= weights[row];
+      mat.row(base::bits::ReverseBitsLen(row, this->log_size_of_group_)) *=
+          weights[row];
     }
     ExpandInPlaceWithZeroPad<RowMajorMatrix<F>>(mat, added_bits);
 
@@ -148,7 +149,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     std::unique_ptr<Radix2EvaluationDomain> domain =
         Radix2EvaluationDomain<F>::Create(rows);
     log_n = domain->log_size_of_group_;
-    mid_ = log_n / 2;
+    domain->mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
     domain->RunParallelRowChunks(mat, domain->roots_vec_[log_n - 1],
@@ -207,7 +208,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     CHECK_GE(log_n, log_d);
     size_t duplicity_of_initials = size_t{1} << (log_n - log_d);
     evals.evaluations_.resize(n, F::Zero());
-    this->SwapElements(evals, num_coeffs, log_n);
+    SwapBitRevElementsInPlace(evals, num_coeffs, log_n);
     size_t start_gap = 1;
     if (duplicity_of_initials >= kDegreeAwareFFTThresholdFactor) {
       base::ParallelizeByChunkSize(evals.evaluations_, duplicity_of_initials,
@@ -241,8 +242,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // caller to do.
   CONSTEXPR_IF_NOT_OPENMP void IFFTHelperInPlace(DensePoly& poly) const {
     InOutHelper(poly);
-    uint32_t log_n = this->log_size_of_group_;
-    this->SwapElements(poly, poly.coefficients_.coefficients_.size(), log_n);
+    SwapBitRevElementsInPlace(poly, poly.coefficients_.coefficients_.size(),
+                              this->log_size_of_group_);
   }
 
   template <FFTOrder Order, typename PolyOrEvals>
@@ -308,13 +309,13 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       packed_inv_roots_vec_[0].resize(vec_largest_size);
       packed_roots_vec_[1].resize(vec_largest_size);
       packed_inv_roots_vec_[1].resize(vec_largest_size);
-      rev_roots_vec_ = ReverseSliceIndexBits(largest);
-      rev_inv_roots_vec_ = ReverseSliceIndexBits(largest_inv);
+      rev_roots_vec_ = SwapBitRevElements(largest);
+      rev_inv_roots_vec_ = SwapBitRevElements(largest_inv);
       for (size_t i = 0; i < vec_largest_size; ++i) {
         packed_roots_vec_[0][i] = PackedPrimeField::Broadcast(largest[i]);
         packed_inv_roots_vec_[0][i] =
             PackedPrimeField::Broadcast(largest_inv[i]);
-        packed_inv_roots_vec_[1][i] =
+        packed_roots_vec_[1][i] =
             PackedPrimeField::Broadcast(rev_roots_vec_[i]);
         packed_inv_roots_vec_[1][i] =
             PackedPrimeField::Broadcast(rev_inv_roots_vec_[i]);
@@ -374,7 +375,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
     // max block size: 2^|mid_|
     // TODO(ashjeong): benchmark between |OPENMP_PARALLEL_FOR| here vs
-    // |OPENMP_NESTED_PARALLEL_FOR| in |RunDitLayers|
+    // |OPENMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
     for (size_t block_start = 0; block_start < this->size_;
          block_start += chunk_rows) {
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
@@ -400,7 +401,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
     // max block size: 2^(|this->log_size_of_group_| - |mid_|)
     // TODO(ashjeong): benchmark between |OPENMP_PARALLEL_FOR| here vs
-    // |OPENMP_NESTED_PARALLEL_FOR| in |RunDitLayers|
+    // |OPENMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
     for (size_t block_start = 0; block_start < this->size_;
          block_start += chunk_rows) {
       size_t thread = block_start / chunk_rows;
@@ -447,20 +448,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
   }
 
-  CONSTEXPR_IF_NOT_OPENMP std::vector<F> ReverseSliceIndexBits(
-      const std::vector<F>& vals) {
-    size_t n = vals.size();
-    if (n == 0) {
-      return vals;
-    }
-    CHECK(base::bits::IsPowerOfTwo(n));
-    size_t log_n = base::bits::Log2Ceiling(n);
-
-    std::vector<F> ret = vals;
-    this->SwapElements(ret, n, log_n);
-    return ret;
-  }
-
   CONSTEXPR_IF_NOT_OPENMP void ApplyButterflyToRows(
       Eigen::Block<RowMajorMatrix<F>>& mat, size_t row_1, size_t row_2,
       const F& twiddle, const PackedPrimeField& packed_twiddle) {
@@ -470,10 +457,12 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     std::vector<F*> suffix_1;
     std::vector<F*> suffix_2;
 
+    auto row_1_block = mat.row(row_1);
     std::vector<PackedPrimeField*> shorts_1 =
-        PackRowHorizontally<PackedPrimeField>(mat, row_1, suffix_1);
+        PackRowHorizontally<PackedPrimeField>(row_1_block, suffix_1);
+    auto row_2_block = mat.row(row_2);
     std::vector<PackedPrimeField*> shorts_2 =
-        PackRowHorizontally<PackedPrimeField>(mat, row_2, suffix_2);
+        PackRowHorizontally<PackedPrimeField>(row_2_block, suffix_2);
 
     OPENMP_PARALLEL_FOR(size_t i = 0; i < shorts_1.size(); ++i) {
       UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<

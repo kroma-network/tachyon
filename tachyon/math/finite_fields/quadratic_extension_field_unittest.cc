@@ -1,9 +1,11 @@
 #include <optional>
 
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq6.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/finite_fields/test/gf7_2.h"
 
 namespace tachyon::math {
@@ -216,6 +218,11 @@ TEST_F(QuadraticExtensionFieldTest, JsonValueConverter) {
 
   std::string json = base::WriteToJson(p);
   EXPECT_EQ(json, expected_json);
+}
+
+TEST_F(QuadraticExtensionFieldTest, Hash) {
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(GF7_2::Zero(), GF7_2::One(), GF7_2::Random())));
 }
 
 }  // namespace tachyon::math

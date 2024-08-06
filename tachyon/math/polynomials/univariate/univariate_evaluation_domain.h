@@ -12,12 +12,12 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/bits.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
 #include "tachyon/base/range.h"
 #include "tachyon/math/polynomials/evaluation_domain.h"
+#include "tachyon/math/polynomials/univariate/evaluations_utils.h"
 #include "tachyon/math/polynomials/univariate/fft_algorithm.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -539,18 +539,6 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     lo += hi;
 
     hi = std::move(neg);
-  }
-
-  template <typename PolyOrEvals>
-  CONSTEXPR_IF_NOT_OPENMP static void SwapElements(PolyOrEvals& poly_or_evals,
-                                                   size_t size,
-                                                   uint32_t log_len) {
-    OPENMP_PARALLEL_FOR(size_t idx = 1; idx < size; ++idx) {
-      size_t ridx = base::bits::BitRev(idx) >> (sizeof(size_t) * 8 - log_len);
-      if (idx < ridx) {
-        std::swap(poly_or_evals.at(idx), poly_or_evals.at(ridx));
-      }
-    }
   }
 
   constexpr virtual std::unique_ptr<UnivariateEvaluationDomain> Clone()

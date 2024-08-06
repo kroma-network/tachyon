@@ -22,6 +22,7 @@ class PaddingFreeSponge final
  public:
   using F = typename CryptographicSpongeTraits<Derived>::F;
 
+  PaddingFreeSponge() = default;
   explicit PaddingFreeSponge(const Derived& derived) : derived_(derived) {}
   explicit PaddingFreeSponge(Derived&& derived)
       : derived_(std::move(derived)) {}

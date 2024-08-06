@@ -32,7 +32,6 @@ tachyon_cc_library(
         ":field_merkle_tree",
         "//tachyon/base:bits",
         "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme",
-        "@pdqsort",
     ],
 )
 

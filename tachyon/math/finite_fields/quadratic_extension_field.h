@@ -6,6 +6,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 #define TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 
+#include <array>
 #include <optional>
 #include <string>
 #include <utility>
@@ -16,17 +17,20 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
+#include "tachyon/math/finite_fields/extension_field_base.h"
 
 namespace tachyon {
 namespace math {
 
 template <typename Derived>
 class QuadraticExtensionField
-    : public CyclotomicMultiplicativeSubgroup<Derived> {
+    : public CyclotomicMultiplicativeSubgroup<Derived>,
+      public ExtensionFieldBase<Derived> {
  public:
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
   using BasePrimeField = typename Config::BasePrimeField;
+  using ConstIterator = typename ExtensionFieldBase<Derived>::ConstIterator;
 
   constexpr QuadraticExtensionField() = default;
   // NOTE(chokobole): This is needed by Eigen matrix.
@@ -70,6 +74,10 @@ class QuadraticExtensionField
       return Derived(std::move(c0), std::move(c1));
     }
   }
+
+  constexpr std::array<BaseField, 2> ToBaseFields() const { return {c0_, c1_}; }
+
+  ConstIterator end() const { return {static_cast<const Derived&>(*this), 2}; }
 
   constexpr bool IsZero() const { return c0_.IsZero() && c1_.IsZero(); }
 
@@ -130,6 +138,10 @@ class QuadraticExtensionField
     }
     NOTREACHED();
     return c0_;
+  }
+
+  constexpr BaseField& operator[](size_t index) {
+    return const_cast<BaseField&>(std::as_const(*this).operator[](index));
   }
 
   constexpr bool operator==(const Derived& other) const {
@@ -423,6 +435,11 @@ template <
 Derived operator*(const BaseField& element,
                   const QuadraticExtensionField<Derived>& f) {
   return static_cast<const Derived&>(f) * element;
+}
+
+template <typename H, typename Derived>
+H AbslHashValue(H h, const QuadraticExtensionField<Derived>& f) {
+  return H::combine(std::move(h), f.c0(), f.c1());
 }
 
 }  // namespace math

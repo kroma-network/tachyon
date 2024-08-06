@@ -3,12 +3,12 @@
 
 #include "tachyon/math/finite_fields/baby_bear/internal/baby_bear4.h"
 #include "tachyon/math/finite_fields/baby_bear/internal/packed_baby_bear4.h"
-#include "tachyon/math/finite_fields/extended_packed_field_traits_forward.h"
 
 namespace tachyon::math {
 
 template <>
 struct ExtendedPackedFieldTraits<BabyBear4> {
+  constexpr static bool kIsExtendedPackedField = false;
   using ExtendedPackedField = PackedBabyBear4;
 };
 

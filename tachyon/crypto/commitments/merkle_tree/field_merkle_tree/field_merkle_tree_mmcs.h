@@ -6,12 +6,12 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FIELD_MERKLE_TREE_FIELD_MERKLE_TREE_MMCS_H_
 #define TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FIELD_MERKLE_TREE_FIELD_MERKLE_TREE_MMCS_H_
 
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "absl/numeric/bits.h"
-#include "third_party/pdqsort/include/pdqsort.h"
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
@@ -34,8 +34,10 @@ class FieldMerkleTreeMMCS final
                          F>;
   using Commitment = std::array<PrimeField, N>;
   using Digest = Commitment;
+  using ProverData = FieldMerkleTree<F, N>;
   using Proof = std::vector<Digest>;
 
+  FieldMerkleTreeMMCS() = default;
   FieldMerkleTreeMMCS(const Hasher& hasher, const PackedHasher& packed_hasher,
                       const Compressor& compressor,
                       const PackedCompressor& packed_compressor)
@@ -51,9 +53,6 @@ class FieldMerkleTreeMMCS final
         compressor_(std::move(compressor)),
         packed_compressor_(std::move(packed_compressor)) {}
 
-  const FieldMerkleTree<F, N>& field_merkle_tree() const {
-    return field_merkle_tree_;
-  }
   const Hasher& hasher() const { return hasher_; }
   const PackedHasher& packed_hasher() const { return packed_hasher_; }
   const Compressor& compressor() const { return compressor_; }
@@ -65,28 +64,40 @@ class FieldMerkleTreeMMCS final
   friend class MixedMatrixCommitmentScheme<FieldMerkleTreeMMCS<
       F, Hasher, PackedHasher, Compressor, PackedCompressor, N>>;
 
+  struct IndexedDimensions {
+    size_t index;
+    math::Dimensions dimensions;
+
+    std::string ToString() const {
+      return absl::Substitute("($0, $1)", index, dimensions.ToString());
+    }
+  };
+
   [[nodiscard]] bool DoCommit(std::vector<math::RowMajorMatrix<F>>&& matrices,
-                              Commitment* result) {
-    field_merkle_tree_ =
+                              Commitment* commitment, ProverData* prover_data) {
+    *prover_data =
         FieldMerkleTree<F, N>::Build(hasher_, packed_hasher_, compressor_,
                                      packed_compressor_, std::move(matrices));
-    *result = field_merkle_tree_.GetRoot();
+    *commitment = prover_data->GetRoot();
+
     return true;
   }
 
-  const std::vector<math::RowMajorMatrix<F>>& DoGetMatrices() const {
-    return field_merkle_tree_.leaves();
+  const std::vector<math::RowMajorMatrix<F>>& DoGetMatrices(
+      const ProverData& prover_data) const {
+    return prover_data.leaves();
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(size_t index,
+                                          const ProverData& prover_data,
                                           std::vector<std::vector<F>>* openings,
                                           Proof* proof) const {
-    size_t max_row_size = this->GetMaxRowSize();
+    size_t max_row_size = this->GetMaxRowSize(prover_data);
     size_t log_max_row_size = base::bits::Log2Ceiling(max_row_size);
 
     // TODO(chokobole): Is it able to be parallelized?
     *openings = base::Map(
-        field_merkle_tree_.leaves(),
+        prover_data.leaves(),
         [log_max_row_size, index](const math::RowMajorMatrix<F>& matrix) {
           size_t log_row_size =
               base::bits::Log2Ceiling(static_cast<size_t>(matrix.rows()));
@@ -98,11 +109,12 @@ class FieldMerkleTreeMMCS final
                                     });
         });
 
-    *proof = base::CreateVector(log_max_row_size, [this, index](size_t i) {
-      // NOTE(chokobole): Let v be |index >> i|. If v is even, v ^ 1 is v + 1.
-      // Otherwise, v ^ 1 is v - 1.
-      return field_merkle_tree_.digest_layers()[i][(index >> i) ^ 1];
-    });
+    *proof =
+        base::CreateVector(log_max_row_size, [prover_data, index](size_t i) {
+          // NOTE(chokobole): Let v be |index >> i|. If v is even, v ^ 1 is v
+          // + 1. Otherwise, v ^ 1 is v - 1.
+          return prover_data.digest_layers()[i][(index >> i) ^ 1];
+        });
 
     return true;
   }
@@ -112,25 +124,30 @@ class FieldMerkleTreeMMCS final
       absl::Span<const math::Dimensions> dimensions_list, size_t index,
       absl::Span<const std::vector<F>> opened_values,
       const Proof& proof) const {
-    std::vector<math::Dimensions> sorted_dimensions_list(
-        dimensions_list.begin(), dimensions_list.end());
+    CHECK_EQ(dimensions_list.size(), opened_values.size());
 
-    pdqsort(sorted_dimensions_list.begin(), sorted_dimensions_list.end(),
-            [](math::Dimensions a, math::Dimensions b) {
-              return a.height > b.height;
-            });
-    absl::Span<const math::Dimensions> remaining_dimensions_list =
+    std::vector<IndexedDimensions> sorted_dimensions_list = base::Map(
+        dimensions_list, [](size_t index, math::Dimensions dimensions) {
+          return IndexedDimensions{index, dimensions};
+        });
+
+    // TODO(chokobole): Use https://github.com/timsort/cpp-TimSort or
+    // https://github.com/sebawild/powersort for better performance.
+    std::stable_sort(
+        sorted_dimensions_list.begin(), sorted_dimensions_list.end(),
+        [](const IndexedDimensions& a, const IndexedDimensions& b) {
+          return a.dimensions.height > b.dimensions.height;
+        });
+
+    absl::Span<const IndexedDimensions> remaining_dimensions_list =
         absl::MakeConstSpan(sorted_dimensions_list);
-    absl::Span<const std::vector<F>> remaining_opened_values =
-        absl::MakeConstSpan(opened_values);
 
     size_t next_layer =
-        absl::bit_ceil(remaining_dimensions_list.front().height);
+        absl::bit_ceil(remaining_dimensions_list.front().dimensions.height);
     size_t next_layer_size = CountLayers(next_layer, remaining_dimensions_list);
-    remaining_dimensions_list.remove_prefix(next_layer_size);
     Digest root = hasher_.Hash(GetOpenedValuesAsPrimeFieldVectors(
-        remaining_opened_values, next_layer_size));
-    remaining_opened_values.remove_prefix(next_layer_size);
+        opened_values, remaining_dimensions_list.subspan(0, next_layer_size)));
+    remaining_dimensions_list.remove_prefix(next_layer_size);
 
     for (const Digest& sibling : proof) {
       Digest inputs[2];
@@ -142,12 +159,11 @@ class FieldMerkleTreeMMCS final
       next_layer >>= 1;
       next_layer_size = CountLayers(next_layer, remaining_dimensions_list);
       if (next_layer_size > 0) {
-        remaining_dimensions_list.remove_prefix(next_layer_size);
-
         inputs[0] = std::move(root);
         inputs[1] = hasher_.Hash(GetOpenedValuesAsPrimeFieldVectors(
-            remaining_opened_values, next_layer_size));
-        remaining_opened_values.remove_prefix(next_layer_size);
+            opened_values,
+            remaining_dimensions_list.subspan(0, next_layer_size)));
+        remaining_dimensions_list.remove_prefix(next_layer_size);
 
         root = compressor_.Compress(inputs);
       }
@@ -158,11 +174,11 @@ class FieldMerkleTreeMMCS final
 
   constexpr static size_t CountLayers(
       size_t target_height,
-      absl::Span<const math::Dimensions> dimensions_list) {
+      absl::Span<const IndexedDimensions> dimensions_list) {
     size_t ret = 0;
     for (size_t i = 0; i < dimensions_list.size(); ++i) {
-      if (target_height ==
-          absl::bit_ceil(static_cast<size_t>(dimensions_list[i].height))) {
+      if (target_height == absl::bit_ceil(static_cast<size_t>(
+                               dimensions_list[i].dimensions.height))) {
         ++ret;
       } else {
         break;
@@ -172,22 +188,22 @@ class FieldMerkleTreeMMCS final
   }
 
   static std::vector<PrimeField> GetOpenedValuesAsPrimeFieldVectors(
-      absl::Span<const std::vector<F>> opened_values, size_t next_layer_size) {
+      absl::Span<const std::vector<F>> opened_values,
+      absl::Span<const IndexedDimensions> dimensions_list) {
     if constexpr (math::FiniteFieldTraits<F>::kIsExtensionField) {
       static_assert(math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField ==
                     math::ExtensionFieldTraits<F>::kDegreeOverBaseField);
-      absl::Span<const std::vector<F>> sub_opened_values =
-          opened_values.subspan(0, next_layer_size);
-      size_t size =
-          std::accumulate(sub_opened_values.begin(), sub_opened_values.end(), 0,
-                          [](size_t acc, const std::vector<F>& fields) {
-                            return acc + fields.size();
-                          });
+      size_t size = std::accumulate(
+          dimensions_list.begin(), dimensions_list.end(), 0,
+          [&opened_values](size_t acc, const IndexedDimensions& dimensions) {
+            return acc + opened_values[dimensions.index].size();
+          });
       std::vector<PrimeField> ret;
       ret.reserve(size *
                   math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField);
-      for (size_t i = 0; i < sub_opened_values.size(); ++i) {
-        const std::vector<F>& elements = sub_opened_values[i];
+      for (size_t i = 0; i < dimensions_list.size(); ++i) {
+        const std::vector<F>& elements =
+            opened_values[dimensions_list[i].index];
         for (size_t j = 0; j < elements.size(); ++j) {
           const F& element = elements[j];
           for (size_t k = 0;
@@ -199,12 +215,14 @@ class FieldMerkleTreeMMCS final
       }
       return ret;
     } else {
-      return base::FlatMap(opened_values.subspan(0, next_layer_size),
-                           [](const std::vector<F>& fields) { return fields; });
+      return base::FlatMap(
+          dimensions_list,
+          [&opened_values](const IndexedDimensions& dimensions) {
+            return opened_values[dimensions.index];
+          });
     }
   }
 
-  FieldMerkleTree<F, N> field_merkle_tree_;
   Hasher hasher_;
   PackedHasher packed_hasher_;
   Compressor compressor_;
@@ -222,6 +240,7 @@ struct MixedMatrixCommitmentSchemeTraits<FieldMerkleTreeMMCS<
                          typename math::ExtensionFieldTraits<F>::BasePrimeField,
                          F>;
   using Commitment = std::array<PrimeField, N>;
+  using ProverData = FieldMerkleTree<F, N>;
   using Proof = std::vector<std::array<PrimeField, N>>;
 };
 

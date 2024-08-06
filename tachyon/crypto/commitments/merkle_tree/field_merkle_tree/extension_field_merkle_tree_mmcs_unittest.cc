@@ -41,11 +41,18 @@ using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
 using InnerMMCS = FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher,
                                       MyCompressor, MyPackedCompressor, kChunk>;
 using ExtMMCS = ExtensionFieldMerkleTreeMMCS<ExtF, InnerMMCS>;
+using Tree = FieldMerkleTree<F, kChunk>;
+using ExtTree = FieldMerkleTree<ExtF, kChunk>;
 
 namespace {
 
 class ExtensionFieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
  public:
+  static void SetUpTestSuite() {
+    math::FiniteFieldTest<PackedF>::SetUpTestSuite();
+    ExtF::Init();
+  }
+
   void SetUp() override {
     Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
         15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
@@ -89,21 +96,25 @@ TEST_F(ExtensionFieldMerkleTreeMMCSTest, CommitAndVerify) {
   std::vector<math::RowMajorMatrix<ExtF>> ext_matrices = {
       std::move(ext_matrix)};
   std::array<F, kChunk> ext_commitment;
-  ASSERT_TRUE(ext_mmcs_->Commit(std::move(ext_matrices), &ext_commitment));
+  ExtTree ext_prover_data;
+  ASSERT_TRUE(ext_mmcs_->Commit(std::move(ext_matrices), &ext_commitment,
+                                &ext_prover_data));
 
   const InnerMMCS& inner_mmcs = ext_mmcs_->inner();
   MMCS mmcs(inner_mmcs.hasher(), inner_mmcs.packed_hasher(),
             inner_mmcs.compressor(), inner_mmcs.packed_compressor());
   std::vector<math::RowMajorMatrix<F>> matrices = {std::move(matrix)};
   std::array<F, kChunk> commitment;
-  ASSERT_TRUE(mmcs.Commit(std::move(matrices), &commitment));
+  Tree prover_data;
+  ASSERT_TRUE(mmcs.Commit(std::move(matrices), &commitment, &prover_data));
 
   EXPECT_EQ(ext_commitment, commitment);
 
   size_t index = 5;
   std::vector<std::vector<ExtF>> openings;
   std::vector<std::array<F, kChunk>> proof;
-  ASSERT_TRUE(ext_mmcs_->CreateOpeningProof(index, &openings, &proof));
+  ASSERT_TRUE(
+      ext_mmcs_->CreateOpeningProof(index, ext_prover_data, &openings, &proof));
   std::vector<math::Dimensions> dimensions_vec;
   dimensions_vec.push_back({kCols, kRows});
   ASSERT_TRUE(ext_mmcs_->VerifyOpeningProof(ext_commitment, dimensions_vec,

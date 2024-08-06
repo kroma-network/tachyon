@@ -299,7 +299,7 @@ class FieldMerkleTree {
         std::vector<PrimeField> ret;
         ret.reserve(m->cols() *
                     math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField);
-        for (size_t i = 0; m->cols(); ++i) {
+        for (Eigen::Index i = 0; i < m->cols(); ++i) {
           const F& element = (*m)(row, i);
           for (size_t j = 0;
                j < math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField;

@@ -1,8 +1,10 @@
 #include <optional>
 
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/finite_fields/test/gf7_3.h"
 
 namespace tachyon::math {
@@ -204,6 +206,11 @@ TEST_F(CubicExtensionFieldTest, JsonValueConverter) {
 
   std::string json = base::WriteToJson(p);
   EXPECT_EQ(json, expected_json);
+}
+
+TEST_F(CubicExtensionFieldTest, Hash) {
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(GF7_3::Zero(), GF7_3::One(), GF7_3::Random())));
 }
 
 }  // namespace tachyon::math

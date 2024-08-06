@@ -50,7 +50,6 @@ tachyon_cc_library(
     name = "packed_baby_bear4",
     hdrs = ["packed_baby_bear4.h"],
     deps = [
-        "//tachyon/math/finite_fields:extended_packed_field_traits_forward",
         "//tachyon/math/finite_fields/baby_bear/internal:baby_bear4",
         "//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear4",
     ],

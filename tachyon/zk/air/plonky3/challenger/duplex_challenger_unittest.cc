@@ -5,8 +5,6 @@
 
 #include "tachyon/zk/air/plonky3/challenger/duplex_challenger.h"
 
-#include <memory>
-
 #include "gtest/gtest.h"
 
 #include "tachyon/base/bits.h"
@@ -33,19 +31,18 @@ class DuplexChallengerTest : public math::FiniteFieldTest<F> {
         crypto::Poseidon2Config<F>::CreateCustom(
             15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
     Poseidon2 sponge(std::move(config));
-    challenger_.reset(
-        new DuplexChallenger<Poseidon2, kWidth, kRate>(std::move(sponge)));
+    challenger_ = DuplexChallenger<Poseidon2, kWidth, kRate>(std::move(sponge));
   }
 
  protected:
-  std::unique_ptr<DuplexChallenger<Poseidon2, kWidth, kRate>> challenger_;
+  DuplexChallenger<Poseidon2, kWidth, kRate> challenger_;
 };
 
 }  // namespace
 
 TEST_F(DuplexChallengerTest, Sample) {
   for (uint32_t i = 0; i < 20; ++i) {
-    challenger_->Observe(F(i));
+    challenger_.Observe(F(i));
   }
 
   F answers[] = {
@@ -53,14 +50,14 @@ TEST_F(DuplexChallengerTest, Sample) {
       F(179016966),  F(125050365), F(1725901131), F(65962335),   F(1086560956),
   };
   for (size_t i = 0; i < std::size(answers); ++i) {
-    EXPECT_EQ(challenger_->Sample(), answers[i]);
+    EXPECT_EQ(challenger_.Sample(), answers[i]);
   }
 }
 
 TEST_F(DuplexChallengerTest, Grind) {
   const uint32_t kBits = 3;
-  F witness = challenger_->Grind(kBits, base::Range<uint32_t>(0, 100));
-  EXPECT_TRUE(challenger_->CheckWitness(kBits, witness));
+  F witness = challenger_.Grind(kBits, base::Range<uint32_t>(0, 100));
+  EXPECT_TRUE(challenger_.CheckWitness(kBits, witness));
 }
 
 }  // namespace tachyon::zk::air::plonky3

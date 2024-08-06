@@ -47,6 +47,28 @@ void ParallelizeByChunkSize(Container& container, size_t chunk_size,
   }
 }
 
+// Splits the |size| by |chunk_size| and executes |callback| in parallel.
+template <typename Callable,
+          typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>>
+void ParallelizeByChunkSize(size_t size, size_t chunk_size, Callable callback) {
+  if (chunk_size == 0) return;
+  size_t num_chunks = (size + chunk_size - 1) / chunk_size;
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
+    if constexpr (ArgNum == 1) {
+      callback(len);
+    } else if constexpr (ArgNum == 2) {
+      callback(len, i);
+    } else {
+      static_assert(ArgNum == 3);
+      callback(len, i, chunk_size);
+    }
+  }
+}
+
 // Splits the |container| into threads and executes |callback| in parallel.
 // See parallelize_unittest.cc for more details.
 template <typename Container, typename Callable>
@@ -56,6 +78,14 @@ void Parallelize(Container& container, Callable callback,
       GetNumElementsPerThread(container, threshold);
   ParallelizeByChunkSize(container, num_elements_per_thread,
                          std::move(callback));
+}
+
+// Splits the |size| into threads and executes |callback| in parallel.
+template <typename Callable>
+void Parallelize(size_t size, Callable callback,
+                 std::optional<size_t> threshold = std::nullopt) {
+  size_t num_elements_per_thread = GetNumElementsPerThread(size, threshold);
+  ParallelizeByChunkSize(size, num_elements_per_thread, std::move(callback));
 }
 
 // Splits the |container| by |chunk_size| and maps each chunk using the provided
@@ -92,6 +122,35 @@ std::vector<ReturnType> ParallelizeMapByChunkSize(Container& container,
   return values;
 }
 
+// Splits the |size| by |chunk_size| and maps each chunk using the provided
+// |callback| in parallel. Each callback's return value is collected into a
+// vector which is then returned.
+template <typename Callable,
+          typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>>
+std::vector<ReturnType> ParallelizeMapByChunkSize(size_t size,
+                                                  size_t chunk_size,
+                                                  Callable callback) {
+  if (chunk_size == 0) return {};
+  size_t num_chunks = (size + chunk_size - 1) / chunk_size;
+  std::vector<ReturnType> values(num_chunks);
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
+    if constexpr (ArgNum == 1) {
+      values[i] = callback(len);
+    } else if constexpr (ArgNum == 2) {
+      values[i] = callback(len, i);
+    } else {
+      static_assert(ArgNum == 3);
+      values[i] = callback(len, i, chunk_size);
+    }
+  }
+  return values;
+}
+
 // Splits the |container| into threads and maps each chunk using the provided
 // |callback| in parallel. The results from each callback are collected into a
 // vector and returned.
@@ -102,6 +161,17 @@ auto ParallelizeMap(Container& container, Callable callback,
   size_t num_elements_per_thread =
       GetNumElementsPerThread(container, threshold);
   return ParallelizeMapByChunkSize(container, num_elements_per_thread,
+                                   std::move(callback));
+}
+
+// Splits the |size| into threads and maps each chunk using the provided
+// |callback| in parallel. The results from each callback are collected into a
+// vector and returned.
+template <typename Callable>
+auto ParallelizeMap(size_t size, Callable callback,
+                    std::optional<size_t> threshold = std::nullopt) {
+  size_t num_elements_per_thread = GetSizePerThread(size, threshold);
+  return ParallelizeMapByChunkSize(size, num_elements_per_thread,
                                    std::move(callback));
 }
 

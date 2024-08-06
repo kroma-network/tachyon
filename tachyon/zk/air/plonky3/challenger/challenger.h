@@ -58,7 +58,7 @@ class Challenger {
 
   template <size_t N>
   std::array<Field, N> SampleArray() {
-    return base::CreateArray(N, [this]() { return Sample(); });
+    return base::CreateArray<N>([this]() { return Sample(); });
   }
 
   template <typename ExtField>
@@ -112,6 +112,7 @@ class Challenger {
       return v != std::numeric_limits<uint32_t>::max();
     });
     CHECK(it != ret.end());
+    CheckWitness(bits, Field(*it));
     return Field(*it);
   }
 
