@@ -13,6 +13,7 @@
 
 #include "absl/types/span.h"
 
+#include "tachyon/base/profiler.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
@@ -46,6 +47,7 @@ class Prover {
   template <typename PCS>
   static void BatchPermutePairs(std::vector<Prover>& shuffle_provers,
                                 ProverBase<PCS>* prover) {
+    TRACE_EVENT("ProofGeneration", "Shuffle::Prover::BatchPermutePairs");
     for (Prover& shuffle_prover : shuffle_provers) {
       shuffle_prover.PermutePairs(prover);
     }
@@ -55,6 +57,8 @@ class Prover {
   static void BatchCreateGrandProductPolys(std::vector<Prover>& shuffle_provers,
                                            ProverBase<PCS>* prover,
                                            const F& gamma) {
+    TRACE_EVENT("ProofGeneration",
+                "Shuffle::Prover::BatchCreateGrandProductPolys");
     for (Prover& shuffle_prover : shuffle_provers) {
       shuffle_prover.CreateGrandProductPolys(prover, gamma);
     }
@@ -75,6 +79,7 @@ class Prover {
   template <typename Domain>
   static void TransformEvalsToPoly(std::vector<Prover>& shuffle_provers,
                                    const Domain* domain) {
+    TRACE_EVENT("ProofGeneration", "Shuffle::Prover::TransformEvalsToPoly");
     VLOG(2) << "Transform shuffle virtual columns to polys";
     for (Prover& shuffle_prover : shuffle_provers) {
       shuffle_prover.TransformEvalsToPoly(domain);
@@ -85,6 +90,7 @@ class Prover {
   static void BatchEvaluate(const std::vector<Prover>& shuffle_provers,
                             ProverBase<PCS>* prover,
                             const OpeningPointSet<F>& point_set) {
+    TRACE_EVENT("ProofGeneration", "Shuffle::Prover::BatchEvaluate");
     for (const Prover& shuffle_prover : shuffle_provers) {
       shuffle_prover.Evaluate(prover, point_set);
     }

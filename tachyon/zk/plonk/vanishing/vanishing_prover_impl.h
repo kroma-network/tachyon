@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/profiler.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_prover.h"
 
@@ -20,6 +21,7 @@ template <typename Poly, typename Evals, typename ExtendedPoly,
 template <typename PCS>
 void VanishingProver<Poly, Evals, ExtendedPoly,
                      ExtendedEvals>::CreateRandomPoly(ProverBase<PCS>* prover) {
+  TRACE_EVENT("ProofGeneration", "Plonk::Vanishing::Prover::CreateRandomPoly");
   // Sample a random polynomial of degree n - 1.
   // TODO(TomTaehoonKim): Figure out why it is named |random_poly|.
   // See
@@ -42,6 +44,7 @@ void VanishingProver<Poly, Evals, ExtendedPoly,
                      ExtendedEvals>::CommitRandomPoly(ProverBase<PCS>* prover,
                                                       size_t& commit_idx)
     const {
+  TRACE_EVENT("ProofGeneration", "Plonk::Vanishing::Prover::CommitRandomPoly");
   if constexpr (PCS::kSupportsBatchMode) {
     prover->BatchCommitAt(random_poly_.poly(), commit_idx++);
   } else {
@@ -60,6 +63,7 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::CreateHEvals(
     const std::vector<lookup::Prover<PS::kLookupType, Poly, Evals>>&
         lookup_provers,
     const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers) {
+  TRACE_EVENT("ProofGeneration", "Plonk::Vanishing::Prover::CreateHEvals");
   VanishingArgument<PS> vanishing_argument = VanishingArgument<PS>::Create(
       proving_key.verifying_key().constraint_system());
   F zeta = GetHalo2Zeta<F>();
@@ -75,6 +79,7 @@ void VanishingProver<Poly, Evals, ExtendedPoly,
                      ExtendedEvals>::CreateFinalHPoly(ProverBase<PCS>* prover,
                                                       const ConstraintSystem<F>&
                                                           constraint_system) {
+  TRACE_EVENT("ProofGeneration", "Plonk::Vanishing::Prover::CreateFinalHPoly");
   // Divide by t(X) = Xⁿ - 1.
   DivideByVanishingPolyInPlace(h_evals_, prover->extended_domain(),
                                prover->domain());
@@ -97,6 +102,7 @@ void VanishingProver<Poly, Evals, ExtendedPoly,
                                                       const ConstraintSystem<F>&
                                                           constraint_system,
                                                       size_t& commit_idx) {
+  TRACE_EVENT("ProofGeneration", "Plonk::Vanishing::Prover::CommitFinalHPoly");
   // Truncate it to match the size of the quotient polynomial; the
   // evaluation domain might be slightly larger than necessary because
   // it always lies on a power-of-two boundary.
@@ -132,6 +138,7 @@ template <typename PCS, ColumnType C>
 void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::EvaluateColumns(
     ProverBase<PCS>* prover, const absl::Span<const Poly> polys,
     const std::vector<QueryData<C>>& queries, const F& x) {
+  TRACE_EVENT("Utils", "EvaluateColumns");
   for (const QueryData<C>& query : queries) {
     const Poly& poly = polys[query.column().index()];
     prover->EvaluateAndWriteToProof(
@@ -147,6 +154,8 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::BatchEvaluate(
     const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& x,
     const F& x_n) {
   using Coefficients = typename Poly::Coefficients;
+
+  TRACE_EVENT("ProofGeneration", "Plonk::Vanishing::Prover::BatchEvaluate");
 
   size_t num_circuits = tables.size();
   for (size_t i = 0; i < num_circuits; ++i) {
@@ -189,6 +198,7 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::OpenColumns(
     const Domain* domain, const absl::Span<const Poly> polys,
     const std::vector<QueryData<C>>& queries, const F& x,
     std::vector<crypto::PolynomialOpening<Poly>>& openings) {
+  TRACE_EVENT("Utils", "OpenColumns");
 #define OPENING(poly, point) \
   base::Ref<const Poly>(&poly), point, poly.Evaluate(point)
 
@@ -209,6 +219,8 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
         const Domain* domain, const ConstraintSystem<F>& constraint_system,
         const MultiPhaseRefTable<Poly>& table, const F& x,
         std::vector<crypto::PolynomialOpening<Poly>>& openings) {
+  TRACE_EVENT("ProofGeneration",
+              "Plonk::Vanishing::Prover::OpenAdviceInstanceColumns");
   if constexpr (PCS::kQueryInstance) {
     OpenColumns(domain, table.GetInstanceColumns(),
                 constraint_system.instance_queries(), x, openings);
@@ -226,6 +238,7 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
                      const ConstraintSystem<F>& constraint_system,
                      const MultiPhaseRefTable<Poly>& table, const F& x,
                      std::vector<crypto::PolynomialOpening<Poly>>& openings) {
+  TRACE_EVENT("ProofGeneration", "Plonk::Vanishing::Prover::OpenFixedColumns");
   OpenColumns(domain, table.GetFixedColumns(),
               constraint_system.fixed_queries(), x, openings);
 }
@@ -234,6 +247,7 @@ template <typename Poly, typename Evals, typename ExtendedPoly,
           typename ExtendedEvals>
 void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::Open(
     const F& x, std::vector<crypto::PolynomialOpening<Poly>>& openings) const {
+  TRACE_EVENT("ProofGeneration", "Plonk::Vanishing::Prover::Open");
 #define OPENING(poly, point) \
   base::Ref<const Poly>(&poly), point, poly.Evaluate(point)
 

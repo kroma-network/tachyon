@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
@@ -64,6 +65,8 @@ class PermutationProver {
   static void TransformEvalsToPoly(
       std::vector<PermutationProver>& permutation_provers,
       const Domain* domain) {
+    TRACE_EVENT("ProofGeneration",
+                "Plonk::Permutation::Prover::TransformEvalsToPoly");
     VLOG(2) << "Transform permutation virtual columns to polys";
     for (PermutationProver& permutation_prover : permutation_provers) {
       permutation_prover.TransformEvalsToPoly(domain);
@@ -74,6 +77,7 @@ class PermutationProver {
   static void BatchEvaluate(
       const std::vector<PermutationProver>& permutation_provers,
       ProverBase<PCS>* prover, const PermutationOpeningPointSet<F>& point_set) {
+    TRACE_EVENT("ProofGeneration", "Plonk::Permutation::Prover::BatchEvaluate");
     for (const PermutationProver& permutation_prover : permutation_provers) {
       permutation_prover.Evaluate(prover, point_set);
     }

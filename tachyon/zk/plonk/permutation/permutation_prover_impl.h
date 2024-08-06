@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_prover.h"
@@ -23,6 +24,7 @@ template <typename PCS>
 void PermutationProver<Poly, Evals>::CreateGrandProductPolys(
     ProverBase<PCS>* prover, const PermutationTableStore<Evals>& table_store,
     size_t chunk_num, const F& beta, const F& gamma) {
+  TRACE_EVENT("Utils", "CreateGrandProductPolys");
   grand_product_polys_.reserve(chunk_num);
 
   // Track the "last" value from the previous column set.
@@ -59,6 +61,8 @@ void PermutationProver<Poly, Evals>::BatchCreateGrandProductPolys(
     const PermutationProvingKey<Poly, Evals, ExtendedEvals>&
         permutation_proving_key,
     const F& beta, const F& gamma) {
+  TRACE_EVENT("ProofGeneration",
+              "Plonk::Permutation::Prover::BatchCreateGrandProductPolys");
   // How many columns can be included in a single permutation polynomial?
   // We need to multiply by z(X) and (1 - (l_last(X) + l_blind(X))). This
   // will never underflow because of the requirement of at least a degree
@@ -87,6 +91,8 @@ template <typename PCS>
 void PermutationProver<Poly, Evals>::BatchCommitGrandProductPolys(
     const std::vector<PermutationProver>& permutation_provers,
     ProverBase<PCS>* prover, size_t& commit_idx) {
+  TRACE_EVENT("ProofGeneration",
+              "Plonk::Permutation::Prover::BatchCommitGrandProductPolys");
   if (permutation_provers.empty()) return;
 
   if constexpr (PCS::kSupportsBatchMode) {
@@ -110,6 +116,7 @@ template <typename Poly, typename Evals>
 template <typename Domain>
 void PermutationProver<Poly, Evals>::TransformEvalsToPoly(
     const Domain* domain) {
+  TRACE_EVENT("Utils", "TransformEvalsToPoly");
   for (BlindedPolynomial<Poly, Evals>& grand_product_poly :
        grand_product_polys_) {
     grand_product_poly.TransformEvalsToPoly(domain);
@@ -121,6 +128,7 @@ template <typename PCS>
 void PermutationProver<Poly, Evals>::Evaluate(
     ProverBase<PCS>* prover,
     const PermutationOpeningPointSet<F>& point_set) const {
+  TRACE_EVENT("Utils", "Evaluate");
   // THE ORDER IS IMPORTANT!! DO NOT CHANGE!
   // See
   // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/plonk/permutation/prover.rs#L231-L276.
@@ -147,6 +155,8 @@ void PermutationProver<Poly, Evals>::EvaluateProvingKey(
     ProverBase<PCS>* prover,
     const PermutationProvingKey<Poly, Evals, ExtendedEvals>& proving_key,
     const PermutationOpeningPointSet<F>& point_set) {
+  TRACE_EVENT("ProofGeneration",
+              "Plonk::Permutation::Prover::EvaluateProvingKey");
   for (const Poly& poly : proving_key.polys()) {
     prover->EvaluateAndWriteToProof(poly, point_set.x);
   }
@@ -156,6 +166,7 @@ template <typename Poly, typename Evals>
 void PermutationProver<Poly, Evals>::Open(
     const PermutationOpeningPointSet<F>& point_set,
     std::vector<crypto::PolynomialOpening<Poly>>& openings) const {
+  TRACE_EVENT("ProofGeneration", "Plonk::Permutation::Prover::Open");
   if (grand_product_polys_.empty()) return;
 
 #define OPENING(poly, point) \
@@ -189,6 +200,8 @@ void PermutationProver<Poly, Evals>::OpenPermutationProvingKey(
     const PermutationProvingKey<Poly, Evals, ExtendedEvals>& proving_key,
     const PermutationOpeningPointSet<F>& point_set,
     std::vector<crypto::PolynomialOpening<Poly>>& openings) {
+  TRACE_EVENT("ProofGeneration",
+              "Plonk::Permutation::Prover::OpenPermutationProvingKey");
 #define OPENING(poly, point) \
   base::Ref<const Poly>(&poly), point_set.point, poly.Evaluate(point_set.point)
 

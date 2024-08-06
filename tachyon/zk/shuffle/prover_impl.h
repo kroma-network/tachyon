@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/plonk/expressions/compress_expression.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
@@ -24,6 +25,7 @@ template <typename Domain>
 Pair<Evals> Prover<Poly, Evals>::CompressPair(
     const Domain* domain, const Argument<F>& argument, const F& theta,
     const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
+  TRACE_EVENT("Utils", "CompressPair");
   // A_compressedᵢ(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
   Evals compressed_input = plonk::CompressExpressions(
       domain, argument.input_expressions(), theta, evaluator_tpl);
@@ -40,6 +42,7 @@ template <typename Domain>
 void Prover<Poly, Evals>::CompressPairs(
     const Domain* domain, const std::vector<Argument<F>>& arguments,
     const F& theta, const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
+  TRACE_EVENT("Utils", "CompressPairs");
   compressed_pairs_ = base::Map(
       arguments, [domain, &theta, &evaluator_tpl](const Argument<F>& argument) {
         return CompressPair(domain, argument, theta, evaluator_tpl);
@@ -53,6 +56,7 @@ void Prover<Poly, Evals>::BatchCompressPairs(
     std::vector<Prover>& shuffle_provers, const Domain* domain,
     const std::vector<Argument<F>>& arguments, const F& theta,
     const std::vector<plonk::MultiPhaseRefTable<Evals>>& tables) {
+  TRACE_EVENT("ProofGeneration", "Shuffle::Prover::BatchCompressPairs");
   CHECK_EQ(shuffle_provers.size(), tables.size());
   // NOTE(chokobole): It's safe to downcast because domain is already checked.
   int32_t n = static_cast<int32_t>(domain->size());
@@ -69,6 +73,7 @@ template <typename PCS>
 BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandProductPoly(
     ProverBase<PCS>* prover, const Pair<Evals>& compressed_pair,
     const F& gamma) {
+  TRACE_EVENT("Utils", "CreateGrandProductPoly");
   return {plonk::GrandProductArgument::CreatePolySerial(
               prover, CreateNumeratorCallback(compressed_pair.input(), gamma),
               CreateDenominatorCallback(compressed_pair.shuffle(), gamma)),
@@ -79,6 +84,7 @@ template <typename Poly, typename Evals>
 template <typename PCS>
 void Prover<Poly, Evals>::CreateGrandProductPolys(ProverBase<PCS>* prover,
                                                   const F& gamma) {
+  TRACE_EVENT("Utils", "CreateGrandProductPolys");
   // Zₛ,ᵢ(X)
   grand_product_polys_.resize(compressed_pairs_.size());
 
@@ -97,6 +103,8 @@ template <typename PCS>
 void Prover<Poly, Evals>::BatchCommitGrandProductPolys(
     const std::vector<Prover>& shuffle_provers, ProverBase<PCS>* prover,
     size_t& commit_idx) {
+  TRACE_EVENT("ProofGeneration",
+              "Shuffle::Prover::BatchCommitGrandProductPolys");
   if (shuffle_provers.empty()) return;
 
   if constexpr (PCS::kSupportsBatchMode) {
@@ -119,6 +127,7 @@ void Prover<Poly, Evals>::BatchCommitGrandProductPolys(
 template <typename Poly, typename Evals>
 template <typename Domain>
 void Prover<Poly, Evals>::TransformEvalsToPoly(const Domain* domain) {
+  TRACE_EVENT("Utils", "TransformEvalsToPoly");
   for (BlindedPolynomial<Poly, Evals>& grand_product_poly :
        grand_product_polys_) {
     grand_product_poly.TransformEvalsToPoly(domain);
@@ -129,6 +138,7 @@ template <typename Poly, typename Evals>
 template <typename PCS>
 void Prover<Poly, Evals>::Evaluate(ProverBase<PCS>* prover,
                                    const OpeningPointSet<F>& point_set) const {
+  TRACE_EVENT("Utils", "Evaluate");
   size_t size = grand_product_polys_.size();
 
 #define EVALUATE(polynomial, point) \
@@ -153,6 +163,7 @@ template <typename Poly, typename Evals>
 void Prover<Poly, Evals>::Open(
     const OpeningPointSet<F>& point_set,
     std::vector<crypto::PolynomialOpening<Poly>>& openings) const {
+  TRACE_EVENT("ProofGeneration", "Shuffle::Prover::Open");
   size_t size = grand_product_polys_.size();
 
 #define OPENING(polynomial, point)                            \

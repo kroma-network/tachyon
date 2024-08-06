@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/lookup/halo2/permute_expression_pair.h"
 #include "tachyon/zk/lookup/halo2/prover.h"
@@ -25,6 +26,7 @@ template <typename Domain>
 Pair<Evals> Prover<Poly, Evals>::CompressPair(
     const Domain* domain, const Argument<F>& argument, const F& theta,
     const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
+  TRACE_EVENT("Utils", "CompressPair");
   // A_compressedᵢ(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
   Evals compressed_input = plonk::CompressExpressions(
       domain, argument.input_expressions(), theta, evaluator_tpl);
@@ -41,6 +43,7 @@ template <typename Domain>
 void Prover<Poly, Evals>::CompressPairs(
     const Domain* domain, const std::vector<Argument<F>>& arguments,
     const F& theta, const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
+  TRACE_EVENT("Utils", "CompressPairs");
   compressed_pairs_ = base::Map(
       arguments, [domain, &theta, &evaluator_tpl](const Argument<F>& argument) {
         return CompressPair(domain, argument, theta, evaluator_tpl);
@@ -54,6 +57,7 @@ void Prover<Poly, Evals>::BatchCompressPairs(
     std::vector<Prover>& lookup_provers, const Domain* domain,
     const std::vector<Argument<F>>& arguments, const F& theta,
     const std::vector<plonk::MultiPhaseRefTable<Evals>>& tables) {
+  TRACE_EVENT("ProofGeneration", "Lookup::Halo2::Prover::BatchCompressPairs");
   CHECK_EQ(lookup_provers.size(), tables.size());
   // NOTE(chokobole): It's safe to downcast because domain is already checked.
   int32_t n = static_cast<int32_t>(domain->size());
@@ -69,6 +73,7 @@ template <typename Poly, typename Evals>
 template <typename PCS>
 Pair<BlindedPolynomial<Poly, Evals>> Prover<Poly, Evals>::PermutePair(
     ProverBase<PCS>* prover, const Pair<Evals>& compressed_pair) {
+  TRACE_EVENT("Utils", "PermutePair");
   // A'ᵢ(X), S'ᵢ(X)
   Pair<Evals> permuted_pair;
   CHECK(PermuteExpressionPair(prover, compressed_pair, &permuted_pair));
@@ -82,6 +87,7 @@ Pair<BlindedPolynomial<Poly, Evals>> Prover<Poly, Evals>::PermutePair(
 template <typename Poly, typename Evals>
 template <typename PCS>
 void Prover<Poly, Evals>::PermutePairs(ProverBase<PCS>* prover) {
+  TRACE_EVENT("Utils", "PermutePairs");
   permuted_pairs_ = base::Map(compressed_pairs_,
                               [prover](const Pair<Evals>& compressed_pair) {
                                 return PermutePair(prover, compressed_pair);
@@ -94,6 +100,8 @@ template <typename PCS>
 void Prover<Poly, Evals>::BatchCommitPermutedPairs(
     const std::vector<Prover>& lookup_provers, ProverBase<PCS>* prover,
     size_t& commit_idx) {
+  TRACE_EVENT("ProofGeneration",
+              "Lookup::Halo2::Prover::BatchCommitPermutedPairs");
   if (lookup_provers.empty()) return;
 
   if constexpr (PCS::kSupportsBatchMode) {
@@ -122,6 +130,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandProductPoly(
     ProverBase<PCS>* prover, const Pair<Evals>& compressed_pair,
     const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair, const F& beta,
     const F& gamma) {
+  TRACE_EVENT("Utils", "CreateGrandProductPoly");
   return {plonk::GrandProductArgument::CreatePolySerial(
               prover, CreateNumeratorCallback(compressed_pair, beta, gamma),
               CreateDenominatorCallback(permuted_pair, beta, gamma)),
@@ -133,6 +142,7 @@ template <typename PCS>
 void Prover<Poly, Evals>::CreateGrandProductPolys(ProverBase<PCS>* prover,
                                                   const F& beta,
                                                   const F& gamma) {
+  TRACE_EVENT("Utils", "CreateGrandProductPolys");
   // Zₗ,ᵢ(X)
   CHECK_EQ(compressed_pairs_.size(), permuted_pairs_.size());
   grand_product_polys_.resize(compressed_pairs_.size());
@@ -153,6 +163,8 @@ template <typename PCS>
 void Prover<Poly, Evals>::BatchCommitGrandProductPolys(
     const std::vector<Prover>& lookup_provers, ProverBase<PCS>* prover,
     size_t& commit_idx) {
+  TRACE_EVENT("ProofGeneration",
+              "Lookup::Halo2::Prover::BatchCommitGrandProductPolys");
   if (lookup_provers.empty()) return;
 
   if constexpr (PCS::kSupportsBatchMode) {
@@ -175,6 +187,7 @@ void Prover<Poly, Evals>::BatchCommitGrandProductPolys(
 template <typename Poly, typename Evals>
 template <typename Domain>
 void Prover<Poly, Evals>::TransformEvalsToPoly(const Domain* domain) {
+  TRACE_EVENT("Utils", "TransformEvalsToPoly");
   for (Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair : permuted_pairs_) {
     permuted_pair.input().TransformEvalsToPoly(domain);
     permuted_pair.table().TransformEvalsToPoly(domain);
@@ -189,6 +202,7 @@ template <typename Poly, typename Evals>
 template <typename PCS>
 void Prover<Poly, Evals>::Evaluate(ProverBase<PCS>* prover,
                                    const OpeningPointSet<F>& point_set) const {
+  TRACE_EVENT("Utils", "Evaluate");
   size_t size = grand_product_polys_.size();
   CHECK_EQ(size, permuted_pairs_.size());
 
@@ -222,6 +236,7 @@ template <typename Poly, typename Evals>
 void Prover<Poly, Evals>::Open(
     const OpeningPointSet<F>& point_set,
     std::vector<crypto::PolynomialOpening<Poly>>& openings) const {
+  TRACE_EVENT("ProofGeneration", "Lookup::Halo2::Prover::Open");
   size_t size = grand_product_polys_.size();
   CHECK_EQ(size, permuted_pairs_.size());
 
@@ -257,6 +272,8 @@ template <typename Poly, typename Evals>
 std::function<typename Poly::Field(RowIndex)>
 Prover<Poly, Evals>::CreateNumeratorCallback(const Pair<Evals>& compressed_pair,
                                              const F& beta, const F& gamma) {
+  TRACE_EVENT("ProofGeneration",
+              "Lookup::Halo2::Prover::CreateNumeratorCallback");
   // (A_compressedᵢ(x) + β) * (S_compressedᵢ(x) + γ)
   return [&compressed_pair, &beta, &gamma](RowIndex row_index) {
     return (compressed_pair.input()[row_index] + beta) *
@@ -270,6 +287,8 @@ std::function<typename Poly::Field(RowIndex)>
 Prover<Poly, Evals>::CreateDenominatorCallback(
     const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair, const F& beta,
     const F& gamma) {
+  TRACE_EVENT("ProofGeneration",
+              "Lookup::Halo2::Prover::CreateDenominatorCallback");
   return [&permuted_pair, &beta, &gamma](RowIndex row_index) {
     // (A'ᵢ(x) + β) * (S'ᵢ(x) + γ)
     return (permuted_pair.input().evals()[row_index] + beta) *

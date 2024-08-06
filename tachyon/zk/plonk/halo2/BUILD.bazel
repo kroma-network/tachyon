@@ -197,6 +197,8 @@ tachyon_cc_library(
         ":c_prover_impl_base_forward",
         ":random_field_generator",
         ":verifier",
+        "//tachyon/base:logging",
+        "//tachyon/base:profiler",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/lookup:prover",
         "//tachyon/zk/plonk/permutation:permutation_prover",

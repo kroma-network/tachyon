@@ -13,6 +13,7 @@
 
 #include "absl/types/span.h"
 
+#include "tachyon/base/profiler.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
@@ -50,6 +51,7 @@ class Prover {
   template <typename PCS>
   static void BatchPermutePairs(std::vector<Prover>& lookup_provers,
                                 ProverBase<PCS>* prover) {
+    TRACE_EVENT("ProofGeneration", "Lookup::Halo2::Prover::BatchPermutePairs");
     for (Prover& lookup_prover : lookup_provers) {
       lookup_prover.PermutePairs(prover);
     }
@@ -70,6 +72,8 @@ class Prover {
   static void BatchCreateGrandProductPolys(std::vector<Prover>& lookup_provers,
                                            ProverBase<PCS>* prover,
                                            const F& beta, const F& gamma) {
+    TRACE_EVENT("ProofGeneration",
+                "Lookup::Halo2::Prover::BatchCreateGrandProductPolys");
     for (Prover& lookup_prover : lookup_provers) {
       lookup_prover.CreateGrandProductPolys(prover, beta, gamma);
     }
@@ -90,6 +94,8 @@ class Prover {
   template <typename Domain>
   static void TransformEvalsToPoly(std::vector<Prover>& lookup_provers,
                                    const Domain* domain) {
+    TRACE_EVENT("ProofGeneration",
+                "Lookup::Halo2::Prover::TransformEvalsToPoly");
     VLOG(2) << "Transform lookup virtual columns to polys";
     for (Prover& lookup_prover : lookup_provers) {
       lookup_prover.TransformEvalsToPoly(domain);
@@ -100,6 +106,7 @@ class Prover {
   static void BatchEvaluate(const std::vector<Prover>& lookup_provers,
                             ProverBase<PCS>* prover,
                             const OpeningPointSet<F>& point_set) {
+    TRACE_EVENT("ProofGeneration", "Lookup::Halo2::Prover::BatchEvaluate");
     for (const Prover& lookup_prover : lookup_provers) {
       lookup_prover.Evaluate(prover, point_set);
     }

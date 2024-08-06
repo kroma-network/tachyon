@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder_forward.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
@@ -25,6 +26,8 @@ class CustomGateEvaluator {
   using F = typename EvalsOrExtendedEvals::Field;
 
   void Construct(const std::vector<Gate<F>>& gates) {
+    TRACE_EVENT("ProofGeneration",
+                "Plonk::Vanishing::CustomGateEvaluator::Construct");
     std::vector<ValueSource> parts;
     for (const Gate<F>& gate : gates) {
       std::vector<ValueSource> tmp =
@@ -42,6 +45,8 @@ class CustomGateEvaluator {
   template <typename PS>
   void Evaluate(CircuitPolynomialBuilder<PS>& builder, absl::Span<F> chunk,
                 size_t chunk_offset, size_t chunk_size) {
+    TRACE_EVENT("ProofGeneration",
+                "Plonk::Vanishing::CustomGateEvaluator::Evaluate");
     EvaluationInput<EvalsOrExtendedEvals> evaluation_input =
         builder.ExtractEvaluationInput(evaluator_.CreateInitialIntermediates(),
                                        evaluator_.CreateEmptyRotations());
@@ -58,9 +63,13 @@ class CustomGateEvaluator {
     using PCS = typename PS::PCS;
     using Poly = typename PCS::Poly;
 
+    TRACE_EVENT("ProofGeneration",
+                "Plonk::Vanishing::CustomGateEvaluator::UpdateCosets");
+
     constexpr halo2::Vendor kVendor = PS::kVendor;
 
     if constexpr (kVendor == halo2::Vendor::kScroll) {
+      TRACE_EVENT("Subtask", "Calculate fixed column cosets");
       absl::Span<const Poly> new_fixed_columns =
           builder.poly_tables_[circuit_idx].GetFixedColumns();
       fixed_column_cosets_.resize(new_fixed_columns.size());
@@ -70,33 +79,40 @@ class CustomGateEvaluator {
       }
     }
 
-    absl::Span<const Poly> new_advice_columns =
-        builder.poly_tables_[circuit_idx].GetAdviceColumns();
-    advice_column_cosets_.resize(new_advice_columns.size());
-    for (size_t i = 0; i < new_advice_columns.size(); ++i) {
-      if constexpr (kVendor == halo2::Vendor::kPSE) {
-        advice_column_cosets_[i] =
-            CoeffToExtended(new_advice_columns[i], builder.extended_domain_);
-      } else {
-        advice_column_cosets_[i] =
-            builder.coset_domain_->FFT(new_advice_columns[i]);
+    {
+      TRACE_EVENT("Subtask", "Calculate advice column cosets");
+      absl::Span<const Poly> new_advice_columns =
+          builder.poly_tables_[circuit_idx].GetAdviceColumns();
+      advice_column_cosets_.resize(new_advice_columns.size());
+      for (size_t i = 0; i < new_advice_columns.size(); ++i) {
+        if constexpr (kVendor == halo2::Vendor::kPSE) {
+          advice_column_cosets_[i] =
+              CoeffToExtended(new_advice_columns[i], builder.extended_domain_);
+        } else {
+          advice_column_cosets_[i] =
+              builder.coset_domain_->FFT(new_advice_columns[i]);
+        }
       }
     }
 
-    absl::Span<const Poly> new_instance_columns =
-        builder.poly_tables_[circuit_idx].GetInstanceColumns();
-    instance_column_cosets_.resize(new_instance_columns.size());
-    for (size_t i = 0; i < new_instance_columns.size(); ++i) {
-      if constexpr (kVendor == halo2::Vendor::kPSE) {
-        instance_column_cosets_[i] =
-            CoeffToExtended(new_instance_columns[i], builder.extended_domain_);
-      } else {
-        instance_column_cosets_[i] =
-            builder.coset_domain_->FFT(new_instance_columns[i]);
+    {
+      TRACE_EVENT("Subtask", "Calculate instance column cosets");
+      absl::Span<const Poly> new_instance_columns =
+          builder.poly_tables_[circuit_idx].GetInstanceColumns();
+      instance_column_cosets_.resize(new_instance_columns.size());
+      for (size_t i = 0; i < new_instance_columns.size(); ++i) {
+        if constexpr (kVendor == halo2::Vendor::kPSE) {
+          instance_column_cosets_[i] = CoeffToExtended(
+              new_instance_columns[i], builder.extended_domain_);
+        } else {
+          instance_column_cosets_[i] =
+              builder.coset_domain_->FFT(new_instance_columns[i]);
+        }
       }
     }
 
     if constexpr (kVendor == halo2::Vendor::kPSE) {
+      TRACE_EVENT("Subtask", "Construct table PSE");
       builder.table_ = {
           builder.proving_key_.fixed_cosets(),
           advice_column_cosets_,
@@ -104,6 +120,7 @@ class CustomGateEvaluator {
           builder.poly_tables_[circuit_idx].challenges(),
       };
     } else {
+      TRACE_EVENT("Subtask", "Construct table Scroll");
       builder.table_ = {
           fixed_column_cosets_,
           advice_column_cosets_,

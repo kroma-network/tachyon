@@ -91,6 +91,8 @@ class Prover {
   template <typename PCS>
   static void BatchComputeMPolys(std::vector<Prover>& lookup_provers,
                                  ProverBase<PCS>* prover) {
+    TRACE_EVENT("ProofGeneration",
+                "Lookup::LogDerivativeHalo2::Prover::BatchComputeMPolys");
     ComputeMPolysTempStorage<BigInt> storage(prover->GetUsableRows());
     for (Prover& lookup_prover : lookup_provers) {
       lookup_prover.ComputeMPolys(prover, storage);
@@ -110,6 +112,8 @@ class Prover {
   template <typename PCS>
   static void BatchCreateGrandSumPolys(std::vector<Prover>& lookup_provers,
                                        ProverBase<PCS>* prover, const F& beta) {
+    TRACE_EVENT("ProofGeneration",
+                "Lookup::LogDerivativeHalo2::Prover::BatchCreateGrandSumPolys");
     GrandSumPolysTempStorage<F> storage(prover->GetUsableRows());
     for (Prover& lookup_prover : lookup_provers) {
       lookup_prover.CreateGrandSumPolys(prover, beta, storage);
@@ -130,6 +134,8 @@ class Prover {
   template <typename Domain>
   static void TransformEvalsToPoly(std::vector<Prover>& lookup_provers,
                                    const Domain* domain) {
+    TRACE_EVENT("ProofGeneration",
+                "Lookup::LogDerivativeHalo2::Prover::TransformEvalsToPoly");
     VLOG(2) << "Transform lookup virtual columns to polys";
     for (Prover& lookup_prover : lookup_provers) {
       lookup_prover.TransformEvalsToPoly(domain);
@@ -140,6 +146,8 @@ class Prover {
   static void BatchEvaluate(const std::vector<Prover>& lookup_provers,
                             ProverBase<PCS>* prover,
                             const halo2::OpeningPointSet<F>& point_set) {
+    TRACE_EVENT("ProofGeneration",
+                "Lookup::LogDerivativeHalo2::Prover::BatchEvaluate");
     for (const Prover& lookup_prover : lookup_provers) {
       lookup_prover.Evaluate(prover, point_set);
     }

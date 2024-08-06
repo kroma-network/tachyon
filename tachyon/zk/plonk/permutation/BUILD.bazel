@@ -64,6 +64,7 @@ tachyon_cc_library(
     hdrs = ["permutation_evaluator.h"],
     deps = [
         ":permutation_prover",
+        "//tachyon/base:profiler",
         "//tachyon/zk/plonk/vanishing:circuit_polynomial_builder_forward",
         "//tachyon/zk/plonk/vanishing:vanishing_utils",
     ],
@@ -87,6 +88,7 @@ tachyon_cc_library(
         ":permutation_proving_key",
         ":permutation_table_store",
         ":permutation_utils",
+        "//tachyon/base:profiler",
         "//tachyon/base:ref",
         "//tachyon/base/functional:functor_traits",
         "//tachyon/crypto/commitments:polynomial_openings",
