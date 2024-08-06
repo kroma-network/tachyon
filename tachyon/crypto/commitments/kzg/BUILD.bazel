@@ -27,6 +27,7 @@ tachyon_cc_library(
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/commitments:batch_commitment_state",
+        "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",
         "//tachyon/device/gpu:scoped_stream",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",

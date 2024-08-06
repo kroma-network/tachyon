@@ -23,6 +23,7 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 
 #if TACHYON_CUDA
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/device/gpu/scoped_stream.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
@@ -89,8 +90,14 @@ class KZG {
     CHECK_EQ(error, gpuSuccess);
     stream_ = device::gpu::CreateStream();
 
+    size_t bases_size = g1_powers_of_tau_.size();
     msm_gpu_.reset(
         new math::VariableBaseMSMGpu<G1Point>(mem_pool_.get(), stream_.get()));
+    d_g1_powers_of_tau_ = device::gpu::GpuMemory<G1Point>::MallocFromPoolAsync(
+        bases_size, mem_pool_.get(), stream_.get());
+    d_g1_powers_of_tau_lagrange_ =
+        device::gpu::GpuMemory<G1Point>::MallocFromPoolAsync(
+            bases_size, mem_pool_.get(), stream_.get());
   }
 #endif
 
@@ -177,6 +184,12 @@ class KZG {
 
 #if TACHYON_CUDA
     SetupForGpu();
+    CHECK(d_g1_powers_of_tau_.CopyFromAsync(
+        reinterpret_cast<const G1Point*>(g1_powers_of_tau_.data()),
+        device::gpu::GpuMemoryType::kHost, stream_.get(), 0, size));
+    CHECK(d_g1_powers_of_tau_lagrange_.CopyFromAsync(
+        reinterpret_cast<const G1Point*>(g1_powers_of_tau_lagrange_.data()),
+        device::gpu::GpuMemoryType::kHost, stream_.get(), 0, size));
 #endif
     return true;
   }
@@ -275,6 +288,8 @@ class KZG {
   device::gpu::ScopedStream stream_;
   std::unique_ptr<math::VariableBaseMSMGpu<G1Point>> msm_gpu_;
   std::vector<math::ProjectivePoint<Curve>> gpu_batch_commitments_;
+  device::gpu::GpuMemory<G1Point> d_g1_powers_of_tau_;
+  device::gpu::GpuMemory<G1Point> d_g1_powers_of_tau_lagrange_;
 #endif
 };
 
