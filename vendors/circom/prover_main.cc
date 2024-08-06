@@ -250,11 +250,6 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 #if TACHYON_CUDA
-  if (curve == Curve::kBLS12_381) {
-    tachyon_cerr << "BLS12_381 curve is not supported on CUDA" << std::endl;
-    return 1;
-  }
-
   if (!options.verify) {
     std::cout << "Icicle MSM/NTT may produce incorrect results without any "
                  "error if the polynomial degree is too high relative to the "
@@ -275,10 +270,8 @@ int RealMain(int argc, char** argv) {
           zkey_path, witness_path, proof_path, public_path, options);
       break;
     case Curve::kBLS12_381:
-#if !TACHYON_CUDA
       circom::CreateProof<math::bls12_381::BLS12_381Curve>(
           zkey_path, witness_path, proof_path, public_path, options);
-#endif
       break;
   }
 
