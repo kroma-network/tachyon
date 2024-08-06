@@ -9,6 +9,7 @@
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/flag/flag_parser.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/time/time.h"
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/bls12_381.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
@@ -192,6 +193,7 @@ int RealMain(int argc, char** argv) {
   base::FilePath witness_path;
   base::FilePath proof_path;
   base::FilePath public_path;
+  base::FilePath trace_path;
   Curve curve;
   circom::CreateProofOptions options;
   parser.AddFlag<base::FilePathFlag>(&zkey_path)
@@ -206,6 +208,10 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::FilePathFlag>(&public_path)
       .set_name("public")
       .set_help("The path to public json");
+  parser.AddFlag<base::FilePathFlag>(&trace_path)
+      .set_long_name("--trace_path")
+      .set_default_value(base::FilePath("/tmp/circom.perfetto-trace"))
+      .set_help("The path to generate trace file");
   parser.AddFlag<base::Flag<Curve>>(&curve)
       .set_long_name("--curve")
       .set_default_value(Curve::kBN254)
@@ -264,6 +270,11 @@ int RealMain(int argc, char** argv) {
     tachyon_cerr << "num_runs should be positive" << std::endl;
     return 1;
   }
+
+  base::Profiler profiler({trace_path});
+  profiler.Init();
+  profiler.Start();
+
   switch (curve) {
     case Curve::kBN254:
       circom::CreateProof<math::bn254::BN254Curve>(
