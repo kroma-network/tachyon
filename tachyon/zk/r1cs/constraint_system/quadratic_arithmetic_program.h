@@ -17,6 +17,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/optional.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/zk/r1cs/constraint_system/constraint_system.h"
 #include "tachyon/zk/r1cs/constraint_system/qap_instance_map_result.h"
 #include "tachyon/zk/r1cs/constraint_system/qap_witness_map_result.h"
@@ -26,6 +27,7 @@ namespace tachyon::zk::r1cs {
 template <typename F>
 F EvaluateConstraint(const std::vector<Cell<F>>& cells,
                      absl::Span<const F> assignments) {
+  TRACE_EVENT("ProofGeneration", "QAP::EvaluateConstraint");
   F sum;
   for (const Cell<F>& cell : cells) {
     if (cell.coefficient.IsOne()) {
@@ -47,6 +49,7 @@ class QuadraticArithmeticProgram {
   static QAPInstanceMapResult<F> InstanceMap(const Domain* domain,
                                              const ConstraintSystem<F>& cs,
                                              const F& x) {
+    TRACE_EVENT("ProofGeneration", "QAP::InstanceMap");
     CHECK_GE(domain->size(), cs.num_constraints());
     std::optional<ConstraintMatrices<F>> matrices = cs.ToMatrices();
     // |num_constraint| = n
@@ -99,6 +102,7 @@ class QuadraticArithmeticProgram {
   template <typename Domain>
   static QAPWitnessMapResult<F> WitnessMap(
       const Domain* domain, const ConstraintSystem<F>& constraint_system) {
+    TRACE_EVENT("ProofGeneration", "QAP::WitnessMap");
     std::optional<ConstraintMatrices<F>> matrices =
         constraint_system.ToMatrices();
     std::vector<F> full_assignments;
@@ -120,6 +124,7 @@ class QuadraticArithmeticProgram {
   static std::vector<F> WitnessMapFromMatrices(
       const Domain* domain, const ConstraintMatrices<F>& matrices,
       absl::Span<const F> full_assignments) {
+    TRACE_EVENT("ProofGeneration", "QAP::WitnessMapFromMatrices");
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
 
@@ -193,6 +198,7 @@ class QuadraticArithmeticProgram {
   template <typename Domain>
   static std::vector<F> ComputeHQuery(const Domain* domain, const F& t_x,
                                       const F& x, const F& delta_inverse) {
+    TRACE_EVENT("ProofGeneration", "QAP::ComputeHQuery");
     std::vector<F> h_query(domain->size() - 1);
     base::Parallelize(h_query, [&t_x, &x, &delta_inverse](absl::Span<F> chunk,
                                                           size_t chunk_index,
