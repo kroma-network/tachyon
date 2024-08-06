@@ -173,7 +173,7 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(const BaseContainer& cpu_bases,
 
   device::gpu::gpuPointerAttributes bases_attributes{};
   RETURN_AND_LOG_IF_GPU_ERROR(
-      device::gpu::GpuPointerGetAttributes(&bases_attributes, &cpu_bases),
+      device::gpu::GpuPointerGetAttributes(&bases_attributes, cpu_bases.data()),
       "Failed to GpuPointerGetAttributes()");
 
   bool copy_bases = bases_attributes.type == gpuMemoryTypeUnregistered ||
@@ -239,7 +239,7 @@ bool IcicleMSM<bn254::G2AffinePoint>::Run(const BaseContainer& cpu_bases,
 
   device::gpu::gpuPointerAttributes bases_attributes{};
   RETURN_AND_LOG_IF_GPU_ERROR(
-      device::gpu::GpuPointerGetAttributes(&bases_attributes, &cpu_bases),
+      device::gpu::GpuPointerGetAttributes(&bases_attributes, cpu_bases.data()),
       "Failed to GpuPointerGetAttributes()");
 
   bool copy_bases = bases_attributes.type == gpuMemoryTypeUnregistered ||
