@@ -63,7 +63,7 @@ class KZG {
     CHECK_EQ(g1_powers_of_tau_.size(), g1_powers_of_tau_lagrange_.size());
     CHECK_LE(g1_powers_of_tau_.size(), kMaxDegree + 1);
 #if TACHYON_CUDA
-    SetupForGpu();
+    SetupForGpu(g1_powers_of_tau_.size());
 #endif
   }
 
@@ -76,7 +76,7 @@ class KZG {
   }
 
 #if TACHYON_CUDA
-  void SetupForGpu() {
+  void SetupForGpu(size_t bases_size) {
     if (msm_gpu_) return;
 
     gpuMemPoolProps props = {gpuMemAllocationTypePinned,
@@ -92,6 +92,11 @@ class KZG {
 
     msm_gpu_.reset(
         new math::VariableBaseMSMGpu<G1Point>(mem_pool_.get(), stream_.get()));
+    d_g1_powers_of_tau_ = device::gpu::GpuMemory<G1Point>::MallocFromPoolAsync(
+        bases_size, mem_pool_.get(), stream_.get());
+    d_g1_powers_of_tau_lagrange_ =
+        device::gpu::GpuMemory<G1Point>::MallocFromPoolAsync(
+            bases_size, mem_pool_.get(), stream_.get());
   }
 #endif
 
@@ -177,7 +182,7 @@ class KZG {
     }
 
 #if TACHYON_CUDA
-    SetupForGpu();
+    SetupForGpu(size);
 #endif
     return true;
   }
@@ -276,6 +281,8 @@ class KZG {
   device::gpu::ScopedStream stream_;
   std::unique_ptr<math::VariableBaseMSMGpu<G1Point>> msm_gpu_;
   std::vector<math::ProjectivePoint<Curve>> gpu_batch_commitments_;
+  device::gpu::GpuMemory<G1Point> d_g1_powers_of_tau_;
+  device::gpu::GpuMemory<G1Point> d_g1_powers_of_tau_lagrange_;
 #endif
 };
 

@@ -55,7 +55,7 @@ TEST_F(KZGTest, CommitLagrange) {
   EXPECT_EQ(cpu_commit, cpu_commit_lagrange);
 
 #if TACHYON_CUDA
-  pcs.SetupForGpu();
+  pcs.SetupForGpu(N);
 
   math::bn254::G1AffinePoint gpu_commit;
   ASSERT_TRUE(pcs.Commit(poly.coefficients().coefficients(), &gpu_commit));
@@ -106,7 +106,7 @@ TEST_F(KZGTest, BatchCommitLagrange) {
   EXPECT_EQ(cpu_batch_commitments, cpu_batch_commitments_lagrange);
 
 #if TACHYON_CUDA
-  pcs.SetupForGpu();
+  pcs.SetupForGpu(N);
 
   state.batch_mode = true;
   state.batch_count = num_polys;
