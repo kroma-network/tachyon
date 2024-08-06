@@ -12,7 +12,7 @@ tachyon_cc_library(
         "//tachyon:export",
         "//tachyon/base:logging",
         "//tachyon/math/polynomials/univariate:fft_algorithm",
-        "@icicle//:ntt_bn254",
+        "@icicle//:hdrs",
     ],
 )
 
