@@ -1,0 +1,139 @@
+diff --git a/icicle/include/msm/msm.cu.h b/icicle/include/msm/msm.cu.h
+index 95ee447d..c2f81621 100644
+--- a/icicle/include/msm/msm.cu.h
++++ b/icicle/include/msm/msm.cu.h
+@@ -7,8 +7,8 @@
+ #include "curves/affine.cu.h"
+ #include "curves/projective.cu.h"
+ #include "fields/field.cu.h"
+-#include "gpu-utils/device_context.cu.h"
+ #include "gpu-utils/error_handler.cu.h"
++#include "msm/msm_config.h"
+ 
+ /**
+  * @namespace msm
+@@ -29,58 +29,6 @@
+  */
+ namespace msm {
+ 
+-  /**
+-   * @struct MSMConfig
+-   * Struct that encodes MSM parameters to be passed into the [MSM](@ref MSM) function. The intended use of this struct
+-   * is to create it using [default_msm_config](@ref default_msm_config) function and then you'll hopefully only need to
+-   * change a small number of default values for each of your MSMs.
+-   */
+-  struct MSMConfig {
+-    device_context::DeviceContext ctx; /**< Details related to the device such as its id and stream id. */
+-    int points_size;         /**< Number of points in the MSM. If a batch of MSMs needs to be computed, this should be
+-                              *   a number of different points. So, if each MSM re-uses the same set of points, this
+-                              *   variable is set equal to the MSM size. And if every MSM uses a distinct set of
+-                              *   points, it should be set to the product of MSM size and [batch_size](@ref
+-                              *   batch_size). Default value: 0 (meaning it's equal to the MSM size). */
+-    int precompute_factor;   /**< The number of extra points to pre-compute for each point. See the
+-                              *   [precompute_msm_points](@ref precompute_msm_points) function, `precompute_factor` passed
+-                              *   there needs to be equal to the one used here. Larger values decrease the
+-                              *   number of computations to make, on-line memory footprint, but increase the static
+-                              *   memory footprint. Default value: 1 (i.e. don't pre-compute). */
+-    int c;                   /**< \f$ c \f$ value, or "window bitsize" which is the main parameter of the "bucket
+-                              *   method" that we use to solve the MSM problem. As a rule of thumb, larger value
+-                              *   means more on-line memory footprint but also more parallelism and less computational
+-                              *   complexity (up to a certain point). Currently pre-computation is independent of
+-                              *   \f$ c \f$, however in the future value of \f$ c \f$ here and the one passed into the
+-                              *   [precompute_msm_points](@ref precompute_msm_points) function will need to be identical.
+-                              *    Default value: 0 (the optimal value of \f$ c \f$ is chosen automatically).  */
+-    int bitsize;             /**< Number of bits of the largest scalar. Typically equals the bitsize of scalar field,
+-                              *   but if a different (better) upper bound is known, it should be reflected in this
+-                              *   variable. Default value: 0 (set to the bitsize of scalar field). */
+-    int large_bucket_factor; /**< Variable that controls how sensitive the algorithm is to the buckets that occur
+-                              *   very frequently. Useful for efficient treatment of non-uniform distributions of
+-                              *   scalars and "top windows" with few bits. Can be set to 0 to disable separate
+-                              *   treatment of large buckets altogether. Default value: 10. */
+-    int batch_size;          /**< The number of MSMs to compute. Default value: 1. */
+-    bool are_scalars_on_device;       /**< True if scalars are on device and false if they're on host. Default value:
+-                                       *   false. */
+-    bool are_scalars_montgomery_form; /**< True if scalars are in Montgomery form and false otherwise. Default value:
+-                                       *   true. */
+-    bool are_points_on_device; /**< True if points are on device and false if they're on host. Default value: false. */
+-    bool are_points_montgomery_form; /**< True if coordinates of points are in Montgomery form and false otherwise.
+-                                      *   Default value: true. */
+-    bool are_results_on_device; /**< True if the results should be on device and false if they should be on host. If set
+-                                 *   to false, `is_async` won't take effect because a synchronization is needed to
+-                                 *   transfer results to the host. Default value: false. */
+-    bool is_big_triangle;       /**< Whether to do "bucket accumulation" serially. Decreases computational complexity
+-                                 *   but also greatly decreases parallelism, so only suitable for large batches of MSMs.
+-                                 *   Default value: false. */
+-    bool is_async;              /**< Whether to run the MSM asynchronously. If set to true, the MSM function will be
+-                                 *   non-blocking and you'd need to synchronize it explicitly by running
+-                                 *   `cudaStreamSynchronize` or `cudaDeviceSynchronize`. If set to false, the MSM
+-                                 *   function will block the current CPU thread. */
+-  };
+-
+   /**
+    * A function that returns the default value of [MSMConfig](@ref MSMConfig) for the [MSM](@ref MSM) function.
+    * @return Default value of [MSMConfig](@ref MSMConfig).
+diff --git a/icicle/include/msm/msm_config.h b/icicle/include/msm/msm_config.h
+new file mode 100644
+index 00000000..be2a82b5
+--- /dev/null
++++ b/icicle/include/msm/msm_config.h
+@@ -0,0 +1,60 @@
++#ifndef MSM_CONFIG_H
++#define MSM_CONFIG_H
++
++#include "gpu-utils/device_context.cu.h"
++
++namespace msm {
++  /**
++   * @struct MSMConfig
++   * Struct that encodes MSM parameters to be passed into the [MSM](@ref MSM) function. The intended use of this struct
++   * is to create it using [default_msm_config](@ref default_msm_config) function and then you'll hopefully only need to
++   * change a small number of default values for each of your MSMs.
++   */
++  struct MSMConfig {
++    device_context::DeviceContext ctx; /**< Details related to the device such as its id and stream id. */
++    int points_size;         /**< Number of points in the MSM. If a batch of MSMs needs to be computed, this should be
++                              *   a number of different points. So, if each MSM re-uses the same set of points, this
++                              *   variable is set equal to the MSM size. And if every MSM uses a distinct set of
++                              *   points, it should be set to the product of MSM size and [batch_size](@ref
++                              *   batch_size). Default value: 0 (meaning it's equal to the MSM size). */
++    int precompute_factor;   /**< The number of extra points to pre-compute for each point. See the
++                              *   [precompute_msm_points](@ref precompute_msm_points) function, `precompute_factor` passed
++                              *   there needs to be equal to the one used here. Larger values decrease the
++                              *   number of computations to make, on-line memory footprint, but increase the static
++                              *   memory footprint. Default value: 1 (i.e. don't pre-compute). */
++    int c;                   /**< \f$ c \f$ value, or "window bitsize" which is the main parameter of the "bucket
++                              *   method" that we use to solve the MSM problem. As a rule of thumb, larger value
++                              *   means more on-line memory footprint but also more parallelism and less computational
++                              *   complexity (up to a certain point). Currently pre-computation is independent of
++                              *   \f$ c \f$, however in the future value of \f$ c \f$ here and the one passed into the
++                              *   [precompute_msm_points](@ref precompute_msm_points) function will need to be identical.
++                              *    Default value: 0 (the optimal value of \f$ c \f$ is chosen automatically).  */
++    int bitsize;             /**< Number of bits of the largest scalar. Typically equals the bitsize of scalar field,
++                              *   but if a different (better) upper bound is known, it should be reflected in this
++                              *   variable. Default value: 0 (set to the bitsize of scalar field). */
++    int large_bucket_factor; /**< Variable that controls how sensitive the algorithm is to the buckets that occur
++                              *   very frequently. Useful for efficient treatment of non-uniform distributions of
++                              *   scalars and "top windows" with few bits. Can be set to 0 to disable separate
++                              *   treatment of large buckets altogether. Default value: 10. */
++    int batch_size;          /**< The number of MSMs to compute. Default value: 1. */
++    bool are_scalars_on_device;       /**< True if scalars are on device and false if they're on host. Default value:
++                                       *   false. */
++    bool are_scalars_montgomery_form; /**< True if scalars are in Montgomery form and false otherwise. Default value:
++                                       *   true. */
++    bool are_points_on_device; /**< True if points are on device and false if they're on host. Default value: false. */
++    bool are_points_montgomery_form; /**< True if coordinates of points are in Montgomery form and false otherwise.
++                                      *   Default value: true. */
++    bool are_results_on_device; /**< True if the results should be on device and false if they should be on host. If set
++                                 *   to false, `is_async` won't take effect because a synchronization is needed to
++                                 *   transfer results to the host. Default value: false. */
++    bool is_big_triangle;       /**< Whether to do "bucket accumulation" serially. Decreases computational complexity
++                                 *   but also greatly decreases parallelism, so only suitable for large batches of MSMs.
++                                 *   Default value: false. */
++    bool is_async;              /**< Whether to run the MSM asynchronously. If set to true, the MSM function will be
++                                 *   non-blocking and you'd need to synchronize it explicitly by running
++                                 *   `cudaStreamSynchronize` or `cudaDeviceSynchronize`. If set to false, the MSM
++                                 *   function will block the current CPU thread. */
++  };
++} // namespace msm
++
++#endif // MSM_CONFIG_H

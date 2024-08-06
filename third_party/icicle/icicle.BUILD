@@ -38,9 +38,9 @@ tachyon_cuda_library(
 [tachyon_cuda_library(
     name = "msm_{}".format(field),
     hdrs = ["icicle/src/msm/msm.cu.cc"],
-    defines = icicle_defines(field),
     include_prefix = "third_party/icicle/src",
     includes = ["icicle/src/msm"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
 ) for field in CURVES]
@@ -54,9 +54,9 @@ tachyon_cuda_library(
         "icicle/src/ntt/ntt.cu.cc",
         "icicle/src/ntt/thread_ntt.cu.cc",
     ],
-    defines = icicle_defines(field),
     include_prefix = "third_party/icicle/src",
     includes = ["icicle/src/ntt"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
 ) for field in FIELDS_WITH_NTT]
@@ -69,9 +69,9 @@ tachyon_cuda_library(
         "icicle/src/polynomials/cuda_backend/polynomial_cuda_backend.cu.cc",
     ]),
     hdrs = ["icicle/src/polynomials/cuda_backend/kernels.cu.h"],
-    defines = icicle_defines(field),
     include_prefix = "third_party/icicle/src",
     includes = ["includes/src/polynomials"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [
         ":hdrs",
@@ -89,9 +89,9 @@ tachyon_cuda_library(
         "icicle/src/poseidon/kernels.cu.cc",
         "icicle/src/poseidon/poseidon.cu.cc",
     ],
-    defines = icicle_defines(field),
     include_prefix = "third_party/icicle/src",
     includes = ["includes/src/poseidon"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
 ) for field in FIELDS_WITH_POSEIDON]
@@ -103,9 +103,9 @@ tachyon_cuda_library(
         "icicle/src/poseidon2/kernels.cu.cc",
         "icicle/src/poseidon2/poseidon.cu.cc",
     ],
-    defines = icicle_defines(field),
     include_prefix = "third_party/icicle/src",
     includes = ["includes/src/poseidon2"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
 ) for field in FIELDS_WITH_POSEIDON2]
