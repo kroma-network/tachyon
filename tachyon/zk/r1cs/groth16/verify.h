@@ -8,6 +8,7 @@
 
 #include "absl/types/span.h"
 
+#include "tachyon/base/profiler.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/pairing/pairing.h"
 #include "tachyon/math/geometry/point_conversions.h"
@@ -21,6 +22,9 @@ template <typename Curve, typename Container, typename Bucket>
                                  const Container& public_inputs,
                                  Bucket* prepared_inputs) {
   using G1Point = typename Curve::G1Curve::AffinePoint;
+
+  TRACE_EVENT("ProofVerification", "Groth16::PrepareInputs");
+
   absl::Span<const G1Point> l_g1_query = pvk.verifying_key().l_g1_query();
   absl::Span<const G1Point> l_g1_query_first_skipped = l_g1_query.subspan(1);
   math::VariableBaseMSM<G1Point> msm;
@@ -36,6 +40,8 @@ template <typename Curve, typename Bucket>
     const Bucket& prepared_inputs) {
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using G2Prepared = typename Curve::G2Prepared;
+
+  TRACE_EVENT("ProofVerification", "Groth16::VerifyProofWithPreparedInputs");
 
   // clang-format off
   // e(A, B) * e([Σ xᵢ * (γ⁻¹ * (β * aᵢ(x) + α * bᵢ(x) + cᵢ(x))]₁, [-γ]₂) * e(C, [-δ]₂) ≟ e([α]₁, [β]₂)
@@ -59,6 +65,9 @@ template <typename Curve, typename Container>
                                const Container& public_inputs) {
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using Bucket = typename math::VariableBaseMSM<G1Point>::Bucket;
+
+  TRACE_EVENT("ProofVerification", "Groth16::VerifyProof");
+
   Bucket prepared_inputs;
   if (!PrepareInputs(pvk, public_inputs, &prepared_inputs)) return false;
   return VerifyProofWithPreparedInputs(pvk, proof, prepared_inputs);

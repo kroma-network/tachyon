@@ -38,6 +38,7 @@ tachyon_cc_library(
         ":proof",
         ":proving_key",
         "//tachyon/base:optional",
+        "//tachyon/base:profiler",
         "//tachyon/device/gpu:scoped_mem_pool",
         "//tachyon/device/gpu:scoped_stream",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
@@ -67,6 +68,7 @@ tachyon_cc_library(
     deps = [
         ":prepared_verifying_key",
         ":proof",
+        "//tachyon/base:profiler",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "//tachyon/math/geometry:point_conversions",
     ],
