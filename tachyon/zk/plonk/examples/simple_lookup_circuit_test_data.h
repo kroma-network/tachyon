@@ -41,7 +41,7 @@ class SimpleLookupTestData : public CircuitTestData<Circuit, PS> {
   constexpr static size_t kN = 32;
 
   // clang-format off
-  constexpr static std ::string_view kPinnedConstraintSystem =
+  constexpr static std::string_view kPinnedConstraintSystem =
       "PinnedConstraintSystem { "
         "num_fixed_columns: 1, "
         "num_advice_columns: 1, "

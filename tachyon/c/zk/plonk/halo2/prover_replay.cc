@@ -258,7 +258,7 @@ int RunMain(int argc, char** argv) {
     }
   }
 
-  std ::optional<std::vector<uint8_t>> pk_bytes =
+  std::optional<std::vector<uint8_t>> pk_bytes =
       tachyon::base::ReadFileToBytes(pk_path);
   if (!pk_bytes.has_value()) {
     tachyon_cerr << "Failed to read file: " << pk_path.value() << std::endl;
