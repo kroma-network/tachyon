@@ -5,7 +5,7 @@
 
 #if defined(TACHYON_HAS_AVX512)
 
-#include "tachyon/math/finite_fields/koala_bear/packed_koala_bear_avx512.h"
+#include "tachyon/math/finite_fields/koala_bear/internal/packed_koala_bear_avx512.h"
 
 #include <immintrin.h>
 

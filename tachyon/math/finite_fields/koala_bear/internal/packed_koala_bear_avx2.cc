@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#include "tachyon/math/finite_fields/koala_bear/packed_koala_bear_avx2.h"
+#include "tachyon/math/finite_fields/koala_bear/internal/packed_koala_bear_avx2.h"
 
 #include <immintrin.h>
 
