@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"
 #include "tachyon/math/elliptic_curves/msm/msm_ctx.h"
@@ -78,6 +79,7 @@ class Pippenger : public PippengerBase<Point> {
                          BaseInputIterator bases_last,
                          ScalarInputIterator scalars_first,
                          ScalarInputIterator scalars_last, Bucket* ret) {
+    TRACE_EVENT("MSM", "Pippenger::Run");
     size_t bases_size = std::distance(bases_first, bases_last);
     size_t scalars_size = std::distance(scalars_first, scalars_last);
     if (bases_size != scalars_size) {
@@ -112,6 +114,7 @@ class Pippenger : public PippengerBase<Point> {
       BaseInputIterator bases_it,
       const std::vector<std::vector<int64_t>>& scalar_digits, size_t i,
       Bucket* window_sum, bool is_last_window) {
+    TRACE_EVENT("Utils", "AccumulateSingleWindowNAFSum");
     size_t bucket_size;
     if (is_last_window) {
       bucket_size = 1 << ctx_.window_bits;
@@ -135,21 +138,29 @@ class Pippenger : public PippengerBase<Point> {
   void AccumulateWindowNAFSums(BaseInputIterator bases_first,
                                absl::Span<const BigInt<N>> scalars,
                                std::vector<Bucket>* window_sums) {
+    TRACE_EVENT("Utils", "AccumulateWindowNAFSums");
+
     std::vector<std::vector<int64_t>> scalar_digits;
-    scalar_digits.resize(scalars.size());
-    for (std::vector<int64_t>& scalar_digit : scalar_digits) {
-      scalar_digit.resize(ctx_.window_count);
+    {
+      TRACE_EVENT("Subtask", "InitAndFillScalars");
+      scalar_digits.resize(scalars.size());
+      for (std::vector<int64_t>& scalar_digit : scalar_digits) {
+        scalar_digit.resize(ctx_.window_count);
+      }
+      for (size_t i = 0; i < scalars.size(); ++i) {
+        FillDigits(scalars[i], ctx_.window_bits, &scalar_digits[i]);
+      }
     }
-    for (size_t i = 0; i < scalars.size(); ++i) {
-      FillDigits(scalars[i], ctx_.window_bits, &scalar_digits[i]);
-    }
+
     if (parallel_windows_) {
+      TRACE_EVENT("Subtask", "ParallelWindows");
       OMP_PARALLEL_FOR(size_t i = 0; i < ctx_.window_count; ++i) {
         AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
                                      &(*window_sums)[i],
                                      i == ctx_.window_count - 1);
       }
     } else {
+      TRACE_EVENT("Subtask", "SerialWindows");
       for (size_t i = 0; i < ctx_.window_count; ++i) {
         AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
                                      &(*window_sums)[i],
@@ -162,6 +173,7 @@ class Pippenger : public PippengerBase<Point> {
   void AccumulateSingleWindowSum(BaseInputIterator bases_first,
                                  absl::Span<const BigInt<N>> scalars,
                                  size_t window_offset, Bucket* out) {
+    TRACE_EVENT("Utils", "AccumulateSingleWindowSum");
     Bucket window_sum = Bucket::Zero();
     // We don't need the "zero" bucket, so we only have 2^{window_bits} - 1
     // buckets.
@@ -202,12 +214,15 @@ class Pippenger : public PippengerBase<Point> {
   void AccumulateWindowSums(BaseInputIterator bases_first,
                             absl::Span<const BigInt<N>> scalars,
                             std::vector<Bucket>* window_sums) {
+    TRACE_EVENT("Utils", "AccumulateWindowSums");
     if (parallel_windows_) {
+      TRACE_EVENT("Subtask", "ParallelWindows");
       OMP_PARALLEL_FOR(size_t i = 0; i < ctx_.window_count; ++i) {
         AccumulateSingleWindowSum(bases_first, scalars, ctx_.window_bits * i,
                                   &(*window_sums)[i]);
       }
     } else {
+      TRACE_EVENT("Subtask", "SerialWindows");
       for (size_t i = 0; i < ctx_.window_count; ++i) {
         AccumulateSingleWindowSum(bases_first, scalars, ctx_.window_bits * i,
                                   &(*window_sums)[i]);

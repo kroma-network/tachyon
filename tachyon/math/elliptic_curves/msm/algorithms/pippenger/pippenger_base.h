@@ -58,6 +58,7 @@ class PippengerBase {
 
   static Bucket AccumulateWindowSums(absl::Span<const Bucket> window_sums,
                                      size_t window_bits) {
+    TRACE_EVENT("Utils", "PippengerBase::AccumulateWindowSums");
     // We store the sum for the lowest window.
     Bucket lowest = window_sums.front();
     window_sums.remove_prefix(1);
