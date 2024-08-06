@@ -204,24 +204,44 @@ class KZG {
 
   template <typename ScalarContainer>
   [[nodiscard]] bool Commit(const ScalarContainer& v, Commitment* out) const {
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      return DoMSM(d_g1_powers_of_tau_, v, out);
+    }
+#endif
     return DoMSM(g1_powers_of_tau_, v, out);
   }
 
   template <typename ScalarContainer>
   [[nodiscard]] bool Commit(const ScalarContainer& v,
                             BatchCommitmentState& state, size_t index) {
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      return DoMSM(d_g1_powers_of_tau_, v, state, index);
+    }
+#endif
     return DoMSM(g1_powers_of_tau_, v, state, index);
   }
 
   template <typename ScalarContainer>
   [[nodiscard]] bool CommitLagrange(const ScalarContainer& v,
                                     Commitment* out) const {
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      return DoMSM(d_g1_powers_of_tau_lagrange_, v, out);
+    }
+#endif
     return DoMSM(g1_powers_of_tau_lagrange_, v, out);
   }
 
   template <typename ScalarContainer>
   [[nodiscard]] bool CommitLagrange(const ScalarContainer& v,
                                     BatchCommitmentState& state, size_t index) {
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      return DoMSM(d_g1_powers_of_tau_lagrange_, v, state, index);
+    }
+#endif
     return DoMSM(g1_powers_of_tau_lagrange_, v, state, index);
   }
 
