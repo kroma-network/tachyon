@@ -23,6 +23,7 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 
 #if TACHYON_CUDA
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/device/gpu/scoped_stream.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
