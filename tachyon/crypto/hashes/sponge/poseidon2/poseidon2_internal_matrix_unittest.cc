@@ -8,7 +8,6 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_internal_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_internal_matrix.h"
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
-#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {

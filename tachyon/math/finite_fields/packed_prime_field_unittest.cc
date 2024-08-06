@@ -8,16 +8,16 @@
 #if ARCH_CPU_X86_64
 #include "tachyon/math/finite_fields/baby_bear/internal/packed_baby_bear_avx2.h"
 #include "tachyon/math/finite_fields/koala_bear/internal/packed_koala_bear_avx2.h"
-#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_avx2.h"
+#include "tachyon/math/finite_fields/mersenne31/internal/packed_mersenne31_avx2.h"
 #if defined(TACHYON_HAS_AVX512)
 #include "tachyon/math/finite_fields/baby_bear/internal/packed_baby_bear_avx512.h"
 #include "tachyon/math/finite_fields/koala_bear/internal/packed_koala_bear_avx512.h"
-#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_avx512.h"
+#include "tachyon/math/finite_fields/mersenne31/internal/packed_mersenne31_avx512.h"
 #endif
 #elif ARCH_CPU_ARM64
 #include "tachyon/math/finite_fields/baby_bear/internal/packed_baby_bear_neon.h"
 #include "tachyon/math/finite_fields/koala_bear/internal/packed_koala_bear_neon.h"
-#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_neon.h"
+#include "tachyon/math/finite_fields/mersenne31/internal/packed_mersenne31_neon.h"
 #endif
 
 namespace tachyon::math {

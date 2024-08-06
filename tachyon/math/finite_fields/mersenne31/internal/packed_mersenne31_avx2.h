@@ -3,13 +3,13 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_MATH_FINITE_FIELDS_MERSENNE31_PACKED_MERSENNE31_AVX2_H_
-#define TACHYON_MATH_FINITE_FIELDS_MERSENNE31_PACKED_MERSENNE31_AVX2_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_MERSENNE31_INTERNAL_PACKED_MERSENNE31_AVX2_H_
+#define TACHYON_MATH_FINITE_FIELDS_MERSENNE31_INTERNAL_PACKED_MERSENNE31_AVX2_H_
 
 #include <stddef.h>
 
 #include "tachyon/export.h"
-#include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
+#include "tachyon/math/finite_fields/mersenne31/internal/mersenne31.h"
 #include "tachyon/math/finite_fields/packed_prime_field_base.h"
 
 namespace tachyon::math {
@@ -62,4 +62,4 @@ class TACHYON_EXPORT PackedMersenne31AVX2 final
 
 }  // namespace tachyon::math
 
-#endif  //  TACHYON_MATH_FINITE_FIELDS_MERSENNE31_PACKED_MERSENNE31_AVX2_H_
+#endif  //  TACHYON_MATH_FINITE_FIELDS_MERSENNE31_INTERNAL_PACKED_MERSENNE31_AVX2_H_
