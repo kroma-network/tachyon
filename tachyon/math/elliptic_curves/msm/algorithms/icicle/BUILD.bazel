@@ -7,7 +7,7 @@ tachyon_cuda_library(
     name = "icicle_msm_bn254_g1",
     srcs = if_cuda(["icicle_msm_bn254_g1.cc"]),
     hdrs = ["icicle_msm_bn254_g1.h"],
-    deps = ["@icicle//:msm"] + if_cuda([
+    deps = ["@icicle//:msm_bn254"] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
 )
@@ -16,7 +16,7 @@ tachyon_cuda_library(
     name = "icicle_msm_bn254_g2",
     srcs = if_cuda(["icicle_msm_bn254_g2.cc"]),
     hdrs = ["icicle_msm_bn254_g2.h"],
-    deps = ["@icicle//:msm"] + if_cuda([
+    deps = ["@icicle//:msm_bn254"] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
 )

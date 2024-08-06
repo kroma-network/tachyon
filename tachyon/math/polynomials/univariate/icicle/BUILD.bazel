@@ -11,7 +11,7 @@ tachyon_cc_library(
         "//tachyon:export",
         "//tachyon/base:logging",
         "//tachyon/math/polynomials/univariate:fft_algorithm",
-        "@icicle//:ntt",
+        "@icicle//:ntt_bn254",
     ],
 )
 
@@ -19,7 +19,7 @@ tachyon_cuda_library(
     name = "icicle_ntt_bn254",
     srcs = if_cuda(["icicle_ntt_bn254.cc"]),
     hdrs = ["icicle_ntt_bn254.h"],
-    deps = ["@icicle//:ntt"] + if_cuda([
+    deps = ["@icicle//:ntt_bn254"] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
 )
@@ -38,7 +38,6 @@ tachyon_cc_library(
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/polynomials/univariate:univariate_evaluations",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
-        "@icicle//:ntt",
     ],
 )
 
