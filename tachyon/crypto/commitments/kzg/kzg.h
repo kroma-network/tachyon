@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -56,8 +55,8 @@ class KZG {
 
   KZG() = default;
 
-  KZG(std::pmr::vector<G1Point>&& g1_powers_of_tau,
-      std::pmr::vector<G1Point>&& g1_powers_of_tau_lagrange)
+  KZG(std::vector<G1Point>&& g1_powers_of_tau,
+      std::vector<G1Point>&& g1_powers_of_tau_lagrange)
       : g1_powers_of_tau_(std::move(g1_powers_of_tau)),
         g1_powers_of_tau_lagrange_(std::move(g1_powers_of_tau_lagrange)) {
     CHECK_EQ(g1_powers_of_tau_.size(), g1_powers_of_tau_lagrange_.size());
@@ -67,11 +66,11 @@ class KZG {
 #endif
   }
 
-  const std::pmr::vector<G1Point>& g1_powers_of_tau() const {
+  const std::vector<G1Point>& g1_powers_of_tau() const {
     return g1_powers_of_tau_;
   }
 
-  const std::pmr::vector<G1Point>& g1_powers_of_tau_lagrange() const {
+  const std::vector<G1Point>& g1_powers_of_tau_lagrange() const {
     return g1_powers_of_tau_lagrange_;
   }
 
@@ -157,8 +156,7 @@ class KZG {
 
     // |g1_powers_of_tau_| = [τ⁰g₁, τ¹g₁, ... , τⁿ⁻¹g₁]
     G1Point g1 = G1Point::Generator();
-    std::pmr::vector<Field> powers_of_tau =
-        Field::GetSuccessivePowers(size, tau);
+    std::vector<Field> powers_of_tau = Field::GetSuccessivePowers(size, tau);
 
     g1_powers_of_tau_.resize(size);
     if (!G1Point::BatchMapScalarFieldToPoint(g1, powers_of_tau,
@@ -168,7 +166,7 @@ class KZG {
 
     // Get |g1_powers_of_tau_lagrange_| from τ and g₁.
     std::unique_ptr<Domain> domain = Domain::Create(size);
-    std::pmr::vector<Field> lagrange_coeffs =
+    std::vector<Field> lagrange_coeffs =
         domain->EvaluateAllLagrangeCoefficients(tau);
 
     g1_powers_of_tau_lagrange_.resize(size);
@@ -269,8 +267,8 @@ class KZG {
     return msm.Run(bases_span, scalars, &cpu_batch_commitments_[index]);
   }
 
-  std::pmr::vector<G1Point> g1_powers_of_tau_;
-  std::pmr::vector<G1Point> g1_powers_of_tau_lagrange_;
+  std::vector<G1Point> g1_powers_of_tau_;
+  std::vector<G1Point> g1_powers_of_tau_lagrange_;
   std::vector<Bucket> cpu_batch_commitments_;
 #if TACHYON_CUDA
   device::gpu::ScopedMemPool mem_pool_;
@@ -295,8 +293,8 @@ class Copyable<crypto::KZG<G1Point, MaxDegree, Commitment>> {
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer, PCS* pcs) {
-    std::pmr::vector<G1Point> g1_powers_of_tau;
-    std::pmr::vector<G1Point> g1_powers_of_tau_lagrange;
+    std::vector<G1Point> g1_powers_of_tau;
+    std::vector<G1Point> g1_powers_of_tau_lagrange;
     if (!buffer.ReadMany(&g1_powers_of_tau, &g1_powers_of_tau_lagrange)) {
       return false;
     }

@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#include <memory_resource>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -907,7 +906,7 @@ class SimpleTestData<Circuit, PCS, LS,
     F a(2);
     F b(3);
     F c = std::move(constant) * std::move(a).Square() * std::move(b).Square();
-    std::pmr::vector<F> instance_column = {std::move(c)};
+    std::vector<F> instance_column = {std::move(c)};
     return {Evals(std::move(instance_column))};
   }
 };
@@ -1801,7 +1800,7 @@ class SimpleTestData<Circuit, PCS, LS,
     F a(2);
     F b(3);
     F c = std::move(constant) * std::move(a).Square() * std::move(b).Square();
-    std::pmr::vector<F> instance_column = {std::move(c)};
+    std::vector<F> instance_column = {std::move(c)};
     return {Evals(std::move(instance_column))};
   }
 };

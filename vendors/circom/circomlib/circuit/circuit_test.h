@@ -2,7 +2,6 @@
 #define VENDORS_CIRCOM_CIRCOMLIB_CIRCUIT_CIRCUIT_TEST_H_
 
 #include <memory>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -58,7 +57,7 @@ class CircuitTest : public testing::Test {
     absl::Span<const Coefficient<F>> coefficients = zkey.GetCoefficients();
 
     std::unique_ptr<Domain> domain = Domain::Create(zkey.GetDomainSize());
-    std::pmr::vector<F> h_evals = QAP::WitnessMapFromMatrices(
+    std::vector<F> h_evals = QAP::WitnessMapFromMatrices(
         domain.get(), coefficients, full_assignments);
 
     size_t num_instance_variables = zkey.GetNumInstanceVariables();

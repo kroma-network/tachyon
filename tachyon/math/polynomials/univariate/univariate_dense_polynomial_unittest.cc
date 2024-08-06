@@ -288,8 +288,8 @@ TEST_F(UnivariateDensePolynomialTest, MulScalar) {
   Poly poly = Poly::Random(kMaxDegree);
   GF7 scalar = GF7::Random();
 
-  std::pmr::vector<GF7> expected_coeffs;
-  const std::pmr::vector<GF7>& coeffs = poly.coefficients().coefficients();
+  std::vector<GF7> expected_coeffs;
+  const std::vector<GF7>& coeffs = poly.coefficients().coefficients();
   expected_coeffs.reserve(coeffs.size());
   for (size_t i = 0; i < coeffs.size(); ++i) {
     expected_coeffs.push_back(coeffs[i] * scalar);
@@ -309,8 +309,8 @@ TEST_F(UnivariateDensePolynomialTest, DivScalar) {
     scalar = GF7::Random();
   }
 
-  std::pmr::vector<GF7> expected_coeffs;
-  const std::pmr::vector<GF7>& coeffs = poly.coefficients().coefficients();
+  std::vector<GF7> expected_coeffs;
+  const std::vector<GF7>& coeffs = poly.coefficients().coefficients();
   expected_coeffs.reserve(coeffs.size());
   for (size_t i = 0; i < coeffs.size(); ++i) {
     expected_coeffs.push_back(unwrap(coeffs[i] / scalar));

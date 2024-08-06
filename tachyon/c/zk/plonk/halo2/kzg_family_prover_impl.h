@@ -2,7 +2,6 @@
 #define TACHYON_C_ZK_PLONK_HALO2_KZG_FAMILY_PROVER_IMPL_H_
 
 #include <algorithm>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -31,19 +30,18 @@ class KZGFamilyProverImpl : public ProverImplBase<PCS, LS> {
 
   using ProverImplBase<PCS, LS>::ProverImplBase;
 
-  CProjectivePoint* CommitRaw(
-      const std::pmr::vector<ScalarField>& scalars) const {
+  CProjectivePoint* CommitRaw(const std::vector<ScalarField>& scalars) const {
     return DoMSM(this->pcs_.GetG1PowersOfTau(), scalars);
   }
 
   CProjectivePoint* CommitLagrangeRaw(
-      const std::pmr::vector<ScalarField>& scalars) const {
+      const std::vector<ScalarField>& scalars) const {
     return DoMSM(this->pcs_.GetG1PowersOfTauLagrange(), scalars);
   }
 
  private:
-  CProjectivePoint* DoMSM(const std::pmr::vector<AffinePoint>& bases,
-                          const std::pmr::vector<ScalarField>& scalars) const {
+  CProjectivePoint* DoMSM(const std::vector<AffinePoint>& bases,
+                          const std::vector<ScalarField>& scalars) const {
     ProjectivePoint* ret = new ProjectivePoint();
     CHECK(this->pcs_.DoMSM(bases, scalars, ret));
 

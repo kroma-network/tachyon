@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include <memory>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -183,7 +182,7 @@ template <typename NativeProver>
 tachyon_bn254_g1_projective* Commit(
     NativeProver* prover,
     const tachyon_bn254_univariate_dense_polynomial* poly) {
-  const std::pmr::vector<math::bn254::Fr>& scalars =
+  const std::vector<math::bn254::Fr>& scalars =
       c::base::native_cast(*poly).coefficients().coefficients();
   return prover->CommitRaw(scalars);
 }
@@ -191,7 +190,7 @@ tachyon_bn254_g1_projective* Commit(
 template <typename NativeProver>
 tachyon_bn254_g1_projective* CommitLagrange(
     NativeProver* prover, const tachyon_bn254_univariate_evaluations* evals) {
-  const std::pmr::vector<math::bn254::Fr>& scalars =
+  const std::vector<math::bn254::Fr>& scalars =
       c::base::native_cast(*evals).evaluations();
   return prover->CommitLagrangeRaw(scalars);
 }

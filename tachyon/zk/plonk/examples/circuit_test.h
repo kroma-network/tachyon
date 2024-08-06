@@ -1,7 +1,6 @@
 #ifndef TACHYON_ZK_PLONK_EXAMPLES_CIRCUIT_TEST_H_
 #define TACHYON_ZK_PLONK_EXAMPLES_CIRCUIT_TEST_H_
 
-#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -596,9 +595,9 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
   }
 
   static Evals CreateColumn(const std::vector<std::string_view>& column) {
-    std::pmr::vector<F> evaluations = base::PmrMap(
-        column,
-        [](std::string_view coeff) { return *F::FromHexString(coeff); });
+    std::vector<F> evaluations = base::Map(column, [](std::string_view coeff) {
+      return *F::FromHexString(coeff);
+    });
     return Evals(std::move(evaluations));
   }
 
@@ -609,8 +608,8 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
 
   static RationalEvals CreateRationalColumn(
       const std::vector<std::string_view>& column) {
-    std::pmr::vector<math::RationalField<F>> evaluations =
-        base::PmrMap(column, [](std::string_view coeff) {
+    std::vector<math::RationalField<F>> evaluations =
+        base::Map(column, [](std::string_view coeff) {
           return math::RationalField<F>(*F::FromHexString(coeff));
         });
     return RationalEvals(std::move(evaluations));
@@ -622,7 +621,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
   }
 
   static Poly CreatePoly(const std::vector<std::string_view>& poly) {
-    std::pmr::vector<F> coefficients = base::PmrMap(
+    std::vector<F> coefficients = base::Map(
         poly, [](std::string_view coeff) { return *F::FromHexString(coeff); });
     return Poly(math::UnivariateDenseCoefficients<F, halo2::kMaxDegree>(
         std::move(coefficients), true));

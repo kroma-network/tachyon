@@ -10,7 +10,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -94,19 +93,19 @@ class TACHYON_EXPORT Key {
 
     result->fixed_columns =
         base::Map(assembly.fixed_columns(), [](const RationalEvals& evals) {
-          std::pmr::vector<F> result(evals.evaluations().size());
+          std::vector<F> result(evals.evaluations().size());
           CHECK(math::RationalField<F>::BatchEvaluate(evals.evaluations(),
                                                       &result));
           return Evals(std::move(result));
         });
     std::vector<Evals>& fixed_columns = result->fixed_columns;
 
-    std::vector<std::pmr::vector<F>> selector_polys_tmp =
+    std::vector<std::vector<F>> selector_polys_tmp =
         constraint_system.CompressSelectors(assembly.selectors());
-    std::vector<Evals> selector_polys = base::Map(
-        std::make_move_iterator(selector_polys_tmp.begin()),
-        std::make_move_iterator(selector_polys_tmp.end()),
-        [](std::pmr::vector<F>&& vec) { return Evals(std::move(vec)); });
+    std::vector<Evals> selector_polys =
+        base::Map(std::make_move_iterator(selector_polys_tmp.begin()),
+                  std::make_move_iterator(selector_polys_tmp.end()),
+                  [](std::vector<F>&& vec) { return Evals(std::move(vec)); });
     fixed_columns.insert(fixed_columns.end(),
                          std::make_move_iterator(selector_polys.begin()),
                          std::make_move_iterator(selector_polys.end()));

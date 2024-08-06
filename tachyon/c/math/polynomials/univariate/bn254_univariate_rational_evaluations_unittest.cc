@@ -1,6 +1,5 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_rational_evaluations.h"
 
-#include <memory_resource>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -90,7 +89,7 @@ TEST_F(UnivariateRationalEvaluationsTest, BatchEvaluate) {
   }
   tachyon_bn254_univariate_evaluations* evaluated =
       tachyon_bn254_univariate_rational_evaluations_batch_evaluate(evals_);
-  std::pmr::vector<bn254::Fr> values;
+  std::vector<bn254::Fr> values;
   values.resize(rational_values.size());
   CHECK(RationalField<bn254::Fr>::BatchEvaluate(rational_values, &values));
   EXPECT_EQ(c::base::native_cast(*evaluated).evaluations(), values);

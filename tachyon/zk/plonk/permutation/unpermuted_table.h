@@ -7,7 +7,6 @@
 #ifndef TACHYON_ZK_PLONK_PERMUTATION_UNPERMUTED_TABLE_H_
 #define TACHYON_ZK_PLONK_PERMUTATION_UNPERMUTED_TABLE_H_
 
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -57,7 +56,7 @@ class UnpermutedTable {
   static UnpermutedTable Construct(size_t cols, RowIndex rows,
                                    const Domain* domain) {
     // The ω is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
-    std::pmr::vector<F> omega_powers =
+    std::vector<F> omega_powers =
         domain->GetRootsOfUnity(rows, domain->group_gen());
 
     // The δ is g^2ˢ with order T where modulus = 2ˢ * T + 1.
@@ -70,7 +69,7 @@ class UnpermutedTable {
 
     // Assign [δⁱω⁰, δⁱω¹, δⁱω², ..., δⁱωⁿ⁻¹] to each col.
     for (size_t i = 1; i < cols; ++i) {
-      std::pmr::vector<F> col(rows);
+      std::vector<F> col(rows);
       OPENMP_PARALLEL_FOR(RowIndex j = 0; j < rows; ++j) {
         col[j] = unpermuted_table[i - 1][j] * delta;
       }

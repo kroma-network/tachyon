@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 #include <algorithm>
-#include <memory_resource>
 #include <utility>
 #include <vector>
 
@@ -199,9 +198,11 @@ class MultiplicativeSemigroup {
     return g;
   }
 
-  constexpr static std::pmr::vector<MulResult> GetSuccessivePowers(
+  // generator: g
+  // return: [c, c * g, c * g², ..., c * g^{|size| - 1}]
+  constexpr static std::vector<MulResult> GetSuccessivePowers(
       size_t size, const G& generator, const G& c = G::One()) {
-    std::pmr::vector<MulResult> ret(size);
+    std::vector<MulResult> ret(size);
     base::Parallelize(
         ret, [&generator, &c](absl::Span<G> chunk, size_t chunk_offset,
                               size_t chunk_size) {

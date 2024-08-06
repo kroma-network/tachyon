@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 #include <limits>
-#include <memory_resource>
 #include <numeric>
 #include <string>
 #include <type_traits>
@@ -147,10 +146,10 @@ class FlagValueTraits<std::string> {
   }
 };
 
-template <typename V, typename T = typename V::value_type>
-class FlagValueTraitsVectorImpl {
+template <typename T>
+class FlagValueTraits<std::vector<T>> {
  public:
-  static bool ParseValue(std::string_view input, V* value,
+  static bool ParseValue(std::string_view input, std::vector<T>* value,
                          std::string* reason) {
     T element;
     if (FlagValueTraits<T>::ParseValue(input, &element, reason)) {
@@ -160,13 +159,6 @@ class FlagValueTraitsVectorImpl {
     return false;
   }
 };
-
-template <typename T>
-class FlagValueTraits<std::vector<T>>
-    : public FlagValueTraitsVectorImpl<std::vector<T>> {};
-template <typename T>
-class FlagValueTraits<std::pmr::vector<T>>
-    : public FlagValueTraitsVectorImpl<std::pmr::vector<T>> {};
 
 }  // namespace tachyon::base
 

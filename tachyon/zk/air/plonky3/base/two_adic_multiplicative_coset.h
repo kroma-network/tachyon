@@ -7,7 +7,6 @@
 #define TACHYON_ZK_AIR_PLONKY3_BASE_TWO_ADIC_MULTIPLICATIVE_COSET_H_
 
 #include <memory>
-#include <memory_resource>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -96,7 +95,7 @@ class TwoAdicMultiplicativeCoset {
     // TODO(ashjeong): Reduce the number of thread joins since |evals| and |xs|
     // can be created independently.
     // Evals of Z_H(X) = Xⁿ - 1
-    std::pmr::vector<F> evals =
+    std::vector<F> evals =
         F::GetSuccessivePowers(1 << rate_bits, domain_->group_gen(), s_pow_n);
     std::vector<F> inv_denoms_inv_zeroifier(evals.size());
     base::Parallelize(evals, [&evals, &inv_denoms_inv_zeroifier](
@@ -114,7 +113,7 @@ class TwoAdicMultiplicativeCoset {
     });
 
     size_t sz = coset.domain()->size();
-    std::pmr::vector<F> xs =
+    std::vector<F> xs =
         F::GetSuccessivePowers(sz, coset.domain()->group_gen(), coset_shift);
 
     F coset_i = domain_->group_gen().Pow(domain_->size() - 1);
