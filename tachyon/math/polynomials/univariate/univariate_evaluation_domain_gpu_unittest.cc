@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 
+#include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/mixed_radix_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/radix2_evaluation_domain.h"
@@ -15,9 +17,10 @@ class UnivariateEvaluationDomainGpuTest
 
 }  // namespace
 
-using UnivariateEvaluationDomainTypes =
-    testing::Types<Radix2EvaluationDomain<bn254::Fr>,
-                   MixedRadixEvaluationDomain<bn254::Fr>>;
+using UnivariateEvaluationDomainTypes = testing::Types<
+    Radix2EvaluationDomain<BabyBear>, Radix2EvaluationDomain<bls12_381::Fr>,
+    MixedRadixEvaluationDomain<bls12_381::Fr>,
+    Radix2EvaluationDomain<bn254::Fr>, MixedRadixEvaluationDomain<bn254::Fr>>;
 TYPED_TEST_SUITE(UnivariateEvaluationDomainGpuTest,
                  UnivariateEvaluationDomainTypes);
 

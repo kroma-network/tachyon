@@ -1,4 +1,4 @@
-load("@icicle//:build_defs.bzl", "BN254", "icicle_defines")
+load("@icicle//:build_defs.bzl", "BABY_BEAR", "BLS12_381", "BN254", "icicle_defines")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
 
@@ -13,6 +13,38 @@ tachyon_cc_library(
         "//tachyon/math/polynomials/univariate:fft_algorithm",
         "@icicle//:hdrs",
     ],
+)
+
+tachyon_cuda_library(
+    name = "icicle_ntt_baby_bear",
+    srcs = if_cuda(["icicle_ntt_baby_bear.cc"]),
+    hdrs = ["icicle_ntt_baby_bear.h"],
+    local_defines = icicle_defines(BABY_BEAR),
+    deps = [
+        ":icicle_ntt",
+        "//tachyon/base:bit_cast",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@icicle//:ntt_baby_bear",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
+
+tachyon_cuda_library(
+    name = "icicle_ntt_bls12_381",
+    srcs = if_cuda(["icicle_ntt_bls12_381.cc"]),
+    hdrs = ["icicle_ntt_bls12_381.h"],
+    local_defines = icicle_defines(BLS12_381),
+    deps = [
+        ":icicle_ntt",
+        "//tachyon/base:bit_cast",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@icicle//:ntt_bls12_381",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
 )
 
 tachyon_cuda_library(
@@ -37,7 +69,9 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:logging",
         "//tachyon/device/gpu:gpu_device_functions",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/finite_fields/baby_bear",
         "//tachyon/math/polynomials/univariate:univariate_evaluations",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
     ],
@@ -48,6 +82,8 @@ tachyon_cc_library(
     hdrs = ["icicle_ntt_holder.h"],
     visibility = ["//visibility:public"],
     deps = [
+        ":icicle_ntt_baby_bear",
+        ":icicle_ntt_bls12_381",
         ":icicle_ntt_bn254",
         "//tachyon/device/gpu:scoped_mem_pool",
         "//tachyon/device/gpu:scoped_stream",
