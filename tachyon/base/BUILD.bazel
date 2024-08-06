@@ -115,6 +115,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "profiler",
+    srcs = ["profiler.cc"],
+    hdrs = ["profiler.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base/files:file",
+        "@perfetto",
+    ],
+)
+
+tachyon_cc_library(
     name = "random",
     srcs = ["random.cc"],
     hdrs = ["random.h"],
