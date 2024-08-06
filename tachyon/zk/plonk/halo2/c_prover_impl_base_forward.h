@@ -9,7 +9,7 @@
 
 namespace tachyon::c::zk::plonk::halo2 {
 
-template <typename PCS, typename LS>
+template <typename PS>
 class ProverImplBase;
 
 }  // namespace tachyon::c::zk::plonk::halo2

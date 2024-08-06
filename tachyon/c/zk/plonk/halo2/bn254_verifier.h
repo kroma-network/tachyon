@@ -27,8 +27,8 @@
  * and instance data.
  */
 struct tachyon_halo2_bn254_verifier {
+  uint8_t vendor;
   uint8_t pcs_type;
-  uint8_t ls_type;
   void* extra;
 };
 
@@ -42,8 +42,8 @@ extern "C" {
  * Initializes a verifier instance for the Halo2 protocol using the specified
  * parameters and proof, facilitating the proof verification process.
  *
+ * @param vendor The type of vendor used in the proof.
  * @param pcs_type The type of pcs used in the proof.
- * @param ls_type The type of ls used in the proof.
  * @param transcript_type The type of transcript used in the proof.
  * @param k The circuit size parameter.
  * @param params A pointer to the verifier parameters.
@@ -54,7 +54,7 @@ extern "C" {
  */
 TACHYON_C_EXPORT tachyon_halo2_bn254_verifier*
 tachyon_halo2_bn254_verifier_create_from_params(
-    uint8_t pcs_type, uint8_t ls_type, uint8_t transcript_type, uint32_t k,
+    uint8_t vendor, uint8_t pcs_type, uint8_t transcript_type, uint32_t k,
     const uint8_t* params, size_t params_len, const uint8_t* proof,
     size_t proof_len);
 

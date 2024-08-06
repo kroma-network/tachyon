@@ -16,7 +16,6 @@
 
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/parallelize.h"
-#include "tachyon/base/types/always_false.h"
 #include "tachyon/zk/base/rotation.h"
 #include "tachyon/zk/lookup/prover.h"
 #include "tachyon/zk/plonk/base/column_key.h"
@@ -61,9 +60,13 @@ class PermutationEvaluator;
 // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
 // You can find more detailed theory in "Halo2 book"
 // https://zcash.github.io/halo2/design/proving-system/vanishing.html
-template <halo2::Vendor Vendor, typename PCS, typename LS>
+template <typename PS>
 class CircuitPolynomialBuilder {
  public:
+  constexpr static halo2::Vendor kVendor = PS::kVendor;
+  constexpr static lookup::Type kLookupType = PS::kLookupType;
+
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
   using C = typename PCS::Commitment;
   using Poly = typename PCS::Poly;
@@ -71,15 +74,15 @@ class CircuitPolynomialBuilder {
   using Domain = typename PCS::Domain;
   using ExtendedDomain = typename PCS::ExtendedDomain;
   using ExtendedEvals = typename PCS::ExtendedEvals;
-  using LookupProver = lookup::Prover<LS::kType, Poly, Evals>;
+  using LookupProver = lookup::Prover<kLookupType, Poly, Evals>;
 
   using EvalsOrExtendedEvals =
-      std::conditional_t<Vendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;
+      std::conditional_t<kVendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;
 
   CircuitPolynomialBuilder(
       const F& omega, const F& extended_omega, const F& theta, const F& beta,
       const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<Vendor, LS>& proving_key,
+      const ProvingKey<PS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<LookupProver>& lookup_provers,
       const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers,
@@ -102,7 +105,7 @@ class CircuitPolynomialBuilder {
       RowOffset last_row, size_t cs_degree,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<Vendor, LS>& proving_key,
+      const ProvingKey<PS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<LookupProver>& lookup_provers,
       const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers) {
@@ -129,7 +132,74 @@ class CircuitPolynomialBuilder {
   ExtendedEvals BuildExtendedCircuitColumn(
       CustomGateEvaluator<Evals>& custom_gate_evaluator,
       PermutationEvaluator<Evals>& permutation_evaluator,
-      lookup::Evaluator<LS::kType, Evals>& lookup_evaluator,
+      lookup::Evaluator<kLookupType, Evals>& lookup_evaluator,
+      shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
+    if constexpr (kVendor == halo2::Vendor::kPSE) {
+      return BuildExtendedCircuitColumnPSE(custom_gate_evaluator,
+                                           permutation_evaluator,
+                                           lookup_evaluator, shuffle_evaluator);
+    } else {
+      return BuildExtendedCircuitColumnScroll(
+          custom_gate_evaluator, permutation_evaluator, lookup_evaluator,
+          shuffle_evaluator);
+    }
+  }
+
+ private:
+  friend class CustomGateEvaluator<EvalsOrExtendedEvals>;
+  friend class PermutationEvaluator<EvalsOrExtendedEvals>;
+  friend class lookup::halo2::Evaluator<EvalsOrExtendedEvals>;
+  friend class lookup::log_derivative_halo2::Evaluator<EvalsOrExtendedEvals>;
+  friend class shuffle::Evaluator<EvalsOrExtendedEvals>;
+
+  EvaluationInput<EvalsOrExtendedEvals> ExtractEvaluationInput(
+      std::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
+    return EvaluationInput<EvalsOrExtendedEvals>(std::move(intermediates),
+                                                 std::move(rotations), table_,
+                                                 theta_, beta_, gamma_, y_, n_);
+  }
+
+  void UpdateLPolyCosets() {
+    l_first_ = coset_domain_->FFT(proving_key_.l_first());
+    l_last_ = coset_domain_->FFT(proving_key_.l_last());
+    l_active_row_ = coset_domain_->FFT(proving_key_.l_active_row());
+  }
+
+  ExtendedEvals BuildExtendedCircuitColumnPSE(
+      CustomGateEvaluator<Evals>& custom_gate_evaluator,
+      PermutationEvaluator<Evals>& permutation_evaluator,
+      lookup::Evaluator<kLookupType, Evals>& lookup_evaluator,
+      shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
+    ExtendedEvals ret = extended_domain_->template Zero<ExtendedEvals>();
+    size_t circuit_num = poly_tables_.size();
+    for (size_t i = 0; i < circuit_num; ++i) {
+      VLOG(1) << "BuildExtendedCircuitColumn circuit: (" << i + 1 << " / "
+              << circuit_num << ")";
+      custom_gate_evaluator.UpdateCosets(*this, i);
+      permutation_evaluator.UpdateCosets(*this, i);
+      lookup_evaluator.UpdateCosets(*this, i);
+      shuffle_evaluator.UpdateCosets(*this, i);
+
+      base::Parallelize(
+          ret.evaluations(),
+          [this, &custom_gate_evaluator, &permutation_evaluator,
+           &lookup_evaluator, &shuffle_evaluator](
+              absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+            custom_gate_evaluator.Evaluate(*this, chunk, chunk_offset,
+                                           chunk_size);
+            permutation_evaluator.Evaluate(*this, chunk, chunk_offset,
+                                           chunk_size);
+            lookup_evaluator.Evaluate(*this, chunk, chunk_offset, chunk_size);
+            shuffle_evaluator.Evaluate(*this, chunk, chunk_offset, chunk_size);
+          });
+    }
+    return ret;
+  }
+
+  ExtendedEvals BuildExtendedCircuitColumnScroll(
+      CustomGateEvaluator<Evals>& custom_gate_evaluator,
+      PermutationEvaluator<Evals>& permutation_evaluator,
+      lookup::Evaluator<kLookupType, Evals>& lookup_evaluator,
       shuffle::Evaluator<EvalsOrExtendedEvals>& shuffle_evaluator) {
     std::vector<std::vector<F>> value_parts;
     value_parts.reserve(num_parts_);
@@ -174,26 +244,6 @@ class CircuitPolynomialBuilder {
     return ExtendedEvals(std::move(extended));
   }
 
- private:
-  friend class CustomGateEvaluator<EvalsOrExtendedEvals>;
-  friend class PermutationEvaluator<EvalsOrExtendedEvals>;
-  friend class lookup::halo2::Evaluator<EvalsOrExtendedEvals>;
-  friend class lookup::log_derivative_halo2::Evaluator<EvalsOrExtendedEvals>;
-  friend class shuffle::Evaluator<EvalsOrExtendedEvals>;
-
-  EvaluationInput<EvalsOrExtendedEvals> ExtractEvaluationInput(
-      std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
-    return EvaluationInput<EvalsOrExtendedEvals>(std::move(intermediates),
-                                                 std::move(rotations), table_,
-                                                 theta_, beta_, gamma_, y_, n_);
-  }
-
-  void UpdateLPolyCosets() {
-    l_first_ = coset_domain_->FFT(proving_key_.l_first());
-    l_last_ = coset_domain_->FFT(proving_key_.l_last());
-    l_active_row_ = coset_domain_->FFT(proving_key_.l_active_row());
-  }
-
   // not owned
   const Domain* domain_ = nullptr;
   const ExtendedDomain* extended_domain_ = nullptr;
@@ -215,7 +265,7 @@ class CircuitPolynomialBuilder {
   Rotation last_rotation_;
   F delta_start_;
 
-  const ProvingKey<Vendor, LS>& proving_key_;
+  const ProvingKey<PS>& proving_key_;
   const std::vector<PermutationProver<Poly, Evals>>& permutation_provers_;
   const std::vector<LookupProver>& lookup_provers_;
   const std::vector<shuffle::Prover<Poly, Evals>>& shuffle_provers_;

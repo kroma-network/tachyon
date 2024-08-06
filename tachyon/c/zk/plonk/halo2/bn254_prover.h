@@ -31,8 +31,8 @@
  * commitments, handling randomness, and generating the cryptographic proof.
  */
 struct tachyon_halo2_bn254_prover {
+  uint8_t vendor;
   uint8_t pcs_type;
-  uint8_t ls_type;
   void* extra;
 };
 
@@ -43,16 +43,16 @@ extern "C" {
 /**
  * @brief Creates a prover from unsafe setup parameters.
  *
+ * @param vendor Identifier for the vendor.
  * @param pcs_type Identifier for the pcs type.
- * @param ls_type Identifier for the ls type.
  * @param transcript_type Identifier for the transcript type.
  * @param k Security parameter.
  * @param s The setup parameter s as a scalar field element.
  * @return A pointer to the newly created prover instance.
  */
 TACHYON_C_EXPORT tachyon_halo2_bn254_prover*
-tachyon_halo2_bn254_prover_create_from_unsafe_setup(uint8_t pcs_type,
-                                                    uint8_t ls_type,
+tachyon_halo2_bn254_prover_create_from_unsafe_setup(uint8_t vendor,
+                                                    uint8_t pcs_type,
                                                     uint8_t transcript_type,
                                                     uint32_t k,
                                                     const tachyon_bn254_fr* s);
@@ -63,8 +63,8 @@ tachyon_halo2_bn254_prover_create_from_unsafe_setup(uint8_t pcs_type,
  * Initializes a prover instance for the Halo2 protocol using the specified
  * parameters, facilitating the proof generation process for given circuits.
  *
+ * @param vendor Identifier for the vendor.
  * @param pcs_type Identifier for the pcs type.
- * * @param ls_type Identifier for the ls type.
  * @param transcript_type The type of transcript to be used.
  * @param k The circuit size parameter.
  * @param params A pointer to the parameters used for prover creation.
@@ -72,7 +72,7 @@ tachyon_halo2_bn254_prover_create_from_unsafe_setup(uint8_t pcs_type,
  * @return A pointer to the newly created prover instance.
  */
 TACHYON_C_EXPORT tachyon_halo2_bn254_prover*
-tachyon_halo2_bn254_prover_create_from_params(uint8_t pcs_type, uint8_t ls_type,
+tachyon_halo2_bn254_prover_create_from_params(uint8_t vendor, uint8_t pcs_type,
                                               uint8_t transcript_type,
                                               uint32_t k, const uint8_t* params,
                                               size_t params_len);
@@ -250,7 +250,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_transcript_state(
  * @param prover A pointer to the prover.
  * @param pk A pointer to the proving key that contains the extended domain.
  */
-TACHYON_C_EXPORT void tachyon_halo2_bn254_scroll_prover_set_extended_domain(
+TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_extended_domain(
     tachyon_halo2_bn254_prover* prover,
     const tachyon_bn254_plonk_proving_key* pk);
 
@@ -262,7 +262,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_scroll_prover_set_extended_domain(
  * @param pk A pointer to the proving key used for generating the proof.
  * @param data A pointer to the argument data required for the proof.
  */
-TACHYON_C_EXPORT void tachyon_halo2_bn254_scroll_prover_create_proof(
+TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_create_proof(
     tachyon_halo2_bn254_prover* prover, tachyon_bn254_plonk_proving_key* pk,
     tachyon_halo2_bn254_argument_data* data);
 
@@ -293,7 +293,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_get_proof(
  * @param pk A pointer to the proving key that dictates the transcript
  * representation.
  */
-TACHYON_C_EXPORT void tachyon_halo2_bn254_scroll_prover_set_transcript_repr(
+TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_transcript_repr(
     const tachyon_halo2_bn254_prover* prover,
     tachyon_bn254_plonk_proving_key* pk);
 

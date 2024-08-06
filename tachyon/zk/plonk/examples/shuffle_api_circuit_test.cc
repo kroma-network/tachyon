@@ -15,18 +15,17 @@ template <typename TestArguments>
 class ShuffleAPICircuitTest
     : public CircuitTest<TestArguments, ShuffleAPICircuitTestData<
                                             typename TestArguments::Circuit,
-                                            typename TestArguments::PCS,
-                                            typename TestArguments::LS>> {
+                                            typename TestArguments::PS>> {
  public:
+  using Circuit = typename TestArguments::Circuit;
+  using PS = typename TestArguments::PS;
+  using PCS = typename PS::PCS;
+  using Commitment = typename PCS::Commitment;
+
   static void SetUpTestSuite() {
-    CircuitTest<
-        TestArguments,
-        ShuffleAPICircuitTestData<
-            typename TestArguments::Circuit, typename TestArguments::PCS,
-            typename TestArguments::LS>>::SetUpTestSuite();
-    halo2::ProofSerializer<
-        typename TestArguments::PCS::Commitment>::s_use_legacy_serialization =
-        false;
+    CircuitTest<TestArguments,
+                ShuffleAPICircuitTestData<Circuit, PS>>::SetUpTestSuite();
+    halo2::ProofSerializer<Commitment>::s_use_legacy_serialization = false;
   }
 };
 
@@ -34,8 +33,8 @@ class ShuffleAPICircuitTest
 
 // clang-format off
 using ShuffleAPICircuitTestArgumentsList = testing::Types<
-    TestArguments<ShuffleAPICircuit<BN254SHPlonk::Field, SimpleFloorPlanner>, BN254SHPlonk, BN254LogDerivativeHalo2LS>,
-    TestArguments<ShuffleAPICircuit<BN254SHPlonk::Field, V1FloorPlanner>, BN254SHPlonk, BN254LogDerivativeHalo2LS>>;
+    TestArguments<ShuffleAPICircuit<BN254SHPlonk::Field, SimpleFloorPlanner>, BN254SHPlonkLogDerivativeHalo2>,
+    TestArguments<ShuffleAPICircuit<BN254SHPlonk::Field, V1FloorPlanner>, BN254SHPlonkLogDerivativeHalo2>>;
 // clang-format on
 
 TYPED_TEST_SUITE(ShuffleAPICircuitTest, ShuffleAPICircuitTestArgumentsList);

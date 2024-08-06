@@ -19,15 +19,14 @@ template <typename TestArguments>
 class ShuffleCircuitTest
     : public CircuitTest<TestArguments,
                          ShuffleTestData<typename TestArguments::Circuit,
-                                         typename TestArguments::PCS,
-                                         typename TestArguments::LS>> {};
+                                         typename TestArguments::PS>> {};
 
 }  // namespace
 
 // clang-format off
 using ShuffleTestArgumentsList = testing::Types<
-    TestArguments<ShuffleCircuit<BN254SHPlonk::Field, kW, kH, SimpleFloorPlanner>, BN254SHPlonk, BN254Halo2LS>,
-    TestArguments<ShuffleCircuit<BN254SHPlonk::Field, kW, kH, V1FloorPlanner>, BN254SHPlonk, BN254Halo2LS>>;
+    TestArguments<ShuffleCircuit<BN254SHPlonk::Field, kW, kH, SimpleFloorPlanner>, BN254SHPlonkHalo2>,
+    TestArguments<ShuffleCircuit<BN254SHPlonk::Field, kW, kH, V1FloorPlanner>, BN254SHPlonkHalo2>>;
 // clang-format on
 
 TYPED_TEST_SUITE(ShuffleCircuitTest, ShuffleTestArgumentsList);

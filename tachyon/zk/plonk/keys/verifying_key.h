@@ -70,9 +70,9 @@ class VerifyingKey : public Key {
   }
 
  private:
-  template <halo2::Vendor, typename LS>
+  template <typename PS>
   friend class ProvingKey;
-  template <tachyon::zk::plonk::halo2::Vendor Vendor, typename LS>
+  template <typename PS>
   friend class c::zk::plonk::ProvingKeyImpl;
 
   template <typename PCS, typename Evals, typename RationalEvals>

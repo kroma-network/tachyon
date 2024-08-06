@@ -20,9 +20,9 @@ class PermutationEvaluator {
  public:
   using F = typename EvalsOrExtendedEvals::Field;
 
-  template <halo2::Vendor Vendor, typename PCS, typename LS>
-  void Evaluate(CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
-                absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+  template <typename PS>
+  void Evaluate(CircuitPolynomialBuilder<PS>& builder, absl::Span<F> chunk,
+                size_t chunk_offset, size_t chunk_size) {
     if (product_cosets_.empty()) return;
 
     const std::vector<AnyColumnKey>& column_keys =
@@ -94,11 +94,13 @@ class PermutationEvaluator {
     }
   }
 
-  template <halo2::Vendor Vendor, typename PCS, typename LS>
-  void UpdateCosets(CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
-                    size_t circuit_idx) {
+  template <typename PS>
+  void UpdateCosets(CircuitPolynomialBuilder<PS>& builder, size_t circuit_idx) {
+    using PCS = typename PS::PCS;
     using Poly = typename PCS::Poly;
     using Evals = typename PCS::Evals;
+
+    constexpr halo2::Vendor kVendor = PS::kVendor;
 
     size_t num_permutations =
         builder.permutation_provers_[circuit_idx].grand_product_polys().size();
@@ -108,7 +110,7 @@ class PermutationEvaluator {
         builder.permutation_provers_[circuit_idx];
     product_cosets_.resize(num_permutations);
     for (size_t i = 0; i < num_permutations; ++i) {
-      if constexpr (Vendor == halo2::Vendor::kPSE) {
+      if constexpr (kVendor == halo2::Vendor::kPSE) {
         product_cosets_[i] = CoeffToExtended(
             prover.grand_product_polys()[i].poly(), builder.extended_domain_);
       } else {
@@ -117,19 +119,23 @@ class PermutationEvaluator {
       }
     }
 
-    if constexpr (Vendor == halo2::Vendor::kScroll) {
+    if constexpr (kVendor == halo2::Vendor::kPSE) {
+      cosets_ = builder.proving_key_.permutation_proving_key().cosets();
+    } else {
       const std::vector<Poly>& polys =
           builder.proving_key_.permutation_proving_key().polys();
-      cosets_.resize(polys.size());
+      owned_cosets_.resize(polys.size());
       for (size_t i = 0; i < polys.size(); ++i) {
-        cosets_[i] = builder.coset_domain_->FFT(polys[i]);
+        owned_cosets_[i] = builder.coset_domain_->FFT(polys[i]);
       }
+      cosets_ = absl::MakeConstSpan(owned_cosets_);
     }
   }
 
  private:
   std::vector<EvalsOrExtendedEvals> product_cosets_;
-  std::vector<EvalsOrExtendedEvals> cosets_;
+  std::vector<EvalsOrExtendedEvals> owned_cosets_;
+  absl::Span<const EvalsOrExtendedEvals> cosets_;
 };
 
 }  // namespace tachyon::zk::plonk

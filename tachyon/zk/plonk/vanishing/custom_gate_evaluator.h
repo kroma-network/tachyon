@@ -39,9 +39,9 @@ class CustomGateEvaluator {
         ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));
   }
 
-  template <halo2::Vendor Vendor, typename PCS, typename LS>
-  void Evaluate(CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
-                absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+  template <typename PS>
+  void Evaluate(CircuitPolynomialBuilder<PS>& builder, absl::Span<F> chunk,
+                size_t chunk_offset, size_t chunk_size) {
     EvaluationInput<EvalsOrExtendedEvals> evaluation_input =
         builder.ExtractEvaluationInput(evaluator_.CreateInitialIntermediates(),
                                        evaluator_.CreateEmptyRotations());
@@ -52,12 +52,15 @@ class CustomGateEvaluator {
     }
   }
 
-  template <halo2::Vendor Vendor, typename PCS, typename LS>
-  void UpdateCosets(CircuitPolynomialBuilder<Vendor, PCS, LS>& builder,
-                    size_t circuit_idx) {
+  template <typename PS>
+  void UpdateCosets(CircuitPolynomialBuilder<PS>& builder, size_t circuit_idx) {
+    using PCS = typename PS::PCS;
+    using PCS = typename PS::PCS;
     using Poly = typename PCS::Poly;
 
-    if constexpr (Vendor == halo2::Vendor::kScroll) {
+    constexpr halo2::Vendor kVendor = PS::kVendor;
+
+    if constexpr (kVendor == halo2::Vendor::kScroll) {
       absl::Span<const Poly> new_fixed_columns =
           builder.poly_tables_[circuit_idx].GetFixedColumns();
       fixed_column_cosets_.resize(new_fixed_columns.size());
@@ -71,7 +74,7 @@ class CustomGateEvaluator {
         builder.poly_tables_[circuit_idx].GetAdviceColumns();
     advice_column_cosets_.resize(new_advice_columns.size());
     for (size_t i = 0; i < new_advice_columns.size(); ++i) {
-      if constexpr (Vendor == halo2::Vendor::kPSE) {
+      if constexpr (kVendor == halo2::Vendor::kPSE) {
         advice_column_cosets_[i] =
             CoeffToExtended(new_advice_columns[i], builder.extended_domain_);
       } else {
@@ -84,7 +87,7 @@ class CustomGateEvaluator {
         builder.poly_tables_[circuit_idx].GetInstanceColumns();
     instance_column_cosets_.resize(new_instance_columns.size());
     for (size_t i = 0; i < new_instance_columns.size(); ++i) {
-      if constexpr (Vendor == halo2::Vendor::kPSE) {
+      if constexpr (kVendor == halo2::Vendor::kPSE) {
         instance_column_cosets_[i] =
             CoeffToExtended(new_instance_columns[i], builder.extended_domain_);
       } else {
@@ -93,7 +96,7 @@ class CustomGateEvaluator {
       }
     }
 
-    if constexpr (Vendor == halo2::Vendor::kPSE) {
+    if constexpr (kVendor == halo2::Vendor::kPSE) {
       builder.table_ = {
           builder.proving_key_.fixed_cosets(),
           advice_column_cosets_,

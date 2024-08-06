@@ -5,16 +5,13 @@
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_halo2_ls.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_log_derivative_halo2_ls.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_ps.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_verifier.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
-#include "tachyon/zk/plonk/halo2/ls_type.h"
 #include "tachyon/zk/plonk/halo2/pcs_type.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
+#include "tachyon/zk/plonk/halo2/vendor.h"
 #include "tachyon/zk/plonk/halo2/verifier.h"
 
 constexpr uint8_t kProof[] = {
@@ -25,16 +22,11 @@ constexpr uint8_t kProof[] = {
 namespace tachyon {
 namespace c::zk::plonk::halo2::bn254 {
 
-template <typename LS>
-using ScrollProvingKey =
-    plonk::ProvingKeyImpl<tachyon::zk::plonk::halo2::Vendor::kScroll, LS>;
+template <typename PS>
+using ProvingKey = plonk::ProvingKeyImpl<PS>;
 
-template <typename PCS, typename LS>
-using Verifier = tachyon::zk::plonk::halo2::Verifier<PCS, LS>;
-
-template <typename PCS, typename LS>
-using VerifyingKey = tachyon::zk::plonk::VerifyingKey<typename PCS::Field,
-                                                      typename PCS::Commitment>;
+template <typename PS>
+using Verifier = tachyon::zk::plonk::halo2::Verifier<PS>;
 
 template <typename PCS>
 std::vector<std::vector<typename PCS::Evals>> GetInstanceColumnsVec() {
@@ -45,11 +37,11 @@ std::vector<std::vector<typename PCS::Evals>> GetInstanceColumnsVec() {
 template <typename NativeVerifier>
 bool VerifyProof(NativeVerifier* verifier,
                  const std::vector<uint8_t>& pk_bytes) {
-  using PCS = typename NativeVerifier::PCS;
-  using LS = typename NativeVerifier::LS;
+  using PS = typename NativeVerifier::PS;
+  using PCS = typename PS::PCS;
 
   std::cout << "deserializing proving key" << std::endl;
-  ScrollProvingKey<LS> pk(pk_bytes, /*read_only_vk=*/true);
+  ProvingKey<PS> pk(pk_bytes, /*read_only_vk=*/true);
   std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(
@@ -67,37 +59,33 @@ bool VerifyProof(NativeVerifier* verifier,
 
 bool VerifyProof(tachyon_halo2_bn254_verifier* c_verifier,
                  const std::vector<uint8_t>& pk_bytes) {
-  switch (
-      static_cast<tachyon::zk::plonk::halo2::PCSType>(c_verifier->pcs_type)) {
-    case tachyon::zk::plonk::halo2::PCSType::kGWC: {
-      switch (
-          static_cast<tachyon::zk::plonk::halo2::LSType>(c_verifier->ls_type)) {
-        case tachyon::zk::plonk::halo2::LSType::kHalo2: {
+  switch (static_cast<tachyon::zk::plonk::halo2::Vendor>(c_verifier->vendor)) {
+    case tachyon::zk::plonk::halo2::Vendor::kPSE: {
+      switch (static_cast<tachyon::zk::plonk::halo2::PCSType>(
+          c_verifier->pcs_type)) {
+        case tachyon::zk::plonk::halo2::PCSType::kGWC: {
           return VerifyProof(
-              reinterpret_cast<Verifier<GWCPCS, Halo2LS>*>(c_verifier->extra),
-              pk_bytes);
+              reinterpret_cast<Verifier<PSEGWC>*>(c_verifier->extra), pk_bytes);
         }
-        case tachyon::zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+        case tachyon::zk::plonk::halo2::PCSType::kSHPlonk: {
           return VerifyProof(
-              reinterpret_cast<Verifier<GWCPCS, LogDerivativeHalo2LS>*>(
-                  c_verifier->extra),
+              reinterpret_cast<Verifier<PSESHPlonk>*>(c_verifier->extra),
               pk_bytes);
         }
       }
       break;
     }
-    case tachyon::zk::plonk::halo2::PCSType::kSHPlonk: {
-      switch (
-          static_cast<tachyon::zk::plonk::halo2::LSType>(c_verifier->ls_type)) {
-        case tachyon::zk::plonk::halo2::LSType::kHalo2: {
-          return VerifyProof(reinterpret_cast<Verifier<SHPlonkPCS, Halo2LS>*>(
-                                 c_verifier->extra),
-                             pk_bytes);
-        }
-        case tachyon::zk::plonk::halo2::LSType::kLogDerivativeHalo2: {
+    case tachyon::zk::plonk::halo2::Vendor::kScroll: {
+      switch (static_cast<tachyon::zk::plonk::halo2::PCSType>(
+          c_verifier->pcs_type)) {
+        case tachyon::zk::plonk::halo2::PCSType::kGWC: {
           return VerifyProof(
-              reinterpret_cast<Verifier<SHPlonkPCS, LogDerivativeHalo2LS>*>(
-                  c_verifier->extra),
+              reinterpret_cast<Verifier<ScrollGWC>*>(c_verifier->extra),
+              pk_bytes);
+        }
+        case tachyon::zk::plonk::halo2::PCSType::kSHPlonk: {
+          return VerifyProof(
+              reinterpret_cast<Verifier<ScrollSHPlonk>*>(c_verifier->extra),
               pk_bytes);
         }
       }
@@ -122,22 +110,22 @@ int RunMain(int argc, char** argv) {
     return 1;
   }
 
+  zk::plonk::halo2::Vendor vendor;
   zk::plonk::halo2::PCSType pcs_type;
-  zk::plonk::halo2::LSType ls_type;
   zk::plonk::halo2::TranscriptType transcript_type;
   uint32_t k;
   std::string s_hex;
   base::FilePath pcs_params_path;
   base::FilePath pk_path;
   base::FlagParser parser;
+  parser.AddFlag<tachyon::base::Flag<zk::plonk::halo2::Vendor>>(&vendor)
+      .set_long_name("--vendor")
+      .set_required()
+      .set_help("Vendor");
   parser.AddFlag<tachyon::base::Flag<zk::plonk::halo2::PCSType>>(&pcs_type)
       .set_long_name("--pcs_type")
       .set_required()
       .set_help("PCS(Polynomial Commitment Scheme) type");
-  parser.AddFlag<tachyon::base::Flag<zk::plonk::halo2::LSType>>(&ls_type)
-      .set_long_name("--ls_type")
-      .set_required()
-      .set_help("LS(Lookup Scheme) type");
   parser.AddFlag<base::Flag<zk::plonk::halo2::TranscriptType>>(&transcript_type)
       .set_long_name("--transcript_type")
       .set_required()
@@ -162,8 +150,7 @@ int RunMain(int argc, char** argv) {
     }
   }
 
-  std ::optional<std::vector<uint8_t>> pk_bytes =
-      base::ReadFileToBytes(pk_path);
+  std::optional<std::vector<uint8_t>> pk_bytes = base::ReadFileToBytes(pk_path);
   if (!pk_bytes.has_value()) {
     tachyon_cerr << "Failed to read file: " << pk_path.value() << std::endl;
     return 1;
@@ -180,7 +167,7 @@ int RunMain(int argc, char** argv) {
   std::cout << "creating verifier" << std::endl;
   tachyon_halo2_bn254_verifier* verifier =
       tachyon_halo2_bn254_verifier_create_from_params(
-          static_cast<uint8_t>(pcs_type), static_cast<uint8_t>(ls_type),
+          static_cast<uint8_t>(vendor), static_cast<uint8_t>(pcs_type),
           static_cast<uint8_t>(transcript_type), k, pcs_params_bytes->data(),
           pcs_params_bytes->size(), std::data(kProof), std::size(kProof));
   std::cout << "done creating verifier" << std::endl;

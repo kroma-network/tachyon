@@ -19,26 +19,26 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename _Circuit, typename _PCS, typename _LS>
+template <typename _Circuit, typename _PS>
 struct TestArguments {
   using Circuit = _Circuit;
-  using PCS = _PCS;
-  using LS = _LS;
+  using PS = _PS;
 };
 
 template <typename TestArguments, typename TestData>
-class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
-                                             typename TestArguments::LS> {
+class CircuitTest : public halo2::ProverTest<typename TestArguments::PS> {
  public:
   using Circuit = typename TestArguments::Circuit;
-  using PCS = typename TestArguments::PCS;
-  using LS = typename TestArguments::LS;
+  using PS = typename TestArguments::PS;
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
   using Domain = typename PCS::Domain;
   using Commitment = typename PCS::Commitment;
   using RationalEvals = typename PCS::RationalEvals;
+
+  constexpr static lookup::Type kLookupType = PS::kLookupType;
 
   static void SetUpTestSuite() {
     math::bn254::BN254Curve::Init();
@@ -47,7 +47,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
 
   void ConfigureTest() {
     ConstraintSystem<F> constraint_system;
-    constraint_system.set_lookup_type(TestArguments::LS::kType);
+    constraint_system.set_lookup_type(kLookupType);
 
     auto config = Circuit::Configure(constraint_system);
 
@@ -68,7 +68,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     const Domain* domain = this->prover_->domain();
 
     ConstraintSystem<F> constraint_system;
-    constraint_system.set_lookup_type(TestArguments::LS::kType);
+    constraint_system.set_lookup_type(kLookupType);
 
     auto config = Circuit::Configure(constraint_system);
     Assembly<RationalEvals> assembly =
@@ -136,8 +136,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     Circuit circuit = TestData::GetCircuit();
 
     VerifyingKey<F, Commitment> vkey;
-    ASSERT_TRUE(
-        vkey.Load(this->prover_.get(), circuit, TestArguments::LS::kType));
+    ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit, kLookupType));
 
     halo2::PinnedVerifyingKey pinned_vkey(this->prover_.get(), vkey);
     EXPECT_EQ(base::ToRustDebugString(pinned_vkey),
@@ -154,14 +153,13 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     Circuit circuit = TestData::GetCircuit();
 
     for (size_t i = 0; i < 2; ++i) {
-      ProvingKey<halo2::Vendor::kScroll, LS> pkey;
+      ProvingKey<PS> pkey;
       bool load_verifying_key = i == 0;
       SCOPED_TRACE(
           absl::Substitute("load_verifying_key: $0", load_verifying_key));
       if (load_verifying_key) {
         VerifyingKey<F, Commitment> vkey;
-        ASSERT_TRUE(
-            vkey.Load(this->prover_.get(), circuit, TestArguments::LS::kType));
+        ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit, kLookupType));
         ASSERT_TRUE(pkey.LoadWithVerifyingKey(this->prover_.get(), circuit,
                                               std::move(vkey)));
       } else {
@@ -237,7 +235,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     std::vector<std::vector<Evals>> instance_columns_vec = {
         instance_columns, std::move(instance_columns)};
 
-    ProvingKey<halo2::Vendor::kScroll, LS> pkey;
+    ProvingKey<PS> pkey;
     ASSERT_TRUE(pkey.Load(this->prover_.get(), circuits[0]));
     this->prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
@@ -247,19 +245,18 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
   }
 
   void VerifyProofTest() {
-    using Proof = halo2::Proof<LS::kType, F, Commitment>;
+    using Proof = halo2::Proof<kLookupType, F, Commitment>;
     CHECK(this->prover_->pcs().UnsafeSetup(TestData::kN, F(2)));
     this->prover_->set_domain(Domain::Create(TestData::kN));
 
     Circuit circuit = TestData::GetCircuit();
 
     VerifyingKey<F, Commitment> vkey;
-    ASSERT_TRUE(
-        vkey.Load(this->prover_.get(), circuit, TestArguments::LS::kType));
+    ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit, kLookupType));
 
     std::vector<uint8_t> owned_proof = base::ArrayToVector(TestData::kProof);
 
-    halo2::Verifier<PCS, LS> verifier = this->CreateVerifier(
+    halo2::Verifier<PS> verifier = this->CreateVerifier(
         CreateBufferWithProof(absl::MakeSpan(owned_proof)));
 
     std::vector<Evals> instance_columns = TestData::GetInstanceColumns();

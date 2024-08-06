@@ -13,15 +13,16 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename Circuit, typename PCS, typename LS, typename SFINAE = void>
-class ShuffleAPICircuitTestData : public CircuitTestData<Circuit, PCS, LS> {};
+template <typename Circuit, typename PS, typename SFINAE = void>
+class ShuffleAPICircuitTestData : public CircuitTestData<Circuit, PS> {};
 
 // PCS = SHPlonk
-template <typename Circuit, typename PCS, typename LS>
-class ShuffleAPICircuitTestData<Circuit, PCS, LS,
-                                std::enable_if_t<IsSHPlonk<PCS>>>
-    : public CircuitTestData<Circuit, PCS, LS> {
+template <typename Circuit, typename PS>
+class ShuffleAPICircuitTestData<Circuit, PS,
+                                std::enable_if_t<IsSHPlonk<typename PS::PCS>>>
+    : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
 
   // Set flags of values to be used as true

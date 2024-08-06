@@ -17,7 +17,8 @@
  * @brief Represents the proving key for a PLONK protocol on the BN254 curve.
  */
 struct tachyon_bn254_plonk_proving_key {
-  uint8_t ls_type;
+  uint8_t vendor;
+  uint8_t pcs_type;
   void* extra;
 };
 
@@ -29,16 +30,18 @@ extern "C" {
  * @brief Creates a PLONK scroll versioned proving key for the BN254 curve from
  * a given state.
  *
- * @param ls_type Identifier for the ls type.
+ * @param vendor Identifier for the vendor.
+ * @param pcs_type Identifier for the pcs type.
  * @param state A pointer to the buffer containing the serialized state of the
  * proving key.
  * @param state_len The length of the state buffer.
  * @return A pointer to the newly created PLONK proving key.
  */
 TACHYON_C_EXPORT tachyon_bn254_plonk_proving_key*
-tachyon_bn254_plonk_scroll_proving_key_create_from_state(uint8_t ls_type,
-                                                         const uint8_t* state,
-                                                         size_t state_len);
+tachyon_bn254_plonk_proving_key_create_from_state(uint8_t vendor,
+                                                  uint8_t pcs_type,
+                                                  const uint8_t* state,
+                                                  size_t state_len);
 
 /**
  * @brief Destroys a PLONK scroll versioned proving key for the BN254 curve,
@@ -46,7 +49,7 @@ tachyon_bn254_plonk_scroll_proving_key_create_from_state(uint8_t ls_type,
  *
  * @param pk A pointer to the PLONK proving key to destroy.
  */
-TACHYON_C_EXPORT void tachyon_bn254_plonk_scroll_proving_key_destroy(
+TACHYON_C_EXPORT void tachyon_bn254_plonk_proving_key_destroy(
     tachyon_bn254_plonk_proving_key* pk);
 
 /**
@@ -57,7 +60,7 @@ TACHYON_C_EXPORT void tachyon_bn254_plonk_scroll_proving_key_destroy(
  * @return A pointer to the corresponding PLONK verifying key.
  */
 TACHYON_C_EXPORT const tachyon_bn254_plonk_verifying_key*
-tachyon_bn254_plonk_scroll_proving_key_get_verifying_key(
+tachyon_bn254_plonk_proving_key_get_verifying_key(
     const tachyon_bn254_plonk_proving_key* pk);
 
 #ifdef __cplusplus

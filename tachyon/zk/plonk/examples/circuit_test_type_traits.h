@@ -6,12 +6,11 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/base/commitments/gwc_extension.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
-#include "tachyon/zk/lookup/halo2/scheme.h"
-#include "tachyon/zk/lookup/log_derivative_halo2/scheme.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci1_circuit.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci2_circuit.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci3_circuit.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/zk/plonk/halo2/proving_scheme.h"
 #include "tachyon/zk/plonk/layout/floor_planner/simple_floor_planner.h"
 #include "tachyon/zk/plonk/layout/floor_planner/v1/v1_floor_planner.h"
 
@@ -23,15 +22,18 @@ using BN254SHPlonk =
 using BN254GWC =
     GWCExtension<math::bn254::BN254Curve, halo2::kMaxDegree,
                  halo2::kMaxExtendedDegree, math::bn254::G1AffinePoint>;
-using BN254Halo2LS = lookup::halo2::Scheme<
-    typename BN254SHPlonk::Poly, typename BN254SHPlonk::Evals,
-    typename BN254SHPlonk::Commitment, typename BN254SHPlonk::ExtendedPoly,
-    typename BN254SHPlonk::ExtendedEvals>;
 
-using BN254LogDerivativeHalo2LS = lookup::log_derivative_halo2::Scheme<
-    typename BN254SHPlonk::Poly, typename BN254SHPlonk::Evals,
-    typename BN254SHPlonk::Commitment, typename BN254SHPlonk::ExtendedPoly,
-    typename BN254SHPlonk::ExtendedEvals>;
+using BN254SHPlonkHalo2 =
+    halo2::ProvingScheme<halo2::Vendor::kScroll, lookup::Type::kHalo2,
+                         BN254SHPlonk>;
+using BN254SHPlonkLogDerivativeHalo2 =
+    halo2::ProvingScheme<halo2::Vendor::kScroll,
+                         lookup::Type::kLogDerivativeHalo2, BN254SHPlonk>;
+using BN254GWCHalo2 = halo2::ProvingScheme<halo2::Vendor::kScroll,
+                                           lookup::Type::kHalo2, BN254GWC>;
+using BN254GWCLogDerivativeHalo2 =
+    halo2::ProvingScheme<halo2::Vendor::kScroll,
+                         lookup::Type::kLogDerivativeHalo2, BN254GWC>;
 
 template <typename Circuit>
 constexpr bool IsSimpleFloorPlanner =
@@ -70,21 +72,6 @@ struct IsGWCImpl<
 
 template <typename PCS>
 constexpr bool IsGWC = IsGWCImpl<PCS>::value;
-
-template <typename T>
-struct IsHalo2LSImpl {
-  static constexpr bool value = false;
-};
-
-template <typename Poly, typename Evals, typename Commitment,
-          typename ExtendedPoly, typename ExtendedEvals>
-struct IsHalo2LSImpl<lookup::halo2::Scheme<Poly, Evals, Commitment,
-                                           ExtendedPoly, ExtendedEvals>> {
-  static constexpr bool value = true;
-};
-
-template <typename LS>
-constexpr bool IsHalo2LS = IsHalo2LSImpl<LS>::value;
 
 template <typename T>
 struct IsFibonacciImpl {

@@ -34,10 +34,10 @@ tachyon_cc_library(
     hdrs = ["bn254_gwc_prover_test.h"],
     deps = [
         ":prover_test",
+        ":proving_scheme",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",
         "//tachyon/zk/base/commitments:gwc_extension",
-        "//tachyon/zk/lookup/halo2:scheme",
     ],
 )
 
@@ -47,10 +47,10 @@ tachyon_cc_library(
     hdrs = ["bn254_shplonk_prover_test.h"],
     deps = [
         ":prover_test",
+        ":proving_scheme",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",
         "//tachyon/zk/base/commitments:shplonk_extension",
-        "//tachyon/zk/lookup/halo2:scheme",
     ],
 )
 
@@ -72,15 +72,6 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "constants",
     hdrs = ["constants.h"],
-)
-
-tachyon_cc_library(
-    name = "ls_type",
-    hdrs = ["ls_type.h"],
-    deps = [
-        "//tachyon/base/flag",
-        "@com_google_absl//absl/strings",
-    ],
 )
 
 tachyon_cc_library(
@@ -206,7 +197,6 @@ tachyon_cc_library(
         ":c_prover_impl_base_forward",
         ":random_field_generator",
         ":verifier",
-        "//tachyon/base/types:always_false",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/lookup:prover",
         "//tachyon/zk/plonk/permutation:permutation_prover",
@@ -226,6 +216,15 @@ tachyon_cc_library(
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "@com_google_googletest//:gtest",
+    ],
+)
+
+tachyon_cc_library(
+    name = "proving_scheme",
+    hdrs = ["proving_scheme.h"],
+    deps = [
+        ":vendor",
+        "//tachyon/zk/lookup:type",
     ],
 )
 
@@ -288,6 +287,8 @@ tachyon_cc_library(
     deps = [
         "//tachyon:export",
         "//tachyon/base:logging",
+        "//tachyon/base/flag",
+        "@com_google_absl//absl/strings",
     ],
 )
 

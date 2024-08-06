@@ -11,7 +11,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/types/always_false.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/lookup/prover.h"
 #include "tachyon/zk/plonk/halo2/argument_data.h"
@@ -24,9 +23,13 @@
 
 namespace tachyon::zk::plonk::halo2 {
 
-template <typename PCS, typename _LS>
-class Prover : public ProverBase<PCS> {
+template <typename _PS>
+class Prover : public ProverBase<typename _PS::PCS> {
  public:
+  constexpr static lookup::Type kLookupType = _PS::kLookupType;
+
+  using PS = _PS;
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
@@ -34,8 +37,7 @@ class Prover : public ProverBase<PCS> {
   using ExtendedPoly = typename PCS::ExtendedPoly;
   using ExtendedEvals = typename PCS::ExtendedEvals;
   using Commitment = typename PCS::Commitment;
-  using LS = _LS;
-  using LookupProver = lookup::Prover<LS::kType, Poly, Evals>;
+  using LookupProver = lookup::Prover<kLookupType, Poly, Evals>;
 
   static Prover Create(
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
@@ -49,9 +51,9 @@ class Prover : public ProverBase<PCS> {
   crypto::RNG* rng() { return rng_.get(); }
   RandomFieldGenerator<F>* generator() { return generator_.get(); }
 
-  Verifier<PCS, LS> ToVerifier(
+  Verifier<PS> ToVerifier(
       std::unique_ptr<crypto::TranscriptReader<Commitment>> reader) {
-    Verifier<PCS, LS> ret(std::move(this->pcs_), std::move(reader));
+    Verifier<PS> ret(std::move(this->pcs_), std::move(reader));
     ret.set_domain(std::move(this->domain_));
     ret.set_extended_domain(std::move(this->extended_domain_));
 #if TACHYON_CUDA
@@ -60,8 +62,8 @@ class Prover : public ProverBase<PCS> {
     return ret;
   }
 
-  template <halo2::Vendor Vendor, typename Circuit>
-  void CreateProof(ProvingKey<Vendor, LS>& proving_key,
+  template <typename Circuit>
+  void CreateProof(ProvingKey<PS>& proving_key,
                    std::vector<std::vector<Evals>>&& instance_columns_vec,
                    std::vector<Circuit>& circuits) {
     size_t num_circuits = circuits.size();
@@ -88,7 +90,7 @@ class Prover : public ProverBase<PCS> {
   }
 
  private:
-  friend class c::zk::plonk::halo2::ProverImplBase<PCS, LS>;
+  friend class c::zk::plonk::halo2::ProverImplBase<PS>;
 
   Prover(PCS&& pcs,
          std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
@@ -105,11 +107,10 @@ class Prover : public ProverBase<PCS> {
         Blinder<F>(generator_.get(), this->blinder_.blinding_factors());
   }
 
-  template <halo2::Vendor Vendor>
-  void CreateProof(ProvingKey<Vendor, LS>& proving_key,
+  void CreateProof(ProvingKey<PS>& proving_key,
                    ArgumentData<Poly, Evals>* argument_data) {
     CHECK_EQ(proving_key.verifying_key().constraint_system().lookup_type(),
-             LS::kType);
+             kLookupType);
     // NOTE(chokobole): This is an entry point fom Halo2 rust. So this is the
     // earliest time to log constraint system.
     VLOG(1) << "PCS name: " << this->pcs_.Name() << ", k: " << this->pcs_.K()
@@ -139,7 +140,7 @@ class Prover : public ProverBase<PCS> {
         argument_data->ExportColumnTables(proving_key.fixed_columns());
 
     size_t commit_idx = 0;
-    if constexpr (LS::kType == lookup::Type::kHalo2) {
+    if constexpr (kLookupType == lookup::Type::kHalo2) {
       LookupProver::BatchCompressPairs(lookup_provers, domain, cs.lookups(),
                                        theta, column_tables);
       LookupProver::BatchPermutePairs(lookup_provers, this);
@@ -149,7 +150,7 @@ class Prover : public ProverBase<PCS> {
             LookupProver::GetNumPermutedPairsCommitments(lookup_provers));
       }
       LookupProver::BatchCommitPermutedPairs(lookup_provers, this, commit_idx);
-    } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
+    } else if constexpr (kLookupType == lookup::Type::kLogDerivativeHalo2) {
       LookupProver::BatchCompressPairs(lookup_provers, domain, cs.lookups(),
                                        theta, column_tables);
       LookupProver::BatchComputeMPolys(lookup_provers, this);
@@ -160,7 +161,7 @@ class Prover : public ProverBase<PCS> {
       }
       LookupProver::BatchCommitMPolys(lookup_provers, this, commit_idx);
     } else {
-      static_assert(base::AlwaysFalse<LS>);
+      NOTREACHED();
     }
 
     if constexpr (PCS::kSupportsBatchMode) {
@@ -176,13 +177,13 @@ class Prover : public ProverBase<PCS> {
         permutation_provers, this, cs.permutation(), column_tables,
         cs.ComputeDegree(), proving_key.permutation_proving_key(), beta, gamma);
 
-    if constexpr (LS::kType == lookup::Type::kHalo2) {
+    if constexpr (kLookupType == lookup::Type::kHalo2) {
       LookupProver::BatchCreateGrandProductPolys(lookup_provers, this, beta,
                                                  gamma);
-    } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
+    } else if constexpr (kLookupType == lookup::Type::kLogDerivativeHalo2) {
       LookupProver::BatchCreateGrandSumPolys(lookup_provers, this, beta);
     } else {
-      static_assert(base::AlwaysFalse<LS>);
+      NOTREACHED();
     }
 
     shuffle::Prover<Poly, Evals>::BatchCompressPairs(
@@ -194,14 +195,15 @@ class Prover : public ProverBase<PCS> {
 
     if constexpr (PCS::kSupportsBatchMode) {
       size_t num_lookup_poly;
-      if constexpr (LS::kType == lookup::Type::kHalo2) {
+      if constexpr (kLookupType == lookup::Type::kHalo2) {
         num_lookup_poly =
             LookupProver::GetNumGrandProductPolysCommitments(lookup_provers);
-      } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
+        // NOLINTNEXTLINE(readability/braces)
+      } else if constexpr (kLookupType == lookup::Type::kLogDerivativeHalo2) {
         num_lookup_poly =
             LookupProver::GetNumGrandSumPolysCommitments(lookup_provers);
       } else {
-        static_assert(base::AlwaysFalse<LS>);
+        NOTREACHED();
       }
       this->pcs_.SetBatchMode(
           PermutationProver<Poly, Evals>::GetNumGrandProductPolysCommitments(
@@ -215,13 +217,13 @@ class Prover : public ProverBase<PCS> {
     commit_idx = 0;
     PermutationProver<Poly, Evals>::BatchCommitGrandProductPolys(
         permutation_provers, this, commit_idx);
-    if constexpr (LS::kType == lookup::Type::kHalo2) {
+    if constexpr (kLookupType == lookup::Type::kHalo2) {
       LookupProver::BatchCommitGrandProductPolys(lookup_provers, this,
                                                  commit_idx);
-    } else if constexpr (LS::kType == lookup::Type::kLogDerivativeHalo2) {
+    } else if constexpr (kLookupType == lookup::Type::kLogDerivativeHalo2) {
       LookupProver::BatchCommitGrandSumPolys(lookup_provers, this, commit_idx);
     } else {
-      static_assert(base::AlwaysFalse<LS>);
+      NOTREACHED();
     }
     shuffle::Prover<Poly, Evals>::BatchCommitGrandProductPolys(
         shuffle_provers, this, commit_idx);
@@ -285,9 +287,8 @@ class Prover : public ProverBase<PCS> {
     CHECK(this->pcs_.CreateOpeningProof(openings, this->GetWriter()));
   }
 
-  template <halo2::Vendor Vendor>
   void Evaluate(
-      const ProvingKey<Vendor, LS>& proving_key,
+      const ProvingKey<PS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables,
       VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
           vanishing_prover,
@@ -314,9 +315,8 @@ class Prover : public ProverBase<PCS> {
                                                 shuffle_opening_point_set);
   }
 
-  template <halo2::Vendor Vendor>
   std::vector<crypto::PolynomialOpening<Poly>> Open(
-      const ProvingKey<Vendor, LS>& proving_key,
+      const ProvingKey<PS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables,
       const VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
           vanishing_prover,
@@ -340,7 +340,7 @@ class Prover : public ProverBase<PCS> {
         GetNumPermutationOpenings(
             num_circuits, permutation_provers[0].grand_product_polys().size(),
             proving_key.permutation_proving_key().permutations().size()) +
-        lookup::halo2::GetNumOpenings(LS::kType, lookup_provers.size(),
+        lookup::halo2::GetNumOpenings(kLookupType, lookup_provers.size(),
                                       constraint_system.lookups().size()) +
         shuffle::GetNumOpenings(shuffle_provers.size(),
                                 constraint_system.shuffles().size());

@@ -12,9 +12,10 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename Circuit, typename PCS, typename LS>
-class Fibonacci3TestData : public CircuitTestData<Circuit, PCS, LS> {
+template <typename Circuit, typename PS>
+class Fibonacci3TestData : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
 
   constexpr static bool kLFirstFlag = true;

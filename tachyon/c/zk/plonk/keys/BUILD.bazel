@@ -22,9 +22,8 @@ tachyon_cc_library(
     deps = [
         ":bn254_plonk_verifying_key",
         ":proving_key_impl",
-        "//tachyon/c/zk/plonk/halo2:bn254_halo2_ls",
-        "//tachyon/c/zk/plonk/halo2:bn254_log_derivative_halo2_ls",
-        "//tachyon/zk/plonk/halo2:ls_type",
+        "//tachyon/c/zk/plonk/halo2:bn254_ps",
+        "//tachyon/zk/plonk/halo2:pcs_type",
     ],
 )
 

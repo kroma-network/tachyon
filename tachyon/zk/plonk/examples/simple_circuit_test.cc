@@ -15,16 +15,15 @@ template <typename TestArguments>
 class SimpleCircuitTest
     : public CircuitTest<TestArguments,
                          SimpleTestData<typename TestArguments::Circuit,
-                                        typename TestArguments::PCS,
-                                        typename TestArguments::LS>> {};
+                                        typename TestArguments::PS>> {};
 
 }  // namespace
 
 using SimpleTestArgumentsList = testing::Types<
     TestArguments<SimpleCircuit<BN254SHPlonk::Field, SimpleFloorPlanner>,
-                  BN254SHPlonk, BN254Halo2LS>,
+                  BN254SHPlonkHalo2>,
     TestArguments<SimpleCircuit<BN254SHPlonk::Field, V1FloorPlanner>,
-                  BN254SHPlonk, BN254Halo2LS>>;
+                  BN254SHPlonkHalo2>>;
 
 TYPED_TEST_SUITE(SimpleCircuitTest, SimpleTestArgumentsList);
 

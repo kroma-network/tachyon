@@ -17,7 +17,6 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "c_proving_key_impl_forward",
     hdrs = ["c_proving_key_impl_forward.h"],
-    deps = ["//tachyon/zk/plonk/halo2:vendor"],
 )
 
 tachyon_cc_library(
@@ -49,7 +48,6 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "proving_key_forward",
     hdrs = ["proving_key_forward.h"],
-    deps = ["//tachyon/zk/plonk/halo2:vendor"],
 )
 
 tachyon_cc_library(

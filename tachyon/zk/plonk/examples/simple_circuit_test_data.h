@@ -13,15 +13,16 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename Circuit, typename PCS, typename LS, typename SFINAE = void>
-class SimpleTestData : public CircuitTestData<Circuit, PCS, LS> {};
+template <typename Circuit, typename PS, typename SFINAE = void>
+class SimpleTestData : public CircuitTestData<Circuit, PS> {};
 
 // FloorPlanner = SimpleFloorPlanner
-template <typename Circuit, typename PCS, typename LS>
-class SimpleTestData<Circuit, PCS, LS,
+template <typename Circuit, typename PS>
+class SimpleTestData<Circuit, PS,
                      std::enable_if_t<IsSimpleFloorPlanner<Circuit>>>
-    : public CircuitTestData<Circuit, PCS, LS> {
+    : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
   using Evals = typename PCS::Evals;
 
@@ -912,11 +913,11 @@ class SimpleTestData<Circuit, PCS, LS,
 };
 
 // FloorPlanner = V1FloorPlanner
-template <typename Circuit, typename PCS, typename LS>
-class SimpleTestData<Circuit, PCS, LS,
-                     std::enable_if_t<IsV1FloorPlanner<Circuit>>>
-    : public CircuitTestData<Circuit, PCS, LS> {
+template <typename Circuit, typename PS>
+class SimpleTestData<Circuit, PS, std::enable_if_t<IsV1FloorPlanner<Circuit>>>
+    : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
   using Evals = typename PCS::Evals;
 

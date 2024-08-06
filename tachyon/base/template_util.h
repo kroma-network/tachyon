@@ -93,6 +93,15 @@ template <typename Func, typename... Iters>
 using indirect_result_t =
     std::invoke_result_t<Func, iter_reference_t<Iters>...>;
 
+template<typename Iter>
+struct is_const_iterator {
+    using pointer = typename std::iterator_traits<Iter>::pointer;
+    constexpr static bool value = std::is_const_v<std::remove_pointer_t<pointer>>;
+};
+
+template <typename Iter>
+constexpr bool is_const_iterator_v = is_const_iterator<Iter>::value;
+
 // Simplified implementation of C++20's std::projected. As opposed to
 // std::projected, this implementation does not explicitly restrict the type of
 // `Iter` and `Proj`, but rather does so implicitly by requiring

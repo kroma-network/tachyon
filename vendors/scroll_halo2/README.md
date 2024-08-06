@@ -23,6 +23,7 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
    ```diff
      use halo2_proofs::{
    +   bn254::ProvingKey as TachyonProvingKey,
+   +   consts::PCSType,
        halo2curves::bn256::{Bn256, Fr},
        plonk::keygen_pk2,
        poly::kzg::commitment::ParamsKZG,
@@ -47,7 +48,7 @@ Tachyon can easily replace existing Halo2 implementations that generate proofs a
    +     let mut pk_bytes: Vec<u8> = vec![];
    +     pk.write_including_cs(&mut pk_bytes).unwrap();
    +     fixed_values = pk.drop_but_fixed_values();
-   +     (TachyonProvingKey::from(pk_bytes.as_slice()), fixed_values)
+   +     (TachyonProvingKey::from(PCSType::GWC, pk_bytes.as_slice()), fixed_values)
    + };
    ```
 

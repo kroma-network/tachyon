@@ -14,9 +14,10 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename Circuit, typename PCS, typename LS, typename SFINAE = void>
-class SimpleLookupTestData : public CircuitTestData<Circuit, PCS, LS> {
+template <typename Circuit, typename PS, typename SFINAE = void>
+class SimpleLookupTestData : public CircuitTestData<Circuit, PS> {
  public:
+  using PCS = typename PS::PCS;
   using F = typename PCS::Field;
 
   // Set flags of values to be used as true
@@ -40,7 +41,7 @@ class SimpleLookupTestData : public CircuitTestData<Circuit, PCS, LS> {
   constexpr static size_t kN = 32;
 
   // clang-format off
-  constexpr static std ::string_view kPinnedConstraintSystem =
+  constexpr static std::string_view kPinnedConstraintSystem =
       "PinnedConstraintSystem { "
         "num_fixed_columns: 1, "
         "num_advice_columns: 1, "

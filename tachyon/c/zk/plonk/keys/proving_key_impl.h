@@ -19,18 +19,22 @@
 
 namespace tachyon::c::zk::plonk {
 
-template <tachyon::zk::plonk::halo2::Vendor Vendor, typename LS>
-class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<Vendor, LS> {
+template <typename PS>
+class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<PS> {
  public:
-  using F = typename LS::Field;
-  using C = typename LS::Commitment;
+  constexpr static tachyon::zk::plonk::halo2::Vendor kVendor = PS::kVendor;
+  constexpr static tachyon::zk::lookup::Type kLookupType = PS::kLookupType;
+
+  using PCS = typename PS::PCS;
+  using F = typename PCS::Field;
+  using C = typename PCS::Commitment;
 
   ProvingKeyImpl() {
-    this->verifying_key_.constraint_system_.set_lookup_type(LS::kType);
+    this->verifying_key_.constraint_system_.set_lookup_type(kLookupType);
   }
   ProvingKeyImpl(absl::Span<const uint8_t> state, bool read_only_vk)
       : read_only_vk_(read_only_vk) {
-    this->verifying_key_.constraint_system_.set_lookup_type(LS::kType);
+    this->verifying_key_.constraint_system_.set_lookup_type(kLookupType);
 
     std::string_view pk_str;
     if (tachyon::base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {
@@ -48,12 +52,10 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<Vendor, LS> {
     return this->verifying_key_.constraint_system_;
   }
 
-  template <typename PCS>
   void SetTranscriptRepr(const tachyon::zk::Entity<PCS>& entity) {
     this->verifying_key_.SetTranscriptRepresentative(&entity);
   }
 
-  template <typename PCS>
   const F& GetTranscriptRepr(const tachyon::zk::Entity<PCS>& entity) {
     return this->verifying_key_.transcript_repr_;
   }
@@ -69,11 +71,11 @@ class ProvingKeyImpl : public tachyon::zk::plonk::ProvingKey<Vendor, LS> {
     ReadBuffer(buffer, this->fixed_polys_);
     ReadBuffer(buffer, this->permutation_proving_key_.permutations_);
     ReadBuffer(buffer, this->permutation_proving_key_.polys_);
-    if constexpr (Vendor == tachyon::zk::plonk::halo2::Vendor::kPSE) {
+    if constexpr (kVendor == tachyon::zk::plonk::halo2::Vendor::kPSE) {
       ReadBuffer(buffer, this->permutation_proving_key_.cosets_);
     }
     this->vanishing_argument_ =
-        tachyon::zk::plonk::VanishingArgument<Vendor, LS>::Create(
+        tachyon::zk::plonk::VanishingArgument<PS>::Create(
             this->verifying_key_.constraint_system_);
     CHECK(buffer.Done());
   }

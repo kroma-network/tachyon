@@ -2,31 +2,31 @@
 
 ## Currently Tested Types
 
-| Circuit             | FloorPlanner       | PCS     | LS                   |
-| ------------------- | ------------------ | ------- | -------------------- |
-| SimpleCircuit       | SimpleFloorPlanner | SHPlonk | Halo2LS              |
-| SimpleCircuit       | V1FloorPlanner     | SHPlonk | Halo2LS              |
-| SimpleLookupCircuit | SimpleFloorPlanner | SHPlonk | Halo2LS              |
-| SimpleLookupCircuit | V1FloorPlanner     | SHPlonk | Halo2LS              |
-| ShuffleCircuit      | SimpleFloorPlanner | SHPlonk | Halo2LS              |
-| ShuffleCircuit      | V1FloorPlanner     | SHPlonk | Halo2LS              |
-| ShuffleAPICircuit   | SimpleFloorPlanner | SHPlonk | LogDerivativeHalo2LS |
-| ShuffleAPICircuit   | V1FloorPlanner     | SHPlonk | LogDerivativeHalo2LS |
-| Fibonacci1Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS              |
-| Fibonacci1Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS              |
-| Fibonacci2Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS              |
-| Fibonacci2Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS              |
-| Fibonacci3Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS              |
-| Fibonacci3Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS              |
-| MultiLookupCircuit  | SimpleFloorPlanner | SHPlonk | LogDerivativeHalo2LS |
-| MultiLookupCircuit  | SimpleFloorPlanner | GWC     | LogDerivativeHalo2LS |
+| Circuit             | FloorPlanner       | PCS     | Vendor | LookupType         |
+| ------------------- | ------------------ | ------- | ------ | ------------------ |
+| SimpleCircuit       | SimpleFloorPlanner | SHPlonk | Scroll | Halo2              |
+| SimpleCircuit       | V1FloorPlanner     | SHPlonk | Scroll | Halo2              |
+| SimpleLookupCircuit | SimpleFloorPlanner | SHPlonk | Scroll | Halo2              |
+| SimpleLookupCircuit | V1FloorPlanner     | SHPlonk | Scroll | Halo2              |
+| ShuffleCircuit      | SimpleFloorPlanner | SHPlonk | Scroll | Halo2              |
+| ShuffleCircuit      | V1FloorPlanner     | SHPlonk | Scroll | Halo2              |
+| ShuffleAPICircuit   | SimpleFloorPlanner | SHPlonk | Scroll | LogDerivativeHalo2 |
+| ShuffleAPICircuit   | V1FloorPlanner     | SHPlonk | Scroll | LogDerivativeHalo2 |
+| Fibonacci1Circuit   | SimpleFloorPlanner | SHPlonk | Scroll | Halo2              |
+| Fibonacci1Circuit   | V1FloorPlanner     | SHPlonk | Scroll | Halo2              |
+| Fibonacci2Circuit   | SimpleFloorPlanner | SHPlonk | Scroll | Halo2              |
+| Fibonacci2Circuit   | V1FloorPlanner     | SHPlonk | Scroll | Halo2              |
+| Fibonacci3Circuit   | SimpleFloorPlanner | SHPlonk | Scroll | Halo2              |
+| Fibonacci3Circuit   | V1FloorPlanner     | SHPlonk | Scroll | Halo2              |
+| MultiLookupCircuit  | SimpleFloorPlanner | SHPlonk | Scroll | LogDerivativeHalo2 |
+| MultiLookupCircuit  | SimpleFloorPlanner | GWC     | Scroll | LogDerivativeHalo2 |
 
 **In Progress**:
 
-| Circuit        | FloorPlanner       | PCS | LS      |
-| -------------- | ------------------ | --- | ------- |
-| ShuffleCircuit | SimpleFloorPlanner | GWC | Halo2LS |
-| ShuffleCircuit | V1FloorPlanner     | GWC | Halo2LS |
+| Circuit        | FloorPlanner       | PCS | Vendor | LookupType |
+| -------------- | ------------------ | --- | ------ | ---------- |
+| ShuffleCircuit | SimpleFloorPlanner | GWC | Scroll | Halo2      |
+| ShuffleCircuit | V1FloorPlanner     | GWC | Scroll | Halo2      |
 
 ## Identical Test Data
 

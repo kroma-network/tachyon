@@ -45,7 +45,7 @@ class PermutationProvingKey {
   }
 
  private:
-  template <halo2::Vendor Vendor, typename LS>
+  template <typename PS>
   friend class c::zk::plonk::ProvingKeyImpl;
 
   std::vector<Evals> permutations_;

@@ -25,17 +25,21 @@
 
 namespace tachyon::zk::plonk {
 
-template <halo2::Vendor Vendor, typename LS>
+template <typename PS>
 class VanishingArgument {
  public:
-  using F = typename LS::Field;
-  using Poly = typename LS::Poly;
-  using Evals = typename LS::Evals;
-  using ExtendedEvals = typename LS::ExtendedEvals;
-  using LookupProver = lookup::Prover<LS::kType, Poly, Evals>;
+  constexpr static halo2::Vendor kVendor = PS::kVendor;
+  constexpr static lookup::Type kLookupType = PS::kLookupType;
+
+  using PCS = typename PS::PCS;
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+  using ExtendedEvals = typename PCS::ExtendedEvals;
+  using LookupProver = lookup::Prover<kLookupType, Poly, Evals>;
 
   using EvalsOrExtendedEvals =
-      std::conditional_t<Vendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;
+      std::conditional_t<kVendor == halo2::Vendor::kPSE, ExtendedEvals, Evals>;
 
   VanishingArgument() = default;
 
@@ -48,9 +52,8 @@ class VanishingArgument {
     return evaluator;
   }
 
-  template <typename PCS, typename Poly>
   ExtendedEvals BuildExtendedCircuitColumn(
-      ProverBase<PCS>* prover, const ProvingKey<Vendor, LS>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<PS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
@@ -59,12 +62,11 @@ class VanishingArgument {
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 
-    CircuitPolynomialBuilder<Vendor, PCS, LS> builder =
-        CircuitPolynomialBuilder<Vendor, PCS, LS>::Create(
-            prover->domain(), prover->extended_domain(), prover->pcs().N(),
-            prover->GetLastRow(), cs_degree, poly_tables, theta, beta, gamma, y,
-            zeta, proving_key, permutation_provers, lookup_provers,
-            shuffle_provers);
+    CircuitPolynomialBuilder<PS> builder = CircuitPolynomialBuilder<PS>::Create(
+        prover->domain(), prover->extended_domain(), prover->pcs().N(),
+        prover->GetLastRow(), cs_degree, poly_tables, theta, beta, gamma, y,
+        zeta, proving_key, permutation_provers, lookup_provers,
+        shuffle_provers);
 
     return builder.BuildExtendedCircuitColumn(
         custom_gate_evaluator_, permutation_evaluator_, lookup_evaluator_,
@@ -74,7 +76,7 @@ class VanishingArgument {
  private:
   CustomGateEvaluator<EvalsOrExtendedEvals> custom_gate_evaluator_;
   PermutationEvaluator<EvalsOrExtendedEvals> permutation_evaluator_;
-  lookup::Evaluator<LS::kType, EvalsOrExtendedEvals> lookup_evaluator_;
+  lookup::Evaluator<kLookupType, EvalsOrExtendedEvals> lookup_evaluator_;
   shuffle::Evaluator<EvalsOrExtendedEvals> shuffle_evaluator_;
 };
 

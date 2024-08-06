@@ -220,9 +220,10 @@ struct LogDerivativeHalo2Proof : public ProofBase<F, C> {
   }
 };
 
-template <lookup::Type Type, typename F, typename C>
-using Proof = std::conditional_t<Type == lookup::Type::kHalo2, Halo2Proof<F, C>,
-                                 LogDerivativeHalo2Proof<F, C>>;
+template <lookup::Type LookupType, typename F, typename C>
+using Proof =
+    std::conditional_t<LookupType == lookup::Type::kHalo2, Halo2Proof<F, C>,
+                       LogDerivativeHalo2Proof<F, C>>;
 
 }  // namespace zk::plonk::halo2
 

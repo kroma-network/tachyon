@@ -17,15 +17,14 @@ template <typename TestArguments>
 class SimpleLookupCircuitTest
     : public CircuitTest<TestArguments,
                          SimpleLookupTestData<typename TestArguments::Circuit,
-                                              typename TestArguments::PCS,
-                                              typename TestArguments::LS>> {};
+                                              typename TestArguments::PS>> {};
 
 }  // namespace
 
 // clang-format off
 using SimpleLookupTestArgumentsList = testing::Types<
-    TestArguments<SimpleLookupCircuit<BN254SHPlonk::Field, kBits, SimpleFloorPlanner>, BN254SHPlonk, BN254Halo2LS>,
-    TestArguments<SimpleLookupCircuit<BN254SHPlonk::Field, kBits, V1FloorPlanner>, BN254SHPlonk, BN254Halo2LS>>;
+    TestArguments<SimpleLookupCircuit<BN254SHPlonk::Field, kBits, SimpleFloorPlanner>, BN254SHPlonkHalo2>,
+    TestArguments<SimpleLookupCircuit<BN254SHPlonk::Field, kBits, V1FloorPlanner>, BN254SHPlonkHalo2>>;
 // clang-format on
 
 TYPED_TEST_SUITE(SimpleLookupCircuitTest, SimpleLookupTestArgumentsList);

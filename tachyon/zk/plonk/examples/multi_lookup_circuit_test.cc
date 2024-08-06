@@ -14,15 +14,14 @@ template <typename TestArguments>
 class MultiLookupCircuitTest
     : public CircuitTest<TestArguments,
                          MultiLookupTestData<typename TestArguments::Circuit,
-                                             typename TestArguments::PCS,
-                                             typename TestArguments::LS>> {};
+                                             typename TestArguments::PS>> {};
 
 }  // namespace
 
 // clang-format off
 using MultiLookupTestArgumentsList = testing::Types<
-    TestArguments<MultiLookupCircuit<BN254SHPlonk::Field, SimpleFloorPlanner>, BN254SHPlonk, BN254LogDerivativeHalo2LS>,
-    TestArguments<MultiLookupCircuit<BN254GWC::Field, SimpleFloorPlanner>, BN254GWC, BN254LogDerivativeHalo2LS>>;
+    TestArguments<MultiLookupCircuit<BN254SHPlonk::Field, SimpleFloorPlanner>, BN254SHPlonkLogDerivativeHalo2>,
+    TestArguments<MultiLookupCircuit<BN254GWC::Field, SimpleFloorPlanner>, BN254GWCLogDerivativeHalo2>>;
 // clang-format on
 
 TYPED_TEST_SUITE(MultiLookupCircuitTest, MultiLookupTestArgumentsList);
