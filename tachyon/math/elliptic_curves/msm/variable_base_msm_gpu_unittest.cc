@@ -49,7 +49,9 @@ ProjectivePoint<typename Point::Curve>
 
 }  // namespace
 
-using PointTypes = testing::Types<bn254::G1AffinePoint, bn254::G2AffinePoint>;
+using PointTypes =
+    testing::Types<bls12_381::G1AffinePoint, bls12_381::G2AffinePoint,
+                   bn254::G1AffinePoint, bn254::G2AffinePoint>;
 TYPED_TEST_SUITE(VariableMSMCorrectnessGpuTest, PointTypes);
 
 TYPED_TEST(VariableMSMCorrectnessGpuTest, MSM) {

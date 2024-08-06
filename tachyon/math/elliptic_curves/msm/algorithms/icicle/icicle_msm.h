@@ -8,6 +8,8 @@
 
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/export.h"
+#include "tachyon/math/elliptic_curves/bls12/bls12_381/g1.h"
+#include "tachyon/math/elliptic_curves/bls12/bls12_381/g2.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/geometry/projective_point.h"
@@ -72,6 +74,18 @@ class IcicleMSM {
   gpuStream_t stream_ = nullptr;
   std::unique_ptr<::msm::MSMConfig> config_;
 };
+
+template <>
+TACHYON_EXPORT bool IcicleMSM<bls12_381::G1AffinePoint>::Run(
+    absl::Span<const bls12_381::G1AffinePoint> cpu_bases,
+    absl::Span<const ScalarField> cpu_scalars,
+    ProjectivePoint<Curve>* cpu_result);
+
+template <>
+TACHYON_EXPORT bool IcicleMSM<bls12_381::G2AffinePoint>::Run(
+    absl::Span<const bls12_381::G2AffinePoint> cpu_bases,
+    absl::Span<const ScalarField> cpu_scalars,
+    ProjectivePoint<Curve>* cpu_result);
 
 template <>
 TACHYON_EXPORT bool IcicleMSM<bn254::G1AffinePoint>::Run(
