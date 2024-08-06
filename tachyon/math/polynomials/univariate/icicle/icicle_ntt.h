@@ -77,16 +77,17 @@ class IcicleNTT {
 };
 
 template <>
-bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
-                                const IcicleNTTOptions& options);
+TACHYON_EXPORT bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
+                                               const IcicleNTTOptions& options);
 
 template <>
-bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
-                               const BigInt& coset, bn254::Fr* inout, int size,
-                               ::ntt::NTTDir dir) const;
+TACHYON_EXPORT bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
+                                              const BigInt& coset,
+                                              bn254::Fr* inout, int size,
+                                              ::ntt::NTTDir dir) const;
 
 template <>
-bool IcicleNTT<bn254::Fr>::Release();
+TACHYON_EXPORT bool IcicleNTT<bn254::Fr>::Release();
 
 }  // namespace tachyon::math
 
