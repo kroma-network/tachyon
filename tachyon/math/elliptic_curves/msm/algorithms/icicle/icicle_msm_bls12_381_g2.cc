@@ -5,6 +5,7 @@
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/gpu_logging.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_utils.h"
 
@@ -34,6 +35,15 @@ bool IcicleMSM<bls12_381::G2AffinePoint>::Run(
     LOG(ERROR) << "bases_size and scalars_size don't match";
     return false;
   }
+
+  device::gpu::gpuPointerAttributes bases_attributes{};
+  RETURN_AND_LOG_IF_GPU_ERROR(
+      device::gpu::GpuPointerGetAttributes(&bases_attributes, bases.data()),
+      "Failed to GpuPointerGetAttributes()");
+
+  config_->are_points_on_device =
+      bases_attributes.type != gpuMemoryTypeUnregistered &&
+      bases_attributes.type != gpuMemoryTypeHost;
 
   size_t bitsize =
       static_cast<size_t>((config_->bitsize == 0) ? ::bls12_381::scalar_t::NBITS
