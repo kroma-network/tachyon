@@ -169,6 +169,21 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(const BaseContainer& cpu_bases,
     return false;
   }
 
+  device::gpu::gpuPointerAttributes bases_attributes{};
+  RETURN_AND_LOG_IF_GPU_ERROR(device::gpu::GpuPointerGetAttributes(
+                                  &bases_attributes, std::data(cpu_bases)),
+                              "Failed to GpuPointerGetAttributes()");
+
+  bool copy_bases = bases_attributes.type == gpuMemoryTypeUnregistered ||
+                    bases_attributes.type == gpuMemoryTypeHost;
+  if (copy_bases) {
+    std::cout << "bases_attributes.type" << bases_attributes.type << std::endl;
+    std::cout << "copy" << std::endl;
+  } else {
+    std::cout << "bases_attributes.type" << bases_attributes.type << std::endl;
+    config_->are_points_on_device = true;
+  }
+
   size_t bitsize = static_cast<size_t>(
       (config_->bitsize == 0) ? ::bn254::scalar_t::NBITS : config_->bitsize);
 
@@ -216,6 +231,21 @@ bool IcicleMSM<bn254::G2AffinePoint>::Run(const BaseContainer& cpu_bases,
   if (bases_size != scalars_size) {
     LOG(ERROR) << "bases_size and scalars_size don't match";
     return false;
+  }
+
+  device::gpu::gpuPointerAttributes bases_attributes{};
+  RETURN_AND_LOG_IF_GPU_ERROR(device::gpu::GpuPointerGetAttributes(
+                                  &bases_attributes, std::data(cpu_bases)),
+                              "Failed to GpuPointerGetAttributes()");
+
+  bool copy_bases = bases_attributes.type == gpuMemoryTypeUnregistered ||
+                    bases_attributes.type == gpuMemoryTypeHost;
+  if (copy_bases) {
+    std::cout << "bases_attributes.type" << bases_attributes.type << std::endl;
+    std::cout << "copy" << std::endl;
+  } else {
+    std::cout << "bases_attributes.type" << bases_attributes.type << std::endl;
+    config_->are_points_on_device = true;
   }
 
   size_t bitsize = static_cast<size_t>(
