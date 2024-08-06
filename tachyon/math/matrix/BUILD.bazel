@@ -80,7 +80,6 @@ tachyon_cc_unittest(
         ":matrix_utils",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/finite_fields/baby_bear:baby_bear4",
-        "//tachyon/math/finite_fields/baby_bear:packed_baby_bear",
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
     ],

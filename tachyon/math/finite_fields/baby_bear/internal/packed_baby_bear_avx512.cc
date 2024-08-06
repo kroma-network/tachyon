@@ -5,7 +5,7 @@
 
 #if defined(TACHYON_HAS_AVX512)
 
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_avx512.h"
+#include "tachyon/math/finite_fields/baby_bear/internal/packed_baby_bear_avx512.h"
 
 #include <immintrin.h>
 

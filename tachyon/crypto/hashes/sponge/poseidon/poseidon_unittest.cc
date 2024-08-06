@@ -11,7 +11,7 @@
 
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h"
+#include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {

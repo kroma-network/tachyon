@@ -15,7 +15,6 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h"
 #include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 

@@ -3,13 +3,13 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_MATH_FINITE_FIELDS_BABY_BEAR_PACKED_BABY_BEAR_AVX2_H_
-#define TACHYON_MATH_FINITE_FIELDS_BABY_BEAR_PACKED_BABY_BEAR_AVX2_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_BABY_BEAR_INTERNAL_PACKED_BABY_BEAR_AVX2_H_
+#define TACHYON_MATH_FINITE_FIELDS_BABY_BEAR_INTERNAL_PACKED_BABY_BEAR_AVX2_H_
 
 #include <stddef.h>
 
 #include "tachyon/export.h"
-#include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
+#include "tachyon/math/finite_fields/baby_bear/internal/baby_bear.h"
 #include "tachyon/math/finite_fields/packed_prime_field_base.h"
 
 namespace tachyon::math {
@@ -62,4 +62,4 @@ class TACHYON_EXPORT PackedBabyBearAVX2 final
 
 }  // namespace tachyon::math
 
-#endif  //  TACHYON_MATH_FINITE_FIELDS_BABY_BEAR_PACKED_BABY_BEAR_AVX2_H_
+#endif  //  TACHYON_MATH_FINITE_FIELDS_BABY_BEAR_INTERNAL_PACKED_BABY_BEAR_AVX2_H_

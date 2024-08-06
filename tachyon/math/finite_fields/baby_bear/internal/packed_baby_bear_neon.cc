@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_neon.h"
+#include "tachyon/math/finite_fields/baby_bear/internal/packed_baby_bear_neon.h"
 
 #include <arm_neon.h>
 

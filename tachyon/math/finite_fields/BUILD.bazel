@@ -367,15 +367,15 @@ tachyon_cc_unittest(
         "@com_google_absl//absl/hash:hash_testing",
     ] + select({
         "@platforms//cpu:x86_64": [
-            "//tachyon/math/finite_fields/baby_bear:packed_baby_bear_avx2",
-            "//tachyon/math/finite_fields/baby_bear:packed_baby_bear_avx512",
+            "//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear_avx2",
+            "//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear_avx512",
             "//tachyon/math/finite_fields/koala_bear:packed_koala_bear_avx2",
             "//tachyon/math/finite_fields/koala_bear:packed_koala_bear_avx512",
             "//tachyon/math/finite_fields/mersenne31:packed_mersenne31_avx2",
             "//tachyon/math/finite_fields/mersenne31:packed_mersenne31_avx512",
         ],
         "@platforms//cpu:aarch64": [
-            "//tachyon/math/finite_fields/baby_bear:packed_baby_bear_neon",
+            "//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear_neon",
             "//tachyon/math/finite_fields/koala_bear:packed_koala_bear_neon",
             "//tachyon/math/finite_fields/mersenne31:packed_mersenne31_neon",
         ],

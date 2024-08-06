@@ -1,7 +1,6 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load("//bazel:tachyon.bzl", "if_aarch64", "if_has_avx512", "if_x86_64")
-load("//bazel:tachyon_cc.bzl", "tachyon_avx512_defines", "tachyon_cc_library")
-load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "SUBGROUP_GENERATOR", "generate_fft_prime_fields")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "SUBGROUP_GENERATOR")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -10,15 +9,10 @@ string_flag(
     build_setting_default = "31",
 )
 
-generate_fft_prime_fields(
+tachyon_cc_library(
     name = "baby_bear",
-    class_name = "BabyBear",
-    # 2³¹ - 2²⁷ + 1
-    # Hex: 0x78000001
-    modulus = "2013265921",
-    namespace = "tachyon::math",
-    subgroup_generator = ":" + SUBGROUP_GENERATOR,
-    use_montgomery = True,
+    hdrs = ["baby_bear.h"],
+    deps = ["//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear"],
 )
 
 tachyon_cc_library(
@@ -31,69 +25,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "packed_baby_bear",
-    hdrs = ["packed_baby_bear.h"],
-    defines = tachyon_avx512_defines(),
-    deps = [
-        ":packed_baby_bear_neon",
-        "//tachyon/build:build_config",
-        "//tachyon/math/finite_fields:extended_packed_field_traits_forward",
-        "//tachyon/math/finite_fields:finite_field_traits",
-        "//tachyon/math/matrix:prime_field_num_traits",
-    ] + if_has_avx512(
-        [":packed_baby_bear_avx512"],
-        [":packed_baby_bear_avx2"],
-    ),
-)
-
-tachyon_cc_library(
     name = "packed_baby_bear4",
     hdrs = ["packed_baby_bear4.h"],
     deps = [
         "//tachyon/math/finite_fields/baby_bear/internal:baby_bear4",
         "//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear4",
-    ],
-)
-
-tachyon_cc_library(
-    name = "packed_baby_bear_avx2",
-    srcs = if_x86_64(["packed_baby_bear_avx2.cc"]),
-    hdrs = if_x86_64(["packed_baby_bear_avx2.h"]),
-    copts = if_x86_64(["-mavx2"]),
-    deps = [
-        ":baby_bear",
-        "//tachyon:export",
-        "//tachyon/math/finite_fields:packed_prime_field32_avx2",
-        "//tachyon/math/finite_fields:packed_prime_field_base",
-    ],
-)
-
-tachyon_cc_library(
-    name = "packed_baby_bear_avx512",
-    srcs = if_x86_64(["packed_baby_bear_avx512.cc"]),
-    hdrs = if_x86_64(["packed_baby_bear_avx512.h"]),
-    copts = if_x86_64([
-        "-mavx512f",
-        # NOTE(chokobole): See https://gitlab.com/libeigen/eigen/-/blob/0b51f76/Eigen/src/Core/util/ConfigureVectorization.h#L248.
-        "-mfma",
-    ]),
-    deps = [
-        ":baby_bear",
-        "//tachyon:export",
-        "//tachyon/math/finite_fields:packed_prime_field32_avx512",
-        "//tachyon/math/finite_fields:packed_prime_field_base",
-    ],
-)
-
-tachyon_cc_library(
-    name = "packed_baby_bear_neon",
-    srcs = if_aarch64(["packed_baby_bear_neon.cc"]),
-    hdrs = if_aarch64(["packed_baby_bear_neon.h"]),
-    deps = [
-        ":baby_bear",
-        "//tachyon:export",
-        "//tachyon/math/finite_fields:packed_prime_field32_neon",
-        "//tachyon/math/finite_fields:packed_prime_field_base",
     ],
 )
 
