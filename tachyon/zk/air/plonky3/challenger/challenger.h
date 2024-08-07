@@ -100,12 +100,14 @@ class Challenger {
     OMP_PARALLEL_FOR(uint32_t i = 0; i < thread_nums; ++i) {
       uint32_t start = range.from + i * chunk_size;
       uint32_t end = start + std::min(range.to - start, chunk_size);
+      Field f(start);
       for (uint32_t j = start; j < end; ++j) {
         Derived derived = *static_cast<Derived*>(this);
-        if (derived.CheckWitness(bits, Field(j))) {
+        if (derived.CheckWitness(bits, f)) {
           ret[i] = j;
           break;
         }
+        f += Field::One();
       }
     }
     auto it = std::find_if(ret.begin(), ret.end(), [](uint32_t v) {
