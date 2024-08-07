@@ -56,6 +56,7 @@ void PackedKoalaBearAVX512::Init() {
   kInv = _mm512_set1_epi32(KoalaBear::Config::kInverse32);
   kZero = _mm512_set1_epi32(0);
   kOne = _mm512_set1_epi32(KoalaBear::Config::kOne);
+  kMinusOne = _mm512_set1_epi32(KoalaBear::Config::kMinusOne);
   kTwoInv = _mm512_set1_epi32(KoalaBear::Config::kTwoInv);
 }
 
