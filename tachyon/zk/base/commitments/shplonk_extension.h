@@ -84,6 +84,10 @@ class SHPlonkExtension final
     return shplonk_.GetBatchCommitments();
   }
 
+#if TACHYON_CUDA
+  void ReleaseGPU() { shplonk_.ReleaseGPU(); }
+#endif
+
   [[nodiscard]] bool DoUnsafeSetup(size_t size) {
     return shplonk_.DoUnsafeSetup(size);
   }

@@ -43,6 +43,13 @@ class VectorCommitmentScheme {
     derived->ResizeBatchCommitments();
   }
 
+#if TACHYON_CUDA
+  void ReleaseGPU() {
+    Derived* derived = static_cast<Derived*>(this);
+    derived->DoReleaseGPU();
+  }
+#endif
+
   // Initialize parameters.
   template <typename T = Derived,
             std::enable_if_t<VectorCommitmentSchemeTraits<T>::kIsTransparent>* =

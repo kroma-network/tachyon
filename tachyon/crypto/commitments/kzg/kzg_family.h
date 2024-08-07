@@ -30,6 +30,10 @@ class KZGFamily {
 
   size_t N() const { return kzg_.N(); }
 
+#if TACHYON_CUDA
+  void DoReleaseGPU() { kzg_.DoReleaseGPU(); }
+#endif
+
   [[nodiscard]] bool DoUnsafeSetup(size_t size) {
     return DoUnsafeSetup(size, F::Random());
   }

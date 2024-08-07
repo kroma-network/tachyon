@@ -83,6 +83,10 @@ class GWCExtension final
     return gwc_.GetBatchCommitments();
   }
 
+#if TACHYON_CUDA
+  void ReleaseGPU() { gwc_.ReleaseGPU(); }
+#endif
+
   [[nodiscard]] bool DoUnsafeSetup(size_t size) {
     return gwc_.DoUnsafeSetup(size);
   }

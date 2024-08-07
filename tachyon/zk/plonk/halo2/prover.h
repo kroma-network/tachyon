@@ -232,6 +232,10 @@ class Prover : public ProverBase<typename _PS::PCS> {
       this->RetrieveAndWriteBatchCommitmentsToProof();
     }
 
+#if TACHYON_CUDA
+    this->pcs_.ReleaseGPU();
+#endif
+
     F y = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(y): " << y.ToHexString(true);
 

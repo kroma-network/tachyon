@@ -98,6 +98,15 @@ class KZG {
         device::gpu::GpuMemory<G1Point>::MallocFromPoolAsync(
             bases_size, mem_pool_.get(), stream_.get());
   }
+
+  void DoReleaseGPU() {
+    gpu_batch_commitments_.clear();
+    d_g1_powers_of_tau_.reset();
+    d_g1_powers_of_tau_lagrange_.reset();
+    stream_.reset();
+    mem_pool_.reset();
+    msm_gpu_.reset();
+  }
 #endif
 
   void ResizeBatchCommitments(size_t size) {
