@@ -85,6 +85,7 @@ build:cuda --define absl=0
 build --//:has_exception
 
 test --test_tag_filters -benchmark,-manual,-cuda,-rust
+test:cuda --test_tag_filters -benchmark,-manual,-cuda,-rust,-gpu_heavy_test
 
 build:linux --build_tag_filters -objc,-cuda,-rust
 build:macos --build_tag_filters -cuda,-rust,-doxygen
