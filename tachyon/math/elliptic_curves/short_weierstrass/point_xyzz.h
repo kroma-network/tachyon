@@ -119,16 +119,15 @@ class PointXYZZ<_Curve,
     if (size >=
         size_t{1} << (thread_nums /
                       ScalarField::kParallelBatchInverseDivisorThreshold)) {
-      size_t chunk_size = base::GetNumElementsPerThread(point_xyzzs);
-      size_t num_chunks = (size + chunk_size - 1) / chunk_size;
-      OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-        size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
+      base::Parallelize(size, [&point_xyzzs, affine_points](size_t len,
+                                                            size_t chunk_offset,
+                                                            size_t chunk_size) {
+        size_t start = chunk_offset * chunk_size;
         absl::Span<AffinePoint<Curve>> affine_points_chunk(
-            std::data(*affine_points) + i * chunk_size, len);
-        absl::Span<const PointXYZZ> point_xyzzs_chunk(
-            std::data(point_xyzzs) + i * chunk_size, len);
+            &(*affine_points)[start], len);
+        absl::Span<const PointXYZZ> point_xyzzs_chunk(&point_xyzzs[start], len);
         CHECK(BatchNormalizeSerial(point_xyzzs_chunk, &affine_points_chunk));
-      }
+      });
       return true;
     }
 #endif

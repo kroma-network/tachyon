@@ -13,6 +13,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/geometry/affine_point.h"
 #include "tachyon/math/geometry/curve_type.h"
@@ -116,17 +117,17 @@ class JacobianPoint<
     if (size >=
         size_t{1} << (thread_nums /
                       ScalarField::kParallelBatchInverseDivisorThreshold)) {
-      size_t chunk_size = base::GetNumElementsPerThread(jacobian_points);
-      size_t num_chunks = (size + chunk_size - 1) / chunk_size;
-      OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-        size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
-        absl::Span<AffinePoint<Curve>> affine_points_chunk(
-            std::data(*affine_points) + i * chunk_size, len);
-        absl::Span<const JacobianPoint> jacobian_points_chunk(
-            std::data(jacobian_points) + i * chunk_size, len);
-        CHECK(
-            BatchNormalizeSerial(jacobian_points_chunk, &affine_points_chunk));
-      }
+      base::Parallelize(
+          size, [&jacobian_points, affine_points](
+                    size_t len, size_t chunk_offset, size_t chunk_size) {
+            size_t start = chunk_offset * chunk_size;
+            absl::Span<AffinePoint<Curve>> affine_points_chunk(
+                &(*affine_points)[start], len);
+            absl::Span<const JacobianPoint> jacobian_points_chunk(
+                &jacobian_points[start], len);
+            CHECK(BatchNormalizeSerial(jacobian_points_chunk,
+                                       &affine_points_chunk));
+          });
       return true;
     }
 #endif

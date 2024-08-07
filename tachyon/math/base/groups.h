@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/base/openmp_util.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/semigroups.h"
 
@@ -88,20 +88,17 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
     if (size >=
         size_t{1} << (thread_nums / kParallelBatchInverseDivisorThreshold)) {
-      size_t chunk_size = base::GetNumElementsPerThread(groups);
-      size_t num_chunks = (size + chunk_size - 1) / chunk_size;
       std::atomic<bool> check_valid(true);
-      OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-        size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
-        absl::Span<const G> groups_chunk(std::data(groups) + i * chunk_size,
-                                         len);
-        absl::Span<G> inverses_chunk(std::data(*inverses) + i * chunk_size,
-                                     len);
+      base::Parallelize(size, [&groups, inverses, &coeff, &check_valid](
+                                  size_t len, size_t chunk_offset,
+                                  size_t chunk_size) {
+        size_t start = chunk_offset * chunk_size;
+        absl::Span<const G> groups_chunk(&groups[start], len);
+        absl::Span<G> inverses_chunk(&(*inverses)[start], len);
         if (UNLIKELY(!DoBatchInverse(groups_chunk, inverses_chunk, coeff))) {
           check_valid.store(false, std::memory_order_relaxed);
-          continue;
         }
-      }
+      });
       if (UNLIKELY(!check_valid.load(std::memory_order_relaxed))) {
         LOG(ERROR) << "Inverse of zero attempted";
         return false;

@@ -13,8 +13,8 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
-#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/profiler.h"
 #include "tachyon/base/range.h"
 #include "tachyon/math/polynomials/evaluation_domain.h"
@@ -465,23 +465,27 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       PolyOrEvals& poly_or_evals, const F& g, const F& c) {
     TRACE_EVENT("EvaluationDomain",
                 "UnivariateEvaluationDomain::DistributePowersAndMulByConst");
+    // Invariant: |pow| = |c|*|g|ⁱ at the i-th iteration of the loop
+    constexpr size_t kParallelFactor = 1024;
 #if defined(TACHYON_HAS_OPENMP)
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
 #else
     size_t thread_nums = 1;
 #endif
-    // Invariant: |pow| = |c|*|g|ⁱ at the i-th iteration of the loop
     size_t size = poly_or_evals.NumElements();
-    size_t num_elems_per_thread = std::max(size / thread_nums, size_t{1024});
-    OMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      TRACE_EVENT("Subtask", "MultiplyLoop");
-      F pow = c * g.Pow(i);
-      for (size_t j = 0; j < num_elems_per_thread; ++j) {
-        if (i + j >= size) break;
-        poly_or_evals.at(i + j) *= pow;
-        pow *= g;
-      }
-    }
+    base::Parallelize(
+        size,
+        [&poly_or_evals, &g, &c](size_t len, size_t chunk_offset,
+                                 size_t chunk_size) {
+          TRACE_EVENT("Subtask", "MultiplyLoop");
+          size_t begin = chunk_offset * chunk_size;
+          F pow = c * g.Pow(begin);
+          for (size_t i = begin; i < begin + len; ++i) {
+            poly_or_evals.at(i) *= pow;
+            pow *= g;
+          }
+        },
+        kParallelFactor * thread_nums);
   }
 
   // See https://en.wikipedia.org/wiki/Butterfly_diagram

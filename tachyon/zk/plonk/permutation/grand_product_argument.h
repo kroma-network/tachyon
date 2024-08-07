@@ -77,27 +77,26 @@ class GrandProductArgument {
     std::vector<F> z(size + 1, F::One());
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
-    size_t chunk_size = base::GetNumElementsPerThread(grand_product);
-    size_t num_chunks = (size + chunk_size - 1) / chunk_size;
+    base::Parallelize(
+        grand_product.size(),
+        [&grand_product, numerator_callback, denominator_callback, num_cols](
+            size_t len, size_t chunk_offset, size_t chunk_size) {
+          RowIndex start = chunk_offset * chunk_size;
+          for (size_t i = 0; i < num_cols; ++i) {
+            for (RowIndex j = start; j < start + len; ++j) {
+              grand_product[j] *= denominator_callback(i, j);
+            }
+          }
 
-    OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-      RowIndex start = i * chunk_size;
-      RowIndex end = i == num_chunks - 1 ? size : start + chunk_size;
-      for (size_t j = 0; j < num_cols; ++j) {
-        for (RowIndex k = start; k < end; ++k) {
-          grand_product[k] *= denominator_callback(j, k);
-        }
-      }
+          auto grand_subspan = grand_product.subspan(start, len);
+          CHECK(F::BatchInverseInPlaceSerial(grand_subspan));
 
-      auto grand_subspan = grand_product.subspan(start, end - start);
-      CHECK(F::BatchInverseInPlaceSerial(grand_subspan));
-
-      for (size_t j = 0; j < num_cols; ++j) {
-        for (RowIndex k = start; k < end; ++k) {
-          grand_product[k] *= numerator_callback(j, k);
-        }
-      }
-    }
+          for (size_t i = 0; i < num_cols; ++i) {
+            for (RowIndex j = start; j < start + len; ++j) {
+              grand_product[j] *= numerator_callback(i, j);
+            }
+          }
+        });
 
     return DoCreatePoly(prover, last_z, std::move(z));
   }

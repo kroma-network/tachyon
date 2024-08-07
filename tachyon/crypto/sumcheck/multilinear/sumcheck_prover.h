@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/parallelize.h"
 #include "tachyon/crypto/sumcheck/multilinear/sumcheck_prover_msg.h"
 #include "tachyon/crypto/sumcheck/multilinear/sumcheck_proving_key.h"
 #include "tachyon/crypto/sumcheck/multilinear/sumcheck_verifier_msg.h"
@@ -91,36 +92,30 @@ class SumcheckProver {
     size_t thread_nums = 1;
 #endif
     size_t size = size_t{1} << (num_variables_ - round_);
-    thread_nums = (thread_nums * kParallelFactor) <= size ? thread_nums : 1;
-
-    size_t chunk_size = (size + thread_nums - 1) / thread_nums;
-    size_t num_chunks = (size + chunk_size - 1) / chunk_size;
-
-    std::vector<std::vector<F>> finished_evaluations(
-        num_chunks, std::vector<F>(max_evaluations_ + 1, F::Zero()));
-
-    OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-      size_t begin = i * chunk_size;
-      size_t len = (i == num_chunks - 1) ? size - begin : chunk_size;
-      std::vector<F> intermediate_evaluations(max_evaluations_ + 1, F::Zero());
-      for (size_t j = begin; j < begin + len; ++j) {
-        for (const Term& term : terms_) {
-          std::fill(intermediate_evaluations.begin(),
-                    intermediate_evaluations.end(), term.coefficient);
-          EvaluateTermPerVariable(j, intermediate_evaluations, term);
-          for (size_t k = 0; k < max_evaluations_ + 1; ++k) {
-            finished_evaluations[i][k] += intermediate_evaluations[k];
+    std::vector<std::vector<F>> evals_vec = base::ParallelizeMap(
+        size,
+        [this](size_t len, size_t chunk_offset, size_t chunk_size) {
+          size_t begin = chunk_offset * chunk_size;
+          std::vector<F> ret(max_evaluations_ + 1, F::Zero());
+          std::vector<F> tmp(max_evaluations_ + 1);
+          for (size_t i = begin; i < begin + len; ++i) {
+            for (const Term& term : terms_) {
+              std::fill(tmp.begin(), tmp.end(), term.coefficient);
+              EvaluateTermPerVariable(i, tmp, term);
+              for (size_t j = 0; j < ret.size(); ++j) {
+                ret[j] += tmp[j];
+              }
+            }
           }
-        }
-      }
-    }
-    for (size_t i = 1; i < num_chunks; ++i) {
+          return ret;
+        },
+        kParallelFactor * thread_nums);
+    for (size_t i = 1; i < evals_vec.size(); ++i) {
       for (size_t j = 0; j < max_evaluations_ + 1; ++j) {
-        finished_evaluations[0][j] += finished_evaluations[i][j];
+        evals_vec[0][j] += evals_vec[i][j];
       }
     }
-    return {math::UnivariateEvaluations<F, MaxDegree>(
-        std::move(finished_evaluations[0]))};
+    return {math::UnivariateEvaluations<F, MaxDegree>(std::move(evals_vec[0]))};
   }
 
   // Receive message from verifier and run a prover round.

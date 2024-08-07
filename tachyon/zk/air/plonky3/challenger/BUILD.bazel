@@ -8,7 +8,7 @@ tachyon_cc_library(
     deps = [
         ":challenger_traits_forward",
         "//tachyon/base:logging",
-        "//tachyon/base:openmp_util",
+        "//tachyon/base:parallelize",
         "//tachyon/base:range",
         "//tachyon/base/containers:container_util",
     ],

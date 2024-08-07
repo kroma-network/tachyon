@@ -181,47 +181,52 @@ F InterpolateUniPoly(const std::vector<F>& poly, const F& evaluation_point) {
 #else
   size_t thread_nums = 1;
 #endif
-  thread_nums =
-      ((thread_nums * kParallelFactor) <= poly_size) ? thread_nums : 1;
 
-  size_t chunk_size = (poly_size + thread_nums - 1) / thread_nums;
-  size_t num_chunks = (poly_size + chunk_size - 1) / chunk_size;
+  struct Result {
+    F product;
+    F denom_up;
+    std::vector<F> evals;
+  };
 
   F product;
   F denom_up;
   std::vector<F> evals;
   {
-    std::vector<F> products(num_chunks, F::One());
-    std::vector<F> denom_ups(num_chunks, F::One());
-    std::vector<std::vector<F>> list_of_evals(num_chunks);
-    OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-      size_t begin = i * chunk_size;
-      size_t len = (i == num_chunks - 1) ? poly_size - begin : chunk_size;
-      list_of_evals[i].reserve(len);
-      F check = F(begin);
-      for (size_t j = begin; j < begin + len; ++j) {
-        F difference = evaluation_point - check;
-        products[i] *= difference;
-        list_of_evals[i].push_back(std::move(difference));
-        if (j > 1) {
-          denom_ups[i] *= check;
-        }
-        check += F::One();
-      }
-    }
-    product = std::move(products[0]);
-    denom_up = std::move(denom_ups[0]);
-    size_t size = std::accumulate(list_of_evals.begin(), list_of_evals.end(), 0,
-                                  [](size_t acc, const std::vector<F>& evals) {
-                                    return acc + evals.size();
+    std::vector<Result> results = base::ParallelizeMap(
+        poly_size,
+        [&evaluation_point](size_t len, size_t chunk_offset,
+                            size_t chunk_size) {
+          size_t begin = chunk_offset * chunk_size;
+          Result result;
+          result.product = F::One();
+          result.denom_up = F::One();
+          result.evals.reserve(len);
+          F check = F(begin);
+          for (size_t i = begin; i < begin + len; ++i) {
+            F difference = evaluation_point - check;
+            result.product *= difference;
+            result.evals.push_back(std::move(difference));
+            if (i > 1) {
+              result.denom_up *= check;
+            }
+            check += F::One();
+          }
+          return result;
+        },
+        kParallelFactor * thread_nums);
+    product = std::move(results[0].product);
+    denom_up = std::move(results[0].denom_up);
+    size_t size = std::accumulate(results.begin(), results.end(), 0,
+                                  [](size_t acc, const Result& result) {
+                                    return acc + result.evals.size();
                                   });
-    evals = std::move(list_of_evals[0]);
+    evals = std::move(results[0].evals);
     evals.reserve(size);
-    for (size_t i = 1; i < num_chunks; ++i) {
-      evals.insert(evals.end(), list_of_evals[i].begin(),
-                   list_of_evals[i].end());
-      product *= products[i];
-      denom_up *= denom_ups[i];
+    for (size_t i = 1; i < results.size(); ++i) {
+      evals.insert(evals.end(), results[i].evals.begin(),
+                   results[i].evals.end());
+      product *= results[i].product;
+      denom_up *= results[i].denom_up;
     }
   }
 
@@ -245,6 +250,8 @@ F InterpolateUniPoly(const std::vector<F>& poly, const F& evaluation_point) {
   //  1,2,...,|poly_size| - i - 1)
   //
   // denom is stored as a fraction number to reduce field divisions.
+  // TODO(chokobole): This should be parallelized depending on |poly_size| like
+  // above.
   F res = F::Zero();
   F offset_up = F::One();
 

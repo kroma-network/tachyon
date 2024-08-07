@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/profiler.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger.h"
 
@@ -63,6 +64,11 @@ class PippengerAdapter {
         return true;
       }
 
+      struct Result {
+        Bucket value;
+        bool valid;
+      };
+
 #if defined(TACHYON_HAS_OPENMP)
       int thread_nums = omp_get_max_threads();
       if (strategy == PippengerParallelStrategy::kParallelWindowAndTerm) {
@@ -71,35 +77,26 @@ class PippengerAdapter {
             MSMCtx::ComputeWindowsCount<ScalarField>(window_bits);
         thread_nums = std::max(thread_nums / static_cast<int>(window_size), 2);
       }
-#else
-      int thread_nums = 1;
-#endif  // defined(TACHYON_HAS_OPENMP)
-      struct Result {
-        Bucket value;
-        bool valid;
-      };
-
-#if defined(TACHYON_HAS_OPENMP)
       omp_set_num_threads(thread_nums);
 #endif
-      size_t chunk_size = (scalars_size + thread_nums - 1) / thread_nums;
-      size_t num_chunks = (scalars_size + chunk_size - 1) / chunk_size;
-      std::vector<Result> results;
-      results.resize(num_chunks);
-      OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-        TRACE_EVENT("Subtask", "ParallelLoop");
-        size_t start = i * chunk_size;
-        size_t len = i == num_chunks - 1 ? scalars_size - start : chunk_size;
-        Pippenger<Point> pippenger;
-        pippenger.SetParallelWindows(
-            strategy == PippengerParallelStrategy::kParallelWindowAndTerm);
-        auto bases_start = bases_first + start;
-        auto bases_end = bases_start + len;
-        auto scalars_start = scalars_first + start;
-        auto scalars_end = scalars_start + len;
-        results[i].valid = pippenger.Run(bases_start, bases_end, scalars_start,
-                                         scalars_end, &results[i].value);
-      }
+      std::vector<Result> results = base::ParallelizeMap(
+          scalars_size,
+          [strategy, bases_first, scalars_first](
+              size_t len, size_t chunk_offset, size_t chunk_size) {
+            TRACE_EVENT("Subtask", "ParallelLoop");
+            size_t start = chunk_offset * chunk_size;
+            Pippenger<Point> pippenger;
+            pippenger.SetParallelWindows(
+                strategy == PippengerParallelStrategy::kParallelWindowAndTerm);
+            auto bases_start = bases_first + start;
+            auto bases_end = bases_start + len;
+            auto scalars_start = scalars_first + start;
+            auto scalars_end = scalars_start + len;
+            Result result;
+            result.valid = pippenger.Run(bases_start, bases_end, scalars_start,
+                                         scalars_end, &result.value);
+            return result;
+          });
 #if defined(TACHYON_HAS_OPENMP)
       omp_set_num_threads(omp_get_max_threads());
 #endif
