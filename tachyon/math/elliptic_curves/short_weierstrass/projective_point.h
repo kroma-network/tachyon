@@ -109,9 +109,6 @@ class ProjectivePoint<
           << "Size of |projective_points| and |affine_points| do not match";
       return false;
     }
-    std::vector<BaseField> z_inverses =
-        base::Map(projective_points,
-                  [](const ProjectivePoint& point) { return point.z_; });
 #if defined(TACHYON_HAS_OPENMP)
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
     if (size >=
@@ -125,22 +122,8 @@ class ProjectivePoint<
             std::data(*affine_points) + i * chunk_size, len);
         absl::Span<const ProjectivePoint> projective_points_chunk(
             std::data(projective_points) + i * chunk_size, len);
-        absl::Span<BaseField> z_inverses_chunk(&z_inverses[i * chunk_size],
-                                               len);
-
-        CHECK(BaseField::BatchInverseInPlaceSerial(z_inverses_chunk));
-        for (size_t i = 0; i < z_inverses_chunk.size(); ++i) {
-          const BaseField& z_inv = z_inverses_chunk[i];
-          if (z_inv.IsZero()) {
-            affine_points_chunk[i] = AffinePoint<Curve>::Zero();
-          } else if (z_inv.IsOne()) {
-            affine_points_chunk[i] = {projective_points_chunk[i].x_,
-                                      projective_points_chunk[i].y_};
-          } else {
-            affine_points_chunk[i] = {projective_points_chunk[i].x_ * z_inv,
-                                      projective_points_chunk[i].y_ * z_inv};
-          }
-        }
+        CHECK(BatchNormalizeSerial(projective_points_chunk,
+                                   &affine_points_chunk));
       }
       return true;
     }

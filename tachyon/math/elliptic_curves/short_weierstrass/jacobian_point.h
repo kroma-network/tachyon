@@ -111,8 +111,6 @@ class JacobianPoint<
           << "Size of |jacobian_points| and |affine_points| do not match";
       return false;
     }
-    std::vector<BaseField> z_inverses = base::Map(
-        jacobian_points, [](const JacobianPoint& point) { return point.z_; });
 #if defined(TACHYON_HAS_OPENMP)
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
     if (size >=
@@ -126,24 +124,8 @@ class JacobianPoint<
             std::data(*affine_points) + i * chunk_size, len);
         absl::Span<const JacobianPoint> jacobian_points_chunk(
             std::data(jacobian_points) + i * chunk_size, len);
-        absl::Span<BaseField> z_inverses_chunk(&z_inverses[i * chunk_size],
-                                               len);
-
-        CHECK(BaseField::BatchInverseInPlaceSerial(z_inverses_chunk));
-        for (size_t i = 0; i < z_inverses_chunk.size(); ++i) {
-          const BaseField& z_inv = z_inverses_chunk[i];
-          if (z_inv.IsZero()) {
-            affine_points_chunk[i] = AffinePoint<Curve>::Zero();
-          } else if (z_inv.IsOne()) {
-            affine_points_chunk[i] = {jacobian_points_chunk[i].x_,
-                                      jacobian_points_chunk[i].y_};
-          } else {
-            BaseField z_inv_square = z_inv.Square();
-            affine_points_chunk[i] = {
-                jacobian_points_chunk[i].x_ * z_inv_square,
-                jacobian_points_chunk[i].y_ * z_inv_square * z_inv};
-          }
-        }
+        CHECK(
+            BatchNormalizeSerial(jacobian_points_chunk, &affine_points_chunk));
       }
       return true;
     }
