@@ -138,13 +138,21 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     // - divide by number of rows (since we're doing an inverse DFT)
     // - multiply by powers of the coset shift (see default coset LDE impl for
     // an explanation)
-    std::vector<F> weights =
-        F::GetSuccessivePowers(this->size_, shift, this->size_inv_);
-    OMP_PARALLEL_FOR(size_t row = 0; row < weights.size(); ++row) {
+    base::Parallelize(this->size_, [this, &mat, &shift](size_t len,
+                                                        size_t chunk_offset,
+                                                        size_t chunk_size) {
       // Reverse bits because |mat| is encoded in bit-reversed order
-      mat.row(base::bits::ReverseBitsLen(row, this->log_size_of_group_)) *=
-          weights[row];
-    }
+      size_t start = chunk_offset * chunk_size;
+      F weight = this->size_inv_ * shift.Pow(start);
+      // NOTE: It is not possible to have empty chunk so this is safe
+      for (size_t row = start; row < start + len - 1; ++row) {
+        mat.row(base::bits::ReverseBitsLen(row, this->log_size_of_group_)) *=
+            weight;
+        weight *= shift;
+      }
+      mat.row(base::bits::ReverseBitsLen(start + len - 1,
+                                         this->log_size_of_group_)) *= weight;
+    });
     ExpandInPlaceWithZeroPad<RowMajorMatrix<F>>(mat, added_bits);
 
     size_t rows = static_cast<size_t>(mat.rows());

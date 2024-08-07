@@ -92,63 +92,57 @@ class TwoAdicMultiplicativeCoset {
         coset.domain()->log_size_of_group() - domain_->log_size_of_group();
     F s_pow_n = coset_shift.ExpPowOfTwo(domain_->log_size_of_group());
 
-    // TODO(ashjeong): Reduce the number of thread joins since |evals| and |xs|
-    // can be created independently.
     // Evals of Z_H(X) = Xⁿ - 1
-    std::vector<F> evals =
-        F::GetSuccessivePowers(1 << rate_bits, domain_->group_gen(), s_pow_n);
-    std::vector<F> inv_denoms_inv_zeroifier(evals.size());
-    base::Parallelize(evals, [&evals, &inv_denoms_inv_zeroifier](
-                                 absl::Span<F> chunk, size_t chunk_offset,
-                                 size_t chunk_size) {
-      size_t start = chunk_offset * chunk_size;
-      for (size_t i = 0; i < chunk_size; ++i) {
-        size_t idx = start + i;
-        evals[idx] -= F::One();
-        inv_denoms_inv_zeroifier[idx] = evals[idx];
-      }
-      absl::Span<F> inv_denoms_inv_zeroifier_chunk =
-          absl::MakeSpan(&inv_denoms_inv_zeroifier[start], chunk_size);
-      CHECK(F::BatchInverseInPlaceSerial(inv_denoms_inv_zeroifier_chunk));
-    });
-
-    size_t sz = coset.domain()->size();
-    std::vector<F> xs =
-        F::GetSuccessivePowers(sz, coset.domain()->group_gen(), coset_shift);
+    size_t evals_size = size_t{1} << rate_bits;
+    std::vector<F> evals(evals_size);
+    std::vector<F> inv_denoms_inv_zeroifier(evals_size);
+    base::Parallelize(
+        evals_size, [this, &s_pow_n, &evals, &inv_denoms_inv_zeroifier](
+                        size_t len, size_t chunk_offset, size_t chunk_size) {
+          size_t start = chunk_offset * chunk_size;
+          F eval = s_pow_n * domain_->group_gen().Pow(start);
+          for (size_t i = start; i < start + len; ++i) {
+            evals[i] = eval - F::One();
+            inv_denoms_inv_zeroifier[i] = evals[i];
+          }
+          absl::Span<F> inv_denoms_inv_zeroifier_chunk =
+              absl::MakeSpan(&inv_denoms_inv_zeroifier[start], chunk_size);
+          CHECK(F::BatchInverseInPlaceSerial(inv_denoms_inv_zeroifier_chunk));
+        });
 
     F coset_i = domain_->group_gen().Pow(domain_->size() - 1);
 
+    size_t sz = coset.domain()->size();
     std::vector<F> first_row(sz);
     std::vector<F> last_row(sz);
     std::vector<F> transition(sz);
     std::vector<F> inv_zeroifier(sz);
 
-    base::Parallelize(
-        xs, [this, &evals, &coset_i, &inv_denoms_inv_zeroifier, &first_row,
-             &last_row, &transition, &inv_zeroifier](
-                absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
-          size_t start = chunk_offset * chunk_size;
-          for (size_t i = 0; i < chunk_size; ++i) {
-            size_t idx = start + i;
-            first_row[idx] = chunk[i] - F::One();
-            last_row[idx] = chunk[i] - coset_i;
-          }
-          absl::Span<F> first_row_chunk =
-              absl::MakeSpan(&first_row[start], chunk_size);
-          CHECK(F::BatchInverseInPlaceSerial(first_row_chunk));
-          absl::Span<F> last_row_chunk =
-              absl::MakeSpan(&last_row[start], chunk_size);
-          CHECK(F::BatchInverseInPlaceSerial(last_row_chunk));
+    base::Parallelize(sz, [this, &coset, &coset_shift, &evals, &coset_i,
+                           &inv_denoms_inv_zeroifier, &first_row, &last_row,
+                           &transition,
+                           &inv_zeroifier](size_t len, size_t chunk_offset,
+                                           size_t chunk_size) {
+      size_t start = chunk_offset * chunk_size;
+      F x = coset_shift * coset.domain()->group_gen().Pow(start);
+      for (size_t i = start; i < start + len; ++i) {
+        first_row[i] = x - F::One();
+        last_row[i] = x - coset_i;
+        transition[i] = x - domain_->group_gen_inv();
+        x *= coset.domain()->group_gen();
+      }
+      absl::Span<F> first_row_chunk = absl::MakeSpan(&first_row[start], len);
+      CHECK(F::BatchInverseInPlaceSerial(first_row_chunk));
+      absl::Span<F> last_row_chunk = absl::MakeSpan(&last_row[start], len);
+      CHECK(F::BatchInverseInPlaceSerial(last_row_chunk));
 
-          for (size_t i = 0; i < chunk_size; ++i) {
-            size_t idx = start + i;
-            size_t evals_i = idx % evals.size();
-            first_row[idx] *= evals[evals_i];
-            last_row[idx] *= evals[evals_i];
-            transition[idx] = chunk[i] - domain_->group_gen_inv();
-            inv_zeroifier[idx] = inv_denoms_inv_zeroifier[evals_i];
-          }
-        });
+      for (size_t i = start; i < start + len; ++i) {
+        size_t evals_i = i % evals.size();
+        first_row[i] *= evals[evals_i];
+        last_row[i] *= evals[evals_i];
+        inv_zeroifier[i] = inv_denoms_inv_zeroifier[evals_i];
+      }
+    });
 
     return {std::move(first_row), std::move(last_row), std::move(transition),
             std::move(inv_zeroifier)};

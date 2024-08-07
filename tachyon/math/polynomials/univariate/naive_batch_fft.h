@@ -32,13 +32,21 @@ class NaiveBatchFFT : public TwoAdicSubgroup<F> {
                                            size_t chunk_size) {
           size_t src_row = chunk_offset * chunk_size;
           F base_pow = g.Pow(src_row);
+          // NOTE (chokobole): |base_pow| is multiplied one extra time for the
+          // sake of code readability, but we choose to overlook this for
+          // simplicity.
           for (size_t res_r = src_row; res_r < src_row + len; ++res_r) {
+            // NOTE(chokobole): |rows| is guaranteed to be positive number
+            // because of the above |CHECK(base::bits::IsPowerOfTwo(rows))|.
             F pow = F::One();
-            for (size_t src_r = 0; src_r < rows; ++src_r) {
+            for (size_t src_r = 0; src_r < rows - 1; ++src_r) {
               for (size_t col = 0; col < cols; ++col) {
                 res(res_r, col) += pow * mat(src_r, col);
               }
               pow *= base_pow;
+            }
+            for (size_t col = 0; col < cols; ++col) {
+              res(res_r, col) += pow * mat(rows - 1, col);
             }
             base_pow *= g;
           }
