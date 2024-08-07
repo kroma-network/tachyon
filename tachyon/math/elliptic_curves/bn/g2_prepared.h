@@ -44,10 +44,9 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
 
       G2AffinePoint neg_q = -q;
 
-      Fp two_inv = unwrap(Fp(2).Inverse());
       // NOTE(chokobole): skip the fist.
       for (size_t i = size - 2; i != SIZE_MAX; --i) {
-        ell_coeffs.push_back(r.DoubleInPlace(two_inv));
+        ell_coeffs.push_back(r.DoubleInPlace(Fp::TwoInv()));
 
         switch (Config::kAteLoopCount[i]) {
           case 1:

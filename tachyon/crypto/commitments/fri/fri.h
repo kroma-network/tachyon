@@ -128,7 +128,6 @@ class FRI final
     F beta;
     F evaluation;
     F evaluation_sym;
-    F two_inv = unwrap(F(2).Inverse());
     for (uint32_t i = 0; i < num_layers; ++i) {
       BinaryMerkleTreeStorage<F>* layer = storage_->GetLayer(i);
       BinaryMerkleTree<F, F, MaxDegree + 1> tree(layer, hasher_);
@@ -171,7 +170,7 @@ class FRI final
         evaluation *= (F::One() + beta);
         evaluation_sym *= (F::One() - beta);
         evaluation += evaluation_sym;
-        evaluation *= two_inv;
+        evaluation *= F::TwoInv();
 
         if (evaluation != proof.evaluations[i]) {
           LOG(ERROR)
@@ -191,7 +190,7 @@ class FRI final
     evaluation *= (F::One() + beta);
     evaluation_sym *= (F::One() - beta);
     evaluation += evaluation_sym;
-    evaluation *= two_inv;
+    evaluation *= F::TwoInv();
 
     if (!reader->ReadFromProof(&root)) return false;
     if (root != evaluation) {
