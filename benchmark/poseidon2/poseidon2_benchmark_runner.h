@@ -40,7 +40,9 @@ class PoseidonBenchmarkRunner {
           sponge(config);
       crypto::SpongeState<Field> state(config);
       base::TimeTicks start = base::TimeTicks::Now();
-      sponge.Permute(state);
+      for (size_t j = 0; j < 100; ++j) {
+        sponge.Permute(state);
+      }
       reporter_->AddTime(i, (base::TimeTicks::Now() - start).InSecondsF());
       if (i == 0) {
         ret = state.elements[1];

@@ -17,15 +17,17 @@ fn run_poseidon<F: PrimeField + std::convert::From<i32>, R>(
     let poseidon = Poseidon2::new(params);
 
     let t = poseidon.get_t();
-    let input: Vec<F> = (0..t).map(|_| F::from(0)).collect();
+    let mut input: Vec<F> = (0..t).map(|_| F::from(0)).collect();
 
     let start = Instant::now();
-    let state = poseidon.permutation(&input);
+    for i in 0..100 {
+        input = poseidon.permutation(&input);
+    }
     unsafe {
         duration.write(start.elapsed().as_micros() as u64);
     }
 
-    Box::into_raw(Box::new(state[1])) as *mut R
+    Box::into_raw(Box::new(input[1])) as *mut R
 }
 
 #[no_mangle]
