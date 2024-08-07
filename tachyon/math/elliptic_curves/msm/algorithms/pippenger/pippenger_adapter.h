@@ -100,6 +100,9 @@ class PippengerAdapter {
         results[i].valid = pippenger.Run(bases_start, bases_end, scalars_start,
                                          scalars_end, &results[i].value);
       }
+#if defined(TACHYON_HAS_OPENMP)
+      omp_set_num_threads(omp_get_max_threads());
+#endif
 
       TRACE_EVENT("Subtask", "CheckResultAndAccumulate");
       bool all_good =
