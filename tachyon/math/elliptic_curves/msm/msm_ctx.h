@@ -14,7 +14,9 @@ struct TACHYON_EXPORT MSMCtx {
   unsigned int window_bits = 0;
   unsigned int size = 0;
 
-  constexpr unsigned int GetWindowLength() const { return 1 << window_bits; }
+  constexpr unsigned int GetWindowLength() const {
+    return static_cast<unsigned int>(1) << window_bits;
+  }
 
   template <typename ScalarField>
   constexpr static MSMCtx CreateDefault(size_t size) {

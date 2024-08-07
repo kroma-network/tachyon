@@ -28,7 +28,7 @@ class TwoAdicMultiplicativeCoset {
 
   TwoAdicMultiplicativeCoset(size_t log_n, const F& shift) {
     domain_.reset(static_cast<math::Radix2EvaluationDomain<F>*>(
-        math::Radix2EvaluationDomain<F>::Create(1 << log_n)
+        math::Radix2EvaluationDomain<F>::Create(size_t{1} << log_n)
             ->GetCoset(shift)
             .release()));
   }

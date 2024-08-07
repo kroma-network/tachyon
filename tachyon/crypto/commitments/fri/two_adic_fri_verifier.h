@@ -47,8 +47,9 @@ F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
     std::vector<std::vector<F>> evals = {{folded_eval, folded_eval}};
     evals[0][index_sibling % 2] = steps[step_idx].opening.sibling_value;
     CHECK(config.mmcs.VerifyOpeningProof(
-        steps[step_idx].commit, {math::Dimensions(2, 1 << log_folded_num_rows)},
-        index_pair, evals, steps[step_idx].opening.opening_proof));
+        steps[step_idx].commit,
+        {math::Dimensions(2, size_t{1} << log_folded_num_rows)}, index_pair,
+        evals, steps[step_idx].opening.opening_proof));
     folded_eval = FoldRow(index_pair, log_folded_num_rows, steps[step_idx].beta,
                           evals[0]);
     index = index_pair;

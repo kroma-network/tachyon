@@ -248,7 +248,7 @@ class TwoAdicFriPCS {
               uint32_t rev_reduced_index = base::bits::ReverseBitsLen(
                   index >> bits_reduced, log_num_rows);
               F w;
-              CHECK(F::GetRootOfUnity(1 << log_num_rows, &w));
+              CHECK(F::GetRootOfUnity(size_t{1} << log_num_rows, &w));
               F x = F::FromMontgomery(F::Config::kSubgroupGenerator) *
                     w.Pow(rev_reduced_index);
 
@@ -316,18 +316,18 @@ class TwoAdicFriPCS {
 
     // Compute the largest subgroup we will use, in bitrev order.
     F w;
-    CHECK(F::GetRootOfUnity(1 << max_log_num_rows, &w));
+    CHECK(F::GetRootOfUnity(size_t{1} << max_log_num_rows, &w));
     std::vector<F> subgroup = F::GetBitRevIndexSuccessivePowers(
-        1 << max_log_num_rows, w, coset_shift);
+        size_t{1} << max_log_num_rows, w, coset_shift);
 
     absl::flat_hash_map<ExtF, std::vector<ExtF>> ret;
     for (auto it = max_log_num_rows_for_point.begin();
          it != max_log_num_rows_for_point.end(); ++it) {
       const ExtF& point = it->first;
       uint32_t log_num_rows = it->second;
-      std::vector<ExtF> temp =
-          base::Map(absl::MakeSpan(subgroup.data(), (1 << log_num_rows)),
-                    [&point](const F& x) { return ExtF(x) - point; });
+      std::vector<ExtF> temp = base::Map(
+          absl::MakeSpan(subgroup.data(), (size_t{1} << log_num_rows)),
+          [&point](const F& x) { return ExtF(x) - point; });
       CHECK(ExtF::BatchInverseInPlace(temp));
       ret[point] = std::move(temp);
     }
