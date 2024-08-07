@@ -187,31 +187,42 @@ F InterpolateUniPoly(const std::vector<F>& poly, const F& evaluation_point) {
   size_t chunk_size = (poly_size + thread_nums - 1) / thread_nums;
   size_t num_chunks = (poly_size + chunk_size - 1) / chunk_size;
 
-  std::vector<F> products(num_chunks, F::One());
-  std::vector<F> denom_ups(num_chunks, F::One());
-  std::vector<std::vector<F>> list_of_evals(num_chunks);
-  OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-    size_t begin = i * chunk_size;
-    size_t len = (i == num_chunks - 1) ? poly_size - begin : chunk_size;
-    list_of_evals[i].reserve(len);
-    F check = F(begin);
-    for (size_t j = begin; j < begin + len; ++j) {
-      const F difference = evaluation_point - check;
-      list_of_evals[i].push_back(difference);
-      products[i] *= difference;
-      if (j > 1) {
-        denom_ups[i] *= check;
+  F product;
+  F denom_up;
+  std::vector<F> evals;
+  {
+    std::vector<F> products(num_chunks, F::One());
+    std::vector<F> denom_ups(num_chunks, F::One());
+    std::vector<std::vector<F>> list_of_evals(num_chunks);
+    OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+      size_t begin = i * chunk_size;
+      size_t len = (i == num_chunks - 1) ? poly_size - begin : chunk_size;
+      list_of_evals[i].reserve(len);
+      F check = F(begin);
+      for (size_t j = begin; j < begin + len; ++j) {
+        F difference = evaluation_point - check;
+        products[i] *= difference;
+        list_of_evals[i].push_back(std::move(difference));
+        if (j > 1) {
+          denom_ups[i] *= check;
+        }
+        check += F::One();
       }
-      check += F::One();
     }
-  }
-  F product = products[0];
-  F denom_up = denom_ups[0];
-  std::vector<F> evals = list_of_evals[0];
-  for (size_t i = 1; i < num_chunks; ++i) {
-    evals.insert(evals.end(), list_of_evals[i].begin(), list_of_evals[i].end());
-    product *= products[i];
-    denom_up *= denom_ups[i];
+    product = std::move(products[0]);
+    denom_up = std::move(denom_ups[0]);
+    size_t size = std::accumulate(list_of_evals.begin(), list_of_evals.end(), 0,
+                                  [](size_t acc, const std::vector<F>& evals) {
+                                    return acc + evals.size();
+                                  });
+    evals = std::move(list_of_evals[0]);
+    evals.reserve(size);
+    for (size_t i = 1; i < num_chunks; ++i) {
+      evals.insert(evals.end(), list_of_evals[i].begin(),
+                   list_of_evals[i].end());
+      product *= products[i];
+      denom_up *= denom_ups[i];
+    }
   }
 
   // Computing denom[i] = ∏ⱼ≠ᵢ(i - j) for a given i:
