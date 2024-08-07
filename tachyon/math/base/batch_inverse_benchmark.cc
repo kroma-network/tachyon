@@ -36,7 +36,7 @@ void BM_InverseParallelFor(benchmark::State& state) {
   std::vector<F> fields = base::CreateVectorParallel(
       state.range(0), [](size_t i) { return F::FromBigInt(BigInt(i + 1)); });
   for (auto _ : state) {
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < fields.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < fields.size(); ++i) {
       CHECK(fields[i].InverseInPlace());
     }
   }

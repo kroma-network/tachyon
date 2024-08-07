@@ -120,7 +120,7 @@ class JacobianPoint<
                       ScalarField::kParallelBatchInverseDivisorThreshold)) {
       size_t chunk_size = base::GetNumElementsPerThread(jacobian_points);
       size_t num_chunks = (size + chunk_size - 1) / chunk_size;
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
         size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
         absl::Span<AffinePoint<Curve>> affine_points_chunk(
             std::data(*affine_points) + i * chunk_size, len);

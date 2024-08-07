@@ -70,7 +70,7 @@ CommitPhaseResult<ChallengeMMCS> CommitPhase(
     // |folded| will never be the size of |inputs[0]|.
     for (size_t i = 1; i < inputs.size(); ++i) {
       if (inputs[i].size() == folded.size()) {
-        OPENMP_PARALLEL_FOR(size_t j = 0; j < inputs[i].size(); ++j) {
+        OMP_PARALLEL_FOR(size_t j = 0; j < inputs[i].size(); ++j) {
           folded[j] += inputs[i][j];
         }
       }
@@ -81,7 +81,7 @@ CommitPhaseResult<ChallengeMMCS> CommitPhase(
   VLOG(2) << "FRI(final_eval): " << final_eval.ToHexString(true);
 
 #if DCHECK_IS_ON()
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < folded.size(); ++i) {
+  OMP_PARALLEL_FOR(size_t i = 0; i < folded.size(); ++i) {
     DCHECK_EQ(folded[i], final_eval);
   }
 #endif

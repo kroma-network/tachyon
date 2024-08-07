@@ -38,7 +38,7 @@ class QuadraticArithmeticProgram {
     omp_lock_t locks[kNumLocks];
     for (size_t i = 0; i < kNumLocks; i++) omp_init_lock(&locks[i]);
 #endif
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < coefficients.size(); i++) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < coefficients.size(); i++) {
       const Coefficient<F>& c = coefficients[i];
       std::vector<F>& ab = (c.matrix == 0) ? a : b;
 
@@ -58,7 +58,7 @@ class QuadraticArithmeticProgram {
     for (size_t i = 0; i < kNumLocks; i++) omp_destroy_lock(&locks[i]);
 #endif
 
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
       c[i] = a[i] * b[i];
     }
 
@@ -81,7 +81,7 @@ class QuadraticArithmeticProgram {
     c_evals = domain->FFT(std::move(c_poly));
 
     // |h_evals[i]| = |a[i]| * |b[i]| - |c[i]|
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
       F& h_evals_i = a_evals.at(i);
       h_evals_i *= b_evals[i];
       h_evals_i -= c_evals[i];

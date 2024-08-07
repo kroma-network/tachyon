@@ -91,7 +91,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
       size_t chunk_size = base::GetNumElementsPerThread(groups);
       size_t num_chunks = (size + chunk_size - 1) / chunk_size;
       std::atomic<bool> check_valid(true);
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
         size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
         absl::Span<const G> groups_chunk(std::data(groups) + i * chunk_size,
                                          len);

@@ -99,7 +99,7 @@ class SumcheckProver {
     std::vector<std::vector<F>> finished_evaluations(
         num_chunks, std::vector<F>(max_evaluations_ + 1, F::Zero()));
 
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
       size_t begin = i * chunk_size;
       size_t len = (i == num_chunks - 1) ? size - begin : chunk_size;
       std::vector<F> intermediate_evaluations(max_evaluations_ + 1, F::Zero());

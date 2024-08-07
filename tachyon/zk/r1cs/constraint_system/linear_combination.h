@@ -16,10 +16,10 @@
 
 #include "absl/strings/str_join.h"
 #include "gtest/gtest_prod.h"
-#include "third_party/pdqsort/include/pdqsort.h"
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/ranges/algorithm.h"
+#include "tachyon/base/sort.h"
 #include "tachyon/zk/r1cs/constraint_system/term.h"
 
 namespace tachyon::zk::r1cs {
@@ -64,10 +64,10 @@ class LinearCombination {
   std::vector<Term<F>>&& TakeTerms() && { return std::move(terms_); }
 
   void Deduplicate() {
-    pdqsort(terms_.begin(), terms_.end(),
-            [](const Term<F>& a, const Term<F>& b) {
-              return a.variable < b.variable;
-            });
+    base::UnstableSort(terms_.begin(), terms_.end(),
+                       [](const Term<F>& a, const Term<F>& b) {
+                         return a.variable < b.variable;
+                       });
     bool is_first = true;
     auto cur_var_first_it = terms_.begin();
     auto it = terms_.begin();

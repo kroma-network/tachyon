@@ -103,7 +103,7 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
   // Multiply the inverse to obtain the quotient polynomial in the coset
   // evaluation domain.
   std::vector<F>& evaluations = evals.evaluations();
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < evaluations.size(); ++i) {
+  OMP_PARALLEL_FOR(size_t i = 0; i < evaluations.size(); ++i) {
     evaluations[i] *= t_evaluations[i % t_evaluations.size()];
   }
 
@@ -126,7 +126,7 @@ void DistributePowersZeta(Poly& poly, bool into_coset) {
                       into_coset ? zeta_inv : zeta};
 
   std::vector<F>& coeffs = poly.coefficients().coefficients();
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < coeffs.size(); ++i) {
+  OMP_PARALLEL_FOR(size_t i = 0; i < coeffs.size(); ++i) {
     size_t j = i % 3;
     if (j == 0) continue;
     coeffs[i] *= coset_powers[j - 1];
@@ -186,7 +186,7 @@ std::vector<F> BuildExtendedColumnWithColumns(
   size_t rows = columns[0].size();
 
   std::vector<F> flattened_transposed_columns(cols * rows);
-  OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < columns.size(); ++i) {
+  OMP_PARALLEL_NESTED_FOR(size_t i = 0; i < columns.size(); ++i) {
     for (size_t j = 0; j < rows; ++j) {
       flattened_transposed_columns[j * cols + i] = columns[i][j];
     }

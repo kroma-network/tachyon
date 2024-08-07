@@ -1,5 +1,5 @@
 load("//bazel:tachyon.bzl", "if_has_openmp_on_macos", "if_posix")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_benchmark", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -147,6 +147,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "sort",
+    hdrs = ["sort.h"],
+    deps = [
+        "@pdqsort",
+        "@powersort",
+    ],
+)
+
+tachyon_cc_library(
     name = "static_storage",
     hdrs = ["static_storage.h"],
     deps = [":no_destructor"],
@@ -160,6 +169,16 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "type_list",
     hdrs = ["type_list.h"],
+)
+
+tachyon_cc_benchmark(
+    name = "sort_benchmark",
+    srcs = ["sort_benchmark.cc"],
+    deps = [
+        "//tachyon/base:random",
+        "//tachyon/base:sort",
+        "//tachyon/base/containers:container_util",
+    ],
 )
 
 tachyon_cc_unittest(

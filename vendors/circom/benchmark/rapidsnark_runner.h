@@ -82,7 +82,7 @@ class RapidsnarkRunner : public Runner<Curve, MaxDegree> {
     base::TimeTicks now = base::TimeTicks::Now();
 
     std::vector<FrElement> full_assignments(full_assignments_in.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < full_assignments_in.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < full_assignments_in.size(); ++i) {
       using BigInt = typename F::BigIntTy;
       BigInt bigint = full_assignments_in[i].ToBigInt();
       memcpy(full_assignments[i].v, bigint.limbs, BigInt::kByteNums);

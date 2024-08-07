@@ -80,7 +80,7 @@ class GrandProductArgument {
     size_t chunk_size = base::GetNumElementsPerThread(grand_product);
     size_t num_chunks = (size + chunk_size - 1) / chunk_size;
 
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
       RowIndex start = i * chunk_size;
       RowIndex end = i == num_chunks - 1 ? size : start + chunk_size;
       for (size_t j = 0; j < num_cols; ++j) {

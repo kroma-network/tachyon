@@ -36,7 +36,7 @@ class UnivariateEvaluationsOp {
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     std::vector<F> o_evaluations(r_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] + r_evaluations[i];
     }
     return Poly(std::move(o_evaluations));
@@ -54,7 +54,7 @@ class UnivariateEvaluationsOp {
       return self;
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] += r_evaluations[i];
     }
     return self;
@@ -73,7 +73,7 @@ class UnivariateEvaluationsOp {
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     std::vector<F> o_evaluations(r_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] - r_evaluations[i];
     }
     return Poly(std::move(o_evaluations));
@@ -91,7 +91,7 @@ class UnivariateEvaluationsOp {
       return self;
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] -= r_evaluations[i];
     }
     return self;
@@ -103,7 +103,7 @@ class UnivariateEvaluationsOp {
       return self;
     }
     std::vector<F> o_evaluations(i_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < i_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < i_evaluations.size(); ++i) {
       o_evaluations[i] = -i_evaluations[i];
     }
     return Poly(std::move(o_evaluations));
@@ -115,7 +115,7 @@ class UnivariateEvaluationsOp {
       return self;
     }
     // clang-format off
-    OPENMP_PARALLEL_FOR(F& evaluation : evaluations) {
+    OMP_PARALLEL_FOR(F& evaluation : evaluations) {
       // clang-format on
       evaluation.NegateInPlace();
     }
@@ -131,7 +131,7 @@ class UnivariateEvaluationsOp {
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     std::vector<F> o_evaluations(r_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] * r_evaluations[i];
     }
     return Poly(std::move(o_evaluations));
@@ -150,7 +150,7 @@ class UnivariateEvaluationsOp {
       return self;
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] *= r_evaluations[i];
     }
     return self;
@@ -167,7 +167,7 @@ class UnivariateEvaluationsOp {
       return self;
     }
     std::vector<F> o_evaluations(l_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] * scalar;
     }
     return Poly(std::move(o_evaluations));
@@ -179,7 +179,7 @@ class UnivariateEvaluationsOp {
       // 0 * s or f(x) * 1
       return self;
     }
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
       l_evaluations[i] *= scalar;
     }
     return self;
@@ -205,7 +205,7 @@ class UnivariateEvaluationsOp {
     }
     std::vector<F> o_evaluations(r_evaluations.size());
     std::atomic<bool> check_valid(true);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       const std::optional<F> div = l_evaluations[i] / r_evaluations[i];
       if (UNLIKELY(!div)) {
         check_valid.store(false, std::memory_order_relaxed);
@@ -239,7 +239,7 @@ class UnivariateEvaluationsOp {
       return std::nullopt;
     }
     std::atomic<bool> check_valid(true);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       if (UNLIKELY(!(l_evaluations[i] /= r_evaluations[i])))
         check_valid.store(false, std::memory_order_relaxed);
     }

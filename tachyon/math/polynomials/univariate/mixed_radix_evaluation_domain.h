@@ -102,7 +102,7 @@ class MixedRadixEvaluationDomain
     BestFFT(poly, this->group_gen_inv_);
     if (this->offset_.IsOne()) {
       // clang-format off
-      OPENMP_PARALLEL_FOR(F& coeff : poly.coefficients_.coefficients_) {
+      OMP_PARALLEL_FOR(F& coeff : poly.coefficients_.coefficients_) {
         // clang-format on
         coeff *= this->size_inv_;
       }

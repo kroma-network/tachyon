@@ -32,6 +32,12 @@ struct TableEvalWithIndex {
   bool operator<(const TableEvalWithIndex& other) const {
     return eval < other.eval;
   }
+  bool operator<=(const TableEvalWithIndex& other) const {
+    return eval <= other.eval;
+  }
+  bool operator>(const TableEvalWithIndex& other) const {
+    return eval > other.eval;
+  }
 };
 
 template <typename BigInt>
@@ -41,7 +47,7 @@ struct ComputeMPolysTempStorage {
 
   explicit ComputeMPolysTempStorage(size_t usable_rows)
       : sorted_table_with_indices(usable_rows), m_values_atomic(usable_rows) {
-    OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
+    OMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
       m_values_atomic[i] = 0;
     }
   }

@@ -22,6 +22,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:parallelize",
         "//tachyon/base:ref",
+        "//tachyon/base:sort",
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/base/entities:prover_base",

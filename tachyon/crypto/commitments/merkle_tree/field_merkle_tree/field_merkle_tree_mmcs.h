@@ -68,6 +68,18 @@ class FieldMerkleTreeMMCS final
     size_t index;
     math::Dimensions dimensions;
 
+    // TODO(chokobole): This comparison is intentionally reversed to sort in
+    // descending order, as powersort doesn't accept custom callbacks.
+    bool operator<(const IndexedDimensions& other) const {
+      return dimensions.height > other.dimensions.height;
+    }
+    bool operator<=(const IndexedDimensions& other) const {
+      return dimensions.height >= other.dimensions.height;
+    }
+    bool operator>(const IndexedDimensions& other) const {
+      return dimensions.height < other.dimensions.height;
+    }
+
     std::string ToString() const {
       return absl::Substitute("($0, $1)", index, dimensions.ToString());
     }
@@ -131,13 +143,8 @@ class FieldMerkleTreeMMCS final
           return IndexedDimensions{index, dimensions};
         });
 
-    // TODO(chokobole): Use https://github.com/timsort/cpp-TimSort or
-    // https://github.com/sebawild/powersort for better performance.
-    std::stable_sort(
-        sorted_dimensions_list.begin(), sorted_dimensions_list.end(),
-        [](const IndexedDimensions& a, const IndexedDimensions& b) {
-          return a.dimensions.height > b.dimensions.height;
-        });
+    base::StableSort(sorted_dimensions_list.begin(),
+                     sorted_dimensions_list.end());
 
     absl::Span<const IndexedDimensions> remaining_dimensions_list =
         absl::MakeConstSpan(sorted_dimensions_list);

@@ -127,7 +127,7 @@ struct WtnsDataSection {
     if (!buffer.ReadPtr(&ptr, header.num_witness)) return false;
     witnesses = {ptr, header.num_witness};
 
-    OPENMP_PARALLEL_FOR(uint32_t i = 0; i < header.num_witness; ++i) {
+    OMP_PARALLEL_FOR(uint32_t i = 0; i < header.num_witness; ++i) {
       witnesses[i] = F(witnesses[i].value());
     }
     return true;

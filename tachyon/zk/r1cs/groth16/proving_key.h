@@ -115,7 +115,7 @@ class ProvingKey : public Key {
     std::vector<F>& a = qap_instance_map_result.a;
     std::vector<F>& b = qap_instance_map_result.b;
     std::vector<F>& c = qap_instance_map_result.c;
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < l.size(); ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < l.size(); ++i) {
       l[i] = ComputeABC(
           a[num_instance_variables + i], b[num_instance_variables + i],
           c[num_instance_variables + i], toxic_waste, delta_inverse);

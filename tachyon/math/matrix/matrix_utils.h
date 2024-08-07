@@ -154,7 +154,7 @@ void ExpandInPlaceWithZeroPad(Eigen::MatrixBase<Derived>& mat,
 
   Derived padded = Derived::Zero(new_rows, cols);
 
-  OPENMP_PARALLEL_FOR(Eigen::Index row = 0; row < original_rows; ++row) {
+  OMP_PARALLEL_FOR(Eigen::Index row = 0; row < original_rows; ++row) {
     Eigen::Index padded_row_index = row << added_bits;
     // TODO(ashjeong): Check if moved properly
     padded.row(padded_row_index) = std::move(mat.row(row));
@@ -173,7 +173,7 @@ void ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
   }
   uint32_t log_n = base::bits::CheckedLog2(rows);
 
-  OPENMP_PARALLEL_FOR(size_t row = 1; row < rows; ++row) {
+  OMP_PARALLEL_FOR(size_t row = 1; row < rows; ++row) {
     size_t ridx = base::bits::ReverseBitsLen(row, log_n);
     if (row < ridx) {
       mat.row(row).swap(mat.row(ridx));

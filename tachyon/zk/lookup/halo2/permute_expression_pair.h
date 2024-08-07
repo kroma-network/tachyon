@@ -12,8 +12,8 @@
 #include <vector>
 
 #include "absl/container/btree_map.h"
-#include "third_party/pdqsort/include/pdqsort.h"
 
+#include "tachyon/base/sort.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/lookup/pair.h"
 
@@ -35,8 +35,8 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
   std::vector<F> permuted_input_expressions = in.input().evaluations();
 
   // sort input lookup expression values
-  pdqsort(permuted_input_expressions.begin(),
-          permuted_input_expressions.begin() + usable_rows);
+  base::UnstableSort(permuted_input_expressions.begin(),
+                     permuted_input_expressions.begin() + usable_rows);
 
   // a map of each unique element in the table expression and its count
   absl::btree_map<F, RowIndex> leftover_table_map;

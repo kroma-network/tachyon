@@ -50,7 +50,7 @@ class TwoAdicSubgroup {
     Eigen::Index cols = mat.cols();
 
     std::vector<F> weights = F::GetSuccessivePowers(rows, shift);
-    OPENMP_PARALLEL_NESTED_FOR(Eigen::Index row = 0; row < rows; ++row) {
+    OMP_PARALLEL_NESTED_FOR(Eigen::Index row = 0; row < rows; ++row) {
       for (Eigen::Index col = 0; col < cols; ++col) {
         mat(row, col) *= weights[row];
       }

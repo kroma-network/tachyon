@@ -1,0 +1,49 @@
+diff --git a/src/sorts/merging.h b/src/sorts/merging.h
+index 9afc08f..835b6d2 100644
+--- a/src/sorts/merging.h
++++ b/src/sorts/merging.h
+@@ -254,27 +254,23 @@ namespace algorithms {
+     template<merging_methods mergingMethod,
+             typename Iter, typename Iter2>
+     void merge_runs(Iter l, Iter m, Iter r, Iter2 B) {
+-        switch(mergingMethod) {
+-            case UNSTABLE_BITONIC_MERGE:
+-                return merge_runs_bitonic(l, m, r, B);
+-            case UNSTABLE_BITONIC_MERGE_MANUAL_COPY:
+-                return merge_runs_bitonic_manual_copy(l, m, r, B);
+-            case UNSTABLE_BITONIC_MERGE_BRANCHLESS:
+-                return merge_runs_bitonic_branchless(l, m, r, B);
+-            case COPY_SMALLER:
+-                return merge_runs_copy_half(l, m, r, B);
+-            case COPY_BOTH:
+-                return merge_runs_basic(l, m, r, B);
+-            case COPY_BOTH_WITH_SENTINELS:
+-                return merge_runs_basic_sentinels(l, m, r, B);
+-            default:
+-                assert(false);
+-                __builtin_unreachable();
+-        }
+-    }
+-
+-
+-
++			if constexpr (mergingMethod == UNSTABLE_BITONIC_MERGE) {
++				return merge_runs_bitonic(l, m, r, B);
++			} else if constexpr (mergingMethod == UNSTABLE_BITONIC_MERGE_MANUAL_COPY) {
++				return merge_runs_bitonic_manual_copy(l, m, r, B);
++			} else if constexpr (mergingMethod == UNSTABLE_BITONIC_MERGE_BRANCHLESS) {
++				return merge_runs_bitonic_branchless(l, m, r, B);
++			} else if constexpr (mergingMethod == COPY_SMALLER) {
++				return merge_runs_copy_half(l, m, r, B);
++			} else if constexpr (mergingMethod == COPY_BOTH) {
++				return merge_runs_basic(l, m, r, B);
++			} else if constexpr (mergingMethod == COPY_BOTH_WITH_SENTINELS) {
++				return merge_runs_basic_sentinels(l, m, r, B);
++			} else {
++				assert(false);
++				__builtin_unreachable();
++ 		  }
++		}
+ }
+ 
+ #endif //MERGESORTS_MERGING_H

@@ -14,6 +14,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/ref.h"
+#include "tachyon/base/sort.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/prover.h"
 #include "tachyon/zk/plonk/expressions/compress_expression.h"
 
@@ -97,33 +98,33 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
     const Evals& compressed_table, ComputeMPolysTempStorage<BigInt>& storage) {
   RowIndex usable_rows = prover->GetUsableRows();
 
-  OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
+  OMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
     storage.sorted_table_with_indices[i] = {i, compressed_table[i].ToBigInt()};
   }
 
-  // TODO(chokobole): Use https://github.com/timsort/cpp-TimSort or
-  // https://github.com/sebawild/powersort for better performance.
-  std::stable_sort(storage.sorted_table_with_indices.begin(),
+  base::StableSort(storage.sorted_table_with_indices.begin(),
                    storage.sorted_table_with_indices.end());
 
-  OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < compressed_inputs.size(); ++i) {
-    for (RowIndex j = 0; j < usable_rows; ++j) {
-      BigInt input = compressed_inputs[i][j].ToBigInt();
-      auto it = base::BinarySearchByKey(
-          storage.sorted_table_with_indices.begin(),
-          storage.sorted_table_with_indices.end(), input, LessThan<BigInt>{});
-      if (it != storage.sorted_table_with_indices.end()) {
-        storage.m_values_atomic[it->index].fetch_add(1,
-                                                     std::memory_order_relaxed);
+  std::vector<F> m_values(prover->pcs().N());
+  OMP_PARALLEL {
+    OMP_NESTED_FOR(size_t i = 0; i < compressed_inputs.size(); ++i) {
+      for (RowIndex j = 0; j < usable_rows; ++j) {
+        BigInt input = compressed_inputs[i][j].ToBigInt();
+        auto it = base::BinarySearchByKey(
+            storage.sorted_table_with_indices.begin(),
+            storage.sorted_table_with_indices.end(), input, LessThan<BigInt>{});
+        if (it != storage.sorted_table_with_indices.end()) {
+          storage.m_values_atomic[it->index].fetch_add(
+              1, std::memory_order_relaxed);
+        }
       }
     }
-  }
 
-  // Convert atomic |m_values| to |Evals|.
-  std::vector<F> m_values(prover->pcs().N());
-  OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
-    m_values[i] =
-        F(storage.m_values_atomic[i].exchange(0, std::memory_order_relaxed));
+    // Convert atomic |m_values| to |Evals|.
+    OMP_FOR(RowIndex i = 0; i < usable_rows; ++i) {
+      m_values[i] =
+          F(storage.m_values_atomic[i].exchange(0, std::memory_order_relaxed));
+    }
   }
 
   BlindedPolynomial<Poly, Evals> m_poly(Evals(std::move(m_values)),
@@ -206,11 +207,11 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
     ComputeLogDerivatives(compressed_inputs[i], beta, input_log_derivatives);
 
     if (i == 0) {
-      OPENMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
+      OMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
         storage.inputs_log_derivatives[j] = input_log_derivatives[j];
       }
     } else {
-      OPENMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
+      OMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
         storage.inputs_log_derivatives[j] += input_log_derivatives[j];
       }
     }
@@ -227,7 +228,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
   // |storage.inputs_log_derivatives| since the current values of
   // |storage.inputs_log_derivatives| are not needed anymore.
   std::vector<F>& log_derivatives_diff = storage.inputs_log_derivatives;
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < usable_rows; ++i) {
+  OMP_PARALLEL_FOR(size_t i = 0; i < usable_rows; ++i) {
     log_derivatives_diff[i] -= m_values[i] * storage.table_log_derivatives[i];
     if (i != usable_rows - 1) {
       grand_sum[i + 1] = log_derivatives_diff[i];

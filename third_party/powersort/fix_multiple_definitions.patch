@@ -1,0 +1,176 @@
+diff --git a/src/sorts/merging.h b/src/sorts/merging.h
+index a2a3769..9afc08f 100644
+--- a/src/sorts/merging.h
++++ b/src/sorts/merging.h
+@@ -7,14 +7,6 @@
+ 
+ namespace algorithms {
+ 
+-#ifdef COUNT_MERGECOST
+-	const bool COUNT_MERGE_COSTS = true;
+-#else
+-	const bool COUNT_MERGE_COSTS = false;
+-#endif
+-	long long volatile totalMergeCosts = 0;
+-	long long volatile totalBufferCosts = 0;
+-
+     /**
+      * A sentinel value used by some merging method;
+      * this value must be strictly larger than any value in the input.
+@@ -39,7 +31,7 @@ namespace algorithms {
+         COPY_BOTH_WITH_SENTINELS
+     };
+ 
+-    std::string to_string(merging_methods mergingMethod) {
++    inline std::string to_string(merging_methods mergingMethod) {
+         switch (mergingMethod) {
+             case UNSTABLE_BITONIC_MERGE:
+                 return "UNSTABLE_BITONIC_MERGE";
+@@ -70,10 +62,8 @@ namespace algorithms {
+ 	 */
+ 	template<typename Iter, typename Iter2>
+ 	void merge_runs_bitonic(Iter l, Iter m, Iter r, Iter2 B) {
+-		if (COUNT_MERGE_COSTS) totalMergeCosts += (r-l);
+ 		std::copy_backward(l,m,B+(m-l));
+         std::reverse_copy(m,r,B+(m-l));
+-        if (COUNT_MERGE_COSTS) totalBufferCosts += (r-l);
+         auto i = B, j = B+(r-l-1);
+ 		for (auto k = l; k < r; ++k)
+ 			*k = *j < *i ? *j-- : *i++;
+@@ -90,10 +80,8 @@ namespace algorithms {
+ 	template<typename Iter, typename Iter2>
+ 	void merge_runs_bitonic_manual_copy(Iter l, Iter m, Iter r, Iter2 B) {
+ 		Iter i1, j1; Iter2 b;
+-		if (COUNT_MERGE_COSTS) totalMergeCosts += (r-l);
+ 		for (i1 = m-1, b = B+(m-1-l); i1 >= l;) *b-- = *i1--;
+ 		for (j1 = r, b = B+(m-l); j1 > m;) *b++ = *--j1;
+-        if (COUNT_MERGE_COSTS) totalBufferCosts += (r-l);
+ 		auto i = B, j = B+(r-l-1);
+ 		for (auto k = l; k < r; ++k)
+ 			*k = *j < *i ? *j-- : *i++;
+@@ -111,10 +99,8 @@ namespace algorithms {
+ 	 */
+ 	template<typename Iter, typename Iter2>
+ 	void merge_runs_bitonic_branchless(Iter l, Iter m, Iter r, Iter2 B) {
+-		if (COUNT_MERGE_COSTS) totalMergeCosts += (r-l);
+ 		std::copy_backward(l,m,B+(m-l));
+ 		std::reverse_copy(m,r,B+(m-l));
+-        if (COUNT_MERGE_COSTS) totalBufferCosts += (r-l);
+ 		Iter2 i = B, j = B+(r-l-1);
+ 		for (auto k = l; k < r; ++k) {
+ 			bool const cmp = *j < *i;
+@@ -133,10 +119,8 @@ namespace algorithms {
+ 	template<typename Iter, typename Iter2>
+ 	void merge_runs_copy_half(Iter l, Iter m, Iter r, Iter2 B) {
+ 		auto n1 = m-l, n2 = r-m;
+-		if (COUNT_MERGE_COSTS) totalMergeCosts += (n1+n2);
+         if (n1 <= n2) {
+             std::copy(l,m,B);
+-            if (COUNT_MERGE_COSTS) totalBufferCosts += (m-l);
+             auto c1 = B, e1 = B + n1;
+             auto c2 = m, e2 = r, o = l;
+             while (c1 < e1 && c2 < e2)
+@@ -144,7 +128,6 @@ namespace algorithms {
+             while (c1 < e1) *o++ = *c1++;
+         } else {
+             std::copy(m,r,B);
+-            if (COUNT_MERGE_COSTS) totalBufferCosts += (r-m);
+             auto c1 = m-1, s1 = l, o = r-1;
+             auto c2 = B+n2-1, s2 = B;
+             while (c1 >= s1 && c2 >= s2)
+@@ -161,9 +144,7 @@ namespace algorithms {
+ 	template<typename Iter, typename Iter2>
+ 	void merge_runs_basic(Iter l, Iter m, Iter r, Iter2 B) {
+ 		auto n1 = m-l, n2 = r-m;
+-		if (COUNT_MERGE_COSTS) totalMergeCosts += (n1+n2);
+         std::copy(l,r,B);
+-        if (COUNT_MERGE_COSTS) totalBufferCosts += (n1+n2);
+         auto c1 = B, e1 = B + n1, c2 = e1, e2 = e1 + n2;
+         auto o = l;
+         while (c1 < e1 && c2 < e2)
+@@ -182,12 +163,10 @@ namespace algorithms {
+         typedef typename std::iterator_traits<Iter>::value_type T;
+         static_assert(std::numeric_limits<T>::is_specialized, "Needs numeric type (for sentinels)");
+         auto n1 = m-l, n2 = r-m;
+-		if (COUNT_MERGE_COSTS) totalMergeCosts += (n1+n2);
+         std::copy(l, m, B);
+         *(B + (m - l)) = plus_inf_sentinel<T>();
+         std::copy(m, r, B + (m - l + 1));
+         *(B + (r - l) + 1) = plus_inf_sentinel<T>();
+-        if (COUNT_MERGE_COSTS) totalBufferCosts += (n1+n2+2);
+         auto c1 = B, c2 = B + (m - l + 1), o = l;
+         while (o < r) *o++ = *c1 <= *c2 ? *c1++ : *c2++;
+ 	}
+diff --git a/src/sorts/powersort.h b/src/sorts/powersort.h
+index 93d2ace..6a0b36b 100644
+--- a/src/sorts/powersort.h
++++ b/src/sorts/powersort.h
+@@ -24,7 +24,7 @@ namespace algorithms {
+ 		BITWISE_LOOP,
+ 		MOST_SIGNIFICANT_SET_BIT,
+ 	};
+-	std::string to_string(node_power_implementations implementation) {
++	inline std::string to_string(node_power_implementations implementation) {
+ 		switch (implementation) {
+ 			case TRIVIAL: return "TRIVIAL";
+ 			case DIVISION_LOOP: return "DIVISION_LOOP";
+@@ -36,7 +36,7 @@ namespace algorithms {
+ 	};
+ 
+ 
+-	power_t node_power_trivial(size_t begin, size_t end,
++	inline power_t node_power_trivial(size_t begin, size_t end,
+ 	                            size_t beginA, size_t beginB, size_t endB) {
+ 		size_t n = end - begin;
+ 		size_t n1 = beginB - beginA, n2 = endB - beginB;
+@@ -51,7 +51,7 @@ namespace algorithms {
+ 		return k;
+ 	}
+ 
+-    power_t node_power_div(size_t begin, size_t end,
++    inline power_t node_power_div(size_t begin, size_t end,
+ 	                        size_t beginA, size_t beginB, size_t endB) {
+ 		size_t twoN = 2*(end - begin); // 2*n
+ 		size_t n1 = beginB - beginA, n2 = endB - beginB; // lengths of runs
+@@ -66,7 +66,7 @@ namespace algorithms {
+ 		return k;
+ 	}
+ 
+-    power_t node_power_bitwise(size_t begin, size_t end,
++    inline power_t node_power_bitwise(size_t begin, size_t end,
+ 	                            size_t beginA, size_t beginB, size_t endB) {
+ 		size_t n = end - begin;
+ 		assert (n < (size_t{1} << 63));
+@@ -87,7 +87,7 @@ namespace algorithms {
+ 		return nCommonBits + 1;
+ 	}
+ 
+-    power_t node_power_clz(size_t begin, size_t end,
++    inline power_t node_power_clz(size_t begin, size_t end,
+ 	                        size_t beginA, size_t beginB, size_t endB) {
+ 		size_t n = end - begin;
+ 		assert(n <= (size_t{1} << 31));
+@@ -99,7 +99,7 @@ namespace algorithms {
+ 	}
+ 
+ 	// not precise enough for large powers ...
+-    power_t node_power_clz_unconstrained(ptrdiff_t begin, ptrdiff_t end,
++    inline power_t node_power_clz_unconstrained(ptrdiff_t begin, ptrdiff_t end,
+ 	                                      ptrdiff_t beginA, ptrdiff_t beginB, ptrdiff_t endB) {
+ 		assert(begin <= beginA && beginA <= beginB && beginB <= endB && endB <= end);
+ 		auto n = static_cast<size_t>(end - begin);
+@@ -128,12 +128,12 @@ namespace algorithms {
+ 		}
+ 	}
+ 
+-	unsigned floor_log2(unsigned int n) {
++	inline unsigned floor_log2(unsigned int n) {
+ 		if (n <= 0) return 0;
+ 		return 31 - __builtin_clz( n );
+ 	}
+ 
+-	unsigned floor_log2(unsigned long n) {
++	inline unsigned floor_log2(unsigned long n) {
+ 		if (n <= 0) return 0;
+ 		return 63 - __builtin_clzl( n );
+ 	}

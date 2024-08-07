@@ -179,7 +179,7 @@ class UnivariateDenseCoefficients {
   Fold(const Field& r) const {
     size_t size = coefficients_.size();
     std::vector<F> coefficients((size + 1) >> 1);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += 2) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < size; i += 2) {
       coefficients[i >> 1] = coefficients_[i + 1] * r;
       coefficients[i >> 1] += coefficients_[i];
     }

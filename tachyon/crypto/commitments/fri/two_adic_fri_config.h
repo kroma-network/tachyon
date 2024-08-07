@@ -54,7 +54,7 @@ std::vector<ExtF> FoldMatrix(const ExtF& beta,
       ExtF::GetBitRevIndexSuccessivePowers(rows, w_inv, half_beta);
 
   std::vector<ExtF> ret(rows);
-  OPENMP_PARALLEL_FOR(size_t r = 0; r < rows; ++r) {
+  OMP_PARALLEL_FOR(size_t r = 0; r < rows; ++r) {
     const ExtF& lo = mat(r, 0);
     const ExtF& hi = mat(r, 1);
     ret[r] = (one_half + powers[r]) * lo + (one_half - powers[r]) * hi;

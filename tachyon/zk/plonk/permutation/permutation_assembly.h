@@ -131,7 +131,7 @@ class TACHYON_EXPORT PermutationAssembly {
                                     domain->template Zero<Evals>());
 
     // Assign |unpermuted_table| to |permutations|.
-    OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < permutations.size(); ++i) {
+    OMP_PARALLEL_NESTED_FOR(size_t i = 0; i < permutations.size(); ++i) {
       for (size_t j = 0; j < rows_; ++j) {
         // NOTE(chokobole): It's safe to access since we created |kDegree|
         // |Zeros()|.

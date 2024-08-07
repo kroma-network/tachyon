@@ -68,8 +68,8 @@ class BinaryMerkleTree final
     // Finally, the remaining tree should be constructed from leaves 1 and 2.
     size_t leaves_size = std::size(leaves);
     if (leaves_size > leaves_size_for_parallelization_) {
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < leaves_size;
-                          i += leaves_size_for_parallelization_) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < leaves_size;
+                       i += leaves_size_for_parallelization_) {
         size_t from = leaves_size - 1 + i;
         size_t to = from + leaves_size_for_parallelization_;
         BuildTreeFromLeaves(base::Range<size_t>(from, to));
@@ -135,7 +135,7 @@ class BinaryMerkleTree final
     }
     base::CheckedNumeric<size_t> n = leaves_size;
     storage_->Allocate(((n << 1) - 1).ValueOrDie());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < leaves_size; ++i) {
+    OMP_PARALLEL_FOR(size_t i = 0; i < leaves_size; ++i) {
       storage_->SetHash(leaves_size + i - 1,
                         hasher_->ComputeLeafHash(leaves[i]));
     }

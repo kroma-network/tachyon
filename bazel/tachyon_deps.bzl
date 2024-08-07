@@ -15,6 +15,7 @@ load("//third_party/nasm:workspace.bzl", nasm = "repo")
 load("//third_party/node_addon_api:install_node_addon_api.bzl", "install_node_addon_api")
 load("//third_party/omp:omp_configure.bzl", "omp_configure")
 load("//third_party/pdqsort:workspace.bzl", pdqsort = "repo")
+load("//third_party/powersort:workspace.bzl", powersort = "repo")
 load("//third_party/py:python_configure.bzl", "python_configure")
 load("//third_party/rapidsnark:workspace.bzl", rapidsnark = "repo")
 
@@ -36,6 +37,7 @@ def tachyon_deps():
     json()
     nasm()
     pdqsort()
+    powersort()
     rapidsnark()
 
     install_node_addon_api(name = "node_addon_api")

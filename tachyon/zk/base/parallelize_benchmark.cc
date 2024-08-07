@@ -26,7 +26,7 @@ void BM_ForLoop(benchmark::State& state) {
   std::vector<F> vec =
       base::CreateVectorParallel(n, []() { return F::Random(); });
   for (auto _ : state) {
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < n; ++i) { vec[i].DoubleInPlace(); }
+    OMP_PARALLEL_FOR(size_t i = 0; i < n; ++i) { vec[i].DoubleInPlace(); }
   }
   benchmark::DoNotOptimize(vec);
 }

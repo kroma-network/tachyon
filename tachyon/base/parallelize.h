@@ -11,6 +11,92 @@
 #include "tachyon/base/openmp_util.h"
 
 namespace tachyon::base {
+namespace internal {
+
+template <typename Container, typename Callable,
+          typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          typename SpanTy = internal::GetType<0, ArgList>,
+          size_t ArgNum = internal::GetSize<ArgList>>
+void InvokeParallelizeCallback(Container& container, size_t i,
+                               size_t num_chunks, size_t chunk_size,
+                               Callable callback) {
+  size_t len =
+      i == num_chunks - 1 ? std::size(container) - i * chunk_size : chunk_size;
+  SpanTy chunk(std::data(container) + i * chunk_size, len);
+  if constexpr (ArgNum == 1) {
+    callback(chunk);
+  } else if constexpr (ArgNum == 2) {
+    callback(chunk, i);
+  } else {
+    static_assert(ArgNum == 3);
+    callback(chunk, i, chunk_size);
+  }
+}
+
+template <typename Callable,
+          typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>>
+void InvokeParallelizeCallback(size_t size, size_t i, size_t num_chunks,
+                               size_t chunk_size, Callable callback) {
+  size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
+  if constexpr (ArgNum == 1) {
+    callback(len);
+  } else if constexpr (ArgNum == 2) {
+    callback(len, i);
+  } else {
+    static_assert(ArgNum == 3);
+    callback(len, i, chunk_size);
+  }
+}
+
+template <typename Container, typename Callable,
+          typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          typename SpanTy = internal::GetType<0, ArgList>,
+          size_t ArgNum = internal::GetSize<ArgList>>
+void InvokeParallelizeCallback(Container& container, size_t i,
+                               size_t num_chunks, size_t chunk_size,
+                               Callable callback,
+                               std::vector<ReturnType>& values) {
+  size_t len =
+      i == num_chunks - 1 ? std::size(container) - i * chunk_size : chunk_size;
+  SpanTy chunk(std::data(container) + i * chunk_size, len);
+  if constexpr (ArgNum == 1) {
+    values[i] = callback(chunk);
+  } else if constexpr (ArgNum == 2) {
+    values[i] = callback(chunk, i);
+  } else {
+    static_assert(ArgNum == 3);
+    values[i] = callback(chunk, i, chunk_size);
+  }
+}
+
+template <typename Callable,
+          typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>>
+void InvokeParallelizeCallback(size_t size, size_t i, size_t num_chunks,
+                               size_t chunk_size, Callable callback,
+                               std::vector<ReturnType>& values) {
+  size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
+  if constexpr (ArgNum == 1) {
+    values[i] = callback(len);
+  } else if constexpr (ArgNum == 2) {
+    values[i] = callback(len, i);
+  } else {
+    static_assert(ArgNum == 3);
+    values[i] = callback(len, i, chunk_size);
+  }
+}
+}  // namespace internal
 
 template <typename T>
 using ParallelizeCallback1 = std::function<void(absl::Span<T>)>;
@@ -21,51 +107,35 @@ using ParallelizeCallback3 = std::function<void(absl::Span<T>, size_t, size_t)>;
 
 // Splits the |container| by |chunk_size| and executes |callback| in parallel.
 // See parallelize_unittest.cc for more details.
-template <typename Container, typename Callable,
-          typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
-          typename RunType = typename FunctorTraits::RunType,
-          typename ArgList = internal::ExtractArgs<RunType>,
-          typename SpanTy = internal::GetType<0, ArgList>,
-          typename T = typename SpanTy::value_type,
-          size_t ArgNum = internal::GetSize<ArgList>>
+template <typename Container, typename Callable>
 void ParallelizeByChunkSize(Container& container, size_t chunk_size,
                             Callable callback) {
   if (chunk_size == 0) return;
   size_t num_chunks = (std::size(container) + chunk_size - 1) / chunk_size;
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-    size_t len = i == num_chunks - 1 ? std::size(container) - i * chunk_size
-                                     : chunk_size;
-    SpanTy chunk(std::data(container) + i * chunk_size, len);
-    if constexpr (ArgNum == 1) {
-      callback(chunk);
-    } else if constexpr (ArgNum == 2) {
-      callback(chunk, i);
-    } else {
-      static_assert(ArgNum == 3);
-      callback(chunk, i, chunk_size);
-    }
+  if (num_chunks == 1) {
+    internal::InvokeParallelizeCallback(container, 0, num_chunks, chunk_size,
+                                        callback);
+    return;
+  }
+  OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    internal::InvokeParallelizeCallback(container, i, num_chunks, chunk_size,
+                                        callback);
   }
 }
 
 // Splits the |size| by |chunk_size| and executes |callback| in parallel.
-template <typename Callable,
-          typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
-          typename RunType = typename FunctorTraits::RunType,
-          typename ArgList = internal::ExtractArgs<RunType>,
-          size_t ArgNum = internal::GetSize<ArgList>>
+template <typename Callable>
 void ParallelizeByChunkSize(size_t size, size_t chunk_size, Callable callback) {
   if (chunk_size == 0) return;
   size_t num_chunks = (size + chunk_size - 1) / chunk_size;
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-    size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
-    if constexpr (ArgNum == 1) {
-      callback(len);
-    } else if constexpr (ArgNum == 2) {
-      callback(len, i);
-    } else {
-      static_assert(ArgNum == 3);
-      callback(len, i, chunk_size);
-    }
+  if (num_chunks == 1) {
+    internal::InvokeParallelizeCallback(size, 0, num_chunks, chunk_size,
+                                        callback);
+    return;
+  }
+  OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    internal::InvokeParallelizeCallback(size, i, num_chunks, chunk_size,
+                                        callback);
   }
 }
 
@@ -95,29 +165,21 @@ void Parallelize(size_t size, Callable callback,
 template <typename Container, typename Callable,
           typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
           typename RunType = typename FunctorTraits::RunType,
-          typename ReturnType = typename FunctorTraits::ReturnType,
-          typename ArgList = internal::ExtractArgs<RunType>,
-          typename SpanTy = internal::GetType<0, ArgList>,
-          typename T = typename SpanTy::value_type,
-          size_t ArgNum = internal::GetSize<ArgList>>
+          typename ReturnType = typename FunctorTraits::ReturnType>
 std::vector<ReturnType> ParallelizeMapByChunkSize(Container& container,
                                                   size_t chunk_size,
                                                   Callable callback) {
   if (chunk_size == 0) return {};
   size_t num_chunks = (std::size(container) + chunk_size - 1) / chunk_size;
   std::vector<ReturnType> values(num_chunks);
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-    size_t len = i == num_chunks - 1 ? std::size(container) - i * chunk_size
-                                     : chunk_size;
-    SpanTy chunk(std::data(container) + i * chunk_size, len);
-    if constexpr (ArgNum == 1) {
-      values[i] = callback(chunk);
-    } else if constexpr (ArgNum == 2) {
-      values[i] = callback(chunk, i);
-    } else {
-      static_assert(ArgNum == 3);
-      values[i] = callback(chunk, i, chunk_size);
-    }
+  if (num_chunks == 1) {
+    internal::InvokeParallelizeCallback(container, 0, num_chunks, chunk_size,
+                                        callback, values);
+    return values;
+  }
+  OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    internal::InvokeParallelizeCallback(container, i, num_chunks, chunk_size,
+                                        callback, values);
   }
   return values;
 }
@@ -128,25 +190,21 @@ std::vector<ReturnType> ParallelizeMapByChunkSize(Container& container,
 template <typename Callable,
           typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
           typename RunType = typename FunctorTraits::RunType,
-          typename ReturnType = typename FunctorTraits::ReturnType,
-          typename ArgList = internal::ExtractArgs<RunType>,
-          size_t ArgNum = internal::GetSize<ArgList>>
+          typename ReturnType = typename FunctorTraits::ReturnType>
 std::vector<ReturnType> ParallelizeMapByChunkSize(size_t size,
                                                   size_t chunk_size,
                                                   Callable callback) {
   if (chunk_size == 0) return {};
   size_t num_chunks = (size + chunk_size - 1) / chunk_size;
   std::vector<ReturnType> values(num_chunks);
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-    size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
-    if constexpr (ArgNum == 1) {
-      values[i] = callback(len);
-    } else if constexpr (ArgNum == 2) {
-      values[i] = callback(len, i);
-    } else {
-      static_assert(ArgNum == 3);
-      values[i] = callback(len, i, chunk_size);
-    }
+  if (num_chunks == 1) {
+    internal::InvokeParallelizeCallback(size, 0, num_chunks, chunk_size,
+                                        callback, values);
+    return values;
+  }
+  OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    internal::InvokeParallelizeCallback(size, i, num_chunks, chunk_size,
+                                        callback, values);
   }
   return values;
 }

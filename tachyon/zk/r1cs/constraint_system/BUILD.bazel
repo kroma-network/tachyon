@@ -34,10 +34,10 @@ tachyon_cc_library(
     hdrs = ["linear_combination.h"],
     deps = [
         ":term",
+        "//tachyon/base:sort",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/ranges:algorithm",
         "@com_google_googletest//:gtest_prod",
-        "@pdqsort",
     ],
 )
 
