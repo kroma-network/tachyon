@@ -42,6 +42,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "constraint_system",
+    deps = [":bn254_constraint_system"],
+)
+
+tachyon_cc_library(
     name = "phase",
     hdrs = ["phase.h"],
 )

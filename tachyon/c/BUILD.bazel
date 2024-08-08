@@ -45,29 +45,16 @@ tachyon_cc_library(
     deps = [":export"],
 )
 
-TPLS = [
-    "//tachyon/c/math/elliptic_curves/{}:msm",
-    "//tachyon/c/math/elliptic_curves/{}:msm_gpu",
-]
-
-CURVES = [
-    "bls12/bls12_381",
-    "bn/bn254",
-]
-
-CURVE_DEPS = [tpl.format(curve) for tpl in TPLS for curve in CURVES]
-
 tachyon_cc_shared_library(
     name = "tachyon",
     linkstatic = True,
     soversion = VERSION,
     tags = ["manual"],
-    deps = if_c_shared_object(CURVE_DEPS + [
+    deps = if_c_shared_object([
         ":version",
-        "//tachyon/c/crypto/random:rng",
-        "//tachyon/c/math:bn254_math",
-        "//tachyon/c/math:bls12_381_math",
-        "//tachyon/c/zk:bn254_zk",
+        "//tachyon/c/crypto",
+        "//tachyon/c/math",
+        "//tachyon/c/zk",
     ]) + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),

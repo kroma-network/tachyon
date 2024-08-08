@@ -8,6 +8,11 @@ filegroup(
 )
 
 tachyon_cc_library(
+    name = "random",
+    deps = [":rng"],
+)
+
+tachyon_cc_library(
     name = "rng",
     srcs = ["rng.cc"],
     hdrs = ["rng.h"],

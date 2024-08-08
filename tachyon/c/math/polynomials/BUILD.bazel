@@ -11,8 +11,8 @@ filegroup(
 )
 
 tachyon_cc_library(
-    name = "bn254_polynomials",
-    deps = ["//tachyon/c/math/polynomials/univariate:bn254_univariate"],
+    name = "polynomials",
+    deps = ["//tachyon/c/math/polynomials/univariate"],
 )
 
 tachyon_cc_library(

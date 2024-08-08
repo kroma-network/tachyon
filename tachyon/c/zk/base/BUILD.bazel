@@ -8,6 +8,11 @@ filegroup(
 )
 
 tachyon_cc_library(
+    name = "base",
+    deps = [":bn254_blinder"],
+)
+
+tachyon_cc_library(
     name = "bn254_blinder",
     srcs = ["bn254_blinder.cc"],
     hdrs = [

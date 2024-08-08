@@ -12,6 +12,10 @@ filegroup(
 )
 
 tachyon_cc_library(
-    name = "bn254_zk",
-    deps = ["//tachyon/c/zk/plonk:bn254_plonk"],
+    name = "zk",
+    deps = [
+        "//tachyon/c/zk/air",
+        "//tachyon/c/zk/base",
+        "//tachyon/c/zk/plonk",
+    ],
 )

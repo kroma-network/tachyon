@@ -160,3 +160,11 @@ def generate_ec_points(
             "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
         ],
     )
+
+    tachyon_cc_library(
+        name = name,
+        deps = [
+            ":msm",
+            ":msm_gpu",
+        ],
+    )
