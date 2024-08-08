@@ -72,7 +72,7 @@ bool IcicleMSM<bn254::G2AffinePoint>::Run(
     final_value = final_value + ret;
   }
   final_value = ::bn254::g2_projective_t::to_montgomery(final_value);
-  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(final_value);
+  *cpu_result = *reinterpret_cast<ProjectivePoint<Curve>*>(&final_value);
   return true;
 }
 
