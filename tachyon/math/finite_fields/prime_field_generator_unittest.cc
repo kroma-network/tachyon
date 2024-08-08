@@ -73,6 +73,12 @@ TYPED_TEST(PrimeFieldGeneratorTest, MinusOne) {
   EXPECT_FALSE(PrimeField::One().IsMinusOne());
 }
 
+TYPED_TEST(PrimeFieldGeneratorTest, TwoInv) {
+  using PrimeField = TypeParam;
+  EXPECT_TRUE((PrimeField::TwoInv() * PrimeField(2)).IsOne());
+  EXPECT_FALSE((PrimeField::TwoInv() * PrimeField::One()).IsOne());
+}
+
 TYPED_TEST(PrimeFieldGeneratorTest, BigIntConversion) {
   using PrimeField = TypeParam;
   PrimeField r = PrimeField::Random();

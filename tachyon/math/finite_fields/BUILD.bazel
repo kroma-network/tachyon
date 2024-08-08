@@ -356,6 +356,7 @@ tachyon_cc_unittest(
         "//tachyon/math/finite_fields/baby_bear",
         "//tachyon/math/finite_fields/baby_bear:baby_bear4",
         "//tachyon/math/finite_fields/baby_bear:packed_baby_bear4",
+        "//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear",
         "//tachyon/math/finite_fields/binary_fields",
         "//tachyon/math/finite_fields/goldilocks",
         "//tachyon/math/finite_fields/koala_bear",

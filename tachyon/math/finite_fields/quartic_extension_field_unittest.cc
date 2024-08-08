@@ -43,6 +43,14 @@ TYPED_TEST(QuarticExtensionFieldTest, MinusOne) {
   EXPECT_FALSE(F4::One().IsMinusOne());
 }
 
+TYPED_TEST(QuarticExtensionFieldTest, TwoInv) {
+  using F4 = TypeParam;
+  using F = typename ExtensionFieldTraits<F4>::BaseField;
+
+  EXPECT_TRUE((F4::TwoInv() * F4(F(2))).IsOne());
+  EXPECT_FALSE((F4::TwoInv() * F4::One()).IsOne());
+}
+
 TYPED_TEST(QuarticExtensionFieldTest, Random) {
   using F4 = TypeParam;
 
