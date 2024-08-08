@@ -89,7 +89,8 @@ int RealMain(int argc, char** argv) {
 
   interval.Reset();
   for (size_t i = 0; i < point_nums.size(); ++i) {
-    TestDoubleOnGPU(bases_cuda.get(), results_cuda.get(), bases, point_nums[i]);
+    TestDoubleOnGPU(bases_cuda.data(), results_cuda.data(), bases,
+                    point_nums[i]);
     reporter.AddTime(i, interval.GetTimeDelta().InSecondsF());
   }
 

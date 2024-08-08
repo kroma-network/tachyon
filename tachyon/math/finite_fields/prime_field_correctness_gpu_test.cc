@@ -86,9 +86,9 @@ std::vector<bn254::Fq> PrimeFieldCorrectnessGpuTest::y_cpus_;
 
 }  // namespace
 
-#define RUN_OPERATION_TESTS(method)                                         \
-  GPU_MUST_SUCCEED(Launch##method(xs_.get(), ys_.get(), results_.get(), N), \
-                   "");                                                     \
+#define RUN_OPERATION_TESTS(method)                                            \
+  GPU_MUST_SUCCEED(Launch##method(xs_.data(), ys_.data(), results_.data(), N), \
+                   "");                                                        \
   for (size_t i = 0; i < N; ++i)
 
 TEST_F(PrimeFieldCorrectnessGpuTest, Add) {

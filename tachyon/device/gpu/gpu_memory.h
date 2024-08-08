@@ -173,14 +173,14 @@ class GpuMemory {
   gpuStream_t stream() const { return stream_; }
   GpuMemoryType memory_type() const { return memory_type_; }
 
-  T& operator*() { return *get(); }
-  const T& operator*() const { return *get(); }
+  T& operator*() { return *data(); }
+  const T& operator*() const { return *data(); }
 
-  T* operator->() { return get(); }
-  const T* operator->() const { return get(); }
+  T* operator->() { return data(); }
+  const T* operator->() const { return data(); }
 
-  T* get() { return ptr_; }
-  const T* get() const { return ptr_; }
+  T* data() { return ptr_; }
+  const T* data() const { return ptr_; }
 
   T& operator[](size_t idx) { return ptr_[idx]; }
   const T& operator[](size_t idx) const { return ptr_[idx]; }
@@ -240,7 +240,7 @@ class GpuMemory {
 
   template <typename U>
   bool CopyTo(const GpuMemory<U>& dst_memory, size_t from = 0, size_t len = 0) {
-    return CopyTo(dst_memory.get(), dst_memory.memory_type(), from, len);
+    return CopyTo(dst_memory.data(), dst_memory.memory_type(), from, len);
   }
 
   bool CopyToAsync(void* dst, GpuMemoryType dst_memory_type,
@@ -260,8 +260,8 @@ class GpuMemory {
   template <typename U>
   bool CopyToAsync(const GpuMemory<U>& dst_memory, gpuStream_t stream = nullptr,
                    size_t from = 0, size_t len = 0) {
-    return CopyToAsync(dst_memory.get(), dst_memory.memory_type(), stream, from,
-                       len);
+    return CopyToAsync(dst_memory.data(), dst_memory.memory_type(), stream,
+                       from, len);
   }
 
   bool CopyFrom(const void* src, GpuMemoryType src_memory_type, size_t from = 0,
@@ -280,7 +280,7 @@ class GpuMemory {
   template <typename U>
   bool CopyFrom(const GpuMemory<U>& src_memory, size_t from = 0,
                 size_t len = 0) {
-    return CopyFrom(src_memory.get(), src_memory.memory_type(), from, len);
+    return CopyFrom(src_memory.data(), src_memory.memory_type(), from, len);
   }
 
   bool CopyFromAsync(const void* src, GpuMemoryType src_memory_type,
@@ -301,7 +301,7 @@ class GpuMemory {
   bool CopyFromAsync(const GpuMemory<U>& src_memory,
                      gpuStream_t stream = nullptr, size_t from = 0,
                      size_t len = 0) {
-    return CopyFromAsync(src_memory.get(), src_memory.memory_type(), stream,
+    return CopyFromAsync(src_memory.data(), src_memory.memory_type(), stream,
                          from, len);
   }
 

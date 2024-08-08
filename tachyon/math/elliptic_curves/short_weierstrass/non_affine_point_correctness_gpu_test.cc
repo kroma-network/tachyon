@@ -161,7 +161,8 @@ TYPED_TEST(PointCorrectnessGpuTest, Add) {
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
   GPU_MUST_SUCCEED(
-      LaunchAdd(this->xs_.get(), this->ys_.get(), this->results_.get(), N), "");
+      LaunchAdd(this->xs_.data(), this->ys_.data(), this->results_.data(), N),
+      "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
                                   this->ys_[i].ToString()));
@@ -174,7 +175,8 @@ TYPED_TEST(PointCorrectnessGpuTest, Double) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCEED(LaunchDouble(this->xs_.get(), this->results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchDouble(this->xs_.data(), this->results_.data(), N),
+                   "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
     auto result = ConvertPoint<Expected>(this->results_[i]);
@@ -186,7 +188,8 @@ TYPED_TEST(PointCorrectnessGpuTest, Negate) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCEED(LaunchNegate(this->xs_.get(), this->results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchNegate(this->xs_.data(), this->results_.data(), N),
+                   "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
     auto result = ConvertPoint<Expected>(this->results_[i]);
@@ -197,9 +200,9 @@ TYPED_TEST(PointCorrectnessGpuTest, Negate) {
 TYPED_TEST(PointCorrectnessGpuTest, Eq) {
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCEED(
-      LaunchEq(this->xs_.get(), this->xs_.get(), this->bool_results_.get(), N),
-      "");
+  GPU_MUST_SUCCEED(LaunchEq(this->xs_.data(), this->xs_.data(),
+                            this->bool_results_.data(), N),
+                   "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
                                   this->xs_[i].ToString()));
@@ -210,9 +213,9 @@ TYPED_TEST(PointCorrectnessGpuTest, Eq) {
 TYPED_TEST(PointCorrectnessGpuTest, Ne) {
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCEED(
-      LaunchNe(this->xs_.get(), this->ys_.get(), this->bool_results_.get(), N),
-      "");
+  GPU_MUST_SUCCEED(LaunchNe(this->xs_.data(), this->ys_.data(),
+                            this->bool_results_.data(), N),
+                   "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
                                   this->ys_[i].ToString()));
