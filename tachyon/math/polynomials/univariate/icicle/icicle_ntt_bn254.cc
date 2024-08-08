@@ -35,12 +35,11 @@ bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
 #endif
   ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
   math::BigInt<4> group_gen_big_int = group_gen.ToBigInt();
-  // TODO(chokobole): There are some issues about domain initialization, we need
-  // to handle each of these.
-  // 1. It gets too slow when the domain size is small, 1, 2, and 4.
+  // TODO(chokobole): We must handle these issues with domain initialization:
+  // 1. It gets too slow when the domain size is 1, 2, 4, or small in general.
   //    See "vendors/circom/prover_main.cc".
-  // 2. |fast_twiddles_mode| consumes a lot of memory, so we need to disable if
-  //    the ram of the GPU is not enough. See
+  // 2. |fast_twiddles_mode| consumes a lot of memory, so we need to disable it
+  //    if the ram of the GPU is not enough. See
   //    https://github.com/ingonyama-zk/icicle/blob/4fef542/icicle/include/ntt/ntt.cuh#L26-L40.
   gpuError_t error = tachyon_bn254_initialize_domain(
       reinterpret_cast<const ::bn254::scalar_t&>(group_gen_big_int), ctx,
@@ -75,7 +74,7 @@ bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
 
   // NOTE(chokobole): Manual copy is needed even though
   // |sizeof(::bn254::scalar_t)| and |sizeof(bn254::Fr)| are same. This is
-  // because their alignment are different.
+  // because their alignments are different.
   // See
   // https://github.com/ingonyama-zk/icicle/blob/4fef542/icicle/include/fields/storage.cuh.
   ::ntt::NTTConfig<::bn254::scalar_t> config{
