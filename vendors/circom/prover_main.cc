@@ -216,13 +216,13 @@ int RealMain(int argc, char** argv) {
       .set_long_name("--curve")
       .set_default_value(Curve::kBN254)
       .set_help(
-          "The curve type among ('bn254', bls12_381'), by default 'bn254'");
+          "The curve type among ('bn254', 'bls12_381'), by default 'bn254'");
   parser.AddFlag<base::BoolFlag>(&options.no_zk)
       .set_long_name("--no_zk")
       .set_default_value(false)
       .set_help(
-          "Create proof without zk. By default zk is enabled. Use this flag to "
-          "compare the proof with rapidsnark.");
+          "Create proof without zk. By default zk is enabled. Use this flag in "
+          "case you want to compare the proof with rapidsnark.");
   parser.AddFlag<base::BoolFlag>(&options.no_use_mmap)
       .set_long_name("--no_use_mmap")
       .set_default_value(false)
