@@ -1,0 +1,22 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_binary(
+    name = "ext_field_generator",
+    srcs = ["ext_field_generator.cc"],
+    data = [
+        "ext_field.cc.tpl",
+        "ext_field.h.tpl",
+        "ext_field_type_traits.h.tpl",
+    ],
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/files:file_path_flag",
+        "//tachyon/base/files:file_util",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/build:cc_writer",
+        "@com_google_absl//absl/strings",
+    ],
+)
