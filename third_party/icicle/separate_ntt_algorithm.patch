@@ -1,0 +1,49 @@
+diff --git a/icicle/include/ntt/ntt.cu.h b/icicle/include/ntt/ntt.cu.h
+index ca014899..880ea944 100644
+--- a/icicle/include/ntt/ntt.cu.h
++++ b/icicle/include/ntt/ntt.cu.h
+@@ -7,6 +7,7 @@
+ #include "gpu-utils/device_context.cu.h"
+ #include "gpu-utils/error_handler.cu.h"
+ #include "gpu-utils/sharedmem.cu.h"
++#include "ntt/ntt_algorithm.h"
+ #include "utils/utils.h"
+ 
+ /**
+@@ -107,15 +108,6 @@ namespace ntt {
+    */
+   enum class Ordering { kNN, kNR, kRN, kRR, kNM, kMN };
+ 
+-  /**
+-   * @enum NttAlgorithm
+-   * Which NTT algorithm to use. options are:
+-   * - Auto: implementation selects automatically based on heuristic. This value is a good default for most cases.
+-   * - Radix2: explicitly select radix-2 NTT algorithm
+-   * - MixedRadix: explicitly select mixed-radix NTT algorithm
+-   */
+-  enum class NttAlgorithm { Auto, Radix2, MixedRadix };
+-
+   /**
+    * @struct NTTConfig
+    * Struct that encodes NTT parameters to be passed into the [NTT](@ref NTT) function.
+diff --git a/icicle/include/ntt/ntt_algorithm.h b/icicle/include/ntt/ntt_algorithm.h
+new file mode 100644
+index 00000000..8743712c
+--- /dev/null
++++ b/icicle/include/ntt/ntt_algorithm.h
+@@ -0,0 +1,15 @@
++#ifndef NTT_ALGORHTM_H
++#define NTT_ALGORHTM_H
++
++namespace ntt {
++  /**
++   * @enum NttAlgorithm
++   * Which NTT algorithm to use. options are:
++   * - Auto: implementation selects automatically based on heuristic. This value is a good default for most cases.
++   * - Radix2: explicitly select radix-2 NTT algorithm
++   * - MixedRadix: explicitly select mixed-radix NTT algorithm
++   */
++  enum class NttAlgorithm { Auto, Radix2, MixedRadix };
++} // namespace ntt
++
++#endif // NTT_ALGORHTM_H

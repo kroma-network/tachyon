@@ -1,7 +1,7 @@
 #include "tachyon/zk/air/plonky3/base/two_adic_multiplicative_coset.h"
 
+#include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::zk::air::plonky3 {

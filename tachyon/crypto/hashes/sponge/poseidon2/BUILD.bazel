@@ -92,11 +92,9 @@ tachyon_cc_unittest(
         ":poseidon2_plonky3_external_matrix",
         ":poseidon2_plonky3_internal_matrix",
         "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/math/finite_fields/baby_bear:packed_baby_bear",
         "//tachyon/math/finite_fields/baby_bear:poseidon2",
         "//tachyon/math/finite_fields/goldilocks:poseidon2",
         "//tachyon/math/finite_fields/mersenne31",
-        "//tachyon/math/finite_fields/mersenne31:packed_mersenne31",
         "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )

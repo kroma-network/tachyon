@@ -3,13 +3,13 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_MATH_FINITE_FIELDS_KOALA_BEAR_PACKED_KOALA_BEAR_AVX512_H_
-#define TACHYON_MATH_FINITE_FIELDS_KOALA_BEAR_PACKED_KOALA_BEAR_AVX512_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_KOALA_BEAR_INTERNAL_PACKED_KOALA_BEAR_AVX512_H_
+#define TACHYON_MATH_FINITE_FIELDS_KOALA_BEAR_INTERNAL_PACKED_KOALA_BEAR_AVX512_H_
 
 #include <stddef.h>
 
 #include "tachyon/export.h"
-#include "tachyon/math/finite_fields/koala_bear/koala_bear.h"
+#include "tachyon/math/finite_fields/koala_bear/internal/koala_bear.h"
 #include "tachyon/math/finite_fields/packed_prime_field_base.h"
 
 namespace tachyon::math {
@@ -63,4 +63,4 @@ class TACHYON_EXPORT PackedKoalaBearAVX512 final
 
 }  // namespace tachyon::math
 
-#endif  //  TACHYON_MATH_FINITE_FIELDS_KOALA_BEAR_PACKED_KOALA_BEAR_AVX512_H_
+#endif  //  TACHYON_MATH_FINITE_FIELDS_KOALA_BEAR_INTERNAL_PACKED_KOALA_BEAR_AVX512_H_

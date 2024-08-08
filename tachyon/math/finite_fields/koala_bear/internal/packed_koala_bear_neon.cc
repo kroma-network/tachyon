@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_neon.h"
+#include "tachyon/math/finite_fields/koala_bear/internal/packed_koala_bear_neon.h"
 
 #include <arm_neon.h>
 
@@ -19,12 +19,12 @@ uint32x4_t kZero;
 uint32x4_t kOne;
 uint32x4_t kMinusOne;
 
-uint32x4_t ToVector(const PackedBabyBearNeon& packed) {
+uint32x4_t ToVector(const PackedKoalaBearNeon& packed) {
   return vld1q_u32(reinterpret_cast<const uint32_t*>(packed.values().data()));
 }
 
-PackedBabyBearNeon FromVector(uint32x4_t vector) {
-  PackedBabyBearNeon ret;
+PackedKoalaBearNeon FromVector(uint32x4_t vector) {
+  PackedKoalaBearNeon ret;
   vst1q_u32(reinterpret_cast<uint32_t*>(ret.values().data()), vector);
   return ret;
 }
@@ -45,53 +45,53 @@ uint32x4_t Mul(uint32x4_t lhs, uint32x4_t rhs) {
 
 }  // namespace
 
-PackedBabyBearNeon::PackedBabyBearNeon(uint32_t value) {
-  uint32x4_t vector = vdupq_n_u32(BabyBear::Config::ToMontgomery(value));
+PackedKoalaBearNeon::PackedKoalaBearNeon(uint32_t value) {
+  uint32x4_t vector = vdupq_n_u32(KoalaBear::Config::ToMontgomery(value));
   vst1q_u32(reinterpret_cast<uint32_t*>(values_.data()), vector);
 }
 
 // static
-void PackedBabyBearNeon::Init() {
-  BabyBear::Init();
-  kP = vdupq_n_u32(BabyBear::Config::kModulus);
-  kInv = vdupq_n_u32(BabyBear::Config::kInverse32);
+void PackedKoalaBearNeon::Init() {
+  KoalaBear::Init();
+  kP = vdupq_n_u32(KoalaBear::Config::kModulus);
+  kInv = vdupq_n_u32(KoalaBear::Config::kInverse32);
   kZero = vdupq_n_u32(0);
-  kOne = vdupq_n_u32(BabyBear::Config::kOne);
-  kMinusOne = vdupq_n_u32(BabyBear::Config::kMinusOne);
+  kOne = vdupq_n_u32(KoalaBear::Config::kOne);
+  kMinusOne = vdupq_n_u32(KoalaBear::Config::kMinusOne);
 }
 
 // static
-PackedBabyBearNeon PackedBabyBearNeon::Zero() { return FromVector(kZero); }
+PackedKoalaBearNeon PackedKoalaBearNeon::Zero() { return FromVector(kZero); }
 
 // static
-PackedBabyBearNeon PackedBabyBearNeon::One() { return FromVector(kOne); }
+PackedKoalaBearNeon PackedKoalaBearNeon::One() { return FromVector(kOne); }
 
 // static
-PackedBabyBearNeon PackedBabyBearNeon::MinusOne() {
+PackedKoalaBearNeon PackedKoalaBearNeon::MinusOne() {
   return FromVector(kMinusOne);
 }
 
 // static
-PackedBabyBearNeon PackedBabyBearNeon::Broadcast(const PrimeField& value) {
+PackedKoalaBearNeon PackedKoalaBearNeon::Broadcast(const PrimeField& value) {
   return FromVector(vdupq_n_u32(value.value()));
 }
 
-PackedBabyBearNeon PackedBabyBearNeon::Add(
-    const PackedBabyBearNeon& other) const {
+PackedKoalaBearNeon PackedKoalaBearNeon::Add(
+    const PackedKoalaBearNeon& other) const {
   return FromVector(math::Add(ToVector(*this), ToVector(other)));
 }
 
-PackedBabyBearNeon PackedBabyBearNeon::Sub(
-    const PackedBabyBearNeon& other) const {
+PackedKoalaBearNeon PackedKoalaBearNeon::Sub(
+    const PackedKoalaBearNeon& other) const {
   return FromVector(math::Sub(ToVector(*this), ToVector(other)));
 }
 
-PackedBabyBearNeon PackedBabyBearNeon::Negate() const {
+PackedKoalaBearNeon PackedKoalaBearNeon::Negate() const {
   return FromVector(math::Negate(ToVector(*this)));
 }
 
-PackedBabyBearNeon PackedBabyBearNeon::Mul(
-    const PackedBabyBearNeon& other) const {
+PackedKoalaBearNeon PackedKoalaBearNeon::Mul(
+    const PackedKoalaBearNeon& other) const {
   return FromVector(math::Mul(ToVector(*this), ToVector(other)));
 }
 

@@ -9,11 +9,36 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/export.h"
+#include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
+
+template <class F>
+struct IsIcicleNTTSupportedImpl {
+  constexpr static bool value = false;
+};
+
+template <>
+struct IsIcicleNTTSupportedImpl<BabyBear> {
+  constexpr static bool value = true;
+};
+
+template <>
+struct IsIcicleNTTSupportedImpl<bls12_381::Fr> {
+  constexpr static bool value = true;
+};
+
+template <>
+struct IsIcicleNTTSupportedImpl<bn254::Fr> {
+  constexpr static bool value = true;
+};
+
+template <typename F>
+constexpr bool IsIcicleNTTSupported = IsIcicleNTTSupportedImpl<F>::value;
 
 struct TACHYON_EXPORT IcicleNTTOptions {
   bool fast_twiddles_mode = true;
@@ -77,16 +102,44 @@ class IcicleNTT {
 };
 
 template <>
-bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
-                                const IcicleNTTOptions& options);
+TACHYON_EXPORT bool IcicleNTT<BabyBear>::Init(const BabyBear& group_gen,
+                                              const IcicleNTTOptions& options);
 
 template <>
-bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
-                               const BigInt& coset, bn254::Fr* inout, int size,
-                               ::ntt::NTTDir dir) const;
+TACHYON_EXPORT bool IcicleNTT<BabyBear>::Run(::ntt::NttAlgorithm algorithm,
+                                             const BigInt& coset,
+                                             BabyBear* inout, int size,
+                                             ::ntt::NTTDir dir) const;
 
 template <>
-bool IcicleNTT<bn254::Fr>::Release();
+TACHYON_EXPORT bool IcicleNTT<BabyBear>::Release();
+
+template <>
+TACHYON_EXPORT bool IcicleNTT<bls12_381::Fr>::Init(
+    const bls12_381::Fr& group_gen, const IcicleNTTOptions& options);
+
+template <>
+TACHYON_EXPORT bool IcicleNTT<bls12_381::Fr>::Run(::ntt::NttAlgorithm algorithm,
+                                                  const BigInt& coset,
+                                                  bls12_381::Fr* inout,
+                                                  int size,
+                                                  ::ntt::NTTDir dir) const;
+
+template <>
+TACHYON_EXPORT bool IcicleNTT<bls12_381::Fr>::Release();
+
+template <>
+TACHYON_EXPORT bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
+                                               const IcicleNTTOptions& options);
+
+template <>
+TACHYON_EXPORT bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
+                                              const BigInt& coset,
+                                              bn254::Fr* inout, int size,
+                                              ::ntt::NTTDir dir) const;
+
+template <>
+TACHYON_EXPORT bool IcicleNTT<bn254::Fr>::Release();
 
 }  // namespace tachyon::math
 

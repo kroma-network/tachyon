@@ -1,13 +1,54 @@
+load("@icicle//:build_defs.bzl", "BLS12_381", "BN254", "icicle_defines")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
 
-package(default_visibility = ["//visibility:public"])
+tachyon_cuda_library(
+    name = "icicle_msm_bls12_381_g1",
+    srcs = if_cuda(["icicle_msm_bls12_381_g1.cc"]),
+    hdrs = ["icicle_msm_bls12_381_g1.h"],
+    local_defines = icicle_defines(BLS12_381),
+    deps = [
+        ":icicle_msm",
+        ":icicle_msm_utils",
+        "//tachyon/base:bit_cast",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@icicle//:msm_bls12_381",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
+
+tachyon_cuda_library(
+    name = "icicle_msm_bls12_381_g2",
+    srcs = if_cuda(["icicle_msm_bls12_381_g2.cc"]),
+    hdrs = ["icicle_msm_bls12_381_g2.h"],
+    local_defines = icicle_defines(BLS12_381),
+    deps = [
+        ":icicle_msm",
+        ":icicle_msm_utils",
+        "//tachyon/base:bit_cast",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@icicle//:msm_bls12_381",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
 
 tachyon_cuda_library(
     name = "icicle_msm_bn254_g1",
     srcs = if_cuda(["icicle_msm_bn254_g1.cc"]),
     hdrs = ["icicle_msm_bn254_g1.h"],
-    deps = ["@icicle//:msm"] + if_cuda([
+    local_defines = icicle_defines(BN254),
+    deps = [
+        ":icicle_msm",
+        ":icicle_msm_utils",
+        "//tachyon/base:bit_cast",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@icicle//:msm_bn254",
+    ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
 )
@@ -16,26 +57,53 @@ tachyon_cuda_library(
     name = "icicle_msm_bn254_g2",
     srcs = if_cuda(["icicle_msm_bn254_g2.cc"]),
     hdrs = ["icicle_msm_bn254_g2.h"],
-    deps = ["@icicle//:msm"] + if_cuda([
+    local_defines = icicle_defines(BN254),
+    deps = [
+        ":icicle_msm",
+        ":icicle_msm_utils",
+        "//tachyon/base:bit_cast",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@icicle//:msm_bn254",
+    ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
+)
+
+tachyon_cc_library(
+    name = "icicle",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":icicle_msm_bls12_381_g1",
+        ":icicle_msm_bls12_381_g2",
+        ":icicle_msm_bn254_g1",
+        ":icicle_msm_bn254_g2",
+    ],
 )
 
 tachyon_cc_library(
     name = "icicle_msm",
     hdrs = ["icicle_msm.h"],
     deps = [
-        ":icicle_msm_bn254_g1",
-        ":icicle_msm_bn254_g2",
         "//tachyon:export",
-        "//tachyon/base:bit_cast",
-        "//tachyon/base:bits",
         "//tachyon/device/gpu:gpu_device_functions",
-        "//tachyon/device/gpu:gpu_enums",
-        "//tachyon/device/gpu:gpu_logging",
-        "//tachyon/device/gpu:gpu_memory",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:g1",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:g2",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/geometry:jacobian_point",
+        "@com_google_absl//absl/types:span",
+        "@icicle//:hdrs",
+    ],
+)
+
+tachyon_cc_library(
+    name = "icicle_msm_utils",
+    srcs = if_cuda(["icicle_msm_utils.cc"]),
+    hdrs = ["icicle_msm_utils.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:bits",
+        "//tachyon/device/gpu:gpu_memory",
     ],
 )

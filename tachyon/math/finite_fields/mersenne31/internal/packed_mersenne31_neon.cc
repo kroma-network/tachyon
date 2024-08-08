@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_neon.h"
+#include "tachyon/math/finite_fields/mersenne31/internal/packed_mersenne31_neon.h"
 
 #include <arm_neon.h>
 

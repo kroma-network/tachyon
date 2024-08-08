@@ -1,16 +1,16 @@
-#ifndef TACHYON_MATH_FINITE_FIELDS_MERSENNE31_PACKED_MERSENNE31_H_
-#define TACHYON_MATH_FINITE_FIELDS_MERSENNE31_PACKED_MERSENNE31_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_MERSENNE31_INTERNAL_PACKED_MERSENNE31_H_
+#define TACHYON_MATH_FINITE_FIELDS_MERSENNE31_INTERNAL_PACKED_MERSENNE31_H_
 
 #include "tachyon/build/build_config.h"
 
 #if ARCH_CPU_X86_64
 #if defined(TACHYON_HAS_AVX512)
-#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_avx512.h"
+#include "tachyon/math/finite_fields/mersenne31/internal/packed_mersenne31_avx512.h"
 #else
-#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_avx2.h"
+#include "tachyon/math/finite_fields/mersenne31/internal/packed_mersenne31_avx2.h"
 #endif
 #elif ARCH_CPU_ARM64
-#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_neon.h"
+#include "tachyon/math/finite_fields/mersenne31/internal/packed_mersenne31_neon.h"
 #endif
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 #include "tachyon/math/matrix/prime_field_num_traits.h"
@@ -37,11 +37,6 @@ struct FiniteFieldTraits<PackedMersenne31> {
   using Config = Mersenne31::Config;
 };
 
-template <>
-struct PackedFieldTraits<Mersenne31> {
-  using PackedField = PackedMersenne31;
-};
-
 }  // namespace tachyon::math
 
 namespace Eigen {
@@ -66,4 +61,4 @@ struct NumTraits<tachyon::math::PackedMersenne31>
 
 }  // namespace Eigen
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_MERSENNE31_PACKED_MERSENNE31_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_MERSENNE31_INTERNAL_PACKED_MERSENNE31_H_

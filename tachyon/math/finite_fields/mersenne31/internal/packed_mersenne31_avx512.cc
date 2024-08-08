@@ -5,7 +5,7 @@
 
 #if defined(TACHYON_HAS_AVX512)
 
-#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_avx512.h"
+#include "tachyon/math/finite_fields/mersenne31/internal/packed_mersenne31_avx512.h"
 
 #include <immintrin.h>
 

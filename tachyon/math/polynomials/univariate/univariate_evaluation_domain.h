@@ -106,7 +106,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     coset->offset_pow_size_ = offset.Pow(size_);
 #if TACHYON_CUDA
     // TODO(chokobole): Remove this condition.
-    if constexpr (std::is_same_v<F, bn254::Fr>) {
+    if constexpr (IsIcicleNTTSupported<F>) {
       if (icicle_) {
         coset->offset_big_int_ = offset.ToBigInt();
       }
@@ -144,7 +144,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     evals.evaluations_ = poly.coefficients_.coefficients_;
 #if TACHYON_CUDA
     // TODO(chokobole): Remove this condition.
-    if constexpr (std::is_same_v<F, bn254::Fr>) {
+    if constexpr (IsIcicleNTTSupported<F>) {
       if (icicle_) {
         evals.evaluations_.resize(size_);
         CHECK((*icicle_)->FFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),
@@ -165,7 +165,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     evals.evaluations_ = std::move(poly.coefficients_.coefficients_);
 #if TACHYON_CUDA
     // TODO(chokobole): Remove this condition.
-    if constexpr (std::is_same_v<F, bn254::Fr>) {
+    if constexpr (IsIcicleNTTSupported<F>) {
       if (icicle_) {
         evals.evaluations_.resize(size_);
         CHECK((*icicle_)->FFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),
@@ -190,7 +190,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     poly.coefficients_.coefficients_ = evals.evaluations_;
 #if TACHYON_CUDA
     // TODO(chokobole): Remove this condition.
-    if constexpr (std::is_same_v<F, bn254::Fr>) {
+    if constexpr (IsIcicleNTTSupported<F>) {
       if (icicle_) {
         poly.coefficients_.coefficients_.resize(size_);
         CHECK((*icicle_)->IFFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),
@@ -213,7 +213,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     poly.coefficients_.coefficients_ = std::move(evals.evaluations_);
 #if TACHYON_CUDA
     // TODO(chokobole): Remove this condition.
-    if constexpr (std::is_same_v<F, bn254::Fr>) {
+    if constexpr (IsIcicleNTTSupported<F>) {
       if (icicle_) {
         poly.coefficients_.coefficients_.resize(size_);
         CHECK((*icicle_)->IFFT(FFTAlgorithmToIcicleNTTAlgorithm(GetAlgorithm()),

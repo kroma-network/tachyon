@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_avx2.h"
+#include "tachyon/math/finite_fields/koala_bear/internal/packed_koala_bear_avx2.h"
 
 #include <immintrin.h>
 
@@ -19,13 +19,13 @@ __m256i kZero;
 __m256i kOne;
 __m256i kMinusOne;
 
-__m256i ToVector(const PackedBabyBearAVX2& packed) {
+__m256i ToVector(const PackedKoalaBearAVX2& packed) {
   return _mm256_loadu_si256(
       reinterpret_cast<const __m256i_u*>(packed.values().data()));
 }
 
-PackedBabyBearAVX2 FromVector(__m256i vector) {
-  PackedBabyBearAVX2 ret;
+PackedKoalaBearAVX2 FromVector(__m256i vector) {
+  PackedKoalaBearAVX2 ret;
   _mm256_storeu_si256(reinterpret_cast<__m256i_u*>(ret.values().data()),
                       vector);
   return ret;
@@ -43,53 +43,53 @@ __m256i Mul(__m256i lhs, __m256i rhs) {
 
 }  // namespace
 
-PackedBabyBearAVX2::PackedBabyBearAVX2(uint32_t value) {
-  __m256i vector = _mm256_set1_epi32(BabyBear::Config::ToMontgomery(value));
+PackedKoalaBearAVX2::PackedKoalaBearAVX2(uint32_t value) {
+  __m256i vector = _mm256_set1_epi32(KoalaBear::Config::ToMontgomery(value));
   _mm256_storeu_si256(reinterpret_cast<__m256i_u*>(values_.data()), vector);
 }
 
 // static
-void PackedBabyBearAVX2::Init() {
-  BabyBear::Init();
-  kP = _mm256_set1_epi32(BabyBear::Config::kModulus);
-  kInv = _mm256_set1_epi32(BabyBear::Config::kInverse32);
+void PackedKoalaBearAVX2::Init() {
+  KoalaBear::Init();
+  kP = _mm256_set1_epi32(KoalaBear::Config::kModulus);
+  kInv = _mm256_set1_epi32(KoalaBear::Config::kInverse32);
   kZero = _mm256_set1_epi32(0);
-  kOne = _mm256_set1_epi32(BabyBear::Config::kOne);
-  kMinusOne = _mm256_set1_epi32(BabyBear::Config::kMinusOne);
+  kOne = _mm256_set1_epi32(KoalaBear::Config::kOne);
+  kMinusOne = _mm256_set1_epi32(KoalaBear::Config::kMinusOne);
 }
 
 // static
-PackedBabyBearAVX2 PackedBabyBearAVX2::Zero() { return FromVector(kZero); }
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::Zero() { return FromVector(kZero); }
 
 // static
-PackedBabyBearAVX2 PackedBabyBearAVX2::One() { return FromVector(kOne); }
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::One() { return FromVector(kOne); }
 
 // static
-PackedBabyBearAVX2 PackedBabyBearAVX2::MinusOne() {
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::MinusOne() {
   return FromVector(kMinusOne);
 }
 
 // static
-PackedBabyBearAVX2 PackedBabyBearAVX2::Broadcast(const PrimeField& value) {
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::Broadcast(const PrimeField& value) {
   return FromVector(_mm256_set1_epi32(value.value()));
 }
 
-PackedBabyBearAVX2 PackedBabyBearAVX2::Add(
-    const PackedBabyBearAVX2& other) const {
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::Add(
+    const PackedKoalaBearAVX2& other) const {
   return FromVector(math::Add(ToVector(*this), ToVector(other)));
 }
 
-PackedBabyBearAVX2 PackedBabyBearAVX2::Sub(
-    const PackedBabyBearAVX2& other) const {
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::Sub(
+    const PackedKoalaBearAVX2& other) const {
   return FromVector(math::Sub(ToVector(*this), ToVector(other)));
 }
 
-PackedBabyBearAVX2 PackedBabyBearAVX2::Negate() const {
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::Negate() const {
   return FromVector(math::Negate(ToVector(*this)));
 }
 
-PackedBabyBearAVX2 PackedBabyBearAVX2::Mul(
-    const PackedBabyBearAVX2& other) const {
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::Mul(
+    const PackedKoalaBearAVX2& other) const {
   return FromVector(math::Mul(ToVector(*this), ToVector(other)));
 }
 

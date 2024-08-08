@@ -4,8 +4,8 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h"
-#include "tachyon/math/finite_fields/koala_bear/packed_koala_bear.h"
+#include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
+#include "tachyon/math/finite_fields/koala_bear/koala_bear.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/polynomials/univariate/naive_batch_fft.h"

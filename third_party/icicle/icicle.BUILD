@@ -1,89 +1,27 @@
-load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load(
+    "@icicle//:build_defs.bzl",
+    "CURVES",
+    "FIELDS",
+    "FIELDS_WITH_NTT",
+    "FIELDS_WITH_POSEIDON",
+    "FIELDS_WITH_POSEIDON2",
+    "icicle_defines",
+)
 load("@kroma_network_tachyon//bazel:tachyon.bzl", "if_gpu_is_configured")
 load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cuda_library")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 
 package(default_visibility = ["//visibility:public"])
 
-VALUES = [
-    "bn254",
-    "bls12_381",
-    "bls12_377",
-    "bw6_761",
-    "grumpkin",
-    "baby_bear",
-    "stark_252",
-]
-
-string_flag(
-    name = "field_id",
-    build_setting_default = "bn254",
-    values = VALUES,
-)
-
-[
-    config_setting(
-        name = "{}_field_id".format(value),
-        flag_values = {":field_id": value},
-    )
-    for value in VALUES
-]
-
 tachyon_cuda_library(
     name = "hdrs",
     hdrs = glob(["icicle/include/**/*.h"]),
-    defines = select({
-        ":bn254_field_id": [
-            "FIELD_ID=BN254",
-            "CURVE_ID=BN254",
-            "CURVE=bn254",
-        ],
-        ":bls12_381_field_id": [
-            "FIELD_ID=BLS12_381",
-            "CURVE_ID=BLS12_381",
-            "CURVE=bls12_381",
-        ],
-        ":bls12_377_field_id": [
-            "FIELD_ID=BLS12_377",
-            "CURVE_ID=BLS12_377",
-            "CURVE=bls12_377",
-        ],
-        ":bw6_761_field_id": [
-            "FIELD_ID=BW6_761",
-            "CURVE_ID=BW6_761",
-            "CURVE=bw6_761",
-        ],
-        ":grumpkin_field_id": [
-            "FIELD_ID=GRUMPKIN",
-            "CURVE_ID=GRUMPKIN",
-            "CURVE=grumpkin",
-        ],
-        ":baby_bear_field_id": ["FIELD_ID=BABY_BEAR"],
-        ":stark_252_field_id": ["FIELD_ID=STARK_252"],
-        "//conditions:default": [],
-    }),
     include_prefix = "third_party/icicle/include",
     includes = ["icicle/include"],
     strip_include_prefix = "icicle/include",
     deps = if_cuda([
         "@local_config_cuda//cuda:cuda_headers",
     ]),
-)
-
-tachyon_cuda_library(
-    name = "curves",
-    include_prefix = "third_party/icicle/src",
-    includes = ["icicle/src/curves"],
-    strip_include_prefix = "icicle/src",
-    deps = [":hdrs"],
-)
-
-tachyon_cuda_library(
-    name = "fields",
-    include_prefix = "third_party/icicle/src",
-    includes = ["icicle/src/fields"],
-    strip_include_prefix = "icicle/src",
-    deps = [":hdrs"],
 )
 
 tachyon_cuda_library(
@@ -97,17 +35,18 @@ tachyon_cuda_library(
     deps = [":hdrs"],
 )
 
-tachyon_cuda_library(
-    name = "msm",
+[tachyon_cuda_library(
+    name = "msm_{}".format(field),
     hdrs = ["icicle/src/msm/msm.cu.cc"],
     include_prefix = "third_party/icicle/src",
     includes = ["icicle/src/msm"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
-)
+) for field in CURVES]
 
-tachyon_cuda_library(
-    name = "ntt",
+[tachyon_cuda_library(
+    name = "ntt_{}".format(field),
     srcs = if_gpu_is_configured([
         "icicle/src/ntt/kernel_ntt.cu.cc",
     ]),
@@ -117,12 +56,13 @@ tachyon_cuda_library(
     ],
     include_prefix = "third_party/icicle/src",
     includes = ["icicle/src/ntt"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
-)
+) for field in FIELDS_WITH_NTT]
 
-tachyon_cuda_library(
-    name = "polynomials",
+[tachyon_cuda_library(
+    name = "polynomials_{}".format(field),
     srcs = if_gpu_is_configured([
         "icicle/src/polynomials/polynomials.cu.cc",
         "icicle/src/polynomials/polynomials_c_api.cu.cc",
@@ -131,15 +71,16 @@ tachyon_cuda_library(
     hdrs = ["icicle/src/polynomials/cuda_backend/kernels.cu.h"],
     include_prefix = "third_party/icicle/src",
     includes = ["includes/src/polynomials"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [
         ":hdrs",
         ":vec_ops",
     ],
-)
+) for field in FIELDS]
 
-tachyon_cuda_library(
-    name = "poseidon",
+[tachyon_cuda_library(
+    name = "poseidon_{}".format(field),
     srcs = if_gpu_is_configured([
         "icicle/src/poseidon/tree/merkle.cu.cc",
     ]),
@@ -150,12 +91,13 @@ tachyon_cuda_library(
     ],
     include_prefix = "third_party/icicle/src",
     includes = ["includes/src/poseidon"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
-)
+) for field in FIELDS_WITH_POSEIDON]
 
-tachyon_cuda_library(
-    name = "poseidon2",
+[tachyon_cuda_library(
+    name = "poseidon2_{}".format(field),
     hdrs = [
         "icicle/src/poseidon2/constants.cu.cc",
         "icicle/src/poseidon2/kernels.cu.cc",
@@ -163,9 +105,10 @@ tachyon_cuda_library(
     ],
     include_prefix = "third_party/icicle/src",
     includes = ["includes/src/poseidon2"],
+    local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
-)
+) for field in FIELDS_WITH_POSEIDON2]
 
 tachyon_cuda_library(
     name = "vec_ops",
