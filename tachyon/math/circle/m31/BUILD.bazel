@@ -1,6 +1,6 @@
 load("//tachyon/math/circle/generator:build_defs.bzl", "generate_circle_points")
 load(
-    "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
+    "//tachyon/math/finite_fields/generator/ext_field_generator:build_defs.bzl",
     "generate_fp2s",
     "generate_fp4s",
 )

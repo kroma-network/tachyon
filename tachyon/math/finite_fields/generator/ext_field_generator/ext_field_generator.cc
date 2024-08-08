@@ -141,7 +141,7 @@ int GenerationConfig::GenerateConfigHdr() const {
 
 int RealMain(int argc, char** argv) {
   GenerationConfig config;
-  config.generator = "//tachyon/math/finite_fields/ext_prime_field_generator";
+  config.generator = "//tachyon/math/finite_fields/ext_field_generator";
 
   base::FlagParser parser;
   parser.AddFlag<base::FilePathFlag>(&config.out)
