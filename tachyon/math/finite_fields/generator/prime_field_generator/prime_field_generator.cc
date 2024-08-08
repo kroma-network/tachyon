@@ -215,13 +215,18 @@ int GenerationConfig::GenerateConfigHdr() const {
   replacements["%{inverse32}"] = base::NumberToString(modulus_info.inverse32);
 
   replacements["%{use_montgomery}"] = base::BoolToString(use_montgomery);
+  mpz_class two(2);
+  mpz_class two_inv;
+  mpz_invert(two_inv.get_mpz_t(), two.get_mpz_t(), m.get_mpz_t());
   if (use_montgomery) {
     replacements["%{one}"] = math::MpzClassToMontString(mpz_class(1), m);
     replacements["%{minus_one}"] =
         math::MpzClassToMontString(m - mpz_class(1), m);
+    replacements["%{two_inv}"] = math::MpzClassToMontString(two_inv, m);
   } else {
     replacements["%{one}"] = "1";
     replacements["%{minus_one}"] = math::MpzClassToString(m - mpz_class(1));
+    replacements["%{two_inv}"] = math::MpzClassToString(two_inv);
   }
 
   std::string tpl_content;

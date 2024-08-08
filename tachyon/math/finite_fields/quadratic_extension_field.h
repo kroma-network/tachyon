@@ -57,6 +57,10 @@ class QuadraticExtensionField
     return {BaseField::MinusOne(), BaseField::Zero()};
   }
 
+  constexpr static Derived TwoInv() {
+    return {BaseField::TwoInv(), BaseField::Zero()};
+  }
+
   static Derived Random() { return {BaseField::Random(), BaseField::Random()}; }
 
   // TODO(chokobole): Should be generalized for packed extension field.

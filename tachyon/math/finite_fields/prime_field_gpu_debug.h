@@ -68,6 +68,12 @@ class PrimeFieldGpuDebug final
     return ret;
   }
 
+  constexpr static PrimeFieldGpuDebug TwoInv() {
+    PrimeFieldGpuDebug ret{};
+    ret.value_ = Config::kTwoInv;
+    return ret;
+  }
+
   static PrimeFieldGpuDebug Random() {
     PrimeFieldGpuDebug ret{};
     ret.value_ = PrimeField<Config>::Random().value();

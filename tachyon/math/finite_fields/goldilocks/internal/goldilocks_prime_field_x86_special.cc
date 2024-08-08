@@ -6,6 +6,7 @@
 
 #include "third_party/goldilocks/include/goldilocks_base_field.hpp"
 
+#include "tachyon/base/optional.h"
 #include "tachyon/base/random.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
@@ -34,6 +35,16 @@ CLASS CLASS::MinusOne() {
   return PrimeField::FromMontgomery(Config::kMinusOne[0]);
 #else
   return PrimeField(Config::kModulus[0] - 1);
+#endif
+}
+
+// static
+template <typename Config>
+CLASS CLASS::TwoInv() {
+#if USE_MONTGOMERY == 1
+  return PrimeField::FromMontgomery(Config::kTwoInv[0]);
+#else
+  return unwrap(PrimeField(2).Inverse());
 #endif
 }
 

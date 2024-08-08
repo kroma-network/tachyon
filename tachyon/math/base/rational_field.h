@@ -38,6 +38,8 @@ class RationalField : public Field<RationalField<F>> {
     return RationalField(F::MinusOne());
   }
 
+  constexpr static RationalField TwoInv() { return RationalField(F::TwoInv()); }
+
   constexpr static RationalField Random() {
     F denominator = F::Random();
     while (denominator.IsZero()) {

@@ -50,6 +50,7 @@ tachyon_cc_library(
     deps = if_x86_64([
         ":goldilocks_config",
         "//tachyon/base:random",
+        "//tachyon/base:optional",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/finite_fields:prime_field_base",

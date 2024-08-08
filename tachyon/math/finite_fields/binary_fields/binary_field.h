@@ -50,15 +50,13 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
 
   constexpr BinaryField() = default;
   template <typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
-  constexpr explicit BinaryField(T value) {
+  constexpr explicit BinaryField(T value) : value_(value) {
     if constexpr (kBits <= 64) {
       DCHECK(base::IsValueInRangeForNumericType<Type>(value));
       DCHECK_LE(static_cast<Type>(value), GetMax());
-      value_ = static_cast<Type>(value);
-    } else {
-      value_[0] = value;
     }
   }
+
   constexpr explicit BinaryField(BigInt<1> value) : BinaryField(value[0]) {
     static_assert(kBits <= 64);
   }
@@ -73,6 +71,7 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   constexpr static BinaryField Zero() { return BinaryField(); }
   constexpr static BinaryField One() { return BinaryField(1); }
   constexpr static BinaryField MinusOne() { return One(); }
+  constexpr static BinaryField TwoInv() { return *BinaryField(2).Inverse(); }
 
   static BinaryField Random() {
     if constexpr (kBits <= 64) {

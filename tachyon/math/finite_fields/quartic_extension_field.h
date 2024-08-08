@@ -65,6 +65,11 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
             BaseField::Zero()};
   }
 
+  constexpr static Derived TwoInv() {
+    return {BaseField::TwoInv(), BaseField::Zero(), BaseField::Zero(),
+            BaseField::Zero()};
+  }
+
   static Derived Random() {
     return {BaseField::Random(), BaseField::Random(), BaseField::Random(),
             BaseField::Random()};
@@ -102,7 +107,6 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
   ConstIterator end() const { return {static_cast<const Derived&>(*this), 4}; }
 
   static void Init() {
-    kInv2 = *BaseField(2).Inverse();
     kInv3 = *BaseField(3).Inverse();
     kInv4 = *BaseField(4).Inverse();
     kInv6 = *BaseField(6).Inverse();
@@ -112,7 +116,7 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
     kInv30 = *BaseField(30).Inverse();
     kInv120 = *BaseField(120).Inverse();
     kNeg5 = -BaseField(5);
-    kNegInv2 = -kInv2;
+    kNegInv2 = -BaseField::TwoInv();
     kNegInv3 = -kInv3;
     kNegInv4 = -kInv4;
     kNegInv6 = -kInv6;
@@ -593,7 +597,6 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
   BaseField c2_;
   BaseField c3_;
 
-  static BaseField kInv2;
   static BaseField kInv3;
   static BaseField kInv4;
   static BaseField kInv6;
@@ -617,7 +620,6 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
   typename QuarticExtensionField<Derived>::BaseField \
       QuarticExtensionField<Derived>::name
 
-ADD_STATIC_MEMBER(kInv2);
 ADD_STATIC_MEMBER(kInv3);
 ADD_STATIC_MEMBER(kInv4);
 ADD_STATIC_MEMBER(kInv6);

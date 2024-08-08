@@ -19,6 +19,7 @@ __m512i kP;
 __m512i kZero;
 __m512i kOne;
 __m512i kMinusOne;
+__m512i kTwoInv;
 
 __mmask16 kEvens = 0b0101010101010101;
 __mmask16 kOdds = 0b1010101010101010;
@@ -130,6 +131,7 @@ void PackedMersenne31AVX512::Init() {
   kZero = _mm512_set1_epi32(0);
   kOne = _mm512_set1_epi32(1);
   kMinusOne = _mm512_set1_epi32(Mersenne31::Config::kModulus - 1);
+  kTwoInv = _mm512_set1_epi32(Mersenne31::Config::kTwoInv);
 }
 
 // static
@@ -145,6 +147,11 @@ PackedMersenne31AVX512 PackedMersenne31AVX512::One() {
 // static
 PackedMersenne31AVX512 PackedMersenne31AVX512::MinusOne() {
   return FromVector(kMinusOne);
+}
+
+// static
+PackedMersenne31AVX512 PackedMersenne31AVX512::TwoInv() {
+  return FromVector(kTwoInv);
 }
 
 // static

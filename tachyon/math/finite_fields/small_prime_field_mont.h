@@ -63,6 +63,12 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
     return ret;
   }
 
+  constexpr static PrimeField TwoInv() {
+    PrimeField ret{};
+    ret.value_ = Config::kTwoInv;
+    return ret;
+  }
+
   static PrimeField Random() {
     return PrimeField(
         base::Uniform(base::Range<uint32_t>::Until(GetModulus())));

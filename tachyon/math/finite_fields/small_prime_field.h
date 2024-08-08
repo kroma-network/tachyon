@@ -56,6 +56,7 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
   constexpr static PrimeField MinusOne() {
     return PrimeField(GetModulus() - 1);
   }
+  constexpr static PrimeField TwoInv() { return PrimeField(Config::kTwoInv); }
 
   static PrimeField Random() {
     return PrimeField(
