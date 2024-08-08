@@ -350,6 +350,11 @@ bazel build --config ${os} --//:has_asm_prime_field=false //...
 
 ## Performance Tuning
 
+### Visualizing and Profiling Traces
+
+Tachyon utilizes [Perfetto](https://perfetto.dev/) for low-overhead profiling. You can visualize the generated trace by
+uploading it to the [Perfetto Trace Viewer](https://ui.perfetto.dev/). Typically, our traces are generated in the `/tmp` directory with a `perfetto-trace` extension.
+
 ### Use Intel OpenMP Runtime Library(libiomp)
 
 By default, Tachyon uses GNU OpenMP (GNU `libgomp`) for parallel computation. On Intel platforms, Intel OpenMP Runtime Library (`libiomp`) provides OpenMP API specification support. It sometimes brings more performance benefits compared to `libgomp`.
