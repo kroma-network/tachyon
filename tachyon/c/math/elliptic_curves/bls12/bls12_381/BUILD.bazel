@@ -8,16 +8,14 @@ filegroup(
     name = "bls12_381_hdrs",
     srcs = [
         "fq.h",
-        "fr.h",
+        "fq12.h",
         "fq2.h",
         "fq6.h",
-        "fq12.h",
+        "fr.h",
         "g1.h",
         "g2.h",
         "msm.h",
-        # Uncomment the following line.
-        # See //tachyon/c/math/elliptic_curves/generator:build_defs.bzl
-        # "msm_gpu.h",
+        "msm_gpu.h",
     ],
 )
 

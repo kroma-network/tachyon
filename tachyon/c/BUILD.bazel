@@ -47,9 +47,7 @@ tachyon_cc_library(
 
 TPLS = [
     "//tachyon/c/math/elliptic_curves/{}:msm",
-    # Uncomment the following line.
-    # See //tachyon/c/math/elliptic_curves/generator:build_defs.bzl
-    # "//tachyon/c/math/elliptic_curves/{}:msm_gpu",
+    "//tachyon/c/math/elliptic_curves/{}:msm_gpu",
 ]
 
 CURVES = [
@@ -68,6 +66,7 @@ tachyon_cc_shared_library(
         ":version",
         "//tachyon/c/crypto/random:rng",
         "//tachyon/c/math:bn254_math",
+        "//tachyon/c/math:bls12_381_math",
         "//tachyon/c/zk:bn254_zk",
     ]) + if_cuda([
         "@local_config_cuda//cuda:cudart_static",

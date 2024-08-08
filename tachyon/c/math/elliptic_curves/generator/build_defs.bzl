@@ -151,14 +151,12 @@ def generate_ec_points(
         ],
     )
 
-    if name != "bls12_381":
-        # NOTE(chokobole): bls12_381 scalar field causes a compliation error at PrimeFieldGpu::MulInPlace().
-        tachyon_cuda_library(
-            name = "msm_gpu",
-            hdrs = ["msm_gpu.h"],
-            srcs = if_gpu_is_configured(["msm_gpu.cc"]),
-            deps = g1_gpu_deps + [
-                ":g1",
-                "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
-            ],
-        )
+    tachyon_cuda_library(
+        name = "msm_gpu",
+        hdrs = ["msm_gpu.h"],
+        srcs = if_gpu_is_configured(["msm_gpu.cc"]),
+        deps = g1_gpu_deps + [
+            ":g1",
+            "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
+        ],
+    )

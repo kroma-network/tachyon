@@ -13,6 +13,13 @@ filegroup(
 )
 
 tachyon_cc_library(
+    name = "bls12_381_math",
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bls12/bls12_381:msm_gpu",
+    ],
+)
+
+tachyon_cc_library(
     name = "bn254_math",
     deps = [
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
