@@ -9,7 +9,10 @@ filegroup(
 
 tachyon_cc_library(
     name = "finite_fields",
-    deps = ["//tachyon/c/math/finite_fields/baby_bear"],
+    deps = [
+        "//tachyon/c/math/finite_fields/baby_bear",
+        "//tachyon/c/math/finite_fields/baby_bear:baby_bear4",
+    ],
 )
 
 tachyon_cc_unittest(

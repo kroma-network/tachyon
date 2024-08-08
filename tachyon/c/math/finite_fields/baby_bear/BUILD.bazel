@@ -1,10 +1,14 @@
+load("//tachyon/c/math/finite_fields/generator/ext_field_generator:build_defs.bzl", "generate_ext_fields")
 load("//tachyon/c/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_small_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "baby_bear_hdrs",
-    srcs = ["baby_bear.h"],
+    srcs = [
+        "baby_bear.h",
+        "baby_bear4.h",
+    ],
 )
 
 generate_small_prime_fields(
@@ -14,4 +18,18 @@ generate_small_prime_fields(
     native_deps = ["//tachyon/math/finite_fields/baby_bear"],
     native_hdr = "tachyon/math/finite_fields/baby_bear/baby_bear.h",
     native_type = "tachyon::math::BabyBear",
+)
+
+generate_ext_fields(
+    name = "baby_bear4",
+    base_field_class_name = "baby_bear",
+    base_field_display_name = "BabyBear",
+    c_base_field_deps = [":baby_bear"],
+    c_base_field_hdr = "tachyon/c/math/finite_fields/baby_bear/baby_bear.h",
+    class_name = "baby_bear4",
+    degree_over_base_field = 4,
+    display_name = "BabyBear4",
+    native_deps = ["//tachyon/math/finite_fields/baby_bear:baby_bear4"],
+    native_hdr = "tachyon/math/finite_fields/baby_bear/baby_bear4.h",
+    native_type = "tachyon::math::BabyBear4",
 )
