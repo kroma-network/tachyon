@@ -1,4 +1,5 @@
 // clang-format off
+%{if IsECPrimeField}
 /**
  * @file
  * @brief Finite field operations for the %{curve} curve.
@@ -8,11 +9,23 @@
  * and multiplication of field elements.
  * @example prime_field.cc
  */
+%{endif IsECPrimeField}
+%{if IsSmallPrimeField}
+/**
+ * @file
+ * @brief Finite field operations for the %{display_name}
+ *
+ * This header file defines operations and structures for manipulating elements of the finite field %{display_name}.
+ * It provides fundamental arithmetic operations necessary such as addition, subtraction and multiplication of field elements.
+ * @example prime_field.cc
+ */
+%{endif IsSmallPrimeField}
 
 #include <stdint.h>
 
 #include "tachyon/c/export.h"
 
+%{if IsECPrimeField}
 /**
  * @struct tachyon_%{class_name}
  * @brief Represents an element in the finite field %{display_name} for the %{curve} curve.
@@ -23,6 +36,19 @@
 struct tachyon_%{class_name} {
   uint64_t limbs[%{limb_nums}];
 };
+%{endif IsECPrimeField}
+%{if IsSmallPrimeField}
+/**
+ * @struct tachyon_%{class_name}
+ * @brief Represents an element in the finite field %{display_name}.
+ *
+ * This structure is used to represent an element in the finite field %{display_name},
+ * It stores the element as a 32-bit value.
+ */
+struct tachyon_%{class_name} {
+  uint32_t value;
+};
+%{endif IsSmallPrimeField}
 
 %{extern_c_front}
 

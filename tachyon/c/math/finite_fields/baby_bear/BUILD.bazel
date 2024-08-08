@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//tachyon/c/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_small_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -7,14 +7,11 @@ filegroup(
     srcs = ["baby_bear.h"],
 )
 
-tachyon_cc_library(
+generate_small_prime_fields(
     name = "baby_bear",
-    hdrs = [
-        "baby_bear.h",
-        "baby_bear_type_traits.h",
-    ],
-    deps = [
-        "//tachyon/c/base:type_traits_forward",
-        "//tachyon/math/finite_fields/baby_bear",
-    ],
+    class_name = "baby_bear",
+    display_name = "BabyBear",
+    native_deps = ["//tachyon/math/finite_fields/baby_bear"],
+    native_hdr = "tachyon/math/finite_fields/baby_bear/baby_bear.h",
+    native_type = "tachyon::math::BabyBear",
 )

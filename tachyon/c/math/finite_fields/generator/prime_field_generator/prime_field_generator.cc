@@ -30,6 +30,11 @@ int GenerationConfig::GenerateHdr() const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(hdr_tpl_path, &tpl_content));
 
+  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
+  RemoveOptionalLines(tpl_lines, "IsECPrimeField", limb_nums != 0);
+  RemoveOptionalLines(tpl_lines, "IsSmallPrimeField", limb_nums == 0);
+  tpl_content = absl::StrJoin(tpl_lines, "\n");
+
   std::string content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{class_name}", class_name},

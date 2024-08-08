@@ -103,3 +103,37 @@ def generate_ec_prime_fields(
             "//tachyon/c/base:type_traits_forward",
         ],
     )
+
+def generate_small_prime_fields(
+        name,
+        class_name,
+        display_name,
+        native_type,
+        native_hdr,
+        native_deps):
+    for n in [
+        ("{}_gen_type_traits_hdr".format(name), "{}_type_traits.h".format(name)),
+        ("{}_gen_src".format(name), "{}.cc".format(name)),
+        ("{}_gen_hdr".format(name), "{}.h".format(name)),
+    ]:
+        generate_prime_field(
+            class_name = class_name,
+            display_name = display_name,
+            native_type = native_type,
+            native_hdr = native_hdr,
+            name = n[0],
+            out = n[1],
+        )
+
+    tachyon_cc_library(
+        name = name,
+        hdrs = [
+            ":{}_gen_type_traits_hdr".format(name),
+            ":{}_gen_hdr".format(name),
+        ],
+        srcs = [":{}_gen_src".format(name)],
+        deps = native_deps + [
+            "//tachyon/c:export",
+            "//tachyon/c/base:type_traits_forward",
+        ],
+    )
