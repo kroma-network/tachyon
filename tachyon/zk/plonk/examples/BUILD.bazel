@@ -146,6 +146,7 @@ tachyon_cc_unittest(
     name = "multi_lookup_circuit_test",
     srcs = ["multi_lookup_circuit_test.cc"],
     env = tachyon_openmp_num_threads_env(4),
+    tags = ["gpu_heavy_test"],
     deps = COMMON_TEST_DEPS + [
         ":multi_lookup_circuit",
         ":multi_lookup_circuit_test_data",
@@ -156,6 +157,7 @@ tachyon_cc_unittest(
     name = "shuffle_circuit_test",
     srcs = ["shuffle_circuit_test.cc"],
     env = tachyon_openmp_num_threads_env(4),
+    tags = ["gpu_heavy_test"],
     deps = COMMON_TEST_DEPS + [
         ":shuffle_circuit",
         ":shuffle_circuit_test_data",
@@ -166,6 +168,7 @@ tachyon_cc_unittest(
     name = "shuffle_api_circuit_test",
     srcs = ["shuffle_api_circuit_test.cc"],
     env = tachyon_openmp_num_threads_env(4),
+    tags = ["gpu_heavy_test"],
     deps = COMMON_TEST_DEPS + [
         ":shuffle_api_circuit",
         ":shuffle_api_circuit_test_data",
@@ -176,6 +179,7 @@ tachyon_cc_unittest(
     name = "simple_circuit_test",
     srcs = ["simple_circuit_test.cc"],
     env = tachyon_openmp_num_threads_env(4),
+    tags = ["gpu_heavy_test"],
     deps = COMMON_TEST_DEPS + [
         ":simple_circuit",
         ":simple_circuit_test_data",
@@ -186,6 +190,7 @@ tachyon_cc_unittest(
     name = "simple_lookup_circuit_test",
     srcs = ["simple_lookup_circuit_test.cc"],
     env = tachyon_openmp_num_threads_env(4),
+    tags = ["gpu_heavy_test"],
     deps = COMMON_TEST_DEPS + [
         ":simple_lookup_circuit",
         ":simple_lookup_circuit_test_data",

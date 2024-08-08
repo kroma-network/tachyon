@@ -75,6 +75,7 @@ tachyon_cc_unittest(
     name = "fibonacci1_circuit_test",
     srcs = ["fibonacci1_circuit_test.cc"],
     env = tachyon_openmp_num_threads_env(4),
+    tags = ["gpu_heavy_test"],
     deps = COMMON_TEST_DEPS + [
         "fibonacci1_circuit_test_data",
         ":fibonacci1_circuit",
@@ -85,6 +86,7 @@ tachyon_cc_unittest(
     name = "fibonacci2_circuit_test",
     srcs = ["fibonacci2_circuit_test.cc"],
     env = tachyon_openmp_num_threads_env(4),
+    tags = ["gpu_heavy_test"],
     deps = COMMON_TEST_DEPS + [
         "fibonacci2_circuit_test_data",
         ":fibonacci2_circuit",
@@ -95,6 +97,7 @@ tachyon_cc_unittest(
     name = "fibonacci3_circuit_test",
     srcs = ["fibonacci3_circuit_test.cc"],
     env = tachyon_openmp_num_threads_env(4),
+    tags = ["gpu_heavy_test"],
     deps = COMMON_TEST_DEPS + [
         "fibonacci3_circuit_test_data",
         ":fibonacci3_circuit",
