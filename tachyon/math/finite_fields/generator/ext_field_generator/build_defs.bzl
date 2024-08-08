@@ -1,7 +1,7 @@
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 def _generate_ext_field_impl(ctx):
-    fq_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/finite_fields/generator/ext_field_generator:fq.h.tpl)", [ctx.attr.fq_hdr_tpl_path])
+    fp_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/finite_fields/generator/ext_field_generator:fp.h.tpl)", [ctx.attr.fp_hdr_tpl_path])
 
     arguments = [
         "--out=%s" % (ctx.outputs.out.path),
@@ -11,7 +11,7 @@ def _generate_ext_field_impl(ctx):
         "--base_field_degree=%s" % (ctx.attr.base_field_degree),
         "--base_field_hdr=%s" % (ctx.attr.base_field_hdr),
         "--base_field=%s" % (ctx.attr.base_field),
-        "--fq_hdr_tpl_path=%s" % (fq_hdr_tpl_path),
+        "--fp_hdr_tpl_path=%s" % (fp_hdr_tpl_path),
     ]
     if ctx.attr.is_packed:
         arguments.append("--is_packed")
@@ -23,7 +23,7 @@ def _generate_ext_field_impl(ctx):
         arguments.append("--mul_by_non_residue_override=%s" % (ctx.attr.mul_by_non_residue_override))
 
     ctx.actions.run(
-        inputs = [ctx.files.fq_hdr_tpl_path[0]],
+        inputs = [ctx.files.fp_hdr_tpl_path[0]],
         tools = [ctx.executable._tool],
         executable = ctx.executable._tool,
         outputs = [ctx.outputs.out],
@@ -45,9 +45,9 @@ generate_ext_field = rule(
         "base_field": attr.string(mandatory = True),
         "is_packed": attr.bool(mandatory = True),
         "mul_by_non_residue_override": attr.string(),
-        "fq_hdr_tpl_path": attr.label(
+        "fp_hdr_tpl_path": attr.label(
             allow_single_file = True,
-            default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/ext_field_generator:fq.h.tpl"),
+            default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/ext_field_generator:fp.h.tpl"),
         ),
         "_tool": attr.label(
             # TODO(chokobole): Change to "exec", so we can build on macos.
