@@ -1,5 +1,5 @@
 diff --git a/docs/docs/icicle/polynomials/overview.md b/docs/docs/icicle/polynomials/overview.md
-index 06058ffe..726157c8 100644
+index 25ba9dee..c77bce76 100644
 --- a/docs/docs/icicle/polynomials/overview.md
 +++ b/docs/docs/icicle/polynomials/overview.md
 @@ -61,7 +61,7 @@ Initialization with an appropriate factory is required to configure the computat
@@ -45,18 +45,23 @@ similarity index 100%
 rename from examples/c++/msm/example.cu
 rename to examples/c++/msm/example.cu.cc
 diff --git a/examples/c++/multi-gpu-poseidon/example.cu b/examples/c++/multi-gpu-poseidon/example.cu.cc
-similarity index 99%
+similarity index 98%
 rename from examples/c++/multi-gpu-poseidon/example.cu
 rename to examples/c++/multi-gpu-poseidon/example.cu.cc
-index 32f0c920..10712521 100644
+index fcc3d527..5706f195 100644
 --- a/examples/c++/multi-gpu-poseidon/example.cu
 +++ b/examples/c++/multi-gpu-poseidon/example.cu.cc
-@@ -4,7 +4,7 @@
+@@ -4,10 +4,10 @@
  #include <nvml.h>
  
  #include "api/bn254.h"
 -#include "gpu-utils/error_handler.cuh"
 +#include "gpu-utils/error_handler.cu.h"
+ 
+-#include "poseidon/poseidon.cuh"
+-#include "hash/hash.cuh"
++#include "poseidon/poseidon.cu.h"
++#include "hash/hash.cu.h"
  
  using namespace poseidon;
  using namespace bn254;
@@ -138,22 +143,20 @@ diff --git a/examples/c++/polynomial-api/example.cu b/examples/c++/polynomial-ap
 similarity index 99%
 rename from examples/c++/polynomial-api/example.cu
 rename to examples/c++/polynomial-api/example.cu.cc
-index d19178b2..8df88e1b 100644
+index 76229834..fb04a55d 100644
 --- a/examples/c++/polynomial-api/example.cu
 +++ b/examples/c++/polynomial-api/example.cu.cc
-@@ -1,9 +1,9 @@
+@@ -1,8 +1,8 @@
  #include <iostream>
  #include <cassert>
  #include "polynomials/polynomials.h"
 -#include "polynomials/cuda_backend/polynomial_cuda_backend.cuh"
 -#include "ntt/ntt.cuh"
--#include "poseidon/tree/merkle.cuh"
 +#include "polynomials/cuda_backend/polynomial_cuda_backend.cu.h"
 +#include "ntt/ntt.cu.h"
-+#include "poseidon/tree/merkle.cu.h"
+ 
  #include "api/bn254.h"
  #include <chrono>
- 
 diff --git a/examples/c++/polynomial_multiplication/example.cu b/examples/c++/polynomial_multiplication/example.cu.cc
 similarity index 99%
 rename from examples/c++/polynomial_multiplication/example.cu
@@ -184,20 +187,42 @@ index 7c936694..e4bf8b0b 100644
  poseidon_hash<scalar_t, arity+1>(input, output, n, constants, config);
  ```
 diff --git a/examples/c++/poseidon/example.cu b/examples/c++/poseidon/example.cu.cc
-similarity index 99%
+similarity index 98%
 rename from examples/c++/poseidon/example.cu
 rename to examples/c++/poseidon/example.cu.cc
-index 17119621..02304875 100644
+index edc408a0..de6afc6e 100644
 --- a/examples/c++/poseidon/example.cu
 +++ b/examples/c++/poseidon/example.cu.cc
-@@ -3,7 +3,7 @@
+@@ -3,9 +3,9 @@
  #include <iostream>
  
  #include "api/bn254.h"
 -#include "curves/params/bn254.cuh"
+-#include "poseidon/poseidon.cuh"
+-#include "hash/hash.cuh"
 +#include "curves/params/bn254.cu.h"
++#include "poseidon/poseidon.cu.h"
++#include "hash/hash.cu.h"
  using namespace poseidon;
  using namespace bn254;
+ 
+diff --git a/examples/c++/risc0/example.cu b/examples/c++/risc0/example.cu.cc
+similarity index 99%
+rename from examples/c++/risc0/example.cu
+rename to examples/c++/risc0/example.cu.cc
+index e07128e8..b7c18a32 100644
+--- a/examples/c++/risc0/example.cu
++++ b/examples/c++/risc0/example.cu.cc
+@@ -5,8 +5,8 @@
+ #include <list>
+ 
+ #include "polynomials/polynomials.h"
+-#include "polynomials/cuda_backend/polynomial_cuda_backend.cuh"
+-#include "ntt/ntt.cuh"
++#include "polynomials/cuda_backend/polynomial_cuda_backend.cu.h"
++#include "ntt/ntt.cu.h"
+ 
+ using namespace polynomials;
  
 diff --git a/icicle/benchmarks/benches.cu b/icicle/benchmarks/benches.cu
 deleted file mode 100644
@@ -258,7 +283,7 @@ index cf5f2a24..b2d56744 100644
  using namespace field_config;
  using namespace benchmark;
 diff --git a/icicle/include/api/babybear.h b/icicle/include/api/babybear.h
-index 8bb27f4b..8b060b27 100644
+index 64815ceb..e56ccd6e 100644
 --- a/icicle/include/api/babybear.h
 +++ b/icicle/include/api/babybear.h
 @@ -8,13 +8,13 @@
@@ -266,181 +291,218 @@ index 8bb27f4b..8b060b27 100644
  
  #include <cuda_runtime.h>
 -#include "gpu-utils/device_context.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
 -#include "fields/stark_fields/babybear.cuh"
 -#include "ntt/ntt.cuh"
 -#include "vec_ops/vec_ops.cuh"
--#include "poseidon/poseidon.cuh"
--#include "poseidon/tree/merkle.cuh"
 -#include "poseidon2/poseidon2.cuh"
 +#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
 +#include "fields/stark_fields/babybear.cu.h"
 +#include "ntt/ntt.cu.h"
 +#include "vec_ops/vec_ops.cu.h"
-+#include "poseidon/poseidon.cu.h"
-+#include "poseidon/tree/merkle.cu.h"
 +#include "poseidon2/poseidon2.cu.h"
  
  extern "C" cudaError_t babybear_extension_ntt_cuda(
    const babybear::extension_t* input, int size, ntt::NTTDir dir, ntt::NTTConfig<babybear::scalar_t>& config, babybear::extension_t* output);
 diff --git a/icicle/include/api/bls12_377.h b/icicle/include/api/bls12_377.h
-index bf6f8d1a..6c59074e 100644
+index 75a113d2..b8cc01bc 100644
 --- a/icicle/include/api/bls12_377.h
 +++ b/icicle/include/api/bls12_377.h
-@@ -8,13 +8,13 @@
+@@ -8,14 +8,14 @@
  #define BLS12_377_API_H
  
  #include <cuda_runtime.h>
 -#include "gpu-utils/device_context.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
 -#include "curves/params/bls12_377.cuh"
 -#include "ntt/ntt.cuh"
 -#include "msm/msm.cuh"
 -#include "vec_ops/vec_ops.cuh"
 -#include "poseidon/poseidon.cuh"
--#include "poseidon/tree/merkle.cuh"
 +#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
 +#include "curves/params/bls12_377.cu.h"
 +#include "ntt/ntt.cu.h"
 +#include "msm/msm.cu.h"
 +#include "vec_ops/vec_ops.cu.h"
 +#include "poseidon/poseidon.cu.h"
-+#include "poseidon/tree/merkle.cu.h"
  
  extern "C" cudaError_t bls12_377_g2_precompute_msm_bases_cuda(
    bls12_377::g2_affine_t* bases,
 diff --git a/icicle/include/api/bls12_381.h b/icicle/include/api/bls12_381.h
-index 8972349b..48ee4a97 100644
+index 9f1a49cd..3814e01a 100644
 --- a/icicle/include/api/bls12_381.h
 +++ b/icicle/include/api/bls12_381.h
-@@ -8,13 +8,13 @@
+@@ -8,14 +8,14 @@
  #define BLS12_381_API_H
  
  #include <cuda_runtime.h>
 -#include "gpu-utils/device_context.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
 -#include "curves/params/bls12_381.cuh"
 -#include "ntt/ntt.cuh"
 -#include "msm/msm.cuh"
 -#include "vec_ops/vec_ops.cuh"
 -#include "poseidon/poseidon.cuh"
--#include "poseidon/tree/merkle.cuh"
 +#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
 +#include "curves/params/bls12_381.cu.h"
 +#include "ntt/ntt.cu.h"
 +#include "msm/msm.cu.h"
 +#include "vec_ops/vec_ops.cu.h"
 +#include "poseidon/poseidon.cu.h"
-+#include "poseidon/tree/merkle.cu.h"
  
  extern "C" cudaError_t bls12_381_g2_precompute_msm_bases_cuda(
    bls12_381::g2_affine_t* bases,
 diff --git a/icicle/include/api/bn254.h b/icicle/include/api/bn254.h
-index 20d8e6d1..160a120a 100644
+index 1a9a46b5..16ce4cb4 100644
 --- a/icicle/include/api/bn254.h
 +++ b/icicle/include/api/bn254.h
-@@ -8,14 +8,14 @@
+@@ -8,15 +8,15 @@
  #define BN254_API_H
  
  #include <cuda_runtime.h>
 -#include "gpu-utils/device_context.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
 -#include "curves/params/bn254.cuh"
 -#include "ntt/ntt.cuh"
 -#include "msm/msm.cuh"
 -#include "vec_ops/vec_ops.cuh"
 -#include "poseidon/poseidon.cuh"
--#include "poseidon/tree/merkle.cuh"
 -#include "poseidon2/poseidon2.cuh"
 +#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
 +#include "curves/params/bn254.cu.h"
 +#include "ntt/ntt.cu.h"
 +#include "msm/msm.cu.h"
 +#include "vec_ops/vec_ops.cu.h"
 +#include "poseidon/poseidon.cu.h"
-+#include "poseidon/tree/merkle.cu.h"
 +#include "poseidon2/poseidon2.cu.h"
  
  extern "C" cudaError_t bn254_g2_precompute_msm_bases_cuda(
    bn254::g2_affine_t* bases,
 diff --git a/icicle/include/api/bw6_761.h b/icicle/include/api/bw6_761.h
-index 8d072218..9e7b0b3b 100644
+index 531e4514..e311c1cd 100644
 --- a/icicle/include/api/bw6_761.h
 +++ b/icicle/include/api/bw6_761.h
-@@ -8,13 +8,13 @@
+@@ -8,14 +8,14 @@
  #define BW6_761_API_H
  
  #include <cuda_runtime.h>
 -#include "gpu-utils/device_context.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
 -#include "curves/params/bw6_761.cuh"
 -#include "ntt/ntt.cuh"
 -#include "msm/msm.cuh"
 -#include "vec_ops/vec_ops.cuh"
 -#include "poseidon/poseidon.cuh"
--#include "poseidon/tree/merkle.cuh"
 +#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
 +#include "curves/params/bw6_761.cu.h"
 +#include "ntt/ntt.cu.h"
 +#include "msm/msm.cu.h"
 +#include "vec_ops/vec_ops.cu.h"
 +#include "poseidon/poseidon.cu.h"
-+#include "poseidon/tree/merkle.cu.h"
  
  extern "C" cudaError_t bw6_761_g2_precompute_msm_bases_cuda(
    bw6_761::g2_affine_t* bases,
 diff --git a/icicle/include/api/grumpkin.h b/icicle/include/api/grumpkin.h
-index 9caaddb1..bb8eecd0 100644
+index 40241e59..c9b302f4 100644
 --- a/icicle/include/api/grumpkin.h
 +++ b/icicle/include/api/grumpkin.h
-@@ -8,12 +8,12 @@
+@@ -8,13 +8,13 @@
  #define GRUMPKIN_API_H
  
  #include <cuda_runtime.h>
 -#include "gpu-utils/device_context.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
 -#include "curves/params/grumpkin.cuh"
 -#include "msm/msm.cuh"
 -#include "vec_ops/vec_ops.cuh"
 -#include "poseidon/poseidon.cuh"
--#include "poseidon/tree/merkle.cuh"
 +#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
 +#include "curves/params/grumpkin.cu.h"
 +#include "msm/msm.cu.h"
 +#include "vec_ops/vec_ops.cu.h"
 +#include "poseidon/poseidon.cu.h"
-+#include "poseidon/tree/merkle.cu.h"
  
  extern "C" cudaError_t grumpkin_precompute_msm_bases_cuda(
    grumpkin::affine_t* bases,
 diff --git a/icicle/include/api/hash.h b/icicle/include/api/hash.h
-index a85e1b6c..46323618 100644
+index ffa40d81..2c9436e2 100644
 --- a/icicle/include/api/hash.h
 +++ b/icicle/include/api/hash.h
-@@ -4,8 +4,8 @@
+@@ -4,9 +4,9 @@
  #define HASH_API_H
  
  #include <cuda_runtime.h>
 -#include "gpu-utils/device_context.cuh"
 -#include "hash/keccak/keccak.cuh"
+-#include "merkle-tree/merkle.cuh"
 +#include "gpu-utils/device_context.cu.h"
 +#include "hash/keccak/keccak.cu.h"
++#include "merkle-tree/merkle.cu.h"
  
  extern "C" cudaError_t
-   keccak256_cuda(uint8_t* input, int input_block_size, int number_of_blocks, uint8_t* output, keccak::KeccakConfig& config);
+   keccak256_cuda(uint8_t* input, int input_block_size, int number_of_blocks, uint8_t* output, keccak::HashConfig& config);
+diff --git a/icicle/include/api/m31.h b/icicle/include/api/m31.h
+index 277268a1..19879db0 100644
+--- a/icicle/include/api/m31.h
++++ b/icicle/include/api/m31.h
+@@ -8,11 +8,11 @@
+ #define M31_API_H
+ 
+ #include <cuda_runtime.h>
+-#include "gpu-utils/device_context.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
+-#include "fields/stark_fields/m31.cuh"
+-#include "vec_ops/vec_ops.cuh"
++#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
++#include "fields/stark_fields/m31.cu.h"
++#include "vec_ops/vec_ops.cu.h"
+ 
+ extern "C" cudaError_t m31_build_merkle_tree(
+   const m31::scalar_t* leaves,
 diff --git a/icicle/include/api/stark252.h b/icicle/include/api/stark252.h
-index f6248af7..197aa39f 100644
+index 867f98e6..24f8dbd5 100644
 --- a/icicle/include/api/stark252.h
 +++ b/icicle/include/api/stark252.h
-@@ -8,10 +8,10 @@
+@@ -8,12 +8,12 @@
  #define STARK252_API_H
  
  #include <cuda_runtime.h>
 -#include "gpu-utils/device_context.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
 -#include "fields/stark_fields/stark252.cuh"
 -#include "ntt/ntt.cuh"
 -#include "vec_ops/vec_ops.cuh"
 +#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
 +#include "fields/stark_fields/stark252.cu.h"
 +#include "ntt/ntt.cu.h"
 +#include "vec_ops/vec_ops.cu.h"
  
- extern "C" cudaError_t stark252_mul_cuda(
-   stark252::scalar_t* vec_a, stark252::scalar_t* vec_b, int n, vec_ops::VecOpsConfig& config, stark252::scalar_t* result);
+ extern "C" cudaError_t stark252_build_merkle_tree(
+   const stark252::scalar_t* leaves,
 diff --git a/icicle/include/curves/affine.cuh b/icicle/include/curves/affine.cu.h
 similarity index 93%
 rename from icicle/include/curves/affine.cuh
@@ -653,7 +715,7 @@ diff --git a/icicle/include/fields/field.cuh b/icicle/include/fields/field.cu.h
 similarity index 99%
 rename from icicle/include/fields/field.cuh
 rename to icicle/include/fields/field.cu.h
-index 52a39128..39f13b07 100644
+index 6fe3e069..fbde1b33 100644
 --- a/icicle/include/fields/field.cuh
 +++ b/icicle/include/fields/field.cu.h
 @@ -18,12 +18,12 @@
@@ -679,7 +741,7 @@ diff --git a/icicle/include/fields/field_config.cuh b/icicle/include/fields/fiel
 similarity index 65%
 rename from icicle/include/fields/field_config.cuh
 rename to icicle/include/fields/field_config.cu.h
-index 51729b64..9aca1da8 100644
+index d9ec18c0..72e1250e 100644
 --- a/icicle/include/fields/field_config.cuh
 +++ b/icicle/include/fields/field_config.cu.h
 @@ -3,7 +3,7 @@
@@ -691,7 +753,7 @@ index 51729b64..9aca1da8 100644
  
  /**
   * @namespace field_config
-@@ -11,27 +11,27 @@
+@@ -11,30 +11,30 @@
   * with the `-DFIELD` env variable passed during build.
   */
  #if FIELD_ID == BN254
@@ -724,24 +786,48 @@ index 51729b64..9aca1da8 100644
 -#include "fields/stark_fields/stark252.cuh"
 +#include "fields/stark_fields/stark252.cu.h"
  namespace field_config = stark252;
+ #elif FIELD_ID == M31
+-#include "fields/stark_fields/m31.cuh"
++#include "fields/stark_fields/m31.cu.h"
+ namespace field_config = m31;
  #endif
  
 diff --git a/icicle/include/fields/host_math.cuh b/icicle/include/fields/host_math.cu.h
 similarity index 98%
 rename from icicle/include/fields/host_math.cuh
 rename to icicle/include/fields/host_math.cu.h
-index 47a712fd..deb59e3d 100644
+index 0cdde0ca..7669fd42 100644
 --- a/icicle/include/fields/host_math.cuh
 +++ b/icicle/include/fields/host_math.cu.h
-@@ -4,7 +4,7 @@
+@@ -4,8 +4,8 @@
  
  #include <cstdint>
  #include <cuda_runtime.h>
 -#include "gpu-utils/modifiers.cuh"
+-#include "storage.cuh"
 +#include "gpu-utils/modifiers.cu.h"
++#include "storage.cu.h"
+ 
  namespace host_math {
  
-   // return x + y with uint32_t operands
+diff --git a/icicle/include/fields/params_gen.cuh b/icicle/include/fields/params_gen.cu.h
+similarity index 99%
+rename from icicle/include/fields/params_gen.cuh
+rename to icicle/include/fields/params_gen.cu.h
+index 6b21c5e0..638a9391 100644
+--- a/icicle/include/fields/params_gen.cuh
++++ b/icicle/include/fields/params_gen.cu.h
+@@ -2,8 +2,8 @@
+ #ifndef PARAMS_GEN_H
+ #define PARAMS_GEN_H
+ 
+-#include "storage.cuh"
+-#include "host_math.cuh"
++#include "storage.cu.h"
++#include "host_math.cu.h"
+ 
+ namespace params_gen {
+   template <unsigned NLIMBS, unsigned BIT_SHIFT>
 diff --git a/icicle/include/fields/ptx.cuh b/icicle/include/fields/ptx.cu.h
 similarity index 100%
 rename from icicle/include/fields/ptx.cuh
@@ -750,7 +836,7 @@ diff --git a/icicle/include/fields/quadratic_extension.cuh b/icicle/include/fiel
 similarity index 98%
 rename from icicle/include/fields/quadratic_extension.cuh
 rename to icicle/include/fields/quadratic_extension.cu.h
-index 36249a39..493047f7 100644
+index 10065386..6c4f0dff 100644
 --- a/icicle/include/fields/quadratic_extension.cuh
 +++ b/icicle/include/fields/quadratic_extension.cu.h
 @@ -1,8 +1,8 @@
@@ -763,13 +849,13 @@ index 36249a39..493047f7 100644
 +#include "gpu-utils/modifiers.cu.h"
 +#include "gpu-utils/sharedmem.cu.h"
  
- template <typename CONFIG>
+ template <typename CONFIG, class T>
  class ExtensionField
 diff --git a/icicle/include/fields/quartic_extension.cuh b/icicle/include/fields/quartic_extension.cu.h
 similarity index 99%
 rename from icicle/include/fields/quartic_extension.cuh
 rename to icicle/include/fields/quartic_extension.cu.h
-index 1f73adc8..c9b1f276 100644
+index 8fead58c..609ecf36 100644
 --- a/icicle/include/fields/quartic_extension.cuh
 +++ b/icicle/include/fields/quartic_extension.cu.h
 @@ -1,8 +1,8 @@
@@ -782,29 +868,31 @@ index 1f73adc8..c9b1f276 100644
 +#include "gpu-utils/modifiers.cu.h"
 +#include "gpu-utils/sharedmem.cu.h"
  
- template <typename CONFIG>
+ template <typename CONFIG, class T>
  class ExtensionField
 diff --git a/icicle/include/fields/snark_fields/bls12_377_base.cuh b/icicle/include/fields/snark_fields/bls12_377_base.cu.h
-similarity index 99%
+similarity index 92%
 rename from icicle/include/fields/snark_fields/bls12_377_base.cuh
 rename to icicle/include/fields/snark_fields/bls12_377_base.cu.h
-index fe9f3df3..bd5e6ad2 100644
+index dc7a13fe..abf9b89f 100644
 --- a/icicle/include/fields/snark_fields/bls12_377_base.cuh
 +++ b/icicle/include/fields/snark_fields/bls12_377_base.cu.h
-@@ -2,7 +2,7 @@
+@@ -2,8 +2,8 @@
  #ifndef BLS12_377_BASE_PARAMS_H
  #define BLS12_377_BASE_PARAMS_H
  
 -#include "fields/storage.cuh"
+-#include "fields/params_gen.cuh"
 +#include "fields/storage.cu.h"
++#include "fields/params_gen.cu.h"
  
  namespace bls12_377 {
    struct fq_config {
 diff --git a/icicle/include/fields/snark_fields/bls12_377_scalar.cuh b/icicle/include/fields/snark_fields/bls12_377_scalar.cu.h
-similarity index 99%
+similarity index 86%
 rename from icicle/include/fields/snark_fields/bls12_377_scalar.cuh
 rename to icicle/include/fields/snark_fields/bls12_377_scalar.cu.h
-index 9fce0370..eb071233 100644
+index 3924f59f..0b0ded12 100644
 --- a/icicle/include/fields/snark_fields/bls12_377_scalar.cuh
 +++ b/icicle/include/fields/snark_fields/bls12_377_scalar.cu.h
 @@ -2,9 +2,9 @@
@@ -813,34 +901,36 @@ index 9fce0370..eb071233 100644
  
 -#include "fields/storage.cuh"
 -#include "fields/field.cuh"
--#include "fields/quadratic_extension.cuh"
+-#include "fields/params_gen.cuh"
 +#include "fields/storage.cu.h"
 +#include "fields/field.cu.h"
-+#include "fields/quadratic_extension.cu.h"
++#include "fields/params_gen.cu.h"
  
  namespace bls12_377 {
    struct fp_config {
 diff --git a/icicle/include/fields/snark_fields/bls12_381_base.cuh b/icicle/include/fields/snark_fields/bls12_381_base.cu.h
-similarity index 99%
+similarity index 89%
 rename from icicle/include/fields/snark_fields/bls12_381_base.cuh
 rename to icicle/include/fields/snark_fields/bls12_381_base.cu.h
-index 8b0a8bbb..b0bdc2dc 100644
+index 54fc0ab5..cef89c40 100644
 --- a/icicle/include/fields/snark_fields/bls12_381_base.cuh
 +++ b/icicle/include/fields/snark_fields/bls12_381_base.cu.h
-@@ -2,7 +2,7 @@
+@@ -2,8 +2,8 @@
  #ifndef BLS12_381_BASE_PARAMS_H
  #define BLS12_381_BASE_PARAMS_H
  
 -#include "fields/storage.cuh"
+-#include "fields/params_gen.cuh"
 +#include "fields/storage.cu.h"
++#include "fields/params_gen.cu.h"
  
  namespace bls12_381 {
    struct fq_config {
 diff --git a/icicle/include/fields/snark_fields/bls12_381_scalar.cuh b/icicle/include/fields/snark_fields/bls12_381_scalar.cu.h
-similarity index 99%
+similarity index 87%
 rename from icicle/include/fields/snark_fields/bls12_381_scalar.cuh
 rename to icicle/include/fields/snark_fields/bls12_381_scalar.cu.h
-index 3e6e1508..dac4fbc8 100644
+index c6bd12fe..61e9f8bc 100644
 --- a/icicle/include/fields/snark_fields/bls12_381_scalar.cuh
 +++ b/icicle/include/fields/snark_fields/bls12_381_scalar.cu.h
 @@ -2,9 +2,9 @@
@@ -849,34 +939,36 @@ index 3e6e1508..dac4fbc8 100644
  
 -#include "fields/storage.cuh"
 -#include "fields/field.cuh"
--#include "fields/quadratic_extension.cuh"
+-#include "fields/params_gen.cuh"
 +#include "fields/storage.cu.h"
 +#include "fields/field.cu.h"
-+#include "fields/quadratic_extension.cu.h"
++#include "fields/params_gen.cu.h"
  
  namespace bls12_381 {
    struct fp_config {
 diff --git a/icicle/include/fields/snark_fields/bn254_base.cuh b/icicle/include/fields/snark_fields/bn254_base.cu.h
-similarity index 99%
+similarity index 89%
 rename from icicle/include/fields/snark_fields/bn254_base.cuh
 rename to icicle/include/fields/snark_fields/bn254_base.cu.h
-index 891b91e8..4c1234fb 100644
+index 95f18ed3..da993cbd 100644
 --- a/icicle/include/fields/snark_fields/bn254_base.cuh
 +++ b/icicle/include/fields/snark_fields/bn254_base.cu.h
-@@ -2,7 +2,7 @@
+@@ -2,8 +2,8 @@
  #ifndef BN254_BASE_PARAMS_H
  #define BN254_BASE_PARAMS_H
  
 -#include "fields/storage.cuh"
+-#include "fields/params_gen.cuh"
 +#include "fields/storage.cu.h"
++#include "fields/params_gen.cu.h"
  
  namespace bn254 {
    struct fq_config {
 diff --git a/icicle/include/fields/snark_fields/bn254_scalar.cuh b/icicle/include/fields/snark_fields/bn254_scalar.cu.h
-similarity index 99%
+similarity index 87%
 rename from icicle/include/fields/snark_fields/bn254_scalar.cuh
 rename to icicle/include/fields/snark_fields/bn254_scalar.cu.h
-index a5c9b00c..9bb9cba1 100644
+index 67478e2d..8911357c 100644
 --- a/icicle/include/fields/snark_fields/bn254_scalar.cuh
 +++ b/icicle/include/fields/snark_fields/bn254_scalar.cu.h
 @@ -2,9 +2,9 @@
@@ -885,47 +977,47 @@ index a5c9b00c..9bb9cba1 100644
  
 -#include "fields/storage.cuh"
 -#include "fields/field.cuh"
--#include "fields/quadratic_extension.cuh"
+-#include "fields/params_gen.cuh"
 +#include "fields/storage.cu.h"
 +#include "fields/field.cu.h"
-+#include "fields/quadratic_extension.cu.h"
++#include "fields/params_gen.cu.h"
  
  namespace bn254 {
    struct fp_config {
 diff --git a/icicle/include/fields/snark_fields/bw6_761_base.cuh b/icicle/include/fields/snark_fields/bw6_761_base.cu.h
-similarity index 99%
+similarity index 89%
 rename from icicle/include/fields/snark_fields/bw6_761_base.cuh
 rename to icicle/include/fields/snark_fields/bw6_761_base.cu.h
-index 24615786..ddbd4391 100644
+index 4ec110ff..6ab52e19 100644
 --- a/icicle/include/fields/snark_fields/bw6_761_base.cuh
 +++ b/icicle/include/fields/snark_fields/bw6_761_base.cu.h
-@@ -2,7 +2,7 @@
+@@ -2,8 +2,8 @@
  #ifndef BW6_761_BASE_BASE_H
  #define BW6_761_BASE_BASE_H
  
 -#include "fields/storage.cuh"
+-#include "fields/params_gen.cuh"
 +#include "fields/storage.cu.h"
++#include "fields/params_gen.cu.h"
  
  namespace bw6_761 {
    struct fq_config {
 diff --git a/icicle/include/fields/snark_fields/bw6_761_scalar.cuh b/icicle/include/fields/snark_fields/bw6_761_scalar.cu.h
-similarity index 61%
+similarity index 68%
 rename from icicle/include/fields/snark_fields/bw6_761_scalar.cuh
 rename to icicle/include/fields/snark_fields/bw6_761_scalar.cu.h
-index f5fc5dad..a1d180b9 100644
+index 304595a7..cb9205ab 100644
 --- a/icicle/include/fields/snark_fields/bw6_761_scalar.cuh
 +++ b/icicle/include/fields/snark_fields/bw6_761_scalar.cu.h
-@@ -2,10 +2,10 @@
+@@ -2,9 +2,9 @@
  #ifndef BW6_761_SCALAR_PARAMS_H
  #define BW6_761_SCALAR_PARAMS_H
  
 -#include "fields/storage.cuh"
 -#include "fields/field.cuh"
--#include "fields/quadratic_extension.cuh"
 -#include "fields/snark_fields/bls12_377_base.cuh"
 +#include "fields/storage.cu.h"
 +#include "fields/field.cu.h"
-+#include "fields/quadratic_extension.cu.h"
 +#include "fields/snark_fields/bls12_377_base.cu.h"
  
  namespace bw6_761 {
@@ -969,12 +1061,33 @@ index 4354c8de..87287e1b 100644
  namespace grumpkin {
    typedef bn254::fq_config fp_config;
 diff --git a/icicle/include/fields/stark_fields/babybear.cuh b/icicle/include/fields/stark_fields/babybear.cu.h
-similarity index 96%
+similarity index 83%
 rename from icicle/include/fields/stark_fields/babybear.cuh
 rename to icicle/include/fields/stark_fields/babybear.cu.h
-index ad3db0e2..6b17c285 100644
+index 57f3f06e..76ea9691 100644
 --- a/icicle/include/fields/stark_fields/babybear.cuh
 +++ b/icicle/include/fields/stark_fields/babybear.cu.h
+@@ -1,9 +1,9 @@
+ #pragma once
+ 
+-#include "fields/storage.cuh"
+-#include "fields/field.cuh"
+-#include "fields/quartic_extension.cuh"
+-#include "fields/params_gen.cuh"
++#include "fields/storage.cu.h"
++#include "fields/field.cu.h"
++#include "fields/quartic_extension.cu.h"
++#include "fields/params_gen.cu.h"
+ 
+ namespace babybear {
+   struct fp_config {
+diff --git a/icicle/include/fields/stark_fields/m31.cuh b/icicle/include/fields/stark_fields/m31.cu.h
+similarity index 98%
+rename from icicle/include/fields/stark_fields/m31.cuh
+rename to icicle/include/fields/stark_fields/m31.cu.h
+index b45592ce..b7fe5e5d 100644
+--- a/icicle/include/fields/stark_fields/m31.cuh
++++ b/icicle/include/fields/stark_fields/m31.cu.h
 @@ -1,8 +1,8 @@
  #pragma once
  
@@ -985,22 +1098,24 @@ index ad3db0e2..6b17c285 100644
 +#include "fields/field.cu.h"
 +#include "fields/quartic_extension.cu.h"
  
- namespace babybear {
-   struct fp_config {
+ namespace m31 {
+   template <class CONFIG>
 diff --git a/icicle/include/fields/stark_fields/stark252.cuh b/icicle/include/fields/stark_fields/stark252.cu.h
-similarity index 99%
+similarity index 85%
 rename from icicle/include/fields/stark_fields/stark252.cuh
 rename to icicle/include/fields/stark_fields/stark252.cu.h
-index 6557ea0c..0d38e0b5 100644
+index d61f757e..6e45386c 100644
 --- a/icicle/include/fields/stark_fields/stark252.cuh
 +++ b/icicle/include/fields/stark_fields/stark252.cu.h
-@@ -1,7 +1,7 @@
+@@ -1,8 +1,8 @@
  #pragma once
  
 -#include "fields/storage.cuh"
 -#include "fields/field.cuh"
+-#include "fields/params_gen.cuh"
 +#include "fields/storage.cu.h"
 +#include "fields/field.cu.h"
++#include "fields/params_gen.cu.h"
  
  // modulus = 3618502788666131213697322783095070105623107215331596699973092056135872020481 (2^251+17*2^192+1)
  namespace stark252 {
@@ -1009,9 +1124,21 @@ similarity index 100%
 rename from icicle/include/fields/storage.cuh
 rename to icicle/include/fields/storage.cu.h
 diff --git a/icicle/include/gpu-utils/device_context.cuh b/icicle/include/gpu-utils/device_context.cu.h
-similarity index 100%
+similarity index 97%
 rename from icicle/include/gpu-utils/device_context.cuh
 rename to icicle/include/gpu-utils/device_context.cu.h
+index b1448a5a..31658426 100644
+--- a/icicle/include/gpu-utils/device_context.cuh
++++ b/icicle/include/gpu-utils/device_context.cu.h
+@@ -3,7 +3,7 @@
+ #define DEVICE_CONTEXT_H
+ 
+ #include <cuda_runtime.h>
+-#include "gpu-utils/error_handler.cuh"
++#include "gpu-utils/error_handler.cu.h"
+ 
+ namespace device_context {
+ 
 diff --git a/icicle/include/gpu-utils/error_handler.cuh b/icicle/include/gpu-utils/error_handler.cu.h
 similarity index 100%
 rename from icicle/include/gpu-utils/error_handler.cuh
@@ -1024,14 +1151,34 @@ diff --git a/icicle/include/gpu-utils/sharedmem.cuh b/icicle/include/gpu-utils/s
 similarity index 100%
 rename from icicle/include/gpu-utils/sharedmem.cuh
 rename to icicle/include/gpu-utils/sharedmem.cu.h
+diff --git a/icicle/include/hash/hash.cuh b/icicle/include/hash/hash.cu.h
+similarity index 98%
+rename from icicle/include/hash/hash.cuh
+rename to icicle/include/hash/hash.cu.h
+index 338d337d..7ca414cc 100644
+--- a/icicle/include/hash/hash.cuh
++++ b/icicle/include/hash/hash.cu.h
+@@ -2,9 +2,9 @@
+ #ifndef HASH_H
+ #define HASH_H
+ 
+-#include "gpu-utils/device_context.cuh"
+-#include "gpu-utils/error_handler.cuh"
+-#include "matrix/matrix.cuh"
++#include "gpu-utils/device_context.cu.h"
++#include "gpu-utils/error_handler.cu.h"
++#include "matrix/matrix.cu.h"
+ #include <cassert>
+ 
+ using matrix::Matrix;
 diff --git a/icicle/include/hash/keccak/keccak.cuh b/icicle/include/hash/keccak/keccak.cu.h
-similarity index 96%
+similarity index 87%
 rename from icicle/include/hash/keccak/keccak.cuh
 rename to icicle/include/hash/keccak/keccak.cu.h
-index 251ace3b..47dbca8d 100644
+index d95c22a4..eee2f806 100644
 --- a/icicle/include/hash/keccak/keccak.cuh
 +++ b/icicle/include/hash/keccak/keccak.cu.h
-@@ -3,8 +3,8 @@
+@@ -3,10 +3,10 @@
  #define KECCAK_H
  
  #include <cstdint>
@@ -1040,8 +1187,38 @@ index 251ace3b..47dbca8d 100644
 +#include "gpu-utils/device_context.cu.h"
 +#include "gpu-utils/error_handler.cu.h"
  
- namespace keccak {
-   /**
+-#include "hash/hash.cuh"
++#include "hash/hash.cu.h"
+ 
+ using namespace hash;
+ 
+diff --git a/icicle/include/matrix/matrix.cuh b/icicle/include/matrix/matrix.cu.h
+similarity index 100%
+rename from icicle/include/matrix/matrix.cuh
+rename to icicle/include/matrix/matrix.cu.h
+diff --git a/icicle/include/merkle-tree/merkle.cuh b/icicle/include/merkle-tree/merkle.cu.h
+similarity index 96%
+rename from icicle/include/merkle-tree/merkle.cuh
+rename to icicle/include/merkle-tree/merkle.cu.h
+index ba50ff76..d0a020db 100644
+--- a/icicle/include/merkle-tree/merkle.cuh
++++ b/icicle/include/merkle-tree/merkle.cu.h
+@@ -2,11 +2,11 @@
+ #ifndef MERKLE_H
+ #define MERKLE_H
+ 
+-#include "gpu-utils/device_context.cuh"
+-#include "gpu-utils/error_handler.cuh"
++#include "gpu-utils/device_context.cu.h"
++#include "gpu-utils/error_handler.cu.h"
+ #include "utils/utils.h"
+-#include "hash/hash.cuh"
+-#include "matrix/matrix.cuh"
++#include "hash/hash.cu.h"
++#include "matrix/matrix.cu.h"
+ 
+ #include <vector>
+ #include <numeric>
 diff --git a/icicle/include/msm/msm.cuh b/icicle/include/msm/msm.cu.h
 similarity index 98%
 rename from icicle/include/msm/msm.cuh
@@ -1134,14 +1311,36 @@ index 7916b837..f61f794f 100644
  
  #include "polynomial_context.h"
  #include "polynomial_backend.h"
-diff --git a/icicle/include/poseidon/poseidon.cuh b/icicle/include/poseidon/poseidon.cu.h
+diff --git a/icicle/include/poseidon/constants.cuh b/icicle/include/poseidon/constants.cu.h
+similarity index 100%
+rename from icicle/include/poseidon/constants.cuh
+rename to icicle/include/poseidon/constants.cu.h
+diff --git a/icicle/include/poseidon/kernels.cuh b/icicle/include/poseidon/kernels.cu.h
 similarity index 98%
+rename from icicle/include/poseidon/kernels.cuh
+rename to icicle/include/poseidon/kernels.cu.h
+index 4afa9878..b9ca6972 100644
+--- a/icicle/include/poseidon/kernels.cuh
++++ b/icicle/include/poseidon/kernels.cu.h
+@@ -2,8 +2,8 @@
+ #ifndef POSEIDON_KERNELS_H
+ #define POSEIDON_KERNELS_H
+ 
+-#include "gpu-utils/modifiers.cuh"
+-#include "poseidon/constants.cuh"
++#include "gpu-utils/modifiers.cu.h"
++#include "poseidon/constants.cu.h"
+ 
+ namespace poseidon {
+   template <typename S, int T>
+diff --git a/icicle/include/poseidon/poseidon.cuh b/icicle/include/poseidon/poseidon.cu.h
+similarity index 94%
 rename from icicle/include/poseidon/poseidon.cuh
 rename to icicle/include/poseidon/poseidon.cu.h
-index 9dd3beea..7fab8512 100644
+index 24727c21..3b1d6b3b 100644
 --- a/icicle/include/poseidon/poseidon.cuh
 +++ b/icicle/include/poseidon/poseidon.cu.h
-@@ -4,8 +4,8 @@
+@@ -4,13 +4,13 @@
  
  #include <cstdint>
  #include <stdexcept>
@@ -1151,36 +1350,61 @@ index 9dd3beea..7fab8512 100644
 +#include "gpu-utils/error_handler.cu.h"
  #include "utils/utils.h"
  
+-#include "poseidon/kernels.cuh"
+-#include "poseidon/constants.cuh"
+-#include "hash/hash.cuh"
++#include "poseidon/kernels.cu.h"
++#include "poseidon/constants.cu.h"
++#include "hash/hash.cu.h"
+ using namespace hash;
+ 
  /**
-diff --git a/icicle/include/poseidon/tree/merkle.cuh b/icicle/include/poseidon/tree/merkle.cu.h
-similarity index 95%
-rename from icicle/include/poseidon/tree/merkle.cuh
-rename to icicle/include/poseidon/tree/merkle.cu.h
-index 73405d36..86db832c 100644
---- a/icicle/include/poseidon/tree/merkle.cuh
-+++ b/icicle/include/poseidon/tree/merkle.cu.h
-@@ -2,10 +2,10 @@
- #ifndef MERKLE_H
- #define MERKLE_H
+diff --git a/icicle/include/poseidon2/constants.cuh b/icicle/include/poseidon2/constants.cu.h
+similarity index 97%
+rename from icicle/include/poseidon2/constants.cuh
+rename to icicle/include/poseidon2/constants.cu.h
+index 35bc2ebf..5b20ef6b 100644
+--- a/icicle/include/poseidon2/constants.cuh
++++ b/icicle/include/poseidon2/constants.cu.h
+@@ -2,7 +2,7 @@
+ #ifndef POSEIDON2_CONSTANTS_H
+ #define POSEIDON2_CONSTANTS_H
  
 -#include "gpu-utils/device_context.cuh"
--#include "gpu-utils/error_handler.cuh"
 +#include "gpu-utils/device_context.cu.h"
-+#include "gpu-utils/error_handler.cu.h"
- #include "utils/utils.h"
--#include "poseidon/poseidon.cuh"
-+#include "poseidon/poseidon.cu.h"
  
- #include <iostream>
- #include <math.h>
-diff --git a/icicle/include/poseidon2/poseidon2.cuh b/icicle/include/poseidon2/poseidon2.cu.h
+ namespace poseidon2 {
+   /**
+diff --git a/icicle/include/poseidon2/kernels.cuh b/icicle/include/poseidon2/kernels.cu.h
 similarity index 98%
+rename from icicle/include/poseidon2/kernels.cuh
+rename to icicle/include/poseidon2/kernels.cu.h
+index 5f34be92..409098fc 100644
+--- a/icicle/include/poseidon2/kernels.cuh
++++ b/icicle/include/poseidon2/kernels.cu.h
+@@ -3,10 +3,10 @@
+ #define POSEIDON2_KERNELS_H
+ 
+ #include "utils/utils.h"
+-#include "hash/hash.cuh"
+-#include "matrix/matrix.cuh"
+-#include "poseidon2/constants.cuh"
+-#include "gpu-utils/modifiers.cuh"
++#include "hash/hash.cu.h"
++#include "matrix/matrix.cu.h"
++#include "poseidon2/constants.cu.h"
++#include "gpu-utils/modifiers.cu.h"
+ 
+ using matrix::Matrix;
+ 
+diff --git a/icicle/include/poseidon2/poseidon2.cuh b/icicle/include/poseidon2/poseidon2.cu.h
+similarity index 96%
 rename from icicle/include/poseidon2/poseidon2.cuh
 rename to icicle/include/poseidon2/poseidon2.cu.h
-index 9a98a5d9..158bae7f 100644
+index 016740e7..c85e7d7c 100644
 --- a/icicle/include/poseidon2/poseidon2.cuh
 +++ b/icicle/include/poseidon2/poseidon2.cu.h
-@@ -4,8 +4,8 @@
+@@ -4,15 +4,15 @@
  
  #include <cstdint>
  #include <stdexcept>
@@ -1190,7 +1414,18 @@ index 9a98a5d9..158bae7f 100644
 +#include "gpu-utils/error_handler.cu.h"
  #include "utils/utils.h"
  
- /**
+-#include "hash/hash.cuh"
+-#include "matrix/matrix.cuh"
++#include "hash/hash.cu.h"
++#include "matrix/matrix.cu.h"
+ 
+-#include "poseidon2/constants.cuh"
+-#include "poseidon2/kernels.cuh"
++#include "poseidon2/constants.cu.h"
++#include "poseidon2/kernels.cu.h"
+ 
+ using matrix::Matrix;
+ 
 diff --git a/icicle/include/utils/mont.cuh b/icicle/include/utils/mont.cu.h
 similarity index 100%
 rename from icicle/include/utils/mont.cuh
@@ -1207,7 +1442,7 @@ diff --git a/icicle/include/vec_ops/vec_ops.cuh b/icicle/include/vec_ops/vec_ops
 similarity index 99%
 rename from icicle/include/vec_ops/vec_ops.cuh
 rename to icicle/include/vec_ops/vec_ops.cu.h
-index 909c6886..3eca9925 100644
+index ee624a07..00c4aac9 100644
 --- a/icicle/include/vec_ops/vec_ops.cuh
 +++ b/icicle/include/vec_ops/vec_ops.cu.h
 @@ -2,7 +2,7 @@
@@ -1303,34 +1538,229 @@ index 8bc7bc5e..f8a1c822 100644
  
  extern "C" void CONCAT_EXPAND(FIELD, extension_generate_scalars)(extension_t* scalars, int size)
  {
-diff --git a/icicle/src/hash/keccak/keccak.cu b/icicle/src/hash/keccak/keccak.cu.cc
-similarity index 99%
-rename from icicle/src/hash/keccak/keccak.cu
-rename to icicle/src/hash/keccak/keccak.cu.cc
-index 8655eed5..343e86ea 100644
---- a/icicle/src/hash/keccak/keccak.cu
-+++ b/icicle/src/hash/keccak/keccak.cu.cc
-@@ -1,4 +1,4 @@
+diff --git a/icicle/src/hash/keccak/extern.cu b/icicle/src/hash/keccak/extern.cu.cc
+similarity index 86%
+rename from icicle/src/hash/keccak/extern.cu
+rename to icicle/src/hash/keccak/extern.cu.cc
+index b1e6d6aa..404ecac5 100644
+--- a/icicle/src/hash/keccak/extern.cu
++++ b/icicle/src/hash/keccak/extern.cu.cc
+@@ -1,11 +1,11 @@
+ #include "utils/utils.h"
+-#include "gpu-utils/error_handler.cuh"
++#include "gpu-utils/error_handler.cu.h"
+ 
+-#include "hash/hash.cuh"
 -#include "hash/keccak/keccak.cuh"
+-#include "keccak.cu"
+-#include "../../merkle-tree/merkle.cu"
+-#include "merkle-tree/merkle.cuh"
++#include "hash/hash.cu.h"
 +#include "hash/keccak/keccak.cu.h"
++#include "keccak.cu.cc"
++#include "../../merkle-tree/merkle.cu.cc"
++#include "merkle-tree/merkle.cu.h"
  
  namespace keccak {
- #define ROTL64(x, y) (((x) << (y)) | ((x) >> (64 - (y))))
+   extern "C" cudaError_t
+diff --git a/icicle/src/hash/keccak/keccak.cu b/icicle/src/hash/keccak/keccak.cu.cc
+similarity index 98%
+rename from icicle/src/hash/keccak/keccak.cu
+rename to icicle/src/hash/keccak/keccak.cu.cc
+index e805bcf6..ca3e52ba 100644
+--- a/icicle/src/hash/keccak/keccak.cu
++++ b/icicle/src/hash/keccak/keccak.cu.cc
+@@ -1,10 +1,10 @@
+ #include <cstdint>
+-#include "gpu-utils/device_context.cuh"
+-#include "gpu-utils/error_handler.cuh"
+-#include "gpu-utils/modifiers.cuh"
++#include "gpu-utils/device_context.cu.h"
++#include "gpu-utils/error_handler.cu.h"
++#include "gpu-utils/modifiers.cu.h"
+ 
+-#include "hash/hash.cuh"
+-#include "hash/keccak/keccak.cuh"
++#include "hash/hash.cu.h"
++#include "hash/keccak/keccak.cu.h"
+ 
+ using namespace hash;
+ 
 diff --git a/icicle/src/hash/keccak/test.cu b/icicle/src/hash/keccak/test.cu.cc
 similarity index 96%
 rename from icicle/src/hash/keccak/test.cu
 rename to icicle/src/hash/keccak/test.cu.cc
-index 8149dc03..26559d93 100644
+index 03293f1e..2aac59a4 100644
 --- a/icicle/src/hash/keccak/test.cu
 +++ b/icicle/src/hash/keccak/test.cu.cc
 @@ -1,5 +1,5 @@
 -#include "gpu-utils/device_context.cuh"
--#include "keccak.cu"
+-#include "extern.cu"
 +#include "gpu-utils/device_context.cu.h"
-+#include "keccak.cu.cc"
++#include "extern.cu.cc"
  
  // #define DEBUG
  
+diff --git a/icicle/src/hash/keccak/test_tree.cu b/icicle/src/hash/keccak/test_tree.cu.cc
+similarity index 96%
+rename from icicle/src/hash/keccak/test_tree.cu
+rename to icicle/src/hash/keccak/test_tree.cu.cc
+index ed1de95f..b4efe1c2 100644
+--- a/icicle/src/hash/keccak/test_tree.cu
++++ b/icicle/src/hash/keccak/test_tree.cu.cc
+@@ -1,6 +1,6 @@
+-#include "gpu-utils/device_context.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "extern.cu"
++#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "extern.cu.cc"
+ 
+ #ifndef __CUDA_ARCH__
+ #include <cassert>
+diff --git a/icicle/src/merkle-tree/extern.cu b/icicle/src/merkle-tree/extern.cu.cc
+similarity index 75%
+rename from icicle/src/merkle-tree/extern.cu
+rename to icicle/src/merkle-tree/extern.cu.cc
+index 060afe87..688a4366 100644
+--- a/icicle/src/merkle-tree/extern.cu
++++ b/icicle/src/merkle-tree/extern.cu.cc
+@@ -1,12 +1,12 @@
+ #include "utils/utils.h"
+ 
+-#include "gpu-utils/error_handler.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "merkle.cu"
++#include "gpu-utils/error_handler.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "merkle.cu.cc"
+ 
+-#include "hash/hash.cuh"
++#include "hash/hash.cu.h"
+ 
+-#include "fields/field_config.cuh"
++#include "fields/field_config.cu.h"
+ using namespace field_config;
+ 
+ namespace merkle_tree {
+diff --git a/icicle/src/merkle-tree/extern_mmcs.cu b/icicle/src/merkle-tree/extern_mmcs.cu.cc
+similarity index 71%
+rename from icicle/src/merkle-tree/extern_mmcs.cu
+rename to icicle/src/merkle-tree/extern_mmcs.cu.cc
+index 3b6fc5cc..3c2ba192 100644
+--- a/icicle/src/merkle-tree/extern_mmcs.cu
++++ b/icicle/src/merkle-tree/extern_mmcs.cu.cc
+@@ -1,13 +1,13 @@
+ #include "utils/utils.h"
+ 
+-#include "gpu-utils/error_handler.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
+-#include "mmcs.cu"
++#include "gpu-utils/error_handler.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
++#include "mmcs.cu.cc"
+ 
+-#include "hash/hash.cuh"
++#include "hash/hash.cu.h"
+ 
+-#include "fields/field_config.cuh"
++#include "fields/field_config.cu.h"
+ using namespace field_config;
+ 
+ using matrix::Matrix;
+diff --git a/icicle/src/merkle-tree/merkle.cu b/icicle/src/merkle-tree/merkle.cu.cc
+similarity index 99%
+rename from icicle/src/merkle-tree/merkle.cu
+rename to icicle/src/merkle-tree/merkle.cu.cc
+index 53f3b8f6..1f783ab3 100644
+--- a/icicle/src/merkle-tree/merkle.cu
++++ b/icicle/src/merkle-tree/merkle.cu.cc
+@@ -1,5 +1,5 @@
+-#include "hash/hash.cuh"
+-#include "merkle-tree/merkle.cuh"
++#include "hash/hash.cu.h"
++#include "merkle-tree/merkle.cu.h"
+ 
+ namespace merkle_tree {
+   /// Constructs merkle subtree without parallelization
+diff --git a/icicle/src/merkle-tree/mmcs.cu b/icicle/src/merkle-tree/mmcs.cu.cc
+similarity index 99%
+rename from icicle/src/merkle-tree/mmcs.cu
+rename to icicle/src/merkle-tree/mmcs.cu.cc
+index f7acbb65..1d695483 100644
+--- a/icicle/src/merkle-tree/mmcs.cu
++++ b/icicle/src/merkle-tree/mmcs.cu.cc
+@@ -1,7 +1,7 @@
+-#include "hash/hash.cuh"
+-#include "merkle-tree/merkle.cuh"
+-#include "matrix/matrix.cuh"
+-#include "vec_ops/vec_ops.cuh"
++#include "hash/hash.cu.h"
++#include "merkle-tree/merkle.cu.h"
++#include "matrix/matrix.cu.h"
++#include "vec_ops/vec_ops.cu.h"
+ 
+ #include <algorithm>
+ 
+diff --git a/icicle/src/merkle-tree/tests/merkle/test.cu b/icicle/src/merkle-tree/tests/merkle/test.cu.cc
+similarity index 99%
+rename from icicle/src/merkle-tree/tests/merkle/test.cu
+rename to icicle/src/merkle-tree/tests/merkle/test.cu.cc
+index 0fb34867..92401862 100644
+--- a/icicle/src/merkle-tree/tests/merkle/test.cu
++++ b/icicle/src/merkle-tree/tests/merkle/test.cu.cc
+@@ -6,9 +6,9 @@
+ #include <math.h>
+ 
+ #define DEBUG
+-#include "merkle-tree/merkle.cuh"
++#include "merkle-tree/merkle.cu.h"
+ 
+-#include "poseidon/poseidon.cuh"
++#include "poseidon/poseidon.cu.h"
+ 
+ #include "api/bls12_381.h"
+ using namespace bls12_381;
+diff --git a/icicle/src/merkle-tree/tests/merkle/test_poseidon2.cu b/icicle/src/merkle-tree/tests/merkle/test_poseidon2.cu.cc
+similarity index 98%
+rename from icicle/src/merkle-tree/tests/merkle/test_poseidon2.cu
+rename to icicle/src/merkle-tree/tests/merkle/test_poseidon2.cu.cc
+index 7bd35c92..c06a1bd2 100644
+--- a/icicle/src/merkle-tree/tests/merkle/test_poseidon2.cu
++++ b/icicle/src/merkle-tree/tests/merkle/test_poseidon2.cu.cc
+@@ -5,9 +5,9 @@
+ #include <iostream>
+ #include <math.h>
+ 
+-#include "merkle-tree/merkle.cuh"
++#include "merkle-tree/merkle.cu.h"
+ 
+-#include "poseidon2/poseidon2.cuh"
++#include "poseidon2/poseidon2.cu.h"
+ 
+ #include "api/babybear.h"
+ using namespace babybear;
+diff --git a/icicle/src/merkle-tree/tests/mmcs/test_poseidon2.cu b/icicle/src/merkle-tree/tests/mmcs/test_poseidon2.cu.cc
+similarity index 98%
+rename from icicle/src/merkle-tree/tests/mmcs/test_poseidon2.cu
+rename to icicle/src/merkle-tree/tests/mmcs/test_poseidon2.cu.cc
+index 9de240db..09434e63 100644
+--- a/icicle/src/merkle-tree/tests/mmcs/test_poseidon2.cu
++++ b/icicle/src/merkle-tree/tests/mmcs/test_poseidon2.cu.cc
+@@ -5,9 +5,9 @@
+ #include <iostream>
+ #include <math.h>
+ 
+-#include "merkle-tree/merkle.cuh"
++#include "merkle-tree/merkle.cu.h"
+ 
+-#include "poseidon2/poseidon2.cuh"
++#include "poseidon2/poseidon2.cu.h"
+ 
+ #include "api/babybear.h"
+ using namespace babybear;
 diff --git a/icicle/src/msm/extern.cu b/icicle/src/msm/extern.cu.cc
 similarity index 95%
 rename from icicle/src/msm/extern.cu
@@ -1377,7 +1807,7 @@ diff --git a/icicle/src/msm/msm.cu b/icicle/src/msm/msm.cu.cc
 similarity index 99%
 rename from icicle/src/msm/msm.cu
 rename to icicle/src/msm/msm.cu.cc
-index 18a99f21..03389457 100644
+index 7b6f8851..6bb2139a 100644
 --- a/icicle/src/msm/msm.cu
 +++ b/icicle/src/msm/msm.cu.cc
 @@ -1,4 +1,4 @@
@@ -1529,7 +1959,7 @@ diff --git a/icicle/src/ntt/ntt.cu b/icicle/src/ntt/ntt.cu.cc
 similarity index 99%
 rename from icicle/src/ntt/ntt.cu
 rename to icicle/src/ntt/ntt.cu.cc
-index dce454c3..2acd3e89 100644
+index 0afe4a29..a82522a0 100644
 --- a/icicle/src/ntt/ntt.cu
 +++ b/icicle/src/ntt/ntt.cu.cc
 @@ -1,22 +1,22 @@
@@ -1678,12 +2108,14 @@ diff --git a/icicle/src/poseidon/constants.cu b/icicle/src/poseidon/constants.cu
 similarity index 98%
 rename from icicle/src/poseidon/constants.cu
 rename to icicle/src/poseidon/constants.cu.cc
-index 97d67490..8f3bdca2 100644
+index bed5a9be..95a51673 100644
 --- a/icicle/src/poseidon/constants.cu
 +++ b/icicle/src/poseidon/constants.cu.cc
-@@ -1,4 +1,4 @@
--#include "poseidon/poseidon.cuh"
-+#include "poseidon/poseidon.cu.h"
+@@ -1,5 +1,5 @@
+-#include "poseidon/constants.cuh"
+-#include "gpu-utils/device_context.cuh"
++#include "poseidon/constants.cu.h"
++#include "gpu-utils/device_context.cu.h"
  
  /// These are pre-calculated constants for different curves
  #include "fields/id.h"
@@ -1691,7 +2123,7 @@ diff --git a/icicle/src/poseidon/extern.cu b/icicle/src/poseidon/extern.cu.cc
 similarity index 92%
 rename from icicle/src/poseidon/extern.cu
 rename to icicle/src/poseidon/extern.cu.cc
-index 66eac378..4955eda4 100644
+index 16145bb2..b10db1d8 100644
 --- a/icicle/src/poseidon/extern.cu
 +++ b/icicle/src/poseidon/extern.cu.cc
 @@ -1,11 +1,11 @@
@@ -1700,9 +2132,9 @@ index 66eac378..4955eda4 100644
  
  using namespace field_config;
  
--#include "poseidon.cu"
+-#include "poseidon/poseidon.cuh"
 -#include "constants.cu"
-+#include "poseidon.cu.cc"
++#include "poseidon/poseidon.cu.h"
 +#include "constants.cu.cc"
  
 -#include "gpu-utils/device_context.cuh"
@@ -1710,49 +2142,14 @@ index 66eac378..4955eda4 100644
  #include "utils/utils.h"
  
  namespace poseidon {
-diff --git a/icicle/src/poseidon/kernels.cu b/icicle/src/poseidon/kernels.cu.cc
-similarity index 98%
-rename from icicle/src/poseidon/kernels.cu
-rename to icicle/src/poseidon/kernels.cu.cc
-index 85359292..86665a32 100644
---- a/icicle/src/poseidon/kernels.cu
-+++ b/icicle/src/poseidon/kernels.cu.cc
-@@ -1,5 +1,5 @@
--#include "poseidon/poseidon.cuh"
--#include "gpu-utils/modifiers.cuh"
-+#include "poseidon/poseidon.cu.h"
-+#include "gpu-utils/modifiers.cu.h"
- 
- namespace poseidon {
-   template <typename S, int T>
-diff --git a/icicle/src/poseidon/poseidon.cu b/icicle/src/poseidon/poseidon.cu.cc
-similarity index 96%
-rename from icicle/src/poseidon/poseidon.cu
-rename to icicle/src/poseidon/poseidon.cu.cc
-index 835f9124..4d04cf9c 100644
---- a/icicle/src/poseidon/poseidon.cu
-+++ b/icicle/src/poseidon/poseidon.cu.cc
-@@ -1,9 +1,9 @@
--#include "fields/field_config.cuh"
-+#include "fields/field_config.cu.h"
- 
- using namespace field_config;
- 
--#include "poseidon/poseidon.cuh"
--#include "kernels.cu"
-+#include "poseidon/poseidon.cu.h"
-+#include "kernels.cu.cc"
- 
- namespace poseidon {
-   template <typename S, int T>
 diff --git a/icicle/src/poseidon/test.cu b/icicle/src/poseidon/test.cu.cc
 similarity index 99%
 rename from icicle/src/poseidon/test.cu
 rename to icicle/src/poseidon/test.cu.cc
-index 52998415..af4d3853 100644
+index 461b57ae..4384da3d 100644
 --- a/icicle/src/poseidon/test.cu
 +++ b/icicle/src/poseidon/test.cu.cc
-@@ -1,10 +1,10 @@
+@@ -1,9 +1,9 @@
  // #define DEBUG
  
 -#include "curves/curve_config.cuh"
@@ -1760,47 +2157,37 @@ index 52998415..af4d3853 100644
  using namespace curve_config;
  
 -#include "gpu-utils/device_context.cuh"
--#include "poseidon.cu"
 +#include "gpu-utils/device_context.cu.h"
-+#include "poseidon.cu.cc"
  
  #ifndef __CUDA_ARCH__
  #include <cassert>
-diff --git a/icicle/src/poseidon/tree/merkle.cu b/icicle/src/poseidon/tree/merkle.cu.cc
-similarity index 99%
-rename from icicle/src/poseidon/tree/merkle.cu
-rename to icicle/src/poseidon/tree/merkle.cu.cc
-index 076da24e..ede67889 100644
---- a/icicle/src/poseidon/tree/merkle.cu
-+++ b/icicle/src/poseidon/tree/merkle.cu.cc
-@@ -1,8 +1,8 @@
+@@ -14,7 +14,7 @@ using namespace curve_config;
+ #include "api/bls12_381.h"
+ using namespace bls12_381;
+ 
+-#include "poseidon/poseidon.cuh"
++#include "poseidon/poseidon.cu.h"
+ using namespace poseidon;
+ 
+ #define A 2
+diff --git a/icicle/src/poseidon/test_m31.cu b/icicle/src/poseidon/test_m31.cu.cc
+similarity index 94%
+rename from icicle/src/poseidon/test_m31.cu
+rename to icicle/src/poseidon/test_m31.cu.cc
+index 7f6bd7ce..cbf22de7 100644
+--- a/icicle/src/poseidon/test_m31.cu
++++ b/icicle/src/poseidon/test_m31.cu.cc
+@@ -1,10 +1,10 @@
+ // #define DEBUG
+ 
 -#include "fields/field_config.cuh"
 +#include "fields/field_config.cu.h"
- 
  using namespace field_config;
  
--#include "poseidon/tree/merkle.cuh"
-+#include "poseidon/tree/merkle.cu.h"
- 
- namespace merkle {
-   /// Flattens the tree digests and sum them up to get
-diff --git a/icicle/src/poseidon/tree/test.cu b/icicle/src/poseidon/tree/test.cu.cc
-similarity index 99%
-rename from icicle/src/poseidon/tree/test.cu
-rename to icicle/src/poseidon/tree/test.cu.cc
-index e487d56b..0624c797 100644
---- a/icicle/src/poseidon/tree/test.cu
-+++ b/icicle/src/poseidon/tree/test.cu.cc
-@@ -1,9 +1,9 @@
- // #define DEBUG
- #define MERKLE_DEBUG
- 
--#include "curves/curve_config.cuh"
--#include "../poseidon.cu"
--#include "merkle.cu"
-+#include "curves/curve_config.cu.h"
-+#include "../poseidon.cu.cc"
-+#include "merkle.cu.cc"
+-#include "gpu-utils/device_context.cuh"
+-#include "poseidon/poseidon.cuh"
++#include "gpu-utils/device_context.cu.h"
++#include "poseidon/poseidon.cu.h"
  
  #ifndef __CUDA_ARCH__
  #include <cassert>
@@ -1808,84 +2195,54 @@ diff --git a/icicle/src/poseidon2/constants.cu b/icicle/src/poseidon2/constants.
 similarity index 98%
 rename from icicle/src/poseidon2/constants.cu
 rename to icicle/src/poseidon2/constants.cu.cc
-index 7cbe2632..6e7e8e4f 100644
+index 3fa157d2..c30fab04 100644
 --- a/icicle/src/poseidon2/constants.cu
 +++ b/icicle/src/poseidon2/constants.cu.cc
-@@ -1,4 +1,4 @@
--#include "poseidon2/poseidon2.cuh"
-+#include "poseidon2/poseidon2.cu.h"
+@@ -1,5 +1,5 @@
+-#include "poseidon2/constants.cuh"
+-#include "gpu-utils/device_context.cuh"
++#include "poseidon2/constants.cu.h"
++#include "gpu-utils/device_context.cu.h"
  
  /// These are pre-calculated constants for different curves
  #include "fields/id.h"
 diff --git a/icicle/src/poseidon2/extern.cu b/icicle/src/poseidon2/extern.cu.cc
-similarity index 96%
+similarity index 92%
 rename from icicle/src/poseidon2/extern.cu
 rename to icicle/src/poseidon2/extern.cu.cc
-index d9eceeb1..f1fddf25 100644
+index 7741d29a..d2397255 100644
 --- a/icicle/src/poseidon2/extern.cu
 +++ b/icicle/src/poseidon2/extern.cu.cc
-@@ -1,9 +1,9 @@
+@@ -1,11 +1,11 @@
  #include "utils/utils.h"
  
 -#include "fields/field_config.cuh"
 +#include "fields/field_config.cu.h"
  using namespace field_config;
  
--#include "poseidon.cu"
-+#include "poseidon.cu.cc"
- 
- namespace poseidon2 {
-   extern "C" cudaError_t CONCAT_EXPAND(FIELD, create_poseidon2_constants_cuda)(
-diff --git a/icicle/src/poseidon2/kernels.cu b/icicle/src/poseidon2/kernels.cu.cc
-similarity index 98%
-rename from icicle/src/poseidon2/kernels.cu
-rename to icicle/src/poseidon2/kernels.cu.cc
-index bf836b43..58cc5d4e 100644
---- a/icicle/src/poseidon2/kernels.cu
-+++ b/icicle/src/poseidon2/kernels.cu.cc
-@@ -1,5 +1,5 @@
--#include "poseidon/poseidon.cuh"
--#include "gpu-utils/modifiers.cuh"
-+#include "poseidon/poseidon.cu.h"
-+#include "gpu-utils/modifiers.cu.h"
- 
- namespace poseidon2 {
-   template <typename S>
-diff --git a/icicle/src/poseidon2/poseidon.cu b/icicle/src/poseidon2/poseidon.cu.cc
-similarity index 96%
-rename from icicle/src/poseidon2/poseidon.cu
-rename to icicle/src/poseidon2/poseidon.cu.cc
-index 2ae0512f..803bf6fb 100644
---- a/icicle/src/poseidon2/poseidon.cu
-+++ b/icicle/src/poseidon2/poseidon.cu.cc
-@@ -1,6 +1,6 @@
+-#include "gpu-utils/error_handler.cuh"
 -#include "poseidon2/poseidon2.cuh"
--#include "constants.cu"
--#include "kernels.cu"
+-#include "./constants.cu"
++#include "gpu-utils/error_handler.cu.h"
 +#include "poseidon2/poseidon2.cu.h"
-+#include "constants.cu.cc"
-+#include "kernels.cu.cc"
++#include "./constants.cu.cc"
  
  namespace poseidon2 {
-   static int poseidon_block_size = 128;
+   template class Poseidon2<scalar_t>;
 diff --git a/icicle/src/poseidon2/test.cu b/icicle/src/poseidon2/test.cu.cc
 similarity index 99%
 rename from icicle/src/poseidon2/test.cu
 rename to icicle/src/poseidon2/test.cu.cc
-index 1fc7923b..00ca62a8 100644
+index c98bfd63..91e8da8c 100644
 --- a/icicle/src/poseidon2/test.cu
 +++ b/icicle/src/poseidon2/test.cu.cc
-@@ -1,7 +1,7 @@
--#include "curves/curve_config.cuh"
-+#include "curves/curve_config.cu.h"
- using namespace curve_config;
- 
+@@ -1,4 +1,4 @@
 -#include "gpu-utils/device_context.cuh"
 +#include "gpu-utils/device_context.cu.h"
  
  #ifndef __CUDA_ARCH__
  #include <cassert>
-@@ -9,7 +9,7 @@ using namespace curve_config;
+@@ -6,7 +6,7 @@
  #include <fstream>
  #include <iostream>
  
@@ -1893,7 +2250,37 @@ index 1fc7923b..00ca62a8 100644
 +#include "poseidon2/poseidon2.cu.h"
  using namespace poseidon2;
  
- #define T 3
+ #include "api/bn254.h"
+diff --git a/icicle/src/poseidon2/test_m31.cu b/icicle/src/poseidon2/test_m31.cu.cc
+similarity index 95%
+rename from icicle/src/poseidon2/test_m31.cu
+rename to icicle/src/poseidon2/test_m31.cu.cc
+index 378d281f..ed77de1f 100644
+--- a/icicle/src/poseidon2/test_m31.cu
++++ b/icicle/src/poseidon2/test_m31.cu.cc
+@@ -1,4 +1,4 @@
+-#include "gpu-utils/device_context.cuh"
++#include "gpu-utils/device_context.cu.h"
+ 
+ #ifndef __CUDA_ARCH__
+ #include <cassert>
+@@ -6,13 +6,13 @@
+ #include <fstream>
+ #include <iostream>
+ 
+-#include "poseidon2/poseidon2.cuh"
++#include "poseidon2/poseidon2.cu.h"
+ using namespace poseidon2;
+ 
+-#include "fields/field_config.cuh"
++#include "fields/field_config.cu.h"
+ using namespace field_config;
+ 
+-#include "hash/hash.cuh"
++#include "hash/hash.cu.h"
+ 
+ #define T 16
+ 
 diff --git a/icicle/src/vec_ops/extern.cu b/icicle/src/vec_ops/extern.cu.cc
 similarity index 97%
 rename from icicle/src/vec_ops/extern.cu
@@ -1936,7 +2323,7 @@ diff --git a/icicle/src/vec_ops/vec_ops.cu b/icicle/src/vec_ops/vec_ops.cu.cc
 similarity index 98%
 rename from icicle/src/vec_ops/vec_ops.cu
 rename to icicle/src/vec_ops/vec_ops.cu.cc
-index fef581ec..f667c5a2 100644
+index 9cfa85e6..c813dafa 100644
 --- a/icicle/src/vec_ops/vec_ops.cu
 +++ b/icicle/src/vec_ops/vec_ops.cu.cc
 @@ -1,9 +1,9 @@
@@ -2012,7 +2399,7 @@ diff --git a/icicle/tests/polynomial_test.cu b/icicle/tests/polynomial_test.cu.c
 similarity index 99%
 rename from icicle/tests/polynomial_test.cu
 rename to icicle/tests/polynomial_test.cu.cc
-index 219cc1c9..7f1c7034 100644
+index 9b433fa1..55c9942e 100644
 --- a/icicle/tests/polynomial_test.cu
 +++ b/icicle/tests/polynomial_test.cu.cc
 @@ -5,10 +5,10 @@
