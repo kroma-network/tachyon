@@ -51,9 +51,12 @@ bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
   }
   VLOG(1) << "IcicleNTT is initialized";
 
+  auto one = ::bn254::scalar_t::one();
   config_.reset(new ::ntt::NTTConfig<bn254::Fr>{
       ctx,
-      base::bit_cast<bn254::Fr>(::bn254::scalar_t::one()),
+      // TODO(chokobole): Change it to |base::bit_cast| again if the
+      // |::bn254::scalar_t| becomes trivially copyable.
+      *reinterpret_cast<bn254::Fr*>(&one),
       options.batch_size,
       options.columns_batch,
       options.ordering,
@@ -80,7 +83,9 @@ bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
   // https://github.com/ingonyama-zk/icicle/blob/4fef542/icicle/include/fields/storage.cuh.
   ::ntt::NTTConfig<::bn254::scalar_t> config{
       config_->ctx,
-      base::bit_cast<::bn254::scalar_t>(coset),
+      // TODO(chokobole): Change it to |base::bit_cast| again if the
+      // |::bn254::scalar_t| becomes trivially copyable.
+      *reinterpret_cast<::bn254::scalar_t*>(const_cast<BigInt*>(&coset)),
       config_->batch_size,
       config_->columns_batch,
       config_->ordering,

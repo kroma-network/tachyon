@@ -74,7 +74,9 @@ bool IcicleMSM<bls12_381::G2AffinePoint>::Run(
     final_value = final_value + ret;
   }
   final_value = ::bls12_381::g2_projective_t::to_montgomery(final_value);
-  *cpu_result = base::bit_cast<ProjectivePoint<Curve>>(final_value);
+  // TODO(chokobole): Change it to |base::bit_cast| again if the
+  // |::bls12_381::g2_projective_t| becomes trivially copyable.
+  *cpu_result = *reinterpret_cast<ProjectivePoint<Curve>*>(&final_value);
   return true;
 }
 

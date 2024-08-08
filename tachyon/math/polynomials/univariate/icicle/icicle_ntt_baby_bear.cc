@@ -51,9 +51,12 @@ bool IcicleNTT<BabyBear>::Init(const BabyBear& group_gen,
   }
   VLOG(1) << "IcicleNTT is initialized";
 
+  auto one = ::babybear::scalar_t::one();
   config_.reset(new ::ntt::NTTConfig<BabyBear>{
       ctx,
-      base::bit_cast<BabyBear>(::babybear::scalar_t::one()),
+      // TODO(chokobole): Change it to |base::bit_cast| again if the
+      // |::babybear::scalar_t| becomes trivially copyable.
+      *reinterpret_cast<BabyBear*>(&one),
       options.batch_size,
       options.columns_batch,
       options.ordering,
@@ -77,9 +80,12 @@ bool IcicleNTT<BabyBear>::Run(::ntt::NttAlgorithm algorithm,
   // |sizeof(::babybear::scalar_t)| and |sizeof(BabyBear)| are same. This
   // is because their alignments are different. See
   // https://github.com/ingonyama-zk/icicle/blob/4fef542/icicle/include/fields/storage.cuh.
+  uint32_t coset_gen = static_cast<uint32_t>(coset[0]);
   ::ntt::NTTConfig<::babybear::scalar_t> config{
       config_->ctx,
-      base::bit_cast<::babybear::scalar_t>(static_cast<uint32_t>(coset[0])),
+      // TODO(chokobole): Change it to |base::bit_cast| again if the
+      // |::babybear::scalar_t| becomes trivially copyable.
+      *reinterpret_cast<::babybear::scalar_t*>(&coset_gen),
       config_->batch_size,
       config_->columns_batch,
       config_->ordering,
