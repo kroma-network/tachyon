@@ -63,7 +63,7 @@ std::vector<ExtF> FoldMatrix(const ExtF& beta,
 
 // NOTE(ashjeong): |arity| is subject to change in the future
 template <typename ExtF>
-ExtF FoldRow(size_t index, size_t log_num_rows, const ExtF& beta,
+ExtF FoldRow(size_t index, uint32_t log_num_rows, const ExtF& beta,
              const std::vector<ExtF>& evals) {
   using F = typename math::ExtensionFieldTraits<ExtF>::BaseField;
   const size_t kArity = 2;

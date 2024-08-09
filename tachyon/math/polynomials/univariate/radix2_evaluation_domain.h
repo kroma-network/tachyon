@@ -99,7 +99,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    size_t log_n = this->log_size_of_group_;
+    uint32_t log_n = this->log_size_of_group_;
     mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
@@ -120,7 +120,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    size_t log_n = this->log_size_of_group_;
+    uint32_t log_n = this->log_size_of_group_;
     mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
@@ -409,7 +409,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
       Eigen::Block<RowMajorMatrix<F>> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
-      for (size_t layer = 0; layer < mid_; ++layer) {
+      for (uint32_t layer = 0; layer < mid_; ++layer) {
         RunDitLayers(submat, layer, absl::MakeSpan(twiddles),
                      absl::MakeSpan(packed_twiddles_rev), false);
       }
@@ -440,7 +440,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
         size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
         Eigen::Block<RowMajorMatrix<F>> submat =
             mat.block(block_start, 0, cur_chunk_rows, cols);
-        for (size_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
+        for (uint32_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
           size_t first_block = thread << (layer - mid_);
           RunDitLayers(submat, layer,
                        absl::MakeSpan(twiddles_rev.data() + first_block,
@@ -454,14 +454,14 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   CONSTEXPR_IF_NOT_OPENMP void RunDitLayers(
-      Eigen::Block<RowMajorMatrix<F>>& submat, size_t layer,
+      Eigen::Block<RowMajorMatrix<F>>& submat, uint32_t layer,
       const absl::Span<const F>& twiddles,
       const absl::Span<const PackedPrimeField>& packed_twiddles, bool rev) {
     TRACE_EVENT("EvaluationDomain", "RunDitLayers");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
-    size_t layer_rev = this->log_size_of_group_ - 1 - layer;
+    uint32_t layer_rev = this->log_size_of_group_ - 1 - layer;
     size_t half_block_size = size_t{1} << (rev ? layer_rev : layer);
     size_t block_size = half_block_size * 2;
     size_t sub_rows = static_cast<size_t>(submat.rows());
@@ -515,7 +515,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
   }
 
-  size_t mid_ = 0;
+  uint32_t mid_ = 0;
   // For small prime fields
   std::vector<F> rev_roots_vec_;
   std::vector<F> rev_inv_roots_vec_;

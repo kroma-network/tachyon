@@ -90,11 +90,11 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FilterPolynomial) {
   using DensePoly = typename Domain::DensePoly;
 
   if constexpr (std::is_same_v<F, bls12_381::Fr>) {
-    for (size_t log_domain_size = 1; log_domain_size < 4; ++log_domain_size) {
+    for (uint32_t log_domain_size = 1; log_domain_size < 4; ++log_domain_size) {
       size_t domain_size = size_t{1} << log_domain_size;
       std::unique_ptr<Domain> domain = Domain::Create(domain_size);
-      for (size_t log_subdomain_size = 1; log_subdomain_size <= log_domain_size;
-           ++log_subdomain_size) {
+      for (uint32_t log_subdomain_size = 1;
+           log_subdomain_size <= log_domain_size; ++log_subdomain_size) {
         size_t subdomain_size = size_t{1} << log_subdomain_size;
         std::unique_ptr<Domain> subdomain = Domain::Create(subdomain_size);
 
@@ -263,7 +263,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FFTCorrectness) {
   const size_t kLogDegree = 5;
   const size_t kDegree = (size_t{1} << kLogDegree) - 1;
   DensePoly rand_poly = DensePoly::Random(kDegree);
-  for (size_t log_domain_size = kLogDegree; log_domain_size < kLogDegree + 2;
+  for (uint32_t log_domain_size = kLogDegree; log_domain_size < kLogDegree + 2;
        ++log_domain_size) {
     size_t domain_size = size_t{1} << log_domain_size;
     this->TestDomains(

@@ -25,7 +25,7 @@ TYPED_TEST_SUITE(Radix2EvaluationDomainTest, PrimeFieldTypes);
 
 TYPED_TEST(Radix2EvaluationDomainTest, FFTBatch) {
   using F = TypeParam;
-  for (size_t log_r = 0; log_r < 5; ++log_r) {
+  for (uint32_t log_r = 0; log_r < 5; ++log_r) {
     RowMajorMatrix<F> expected =
         RowMajorMatrix<F>::Random(size_t{1} << log_r, 3);
     RowMajorMatrix<F> result = expected;
@@ -40,7 +40,7 @@ TYPED_TEST(Radix2EvaluationDomainTest, FFTBatch) {
 
 TYPED_TEST(Radix2EvaluationDomainTest, CosetLDEBatch) {
   using F = TypeParam;
-  for (size_t log_r = 0; log_r < 5; ++log_r) {
+  for (uint32_t log_r = 0; log_r < 5; ++log_r) {
     RowMajorMatrix<F> expected =
         RowMajorMatrix<F>::Random(size_t{1} << log_r, 3);
     RowMajorMatrix<F> result = expected;

@@ -204,7 +204,7 @@ class TwoAdicFriPCS {
     // Batch combination challenge
     const ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
-    size_t log_global_max_num_rows =
+    uint32_t log_global_max_num_rows =
         proof.commit_phase_commits.size() + fri_.log_blowup;
     return TwoAdicFriPCSVerify(
         fri_, proof, challenger,

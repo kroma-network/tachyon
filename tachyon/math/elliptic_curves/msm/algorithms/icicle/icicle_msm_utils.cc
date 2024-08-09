@@ -16,7 +16,7 @@ size_t DetermineMsmDivisionsForMemory(size_t scalar_t_mem_size,
   size_t free_memory =
       device::gpu::GpuMemLimitInfo(device::gpu::MemoryUsage::kHigh);
   size_t shift = 0;
-  size_t log_msm_size = base::bits::Log2Ceiling(msm_size);
+  uint32_t log_msm_size = base::bits::Log2Ceiling(msm_size);
 
   for (size_t number_of_divisions = 0; number_of_divisions < log_msm_size;
        ++number_of_divisions) {

@@ -105,15 +105,15 @@ class FieldMerkleTreeMMCS final
                                           std::vector<std::vector<F>>* openings,
                                           Proof* proof) const {
     size_t max_row_size = this->GetMaxRowSize(prover_data);
-    size_t log_max_row_size = base::bits::Log2Ceiling(max_row_size);
+    uint32_t log_max_row_size = base::bits::Log2Ceiling(max_row_size);
 
     // TODO(chokobole): Is it able to be parallelized?
     *openings = base::Map(
         prover_data.leaves(),
         [log_max_row_size, index](const math::RowMajorMatrix<F>& matrix) {
-          size_t log_row_size =
+          uint32_t log_row_size =
               base::bits::Log2Ceiling(static_cast<size_t>(matrix.rows()));
-          size_t bits_reduced = log_max_row_size - log_row_size;
+          uint32_t bits_reduced = log_max_row_size - log_row_size;
           size_t reduced_index = index >> bits_reduced;
           return base::CreateVector(matrix.cols(),
                                     [reduced_index, &matrix](size_t col) {
