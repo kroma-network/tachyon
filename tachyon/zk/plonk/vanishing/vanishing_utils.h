@@ -80,8 +80,9 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
                                    << (extended_domain->log_size_of_group() -
                                        domain->log_size_of_group());
   // |coset_gen_pow_n| = w'ⁿ where w' is generator of extended domain.
-  const F coset_gen_pow_n = extended_domain->group_gen().Pow(domain->size());
-  const F zeta_pow_n = zeta.Pow(domain->size());
+  const F coset_gen_pow_n =
+      extended_domain->group_gen().ExpPowOfTwo(domain->log_size_of_group());
+  const F zeta_pow_n = zeta.ExpPowOfTwo(domain->log_size_of_group());
   std::vector<F> t_evaluations(kTEvaluationsSize);
   // |t_evaluations| = [ζⁿ - 1, ζⁿ * w'ⁿ - 1, ζⁿ * w'²ⁿ - 1, ...]
   base::Parallelize(t_evaluations, [&coset_gen_pow_n, &zeta_pow_n](

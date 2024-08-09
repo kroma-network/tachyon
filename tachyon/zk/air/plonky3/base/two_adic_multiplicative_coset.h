@@ -110,7 +110,8 @@ class TwoAdicMultiplicativeCoset {
           CHECK(F::BatchInverseInPlaceSerial(inv_denoms_inv_zeroifier_chunk));
         });
 
-    F coset_i = domain_->group_gen().Pow(domain_->size() - 1);
+    F coset_i = domain_->group_gen().ExpPowOfTwo(domain_->log_size_of_group()) *
+                domain_->group_gen_inv();
 
     size_t sz = coset.domain()->size();
     std::vector<F> first_row(sz);
