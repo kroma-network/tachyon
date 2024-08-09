@@ -59,7 +59,7 @@ struct MSMGpuApi {
     GPU_MUST_SUCCESS(
         gpuMemPoolSetAttribute(mem_pool.get(), gpuMemPoolAttrReleaseThreshold,
                                &mem_pool_threshold),
-        "Failed to gpuMemPoolSetAttribute()");
+        "Failed gpuMemPoolSetAttribute()");
 
     stream = tachyon::device::gpu::CreateStream();
     msm.reset(new tachyon::math::VariableBaseMSMGpu<Point>(mem_pool.get(),

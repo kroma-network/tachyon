@@ -4,14 +4,14 @@ namespace tachyon::device::gpu {
 
 ScopedEvent CreateEvent() {
   gpuEvent_t event = nullptr;
-  GPU_MUST_SUCCESS(gpuEventCreate(&event), "Failed to gpuEventCreate()");
+  GPU_MUST_SUCCESS(gpuEventCreate(&event), "Failed gpuEventCreate()");
   return ScopedEvent(event);
 }
 
 ScopedEvent CreateEventWithFlags(unsigned int flags) {
   gpuEvent_t event = nullptr;
   GPU_MUST_SUCCESS(gpuEventCreateWithFlags(&event, flags),
-                   "Failed to gpuEventCreateWithFlags()");
+                   "Failed gpuEventCreateWithFlags()");
   return ScopedEvent(event);
 }
 

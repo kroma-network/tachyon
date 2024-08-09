@@ -45,7 +45,7 @@ bool IcicleNTT<bn254::Fr>::Init(const bn254::Fr& group_gen,
       reinterpret_cast<const ::bn254::scalar_t&>(group_gen_big_int), ctx,
       options.fast_twiddles_mode);
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to tachyon_bn254_initialize_domain()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_bn254_initialize_domain()";
     return false;
   }
   VLOG(1) << "IcicleNTT is initialized";
@@ -93,7 +93,7 @@ bool IcicleNTT<bn254::Fr>::Run(::ntt::NttAlgorithm algorithm,
       reinterpret_cast<const ::bn254::scalar_t*>(inout), size, dir, config,
       reinterpret_cast<::bn254::scalar_t*>(inout));
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to tachyon_bn254_ntt_cuda()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_bn254_ntt_cuda()";
     return false;
   }
   return true;
@@ -108,7 +108,7 @@ bool IcicleNTT<bn254::Fr>::Release() {
   ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
   gpuError_t error = tachyon_bn254_release_domain(ctx);
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to tachyon_bn254_release_domain()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_bn254_release_domain()";
     return false;
   }
   return true;

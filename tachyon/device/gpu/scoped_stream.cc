@@ -4,14 +4,14 @@ namespace tachyon::device::gpu {
 
 ScopedStream CreateStream() {
   gpuStream_t event = nullptr;
-  GPU_MUST_SUCCESS(gpuStreamCreate(&event), "Failed to gpuStreamCreate()");
+  GPU_MUST_SUCCESS(gpuStreamCreate(&event), "Failed gpuStreamCreate()");
   return ScopedStream(event);
 }
 
 ScopedStream CreateStreamWithFlags(unsigned int flags) {
   gpuStream_t event = nullptr;
   GPU_MUST_SUCCESS(gpuStreamCreateWithFlags(&event, flags),
-                   "Failed to gpuStreamCreateWithFlags()");
+                   "Failed gpuStreamCreateWithFlags()");
   return ScopedStream(event);
 }
 

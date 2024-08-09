@@ -88,7 +88,7 @@ gpu::GpuMemory<bool> PrimeFieldGpuTest::bool_results_;
   }                                                                          \
   GPU_MUST_SUCCESS(                                                          \
       Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests)), \
-      "Failed to " #method "()");                                            \
+      "Failed " #method "()");                                               \
   for (size_t i = 0; i < std::size(tests); ++i)
 
 #define RUN_FIELD_OPERATION_TESTS(method) \
@@ -196,7 +196,7 @@ TEST_F(PrimeFieldGpuTest, Eq) {
 
   GPU_MUST_SUCCESS(
       LaunchEq(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
-      "Failed to Eq()");
+      "Failed Eq()");
   for (size_t i = 0; i < std::size(tests); ++i) {
     ASSERT_EQ(bool_results_[i], tests[i].result);
   }
@@ -222,7 +222,7 @@ TEST_F(PrimeFieldGpuTest, Ne) {
 
   GPU_MUST_SUCCESS(
       LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
-      "Failed to Ne()");
+      "Failed Ne()");
   for (size_t i = 0; i < std::size(tests); ++i) {
     ASSERT_EQ(bool_results_[i], tests[i].result);
   }

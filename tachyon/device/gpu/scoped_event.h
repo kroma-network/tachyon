@@ -11,7 +11,7 @@ namespace tachyon::device::gpu {
 
 struct TACHYON_EXPORT EventDestroyer {
   void operator()(gpuEvent_t event) const {
-    GPU_MUST_SUCCESS(gpuEventDestroy(event), "Failed to gpuEventDestroy()");
+    GPU_MUST_SUCCESS(gpuEventDestroy(event), "Failed gpuEventDestroy()");
   }
 };
 

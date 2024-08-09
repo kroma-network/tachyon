@@ -46,7 +46,7 @@ bool IcicleNTT<bls12_381::Fr>::Init(const bls12_381::Fr& group_gen,
       reinterpret_cast<const ::bls12_381::scalar_t&>(group_gen_big_int), ctx,
       options.fast_twiddles_mode);
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to tachyon_bls12_381_initialize_domain()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_bls12_381_initialize_domain()";
     return false;
   }
   VLOG(1) << "IcicleNTT is initialized";
@@ -93,7 +93,7 @@ bool IcicleNTT<bls12_381::Fr>::Run(::ntt::NttAlgorithm algorithm,
       reinterpret_cast<const ::bls12_381::scalar_t*>(inout), size, dir, config,
       reinterpret_cast<::bls12_381::scalar_t*>(inout));
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to tachyon_bls12_381_ntt_cuda()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_bls12_381_ntt_cuda()";
     return false;
   }
   return true;
@@ -108,7 +108,7 @@ bool IcicleNTT<bls12_381::Fr>::Release() {
   ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
   gpuError_t error = tachyon_bls12_381_release_domain(ctx);
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to tachyon_bls12_381_release_domain()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_bls12_381_release_domain()";
     return false;
   }
   return true;

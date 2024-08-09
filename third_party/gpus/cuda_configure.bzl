@@ -657,7 +657,7 @@ def find_cuda_config(repository_ctx, script_path, cuda_libraries):
     """Returns CUDA config dictionary from running find_cuda_config.py"""
     exec_result = _exec_find_cuda_config(repository_ctx, script_path, cuda_libraries)
     if exec_result.return_code:
-        auto_configure_fail("Failed to run find_cuda_config.py: %s" % err_out(exec_result))
+        auto_configure_fail("Failed find_cuda_config.py: %s" % err_out(exec_result))
 
     # Parse the dict from stdout.
     return dict([tuple(x.split(": ")) for x in exec_result.stdout.splitlines()])

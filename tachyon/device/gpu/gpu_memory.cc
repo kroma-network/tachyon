@@ -114,20 +114,20 @@ gpuError_t GpuMallocFromPoolAsync(void** ptr, size_t size, gpuMemPool_t pool,
 
 void GpuFreeMemory(gpuStream_t stream, void* ptr, GpuMemoryType type) {
   if (stream) {
-    GPU_MUST_SUCCESS(gpuFreeAsync(ptr, stream), "Failed to gpuFreeAsync()");
+    GPU_MUST_SUCCESS(gpuFreeAsync(ptr, stream), "Failed gpuFreeAsync()");
   } else {
     switch (type) {
       case GpuMemoryType::kUnregistered:
         NOTREACHED();
       case GpuMemoryType::kDevice:
-        GPU_MUST_SUCCESS(gpuFree(ptr), "Failed to gpuFree()");
+        GPU_MUST_SUCCESS(gpuFree(ptr), "Failed gpuFree()");
         break;
       case GpuMemoryType::kHost:
-        GPU_MUST_SUCCESS(gpuFreeHost(ptr), "Failed to gpuFreeHost()");
+        GPU_MUST_SUCCESS(gpuFreeHost(ptr), "Failed gpuFreeHost()");
         break;
 #if TACHYON_CUDA
       case GpuMemoryType::kUnified:
-        GPU_MUST_SUCCESS(gpuFree(ptr), "Failed to gpuFree()");
+        GPU_MUST_SUCCESS(gpuFree(ptr), "Failed gpuFree()");
         break;
 #endif
     }
@@ -168,7 +168,7 @@ size_t GpuMemLimitInfo(MemoryUsage type) {
 
   gpuError_t error = GpuMemGetInfo(&free_memory, &total_memory);
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to GpuMemGetInfo()";
+    GPU_LOG(ERROR, error) << "Failed GpuMemGetInfo()";
     return available_memory;
   }
 

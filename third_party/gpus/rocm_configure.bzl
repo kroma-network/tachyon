@@ -381,7 +381,7 @@ def find_rocm_config(repository_ctx, script_path):
     """Returns ROCm config dictionary from running find_rocm_config.py"""
     exec_result = _exec_find_rocm_config(repository_ctx, script_path)
     if exec_result.return_code:
-        auto_configure_fail("Failed to run find_rocm_config.py: %s" % err_out(exec_result))
+        auto_configure_fail("Failed find_rocm_config.py: %s" % err_out(exec_result))
 
     # Parse the dict from stdout.
     return dict([tuple(x.split(": ")) for x in exec_result.stdout.splitlines()])

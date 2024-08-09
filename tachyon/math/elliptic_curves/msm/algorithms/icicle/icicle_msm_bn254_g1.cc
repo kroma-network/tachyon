@@ -57,7 +57,7 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(
         reinterpret_cast<const ::bn254::affine_t*>(&cpu_bases[start_idx]),
         data_size, *config_, &ret);
     if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to tachyon_bn254_g1_msm_cuda()";
+      GPU_LOG(ERROR, error) << "Failed tachyon_bn254_g1_msm_cuda()";
       return false;
     }
     final_value = final_value + ret;

@@ -59,7 +59,7 @@ bool IcicleMSM<bls12_381::G1AffinePoint>::Run(
         reinterpret_cast<const ::bls12_381::affine_t*>(&cpu_bases[start_idx]),
         data_size, *config_, &ret);
     if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to tachyon_bls12_381_g1_msm_cuda()";
+      GPU_LOG(ERROR, error) << "Failed tachyon_bls12_381_g1_msm_cuda()";
       return false;
     }
     final_value = final_value + ret;
