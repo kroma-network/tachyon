@@ -14,6 +14,7 @@ tachyon_cuda_library(
         "//tachyon/base:profiler",
         "//tachyon/device/gpu:gpu_enums",
         "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu:gpu_memory",
         "@icicle//:msm_bls12_381",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
@@ -32,6 +33,7 @@ tachyon_cuda_library(
         "//tachyon/base:profiler",
         "//tachyon/device/gpu:gpu_enums",
         "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu:gpu_memory",
         "@icicle//:msm_bls12_381",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
@@ -50,6 +52,7 @@ tachyon_cuda_library(
         "//tachyon/base:profiler",
         "//tachyon/device/gpu:gpu_enums",
         "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu:gpu_memory",
         "@icicle//:msm_bn254",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
@@ -68,6 +71,7 @@ tachyon_cuda_library(
         "//tachyon/base:profiler",
         "//tachyon/device/gpu:gpu_enums",
         "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu:gpu_memory",
         "@icicle//:msm_bn254",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",

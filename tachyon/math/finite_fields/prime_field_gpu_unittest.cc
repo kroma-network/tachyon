@@ -80,15 +80,15 @@ gpu::GpuMemory<bool> PrimeFieldGpuTest::bool_results_;
 
 }  // namespace
 
-#define RUN_OPERATION_TESTS(method, results)                                 \
-  for (size_t i = 0; i < std::size(tests); ++i) {                            \
-    const auto& test = tests[i];                                             \
-    xs_[i] = GF7Gpu::FromBigInt(test.x.ToBigInt());                          \
-    ys_[i] = GF7Gpu::FromBigInt(test.y.ToBigInt());                          \
-  }                                                                          \
-  GPU_MUST_SUCCEED(                                                          \
-      Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests)), \
-      "Failed " #method "()");                                               \
+#define RUN_OPERATION_TESTS(method, results)                              \
+  for (size_t i = 0; i < std::size(tests); ++i) {                         \
+    const auto& test = tests[i];                                          \
+    xs_[i] = GF7Gpu::FromBigInt(test.x.ToBigInt());                       \
+    ys_[i] = GF7Gpu::FromBigInt(test.y.ToBigInt());                       \
+  }                                                                       \
+  GPU_MUST_SUCCEED(Launch##method(xs_.data(), ys_.data(), results.data(), \
+                                  std::size(tests)),                      \
+                   "Failed " #method "()");                               \
   for (size_t i = 0; i < std::size(tests); ++i)
 
 #define RUN_FIELD_OPERATION_TESTS(method) \
@@ -195,7 +195,7 @@ TEST_F(PrimeFieldGpuTest, Eq) {
   }
 
   GPU_MUST_SUCCEED(
-      LaunchEq(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
+      LaunchEq(xs_.data(), ys_.data(), bool_results_.data(), std::size(tests)),
       "Failed Eq()");
   for (size_t i = 0; i < std::size(tests); ++i) {
     ASSERT_EQ(bool_results_[i], tests[i].result);
@@ -221,7 +221,7 @@ TEST_F(PrimeFieldGpuTest, Ne) {
   }
 
   GPU_MUST_SUCCEED(
-      LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
+      LaunchNe(xs_.data(), ys_.data(), bool_results_.data(), std::size(tests)),
       "Failed Ne()");
   for (size_t i = 0; i < std::size(tests); ++i) {
     ASSERT_EQ(bool_results_[i], tests[i].result);

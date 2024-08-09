@@ -19,10 +19,10 @@ class VariableBaseMSMGpu {
   VariableBaseMSMGpu& operator=(const VariableBaseMSMGpu& other) = delete;
 
   template <typename BaseContainer, typename ScalarContainer>
-  [[nodiscard]] bool Run(const BaseContainer& cpu_bases,
+  [[nodiscard]] bool Run(const BaseContainer& bases,
                          const ScalarContainer& cpu_scalars,
                          ProjectivePoint<Curve>* cpu_result) {
-    return impl_->Run(cpu_bases, cpu_scalars, cpu_result);
+    return impl_->Run(bases, cpu_scalars, cpu_result);
   }
 
  private:

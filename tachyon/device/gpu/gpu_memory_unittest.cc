@@ -84,7 +84,7 @@ TEST(GpuMemoryTest, CopyFrom) {
 #if TACHYON_CUDA
   {
     auto unified_memory = GpuMemory<int>::MallocManaged(512);
-    absl::Span<int> unified_memory_view(unified_memory.get(), 512);
+    absl::Span<int> unified_memory_view(unified_memory.data(), 512);
     for (int& v : unified_memory_view) {
       v = base::Uniform(base::Range<int>::From(0));
     }

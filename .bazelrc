@@ -85,6 +85,10 @@ build:cuda --define absl=0
 build --//:has_exception
 
 test --test_tag_filters -benchmark,-manual,-cuda,-rust
+# TODO(GideokKim): Currently, NTT operates assuming that GPU memory is always
+# sufficient. Until the issue is resolved, add a tag to manually test in cuda
+# tests.
+test:cuda --test_tag_filters -benchmark,-manual,-cuda,-rust,-gpu_heavy_test
 
 build:linux --build_tag_filters -objc,-cuda,-rust
 build:macos --build_tag_filters -cuda,-rust,-doxygen

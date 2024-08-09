@@ -164,6 +164,19 @@ class GWCExtension final
     return this->gwc_.kzg().g1_powers_of_tau_lagrange();
   }
 
+#if TACHYON_CUDA
+  const device::gpu::GpuMemory<G1Point>& GetDeviceG1PowersOfTau() const {
+    return this->gwc_.kzg().d_g1_powers_of_tau();
+  }
+
+  const device::gpu::GpuMemory<G1Point>& GetDeviceG1PowersOfTauLagrange()
+      const {
+    return this->gwc_.kzg().d_g1_powers_of_tau_lagrange();
+  }
+
+  bool UsesGPU() const { return this->gwc_.kzg().UsesGPU(); }
+#endif
+
   template <typename BaseContainer, typename ScalarContainer,
             typename OutCommitment>
   [[nodiscard]] bool DoMSM(const BaseContainer& bases,

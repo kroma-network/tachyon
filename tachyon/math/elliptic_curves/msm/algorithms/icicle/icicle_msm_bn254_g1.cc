@@ -5,6 +5,7 @@
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/gpu_logging.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_utils.h"
 
@@ -19,7 +20,7 @@ namespace tachyon::math {
 
 template <>
 bool IcicleMSM<bn254::G1AffinePoint>::Run(
-    absl::Span<const bn254::G1AffinePoint> cpu_bases,
+    absl::Span<const bn254::G1AffinePoint> bases,
     absl::Span<const bn254::Fr> cpu_scalars,
     ProjectivePoint<Curve>* cpu_result) {
 #if FIELD_ID != BN254
@@ -27,13 +28,22 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(
 #endif
   TRACE_EVENT("MSM", "Icicle::MSM");
 
-  size_t bases_size = cpu_bases.size();
+  size_t bases_size = bases.size();
   size_t scalars_size = cpu_scalars.size();
 
   if (bases_size != scalars_size) {
     LOG(ERROR) << "bases_size and scalars_size don't match";
     return false;
   }
+
+  device::gpu::gpuPointerAttributes bases_attributes{};
+  RETURN_AND_LOG_IF_GPU_ERROR(
+      device::gpu::GpuPointerGetAttributes(&bases_attributes, bases.data()),
+      "Failed to GpuPointerGetAttributes()");
+
+  config_->are_points_on_device =
+      bases_attributes.type != gpuMemoryTypeUnregistered &&
+      bases_attributes.type != gpuMemoryTypeHost;
 
   size_t bitsize = static_cast<size_t>(
       (config_->bitsize == 0) ? ::bn254::scalar_t::NBITS : config_->bitsize);
@@ -54,7 +64,7 @@ bool IcicleMSM<bn254::G1AffinePoint>::Run(
     ::bn254::projective_t ret;
     gpuError_t error = tachyon_bn254_g1_msm_cuda(
         reinterpret_cast<const ::bn254::scalar_t*>(&cpu_scalars[start_idx]),
-        reinterpret_cast<const ::bn254::affine_t*>(&cpu_bases[start_idx]),
+        reinterpret_cast<const ::bn254::affine_t*>(&bases[start_idx]),
         data_size, *config_, &ret);
     if (error != gpuSuccess) {
       GPU_LOG(ERROR, error) << "Failed tachyon_bn254_g1_msm_cuda()";

@@ -65,7 +65,7 @@ class IcicleMSM {
   IcicleMSM(const IcicleMSM& other) = delete;
   IcicleMSM& operator=(const IcicleMSM& other) = delete;
 
-  [[nodiscard]] bool Run(absl::Span<const Point> cpu_bases,
+  [[nodiscard]] bool Run(absl::Span<const Point> bases,
                          absl::Span<const ScalarField> cpu_scalars,
                          ProjectivePoint<Curve>* cpu_result);
 
@@ -77,25 +77,25 @@ class IcicleMSM {
 
 template <>
 TACHYON_EXPORT bool IcicleMSM<bls12_381::G1AffinePoint>::Run(
-    absl::Span<const bls12_381::G1AffinePoint> cpu_bases,
+    absl::Span<const bls12_381::G1AffinePoint> bases,
     absl::Span<const ScalarField> cpu_scalars,
     ProjectivePoint<Curve>* cpu_result);
 
 template <>
 TACHYON_EXPORT bool IcicleMSM<bls12_381::G2AffinePoint>::Run(
-    absl::Span<const bls12_381::G2AffinePoint> cpu_bases,
+    absl::Span<const bls12_381::G2AffinePoint> bases,
     absl::Span<const ScalarField> cpu_scalars,
     ProjectivePoint<Curve>* cpu_result);
 
 template <>
 TACHYON_EXPORT bool IcicleMSM<bn254::G1AffinePoint>::Run(
-    absl::Span<const bn254::G1AffinePoint> cpu_bases,
+    absl::Span<const bn254::G1AffinePoint> bases,
     absl::Span<const ScalarField> cpu_scalars,
     ProjectivePoint<Curve>* cpu_result);
 
 template <>
 TACHYON_EXPORT bool IcicleMSM<bn254::G2AffinePoint>::Run(
-    absl::Span<const bn254::G2AffinePoint> cpu_bases,
+    absl::Span<const bn254::G2AffinePoint> bases,
     absl::Span<const ScalarField> cpu_scalars,
     ProjectivePoint<Curve>* cpu_result);
 

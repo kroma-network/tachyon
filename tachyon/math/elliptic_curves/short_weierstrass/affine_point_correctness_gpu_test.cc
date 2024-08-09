@@ -112,8 +112,8 @@ std::vector<bn254::G1AffinePoint> AffinePointCorrectnessGpuTest::y_cpus_;
 }  // namespace
 
 TEST_F(AffinePointCorrectnessGpuTest, Add) {
-  GPU_MUST_SUCCEED(LaunchAdd(xs_.get(), ys_.get(), jacobian_results_.get(), N),
-                   "");
+  GPU_MUST_SUCCEED(
+      LaunchAdd(xs_.data(), ys_.data(), jacobian_results_.data(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
@@ -123,7 +123,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Add) {
 }
 
 TEST_F(AffinePointCorrectnessGpuTest, Double) {
-  GPU_MUST_SUCCEED(LaunchDouble(xs_.get(), jacobian_results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchDouble(xs_.data(), jacobian_results_.data(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
     auto result = ConvertPoint<bn254::G1JacobianPoint>(jacobian_results_[i]);
@@ -132,7 +132,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Double) {
 }
 
 TEST_F(AffinePointCorrectnessGpuTest, Negate) {
-  GPU_MUST_SUCCEED(LaunchNegate(xs_.get(), affine_results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchNegate(xs_.data(), affine_results_.data(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
     auto result = ConvertPoint<bn254::G1AffinePoint>(affine_results_[i]);
@@ -141,7 +141,8 @@ TEST_F(AffinePointCorrectnessGpuTest, Negate) {
 }
 
 TEST_F(AffinePointCorrectnessGpuTest, Eq) {
-  GPU_MUST_SUCCEED(LaunchEq(xs_.get(), xs_.get(), bool_results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchEq(xs_.data(), xs_.data(), bool_results_.data(), N),
+                   "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), xs_[i].ToString()));
@@ -150,7 +151,8 @@ TEST_F(AffinePointCorrectnessGpuTest, Eq) {
 }
 
 TEST_F(AffinePointCorrectnessGpuTest, Ne) {
-  GPU_MUST_SUCCEED(LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchNe(xs_.data(), ys_.data(), bool_results_.data(), N),
+                   "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
