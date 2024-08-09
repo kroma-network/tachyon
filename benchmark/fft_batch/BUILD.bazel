@@ -1,0 +1,60 @@
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_binary",
+    "tachyon_cc_library",
+)
+
+tachyon_cc_library(
+    name = "config",
+    testonly = True,
+    srcs = ["config.cc"],
+    hdrs = ["config.h"],
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/flag:flag_parser",
+    ],
+)
+
+tachyon_cc_library(
+    name = "benchmark_reporter",
+    testonly = True,
+    srcs = ["benchmark_reporter.cc"],
+    hdrs = ["benchmark_reporter.h"],
+    deps = [
+        "//benchmark:simple_benchmark_reporter",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/strings:string_number_conversions",
+    ],
+)
+
+tachyon_cc_library(
+    name = "benchmark_runner",
+    testonly = True,
+    hdrs = ["benchmark_runner.h"],
+    deps = [
+        ":benchmark_reporter",
+        ":config",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/time",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/math/polynomials/univariate:radix2_evaluation_domain",
+    ],
+)
+
+tachyon_cc_binary(
+    name = "benchmark",
+    testonly = True,
+    srcs = ["benchmark.cc"],
+    deps = [
+        ":benchmark_reporter",
+        ":benchmark_runner",
+        ":config",
+        "//benchmark/fft_batch/plonky3",
+        "//tachyon/c/math/finite_fields/baby_bear",
+        "//tachyon/math/finite_fields/baby_bear",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/math/polynomials/univariate:radix2_evaluation_domain",
+    ],
+)
