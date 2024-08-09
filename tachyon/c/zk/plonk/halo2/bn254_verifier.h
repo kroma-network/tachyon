@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_verifier.h
  * @brief Interface for the Halo2 BN254 Verifier.
  *
  * This header file defines the structure and API for the verifier specific

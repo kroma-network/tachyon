@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_argument_data.h
  * @brief Halo2 Argument Data for BN254 Curve.
  *
  * This header file defines the structure and API for managing argument data in

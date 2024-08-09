@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_univariate_evaluations.h
  * @brief Univariate Evaluations for BN254 Curve.
  *
  * This header file defines the structure and API for managing univariate

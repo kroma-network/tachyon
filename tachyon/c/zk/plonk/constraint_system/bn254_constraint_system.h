@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_constraint_system.h
  * @brief PLONK Constraint System for BN254 Curve.
  *
  * This header file defines the API for the PLONK constraint system specific to

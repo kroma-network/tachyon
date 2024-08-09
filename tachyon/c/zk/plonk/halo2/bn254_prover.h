@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_prover.h
  * @brief Interface for the Halo2 BN254 Prover.
  *
  * This header file defines the structure and API for the prover specific to

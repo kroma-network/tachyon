@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file column_key.h
  * @brief Column Keys for PLONK Constraint System.
  *
  * This header file defines structures for various types of column keys used in

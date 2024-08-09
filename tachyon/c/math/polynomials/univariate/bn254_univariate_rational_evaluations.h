@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_univariate_rational_evaluations.h
  * @brief Univariate Rational Evaluations for BN254 Curve.
  *
  * This header file defines the structures and API for univariate rational

@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_instance_columns_vec.h
  * @brief Defines the vector of instance columns for Halo2 proofs on the BN254
  * curve.
  *

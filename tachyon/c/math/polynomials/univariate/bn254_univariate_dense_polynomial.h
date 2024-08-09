@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_univariate_dense_polynomial.h
  * @brief Univariate dense polynomial operations for the BN254 curve.
  *
  * This header file defines the structure and API for univariate dense

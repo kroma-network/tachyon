@@ -1,6 +1,6 @@
 // clang-format off
 /**
- * @file
+ * @file %{class_name}.h
  * @brief Defines operations over the finite field extension %{display_name}.
  *
  * This header file specifies the structure and operations for elements of the extended finite field %{display_name},

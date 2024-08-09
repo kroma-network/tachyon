@@ -1,6 +1,6 @@
 // clang-format off
 /**
- * @file
+ * @file %{type}_msm.h
  * @brief Multi-scalar multiplication (MSM) operations for %{type} curve points in a G1 group.
  *
  * This header file defines the interface for performing multi-scalar multiplication

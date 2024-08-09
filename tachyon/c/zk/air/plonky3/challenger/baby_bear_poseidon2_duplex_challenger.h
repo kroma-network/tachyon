@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file baby_bear_poseidon2_duplex_challenger.h
  * @brief Defines the interface for the duplex challenger used within the
  * Plonky3(BabyBear + Poseidon2) proof system.
  */

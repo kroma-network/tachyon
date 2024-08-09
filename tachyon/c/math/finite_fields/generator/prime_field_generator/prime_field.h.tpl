@@ -1,7 +1,7 @@
 // clang-format off
 %{if IsECPrimeField}
 /**
- * @file
+ * @file %{class_name}.h
  * @brief Finite field operations for the %{curve} curve.
  *
  * This header file defines operations and structures for manipulating elements of the finite field %{display_name} associated with the %{curve} elliptic curve.
@@ -12,7 +12,7 @@
 %{endif IsECPrimeField}
 %{if IsSmallPrimeField}
 /**
- * @file
+ * @file %{class_name}.h
  * @brief Finite field operations for the %{display_name}
  *
  * This header file defines operations and structures for manipulating elements of the finite field %{display_name}.

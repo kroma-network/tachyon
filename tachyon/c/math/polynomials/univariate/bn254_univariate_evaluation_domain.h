@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_univariate_evaluation_domain.h
  * @brief Univariate Evaluation Domain for BN254 Curve.
  *
  * This header file defines the univariate evaluation domain structure and
