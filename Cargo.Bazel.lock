@@ -1,5 +1,5 @@
 {
-  "checksum": "5d4563b52a4fb67e240f27d8b902c760a53d92fd0b9afc3a6e6c6b6f33bb5236",
+  "checksum": "1d27e240056ae5dea0e46a0f610ee2903940599f9871c1a0e08f2e750fd3d56f",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -11087,72 +11087,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "p3-baby-bear 0.1.0": {
-      "name": "p3-baby-bear",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "baby-bear"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_baby_bear",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_baby_bear",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "num-bigint 0.4.6",
-              "target": "num_bigint"
-            },
-            {
-              "id": "p3-field 0.1.0",
-              "target": "p3_field"
-            },
-            {
-              "id": "p3-mds 0.1.0",
-              "target": "p3_mds"
-            },
-            {
-              "id": "p3-poseidon2 0.1.0",
-              "target": "p3_poseidon2"
-            },
-            {
-              "id": "p3-symmetric 0.1.0",
-              "target": "p3_symmetric"
-            },
-            {
-              "id": "rand 0.8.5",
-              "target": "rand"
-            },
-            {
-              "id": "serde 1.0.204",
-              "target": "serde"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.1.0"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "p3-baby-bear 0.1.3-succinct": {
       "name": "p3-baby-bear",
       "version": "0.1.3-succinct",
@@ -11334,64 +11268,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "p3-challenger 0.1.0": {
-      "name": "p3-challenger",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "challenger"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_challenger",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_challenger",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "p3-field 0.1.0",
-              "target": "p3_field"
-            },
-            {
-              "id": "p3-maybe-rayon 0.1.0",
-              "target": "p3_maybe_rayon"
-            },
-            {
-              "id": "p3-symmetric 0.1.0",
-              "target": "p3_symmetric"
-            },
-            {
-              "id": "p3-util 0.1.0",
-              "target": "p3_util"
-            },
-            {
-              "id": "tracing 0.1.40",
-              "target": "tracing"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.1.0"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "p3-challenger 0.1.3-succinct": {
       "name": "p3-challenger",
       "version": "0.1.3-succinct",
@@ -11506,64 +11382,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "p3-dft 0.1.0": {
-      "name": "p3-dft",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "dft"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_dft",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_dft",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "p3-field 0.1.0",
-              "target": "p3_field"
-            },
-            {
-              "id": "p3-matrix 0.1.0",
-              "target": "p3_matrix"
-            },
-            {
-              "id": "p3-maybe-rayon 0.1.0",
-              "target": "p3_maybe_rayon"
-            },
-            {
-              "id": "p3-util 0.1.0",
-              "target": "p3_util"
-            },
-            {
-              "id": "tracing 0.1.40",
-              "target": "tracing"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.1.0"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "p3-dft 0.1.3-succinct": {
       "name": "p3-dft",
       "version": "0.1.3-succinct",
@@ -11616,68 +11434,6 @@
         },
         "edition": "2021",
         "version": "0.1.3-succinct"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
-    "p3-field 0.1.0": {
-      "name": "p3-field",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "field"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_field",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_field",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "itertools 0.12.1",
-              "target": "itertools"
-            },
-            {
-              "id": "num-bigint 0.4.6",
-              "target": "num_bigint"
-            },
-            {
-              "id": "num-traits 0.2.19",
-              "target": "num_traits"
-            },
-            {
-              "id": "p3-util 0.1.0",
-              "target": "p3_util"
-            },
-            {
-              "id": "rand 0.8.5",
-              "target": "rand"
-            },
-            {
-              "id": "serde 1.0.204",
-              "target": "serde"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.1.0"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -11976,72 +11732,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "p3-matrix 0.1.0": {
-      "name": "p3-matrix",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "matrix"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_matrix",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_matrix",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "itertools 0.12.1",
-              "target": "itertools"
-            },
-            {
-              "id": "p3-field 0.1.0",
-              "target": "p3_field"
-            },
-            {
-              "id": "p3-maybe-rayon 0.1.0",
-              "target": "p3_maybe_rayon"
-            },
-            {
-              "id": "p3-util 0.1.0",
-              "target": "p3_util"
-            },
-            {
-              "id": "rand 0.8.5",
-              "target": "rand"
-            },
-            {
-              "id": "serde 1.0.204",
-              "target": "serde"
-            },
-            {
-              "id": "tracing 0.1.40",
-              "target": "tracing"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.1.0"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "p3-matrix 0.1.3-succinct": {
       "name": "p3-matrix",
       "version": "0.1.3-succinct",
@@ -12105,39 +11795,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "p3-maybe-rayon 0.1.0": {
-      "name": "p3-maybe-rayon",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "maybe-rayon"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_maybe_rayon",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_maybe_rayon",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "edition": "2021",
-        "version": "0.1.0"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "p3-maybe-rayon 0.1.3-succinct": {
       "name": "p3-maybe-rayon",
       "version": "0.1.3-succinct",
@@ -12181,72 +11838,6 @@
         },
         "edition": "2021",
         "version": "0.1.3-succinct"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
-    "p3-mds 0.1.0": {
-      "name": "p3-mds",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "mds"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_mds",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_mds",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "itertools 0.12.1",
-              "target": "itertools"
-            },
-            {
-              "id": "p3-dft 0.1.0",
-              "target": "p3_dft"
-            },
-            {
-              "id": "p3-field 0.1.0",
-              "target": "p3_field"
-            },
-            {
-              "id": "p3-matrix 0.1.0",
-              "target": "p3_matrix"
-            },
-            {
-              "id": "p3-symmetric 0.1.0",
-              "target": "p3_symmetric"
-            },
-            {
-              "id": "p3-util 0.1.0",
-              "target": "p3_util"
-            },
-            {
-              "id": "rand 0.8.5",
-              "target": "rand"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.1.0"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -12384,64 +11975,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "p3-poseidon2 0.1.0": {
-      "name": "p3-poseidon2",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "poseidon2"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_poseidon2",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_poseidon2",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "gcd 2.3.0",
-              "target": "gcd"
-            },
-            {
-              "id": "p3-field 0.1.0",
-              "target": "p3_field"
-            },
-            {
-              "id": "p3-mds 0.1.0",
-              "target": "p3_mds"
-            },
-            {
-              "id": "p3-symmetric 0.1.0",
-              "target": "p3_symmetric"
-            },
-            {
-              "id": "rand 0.8.5",
-              "target": "rand"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.1.0"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "p3-poseidon2 0.1.3-succinct": {
       "name": "p3-poseidon2",
       "version": "0.1.3-succinct",
@@ -12494,56 +12027,6 @@
         },
         "edition": "2021",
         "version": "0.1.3-succinct"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
-    "p3-symmetric 0.1.0": {
-      "name": "p3-symmetric",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "symmetric"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_symmetric",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_symmetric",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "itertools 0.12.1",
-              "target": "itertools"
-            },
-            {
-              "id": "p3-field 0.1.0",
-              "target": "p3_field"
-            },
-            {
-              "id": "serde 1.0.204",
-              "target": "serde"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.1.0"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -12682,48 +12165,6 @@
         },
         "edition": "2021",
         "version": "0.1.3-succinct"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
-    "p3-util 0.1.0": {
-      "name": "p3-util",
-      "version": "0.1.0",
-      "repository": {
-        "Git": {
-          "remote": "https://github.com/kroma-network/Plonky3.git",
-          "commitish": {
-            "Rev": "3b5265f"
-          },
-          "strip_prefix": "util"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "p3_util",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "p3_util",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "serde 1.0.204",
-              "target": "serde"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.1.0"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -18438,23 +17879,23 @@
               "target": "cxx"
             },
             {
-              "id": "p3-baby-bear 0.1.0",
+              "id": "p3-baby-bear 0.1.3-succinct",
               "target": "p3_baby_bear"
             },
             {
-              "id": "p3-challenger 0.1.0",
+              "id": "p3-challenger 0.1.3-succinct",
               "target": "p3_challenger"
             },
             {
-              "id": "p3-field 0.1.0",
+              "id": "p3-field 0.1.3-succinct",
               "target": "p3_field"
             },
             {
-              "id": "p3-poseidon2 0.1.0",
+              "id": "p3-poseidon2 0.1.3-succinct",
               "target": "p3_poseidon2"
             },
             {
-              "id": "p3-symmetric 0.1.0",
+              "id": "p3-symmetric 0.1.3-succinct",
               "target": "p3_symmetric"
             }
           ],
