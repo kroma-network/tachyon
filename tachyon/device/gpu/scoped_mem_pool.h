@@ -11,7 +11,7 @@ namespace tachyon::device::gpu {
 
 struct TACHYON_EXPORT MemPoolDestroyer {
   void operator()(gpuMemPool_t mem_pool) const {
-    GPU_MUST_SUCCESS(gpuMemPoolDestroy(mem_pool), "Failed gpuMemPoolDestroy()");
+    GPU_MUST_SUCCEED(gpuMemPoolDestroy(mem_pool), "Failed gpuMemPoolDestroy()");
   }
 };
 

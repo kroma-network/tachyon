@@ -43,7 +43,7 @@ class PrimeFieldGpuTest : public FiniteFieldTest<GF7> {
   static void SetUpTestSuite() {
     FiniteFieldTest<GF7>::SetUpTestSuite();
 
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
+    GPU_MUST_SUCCEED(gpuDeviceReset(), "");
     xs_ = gpu::GpuMemory<GF7Gpu>::MallocManaged(N);
     ys_ = gpu::GpuMemory<GF7Gpu>::MallocManaged(N);
     results_ = gpu::GpuMemory<GF7Gpu>::MallocManaged(N);
@@ -56,7 +56,7 @@ class PrimeFieldGpuTest : public FiniteFieldTest<GF7> {
     results_.reset();
     bool_results_.reset();
 
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
+    GPU_MUST_SUCCEED(gpuDeviceReset(), "");
   }
 
   void SetUp() override {
@@ -86,7 +86,7 @@ gpu::GpuMemory<bool> PrimeFieldGpuTest::bool_results_;
     xs_[i] = GF7Gpu::FromBigInt(test.x.ToBigInt());                          \
     ys_[i] = GF7Gpu::FromBigInt(test.y.ToBigInt());                          \
   }                                                                          \
-  GPU_MUST_SUCCESS(                                                          \
+  GPU_MUST_SUCCEED(                                                          \
       Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests)), \
       "Failed " #method "()");                                               \
   for (size_t i = 0; i < std::size(tests); ++i)
@@ -194,7 +194,7 @@ TEST_F(PrimeFieldGpuTest, Eq) {
     ASSERT_EQ(xs_[i] == ys_[i], test.result);
   }
 
-  GPU_MUST_SUCCESS(
+  GPU_MUST_SUCCEED(
       LaunchEq(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
       "Failed Eq()");
   for (size_t i = 0; i < std::size(tests); ++i) {
@@ -220,7 +220,7 @@ TEST_F(PrimeFieldGpuTest, Ne) {
     ASSERT_EQ(xs_[i] != ys_[i], test.result);
   }
 
-  GPU_MUST_SUCCESS(
+  GPU_MUST_SUCCEED(
       LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
       "Failed Ne()");
   for (size_t i = 0; i < std::size(tests); ++i) {

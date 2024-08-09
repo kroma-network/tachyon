@@ -35,7 +35,7 @@ class PrimeFieldCorrectnessGpuTest : public FiniteFieldTest<bn254::Fq> {
   static void SetUpTestSuite() {
     FiniteFieldTest<bn254::Fq>::SetUpTestSuite();
 
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
+    GPU_MUST_SUCCEED(gpuDeviceReset(), "");
     xs_ = gpu::GpuMemory<bn254::FqGpu>::MallocManaged(N);
     ys_ = gpu::GpuMemory<bn254::FqGpu>::MallocManaged(N);
     results_ = gpu::GpuMemory<bn254::FqGpu>::MallocManaged(N);
@@ -60,7 +60,7 @@ class PrimeFieldCorrectnessGpuTest : public FiniteFieldTest<bn254::Fq> {
     ys_.reset();
     results_.reset();
 
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
+    GPU_MUST_SUCCEED(gpuDeviceReset(), "");
 
     x_cpus_.clear();
     y_cpus_.clear();
@@ -87,7 +87,7 @@ std::vector<bn254::Fq> PrimeFieldCorrectnessGpuTest::y_cpus_;
 }  // namespace
 
 #define RUN_OPERATION_TESTS(method)                                         \
-  GPU_MUST_SUCCESS(Launch##method(xs_.get(), ys_.get(), results_.get(), N), \
+  GPU_MUST_SUCCEED(Launch##method(xs_.get(), ys_.get(), results_.get(), N), \
                    "");                                                     \
   for (size_t i = 0; i < N; ++i)
 

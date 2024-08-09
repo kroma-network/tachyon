@@ -42,7 +42,7 @@ class AffinePointCorrectnessGpuTest : public testing::Test {
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
+    GPU_MUST_SUCCEED(gpuDeviceReset(), "");
     xs_ = gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(N);
     ys_ = gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(N);
     affine_results_ = gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(N);
@@ -75,7 +75,7 @@ class AffinePointCorrectnessGpuTest : public testing::Test {
     jacobian_results_.reset();
     bool_results_.reset();
 
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
+    GPU_MUST_SUCCEED(gpuDeviceReset(), "");
 
     x_cpus_.clear();
     y_cpus_.clear();
@@ -112,7 +112,7 @@ std::vector<bn254::G1AffinePoint> AffinePointCorrectnessGpuTest::y_cpus_;
 }  // namespace
 
 TEST_F(AffinePointCorrectnessGpuTest, Add) {
-  GPU_MUST_SUCCESS(LaunchAdd(xs_.get(), ys_.get(), jacobian_results_.get(), N),
+  GPU_MUST_SUCCEED(LaunchAdd(xs_.get(), ys_.get(), jacobian_results_.get(), N),
                    "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(
@@ -123,7 +123,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Add) {
 }
 
 TEST_F(AffinePointCorrectnessGpuTest, Double) {
-  GPU_MUST_SUCCESS(LaunchDouble(xs_.get(), jacobian_results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchDouble(xs_.get(), jacobian_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
     auto result = ConvertPoint<bn254::G1JacobianPoint>(jacobian_results_[i]);
@@ -132,7 +132,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Double) {
 }
 
 TEST_F(AffinePointCorrectnessGpuTest, Negate) {
-  GPU_MUST_SUCCESS(LaunchNegate(xs_.get(), affine_results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchNegate(xs_.get(), affine_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
     auto result = ConvertPoint<bn254::G1AffinePoint>(affine_results_[i]);
@@ -141,7 +141,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Negate) {
 }
 
 TEST_F(AffinePointCorrectnessGpuTest, Eq) {
-  GPU_MUST_SUCCESS(LaunchEq(xs_.get(), xs_.get(), bool_results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchEq(xs_.get(), xs_.get(), bool_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), xs_[i].ToString()));
@@ -150,7 +150,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Eq) {
 }
 
 TEST_F(AffinePointCorrectnessGpuTest, Ne) {
-  GPU_MUST_SUCCESS(LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));

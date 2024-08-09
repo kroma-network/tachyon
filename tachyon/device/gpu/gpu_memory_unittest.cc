@@ -45,7 +45,7 @@ TEST(GpuMemoryTest, Memset) {
   vec.resize(512);
   memory.CopyTo(vec.data(), GpuMemoryType::kHost);
 
-  GPU_MUST_SUCCESS(gpuDeviceSynchronize(), "");
+  GPU_MUST_SUCCEED(gpuDeviceSynchronize(), "");
 
   for (size_t i = 0; i < vec.size(); ++i) {
     if (i >= from && i < (from + len)) {
@@ -75,7 +75,7 @@ TEST(GpuMemoryTest, CopyFrom) {
       ASSERT_TRUE(memories[i].ToStdVector(&results[i]));
     }
 
-    GPU_MUST_SUCCESS(gpuDeviceSynchronize(), "");
+    GPU_MUST_SUCCEED(gpuDeviceSynchronize(), "");
     for (size_t i = 0; i < memories.size(); ++i) {
       EXPECT_EQ(results[i], host_memory);
     }
@@ -96,7 +96,7 @@ TEST(GpuMemoryTest, CopyFrom) {
       ASSERT_TRUE(memories[i].ToStdVector(&results[i]));
     }
 
-    GPU_MUST_SUCCESS(gpuDeviceSynchronize(), "");
+    GPU_MUST_SUCCEED(gpuDeviceSynchronize(), "");
     for (size_t i = 0; i < memories.size(); ++i) {
       EXPECT_EQ(results[i], unified_memory_view);
     }

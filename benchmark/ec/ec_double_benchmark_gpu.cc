@@ -79,7 +79,7 @@ int RealMain(int argc, char** argv) {
     reporter.AddTime(i, interval.GetTimeDelta().InSecondsF());
   }
 
-  GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed gpuDeviceReset()");
+  GPU_MUST_SUCCEED(gpuDeviceReset(), "Failed gpuDeviceReset()");
   auto bases_cuda =
       gpu::GpuMemory<math::bn254::G1AffinePointGpu>::MallocManaged(
           max_point_num);

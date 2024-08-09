@@ -113,7 +113,7 @@ class GpuMemory {
  public:
   static GpuMemory Malloc(size_t size) {
     T* ptr = nullptr;
-    GPU_MUST_SUCCESS(
+    GPU_MUST_SUCCEED(
         GpuMalloc(reinterpret_cast<void**>(&ptr), sizeof(T) * size),
         "Failed GpuMalloc()");
     return GpuMemory(ptr, size, GpuMemoryType::kDevice);
@@ -121,7 +121,7 @@ class GpuMemory {
 
   static GpuMemory MallocHost(size_t size) {
     T* ptr = nullptr;
-    GPU_MUST_SUCCESS(
+    GPU_MUST_SUCCEED(
         GpuMallocHost(reinterpret_cast<void**>(&ptr), sizeof(T) * size),
         "Failed GpuMallocHost()");
     return GpuMemory(ptr, size, GpuMemoryType::kHost);
@@ -130,7 +130,7 @@ class GpuMemory {
 #if TACHYON_CUDA
   static GpuMemory MallocManaged(size_t size) {
     T* ptr = nullptr;
-    GPU_MUST_SUCCESS(cudaMallocManaged(&ptr, sizeof(T) * size),
+    GPU_MUST_SUCCEED(cudaMallocManaged(&ptr, sizeof(T) * size),
                      "Failed cudaMallocManaged()");
     return GpuMemory(ptr, size, GpuMemoryType::kUnified);
   }
@@ -139,7 +139,7 @@ class GpuMemory {
   static GpuMemory MallocFromPoolAsync(size_t size, gpuMemPool_t pool,
                                        gpuStream_t stream) {
     T* ptr = nullptr;
-    GPU_MUST_SUCCESS(GpuMallocFromPoolAsync(reinterpret_cast<void**>(&ptr),
+    GPU_MUST_SUCCEED(GpuMallocFromPoolAsync(reinterpret_cast<void**>(&ptr),
                                             sizeof(T) * size, pool, stream),
                      "Failed GpuMallocFromPoolAsync()");
     return GpuMemory(ptr, size, GpuMemoryType::kDevice, stream);
