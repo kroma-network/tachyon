@@ -90,6 +90,17 @@ We use `VLOG` messages in our code to show us the progress of the current runnin
       - Output of the proof
       - Output of the verifying key serialization
 
+## Profiling with Perfetto
+
+We are currently using Perfetto for tracing and profiling Tachyon. Perfetto provides two primary macros for tracing events: `TRACE_EVENT()` and `TRACE_EVENT_BEGIN()`|`TRACE_EVENT_END()`.
+
+- **`TRACE_EVENT()`**: Use this macro when you want the trace slice to end when the scope it is defined in ends. This is the preferred method whenever possible as it simplifies the code and ensures the trace slice duration is managed by the scope itself.
+- **`TRACE_EVENT_BEGIN()` and `TRACE_EVENT_END()`**: Use these macros when you need to manually specify the beginning and end of a trace slice. This approach is suitable for tracing code segments that are too long or complex for a single scope, where adding a scope would be impractical.
+
+### Trace Categories
+
+The trace categories are defined in the [`profiler.h`](/tachyon/base/profiler.h) header. When defining trace names, avoid adding scope to the trace name whenever possible to decrease verbosity. Note that private functions that are always called from other functions with a scoped trace name do not need their own scoped trace names. Scoped trace names should only be used when two different scopes can be described with the same trace name.
+
 ## Commits
 
 ### Commit Type Classification
