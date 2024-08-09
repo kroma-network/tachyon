@@ -76,6 +76,18 @@ class KZG {
   }
 
 #if TACHYON_CUDA
+  const device::gpu::GpuMemory<G1Point>& d_g1_powers_of_tau() const {
+    return d_g1_powers_of_tau_;
+  }
+
+  const device::gpu::GpuMemory<G1Point>& d_g1_powers_of_tau_lagrange() const {
+    return d_g1_powers_of_tau_lagrange_;
+  }
+
+  bool UsesGPU() const { return static_cast<bool>(msm_gpu_); }
+#endif
+
+#if TACHYON_CUDA
   void SetupForGpu() {
     if (msm_gpu_) return;
 
