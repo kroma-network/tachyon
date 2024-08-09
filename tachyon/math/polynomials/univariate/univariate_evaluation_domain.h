@@ -58,9 +58,9 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     size_inv_ = unwrap(size_as_field_element_.Inverse());
 
     // Compute the generator for the multiplicative subgroup.
-    // It should be the 2^|log_size_of_group_| root of unity.
+    // It should be the |size_|-th root of unity.
     CHECK(F::GetRootOfUnity(size_, &group_gen_));
-    // Check that it is indeed the 2^(log_size_of_group) root of unity.
+    // Check that it is indeed the |size_|-th root of unity.
     DCHECK_EQ(group_gen_.Pow(size_), F::One());
     group_gen_inv_ = unwrap(group_gen_.Inverse());
 #if TACHYON_CUDA
