@@ -46,6 +46,8 @@ class TACHYON_EXPORT PackedKoalaBearAVX2 final
 
   static PackedKoalaBearAVX2 MinusOne();
 
+  static PackedKoalaBearAVX2 TwoInv();
+
   static PackedKoalaBearAVX2 Broadcast(const PrimeField& value);
 
   // AdditiveSemigroup methods

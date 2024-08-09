@@ -76,6 +76,12 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
     return ret;
   }
 
+  constexpr static PrimeField TwoInv() {
+    PrimeField ret{};
+    ret.value_ = Config::kTwoInv;
+    return ret;
+  }
+
   static PrimeField Random() {
     return PrimeField(BigInt<N>::Random(Config::kModulus));
   }

@@ -65,6 +65,13 @@ TYPED_TEST(PrimeFieldTest, MinusOne) {
   EXPECT_FALSE(F::One().IsMinusOne());
 }
 
+TYPED_TEST(PrimeFieldTest, TwoInv) {
+  using F = TypeParam;
+
+  EXPECT_TRUE((F::TwoInv() * F(2)).IsOne());
+  EXPECT_FALSE((F::TwoInv() * F(1)).IsOne());
+}
+
 TYPED_TEST(PrimeFieldTest, BigIntConversion) {
   using F = TypeParam;
 

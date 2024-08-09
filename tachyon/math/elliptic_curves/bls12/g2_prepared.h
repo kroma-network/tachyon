@@ -35,8 +35,6 @@ class G2Prepared : public G2PreparedBase<BLS12CurveConfig> {
     if (q.IsZero()) {
       return {};
     } else {
-      Fp two_inv = unwrap(Fp(2).Inverse());
-
       EllCoeffs<Fp2> ell_coeffs;
       size_t size = Config::kXLimbNums * 64;
       // NOTE(chokobole): A bit array consists of elements from [0, 1].
@@ -51,7 +49,7 @@ class G2Prepared : public G2PreparedBase<BLS12CurveConfig> {
       ++it;
       auto end = BitIteratorBE<BigInt<Config::kXLimbNums>>::end(&Config::kX);
       while (it != end) {
-        ell_coeffs.push_back(r.DoubleInPlace(two_inv));
+        ell_coeffs.push_back(r.DoubleInPlace(Fp::TwoInv()));
         if (*it) {
           ell_coeffs.push_back(r.AddInPlace(q));
         }

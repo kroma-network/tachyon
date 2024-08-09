@@ -34,6 +34,11 @@ TEST_F(QuadraticExtensionFieldTest, MinusOne) {
   EXPECT_FALSE(GF7_2::One().IsMinusOne());
 }
 
+TEST_F(QuadraticExtensionFieldTest, TwoInv) {
+  EXPECT_TRUE((GF7_2::TwoInv() * GF7_2(GF7(2))).IsOne());
+  EXPECT_FALSE((GF7_2::TwoInv() * GF7_2::One()).IsOne());
+}
+
 TEST_F(QuadraticExtensionFieldTest, Random) {
   bool success = false;
   GF7_2 r = GF7_2::Random();

@@ -38,6 +38,11 @@ TEST_F(RationalFieldTest, MinusOne) {
   EXPECT_TRUE(R(GF7(4), GF7(3)).IsMinusOne());
 }
 
+TEST_F(RationalFieldTest, TwoInv) {
+  EXPECT_TRUE((R::TwoInv() * R(GF7(2), GF7::One())).IsOne());
+  EXPECT_FALSE((R::TwoInv() * R::One()).IsOne());
+}
+
 TEST_F(RationalFieldTest, Random) {
   bool success = false;
   R r = R::Random();

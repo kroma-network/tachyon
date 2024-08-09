@@ -44,10 +44,7 @@ std::vector<ExtF> FoldMatrix(const ExtF& beta,
   F w;
   CHECK(F::GetRootOfUnity(1 << (base::bits::CheckedLog2(rows) + 1), &w));
   ExtF w_inv = ExtF(unwrap(w.Inverse()));
-  // TODO(ashjeong): implement a field function |TwoInv()| as the inverse of 2
-  // is computed often.
-  ExtF one_half = ExtF(unwrap(F(2).Inverse()));
-  ExtF half_beta = beta * one_half;
+  ExtF half_beta = beta * ExtF::TwoInv();
 
   // β/2 times successive powers of gᵢₙᵥ
   std::vector<ExtF> powers =
@@ -57,7 +54,8 @@ std::vector<ExtF> FoldMatrix(const ExtF& beta,
   OMP_PARALLEL_FOR(size_t r = 0; r < rows; ++r) {
     const ExtF& lo = mat(r, 0);
     const ExtF& hi = mat(r, 1);
-    ret[r] = (one_half + powers[r]) * lo + (one_half - powers[r]) * hi;
+    ret[r] =
+        (ExtF::TwoInv() + powers[r]) * lo + (ExtF::TwoInv() - powers[r]) * hi;
   }
   return ret;
 }

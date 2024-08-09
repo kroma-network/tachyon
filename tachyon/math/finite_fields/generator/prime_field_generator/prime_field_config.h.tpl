@@ -62,6 +62,10 @@ class TACHYON_EXPORT %{class}Config {
     %{minus_one}
   });
 
+  constexpr static BigInt<%{n}> kTwoInv = BigInt<%{n}>({
+    %{two_inv}
+  });
+  
   constexpr static bool kHasTwoAdicRootOfUnity = %{has_two_adic_root_of_unity};
 
   constexpr static bool kHasLargeSubgroupRootOfUnity = %{has_large_subgroup_root_of_unity};

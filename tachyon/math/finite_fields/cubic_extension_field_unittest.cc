@@ -33,6 +33,11 @@ TEST_F(CubicExtensionFieldTest, MinusOne) {
   EXPECT_TRUE(GF7_3::MinusOne().IsMinusOne());
 }
 
+TEST_F(CubicExtensionFieldTest, TwoInv) {
+  EXPECT_TRUE((GF7_3::TwoInv() * GF7_3(GF7(2))).IsOne());
+  EXPECT_FALSE((GF7_3::TwoInv() * GF7_3::One()).IsOne());
+}
+
 TEST_F(CubicExtensionFieldTest, Random) {
   bool success = false;
   GF7_3 r = GF7_3::Random();

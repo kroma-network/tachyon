@@ -57,6 +57,10 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
     return {BaseField::MinusOne(), BaseField::Zero(), BaseField::Zero()};
   }
 
+  constexpr static Derived TwoInv() {
+    return {BaseField::TwoInv(), BaseField::Zero(), BaseField::Zero()};
+  }
+
   static Derived Random() {
     return {BaseField::Random(), BaseField::Random(), BaseField::Random()};
   }

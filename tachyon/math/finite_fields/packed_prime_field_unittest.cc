@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/build/build_config.h"
+#include "tachyon/math/finite_fields/baby_bear/internal/packed_baby_bear.h"
 #include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
@@ -74,6 +75,17 @@ TYPED_TEST(PackedPrimeFieldTest, MinusOne) {
     EXPECT_TRUE(one[i].IsMinusOne());
   }
   EXPECT_FALSE(PackedPrimeField::Random().IsMinusOne());
+}
+
+TYPED_TEST(PackedPrimeFieldTest, TwoInv) {
+  using PackedPrimeField = TypeParam;
+  using PrimeField = typename PackedFieldTraits<PackedPrimeField>::Field;
+  PackedPrimeField two_inv = PackedPrimeField::TwoInv();
+  EXPECT_TRUE((two_inv * PackedPrimeField(2)).IsOne());
+  EXPECT_FALSE((two_inv * PackedPrimeField::One()).IsOne());
+  for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+    EXPECT_TRUE((two_inv[i] * PrimeField(2)).IsOne());
+  }
 }
 
 TYPED_TEST(PackedPrimeFieldTest, Broadcast) {

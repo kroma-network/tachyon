@@ -65,6 +65,21 @@ TYPED_TEST(BinaryFieldsTest, MinusOne) {
   EXPECT_TRUE(BinaryField::One().IsMinusOne());
 }
 
+TYPED_TEST(BinaryFieldsTest, TwoInv) {
+  using BinaryField = TypeParam;
+
+  if constexpr (BinaryField::Config::kModulusBits > 2) {
+    // NOTE(ashjeong): This |constexpr| variable is created since
+    // |BinaryField::TwoInv()| is a true |constexpr| function unlike other
+    // |TwoInv()| functions in unittests of other field types.
+    constexpr BinaryField kTwoInv = BinaryField::TwoInv();
+    EXPECT_TRUE((kTwoInv * BinaryField(2)).IsOne());
+    EXPECT_FALSE((kTwoInv * BinaryField::One()).IsOne());
+  } else {
+    GTEST_SKIP() << "Modulus is too small";
+  }
+}
+
 TYPED_TEST(BinaryFieldsTest, BigIntConversion) {
   using BinaryField = TypeParam;
   BinaryField r = BinaryField::Random();

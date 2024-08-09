@@ -26,6 +26,7 @@ class TACHYON_EXPORT %{class}Config {
 
   constexpr static uint32_t kOne = %{one};
   constexpr static uint32_t kMinusOne = %{minus_one};
+  constexpr static uint32_t kTwoInv = %{two_inv};
 
   constexpr static bool kHasTwoAdicRootOfUnity = %{has_two_adic_root_of_unity};
 

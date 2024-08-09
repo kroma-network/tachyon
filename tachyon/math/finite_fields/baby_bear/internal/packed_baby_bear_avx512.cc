@@ -20,6 +20,7 @@ __m512i kInv;
 __m512i kZero;
 __m512i kOne;
 __m512i kMinusOne;
+__m512i kTwoInv;
 
 __m512i ToVector(const PackedBabyBearAVX512& packed) {
   return _mm512_loadu_si512(packed.values().data());
@@ -56,6 +57,7 @@ void PackedBabyBearAVX512::Init() {
   kZero = _mm512_set1_epi32(0);
   kOne = _mm512_set1_epi32(BabyBear::Config::kOne);
   kMinusOne = _mm512_set1_epi32(BabyBear::Config::kMinusOne);
+  kTwoInv = _mm512_set1_epi32(BabyBear::Config::kTwoInv);
 }
 
 // static
@@ -67,6 +69,11 @@ PackedBabyBearAVX512 PackedBabyBearAVX512::One() { return FromVector(kOne); }
 // static
 PackedBabyBearAVX512 PackedBabyBearAVX512::MinusOne() {
   return FromVector(kMinusOne);
+}
+
+// static
+PackedBabyBearAVX512 PackedBabyBearAVX512::TwoInv() {
+  return FromVector(kTwoInv);
 }
 
 // static
