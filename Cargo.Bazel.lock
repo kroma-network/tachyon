@@ -1,5 +1,5 @@
 {
-  "checksum": "d9a69b7b7c2e8f7447076811098173ebe669c22af14223e2e9dfeb933bf91d26",
+  "checksum": "13a3e635e211fd5829278f0398081863ed1429e454e4c51cbab29f530430fca1",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -13465,6 +13465,56 @@
       },
       "license": "Apache-2.0 OR MIT"
     },
+    "plonky3_batch_fft_benchmark 0.0.1": {
+      "name": "plonky3_batch_fft_benchmark",
+      "version": "0.0.1",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "plonky3_batch_fft_benchmark",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "plonky3_batch_fft_benchmark",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "ff 0.13.0",
+              "target": "ff"
+            },
+            {
+              "id": "p3-baby-bear 0.1.3-succinct",
+              "target": "p3_baby_bear"
+            },
+            {
+              "id": "p3-dft 0.1.3-succinct",
+              "target": "p3_dft"
+            },
+            {
+              "id": "p3-matrix 0.1.3-succinct",
+              "target": "p3_matrix"
+            },
+            {
+              "id": "rand 0.8.5",
+              "target": "rand"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "plonky3_poseidon2_benchmark 0.0.1": {
       "name": "plonky3_poseidon2_benchmark",
       "version": "0.0.1",
@@ -22045,6 +22095,7 @@
     "halo2_fft_benchmark 0.0.1": "benchmark/fft/halo2",
     "halo2_msm_benchmark 0.0.1": "benchmark/msm/halo2",
     "horizen_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/horizen",
+    "plonky3_batch_fft_benchmark 0.0.1": "benchmark/fft_batch/plonky3",
     "plonky3_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/plonky3",
     "tachyon_plonky3 0.0.1": "vendors/plonky3",
     "tachyon_rs 0.0.1": "tachyon/rs",
