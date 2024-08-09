@@ -4,8 +4,8 @@ namespace tachyon::device::gpu {
 
 ScopedMemPool CreateMemPool(const gpuMemPoolProps* pool_props) {
   gpuMemPool_t mem_pool = nullptr;
-  GPU_MUST_SUCCESS(gpuMemPoolCreate(&mem_pool, pool_props),
-                   "Failed to gpuMemPoolCreate()");
+  GPU_MUST_SUCCEED(gpuMemPoolCreate(&mem_pool, pool_props),
+                   "Failed gpuMemPoolCreate()");
   return ScopedMemPool(mem_pool);
 }
 

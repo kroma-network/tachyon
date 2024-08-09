@@ -56,10 +56,10 @@ struct MSMGpuApi {
                              {gpuMemLocationTypeDevice, 0}};
     mem_pool = tachyon::device::gpu::CreateMemPool(&props);
     uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
-    GPU_MUST_SUCCESS(
+    GPU_MUST_SUCCEED(
         gpuMemPoolSetAttribute(mem_pool.get(), gpuMemPoolAttrReleaseThreshold,
                                &mem_pool_threshold),
-        "Failed to gpuMemPoolSetAttribute()");
+        "Failed gpuMemPoolSetAttribute()");
 
     stream = tachyon::device::gpu::CreateStream();
     msm.reset(new tachyon::math::VariableBaseMSMGpu<Point>(mem_pool.get(),

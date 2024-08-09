@@ -15,17 +15,17 @@ def _install_node_addon_api_impl(repository_ctx):
     cmd = [bash_bin, "-c", "npm install"]
     result = repository_ctx.execute(cmd)
     if result.return_code != 0:
-        _fail("Failed to npm install: %s." % result.stderr)
+        _fail("Failed npm install: %s." % result.stderr)
 
     cmd = [bash_bin, "-c", "npx node-gyp install --devdir ."]
     result = repository_ctx.execute(cmd)
     if result.return_code != 0:
-        _fail("Failed to node-gyp install: %s." % result.stderr)
+        _fail("Failed node-gyp install: %s." % result.stderr)
 
     cmd = [bash_bin, "-c", "node --version"]
     result = repository_ctx.execute(cmd)
     if result.return_code != 0:
-        _fail("Failed to node --version: %s." % result.stderr)
+        _fail("Failed node --version: %s." % result.stderr)
 
     version = result.stdout.strip()
     if version.startswith("v"):

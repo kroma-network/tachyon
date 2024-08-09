@@ -34,7 +34,7 @@ class VariableMSMCorrectnessGpuTest : public testing::Test {
     expected_ = test_set_.answer.ToProjective();
   }
 
-  static void TearDownTestSuite() { GPU_MUST_SUCCESS(gpuDeviceReset(), ""); }
+  static void TearDownTestSuite() { GPU_MUST_SUCCEED(gpuDeviceReset(), ""); }
 
  protected:
   static VariableBaseMSMTestSet<Point> test_set_;

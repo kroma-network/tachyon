@@ -14,7 +14,7 @@
           ::tachyon::device::gpu::GpuMemory<uint8_t>::Malloc(bytes); \
       std::ignore = storage;                                         \
     } else {                                                         \
-      GPU_LOG(ERROR, error) << "Failed to " #fn;                     \
+      GPU_LOG(ERROR, error) << "Failed " #fn;                        \
     }                                                                \
     error;                                                           \
   })
@@ -28,7 +28,7 @@
           ::tachyon::device::gpu::GpuMemory<uint8_t>::Malloc(bytes); \
       error = fn(storage.get(), bytes, __VA_ARGS__);                 \
     } else {                                                         \
-      GPU_LOG(ERROR, error) << "Failed to " #fn;                     \
+      GPU_LOG(ERROR, error) << "Failed " #fn;                        \
     }                                                                \
     error;                                                           \
   })
@@ -43,7 +43,7 @@
               bytes, pool, stream);                                        \
       std::ignore = storage;                                               \
     } else {                                                               \
-      GPU_LOG(ERROR, error) << "Failed to " #fn;                           \
+      GPU_LOG(ERROR, error) << "Failed " #fn;                              \
     }                                                                      \
     error;                                                                 \
   })
@@ -58,7 +58,7 @@
               bytes, pool, stream);                                        \
       error = fn(storage.get(), bytes, __VA_ARGS__);                       \
     } else {                                                               \
-      GPU_LOG(ERROR, error) << "Failed to " #fn;                           \
+      GPU_LOG(ERROR, error) << "Failed " #fn;                              \
     }                                                                      \
     error;                                                                 \
   })

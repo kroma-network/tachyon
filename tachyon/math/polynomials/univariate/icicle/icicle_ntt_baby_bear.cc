@@ -46,7 +46,7 @@ bool IcicleNTT<BabyBear>::Init(const BabyBear& group_gen,
       reinterpret_cast<const ::babybear::scalar_t&>(group_gen_big_int), ctx,
       options.fast_twiddles_mode);
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to tachyon_babybear_initialize_domain()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_babybear_initialize_domain()";
     return false;
   }
   VLOG(1) << "IcicleNTT is initialized";
@@ -93,7 +93,7 @@ bool IcicleNTT<BabyBear>::Run(::ntt::NttAlgorithm algorithm,
       reinterpret_cast<const ::babybear::scalar_t*>(inout), size, dir, config,
       reinterpret_cast<::babybear::scalar_t*>(inout));
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to tachyon_babybear_ntt_cuda()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_babybear_ntt_cuda()";
     return false;
   }
   return true;
@@ -108,7 +108,7 @@ bool IcicleNTT<BabyBear>::Release() {
   ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
   gpuError_t error = tachyon_babybear_release_domain(ctx);
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to tachyon_babybear_release_domain()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_babybear_release_domain()";
     return false;
   }
   return true;

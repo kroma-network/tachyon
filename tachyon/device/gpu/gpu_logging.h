@@ -96,7 +96,7 @@ class TACHYON_EXPORT GpuLogMessage : public LogMessage {
     error;                                \
   })
 
-#define GPU_MUST_SUCCESS(x, msg)                  \
+#define GPU_MUST_SUCCEED(x, msg)                  \
   ({                                              \
     gpuError_t error = (x);                       \
     GPU_CHECK(error == gpuSuccess, error) << msg; \

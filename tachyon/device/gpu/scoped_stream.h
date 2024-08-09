@@ -13,7 +13,7 @@ namespace tachyon::device::gpu {
 
 struct TACHYON_EXPORT StreamDestroyer {
   void operator()(gpuStream_t event) const {
-    GPU_MUST_SUCCESS(gpuStreamDestroy(event), "Failed to gpuStreamDestroy()");
+    GPU_MUST_SUCCEED(gpuStreamDestroy(event), "Failed gpuStreamDestroy()");
   }
 };
 

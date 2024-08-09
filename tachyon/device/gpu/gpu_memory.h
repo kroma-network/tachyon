@@ -113,25 +113,25 @@ class GpuMemory {
  public:
   static GpuMemory Malloc(size_t size) {
     T* ptr = nullptr;
-    GPU_MUST_SUCCESS(
+    GPU_MUST_SUCCEED(
         GpuMalloc(reinterpret_cast<void**>(&ptr), sizeof(T) * size),
-        "Failed to GpuMalloc()");
+        "Failed GpuMalloc()");
     return GpuMemory(ptr, size, GpuMemoryType::kDevice);
   }
 
   static GpuMemory MallocHost(size_t size) {
     T* ptr = nullptr;
-    GPU_MUST_SUCCESS(
+    GPU_MUST_SUCCEED(
         GpuMallocHost(reinterpret_cast<void**>(&ptr), sizeof(T) * size),
-        "Failed to GpuMallocHost()");
+        "Failed GpuMallocHost()");
     return GpuMemory(ptr, size, GpuMemoryType::kHost);
   }
 
 #if TACHYON_CUDA
   static GpuMemory MallocManaged(size_t size) {
     T* ptr = nullptr;
-    GPU_MUST_SUCCESS(cudaMallocManaged(&ptr, sizeof(T) * size),
-                     "Failed to cudaMallocManaged()");
+    GPU_MUST_SUCCEED(cudaMallocManaged(&ptr, sizeof(T) * size),
+                     "Failed cudaMallocManaged()");
     return GpuMemory(ptr, size, GpuMemoryType::kUnified);
   }
 #endif  // TACHYON_CUDA
@@ -139,9 +139,9 @@ class GpuMemory {
   static GpuMemory MallocFromPoolAsync(size_t size, gpuMemPool_t pool,
                                        gpuStream_t stream) {
     T* ptr = nullptr;
-    GPU_MUST_SUCCESS(GpuMallocFromPoolAsync(reinterpret_cast<void**>(&ptr),
+    GPU_MUST_SUCCEED(GpuMallocFromPoolAsync(reinterpret_cast<void**>(&ptr),
                                             sizeof(T) * size, pool, stream),
-                     "Failed to GpuMallocFromPoolAsync()");
+                     "Failed GpuMallocFromPoolAsync()");
     return GpuMemory(ptr, size, GpuMemoryType::kDevice, stream);
   }
 
@@ -197,7 +197,7 @@ class GpuMemory {
   bool GetAttributes(gpuPointerAttributes* attributes) const {
     gpuError_t error = GpuPointerGetAttributes(attributes, ptr_);
     if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to GpuPointerGetAttributes()";
+      GPU_LOG(ERROR, error) << "Failed GpuPointerGetAttributes()";
       return false;
     }
     return true;
@@ -207,7 +207,7 @@ class GpuMemory {
     COMPUTE_FROM_AND_LEN(from, len);
     gpuError_t error = GpuMemset(ptr_ + from, value, sizeof(T) * len);
     if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to GpuMemset()";
+      GPU_LOG(ERROR, error) << "Failed GpuMemset()";
       return false;
     }
     return true;
@@ -219,7 +219,7 @@ class GpuMemory {
     gpuError_t error =
         GpuMemsetAsync(ptr_ + from, value, sizeof(T) * len, stream);
     if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to GpuMemsetAsync()";
+      GPU_LOG(ERROR, error) << "Failed GpuMemsetAsync()";
       return false;
     }
     return true;
@@ -232,7 +232,7 @@ class GpuMemory {
         GpuMemcpy(dst, ptr_ + from, sizeof(T) * len,
                   ComputeGpuMemcpyKind(memory_type_, dst_memory_type));
     if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to GpuMemcpy()";
+      GPU_LOG(ERROR, error) << "Failed GpuMemcpy()";
       return false;
     }
     return true;
@@ -251,7 +251,7 @@ class GpuMemory {
         dst, ptr_ + from, sizeof(T) * len,
         ComputeGpuMemcpyKind(memory_type_, dst_memory_type), stream);
     if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to GpuMemcpyAsync()";
+      GPU_LOG(ERROR, error) << "Failed GpuMemcpyAsync()";
       return false;
     }
     return true;
@@ -271,7 +271,7 @@ class GpuMemory {
         GpuMemcpy(ptr_ + from, src, sizeof(T) * len,
                   ComputeGpuMemcpyKind(src_memory_type, memory_type_));
     if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to GpuMemcpy()";
+      GPU_LOG(ERROR, error) << "Failed GpuMemcpy()";
       return false;
     }
     return true;
@@ -291,7 +291,7 @@ class GpuMemory {
         ptr_ + from, src, sizeof(T) * len,
         ComputeGpuMemcpyKind(src_memory_type, memory_type_), stream);
     if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to GpuMemcpyAsync()";
+      GPU_LOG(ERROR, error) << "Failed GpuMemcpyAsync()";
       return false;
     }
     return true;

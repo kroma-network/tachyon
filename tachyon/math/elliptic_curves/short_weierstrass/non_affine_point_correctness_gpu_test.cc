@@ -61,7 +61,7 @@ class PointCorrectnessGpuTest : public testing::Test {
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
+    GPU_MUST_SUCCEED(gpuDeviceReset(), "");
     xs_ = gpu::GpuMemory<Actual>::MallocManaged(N);
     ys_ = gpu::GpuMemory<Actual>::MallocManaged(N);
     results_ = gpu::GpuMemory<Actual>::MallocManaged(N);
@@ -91,7 +91,7 @@ class PointCorrectnessGpuTest : public testing::Test {
     results_.reset();
     bool_results_.reset();
 
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
+    GPU_MUST_SUCCEED(gpuDeviceReset(), "");
 
     x_cpus_.clear();
     y_cpus_.clear();
@@ -160,7 +160,7 @@ TYPED_TEST(PointCorrectnessGpuTest, Add) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCESS(
+  GPU_MUST_SUCCEED(
       LaunchAdd(this->xs_.get(), this->ys_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
@@ -174,7 +174,7 @@ TYPED_TEST(PointCorrectnessGpuTest, Double) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCESS(LaunchDouble(this->xs_.get(), this->results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchDouble(this->xs_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
     auto result = ConvertPoint<Expected>(this->results_[i]);
@@ -186,7 +186,7 @@ TYPED_TEST(PointCorrectnessGpuTest, Negate) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCESS(LaunchNegate(this->xs_.get(), this->results_.get(), N), "");
+  GPU_MUST_SUCCEED(LaunchNegate(this->xs_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
     auto result = ConvertPoint<Expected>(this->results_[i]);
@@ -197,7 +197,7 @@ TYPED_TEST(PointCorrectnessGpuTest, Negate) {
 TYPED_TEST(PointCorrectnessGpuTest, Eq) {
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCESS(
+  GPU_MUST_SUCCEED(
       LaunchEq(this->xs_.get(), this->xs_.get(), this->bool_results_.get(), N),
       "");
   for (size_t i = 0; i < N; ++i) {
@@ -210,7 +210,7 @@ TYPED_TEST(PointCorrectnessGpuTest, Eq) {
 TYPED_TEST(PointCorrectnessGpuTest, Ne) {
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCESS(
+  GPU_MUST_SUCCEED(
       LaunchNe(this->xs_.get(), this->ys_.get(), this->bool_results_.get(), N),
       "");
   for (size_t i = 0; i < N; ++i) {
