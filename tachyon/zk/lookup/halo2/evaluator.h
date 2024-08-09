@@ -24,6 +24,7 @@ class Evaluator {
   using F = typename EvalsOrExtendedEvals::Field;
 
   void Construct(const std::vector<Argument<F>>& arguments) {
+    TRACE_EVENT("ProofGeneration", "Lookup::Halo2::Evaluator::Construct");
     evaluators_.reserve(arguments.size());
     for (const Argument<F>& argument : arguments) {
       plonk::GraphEvaluator<F> graph;
@@ -64,6 +65,7 @@ class Evaluator {
   template <typename PS>
   void Evaluate(plonk::CircuitPolynomialBuilder<PS>& builder,
                 absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+    TRACE_EVENT("ProofGeneration", "Lookup::Halo2::Evaluator::Evaluate");
     for (size_t i = 0; i < evaluators_.size(); ++i) {
       const plonk::GraphEvaluator<F>& ev = evaluators_[i];
       const EvalsOrExtendedEvals& input_coset = input_cosets_[i];
@@ -128,6 +130,7 @@ class Evaluator {
   template <typename PS>
   void UpdateCosets(plonk::CircuitPolynomialBuilder<PS>& builder,
                     size_t circuit_idx) {
+    TRACE_EVENT("ProofGeneration", "Lookup::Halo2::Evaluator::UpdateCosets");
     using PCS = typename PS::PCS;
     using Poly = typename PCS::Poly;
     using Evals = typename PCS::Evals;

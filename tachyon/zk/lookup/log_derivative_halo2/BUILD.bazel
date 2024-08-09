@@ -21,6 +21,7 @@ tachyon_cc_library(
     ],
     deps = [
         "//tachyon/base:parallelize",
+        "//tachyon/base:profiler",
         "//tachyon/base:ref",
         "//tachyon/base:sort",
         "//tachyon/base/containers:container_util",

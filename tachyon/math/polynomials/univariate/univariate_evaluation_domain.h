@@ -15,6 +15,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/range.h"
 #include "tachyon/math/polynomials/evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/evaluations_utils.h"
@@ -138,6 +139,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Compute a FFT.
   [[nodiscard]] constexpr Evals FFT(const DensePoly& poly) const {
+    TRACE_EVENT("EvaluationDomain", "UnivariateEvaluationDomain::FFT");
     if (poly.IsZero()) return {};
 
     Evals evals;
@@ -159,6 +161,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Compute a FFT.
   [[nodiscard]] constexpr Evals FFT(DensePoly&& poly) const {
+    TRACE_EVENT("EvaluationDomain", "UnivariateEvaluationDomain::FFT");
     if (poly.IsZero()) return {};
 
     Evals evals;
@@ -182,6 +185,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Compute an IFFT.
   [[nodiscard]] constexpr DensePoly IFFT(const Evals& evals) const {
+    TRACE_EVENT("EvaluationDomain", "UnivariateEvaluationDomain::IFFT");
     // NOTE(chokobole): |evals.IsZero()| can be super slow!
     // See https://github.com/kroma-network/tachyon/pull/104.
     if (evals.evaluations_.empty()) return {};
@@ -205,6 +209,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Compute an IFFT.
   [[nodiscard]] constexpr DensePoly IFFT(Evals&& evals) const {
+    TRACE_EVENT("EvaluationDomain", "UnivariateEvaluationDomain::IFFT");
     // NOTE(chokobole): |evals.IsZero()| can be super slow!
     // See https://github.com/kroma-network/tachyon/pull/104.
     if (evals.evaluations_.empty()) return {};
@@ -283,6 +288,10 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   template <typename T, bool IsEndInclusive>
   constexpr std::vector<F> EvaluatePartialLagrangeCoefficients(
       const F& tau, base::Range<T, true, IsEndInclusive> range) const {
+    TRACE_EVENT(
+        "EvaluationDomain",
+        "UnivariateEvaluationDomain::EvaluatePartialLagranceCoefficients");
+
     size_t size = range.GetSize();
     CHECK_LE(size, size_);
     if (size == 0) return {};
@@ -361,6 +370,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Return the sparse vanishing polynomial.
   constexpr SparsePoly GetVanishingPolynomial() const {
+    TRACE_EVENT("EvaluationDomain",
+                "UnivariateEvaluationDomain::GetVanishingPolynomial");
     // Z_H(x) = Π{i in m} (x - h * gⁱ) = xᵐ - hᵐ,
     // where m = |size_| and hᵐ = |offset_pow_size_|.
     return SparsePoly(
@@ -372,6 +383,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // need this to be faster. (See
   // https://github.com/arkworks-rs/algebra/blob/4152c41/poly/src/domain/mod.rs#L232-L233)
   constexpr F EvaluateVanishingPolynomial(const F& tau) const {
+    TRACE_EVENT("EvaluationDomain",
+                "UnivariateEvaluationDomain::EvaluateVanishingPolynomial");
     // Z_H(τ) = Π{i in m} (τ - h * gⁱ) = τᵐ - hᵐ,
     // where m = |size_| and hᵐ = |offset_pow_size_|.
     return tau.Pow(size_) - offset_pow_size_;
@@ -383,6 +396,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // Crashes if |subdomain| is not contained within |*this|.
   constexpr DensePoly GetFilterPolynomial(
       const UnivariateEvaluationDomain& subdomain) const {
+    TRACE_EVENT("EvaluationDomain",
+                "UnivariateEvaluationDomain::GetFilterPolynomial");
     SparsePoly domain_vanishing_poly =
         GetVanishingPolynomial() *
         SparsePoly(SparseCoeffs({{0, subdomain.size_as_field_element_ *
@@ -401,6 +416,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // |subdomain|.
   constexpr std::optional<F> EvaluateFilterPolynomial(
       const UnivariateEvaluationDomain& subdomain, const F& tau) const {
+    TRACE_EVENT("EvaluationDomain",
+                "UnivariateEvaluationDomain::EvaluateFilterPolynomial");
     F v_subdomain_of_tau = subdomain.EvaluateVanishingPolynomial(tau);
     if (v_subdomain_of_tau.IsZero()) {
       return F::One();
@@ -446,6 +463,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   template <typename PolyOrEvals>
   CONSTEXPR_IF_NOT_OPENMP static void DistributePowersAndMulByConst(
       PolyOrEvals& poly_or_evals, const F& g, const F& c) {
+    TRACE_EVENT("EvaluationDomain",
+                "UnivariateEvaluationDomain::DistributePowersAndMulByConst");
 #if defined(TACHYON_HAS_OPENMP)
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
 #else
@@ -455,6 +474,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     size_t size = poly_or_evals.NumElements();
     size_t num_elems_per_thread = std::max(size / thread_nums, size_t{1024});
     OMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
+      TRACE_EVENT("Subtask", "MultiplyLoop");
       F pow = c * g.Pow(i);
       for (size_t j = 0; j < num_elems_per_thread; ++j) {
         if (i + j >= size) break;

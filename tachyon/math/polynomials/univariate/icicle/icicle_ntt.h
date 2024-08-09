@@ -7,6 +7,7 @@
 #include "third_party/icicle/include/ntt/ntt.cu.h"
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/export.h"
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
@@ -72,6 +73,7 @@ class IcicleNTT {
   template <size_t MaxDegree>
   [[nodiscard]] bool FFT(::ntt::NttAlgorithm algorithm, const BigInt& coset,
                          UnivariateEvaluations<F, MaxDegree>& evals) const {
+    TRACE_EVENT("EvaluationDomain", "Icicle::FFT");
     const std::vector<F>& evaluations = evals.evaluations();
     return Run(algorithm, coset, const_cast<F*>(evaluations.data()),
                evaluations.size(), ::ntt::NTTDir::kForward);
@@ -80,6 +82,7 @@ class IcicleNTT {
   template <size_t MaxDegree>
   [[nodiscard]] bool IFFT(::ntt::NttAlgorithm algorithm, const BigInt& coset,
                           UnivariateDensePolynomial<F, MaxDegree>& poly) const {
+    TRACE_EVENT("EvaluationDomain", "Icicle::IFFT");
     const std::vector<F>& coefficients = poly.coefficients().coefficients();
     return Run(algorithm, coset, const_cast<F*>(coefficients.data()),
                coefficients.size(), ::ntt::NTTDir::kInverse);

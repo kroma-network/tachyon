@@ -13,6 +13,7 @@ tachyon_cc_library(
     hdrs = ["evaluator.h"],
     deps = [
         ":prover",
+        "//tachyon/base:profiler",
         "//tachyon/zk/plonk/vanishing:circuit_polynomial_builder_forward",
         "//tachyon/zk/plonk/vanishing:graph_evaluator",
         "//tachyon/zk/plonk/vanishing:vanishing_utils",
@@ -40,6 +41,7 @@ tachyon_cc_library(
         ":argument",
         ":opening_point_set",
         ":pair",
+        "//tachyon/base:profiler",
         "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/commitments:polynomial_openings",

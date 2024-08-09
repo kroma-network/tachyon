@@ -28,6 +28,7 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/numerics/checked_math.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 #include "tachyon/math/polynomials/univariate/evaluations_utils.h"
@@ -90,6 +91,7 @@ class MixedRadixEvaluationDomain
   }
 
   CONSTEXPR_IF_NOT_OPENMP void DoFFT(Evals& evals) const override {
+    TRACE_EVENT("EvaluationDomain", "MixedRadixEvaluationDomain::DoFFT");
     if (!this->offset_.IsOne()) {
       Base::DistributePowers(evals, this->offset_);
     }
@@ -98,6 +100,7 @@ class MixedRadixEvaluationDomain
   }
 
   CONSTEXPR_IF_NOT_OPENMP void DoIFFT(DensePoly& poly) const override {
+    TRACE_EVENT("EvaluationDomain", "MixedRadixEvaluationDomain::DoIFFT");
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     BestFFT(poly, this->group_gen_inv_);
     if (this->offset_.IsOne()) {
@@ -116,6 +119,7 @@ class MixedRadixEvaluationDomain
   constexpr static bool ComputeSizeAndFactors(size_t num_coeffs,
                                               size_t* size_out,
                                               PrimeFieldFactors* factors) {
+    TRACE_EVENT("EvaluationDomain", "ComputeSizeAndFactors");
     base::CheckedNumeric<size_t> checked_size = BestMixedDomainSize(num_coeffs);
     size_t size = checked_size.ValueOrDie();
     if (size > MaxDegree + 1) return false;
@@ -126,6 +130,7 @@ class MixedRadixEvaluationDomain
   constexpr static size_t MixedRadixFFTPermute(uint32_t two_adicity,
                                                uint32_t q_adicity, uint64_t q,
                                                size_t n, size_t i) {
+    TRACE_EVENT("EvaluationDomain", "MixedRadixFFTPermute");
     // This is the permutation obtained by splitting into 2 groups |two_adicity|
     // times and then |q| groups |q_adicity| many times. It can be efficiently
     // described as follows:
@@ -154,6 +159,7 @@ class MixedRadixEvaluationDomain
   }
 
   constexpr static uint64_t BestMixedDomainSize(uint64_t min_size) {
+    TRACE_EVENT("EvaluationDomain", "BestMixedDomainSize");
     uint64_t best = UINT64_MAX;
     for (size_t i = 0; i <= F::Config::kSmallSubgroupAdicity; ++i) {
       uint64_t r = static_cast<uint64_t>(
@@ -172,6 +178,7 @@ class MixedRadixEvaluationDomain
 
   template <typename PolyOrEvals>
   void BestFFT(PolyOrEvals& poly_or_evals, const F& omega) const {
+    TRACE_EVENT("EvaluationDomain", "BestFFT");
 #if defined(TACHYON_HAS_OPENMP)
     uint32_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
     uint32_t log_thread_nums = base::bits::Log2Floor(thread_nums);
@@ -188,6 +195,7 @@ class MixedRadixEvaluationDomain
 
   template <typename PolyOrEvals>
   static void SerialFFT(PolyOrEvals& a, const F& omega, uint32_t two_adicity) {
+    TRACE_EVENT("EvaluationDomain", "SerialFFT");
     // Conceptually, this FFT first splits into 2 sub-arrays |two_adicity| many
     // times, and then splits into q sub-arrays |q_adicity| many times.
 
@@ -286,6 +294,7 @@ class MixedRadixEvaluationDomain
   template <typename PolyOrEvals>
   static void ParallelFFT(PolyOrEvals& a, const F& omega, uint32_t two_adicity,
                           uint32_t log_num_threads) {
+    TRACE_EVENT("EvaluationDomain", "ParallelFFT");
     CHECK_GE(two_adicity, log_num_threads);
     // For documentation purposes, comments explain things
     // as though |a| is a polynomial that we are trying to evaluate.

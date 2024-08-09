@@ -74,6 +74,7 @@ tachyon_cc_library(
         ":qap_witness_map_result",
         "//tachyon/base:optional",
         "//tachyon/base:parallelize",
+        "//tachyon/base:profiler",
     ],
 )
 

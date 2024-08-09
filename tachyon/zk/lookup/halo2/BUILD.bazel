@@ -38,6 +38,7 @@ tachyon_cc_library(
     deps = [
         ":opening_point_set",
         ":permute_expression_pair",
+        "//tachyon/base:profiler",
         "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/commitments:polynomial_openings",

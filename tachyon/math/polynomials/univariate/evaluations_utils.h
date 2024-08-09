@@ -11,6 +11,7 @@
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/profiler.h"
 
 namespace tachyon::math {
 
@@ -29,6 +30,7 @@ std::vector<F> SwapBitRevElements(const std::vector<F>& vals) {
 template <typename Container>
 void SwapBitRevElementsInPlace(Container& container, size_t size,
                                size_t log_len) {
+  TRACE_EVENT("Utils", "SwapBitRevElementsInPlace");
   if (size <= 1) return;
   OMP_PARALLEL_FOR(size_t idx = 1; idx < size; ++idx) {
     size_t ridx = base::bits::ReverseBitsLen(idx, log_len);

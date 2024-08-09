@@ -13,6 +13,7 @@ tachyon_cc_library(
     deps = [
         ":pippenger_base",
         "//tachyon/base:openmp_util",
+        "//tachyon/base:profiler",
         "//tachyon/math/elliptic_curves:semigroups",
         "//tachyon/math/elliptic_curves/msm:msm_ctx",
         "//tachyon/math/elliptic_curves/msm:msm_util",
@@ -22,13 +23,17 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "pippenger_adapter",
     hdrs = ["pippenger_adapter.h"],
-    deps = [":pippenger"],
+    deps = [
+        ":pippenger",
+        "//tachyon/base:profiler",
+    ],
 )
 
 tachyon_cc_library(
     name = "pippenger_base",
     hdrs = ["pippenger_base.h"],
     deps = [
+        "//tachyon/base:profiler",
         "//tachyon/base/containers:adapters",
         "//tachyon/math/base:semigroups",
         "//tachyon/math/geometry:affine_point",

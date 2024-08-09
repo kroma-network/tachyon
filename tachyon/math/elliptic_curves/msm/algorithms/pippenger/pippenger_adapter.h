@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/profiler.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger.h"
 
 namespace tachyon::math {
@@ -39,6 +40,9 @@ class PippengerAdapter {
                                      ScalarInputIterator scalars_last,
                                      PippengerParallelStrategy strategy,
                                      Bucket* ret) {
+    TRACE_EVENT("MSM", "PippengerAdapter::RunWithStrategy", "strategy",
+                static_cast<int>(strategy));
+
     if (strategy == PippengerParallelStrategy::kNone ||
         strategy == PippengerParallelStrategy::kParallelWindow) {
       Pippenger<Point> pippenger;
@@ -83,6 +87,7 @@ class PippengerAdapter {
       std::vector<Result> results;
       results.resize(num_chunks);
       OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+        TRACE_EVENT("Subtask", "ParallelLoop");
         size_t start = i * chunk_size;
         size_t len = i == num_chunks - 1 ? scalars_size - start : chunk_size;
         Pippenger<Point> pippenger;
@@ -96,6 +101,7 @@ class PippengerAdapter {
                                          scalars_end, &results[i].value);
       }
 
+      TRACE_EVENT("Subtask", "CheckResultAndAccumulate");
       bool all_good =
           std::all_of(results.begin(), results.end(),
                       [](const Result& result) { return result.valid; });

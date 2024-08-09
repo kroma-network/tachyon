@@ -13,6 +13,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/base/sort.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/prover.h"
@@ -26,6 +27,7 @@ template <typename Domain>
 std::vector<Evals> Prover<Poly, Evals>::CompressInputs(
     const Domain* domain, const Argument<F>& argument, const F& theta,
     const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
+  TRACE_EVENT("Utils", "CompressInputs");
   // f_compressedᵢ(X) = θᵐ⁻¹f₀(X) + θᵐ⁻²f₁(X) + ... + θfₘ₋₂(X) + fₘ₋₁(X)
   return base::Map(argument.inputs_expressions(),
                    [&domain, &theta, &evaluator_tpl](
@@ -42,6 +44,7 @@ template <typename Domain>
 Evals Prover<Poly, Evals>::CompressTable(
     const Domain* domain, const Argument<F>& argument, const F& theta,
     const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
+  TRACE_EVENT("Utils", "CompressTable");
   // t_compressedᵢ(X) = θᵐ⁻¹t₀(X) + θᵐ⁻²t₁(X) + ... + θtₘ₋₂(X) + tₘ₋₁(X)
   return plonk::CompressExpressions(domain, argument.table_expressions(), theta,
                                     evaluator_tpl);
@@ -52,6 +55,7 @@ template <typename Domain>
 void Prover<Poly, Evals>::CompressPairs(
     const Domain* domain, const std::vector<Argument<F>>& arguments,
     const F& theta, const plonk::ProvingEvaluator<Evals>& evaluator_tpl) {
+  TRACE_EVENT("Utils", "CompressPairs");
   compressed_inputs_vec_.reserve(arguments.size());
   compressed_tables_.reserve(arguments.size());
   for (const Argument<F>& argument : arguments) {
@@ -69,6 +73,8 @@ void Prover<Poly, Evals>::BatchCompressPairs(
     std::vector<Prover>& lookup_provers, const Domain* domain,
     const std::vector<Argument<F>>& arguments, const F& theta,
     const std::vector<plonk::MultiPhaseRefTable<Evals>>& tables) {
+  TRACE_EVENT("ProofGeneration",
+              "Lookup::LogDerivativeHalo2::Prover::BatchCompressPairs");
   CHECK_EQ(lookup_provers.size(), tables.size());
   // NOTE(chokobole): It's safe to downcast because domain is already checked.
   int32_t n = static_cast<int32_t>(domain->size());
@@ -96,6 +102,7 @@ template <typename PCS>
 BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
     ProverBase<PCS>* prover, const std::vector<Evals>& compressed_inputs,
     const Evals& compressed_table, ComputeMPolysTempStorage<BigInt>& storage) {
+  TRACE_EVENT("Utils", "ComputeMPoly");
   RowIndex usable_rows = prover->GetUsableRows();
 
   OMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
@@ -136,6 +143,7 @@ template <typename Poly, typename Evals>
 template <typename PCS>
 void Prover<Poly, Evals>::ComputeMPolys(
     ProverBase<PCS>* prover, ComputeMPolysTempStorage<BigInt>& storage) {
+  TRACE_EVENT("Utils", "ComputeMPolys");
   CHECK_EQ(compressed_inputs_vec_.size(), compressed_tables_.size());
   m_polys_ =
       base::Map(compressed_inputs_vec_,
@@ -152,6 +160,8 @@ template <typename PCS>
 void Prover<Poly, Evals>::BatchCommitMPolys(
     const std::vector<Prover>& lookup_provers, ProverBase<PCS>* prover,
     size_t& commit_idx) {
+  TRACE_EVENT("ProofGeneration",
+              "Lookup::LogDerivativeHalo2::Prover::BatchCommitMPolys");
   if (lookup_provers.empty()) return;
 
   if constexpr (PCS::kSupportsBatchMode) {
@@ -176,6 +186,7 @@ template <typename Poly, typename Evals>
 void Prover<Poly, Evals>::ComputeLogDerivatives(const Evals& evals,
                                                 const F& beta,
                                                 std::vector<F>& ret) {
+  TRACE_EVENT("Utils", "ComputeLogDerivatives");
   base::Parallelize(ret,
                     [&evals, &beta](absl::Span<F> chunk, size_t chunk_offset,
                                     size_t chunk_size) {
@@ -194,6 +205,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
     ProverBase<PCS>* prover, const Evals& m_values,
     const std::vector<Evals>& compressed_inputs, const Evals& compressed_table,
     const F& beta, GrandSumPolysTempStorage<F>& storage) {
+  TRACE_EVENT("Utils", "CreateGrandSumPoly");
   size_t n = prover->pcs().N();
   RowIndex usable_rows = prover->GetUsableRows();
 
@@ -290,6 +302,7 @@ template <typename PCS>
 void Prover<Poly, Evals>::CreateGrandSumPolys(
     ProverBase<PCS>* prover, const F& beta,
     GrandSumPolysTempStorage<F>& storage) {
+  TRACE_EVENT("Utils", "CreateGrandSumPolys");
   CHECK_EQ(compressed_inputs_vec_.size(), compressed_tables_.size());
 
   grand_sum_polys_ =
@@ -308,6 +321,8 @@ template <typename PCS>
 void Prover<Poly, Evals>::BatchCommitGrandSumPolys(
     const std::vector<Prover>& lookup_provers, ProverBase<PCS>* prover,
     size_t& commit_idx) {
+  TRACE_EVENT("ProofGeneration",
+              "Lookup::LogDerivativeHalo2::Prover::BatchCommitGrandSumPolys");
   if (lookup_provers.empty()) return;
 
   if constexpr (PCS::kSupportsBatchMode) {
@@ -330,6 +345,7 @@ void Prover<Poly, Evals>::BatchCommitGrandSumPolys(
 template <typename Poly, typename Evals>
 template <typename Domain>
 void Prover<Poly, Evals>::TransformEvalsToPoly(const Domain* domain) {
+  TRACE_EVENT("Utils", "TransformEvalsToPoly");
   for (BlindedPolynomial<Poly, Evals>& m_poly : m_polys_) {
     m_poly.TransformEvalsToPoly(domain);
   }
@@ -342,6 +358,7 @@ template <typename Poly, typename Evals>
 template <typename PCS>
 void Prover<Poly, Evals>::Evaluate(
     ProverBase<PCS>* prover, const halo2::OpeningPointSet<F>& point_set) const {
+  TRACE_EVENT("Utils", "Evaluate");
   size_t size = grand_sum_polys_.size();
   CHECK_EQ(size, m_polys_.size());
 
@@ -369,6 +386,7 @@ template <typename Poly, typename Evals>
 void Prover<Poly, Evals>::Open(
     const halo2::OpeningPointSet<F>& point_set,
     std::vector<crypto::PolynomialOpening<Poly>>& openings) const {
+  TRACE_EVENT("ProofGeneration", "Lookup::LogDerivativeHalo2::Prover::Open");
   size_t size = grand_sum_polys_.size();
   CHECK_EQ(size, m_polys_.size());
 

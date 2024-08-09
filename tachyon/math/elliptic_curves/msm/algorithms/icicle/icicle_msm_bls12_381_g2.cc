@@ -25,6 +25,7 @@ bool IcicleMSM<bls12_381::G2AffinePoint>::Run(
 #if FIELD_ID != BLS12_381
 #error Only BLS12_381 is supported
 #endif
+  TRACE_EVENT("MSM", "Icicle::MSM");
 
   size_t bases_size = cpu_bases.size();
   size_t scalars_size = cpu_scalars.size();

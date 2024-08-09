@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/profiler.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder_forward.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
@@ -24,6 +25,7 @@ class Evaluator {
   using F = typename EvalsOrExtendedEvals::Field;
 
   void Construct(const std::vector<Argument<F>>& arguments) {
+    TRACE_EVENT("ProofGeneration", "Plonk::Shuffle::Evaluator::Construct");
     // NOTE (chokobole): When constructing the graph, Scroll Halo2 uses beta,
     // whereas PSE Halo2 uses gamma. However, using beta here prevents the proof
     // from being verified. See
@@ -68,6 +70,7 @@ class Evaluator {
   template <typename PS>
   void Evaluate(plonk::CircuitPolynomialBuilder<PS>& builder,
                 absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+    TRACE_EVENT("ProofGeneration", "Plonk::Shuffle::Evaluator::Evaluate");
     for (size_t i = 0; i < evaluators_.size(); i += 2) {
       const plonk::GraphEvaluator<F>& input_evaluator = evaluators_[i];
       const plonk::GraphEvaluator<F>& evaluator = evaluators_[i + 1];
@@ -122,6 +125,8 @@ class Evaluator {
     using Poly = typename PCS::Poly;
     using Evals = typename PCS::Evals;
     using ShuffleProver = Prover<Poly, Evals>;
+
+    TRACE_EVENT("ProofGeneration", "Plonk::Shuffle::Evaluator::UpdateCosets");
 
     size_t num_shuffles =
         builder.shuffle_provers_[circuit_idx].grand_product_polys().size();

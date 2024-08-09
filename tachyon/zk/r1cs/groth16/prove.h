@@ -16,6 +16,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/optional.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/zk/r1cs/constraint_system/qap_witness_map_result.h"
 #include "tachyon/zk/r1cs/groth16/proof.h"
@@ -57,6 +58,8 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
                                        absl::Span<const F> full_assignments) {
   using G1AffinePoint = typename Curve::G1Curve::AffinePoint;
   using G2AffinePoint = typename Curve::G2Curve::AffinePoint;
+
+  TRACE_EVENT("ProofGeneration", "Groth16::CreateProofWithAssignment");
 
 #if TACHYON_CUDA
   using G1Bucket = typename math::VariableBaseMSMGpu<G1AffinePoint>::Bucket;
@@ -191,6 +194,8 @@ Proof<Curve> CreateProofWithReduction(const Circuit<F>& circuit,
                                       const F& s) {
   using Domain = math::UnivariateEvaluationDomain<F, MaxDegree>;
 
+  TRACE_EVENT("ProofGeneration", "Groth16::CreateProofWithReduction");
+
   ConstraintSystem<F> cs;
   cs.set_optimization_goal(OptimizationGoal::kConstraints);
 
@@ -244,6 +249,8 @@ Proof<Curve> ReRandomizeProof(const VerifyingKey<Curve>& vk,
   using G1JacobianPoint = typename Curve::G1Curve::JacobianPoint;
   using G2JacobianPoint = typename Curve::G2Curve::JacobianPoint;
   using F = typename G1AffinePoint::ScalarField;
+
+  TRACE_EVENT("ProofGeneration", "Groth16::ReRandomizeProof");
 
   struct Randoms {
     F r1;

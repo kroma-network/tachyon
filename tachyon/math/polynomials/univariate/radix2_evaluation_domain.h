@@ -36,6 +36,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
@@ -93,6 +94,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   void FFTBatch(RowMajorMatrix<F>& mat) override {
+    TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::FFTBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -113,6 +115,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(RowMajorMatrix<F>& mat,
                                              size_t added_bits,
                                              const F& shift) {
+    TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -177,10 +180,12 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   CONSTEXPR_IF_NOT_OPENMP void DoFFT(Evals& evals) const override {
+    TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::DoFFT");
     DegreeAwareFFTInPlace(evals);
   }
 
   CONSTEXPR_IF_NOT_OPENMP void DoIFFT(DensePoly& poly) const override {
+    TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::DoIFFT");
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     InOrderIFFTInPlace(poly);
     poly.coefficients_.RemoveHighDegreeZeros();
@@ -190,6 +195,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // Implementation copied from libiop. (See
   // https://github.com/arkworks-rs/algebra/blob/master/poly/src/domain/radix2/fft.rs#L28)
   CONSTEXPR_IF_NOT_OPENMP void DegreeAwareFFTInPlace(Evals& evals) const {
+    TRACE_EVENT("EvaluationDomain", "DegreeAwareFFTInPlace");
     if (!this->offset_.IsOne()) {
       Base::DistributePowers(evals, this->offset_);
     }
@@ -224,8 +230,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   CONSTEXPR_IF_NOT_OPENMP void InOrderIFFTInPlace(DensePoly& poly) const {
+    TRACE_EVENT("EvaluationDomain", "InOrderIFFTInPlace");
     IFFTHelperInPlace(poly);
     if (this->offset_.IsOne()) {
+      TRACE_EVENT("Subtask", "OMPMulBySizeInv");
       // clang-format off
       OMP_PARALLEL_FOR(F& val : poly.coefficients_.coefficients_) {
         // clang-format on
@@ -241,6 +249,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // The results here must all be divided by |poly|, which is left up to the
   // caller to do.
   CONSTEXPR_IF_NOT_OPENMP void IFFTHelperInPlace(DensePoly& poly) const {
+    TRACE_EVENT("EvaluationDomain", "IFFTHelperInPlace");
     InOutHelper(poly);
     SwapBitRevElementsInPlace(poly, poly.coefficients_.coefficients_.size(),
                               this->log_size_of_group_);
@@ -250,6 +259,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   CONSTEXPR_IF_NOT_OPENMP static void ApplyButterfly(PolyOrEvals& poly_or_evals,
                                                      absl::Span<const F> roots,
                                                      size_t gap) {
+    TRACE_EVENT("EvaluationDomain", "ApplyButterfly");
     void (*fn)(F&, F&, const F&);
 
     if constexpr (Order == FFTOrder::kInOut) {
@@ -289,6 +299,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // ]
   // clang-format on
   CONSTEXPR_IF_NOT_OPENMP void PrepareRootsVecCache() {
+    TRACE_EVENT("EvaluationDomain", "PrepareRootsVecCache");
     if (this->log_size_of_group_ == 0) return;
 
     roots_vec_.resize(this->log_size_of_group_);
@@ -303,6 +314,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
         this->GetRootsOfUnity(vec_largest_size, this->group_gen_inv_);
 
     if constexpr (F::Config::kModulusBits <= 32) {
+      TRACE_EVENT("Subtask", "PreparePackedVec");
       packed_roots_vec_.resize(2);
       packed_inv_roots_vec_.resize(2);
       packed_roots_vec_[0].resize(vec_largest_size);
@@ -322,28 +334,34 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       }
     }
 
-    roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
-    inv_roots_vec_[0] = std::move(largest_inv);
+    {
+      TRACE_EVENT("Subtask", "PrepareRootsVec");
 
-    // Prepare space in each vector for the others.
-    size_t size = this->size_ / 2;
-    for (size_t i = 1; i < this->log_size_of_group_; ++i) {
-      size /= 2;
-      roots_vec_[this->log_size_of_group_ - i - 1].resize(size);
-      inv_roots_vec_[i].resize(size);
-    }
+      roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
+      inv_roots_vec_[0] = std::move(largest_inv);
 
-    // Assign every element based on the biggest vector.
-    OMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
-      for (size_t j = 0; j < this->size_ / std::pow(2, i + 1); ++j) {
-        size_t k = std::pow(2, i) * j;
-        roots_vec_[this->log_size_of_group_ - i - 1][j] = roots_vec_.back()[k];
-        inv_roots_vec_[i][j] = inv_roots_vec_.front()[k];
+      // Prepare space in each vector for the others.
+      size_t size = this->size_ / 2;
+      for (size_t i = 1; i < this->log_size_of_group_; ++i) {
+        size /= 2;
+        roots_vec_[this->log_size_of_group_ - i - 1].resize(size);
+        inv_roots_vec_[i].resize(size);
+      }
+
+      // Assign every element based on the biggest vector.
+      OMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
+        for (size_t j = 0; j < this->size_ / std::pow(2, i + 1); ++j) {
+          size_t k = std::pow(2, i) * j;
+          roots_vec_[this->log_size_of_group_ - i - 1][j] =
+              roots_vec_.back()[k];
+          inv_roots_vec_[i][j] = inv_roots_vec_.front()[k];
+        }
       }
     }
   }
 
   CONSTEXPR_IF_NOT_OPENMP void InOutHelper(DensePoly& poly) const {
+    TRACE_EVENT("EvaluationDomain", "InOutHelper");
     size_t gap = poly.coefficients_.coefficients_.size() / 2;
     size_t idx = 0;
     while (gap > 0) {
@@ -354,6 +372,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   CONSTEXPR_IF_NOT_OPENMP void OutInHelper(Evals& evals,
                                            size_t start_gap) const {
+    TRACE_EVENT("EvaluationDomain", "OutInHelper");
     size_t gap = start_gap;
     size_t idx = base::bits::SafeLog2Ceiling(start_gap);
     while (gap < evals.evaluations_.size()) {
@@ -366,6 +385,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunks(
       RowMajorMatrix<F>& mat, const std::vector<F>& twiddles,
       const std::vector<PackedPrimeField>& packed_twiddles_rev) {
+    TRACE_EVENT("EvaluationDomain", "RunParallelRowChunks");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -392,6 +412,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunksReversed(
       RowMajorMatrix<F>& mat, const std::vector<F>& twiddles_rev,
       const std::vector<PackedPrimeField>& packed_twiddles_rev) {
+    TRACE_EVENT("EvaluationDomain", "RunParallelRowChunksReversed");
+
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -399,23 +421,26 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t cols = static_cast<size_t>(mat.cols());
     size_t chunk_rows = 1 << (this->log_size_of_group_ - mid_);
 
-    // max block size: 2^(|this->log_size_of_group_| - |mid_|)
-    // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
-    // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
-    for (size_t block_start = 0; block_start < this->size_;
-         block_start += chunk_rows) {
-      size_t thread = block_start / chunk_rows;
-      size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
-      Eigen::Block<RowMajorMatrix<F>> submat =
-          mat.block(block_start, 0, cur_chunk_rows, cols);
-      for (size_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
-        size_t first_block = thread << (layer - mid_);
-        RunDitLayers(submat, layer,
-                     absl::MakeSpan(twiddles_rev.data() + first_block,
-                                    twiddles_rev.size() - first_block),
-                     absl::MakeSpan(packed_twiddles_rev.data() + first_block,
-                                    packed_twiddles_rev.size() - first_block),
-                     true);
+    {
+      TRACE_EVENT("Subtask", "RunDitLayersLoop");
+      // max block size: 2^(|this->log_size_of_group_| - |mid_|)
+      // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
+      // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
+      for (size_t block_start = 0; block_start < this->size_;
+           block_start += chunk_rows) {
+        size_t thread = block_start / chunk_rows;
+        size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
+        Eigen::Block<RowMajorMatrix<F>> submat =
+            mat.block(block_start, 0, cur_chunk_rows, cols);
+        for (size_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
+          size_t first_block = thread << (layer - mid_);
+          RunDitLayers(submat, layer,
+                       absl::MakeSpan(twiddles_rev.data() + first_block,
+                                      twiddles_rev.size() - first_block),
+                       absl::MakeSpan(packed_twiddles_rev.data() + first_block,
+                                      packed_twiddles_rev.size() - first_block),
+                       true);
+        }
       }
     }
   }
@@ -424,6 +449,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       Eigen::Block<RowMajorMatrix<F>>& submat, size_t layer,
       const absl::Span<const F>& twiddles,
       const absl::Span<const PackedPrimeField>& packed_twiddles, bool rev) {
+    TRACE_EVENT("EvaluationDomain", "RunDitLayers");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -451,6 +477,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   CONSTEXPR_IF_NOT_OPENMP void ApplyButterflyToRows(
       Eigen::Block<RowMajorMatrix<F>>& mat, size_t row_1, size_t row_2,
       const F& twiddle, const PackedPrimeField& packed_twiddle) {
+    TRACE_EVENT("EvaluationDomain", "ApplyButterflyToRows");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -464,13 +491,19 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     std::vector<PackedPrimeField*> shorts_2 =
         PackRowHorizontally<PackedPrimeField>(row_2_block, suffix_2);
 
-    OMP_PARALLEL_FOR(size_t i = 0; i < shorts_1.size(); ++i) {
-      UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<
-          PackedPrimeField>(*shorts_1[i], *shorts_2[i], packed_twiddle);
+    {
+      TRACE_EVENT("Subtask", "ButterflyOMPLoop");
+      OMP_PARALLEL_FOR(size_t i = 0; i < shorts_1.size(); ++i) {
+        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<
+            PackedPrimeField>(*shorts_1[i], *shorts_2[i], packed_twiddle);
+      }
     }
-    for (size_t i = 0; i < suffix_1.size(); ++i) {
-      UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<F>(
-          *suffix_1[i], *suffix_2[i], twiddle);
+    {
+      TRACE_EVENT("Subtask", "ButterflyLoop");
+      for (size_t i = 0; i < suffix_1.size(); ++i) {
+        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<F>(
+            *suffix_1[i], *suffix_2[i], twiddle);
+      }
     }
   }
 

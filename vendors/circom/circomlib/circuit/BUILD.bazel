@@ -18,6 +18,7 @@ tachyon_cc_library(
     deps = [
         "//circomlib/zkey:coefficient",
         "@kroma_network_tachyon//tachyon/base:logging",
+        "@kroma_network_tachyon//tachyon/base:profiler",
         "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:quadratic_arithmetic_program",
     ],
 )
