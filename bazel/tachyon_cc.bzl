@@ -33,7 +33,7 @@ def tachyon_rtti(force_rtti):
 def tachyon_simd_copts():
     return if_linux_x86_64(["-msse3"])
 
-def tachyon_openmp():
+def tachyon_openmp_copts():
     return select({
         "@kroma_network_tachyon//:tachyon_has_openmp_on_macos": ["-Xclang -fopenmp"],
         "@kroma_network_tachyon//:tachyon_has_openmp": ["-fopenmp"],
@@ -41,7 +41,7 @@ def tachyon_openmp():
     })
 
 def tachyon_copts(safe_code = True):
-    return tachyon_warnings(safe_code) + tachyon_hide_symbols() + tachyon_simd_copts() + tachyon_openmp()
+    return tachyon_warnings(safe_code) + tachyon_hide_symbols() + tachyon_simd_copts() + tachyon_openmp_copts()
 
 def tachyon_cxxopts(safe_code = True, force_exceptions = False, force_rtti = False):
     return tachyon_copts(safe_code) + tachyon_exceptions(force_exceptions) + tachyon_rtti(force_rtti)

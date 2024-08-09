@@ -1,4 +1,5 @@
 load("@kroma_network_tachyon//bazel:tachyon.bzl", "if_has_avx512")
+load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_openmp_copts", "tachyon_openmp_linkopts")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -19,7 +20,8 @@ cc_library(
     copts = if_has_avx512(
         ["-mavx512f"],
         ["-mavx2"],
-    ),
+    ) + tachyon_openmp_copts(),
+    linkopts = tachyon_openmp_linkopts(),
     defines = if_has_avx512(["__AVX512__"]),
     include_prefix = "third_party/goldilocks/include",
     includes = ["src"],
