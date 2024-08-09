@@ -32,16 +32,27 @@ class KZGFamilyProverImpl : public ProverImplBase<PS> {
   using ProverImplBase<PS>::ProverImplBase;
 
   CProjectivePoint* CommitRaw(const std::vector<ScalarField>& scalars) const {
+#if TACHYON_CUDA
+    if (this->pcs_.UsesGPU()) {
+      return DoMSM(this->pcs_.GetDeviceG1PowersOfTau(), scalars);
+    }
+#endif
     return DoMSM(this->pcs_.GetG1PowersOfTau(), scalars);
   }
 
   CProjectivePoint* CommitLagrangeRaw(
       const std::vector<ScalarField>& scalars) const {
+#if TACHYON_CUDA
+    if (this->pcs_.UsesGPU()) {
+      return DoMSM(this->pcs_.GetDeviceG1PowersOfTauLagrange(), scalars);
+    }
+#endif
     return DoMSM(this->pcs_.GetG1PowersOfTauLagrange(), scalars);
   }
 
  private:
-  CProjectivePoint* DoMSM(const std::vector<AffinePoint>& bases,
+  template <typename BaseContainer>
+  CProjectivePoint* DoMSM(const BaseContainer& bases,
                           const std::vector<ScalarField>& scalars) const {
     ProjectivePoint* ret = new ProjectivePoint();
     CHECK(this->pcs_.DoMSM(bases, scalars, ret));
