@@ -5,9 +5,7 @@
 #include "tachyon/c/math/elliptic_curves/bls12/bls12_381/fr.h"
 #include "tachyon/c/math/elliptic_curves/bls12/bls12_381/g1.h"
 #include "tachyon/c/math/elliptic_curves/bls12/bls12_381/msm.h"
-// Uncomment the following line.
-// See //tachyon/c/math/elliptic_curves/generator:build_defs.bzl
-// #include "tachyon/c/math/elliptic_curves/bls12/bls12_381/msm_gpu.h"
+#include "tachyon/c/math/elliptic_curves/bls12/bls12_381/msm_gpu.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1.h"

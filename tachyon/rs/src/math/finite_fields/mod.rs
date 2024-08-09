@@ -9,22 +9,22 @@ pub struct PrimeField<const N: usize>(pub BigInt<N>);
 
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Hash, Zeroize)]
-pub struct Fq2<PrimeField> {
+pub struct Fp2<PrimeField> {
     pub c0: PrimeField,
     pub c1: PrimeField,
 }
 
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Hash, Zeroize)]
-pub struct Fq6<Fq2> {
-    pub c0: Fq2,
-    pub c1: Fq2,
-    pub c2: Fq2,
+pub struct Fp6<Fp2> {
+    pub c0: Fp2,
+    pub c1: Fp2,
+    pub c2: Fp2,
 }
 
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Hash, Zeroize)]
-pub struct Fq12<Fq6> {
-    pub c0: Fq6,
-    pub c1: Fq6,
+pub struct Fp12<Fp6> {
+    pub c0: Fp6,
+    pub c1: Fp6,
 }

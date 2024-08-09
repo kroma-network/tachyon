@@ -2,6 +2,22 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
+filegroup(
+    name = "elliptic_curves_hdrs",
+    srcs = [
+        "//tachyon/c/math/elliptic_curves/bls12/bls12_381:bls12_381_hdrs",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:bn254_hdrs",
+    ],
+)
+
+tachyon_cc_library(
+    name = "elliptic_curves",
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bls12/bls12_381",
+        "//tachyon/c/math/elliptic_curves/bn/bn254",
+    ],
+)
+
 tachyon_cc_library(
     name = "point_conversions",
     hdrs = ["point_conversions.h"],

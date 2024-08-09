@@ -1,6 +1,13 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "crypto_hdrs",
     srcs = ["//tachyon/c/crypto/random:random_hdrs"],
+)
+
+tachyon_cc_library(
+    name = "crypto",
+    deps = ["//tachyon/c/crypto/random"],
 )

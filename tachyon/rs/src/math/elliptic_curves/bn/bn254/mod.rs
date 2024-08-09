@@ -1,6 +1,6 @@
 use crate::math::{
     elliptic_curves::short_weierstrass::{AffinePoint, JacobianPoint, PointXYZZ, ProjectivePoint},
-    finite_fields::{Fq2, PrimeField},
+    finite_fields::{Fp2, PrimeField},
     geometry::{Point2, Point3, Point4},
 };
 
@@ -16,4 +16,4 @@ pub type G1Point2 = Point2<Fq>;
 pub type G1Point3 = Point3<Fq>;
 pub type G1Point4 = Point4<Fq>;
 
-pub type G2AffinePoint = AffinePoint<Fq2<Fq>>;
+pub type G2AffinePoint = AffinePoint<Fp2<Fq>>;

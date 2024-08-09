@@ -1,7 +1,7 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load(
-    "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
+    "//tachyon/math/finite_fields/generator/ext_field_generator:build_defs.bzl",
     "generate_fp2s",
     "generate_fp3s",
 )

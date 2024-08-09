@@ -8,6 +8,11 @@ filegroup(
 )
 
 tachyon_cc_library(
+    name = "challenger",
+    deps = [":baby_bear_poseidon2_duplex_challenger"],
+)
+
+tachyon_cc_library(
     name = "baby_bear_poseidon2_duplex_challenger",
     srcs = ["baby_bear_poseidon2_duplex_challenger.cc"],
     hdrs = [

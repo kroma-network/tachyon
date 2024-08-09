@@ -1,6 +1,6 @@
 load("//bazel:tachyon.bzl", "if_has_avx512", "if_x86_64")
 load("//bazel:tachyon_cc.bzl", "tachyon_asm_prime_field_defines", "tachyon_cc_library")
-load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp2s")
+load("//tachyon/math/finite_fields/generator/ext_field_generator:build_defs.bzl", "generate_fp2s")
 load(
     "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
     "SMALL_SUBGROUP_ADICITY",

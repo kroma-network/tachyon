@@ -1,6 +1,6 @@
 load("//bazel:tachyon.bzl", "if_aarch64", "if_has_avx512", "if_x86_64")
 load("//bazel:tachyon_cc.bzl", "tachyon_avx512_defines", "tachyon_cc_library")
-load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp4s")
+load("//tachyon/math/finite_fields/generator/ext_field_generator:build_defs.bzl", "generate_fp4s")
 load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "SUBGROUP_GENERATOR", "generate_fft_prime_fields")
 
 package(default_visibility = ["//visibility:public"])

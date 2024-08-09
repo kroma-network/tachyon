@@ -3,9 +3,9 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_binary(
-    name = "ext_prime_field_generator",
-    srcs = ["ext_prime_field_generator.cc"],
-    data = ["fq.h.tpl"],
+    name = "ext_field_generator",
+    srcs = ["ext_field_generator.cc"],
+    data = ["fp.h.tpl"],
     deps = [
         "//tachyon/base/console",
         "//tachyon/base/files:file_path_flag",

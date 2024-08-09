@@ -13,9 +13,6 @@ tachyon_cc_binary(
     name = "generator",
     srcs = ["generator.cc"],
     data = [
-        "ext_field.cc.tpl",
-        "ext_field.h.tpl",
-        "ext_field_type_traits.h.tpl",
         "msm.cc.tpl",
         "msm.h.tpl",
         "msm_gpu.cc.tpl",
@@ -24,9 +21,6 @@ tachyon_cc_binary(
         "point.h.tpl",
         "point_traits.h.tpl",
         "point_type_traits.h.tpl",
-        "prime_field.cc.tpl",
-        "prime_field.h.tpl",
-        "prime_field_type_traits.h.tpl",
     ],
     deps = [
         ":generator_util",

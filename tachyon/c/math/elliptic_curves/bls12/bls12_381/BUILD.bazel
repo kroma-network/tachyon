@@ -1,4 +1,6 @@
 load("//tachyon/c/math/elliptic_curves/generator:build_defs.bzl", "generate_ec_points")
+load("//tachyon/c/math/finite_fields/generator/ext_field_generator:build_defs.bzl", "generate_ext_fields")
+load("//tachyon/c/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_ec_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -6,27 +8,92 @@ filegroup(
     name = "bls12_381_hdrs",
     srcs = [
         "fq.h",
-        "fr.h",
+        "fq12.h",
         "fq2.h",
         "fq6.h",
-        "fq12.h",
+        "fr.h",
         "g1.h",
         "g2.h",
         "msm.h",
-        # Uncomment the following line.
-        # See //tachyon/c/math/elliptic_curves/generator:build_defs.bzl
-        # "msm_gpu.h",
+        "msm_gpu.h",
     ],
+)
+
+generate_ec_prime_fields(
+    name = "fq",
+    class_name = "bls12_381_fq",
+    curve = "bls12_381",
+    display_name = "Fq",
+    limb_nums = 6,
+    native_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:fq"],
+    native_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq.h",
+    native_type = "tachyon::math::bls12_381::Fq",
+)
+
+generate_ec_prime_fields(
+    name = "fr",
+    class_name = "bls12_381_fr",
+    curve = "bls12_381",
+    display_name = "Fr",
+    limb_nums = 4,
+    native_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:fr"],
+    native_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h",
+    native_type = "tachyon::math::bls12_381::Fr",
+)
+
+generate_ext_fields(
+    name = "fq2",
+    base_field_class_name = "bls12_381_fq",
+    base_field_display_name = "Fq",
+    c_base_field_deps = [":fq"],
+    c_base_field_hdr = "tachyon/c/math/elliptic_curves/bls12/bls12_381/fq.h",
+    class_name = "bls12_381_fq2",
+    degree_over_base_field = 2,
+    display_name = "Fq2",
+    native_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:fq2"],
+    native_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq2.h",
+    native_type = "tachyon::math::bls12_381::Fq2",
+)
+
+generate_ext_fields(
+    name = "fq6",
+    base_field_class_name = "bls12_381_fq2",
+    base_field_display_name = "Fq2",
+    c_base_field_deps = [":fq2"],
+    c_base_field_hdr = "tachyon/c/math/elliptic_curves/bls12/bls12_381/fq2.h",
+    class_name = "bls12_381_fq6",
+    degree_over_base_field = 3,
+    display_name = "Fq6",
+    native_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:fq6"],
+    native_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq6.h",
+    native_type = "tachyon::math::bls12_381::Fq6",
+)
+
+generate_ext_fields(
+    name = "fq12",
+    base_field_class_name = "bls12_381_fq6",
+    base_field_display_name = "Fq6",
+    c_base_field_deps = [":fq6"],
+    c_base_field_hdr = "tachyon/c/math/elliptic_curves/bls12/bls12_381/fq6.h",
+    class_name = "bls12_381_fq12",
+    degree_over_base_field = 2,
+    display_name = "Fq12",
+    native_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:fq12"],
+    native_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq12.h",
+    native_type = "tachyon::math::bls12_381::Fq12",
 )
 
 generate_ec_points(
     name = "bls12_381",
-    fq12_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:fq12"],
-    fq2_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:fq2"],
-    fq6_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:fq6"],
-    fq_limb_nums = 6,
-    fr_limb_nums = 4,
-    g1_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:g1"],
+    g1_deps = [
+        ":fq",
+        ":fr",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:g1",
+    ],
     g1_gpu_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:g1_gpu"],
-    g2_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:g2"],
+    g2_deps = [
+        ":fq2",
+        ":fr",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:g2",
+    ],
 )

@@ -12,7 +12,7 @@
 namespace tachyon {
 
 struct GenerationConfig : public build::CcWriter {
-  base::FilePath fq_hdr_tpl_path;
+  base::FilePath fp_hdr_tpl_path;
 
   std::string ns_name;
   std::string class_name;
@@ -125,7 +125,7 @@ int GenerationConfig::GenerateConfigHdr() const {
           : "BaseField";
 
   std::string tpl_content;
-  CHECK(base::ReadFileToString(fq_hdr_tpl_path, &tpl_content));
+  CHECK(base::ReadFileToString(fp_hdr_tpl_path, &tpl_content));
 
   std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
 
@@ -141,7 +141,7 @@ int GenerationConfig::GenerateConfigHdr() const {
 
 int RealMain(int argc, char** argv) {
   GenerationConfig config;
-  config.generator = "//tachyon/math/finite_fields/ext_prime_field_generator";
+  config.generator = "//tachyon/math/finite_fields/ext_field_generator";
 
   base::FlagParser parser;
   parser.AddFlag<base::FilePathFlag>(&config.out)
@@ -171,8 +171,8 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::BoolFlag>(&config.is_packed)
       .set_long_name("--is_packed")
       .set_default_value(false);
-  parser.AddFlag<base::FilePathFlag>(&config.fq_hdr_tpl_path)
-      .set_long_name("--fq_hdr_tpl_path")
+  parser.AddFlag<base::FilePathFlag>(&config.fp_hdr_tpl_path)
+      .set_long_name("--fp_hdr_tpl_path")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.mul_by_non_residue_override)
       .set_long_name("--mul_by_non_residue_override");
