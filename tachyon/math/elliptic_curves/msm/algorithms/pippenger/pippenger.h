@@ -27,7 +27,7 @@ namespace tachyon::math {
 template <size_t N>
 void FillDigits(const BigInt<N>& scalar, size_t window_bits,
                 std::vector<int64_t>* digits) {
-  uint64_t radix = 1 << window_bits;
+  uint64_t radix = uint64_t{1} << window_bits;
 
   uint64_t carry = 0;
   size_t bit_offset = 0;
@@ -117,9 +117,9 @@ class Pippenger : public PippengerBase<Point> {
     TRACE_EVENT("Utils", "AccumulateSingleWindowNAFSum");
     size_t bucket_size;
     if (is_last_window) {
-      bucket_size = 1 << ctx_.window_bits;
+      bucket_size = size_t{1} << ctx_.window_bits;
     } else {
-      bucket_size = 1 << (ctx_.window_bits - 1);
+      bucket_size = size_t{1} << (ctx_.window_bits - 1);
     }
     std::vector<Bucket> buckets(bucket_size);
     for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
@@ -177,7 +177,7 @@ class Pippenger : public PippengerBase<Point> {
     Bucket window_sum = Bucket::Zero();
     // We don't need the "zero" bucket, so we only have 2^{window_bits} - 1
     // buckets.
-    std::vector<Bucket> buckets((1 << ctx_.window_bits) - 1);
+    std::vector<Bucket> buckets((size_t{1} << ctx_.window_bits) - 1);
     auto bases_it = bases_first;
     for (size_t j = 0; j < scalars.size(); ++j, ++bases_it) {
       const BigInt<N>& scalar = scalars[j];
@@ -197,7 +197,7 @@ class Pippenger : public PippengerBase<Point> {
 
         // We mod the remaining bits by 2^{window_bits}, thus taking
         // |window_bits|.
-        uint64_t idx = scalar_tmp[0] % (1 << ctx_.window_bits);
+        uint64_t idx = scalar_tmp[0] % (uint64_t{1} << ctx_.window_bits);
 
         // If the scalar is non-zero, we update the corresponding
         // bucket.

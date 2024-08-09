@@ -42,7 +42,8 @@ std::vector<ExtF> FoldMatrix(const ExtF& beta,
   //                    + (1/2 - β/2gᵢₙᵥⁱ)p(gⁿᐟ²⁺ⁱ)
   size_t rows = static_cast<size_t>(mat.rows());
   F w;
-  CHECK(F::GetRootOfUnity(1 << (base::bits::CheckedLog2(rows) + 1), &w));
+  CHECK(
+      F::GetRootOfUnity(size_t{1} << (base::bits::CheckedLog2(rows) + 1), &w));
   ExtF w_inv = ExtF(unwrap(w.Inverse()));
   ExtF half_beta = beta * ExtF::TwoInv();
 
@@ -71,11 +72,11 @@ ExtF FoldRow(size_t index, size_t log_num_rows, const ExtF& beta,
   const ExtF& e1 = evals[1];
 
   F w;
-  CHECK(F::GetRootOfUnity(1 << (log_num_rows + kLogArity), &w));
+  CHECK(F::GetRootOfUnity(size_t{1} << (log_num_rows + kLogArity), &w));
   ExtF subgroup_start =
       ExtF(w.Pow(base::bits::ReverseBitsLen(index, log_num_rows)));
 
-  CHECK(F::GetRootOfUnity(1 << kLogArity, &w));
+  CHECK(F::GetRootOfUnity(size_t{1} << kLogArity, &w));
   std::vector<ExtF> xs = ExtF::GetBitRevIndexSuccessivePowersSerial(
       kArity, ExtF(w), subgroup_start);
   // interpolate and evaluate at beta

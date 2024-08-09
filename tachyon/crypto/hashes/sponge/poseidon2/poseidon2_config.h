@@ -93,7 +93,8 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
       ret.internal_diagonal_minus_one = math::Vector<F>(N + 1);
       ret.internal_diagonal_minus_one[0] = F(PrimeField::Config::kModulus - 2);
       for (size_t i = 1; i < N + 1; ++i) {
-        ret.internal_diagonal_minus_one[i] = F(1 << internal_shifts[i - 1]);
+        ret.internal_diagonal_minus_one[i] =
+            F(uint32_t{1} << internal_shifts[i - 1]);
       }
     } else {
       ret.internal_shifts = math::Vector<uint8_t>(N);

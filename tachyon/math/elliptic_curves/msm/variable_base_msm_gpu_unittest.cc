@@ -23,7 +23,7 @@ class VariableMSMCorrectnessGpuTest : public testing::Test {
   using Curve = typename Point::Curve;
 
   constexpr static size_t kLogCount = 10;
-  constexpr static size_t kCount = 1 << kLogCount;
+  constexpr static size_t kCount = size_t{1} << kLogCount;
 
   static void SetUpTestSuite() {
     Point::Curve::Init();

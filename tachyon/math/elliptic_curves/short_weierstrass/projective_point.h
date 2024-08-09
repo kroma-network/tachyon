@@ -109,39 +109,22 @@ class ProjectivePoint<
           << "Size of |projective_points| and |affine_points| do not match";
       return false;
     }
-    std::vector<BaseField> z_inverses =
-        base::Map(projective_points,
-                  [](const ProjectivePoint& point) { return point.z_; });
 #if defined(TACHYON_HAS_OPENMP)
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
     if (size >=
         size_t{1} << (thread_nums /
                       ScalarField::kParallelBatchInverseDivisorThreshold)) {
-      size_t chunk_size = base::GetNumElementsPerThread(projective_points);
-      size_t num_chunks = (size + chunk_size - 1) / chunk_size;
-      OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-        size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
-        absl::Span<AffinePoint<Curve>> affine_points_chunk(
-            std::data(*affine_points) + i * chunk_size, len);
-        absl::Span<const ProjectivePoint> projective_points_chunk(
-            std::data(projective_points) + i * chunk_size, len);
-        absl::Span<BaseField> z_inverses_chunk(&z_inverses[i * chunk_size],
-                                               len);
-
-        CHECK(BaseField::BatchInverseInPlaceSerial(z_inverses_chunk));
-        for (size_t i = 0; i < z_inverses_chunk.size(); ++i) {
-          const BaseField& z_inv = z_inverses_chunk[i];
-          if (z_inv.IsZero()) {
-            affine_points_chunk[i] = AffinePoint<Curve>::Zero();
-          } else if (z_inv.IsOne()) {
-            affine_points_chunk[i] = {projective_points_chunk[i].x_,
-                                      projective_points_chunk[i].y_};
-          } else {
-            affine_points_chunk[i] = {projective_points_chunk[i].x_ * z_inv,
-                                      projective_points_chunk[i].y_ * z_inv};
-          }
-        }
-      }
+      base::Parallelize(
+          size, [&projective_points, affine_points](
+                    size_t len, size_t chunk_offset, size_t chunk_size) {
+            size_t start = chunk_offset * chunk_size;
+            absl::Span<AffinePoint<Curve>> affine_points_chunk(
+                &(*affine_points)[start], len);
+            absl::Span<const ProjectivePoint> projective_points_chunk(
+                &projective_points[start], len);
+            CHECK(BatchNormalizeSerial(projective_points_chunk,
+                                       &affine_points_chunk));
+          });
       return true;
     }
 #endif

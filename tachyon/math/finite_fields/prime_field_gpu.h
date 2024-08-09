@@ -163,7 +163,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     const uint32_t low_limb = x[limb_index];
     const uint32_t high_limb = limb_index < (N32 - 1) ? x[limb_index + 1] : 0;
     uint32_t result = __funnelshift_r(low_limb, high_limb, offset);
-    result &= (1 << count) - 1;
+    result &= (uint32_t{1} << count) - 1;
     return result;
   }
 

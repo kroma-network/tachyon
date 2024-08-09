@@ -16,7 +16,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/base/openmp_util.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/range.h"
 #include "tachyon/zk/air/plonky3/challenger/challenger_traits_forward.h"
 
@@ -89,25 +89,24 @@ class Challenger {
   }
 
   Field Grind(uint32_t bits, base::Range<uint32_t> range) {
-#if defined(TACHYON_HAS_OPENMP)
-    uint32_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
-#else
-    uint32_t thread_nums = 1;
-#endif
-    uint32_t chunk_size = range.GetSize() / thread_nums;
-    std::vector<uint32_t> ret(thread_nums,
-                              std::numeric_limits<uint32_t>::max());
-    OMP_PARALLEL_FOR(uint32_t i = 0; i < thread_nums; ++i) {
-      uint32_t start = range.from + i * chunk_size;
-      uint32_t end = start + std::min(range.to - start, chunk_size);
-      for (uint32_t j = start; j < end; ++j) {
-        Derived derived = *static_cast<Derived*>(this);
-        if (derived.CheckWitness(bits, Field(j))) {
-          ret[i] = j;
-          break;
-        }
-      }
-    }
+    std::vector<uint32_t> ret = base::ParallelizeMap(
+        range.GetSize(),
+        [this, bits, range](uint32_t len, uint32_t chunk_offset,
+                            uint32_t chunk_size) {
+          uint32_t ret = std::numeric_limits<uint32_t>::max();
+          uint32_t start = range.from + chunk_offset * chunk_size;
+          uint32_t end = start + std::min(range.to - start, chunk_size);
+          Field f(start);
+          for (uint32_t i = start; i < end; ++i) {
+            Derived derived = *static_cast<Derived*>(this);
+            if (derived.CheckWitness(bits, f)) {
+              ret = i;
+              break;
+            }
+            f += Field::One();
+          }
+          return ret;
+        });
     auto it = std::find_if(ret.begin(), ret.end(), [](uint32_t v) {
       return v != std::numeric_limits<uint32_t>::max();
     });

@@ -18,6 +18,7 @@ tachyon_cc_library(
         ":sumcheck_prover_msg",
         ":sumcheck_proving_key",
         ":sumcheck_verifier_msg",
+        "//tachyon/base:parallelize",
         "//tachyon/math/polynomials/multivariate:linear_combination",
         "//tachyon/math/polynomials/univariate:univariate_evaluations",
     ],

@@ -46,15 +46,23 @@ class TwoAdicSubgroup {
     //    = ∑ⱼ (cⱼ sʲ) (gⁱ)ʲ
     // which has the structure of an ordinary DFT, except each coefficient cⱼ
     // is first replaced by cⱼ s.
-    Eigen::Index rows = mat.rows();
-    Eigen::Index cols = mat.cols();
-
-    std::vector<F> weights = F::GetSuccessivePowers(rows, shift);
-    OMP_PARALLEL_NESTED_FOR(Eigen::Index row = 0; row < rows; ++row) {
-      for (Eigen::Index col = 0; col < cols; ++col) {
-        mat(row, col) *= weights[row];
-      }
-    }
+    size_t rows = mat.rows();
+    base::Parallelize(
+        rows, [&mat, &shift](Eigen::Index len, Eigen::Index chunk_offset,
+                             Eigen::Index chunk_size) {
+          Eigen::Index start = chunk_offset * chunk_size;
+          F weight = shift.Pow(start);
+          // NOTE: It is not possible to have empty chunk so this is safe
+          for (Eigen::Index row = start; row < start + len - 1; ++row) {
+            for (Eigen::Index col = 0; col < mat.cols(); ++col) {
+              mat(row, col) *= weight;
+            }
+            weight *= shift;
+          }
+          for (Eigen::Index col = 0; col < mat.cols(); ++col) {
+            mat(start + len - 1, col) *= weight;
+          }
+        });
     FFTBatch(mat);
   }
 

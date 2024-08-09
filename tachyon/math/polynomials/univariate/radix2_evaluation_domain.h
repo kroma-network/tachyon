@@ -67,7 +67,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   constexpr static size_t kMaxDegree = MaxDegree;
   // Factor that determines if a the degree aware FFT should be called.
-  constexpr static size_t kDegreeAwareFFTThresholdFactor = 1 << 2;
+  constexpr static size_t kDegreeAwareFFTThresholdFactor = size_t{1} << 2;
 
   enum class FFTOrder {
     // The input of the FFT must be in-order, but the output does not have to
@@ -138,13 +138,21 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     // - divide by number of rows (since we're doing an inverse DFT)
     // - multiply by powers of the coset shift (see default coset LDE impl for
     // an explanation)
-    std::vector<F> weights =
-        F::GetSuccessivePowers(this->size_, shift, this->size_inv_);
-    OMP_PARALLEL_FOR(size_t row = 0; row < weights.size(); ++row) {
+    base::Parallelize(this->size_, [this, &mat, &shift](size_t len,
+                                                        size_t chunk_offset,
+                                                        size_t chunk_size) {
       // Reverse bits because |mat| is encoded in bit-reversed order
-      mat.row(base::bits::ReverseBitsLen(row, this->log_size_of_group_)) *=
-          weights[row];
-    }
+      size_t start = chunk_offset * chunk_size;
+      F weight = this->size_inv_ * shift.Pow(start);
+      // NOTE: It is not possible to have empty chunk so this is safe
+      for (size_t row = start; row < start + len - 1; ++row) {
+        mat.row(base::bits::ReverseBitsLen(row, this->log_size_of_group_)) *=
+            weight;
+        weight *= shift;
+      }
+      mat.row(base::bits::ReverseBitsLen(start + len - 1,
+                                         this->log_size_of_group_)) *= weight;
+    });
     ExpandInPlaceWithZeroPad<RowMajorMatrix<F>>(mat, added_bits);
 
     size_t rows = static_cast<size_t>(mat.rows());
@@ -391,7 +399,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
     CHECK(base::bits::IsPowerOfTwo(mat.rows()));
     size_t cols = static_cast<size_t>(mat.cols());
-    size_t chunk_rows = 1 << mid_;
+    size_t chunk_rows = size_t{1} << mid_;
 
     // max block size: 2^|mid_|
     // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
@@ -419,7 +427,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
     CHECK(base::bits::IsPowerOfTwo(mat.rows()));
     size_t cols = static_cast<size_t>(mat.cols());
-    size_t chunk_rows = 1 << (this->log_size_of_group_ - mid_);
+    size_t chunk_rows = size_t{1} << (this->log_size_of_group_ - mid_);
 
     {
       TRACE_EVENT("Subtask", "RunDitLayersLoop");
@@ -454,7 +462,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       NOTREACHED();
     }
     size_t layer_rev = this->log_size_of_group_ - 1 - layer;
-    size_t half_block_size = rev ? 1 << layer_rev : 1 << layer;
+    size_t half_block_size = size_t{1} << (rev ? layer_rev : layer);
     size_t block_size = half_block_size * 2;
     size_t sub_rows = static_cast<size_t>(submat.rows());
     DCHECK_GE(sub_rows, block_size);

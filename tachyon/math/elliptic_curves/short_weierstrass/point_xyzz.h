@@ -114,40 +114,20 @@ class PointXYZZ<_Curve,
       LOG(ERROR) << "Size of |point_xyzzs| and |affine_points| do not match";
       return false;
     }
-    std::vector<BaseField> zzz_inverses = base::Map(
-        point_xyzzs, [](const PointXYZZ& point) { return point.zzz_; });
 #if defined(TACHYON_HAS_OPENMP)
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
     if (size >=
         size_t{1} << (thread_nums /
                       ScalarField::kParallelBatchInverseDivisorThreshold)) {
-      size_t chunk_size = base::GetNumElementsPerThread(point_xyzzs);
-      size_t num_chunks = (size + chunk_size - 1) / chunk_size;
-      OMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
-        size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
+      base::Parallelize(size, [&point_xyzzs, affine_points](size_t len,
+                                                            size_t chunk_offset,
+                                                            size_t chunk_size) {
+        size_t start = chunk_offset * chunk_size;
         absl::Span<AffinePoint<Curve>> affine_points_chunk(
-            std::data(*affine_points) + i * chunk_size, len);
-        absl::Span<const PointXYZZ> point_xyzzs_chunk(
-            std::data(point_xyzzs) + i * chunk_size, len);
-        absl::Span<BaseField> zzz_inverses_chunk(&zzz_inverses[i * chunk_size],
-                                                 len);
-
-        CHECK(BaseField::BatchInverseInPlaceSerial(zzz_inverses_chunk));
-        for (size_t i = 0; i < zzz_inverses_chunk.size(); ++i) {
-          const PointXYZZ& point_xyzz = point_xyzzs_chunk[i];
-          if (point_xyzz.zz_.IsZero()) {
-            affine_points_chunk[i] = AffinePoint<Curve>::Zero();
-          } else if (point_xyzz.zz_.IsOne()) {
-            affine_points_chunk[i] = {point_xyzz.x_, point_xyzz.y_};
-          } else {
-            const BaseField& z_inv_cubic = zzz_inverses_chunk[i];
-            BaseField z_inv_square = z_inv_cubic * point_xyzz.zz_;
-            z_inv_square.SquareInPlace();
-            affine_points_chunk[i] = {point_xyzz.x_ * z_inv_square,
-                                      point_xyzz.y_ * z_inv_cubic};
-          }
-        }
-      }
+            &(*affine_points)[start], len);
+        absl::Span<const PointXYZZ> point_xyzzs_chunk(&point_xyzzs[start], len);
+        CHECK(BatchNormalizeSerial(point_xyzzs_chunk, &affine_points_chunk));
+      });
       return true;
     }
 #endif

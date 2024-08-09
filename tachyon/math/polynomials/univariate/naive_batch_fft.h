@@ -6,9 +6,11 @@
 #ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_NAIVE_BATCH_FFT_H_
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_NAIVE_BATCH_FFT_H_
 
+#include <utility>
 #include <vector>
 
 #include "tachyon/base/bits.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/math/polynomials/univariate/two_adic_subgroup.h"
 
 namespace tachyon::math {
@@ -17,26 +19,39 @@ template <typename F>
 class NaiveBatchFFT : public TwoAdicSubgroup<F> {
  public:
   void FFTBatch(RowMajorMatrix<F>& mat) override {
-    Eigen::Index rows = mat.rows();
-    Eigen::Index cols = mat.cols();
+    size_t rows = mat.rows();
+    size_t cols = mat.cols();
     CHECK(base::bits::IsPowerOfTwo(rows));
     F g;
     CHECK(F::GetRootOfUnity(rows, &g));
 
     RowMajorMatrix<F> res = RowMajorMatrix<F>::Zero(rows, cols);
 
-    std::vector<F> points = F::GetSuccessivePowers(rows, g);
-    size_t num_points = points.size();
-
-    for (size_t res_r = 0; res_r < num_points; ++res_r) {
-      std::vector<F> point_powers = F::GetSuccessivePowers(rows, points[res_r]);
-      for (size_t src_r = 0; src_r < num_points; ++src_r) {
-        for (Eigen::Index col = 0; col < cols; ++col) {
-          res(res_r, col) += point_powers[src_r] * mat(src_r, col);
-        }
-      }
-    }
-    mat = res;
+    base::Parallelize(
+        rows, [rows, cols, &res, &mat, &g](size_t len, size_t chunk_offset,
+                                           size_t chunk_size) {
+          size_t src_row = chunk_offset * chunk_size;
+          F base_pow = g.Pow(src_row);
+          // NOTE (chokobole): |base_pow| is multiplied one extra time for the
+          // sake of code readability, but we choose to overlook this for
+          // simplicity.
+          for (size_t res_r = src_row; res_r < src_row + len; ++res_r) {
+            // NOTE(chokobole): |rows| is guaranteed to be positive number
+            // because of the above |CHECK(base::bits::IsPowerOfTwo(rows))|.
+            F pow = F::One();
+            for (size_t src_r = 0; src_r < rows - 1; ++src_r) {
+              for (size_t col = 0; col < cols; ++col) {
+                res(res_r, col) += pow * mat(src_r, col);
+              }
+              pow *= base_pow;
+            }
+            for (size_t col = 0; col < cols; ++col) {
+              res(res_r, col) += pow * mat(rows - 1, col);
+            }
+            base_pow *= g;
+          }
+        });
+    mat = std::move(res);
   }
 };
 

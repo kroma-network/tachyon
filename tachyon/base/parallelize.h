@@ -154,8 +154,8 @@ void Parallelize(Container& container, Callable callback,
 template <typename Callable>
 void Parallelize(size_t size, Callable callback,
                  std::optional<size_t> threshold = std::nullopt) {
-  size_t num_elements_per_thread = GetNumElementsPerThread(size, threshold);
-  ParallelizeByChunkSize(size, num_elements_per_thread, std::move(callback));
+  size_t size_per_thread = GetSizePerThread(size, threshold);
+  ParallelizeByChunkSize(size, size_per_thread, std::move(callback));
 }
 
 // Splits the |container| by |chunk_size| and maps each chunk using the provided

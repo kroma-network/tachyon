@@ -25,6 +25,7 @@ tachyon_cc_library(
     hdrs = ["pippenger_adapter.h"],
     deps = [
         ":pippenger",
+        "//tachyon/base:parallelize",
         "//tachyon/base:profiler",
     ],
 )

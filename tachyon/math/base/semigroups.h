@@ -357,7 +357,7 @@ class AdditiveSemigroup {
       const G& g = static_cast<const G&>(*this);
       switch (scalar) {
         case 0:
-          return AddResult::One();
+          return AddResult::Zero();
         case 1:
           return g;
         case 2:

@@ -76,8 +76,8 @@ class BinaryMerkleTree final
       }
       size_t i = base::bits::Log2Floor(leaves_size) -
                  base::bits::Log2Floor(leaves_size_for_parallelization_);
-      BuildTreeFromLeaves(
-          base::Range<size_t>((1 << i) - 1, (1 << (i + 1)) - 1));
+      BuildTreeFromLeaves(base::Range<size_t>((size_t{1} << i) - 1,
+                                              (size_t{1} << (i + 1)) - 1));
     } else {
       BuildTreeFromLeaves(
           base::Range<size_t>(leaves_size - 1, (leaves_size << 1) - 1));
