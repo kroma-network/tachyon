@@ -502,14 +502,14 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     {
       TRACE_EVENT("Subtask", "ButterflyOMPLoop");
       OMP_PARALLEL_FOR(size_t i = 0; i < shorts_1.size(); ++i) {
-        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<
-            PackedPrimeField>(*shorts_1[i], *shorts_2[i], packed_twiddle);
+        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
+            *shorts_1[i], *shorts_2[i], packed_twiddle);
       }
     }
     {
       TRACE_EVENT("Subtask", "ButterflyLoop");
       for (size_t i = 0; i < suffix_1.size(); ++i) {
-        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<F>(
+        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
             *suffix_1[i], *suffix_2[i], twiddle);
       }
     }
