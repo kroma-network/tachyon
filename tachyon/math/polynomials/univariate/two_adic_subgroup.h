@@ -39,7 +39,7 @@ class TwoAdicSubgroup {
   // Compute the "coset DFT" of each column in |mat|. This can be viewed as
   // interpolation onto a coset of a multiplicative subgroup, rather than the
   // subgroup itself.
-  void CosetFFTBatch(RowMajorMatrix<F>& mat, const F& shift) {
+  void CosetFFTBatch(RowMajorMatrix<F>& mat, F shift) {
     static_assert(F::Config::kModulusBits <= 32);
     // Observe that
     // yᵢ = ∑ⱼ cⱼ (s gⁱ)ʲ
@@ -68,8 +68,7 @@ class TwoAdicSubgroup {
 
   // Compute the low-degree extension of each column in |mat| onto a coset of
   // a larger subgroup.
-  void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits,
-                     const F& shift) {
+  void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits, F shift) {
     static_assert(F::Config::kModulusBits <= 32);
     IFFTBatch(mat);
     Eigen::Index rows = mat.rows();

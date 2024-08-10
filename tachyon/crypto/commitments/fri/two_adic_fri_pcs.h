@@ -287,7 +287,7 @@ class TwoAdicFriPCS {
   absl::flat_hash_map<ExtF, std::vector<ExtF>> ComputeInverseDenominators(
       const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
           matrices_by_round,
-      const std::vector<Points>& points_by_round, const F& coset_shift) {
+      const std::vector<Points>& points_by_round, F coset_shift) {
     size_t num_rounds = matrices_by_round.size();
 
     absl::flat_hash_map<ExtF, uint32_t> max_log_num_rows_for_point;
@@ -327,7 +327,7 @@ class TwoAdicFriPCS {
       uint32_t log_num_rows = it->second;
       std::vector<ExtF> temp = base::Map(
           absl::MakeSpan(subgroup.data(), (size_t{1} << log_num_rows)),
-          [&point](const F& x) { return ExtF(x) - point; });
+          [&point](F x) { return ExtF(x) - point; });
       CHECK(ExtF::BatchInverseInPlace(temp));
       ret[point] = std::move(temp);
     }
@@ -338,7 +338,7 @@ class TwoAdicFriPCS {
   // https://hackmd.io/@vbuterin/barycentric_evaluation
   template <typename Derived>
   static std::vector<ExtF> InterpolateCoset(
-      const Eigen::MatrixBase<Derived>& coset_evals, const F& shift,
+      const Eigen::MatrixBase<Derived>& coset_evals, F shift,
       const ExtF& point) {
     size_t num_rows = static_cast<size_t>(coset_evals.rows());
     size_t num_cols = static_cast<size_t>(coset_evals.cols());

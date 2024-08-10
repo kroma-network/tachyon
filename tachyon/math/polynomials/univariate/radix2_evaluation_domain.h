@@ -467,7 +467,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       for (size_t i = 0; i < half_block_size; ++i) {
         size_t lo = block_start + i;
         size_t hi = lo + half_block_size;
-        const F& twiddle =
+        F twiddle =
             rev ? twiddles[block_start / block_size] : twiddles[i << layer_rev];
         const PackedPrimeField& packed_twiddle =
             rev ? packed_twiddles[block_start / block_size]
@@ -479,7 +479,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   CONSTEXPR_IF_NOT_OPENMP void ApplyButterflyToRows(
       Eigen::Block<RowMajorMatrix<F>>& mat, size_t row_1, size_t row_2,
-      const F& twiddle, const PackedPrimeField& packed_twiddle) {
+      F twiddle, const PackedPrimeField& packed_twiddle) {
     TRACE_EVENT("EvaluationDomain", "ApplyButterflyToRows");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();

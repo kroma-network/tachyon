@@ -26,7 +26,7 @@ class TwoAdicMultiplicativeCoset {
  public:
   constexpr TwoAdicMultiplicativeCoset() = default;
 
-  TwoAdicMultiplicativeCoset(uint32_t log_n, const F& shift) {
+  TwoAdicMultiplicativeCoset(uint32_t log_n, F shift) {
     domain_.reset(static_cast<math::Radix2EvaluationDomain<F>*>(
         math::Radix2EvaluationDomain<F>::Create(size_t{1} << log_n)
             ->GetCoset(shift)
@@ -83,7 +83,7 @@ class TwoAdicMultiplicativeCoset {
 
   LagrangeSelectors<std::vector<F>> GetSelectorsOnCoset(
       const TwoAdicMultiplicativeCoset& coset) const {
-    const F& coset_shift = coset.domain()->offset();
+    F coset_shift = coset.domain()->offset();
 
     CHECK_EQ(domain_->offset(), F::One());
     CHECK_NE(coset_shift, F::One());
