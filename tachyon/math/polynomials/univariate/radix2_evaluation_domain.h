@@ -455,8 +455,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   CONSTEXPR_IF_NOT_OPENMP void RunDitLayers(
       Eigen::Block<RowMajorMatrix<F>>& submat, uint32_t layer,
-      const absl::Span<const F>& twiddles,
-      const absl::Span<const PackedPrimeField>& packed_twiddles, bool rev) {
+      absl::Span<const F> twiddles,
+      absl::Span<const PackedPrimeField> packed_twiddles, bool rev) {
     TRACE_EVENT("EvaluationDomain", "RunDitLayers");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
