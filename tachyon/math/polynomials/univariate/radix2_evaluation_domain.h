@@ -331,7 +331,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       packed_inv_roots_vec_[1].resize(vec_largest_size);
       rev_roots_vec_ = SwapBitRevElements(largest);
       rev_inv_roots_vec_ = SwapBitRevElements(largest_inv);
-      for (size_t i = 0; i < vec_largest_size; ++i) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < vec_largest_size; ++i) {
         packed_roots_vec_[0][i] = PackedPrimeField::Broadcast(largest[i]);
         packed_inv_roots_vec_[0][i] =
             PackedPrimeField::Broadcast(largest_inv[i]);
