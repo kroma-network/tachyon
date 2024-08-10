@@ -1,6 +1,18 @@
-load("@icicle//:build_defs.bzl", "BLS12_381", "BN254", "icicle_defines")
+load("@icicle//:build_defs.bzl", "BABY_BEAR", "BLS12_381", "BN254", "icicle_defines")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
+
+tachyon_cuda_library(
+    name = "icicle_mmcs_baby_bear",
+    srcs = if_cuda(["icicle_mmcs_baby_bear.cc"]),
+    hdrs = ["icicle_mmcs_baby_bear.h"],
+    local_defines = icicle_defines(BABY_BEAR),
+    deps = [
+        "@icicle//:mmcs_baby_bear",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
 
 tachyon_cuda_library(
     name = "icicle_mmcs_bls12_381",
@@ -31,24 +43,6 @@ tachyon_cuda_library(
         "@local_config_cuda//cuda:cudart_static",
     ]),
 )
-
-# tachyon_cuda_library(
-#     name = "icicle_msm_bn254_g1",
-#     srcs = if_cuda(["icicle_msm_bn254_g1.cc"]),
-#     hdrs = ["icicle_msm_bn254_g1.h"],
-#     local_defines = icicle_defines(BN254),
-#     deps = [
-#         ":icicle_msm",
-#         ":icicle_msm_utils",
-#         "//tachyon/base:bit_cast",
-#         "//tachyon/device/gpu:gpu_enums",
-#         "//tachyon/device/gpu:gpu_logging",
-#         "//tachyon/device/gpu:gpu_memory",
-#         "@icicle//:msm_bn254",
-#     ] + if_cuda([
-#         "@local_config_cuda//cuda:cudart_static",
-#     ]),
-# )
 
 # tachyon_cuda_library(
 #     name = "icicle_msm_bn254_g2",
