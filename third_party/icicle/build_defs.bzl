@@ -26,6 +26,8 @@ FIELDS = [
     M31,
 ]
 
+FIELDS_WITH_MMCS = FIELDS
+
 FIELDS_WITH_NTT = [
     BN254,
     BLS12_381,

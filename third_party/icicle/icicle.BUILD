@@ -2,6 +2,7 @@ load(
     "@icicle//:build_defs.bzl",
     "CURVES",
     "FIELDS",
+    "FIELDS_WITH_MMCS",
     "FIELDS_WITH_NTT",
     "FIELDS_WITH_POSEIDON",
     "FIELDS_WITH_POSEIDON2",
@@ -34,6 +35,19 @@ tachyon_cuda_library(
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
 )
+
+[tachyon_cuda_library(
+    name = "mmcs_{}".format(field),
+    hdrs = [
+        "icicle/src/merkle-tree/merkle.cu.cc",
+        "icicle/src/merkle-tree/mmcs.cu.cc",
+    ],
+    include_prefix = "third_party/icicle/src",
+    includes = ["includes/src/merkle-tree"],
+    local_defines = icicle_defines(field),
+    strip_include_prefix = "icicle/src",
+    deps = [":hdrs"],
+) for field in FIELDS_WITH_MMCS]
 
 [tachyon_cuda_library(
     name = "msm_{}".format(field),
@@ -78,19 +92,6 @@ tachyon_cuda_library(
         ":vec_ops",
     ],
 ) for field in FIELDS]
-
-[tachyon_cuda_library(
-    name = "mmcs_{}".format(field),
-    hdrs = [
-        "icicle/src/merkle-tree/merkle.cu.cc",
-        "icicle/src/merkle-tree/mmcs.cu.cc",
-    ],
-    include_prefix = "third_party/icicle/src",
-    includes = ["includes/src/merkle-tree"],
-    local_defines = icicle_defines(field),
-    strip_include_prefix = "icicle/src",
-    deps = [":hdrs"],
-) for field in FIELDS_WITH_POSEIDON]
 
 [tachyon_cuda_library(
     name = "poseidon2_{}".format(field),
