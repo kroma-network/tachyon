@@ -80,17 +80,13 @@ tachyon_cuda_library(
 ) for field in FIELDS]
 
 [tachyon_cuda_library(
-    name = "poseidon_{}".format(field),
-    srcs = if_gpu_is_configured([
-        "icicle/src/poseidon/tree/merkle.cu.cc",
-    ]),
+    name = "mmcs_{}".format(field),
     hdrs = [
-        "icicle/src/poseidon/constants.cu.cc",
-        "icicle/src/poseidon/kernels.cu.cc",
-        "icicle/src/poseidon/poseidon.cu.cc",
+        "icicle/src/merkle-tree/merkle.cu.cc",
+        "icicle/src/merkle-tree/mmcs.cu.cc",
     ],
     include_prefix = "third_party/icicle/src",
-    includes = ["includes/src/poseidon"],
+    includes = ["includes/src/merkle-tree"],
     local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
