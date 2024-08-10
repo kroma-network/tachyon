@@ -342,28 +342,25 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       }
     }
 
-    {
-      TRACE_EVENT("Subtask", "PrepareRootsVec");
+    TRACE_EVENT("Subtask", "PrepareRootsVec");
 
-      roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
-      inv_roots_vec_[0] = std::move(largest_inv);
+    roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
+    inv_roots_vec_[0] = std::move(largest_inv);
 
-      // Prepare space in each vector for the others.
-      size_t size = this->size_ / 2;
-      for (size_t i = 1; i < this->log_size_of_group_; ++i) {
-        size /= 2;
-        roots_vec_[this->log_size_of_group_ - i - 1].resize(size);
-        inv_roots_vec_[i].resize(size);
-      }
+    // Prepare space in each vector for the others.
+    size_t size = this->size_ / 2;
+    for (size_t i = 1; i < this->log_size_of_group_; ++i) {
+      size /= 2;
+      roots_vec_[this->log_size_of_group_ - i - 1].resize(size);
+      inv_roots_vec_[i].resize(size);
+    }
 
-      // Assign every element based on the biggest vector.
-      OMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
-        for (size_t j = 0; j < this->size_ / std::pow(2, i + 1); ++j) {
-          size_t k = std::pow(2, i) * j;
-          roots_vec_[this->log_size_of_group_ - i - 1][j] =
-              roots_vec_.back()[k];
-          inv_roots_vec_[i][j] = inv_roots_vec_.front()[k];
-        }
+    // Assign every element based on the biggest vector.
+    OMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
+      for (size_t j = 0; j < this->size_ / std::pow(2, i + 1); ++j) {
+        size_t k = std::pow(2, i) * j;
+        roots_vec_[this->log_size_of_group_ - i - 1][j] = roots_vec_.back()[k];
+        inv_roots_vec_[i][j] = inv_roots_vec_.front()[k];
       }
     }
   }
@@ -429,26 +426,24 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t cols = static_cast<size_t>(mat.cols());
     size_t chunk_rows = size_t{1} << (this->log_size_of_group_ - mid_);
 
-    {
-      TRACE_EVENT("Subtask", "RunDitLayersLoop");
-      // max block size: 2^(|this->log_size_of_group_| - |mid_|)
-      // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
-      // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
-      for (size_t block_start = 0; block_start < this->size_;
-           block_start += chunk_rows) {
-        size_t thread = block_start / chunk_rows;
-        size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
-        Eigen::Block<RowMajorMatrix<F>> submat =
-            mat.block(block_start, 0, cur_chunk_rows, cols);
-        for (uint32_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
-          size_t first_block = thread << (layer - mid_);
-          RunDitLayers(submat, layer,
-                       absl::MakeSpan(twiddles_rev.data() + first_block,
-                                      twiddles_rev.size() - first_block),
-                       absl::MakeSpan(packed_twiddles_rev.data() + first_block,
-                                      packed_twiddles_rev.size() - first_block),
-                       true);
-        }
+    TRACE_EVENT("Subtask", "RunDitLayersLoop");
+    // max block size: 2^(|this->log_size_of_group_| - |mid_|)
+    // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
+    // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
+    for (size_t block_start = 0; block_start < this->size_;
+         block_start += chunk_rows) {
+      size_t thread = block_start / chunk_rows;
+      size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
+      Eigen::Block<RowMajorMatrix<F>> submat =
+          mat.block(block_start, 0, cur_chunk_rows, cols);
+      for (uint32_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
+        size_t first_block = thread << (layer - mid_);
+        RunDitLayers(submat, layer,
+                     absl::MakeSpan(twiddles_rev.data() + first_block,
+                                    twiddles_rev.size() - first_block),
+                     absl::MakeSpan(packed_twiddles_rev.data() + first_block,
+                                    packed_twiddles_rev.size() - first_block),
+                     true);
       }
     }
   }
