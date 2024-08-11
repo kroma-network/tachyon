@@ -47,6 +47,11 @@ struct TACHYON_EXPORT IcicleMMCSOptions {
   bool is_async = false;
 };
 
+enum class Hasher {
+  kPoseidon,
+  kPoseidon2,
+}
+
 template <typename F>
 class IcicleMMCS {
  public:
@@ -71,13 +76,13 @@ class IcicleMMCS {
   [[nodiscard]] bool BuildMerkleTree(const F* inputs, F* digests,
                                      unsigned int height,
                                      unsigned int input_block_len,
-                                     const ::hash::Hasher<F, F>& compression,
-                                     const ::hash::Hasher<F, F>& bottom_layer);
+                                     const Hasher& compression,
+                                     const Hasher& bottom_layer);
 
   [[nodiscard]] bool MMCSCommit(const ::matrix::Matrix<F>* inputs,
                                 const unsigned int number_of_inputs, F* digests,
-                                const ::hash::Hasher<F, F>& hasher,
-                                const ::hash::Hasher<F, F>& compression);
+                                const Hasher& hasher,
+                                const Hasher& compression);
 
  private:
   gpuMemPool_t mem_pool_ = nullptr;
@@ -88,44 +93,38 @@ class IcicleMMCS {
 template <>
 TACHYON_EXPORT bool IcicleMMCS<BabyBear>::BuildMerkleTree(
     const BabyBear* inputs, BabyBear* digests, unsigned int height,
-    unsigned int input_block_len,
-    const ::hash::Hasher<BabyBear, BabyBear>& compression,
-    const ::hash::Hasher<BabyBear, BabyBear>& bottom_layer);
+    unsigned int input_block_len, const Hasher& compression,
+    const Hasher& bottom_layer);
 
 template <>
 TACHYON_EXPORT bool IcicleMMCS<BabyBear>::MMCSCommit(
     const ::matrix::Matrix<BabyBear>* inputs,
     const unsigned int number_of_inputs, BabyBear* digests,
-    const ::hash::Hasher<BabyBear, BabyBear>& hasher,
-    const ::hash::Hasher<BabyBear, BabyBear>& compression);
+    const Hasher& hasher, const Hasher& compression);
 
 template <>
 TACHYON_EXPORT bool IcicleMMCS<bls12_381::Fr>::BuildMerkleTree(
     const bls12_381::Fr* inputs, bls12_381::Fr* digests, unsigned int height,
-    unsigned int input_block_len,
-    const ::hash::Hasher<bls12_381::Fr, bls12_381::Fr>& compression,
-    const ::hash::Hasher<bls12_381::Fr, bls12_381::Fr>& bottom_layer);
+    unsigned int input_block_len, const Hasher& compression,
+    const Hasher& bottom_layer);
 
 template <>
 TACHYON_EXPORT bool IcicleMMCS<bls12_381::Fr>::MMCSCommit(
     const ::matrix::Matrix<bls12_381::Fr>* inputs,
     const unsigned int number_of_inputs, bls12_381::Fr* digests,
-    const ::hash::Hasher<bls12_381::Fr, bls12_381::Fr>& hasher,
-    const ::hash::Hasher<bls12_381::Fr, bls12_381::Fr>& compression);
+    const Hasher& hasher, const Hasher& compression);
 
 template <>
 TACHYON_EXPORT bool IcicleMMCS<bn254::Fr>::BuildMerkleTree(
     const bn254::Fr* inputs, bn254::Fr* digests, unsigned int height,
-    unsigned int input_block_len,
-    const ::hash::Hasher<bn254::Fr, bn254::Fr>& compression,
-    const ::hash::Hasher<bn254::Fr, bn254::Fr>& bottom_layer);
+    unsigned int input_block_len, const Hasher& compression,
+    const Hasher& bottom_layer);
 
 template <>
 TACHYON_EXPORT bool IcicleMMCS<bn254::Fr>::MMCSCommit(
     const ::matrix::Matrix<bn254::Fr>* inputs,
     const unsigned int number_of_inputs, bn254::Fr* digests,
-    const ::hash::Hasher<bn254::Fr, bn254::Fr>& hasher,
-    const ::hash::Hasher<bn254::Fr, bn254::Fr>& compression);
+    const Hasher& hasher, const Hasher& compression);
 
 }  // namespace tachyon::crypto
 
