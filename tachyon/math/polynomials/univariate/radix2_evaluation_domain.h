@@ -399,10 +399,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t chunk_rows = size_t{1} << mid_;
 
     // max block size: 2^|mid_|
-    // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
-    // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
-    for (size_t block_start = 0; block_start < this->size_;
-         block_start += chunk_rows) {
+    OMP_PARALLEL_FOR(size_t block_start = 0; block_start < this->size_;
+                     block_start += chunk_rows) {
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
       Eigen::Block<RowMajorMatrix<F>> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
@@ -428,10 +426,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
     TRACE_EVENT("Subtask", "RunDitLayersLoop");
     // max block size: 2^(|this->log_size_of_group_| - |mid_|)
-    // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
-    // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
-    for (size_t block_start = 0; block_start < this->size_;
-         block_start += chunk_rows) {
+    OMP_PARALLEL_FOR(size_t block_start = 0; block_start < this->size_;
+                     block_start += chunk_rows) {
       size_t thread = block_start / chunk_rows;
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
       Eigen::Block<RowMajorMatrix<F>> submat =
@@ -462,8 +458,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t sub_rows = static_cast<size_t>(submat.rows());
     DCHECK_GE(sub_rows, block_size);
 
-    OMP_PARALLEL_NESTED_FOR(size_t block_start = 0; block_start < sub_rows;
-                            block_start += block_size) {
+    for (size_t block_start = 0; block_start < sub_rows;
+         block_start += block_size) {
       for (size_t i = 0; i < half_block_size; ++i) {
         size_t lo = block_start + i;
         size_t hi = lo + half_block_size;
