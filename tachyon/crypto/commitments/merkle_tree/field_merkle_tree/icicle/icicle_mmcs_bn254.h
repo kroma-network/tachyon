@@ -5,13 +5,10 @@
 
 #include "third_party/icicle/include/curves/params/bn254.cu.h"
 #include "third_party/icicle/include/merkle-tree/merkle.cu.h"
-
-extern "C" cudaError_t tachyon_bn254_build_merkle_tree(
-    const ::bn254::scalar_t* leaves, ::bn254::scalar_t* digests,
-    unsigned int height, unsigned int input_block_len,
-    const ::hash::Hasher<::bn254::scalar_t, ::bn254::scalar_t>& compression,
-    const ::hash::Hasher<::bn254::scalar_t, ::bn254::scalar_t>& bottom_layer,
-    const ::merkle_tree::TreeBuilderConfig& tree_config);
+#include "third_party/icicle/include/poseidon/constants.cu.h"
+#include "third_party/icicle/include/poseidon/poseidon.cu.h"
+#include "third_party/icicle/include/poseidon2/constants.cu.h"
+#include "third_party/icicle/include/poseidon2/poseidon2.cu.h"
 
 extern "C" cudaError_t tachyon_bn254_mmcs_commit_cuda(
     const ::matrix::Matrix<::bn254::scalar_t>* leaves,
@@ -19,5 +16,9 @@ extern "C" cudaError_t tachyon_bn254_mmcs_commit_cuda(
     const ::hash::Hasher<::bn254::scalar_t, ::bn254::scalar_t>* hasher,
     const ::hash::Hasher<::bn254::scalar_t, ::bn254::scalar_t>* compression,
     const ::merkle_tree::TreeBuilderConfig& tree_config);
+
+namespace tachyon::crypto {
+bool MMCSCommitTest();
+}
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FILED_MERKLE_TREE_ICICLE_ICICLE_MMCS_BN254_H_

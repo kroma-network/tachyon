@@ -43,7 +43,7 @@ tachyon_cuda_library(
         "icicle/src/merkle-tree/mmcs.cu.cc",
     ],
     include_prefix = "third_party/icicle/src",
-    includes = ["includes/src/merkle-tree"],
+    includes = ["icicle/src/merkle-tree"],
     local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
@@ -84,7 +84,7 @@ tachyon_cuda_library(
     ]),
     hdrs = ["icicle/src/polynomials/cuda_backend/kernels.cu.h"],
     include_prefix = "third_party/icicle/src",
-    includes = ["includes/src/polynomials"],
+    includes = ["icicle/src/polynomials"],
     local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [
@@ -94,14 +94,24 @@ tachyon_cuda_library(
 ) for field in FIELDS]
 
 [tachyon_cuda_library(
+    name = "poseidon_{}".format(field),
+    hdrs = [
+        "icicle/src/poseidon/constants.cu.cc",
+    ],
+    include_prefix = "third_party/icicle/src",
+    includes = ["icicle/src/poseidon"],
+    local_defines = icicle_defines(field),
+    strip_include_prefix = "icicle/src",
+    deps = [":hdrs"],
+) for field in FIELDS_WITH_POSEIDON]
+
+[tachyon_cuda_library(
     name = "poseidon2_{}".format(field),
     hdrs = [
         "icicle/src/poseidon2/constants.cu.cc",
-        "icicle/src/poseidon2/kernels.cu.cc",
-        "icicle/src/poseidon2/poseidon.cu.cc",
     ],
     include_prefix = "third_party/icicle/src",
-    includes = ["includes/src/poseidon2"],
+    includes = ["icicle/src/poseidon2"],
     local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],

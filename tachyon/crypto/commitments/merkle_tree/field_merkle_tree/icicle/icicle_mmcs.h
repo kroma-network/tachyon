@@ -2,8 +2,8 @@
 #define TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FILED_MERKLE_TREE_ICICLE_ICICLE_MMCS_H_
 
 #include <memory>
-#include <vector>
 
+#include "absl/types/span.h"
 #include "third_party/icicle/include/merkle-tree/merkle.cu.h"
 
 #include "tachyon/base/logging.h"
@@ -20,18 +20,18 @@ struct IsIcicleMMCSSupportedImpl {
   constexpr static bool value = false;
 };
 
-template <>
-struct IsIcicleMMCSSupportedImpl<BabyBear> {
-  constexpr static bool value = true;
-};
+// template <>
+// struct IsIcicleMMCSSupportedImpl<math::BabyBear> {
+//   constexpr static bool value = true;
+// };
+
+// template <>
+// struct IsIcicleMMCSSupportedImpl<math::bls12_381::Fr> {
+//   constexpr static bool value = true;
+// };
 
 template <>
-struct IsIcicleMMCSSupportedImpl<bls12_381::Fr> {
-  constexpr static bool value = true;
-};
-
-template <>
-struct IsIcicleMMCSSupportedImpl<bn254::Fr> {
+struct IsIcicleMMCSSupportedImpl<math::bn254::Fr> {
   constexpr static bool value = true;
 };
 
@@ -47,18 +47,15 @@ struct TACHYON_EXPORT IcicleMMCSOptions {
   bool is_async = false;
 };
 
-enum class Hasher {
-  kPoseidon,
-  kPoseidon2,
-}
-
 template <typename F>
 class IcicleMMCS {
  public:
-  IcicleMMCS(gpuMemPool_t mem_pool, gpuStream_t stream,
+  IcicleMMCS(/*gpuMemPool_t mem_pool, gpuStream_t stream,*/
              const IcicleMMCSOptions& options = IcicleMMCSOptions())
-      : mem_pool_(mem_pool), stream_(stream) {
-    ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
+  /*: mem_pool_(mem_pool), stream_(stream)*/ {
+    // ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
+    ::device_context::DeviceContext ctx =
+        device_context::get_default_device_context();
     config_.reset(new ::merkle_tree::TreeBuilderConfig{
         ctx,
         options.arity,
@@ -73,58 +70,53 @@ class IcicleMMCS {
   IcicleMMCS(const IcicleMMCS& other) = delete;
   IcicleMMCS& operator=(const IcicleMMCS& other) = delete;
 
-  [[nodiscard]] bool BuildMerkleTree(const F* inputs, F* digests,
-                                     unsigned int height,
-                                     unsigned int input_block_len,
-                                     const Hasher& compression,
-                                     const Hasher& bottom_layer);
+  // [[nodiscard]] bool BuildMerkleTree(const F* inputs, F* digests,
+  //                                    unsigned int height,
+  //                                    unsigned int input_block_len,
+  //                                    const Hasher& compression,
+  //                                    const Hasher& bottom_layer);
 
-  [[nodiscard]] bool MMCSCommit(const ::matrix::Matrix<F>* inputs,
-                                const unsigned int number_of_inputs, F* digests,
-                                const Hasher& hasher,
-                                const Hasher& compression);
+  [[nodiscard]] bool MMCSCommit(F* digests);
 
  private:
-  gpuMemPool_t mem_pool_ = nullptr;
-  gpuStream_t stream_ = nullptr;
+  // gpuMemPool_t mem_pool_ = nullptr;
+  // gpuStream_t stream_ = nullptr;
   std::unique_ptr<::merkle_tree::TreeBuilderConfig> config_;
 };
 
-template <>
-TACHYON_EXPORT bool IcicleMMCS<BabyBear>::BuildMerkleTree(
-    const BabyBear* inputs, BabyBear* digests, unsigned int height,
-    unsigned int input_block_len, const Hasher& compression,
-    const Hasher& bottom_layer);
+// template <>
+// TACHYON_EXPORT bool IcicleMMCS<math::BabyBear>::BuildMerkleTree(
+//     const BabyBear* inputs, BabyBear* digests, unsigned int height,
+//     unsigned int input_block_len, const Hasher& compression,
+//     const Hasher& bottom_layer);
+
+// template <>
+// TACHYON_EXPORT bool IcicleMMCS<math::BabyBear>::MMCSCommit(
+//     const ::matrix::Matrix<BabyBear>* inputs,
+//     const unsigned int number_of_inputs, BabyBear* digests,
+//     const Hasher& hasher, const Hasher& compression);
+
+// template <>
+// TACHYON_EXPORT bool IcicleMMCS<math::bls12_381::Fr>::BuildMerkleTree(
+//     const math::bls12_381::Fr* inputs, math::bls12_381::Fr* digests,
+//     unsigned int height, unsigned int input_block_len,
+//     const Hasher& compression, const Hasher& bottom_layer);
+
+// template <>
+// TACHYON_EXPORT bool IcicleMMCS<math::bls12_381::Fr>::MMCSCommit(
+//     const ::matrix::Matrix<math::bls12_381::Fr>* inputs,
+//     const unsigned int number_of_inputs, math::bls12_381::Fr* digests,
+//     const Hasher& hasher, const Hasher& compression);
+
+// template <>
+// TACHYON_EXPORT bool IcicleMMCS<math::bn254::Fr>::BuildMerkleTree(
+//     const math::bn254::Fr* inputs, math::bn254::Fr* digests,
+//     unsigned int height, unsigned int input_block_len,
+//     const Hasher& compression, const Hasher& bottom_layer);
 
 template <>
-TACHYON_EXPORT bool IcicleMMCS<BabyBear>::MMCSCommit(
-    const ::matrix::Matrix<BabyBear>* inputs,
-    const unsigned int number_of_inputs, BabyBear* digests,
-    const Hasher& hasher, const Hasher& compression);
-
-template <>
-TACHYON_EXPORT bool IcicleMMCS<bls12_381::Fr>::BuildMerkleTree(
-    const bls12_381::Fr* inputs, bls12_381::Fr* digests, unsigned int height,
-    unsigned int input_block_len, const Hasher& compression,
-    const Hasher& bottom_layer);
-
-template <>
-TACHYON_EXPORT bool IcicleMMCS<bls12_381::Fr>::MMCSCommit(
-    const ::matrix::Matrix<bls12_381::Fr>* inputs,
-    const unsigned int number_of_inputs, bls12_381::Fr* digests,
-    const Hasher& hasher, const Hasher& compression);
-
-template <>
-TACHYON_EXPORT bool IcicleMMCS<bn254::Fr>::BuildMerkleTree(
-    const bn254::Fr* inputs, bn254::Fr* digests, unsigned int height,
-    unsigned int input_block_len, const Hasher& compression,
-    const Hasher& bottom_layer);
-
-template <>
-TACHYON_EXPORT bool IcicleMMCS<bn254::Fr>::MMCSCommit(
-    const ::matrix::Matrix<bn254::Fr>* inputs,
-    const unsigned int number_of_inputs, bn254::Fr* digests,
-    const Hasher& hasher, const Hasher& compression);
+TACHYON_EXPORT bool IcicleMMCS<math::bn254::Fr>::MMCSCommit(
+    math::bn254::Fr* digests);
 
 }  // namespace tachyon::crypto
 
