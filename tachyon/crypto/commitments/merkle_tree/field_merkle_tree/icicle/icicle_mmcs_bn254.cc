@@ -11,6 +11,8 @@
 #include "third_party/icicle/src/poseidon/constants.cu.cc"  // NOLINT(build/include)
 #include "third_party/icicle/src/poseidon2/constants.cu.cc"  // NOLINT(build/include)
 
+#include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/icicle/icicle_mmcs.h"
+
 cudaError_t tachyon_bn254_mmcs_commit_cuda(
     const ::matrix::Matrix<::bn254::scalar_t>* leaves,
     unsigned int number_of_inputs, ::bn254::scalar_t* digests,
@@ -22,6 +24,15 @@ cudaError_t tachyon_bn254_mmcs_commit_cuda(
 }
 
 namespace tachyon::crypto {
+
+template <>
+bool IcicleMMCS<math::bn254::Fr>::DoCommit(
+    std::vector<math::RowMajorMatrix<math::bn254::Fr>>&& matrices) {
+#if FIELD_ID != BN254
+#error Only BN254 is supported
+#endif
+  return false;
+}
 
 bool MMCSCommitTest() {
 #if FIELD_ID != BN254

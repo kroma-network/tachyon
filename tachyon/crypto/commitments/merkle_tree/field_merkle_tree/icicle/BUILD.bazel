@@ -9,7 +9,7 @@ tachyon_cuda_library(
     hdrs = ["icicle_mmcs_bn254.h"],
     local_defines = icicle_defines(BN254),
     deps = [
-        # ":icicle_mmcs",
+        ":icicle_mmcs",
         "@com_google_absl//absl/types:span",
         "@icicle//:mmcs_bn254",
         "@icicle//:poseidon_bn254",
@@ -17,6 +17,14 @@ tachyon_cuda_library(
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
+)
+
+tachyon_cc_library(
+    name = "icicle",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":icicle_mmcs_bn254",
+    ],
 )
 
 tachyon_cc_library(
@@ -29,6 +37,7 @@ tachyon_cc_library(
         "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/baby_bear",
+        "//tachyon/math/matrix:matrix_types",
         "@com_google_absl//absl/types:span",
         "@icicle//:hdrs",
     ],

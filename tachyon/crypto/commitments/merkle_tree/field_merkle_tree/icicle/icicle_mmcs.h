@@ -12,6 +12,7 @@
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
+#include "tachyon/math/matrix/matrix_types.h"
 
 namespace tachyon::crypto {
 
@@ -20,15 +21,15 @@ struct IsIcicleMMCSSupportedImpl {
   constexpr static bool value = false;
 };
 
-// template <>
-// struct IsIcicleMMCSSupportedImpl<math::BabyBear> {
-//   constexpr static bool value = true;
-// };
+template <>
+struct IsIcicleMMCSSupportedImpl<math::BabyBear> {
+  constexpr static bool value = true;
+};
 
-// template <>
-// struct IsIcicleMMCSSupportedImpl<math::bls12_381::Fr> {
-//   constexpr static bool value = true;
-// };
+template <>
+struct IsIcicleMMCSSupportedImpl<math::bls12_381::Fr> {
+  constexpr static bool value = true;
+};
 
 template <>
 struct IsIcicleMMCSSupportedImpl<math::bn254::Fr> {
@@ -50,12 +51,10 @@ struct TACHYON_EXPORT IcicleMMCSOptions {
 template <typename F>
 class IcicleMMCS {
  public:
-  IcicleMMCS(/*gpuMemPool_t mem_pool, gpuStream_t stream,*/
+  IcicleMMCS(gpuMemPool_t mem_pool, gpuStream_t stream,
              const IcicleMMCSOptions& options = IcicleMMCSOptions())
-  /*: mem_pool_(mem_pool), stream_(stream)*/ {
-    // ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
-    ::device_context::DeviceContext ctx =
-        device_context::get_default_device_context();
+      : mem_pool_(mem_pool), stream_(stream) {
+    ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
     config_.reset(new ::merkle_tree::TreeBuilderConfig{
         ctx,
         options.arity,
@@ -70,53 +69,17 @@ class IcicleMMCS {
   IcicleMMCS(const IcicleMMCS& other) = delete;
   IcicleMMCS& operator=(const IcicleMMCS& other) = delete;
 
-  // [[nodiscard]] bool BuildMerkleTree(const F* inputs, F* digests,
-  //                                    unsigned int height,
-  //                                    unsigned int input_block_len,
-  //                                    const Hasher& compression,
-  //                                    const Hasher& bottom_layer);
-
-  [[nodiscard]] bool MMCSCommit(F* digests);
+  [[nodiscard]] bool DoCommit(std::vector<math::RowMajorMatrix<F>>&& matrices);
 
  private:
-  // gpuMemPool_t mem_pool_ = nullptr;
-  // gpuStream_t stream_ = nullptr;
+  gpuMemPool_t mem_pool_ = nullptr;
+  gpuStream_t stream_ = nullptr;
   std::unique_ptr<::merkle_tree::TreeBuilderConfig> config_;
 };
 
-// template <>
-// TACHYON_EXPORT bool IcicleMMCS<math::BabyBear>::BuildMerkleTree(
-//     const BabyBear* inputs, BabyBear* digests, unsigned int height,
-//     unsigned int input_block_len, const Hasher& compression,
-//     const Hasher& bottom_layer);
-
-// template <>
-// TACHYON_EXPORT bool IcicleMMCS<math::BabyBear>::MMCSCommit(
-//     const ::matrix::Matrix<BabyBear>* inputs,
-//     const unsigned int number_of_inputs, BabyBear* digests,
-//     const Hasher& hasher, const Hasher& compression);
-
-// template <>
-// TACHYON_EXPORT bool IcicleMMCS<math::bls12_381::Fr>::BuildMerkleTree(
-//     const math::bls12_381::Fr* inputs, math::bls12_381::Fr* digests,
-//     unsigned int height, unsigned int input_block_len,
-//     const Hasher& compression, const Hasher& bottom_layer);
-
-// template <>
-// TACHYON_EXPORT bool IcicleMMCS<math::bls12_381::Fr>::MMCSCommit(
-//     const ::matrix::Matrix<math::bls12_381::Fr>* inputs,
-//     const unsigned int number_of_inputs, math::bls12_381::Fr* digests,
-//     const Hasher& hasher, const Hasher& compression);
-
-// template <>
-// TACHYON_EXPORT bool IcicleMMCS<math::bn254::Fr>::BuildMerkleTree(
-//     const math::bn254::Fr* inputs, math::bn254::Fr* digests,
-//     unsigned int height, unsigned int input_block_len,
-//     const Hasher& compression, const Hasher& bottom_layer);
-
 template <>
-TACHYON_EXPORT bool IcicleMMCS<math::bn254::Fr>::MMCSCommit(
-    math::bn254::Fr* digests);
+TACHYON_EXPORT bool IcicleMMCS<math::bn254::Fr>::DoCommit(
+    std::vector<math::RowMajorMatrix<math::bn254::Fr>>&& matrices);
 
 }  // namespace tachyon::crypto
 
