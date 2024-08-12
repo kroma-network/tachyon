@@ -42,12 +42,12 @@ tachyon_bn254_univariate_dense_polynomial_create();
  *
  * Creates a deep copy of the given univariate dense polynomial.
  *
- * @param evals A pointer to the polynomial to be cloned.
+ * @param poly A pointer to the polynomial to be cloned.
  * @return A pointer to the cloned polynomial structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_dense_polynomial*
 tachyon_bn254_univariate_dense_polynomial_clone(
-    const tachyon_bn254_univariate_dense_polynomial* evals);
+    const tachyon_bn254_univariate_dense_polynomial* poly);
 
 /**
  * @brief Destroys a univariate dense polynomial.
@@ -55,10 +55,10 @@ tachyon_bn254_univariate_dense_polynomial_clone(
  * Frees the memory allocated for a univariate dense polynomial structure,
  * effectively destroying it.
  *
- * @param evals A pointer to the polynomial to be destroyed.
+ * @param poly A pointer to the polynomial to be destroyed.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_dense_polynomial_destroy(
-    tachyon_bn254_univariate_dense_polynomial* evals);
+    tachyon_bn254_univariate_dense_polynomial* poly);
 
 #ifdef __cplusplus
 }  // extern "C"
