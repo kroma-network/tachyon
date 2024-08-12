@@ -52,31 +52,6 @@ MakeCirculant(const Eigen::MatrixBase<ArgType>& arg) {
                                  CirculantFunctor<ArgType>(arg.derived()));
 }
 
-// Packs a given row of a matrix. Results in a vector of packed fields and a
-// vector of remaining values if the number of cols is not a factor of the
-// packed field size.
-//
-// NOTE(ashjeong): |PackRowHorizontally| currently only
-// supports row-major matrices.
-template <typename PackedField, typename PrimeField, typename Expr,
-          int BlockRows, int BlockCols, bool InnerPanel>
-std::vector<PackedField*> PackRowHorizontally(
-    Eigen::Block<Expr, BlockRows, BlockCols, InnerPanel>& matrix_row,
-    std::vector<PrimeField*>& remaining_values) {
-  size_t num_packed = matrix_row.cols() / PackedField::N;
-  size_t remaining_start_idx = num_packed * PackedField::N;
-  remaining_values =
-      base::CreateVector(matrix_row.cols() - remaining_start_idx,
-                         [remaining_start_idx, &matrix_row](size_t col) {
-                           return reinterpret_cast<PrimeField*>(
-                               matrix_row.data() + remaining_start_idx + col);
-                         });
-  return base::CreateVector(num_packed, [&matrix_row](size_t col) {
-    return reinterpret_cast<PackedField*>(matrix_row.data() +
-                                          PackedField::N * col);
-  });
-}
-
 // Creates a vector of packed fields for a given matrix row. If the length
 // of the row is not a multiple of |PackedField::N|, the last |PackedField|
 // element populates leftover values with |F::Zero()|.

@@ -480,29 +480,24 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
-    std::vector<F*> suffix_1;
-    std::vector<F*> suffix_2;
-
     auto row_1_block = mat.row(row_1);
-    std::vector<PackedPrimeField*> shorts_1 =
-        PackRowHorizontally<PackedPrimeField>(row_1_block, suffix_1);
     auto row_2_block = mat.row(row_2);
-    std::vector<PackedPrimeField*> shorts_2 =
-        PackRowHorizontally<PackedPrimeField>(row_2_block, suffix_2);
 
-    {
-      TRACE_EVENT("Subtask", "ButterflyOMPLoop");
-      OMP_PARALLEL_FOR(size_t i = 0; i < shorts_1.size(); ++i) {
-        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
-            *shorts_1[i], *shorts_2[i], packed_twiddle);
-      }
+    for (size_t i = 0; i < row_1_block.cols() / PackedPrimeField::N; ++i) {
+      UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
+          *reinterpret_cast<PackedPrimeField*>(
+              &row_1_block.data()[PackedPrimeField::N * i]),
+          *reinterpret_cast<PackedPrimeField*>(
+              &row_2_block.data()[PackedPrimeField::N * i]),
+          packed_twiddle);
     }
-    {
-      TRACE_EVENT("Subtask", "ButterflyLoop");
-      for (size_t i = 0; i < suffix_1.size(); ++i) {
-        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
-            *suffix_1[i], *suffix_2[i], twiddle);
-      }
+    size_t remaining_start_idx =
+        row_1_block.cols() / PackedPrimeField::N * PackedPrimeField::N;
+    for (size_t i = remaining_start_idx;
+         i < static_cast<size_t>(row_1_block.cols()); ++i) {
+      UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
+          *reinterpret_cast<F*>(&row_1_block.data()[i]),
+          *reinterpret_cast<F*>(&row_2_block.data()[i]), twiddle);
     }
   }
 
