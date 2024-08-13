@@ -142,7 +142,7 @@ class Verifier : public VerifierBase<typename _PS::PCS> {
     proof.x_prev = Rotation::Prev().RotateOmega(this->domain(), proof.x);
     proof.x_last =
         Rotation(-(blinding_factors + 1)).RotateOmega(this->domain(), proof.x);
-    proof.x_n = proof.x.Pow(this->pcs_.N());
+    proof.x_n = proof.x.ExpPowOfTwo(this->pcs_.K());
   }
 
   bool ValidateInstanceColumnsVec(

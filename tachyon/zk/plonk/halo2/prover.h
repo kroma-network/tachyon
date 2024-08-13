@@ -339,7 +339,7 @@ class Prover : public ProverBase<typename _PS::PCS> {
         proving_key.verifying_key().constraint_system();
 
     const F& x = permutation_opening_point_set.x;
-    F x_n = x.Pow(this->pcs_.N());
+    F x_n = x.ExpPowOfTwo(this->pcs_.K());
     vanishing_prover.BatchEvaluate(this, constraint_system, poly_tables, x,
                                    x_n);
     PermutationProver<Poly, Evals>::EvaluateProvingKey(

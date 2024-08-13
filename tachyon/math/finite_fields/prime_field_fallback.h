@@ -168,11 +168,11 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   constexpr const uint64_t& operator[](size_t i) const { return value_[i]; }
 
   constexpr bool operator==(const PrimeField& other) const {
-    return ToBigInt() == other.ToBigInt();
+    return value_ == other.value_;
   }
 
   constexpr bool operator!=(const PrimeField& other) const {
-    return ToBigInt() != other.ToBigInt();
+    return value_ != other.value_;
   }
 
   constexpr bool operator<(const PrimeField& other) const {

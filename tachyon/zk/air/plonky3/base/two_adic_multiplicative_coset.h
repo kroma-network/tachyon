@@ -26,7 +26,7 @@ class TwoAdicMultiplicativeCoset {
  public:
   constexpr TwoAdicMultiplicativeCoset() = default;
 
-  TwoAdicMultiplicativeCoset(size_t log_n, const F& shift) {
+  TwoAdicMultiplicativeCoset(uint32_t log_n, F shift) {
     domain_.reset(static_cast<math::Radix2EvaluationDomain<F>*>(
         math::Radix2EvaluationDomain<F>::Create(size_t{1} << log_n)
             ->GetCoset(shift)
@@ -83,12 +83,12 @@ class TwoAdicMultiplicativeCoset {
 
   LagrangeSelectors<std::vector<F>> GetSelectorsOnCoset(
       const TwoAdicMultiplicativeCoset& coset) const {
-    const F& coset_shift = coset.domain()->offset();
+    F coset_shift = coset.domain()->offset();
 
     CHECK_EQ(domain_->offset(), F::One());
     CHECK_NE(coset_shift, F::One());
     CHECK_GE(domain_->log_size_of_group(), coset.domain()->log_size_of_group());
-    size_t rate_bits =
+    uint32_t rate_bits =
         coset.domain()->log_size_of_group() - domain_->log_size_of_group();
     F s_pow_n = coset_shift.ExpPowOfTwo(domain_->log_size_of_group());
 
@@ -110,7 +110,8 @@ class TwoAdicMultiplicativeCoset {
           CHECK(F::BatchInverseInPlaceSerial(inv_denoms_inv_zeroifier_chunk));
         });
 
-    F coset_i = domain_->group_gen().Pow(domain_->size() - 1);
+    F coset_i = domain_->group_gen().ExpPowOfTwo(domain_->log_size_of_group()) *
+                domain_->group_gen_inv();
 
     size_t sz = coset.domain()->size();
     std::vector<F> first_row(sz);

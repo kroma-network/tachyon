@@ -99,7 +99,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    size_t log_n = this->log_size_of_group_;
+    uint32_t log_n = this->log_size_of_group_;
     mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
@@ -120,7 +120,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    size_t log_n = this->log_size_of_group_;
+    uint32_t log_n = this->log_size_of_group_;
     mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
@@ -331,7 +331,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       packed_inv_roots_vec_[1].resize(vec_largest_size);
       rev_roots_vec_ = SwapBitRevElements(largest);
       rev_inv_roots_vec_ = SwapBitRevElements(largest_inv);
-      for (size_t i = 0; i < vec_largest_size; ++i) {
+      OMP_PARALLEL_FOR(size_t i = 0; i < vec_largest_size; ++i) {
         packed_roots_vec_[0][i] = PackedPrimeField::Broadcast(largest[i]);
         packed_inv_roots_vec_[0][i] =
             PackedPrimeField::Broadcast(largest_inv[i]);
@@ -342,28 +342,25 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       }
     }
 
-    {
-      TRACE_EVENT("Subtask", "PrepareRootsVec");
+    TRACE_EVENT("Subtask", "PrepareRootsVec");
 
-      roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
-      inv_roots_vec_[0] = std::move(largest_inv);
+    roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
+    inv_roots_vec_[0] = std::move(largest_inv);
 
-      // Prepare space in each vector for the others.
-      size_t size = this->size_ / 2;
-      for (size_t i = 1; i < this->log_size_of_group_; ++i) {
-        size /= 2;
-        roots_vec_[this->log_size_of_group_ - i - 1].resize(size);
-        inv_roots_vec_[i].resize(size);
-      }
+    // Prepare space in each vector for the others.
+    size_t size = this->size_ / 2;
+    for (size_t i = 1; i < this->log_size_of_group_; ++i) {
+      size /= 2;
+      roots_vec_[this->log_size_of_group_ - i - 1].resize(size);
+      inv_roots_vec_[i].resize(size);
+    }
 
-      // Assign every element based on the biggest vector.
-      OMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
-        for (size_t j = 0; j < this->size_ / std::pow(2, i + 1); ++j) {
-          size_t k = std::pow(2, i) * j;
-          roots_vec_[this->log_size_of_group_ - i - 1][j] =
-              roots_vec_.back()[k];
-          inv_roots_vec_[i][j] = inv_roots_vec_.front()[k];
-        }
+    // Assign every element based on the biggest vector.
+    OMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
+      for (size_t j = 0; j < this->size_ / std::pow(2, i + 1); ++j) {
+        size_t k = std::pow(2, i) * j;
+        roots_vec_[this->log_size_of_group_ - i - 1][j] = roots_vec_.back()[k];
+        inv_roots_vec_[i][j] = inv_roots_vec_.front()[k];
       }
     }
   }
@@ -402,14 +399,12 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t chunk_rows = size_t{1} << mid_;
 
     // max block size: 2^|mid_|
-    // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
-    // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
-    for (size_t block_start = 0; block_start < this->size_;
-         block_start += chunk_rows) {
+    OMP_PARALLEL_FOR(size_t block_start = 0; block_start < this->size_;
+                     block_start += chunk_rows) {
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
       Eigen::Block<RowMajorMatrix<F>> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
-      for (size_t layer = 0; layer < mid_; ++layer) {
+      for (uint32_t layer = 0; layer < mid_; ++layer) {
         RunDitLayers(submat, layer, absl::MakeSpan(twiddles),
                      absl::MakeSpan(packed_twiddles_rev), false);
       }
@@ -429,50 +424,46 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t cols = static_cast<size_t>(mat.cols());
     size_t chunk_rows = size_t{1} << (this->log_size_of_group_ - mid_);
 
-    {
-      TRACE_EVENT("Subtask", "RunDitLayersLoop");
-      // max block size: 2^(|this->log_size_of_group_| - |mid_|)
-      // TODO(ashjeong): benchmark between |OMP_PARALLEL_FOR| here vs
-      // |OMP_PARALLEL_NESTED_FOR| in |RunDitLayers|
-      for (size_t block_start = 0; block_start < this->size_;
-           block_start += chunk_rows) {
-        size_t thread = block_start / chunk_rows;
-        size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
-        Eigen::Block<RowMajorMatrix<F>> submat =
-            mat.block(block_start, 0, cur_chunk_rows, cols);
-        for (size_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
-          size_t first_block = thread << (layer - mid_);
-          RunDitLayers(submat, layer,
-                       absl::MakeSpan(twiddles_rev.data() + first_block,
-                                      twiddles_rev.size() - first_block),
-                       absl::MakeSpan(packed_twiddles_rev.data() + first_block,
-                                      packed_twiddles_rev.size() - first_block),
-                       true);
-        }
+    TRACE_EVENT("Subtask", "RunDitLayersLoop");
+    // max block size: 2^(|this->log_size_of_group_| - |mid_|)
+    OMP_PARALLEL_FOR(size_t block_start = 0; block_start < this->size_;
+                     block_start += chunk_rows) {
+      size_t thread = block_start / chunk_rows;
+      size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
+      Eigen::Block<RowMajorMatrix<F>> submat =
+          mat.block(block_start, 0, cur_chunk_rows, cols);
+      for (uint32_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
+        size_t first_block = thread << (layer - mid_);
+        RunDitLayers(submat, layer,
+                     absl::MakeSpan(twiddles_rev.data() + first_block,
+                                    twiddles_rev.size() - first_block),
+                     absl::MakeSpan(packed_twiddles_rev.data() + first_block,
+                                    packed_twiddles_rev.size() - first_block),
+                     true);
       }
     }
   }
 
   CONSTEXPR_IF_NOT_OPENMP void RunDitLayers(
-      Eigen::Block<RowMajorMatrix<F>>& submat, size_t layer,
-      const absl::Span<const F>& twiddles,
-      const absl::Span<const PackedPrimeField>& packed_twiddles, bool rev) {
+      Eigen::Block<RowMajorMatrix<F>>& submat, uint32_t layer,
+      absl::Span<const F> twiddles,
+      absl::Span<const PackedPrimeField> packed_twiddles, bool rev) {
     TRACE_EVENT("EvaluationDomain", "RunDitLayers");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
-    size_t layer_rev = this->log_size_of_group_ - 1 - layer;
+    uint32_t layer_rev = this->log_size_of_group_ - 1 - layer;
     size_t half_block_size = size_t{1} << (rev ? layer_rev : layer);
     size_t block_size = half_block_size * 2;
     size_t sub_rows = static_cast<size_t>(submat.rows());
     DCHECK_GE(sub_rows, block_size);
 
-    OMP_PARALLEL_NESTED_FOR(size_t block_start = 0; block_start < sub_rows;
-                            block_start += block_size) {
+    for (size_t block_start = 0; block_start < sub_rows;
+         block_start += block_size) {
       for (size_t i = 0; i < half_block_size; ++i) {
         size_t lo = block_start + i;
         size_t hi = lo + half_block_size;
-        const F& twiddle =
+        F twiddle =
             rev ? twiddles[block_start / block_size] : twiddles[i << layer_rev];
         const PackedPrimeField& packed_twiddle =
             rev ? packed_twiddles[block_start / block_size]
@@ -484,38 +475,33 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   CONSTEXPR_IF_NOT_OPENMP void ApplyButterflyToRows(
       Eigen::Block<RowMajorMatrix<F>>& mat, size_t row_1, size_t row_2,
-      const F& twiddle, const PackedPrimeField& packed_twiddle) {
+      F twiddle, const PackedPrimeField& packed_twiddle) {
     TRACE_EVENT("EvaluationDomain", "ApplyButterflyToRows");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
-    std::vector<F*> suffix_1;
-    std::vector<F*> suffix_2;
-
     auto row_1_block = mat.row(row_1);
-    std::vector<PackedPrimeField*> shorts_1 =
-        PackRowHorizontally<PackedPrimeField>(row_1_block, suffix_1);
     auto row_2_block = mat.row(row_2);
-    std::vector<PackedPrimeField*> shorts_2 =
-        PackRowHorizontally<PackedPrimeField>(row_2_block, suffix_2);
 
-    {
-      TRACE_EVENT("Subtask", "ButterflyOMPLoop");
-      OMP_PARALLEL_FOR(size_t i = 0; i < shorts_1.size(); ++i) {
-        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<
-            PackedPrimeField>(*shorts_1[i], *shorts_2[i], packed_twiddle);
-      }
+    for (size_t i = 0; i < row_1_block.cols() / PackedPrimeField::N; ++i) {
+      UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
+          *reinterpret_cast<PackedPrimeField*>(
+              &row_1_block.data()[PackedPrimeField::N * i]),
+          *reinterpret_cast<PackedPrimeField*>(
+              &row_2_block.data()[PackedPrimeField::N * i]),
+          packed_twiddle);
     }
-    {
-      TRACE_EVENT("Subtask", "ButterflyLoop");
-      for (size_t i = 0; i < suffix_1.size(); ++i) {
-        UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn<F>(
-            *suffix_1[i], *suffix_2[i], twiddle);
-      }
+    size_t remaining_start_idx =
+        row_1_block.cols() / PackedPrimeField::N * PackedPrimeField::N;
+    for (size_t i = remaining_start_idx;
+         i < static_cast<size_t>(row_1_block.cols()); ++i) {
+      UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
+          *reinterpret_cast<F*>(&row_1_block.data()[i]),
+          *reinterpret_cast<F*>(&row_2_block.data()[i]), twiddle);
     }
   }
 
-  size_t mid_ = 0;
+  uint32_t mid_ = 0;
   // For small prime fields
   std::vector<F> rev_roots_vec_;
   std::vector<F> rev_inv_roots_vec_;

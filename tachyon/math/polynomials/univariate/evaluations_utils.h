@@ -29,7 +29,7 @@ std::vector<F> SwapBitRevElements(const std::vector<F>& vals) {
 //     element at index 4(100) are swapped.
 template <typename Container>
 void SwapBitRevElementsInPlace(Container& container, size_t size,
-                               size_t log_len) {
+                               uint32_t log_len) {
   TRACE_EVENT("Utils", "SwapBitRevElementsInPlace");
   if (size <= 1) return;
   OMP_PARALLEL_FOR(size_t idx = 1; idx < size; ++idx) {

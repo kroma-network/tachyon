@@ -224,7 +224,7 @@ class MultiplicativeSemigroup {
   constexpr static std::vector<MulResult> GetBitRevIndexSuccessivePowers(
       size_t size, const G& generator, const G& c = G::One()) {
     std::vector<MulResult> ret(size);
-    size_t log_size = base::bits::CheckedLog2(size);
+    uint32_t log_size = base::bits::CheckedLog2(size);
     base::Parallelize(
         ret, [log_size, &generator, &c, &ret](
                  absl::Span<G> chunk, size_t chunk_offset, size_t chunk_size) {
@@ -248,7 +248,7 @@ class MultiplicativeSemigroup {
   constexpr static std::vector<MulResult> GetBitRevIndexSuccessivePowersSerial(
       size_t size, const G& generator, const G& c = G::One()) {
     std::vector<MulResult> ret(size);
-    size_t log_size = base::bits::CheckedLog2(size);
+    uint32_t log_size = base::bits::CheckedLog2(size);
     MulResult pow = c.IsOne() ? G::One() : c;
     for (size_t idx = 0; idx < size - 1; ++idx) {
       ret[base::bits::ReverseBitsLen(idx, log_size)] = pow;

@@ -157,11 +157,11 @@ class PrimeFieldGpuDebug final
   constexpr const uint64_t& operator[](size_t i) const { return value_[i]; }
 
   constexpr bool operator==(const PrimeFieldGpuDebug& other) const {
-    return ToBigInt() == other.ToBigInt();
+    return value_ == other.value_;
   }
 
   constexpr bool operator!=(const PrimeFieldGpuDebug& other) const {
-    return ToBigInt() != other.ToBigInt();
+    return value_ != other.value_;
   }
 
   constexpr bool operator<(const PrimeFieldGpuDebug& other) const {
