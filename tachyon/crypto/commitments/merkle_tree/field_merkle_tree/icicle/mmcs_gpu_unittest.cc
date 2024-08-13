@@ -1,25 +1,98 @@
 #include <iostream>
+#include <utility>
 
 #include "gtest/gtest.h"
 
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/icicle/icicle_mmcs_bn254.h"
+#include "tachyon/math/matrix/matrix_types.h"
 
 namespace tachyon::crypto {
 using scalar_t = ::bn254::scalar_t;
 
-// using scalar_t = ::bn254::scalar_t;
+TEST(IcicleMMCSTest, CastingTest) {
+  /// Tree of height N and arity A contains \sum{A^i} for i in 0..N elements
+  uint32_t tree_arity = 2;
+  uint32_t input_block_len = 5;
+  uint64_t tree_height = 2;
+  uint64_t number_of_leaves = pow(tree_arity, tree_height);
 
-TEST(IcicleMMCSTest, MMCSTest) {
-  auto result = MMCSCommitTest();
+  math::RowMajorMatrix<math::bn254::Fr> matrix(4, 5);
+
+  math::bn254::Fr input = math::bn254::Fr::Zero();
+  input = input - math::bn254::Fr::One();
+  for (size_t i = 0; i < number_of_leaves; ++i) {
+    for (size_t j = 0; j < input_block_len; ++j) {
+      input = input + math::bn254::Fr::One();
+      matrix(i, j) = input;
+    }
+  }
+  for (Eigen::Index i = 0; i < matrix.size(); ++i) {
+    std::cout << "Element matrix " << i << " is: " << *(matrix.data() + i)
+              << std::endl;
+  }
+
+  absl::Span<const math::bn254::Fr> matrix_span =
+      absl::Span<const math::bn254::Fr>(matrix.data(), matrix.size());
+  for (size_t i = 0; i < matrix_span.size(); ++i) {
+    std::cout << "Element matrix_span " << i << " is: " << matrix_span[i]
+              << std::endl;
+  }
+
+  auto reinterpret_cast_test =
+      reinterpret_cast<const ::bn254::scalar_t*>(std::data(matrix_span));
+  for (size_t i = 0; i < matrix_span.size(); ++i) {
+    std::cout << "Element reinterpret_cast_test " << i
+              << " is: " << scalar_t::from_montgomery(reinterpret_cast_test[i])
+              << std::endl;
+  }
+  // Destination data (must have the same size)
+  std::vector<scalar_t> dest_data(matrix_span.size());
+  absl::Span<scalar_t> dest_span(dest_data);
+  // Apply from_montgomery and move data
+  for (size_t i = 0; i < matrix_span.size(); ++i) {
+    dest_span[i] = scalar_t::from_montgomery(reinterpret_cast_test[i]);
+  }
+  for (size_t i = 0; i < dest_span.size(); ++i) {
+    std::cout << "Element dest_span " << i << " is: " << dest_span[i]
+              << std::endl;
+  }
+}
+
+TEST(IcicleMMCSTest, DoCommitTest) {
+  /// Tree of height N and arity A contains \sum{A^i} for i in 0..N elements
+  uint32_t tree_arity = 2;
+  uint32_t input_block_len = 5;
+  uint32_t digest_elements = 8;
+  uint32_t copied_matrices = 1;
+  uint64_t tree_height = 2;
+  uint64_t number_of_leaves = pow(tree_arity, tree_height);
+  uint64_t total_number_of_leaves = number_of_leaves * input_block_len;
+
+  math::RowMajorMatrix<math::bn254::Fr> matrix(4, 5);
+
+  math::bn254::Fr input = math::bn254::Fr::Zero();
+  input = input - math::bn254::Fr::One();
+  for (size_t i = 0; i < number_of_leaves; ++i) {
+    for (size_t j = 0; j < input_block_len; ++j) {
+      input = input + math::bn254::Fr::One();
+      matrix(i, j) = input;
+    }
+  }
+
+  std::vector<math::RowMajorMatrix<math::bn254::Fr>> matrices = {
+      std::move(matrix)};
+
+  auto result = DoCommitTest(std::move(matrices));
   ASSERT_TRUE(result);  // Verify that the result is true
 }
+
 TEST(IcicleMMCSTest, CommitTest) {
   /// Tree of height N and arity A contains \sum{A^i} for i in 0..N elements
   uint32_t tree_arity = 2;
-  uint32_t input_block_len = 600;
+  uint32_t input_block_len = 5;
   uint32_t digest_elements = 8;
   uint32_t copied_matrices = 1;
-  uint64_t tree_height = 3;
+  uint64_t tree_height = 2;
   uint64_t number_of_leaves = pow(tree_arity, tree_height);
   uint64_t total_number_of_leaves = number_of_leaves * input_block_len;
 

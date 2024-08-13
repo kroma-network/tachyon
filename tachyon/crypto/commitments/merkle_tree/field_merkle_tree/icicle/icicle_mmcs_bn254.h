@@ -10,6 +10,9 @@
 #include "third_party/icicle/include/poseidon2/constants.cu.h"
 #include "third_party/icicle/include/poseidon2/poseidon2.cu.h"
 
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/matrix/matrix_types.h"
+
 extern "C" cudaError_t tachyon_bn254_mmcs_commit_cuda(
     const ::matrix::Matrix<::bn254::scalar_t>* leaves,
     unsigned int number_of_inputs, ::bn254::scalar_t* digests,
@@ -18,7 +21,8 @@ extern "C" cudaError_t tachyon_bn254_mmcs_commit_cuda(
     const ::merkle_tree::TreeBuilderConfig& tree_config);
 
 namespace tachyon::crypto {
-bool MMCSCommitTest();
-}
+bool DoCommitTest(
+    std::vector<math::RowMajorMatrix<math::bn254::Fr>>&& matrices);
+}  // namespace tachyon::crypto
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FILED_MERKLE_TREE_ICICLE_ICICLE_MMCS_BN254_H_

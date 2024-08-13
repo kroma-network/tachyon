@@ -10,6 +10,7 @@ tachyon_cuda_library(
     local_defines = icicle_defines(BN254),
     deps = [
         ":icicle_mmcs",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "@com_google_absl//absl/types:span",
         "@icicle//:mmcs_bn254",
         "@icicle//:poseidon_bn254",
@@ -48,5 +49,6 @@ tachyon_cuda_test(
     srcs = if_gpu_is_configured(["mmcs_gpu_unittest.cc",]),
     deps = [
         ":icicle_mmcs_bn254",
+        "//tachyon/math/matrix:matrix_types",
     ]
 )
