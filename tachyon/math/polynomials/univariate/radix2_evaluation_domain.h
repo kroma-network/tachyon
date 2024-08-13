@@ -158,7 +158,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t rows = static_cast<size_t>(mat.rows());
     CHECK(base::bits::IsPowerOfTwo(rows));
     std::unique_ptr<Radix2EvaluationDomain> domain =
-        Radix2EvaluationDomain<F>::Create(rows);
+        Radix2EvaluationDomain::Create(rows);
     log_n = domain->log_size_of_group_;
     domain->mid_ = log_n / 2;
 
