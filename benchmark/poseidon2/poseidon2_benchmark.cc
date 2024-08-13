@@ -18,15 +18,15 @@ using namespace crypto;
 
 using Field = math::bn254::Fr;
 
-extern "C" tachyon_bn254_fr* run_poseidon_horizen_bn254_fr(uint64_t* duration);
-extern "C" tachyon_bn254_fr* run_poseidon_plonky3_bn254_fr(uint64_t* duration);
+extern "C" tachyon_bn254_fr* run_poseidon2_horizen_bn254_fr(uint64_t* duration);
+extern "C" tachyon_bn254_fr* run_poseidon2_plonky3_bn254_fr(uint64_t* duration);
 
 template <typename Field, typename Fn>
 void Run(SimplePoseidonBenchmarkReporter& reporter,
          const tachyon::Poseidon2Config& config, Fn horizen_fn, Fn plonky3_fn) {
   Field::Init();
 
-  PoseidonBenchmarkRunner<Field> runner(&reporter, &config);
+  Poseidon2BenchmarkRunner<Field> runner(&reporter, &config);
 
   crypto::Poseidon2Config<Field> poseidon2_config =
       crypto::Poseidon2Config<Field>::CreateCustom(
@@ -65,8 +65,8 @@ int RealMain(int argc, char** argv) {
 
   switch (config.prime_field()) {
     case tachyon::Poseidon2Config::PrimeField::kBn254Fr: {
-      Run<math::bn254::Fr>(reporter, config, run_poseidon_horizen_bn254_fr,
-                           run_poseidon_plonky3_bn254_fr);
+      Run<math::bn254::Fr>(reporter, config, run_poseidon2_horizen_bn254_fr,
+                           run_poseidon2_plonky3_bn254_fr);
       break;
     }
   }

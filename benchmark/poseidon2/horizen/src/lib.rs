@@ -6,14 +6,14 @@ use zkhash::{
 };
 
 #[no_mangle]
-pub extern "C" fn run_poseidon_horizen_bn254_fr(duration: *mut u64) -> *mut CppFr {
-    let poseidon = Poseidon2::new(&POSEIDON2_BN256_PARAMS);
+pub extern "C" fn run_poseidon2_horizen_bn254_fr(duration: *mut u64) -> *mut CppFr {
+    let poseidon2 = Poseidon2::new(&POSEIDON2_BN256_PARAMS);
 
-    let t = poseidon.get_t();
+    let t = poseidon2.get_t();
     let input: Vec<FpBN256> = (0..t).map(|_i| FpBN256::from(0)).collect();
 
     let start = Instant::now();
-    let state = poseidon.permutation(&input);
+    let state = poseidon2.permutation(&input);
     unsafe {
         duration.write(start.elapsed().as_micros() as u64);
     }
