@@ -3,14 +3,14 @@ use std::{fmt::Debug, marker::PhantomData};
 use p3_challenger::{CanObserve, CanSample};
 use p3_field::Field;
 use p3_symmetric::CryptographicPermutation;
-use tachyon_rs::math::finite_fields::baby_bear::BabyBear as BabyBearImpl;
+use tachyon_rs::math::finite_fields::baby_bear::BabyBear as TachyonBabyBearImpl;
 
-pub struct BabyBear(pub BabyBearImpl);
+pub struct TachyonBabyBear(pub TachyonBabyBearImpl);
 
 #[cxx::bridge(namespace = "tachyon::plonky3_api::baby_bear_poseidon2")]
 pub mod ffi {
     extern "Rust" {
-        type BabyBear;
+        type TachyonBabyBear;
     }
 
     unsafe extern "C++" {
@@ -19,8 +19,8 @@ pub mod ffi {
         type DuplexChallenger;
 
         fn new_duplex_challenger() -> UniquePtr<DuplexChallenger>;
-        fn observe(self: Pin<&mut DuplexChallenger>, value: &BabyBear);
-        fn sample(self: Pin<&mut DuplexChallenger>) -> Box<BabyBear>;
+        fn observe(self: Pin<&mut DuplexChallenger>, value: &TachyonBabyBear);
+        fn sample(self: Pin<&mut DuplexChallenger>) -> Box<TachyonBabyBear>;
         fn clone(&self) -> UniquePtr<DuplexChallenger>;
     }
 }
@@ -63,7 +63,7 @@ where
     fn observe(&mut self, value: F) {
         self.inner
             .pin_mut()
-            .observe(unsafe { std::mem::transmute::<_, &BabyBear>(&value) });
+            .observe(unsafe { std::mem::transmute::<_, &TachyonBabyBear>(&value) });
     }
 }
 
