@@ -63,7 +63,7 @@ where
     fn observe(&mut self, value: F) {
         self.inner
             .pin_mut()
-            .observe(unsafe { std::mem::transmute::<_, &TachyonBabyBear>(&value) });
+            .observe(unsafe { std::mem::transmute(&value) });
     }
 }
 
