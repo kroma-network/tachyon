@@ -52,7 +52,7 @@ struct NumTraits<tachyon::math::PackedBabyBear>
     IsField = 1,
     IsSigned = 0,
     IsComplex = 0,
-    RequireInitialization = 1,
+    RequireInitialization = 0,
     ReadCost = tachyon::math::CostCalculator<PrimeField>::ComputeReadCost() * N,
     AddCost = tachyon::math::CostCalculator<PrimeField>::ComputeAddCost() * N,
     MulCost = tachyon::math::CostCalculator<PrimeField>::ComputeMulCost() * N,
