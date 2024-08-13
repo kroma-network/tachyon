@@ -58,3 +58,91 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/p
 | avg          | 0.0010202 | **0.0007116** | 0.0011459 |
 
 ![image](/benchmark/poseidon2/poseidon2_benchmark_bn254_mac_m3.png)
+
+## Baby Bear
+
+Note: Horizen and Plonky3 compute values with a different internal matrix, requiring them to be compared with Tachyon separately.
+
+### Horizen
+
+```shell
+bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/poseidon2:poseidon2_benchmark -- -p baby_bear --vendor horizen --check_results
+```
+
+#### On Intel i9-13900K
+
+| Trial Number | Tachyon       | Horizen   |
+| :----------- | ------------- | --------- |
+| 0            | **0.000127**  | 0.000381  |
+| 1            | **0.000126**  | 0.00036   |
+| 2            | **0.000125**  | 0.00037   |
+| 3            | **0.000125**  | 0.000356  |
+| 4            | **0.000125**  | 0.000354  |
+| 5            | **0.000125**  | 0.000354  |
+| 6            | **0.000125**  | 0.000354  |
+| 7            | **0.000125**  | 0.00036   |
+| 8            | **0.000125**  | 0.000359  |
+| 9            | **0.000125**  | 0.000353  |
+| avg          | **0.0001253** | 0.0003601 |
+
+![image](/benchmark/poseidon2/poseidon2_benchmark_baby_bear_horizen_ubuntu_i9.png)
+
+#### On Mac M3 Pro
+
+| Trial Number | Tachyon       | Horizen   |
+| :----------- | ------------- | --------- |
+| 0            | **0.000191**  | 0.000203  |
+| 1            | **0.000191**  | 0.0002    |
+| 2            | **0.000189**  | 0.0002    |
+| 3            | **0.000188**  | 0.0002    |
+| 4            | **0.000194**  | 0.000199  |
+| 5            | **0.000188**  | 0.000199  |
+| 6            | **0.000189**  | 0.000199  |
+| 7            | **0.000189**  | 0.000199  |
+| 8            | **0.000188**  | 0.0002    |
+| 9            | **0.000188**  | 0.000199  |
+| avg          | **0.0001895** | 0.0001998 |
+
+![image](/benchmark/poseidon2/poseidon2_benchmark_baby_bear_horizen_mac_m3.png)
+
+### Plonky3
+
+```shell
+bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/poseidon2:poseidon2_benchmark -- -p baby_bear --vendor plonky3 --check_results
+```
+
+#### On Intel i9-13900K
+
+| Trial Number | Tachyon   | Plonky3      |
+| :----------- | --------- | ------------ |
+| 0            | 0.000112  | **6.6e-05**  |
+| 1            | 0.000111  | **6.5e-05**  |
+| 2            | 0.000111  | **6.6e-05**  |
+| 3            | 0.000111  | **6.6e-05**  |
+| 4            | 0.00011   | **6.6e-05**  |
+| 5            | 0.000116  | **6.6e-05**  |
+| 6            | 0.00011   | **6.5e-05**  |
+| 7            | 0.000109  | **6.6e-05**  |
+| 8            | 0.00011   | **6.6e-05**  |
+| 9            | 0.000109  | **6.5e-05**  |
+| avg          | 0.0001109 | **6.57e-05** |
+
+![image](/benchmark/poseidon2/poseidon2_benchmark_baby_bear_plonky3_ubuntu_i9.png)
+
+#### On Mac M3 Pro
+
+| Trial Number | Tachyon   | Plonky3       |
+| :----------- | --------- | ------------- |
+| 0            | 0.000169  | **0.000106**  |
+| 1            | 0.000167  | **0.000105**  |
+| 2            | 0.000166  | **0.000105**  |
+| 3            | 0.000169  | **0.000105**  |
+| 4            | 0.000167  | **0.000105**  |
+| 5            | 0.00017   | **0.000105**  |
+| 6            | 0.000168  | **0.000105**  |
+| 7            | 0.000167  | **0.000105**  |
+| 8            | 0.000168  | **0.000105**  |
+| 9            | 0.000168  | **0.000105**  |
+| avg          | 0.0001679 | **0.0001051** |
+
+![image](/benchmark/poseidon2/poseidon2_benchmark_baby_bear_plonky3_mac_m3.png)****
