@@ -38,6 +38,24 @@ class TwoAdicSubgroup {
     }
   }
 
+  // Compute the low-degree extension of each column in |mat| onto a coset of
+  // a larger subgroup.
+  virtual void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits,
+                             F shift) {
+    if constexpr (F::Config::kModulusBits > 32) {
+      NOTREACHED();
+    }
+    IFFTBatch(mat);
+    Eigen::Index rows = mat.rows();
+    Eigen::Index cols = mat.cols();
+
+    // Possible crash if the new resized length overflows
+    mat.conservativeResizeLike(
+        RowMajorMatrix<F>::Zero(rows << added_bits, cols));
+    CosetFFTBatch(mat, shift);
+  }
+
+ private:
   // Compute the "coset DFT" of each column in |mat|. This can be viewed as
   // interpolation onto a coset of a multiplicative subgroup, rather than the
   // subgroup itself.
@@ -68,23 +86,6 @@ class TwoAdicSubgroup {
           }
         });
     FFTBatch(mat);
-  }
-
-  // Compute the low-degree extension of each column in |mat| onto a coset of
-  // a larger subgroup.
-  virtual void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits,
-                             F shift) {
-    if constexpr (F::Config::kModulusBits > 32) {
-      NOTREACHED();
-    }
-    IFFTBatch(mat);
-    Eigen::Index rows = mat.rows();
-    Eigen::Index cols = mat.cols();
-
-    // Possible crash if the new resized length overflows
-    mat.conservativeResizeLike(
-        RowMajorMatrix<F>::Zero(rows << added_bits, cols));
-    CosetFFTBatch(mat, shift);
   }
 };
 
