@@ -123,16 +123,18 @@ void ExpandInPlaceWithZeroPad(Eigen::MatrixBase<Derived>& mat,
     return;
   }
 
-  Eigen::Index original_rows = mat.rows();
   Eigen::Index new_rows = mat.rows() << added_bits;
   Eigen::Index cols = mat.cols();
 
-  Derived padded = Derived::Zero(new_rows, cols);
+  Derived padded(new_rows, cols);
+  Eigen::Index mask = (Eigen::Index{1} << added_bits) - 1;
 
-  OMP_PARALLEL_FOR(Eigen::Index row = 0; row < original_rows; ++row) {
-    Eigen::Index padded_row_index = row << added_bits;
-    // TODO(ashjeong): Check if moved properly
-    padded.row(padded_row_index) = std::move(mat.row(row));
+  OMP_PARALLEL_FOR(Eigen::Index row = 0; row < new_rows; ++row) {
+    if ((row & mask) == 0) {
+      padded.row(row) = mat.row(row >> added_bits);
+    } else {
+      padded.row(row).setZero();
+    }
   }
   mat = std::move(padded);
 }
