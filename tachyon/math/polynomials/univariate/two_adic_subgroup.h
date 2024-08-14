@@ -24,7 +24,9 @@ class TwoAdicSubgroup {
 
   // Compute the inverse DFT of each column in |mat|.
   void IFFTBatch(RowMajorMatrix<F>& mat) {
-    static_assert(F::Config::kModulusBits <= 32);
+    if constexpr (F::Config::kModulusBits > 32) {
+      NOTREACHED();
+    }
     FFTBatch(mat);
     Eigen::Index rows = mat.rows();
     F inv = unwrap(F(rows).Inverse());
@@ -40,7 +42,9 @@ class TwoAdicSubgroup {
   // interpolation onto a coset of a multiplicative subgroup, rather than the
   // subgroup itself.
   void CosetFFTBatch(RowMajorMatrix<F>& mat, F shift) {
-    static_assert(F::Config::kModulusBits <= 32);
+    if constexpr (F::Config::kModulusBits > 32) {
+      NOTREACHED();
+    }
     // Observe that
     // yᵢ = ∑ⱼ cⱼ (s gⁱ)ʲ
     //    = ∑ⱼ (cⱼ sʲ) (gⁱ)ʲ
@@ -68,8 +72,11 @@ class TwoAdicSubgroup {
 
   // Compute the low-degree extension of each column in |mat| onto a coset of
   // a larger subgroup.
-  void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits, F shift) {
-    static_assert(F::Config::kModulusBits <= 32);
+  virtual void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits,
+                             F shift) {
+    if constexpr (F::Config::kModulusBits > 32) {
+      NOTREACHED();
+    }
     IFFTBatch(mat);
     Eigen::Index rows = mat.rows();
     Eigen::Index cols = mat.cols();
