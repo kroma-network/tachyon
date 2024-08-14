@@ -153,7 +153,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       mat.row(base::bits::ReverseBitsLen(start + len - 1,
                                          this->log_size_of_group_)) *= weight;
     });
-    ExpandInPlaceWithZeroPad<RowMajorMatrix<F>>(mat, added_bits);
+    ExpandInPlaceWithZeroPad(mat, added_bits);
 
     size_t rows = static_cast<size_t>(mat.rows());
     CHECK(base::bits::IsPowerOfTwo(rows));
