@@ -111,8 +111,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(RowMajorMatrix<F>& mat,
-                                             size_t added_bits,
-                                             const F& shift) {
+                                             size_t added_bits, F shift) {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
