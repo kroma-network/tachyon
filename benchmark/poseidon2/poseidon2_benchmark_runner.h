@@ -22,25 +22,27 @@
 namespace tachyon {
 
 template <typename Field>
-class PoseidonBenchmarkRunner {
+class Poseidon2BenchmarkRunner {
  public:
   using CPrimeField = typename c::base::TypeTraits<Field>::CType;
 
   typedef CPrimeField* (*PoseidonExternalFn)(uint64_t* duration);
 
-  PoseidonBenchmarkRunner(SimplePoseidonBenchmarkReporter* reporter,
-                          const Poseidon2Config* config)
+  Poseidon2BenchmarkRunner(SimplePoseidonBenchmarkReporter* reporter,
+                           const Poseidon2Config* config)
       : reporter_(reporter), config_(config) {}
 
   Field Run(const crypto::Poseidon2Config<Field>& config) {
-    Field ret;
+    Field ret = Field::Zero();
     for (size_t i = 0; i < config_->repeating_num(); ++i) {
       crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
           crypto::Poseidon2HorizenExternalMatrix<Field>>>
           sponge(config);
       crypto::SpongeState<Field> state(config);
       base::TimeTicks start = base::TimeTicks::Now();
-      sponge.Permute(state);
+      for (size_t j = 0; j < 100; ++j) {
+        sponge.Permute(state);
+      }
       reporter_->AddTime(i, (base::TimeTicks::Now() - start).InSecondsF());
       if (i == 0) {
         ret = state.elements[1];
