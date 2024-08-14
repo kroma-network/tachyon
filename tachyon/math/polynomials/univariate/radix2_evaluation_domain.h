@@ -99,12 +99,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    uint32_t log_n = this->log_size_of_group_;
-    mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
     ReverseMatrixIndexBits(mat);
-    RunParallelRowChunks(mat, roots_vec_[log_n - 1], packed_roots_vec_[0]);
+    RunParallelRowChunks(mat, roots_vec_.back(), packed_roots_vec_[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
     ReverseMatrixIndexBits(mat);
@@ -120,8 +118,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    uint32_t log_n = this->log_size_of_group_;
-    mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
     ReverseMatrixIndexBits(mat);
@@ -160,11 +156,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     auto domain =
         absl::WrapUnique(new Radix2EvaluationDomain(rows, log_size_of_group));
     domain->PrepareRootsVecCache(/*packed_vec_only=*/true);
-    log_n = domain->log_size_of_group_;
-    domain->mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
-    domain->RunParallelRowChunks(mat, domain->roots_vec_[log_n - 1],
+    domain->RunParallelRowChunks(mat, domain->roots_vec_.back(),
                                  domain->packed_roots_vec_[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
@@ -399,15 +393,17 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
     CHECK(base::bits::IsPowerOfTwo(mat.rows()));
     size_t cols = static_cast<size_t>(mat.cols());
-    size_t chunk_rows = size_t{1} << mid_;
+    uint32_t log_n = this->log_size_of_group_;
+    uint32_t mid = log_n / 2;
+    size_t chunk_rows = size_t{1} << mid;
 
-    // max block size: 2^|mid_|
+    // max block size: 2^|mid|
     OMP_PARALLEL_FOR(size_t block_start = 0; block_start < this->size_;
                      block_start += chunk_rows) {
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
       Eigen::Block<RowMajorMatrix<F>> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
-      for (uint32_t layer = 0; layer < mid_; ++layer) {
+      for (uint32_t layer = 0; layer < mid; ++layer) {
         RunDitLayers(submat, layer, absl::MakeSpan(twiddles),
                      absl::MakeSpan(packed_twiddles_rev), false);
       }
@@ -425,18 +421,20 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
     CHECK(base::bits::IsPowerOfTwo(mat.rows()));
     size_t cols = static_cast<size_t>(mat.cols());
-    size_t chunk_rows = size_t{1} << (this->log_size_of_group_ - mid_);
+    uint32_t log_n = this->log_size_of_group_;
+    uint32_t mid = log_n / 2;
+    size_t chunk_rows = size_t{1} << (log_n - mid);
 
     TRACE_EVENT("Subtask", "RunDitLayersLoop");
-    // max block size: 2^(|this->log_size_of_group_| - |mid_|)
+    // max block size: 2^(|log_n| - |mid|)
     OMP_PARALLEL_FOR(size_t block_start = 0; block_start < this->size_;
                      block_start += chunk_rows) {
       size_t thread = block_start / chunk_rows;
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
       Eigen::Block<RowMajorMatrix<F>> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
-      for (uint32_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
-        size_t first_block = thread << (layer - mid_);
+      for (uint32_t layer = mid; layer < log_n; ++layer) {
+        size_t first_block = thread << (layer - mid);
         RunDitLayers(submat, layer,
                      absl::MakeSpan(twiddles_rev.data() + first_block,
                                     twiddles_rev.size() - first_block),
@@ -504,7 +502,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
   }
 
-  uint32_t mid_ = 0;
   // For small prime fields
   std::vector<F> rev_roots_vec_;
   std::vector<F> rev_inv_roots_vec_;
