@@ -12,7 +12,7 @@ struct NumTraits<mpz_class> : GenericNumTraits<mpz_class> {
     IsInteger = 1,
     IsSigned = 1,
     IsComplex = 0,
-    RequireInitialization = 1,
+    RequireInitialization = 0,
     // NOTE(chokobole): I just used the same values defined at
     // https://eigen.tuxfamily.org/dox/TopicCustomizing_CustomScalar.html.
     ReadCost = 6,

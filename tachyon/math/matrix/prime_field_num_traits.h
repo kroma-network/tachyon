@@ -46,7 +46,7 @@ struct NumTraits<
     IsField = 1,
     IsSigned = 0,
     IsComplex = 0,
-    RequireInitialization = 1,
+    RequireInitialization = 0,
     ReadCost = tachyon::math::CostCalculator<F>::ComputeReadCost(),
     AddCost = tachyon::math::CostCalculator<F>::ComputeAddCost(),
     MulCost = tachyon::math::CostCalculator<F>::ComputeMulCost(),
