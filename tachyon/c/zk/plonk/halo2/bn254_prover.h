@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_prover.h
  * @brief Interface for the Halo2 BN254 Prover.
  *
  * This header file defines the structure and API for the prover specific to
@@ -48,7 +48,7 @@ extern "C" {
  * @param transcript_type Identifier for the transcript type.
  * @param k Security parameter.
  * @param s The setup parameter s as a scalar field element.
- * @return A pointer to the newly created prover instance.
+ * @return A const pointer to the newly created prover instance.
  */
 TACHYON_C_EXPORT tachyon_halo2_bn254_prover*
 tachyon_halo2_bn254_prover_create_from_unsafe_setup(uint8_t vendor,
@@ -67,7 +67,7 @@ tachyon_halo2_bn254_prover_create_from_unsafe_setup(uint8_t vendor,
  * @param pcs_type Identifier for the pcs type.
  * @param transcript_type The type of transcript to be used.
  * @param k The circuit size parameter.
- * @param params A pointer to the parameters used for prover creation.
+ * @param params A const pointer to the parameters used for prover creation.
  * @param params_len The length of the parameters array.
  * @return A pointer to the newly created prover instance.
  */
@@ -91,7 +91,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_destroy(
  * This function returns the circuit size parameter 'k', which is crucial for
  * the setup and execution of the Halo2 protocol.
  *
- * @param prover A pointer to the prover.
+ * @param prover A const pointer to the prover.
  * @return The 'k' parameter of the prover.
  */
 TACHYON_C_EXPORT uint32_t
@@ -100,7 +100,7 @@ tachyon_halo2_bn254_prover_get_k(const tachyon_halo2_bn254_prover* prover);
 /**
  * @brief Retrieves the number of circuits handled by the prover.
  *
- * @param prover A pointer to the prover.
+ * @param prover A const pointer to the prover.
  * @return The number of circuits that the prover is configured to handle.
  */
 TACHYON_C_EXPORT size_t
@@ -109,7 +109,7 @@ tachyon_halo2_bn254_prover_get_n(const tachyon_halo2_bn254_prover* prover);
 /**
  * @brief Retrieves the G2 affine representation of the setup parameter s.
  *
- * @param prover A pointer to the prover.
+ * @param prover A const pointer to the prover.
  * @return A pointer to the G2 affine representation of s.
  */
 TACHYON_C_EXPORT const tachyon_bn254_g2_affine*
@@ -127,7 +127,7 @@ TACHYON_C_EXPORT tachyon_bn254_blinder* tachyon_halo2_bn254_prover_get_blinder(
 /**
  * @brief Retrieves the evaluation domain used by the prover.
  *
- * @param prover A pointer to the prover.
+ * @param prover A const pointer to the prover.
  * @return A pointer to the evaluation domain used by the prover.
  */
 TACHYON_C_EXPORT const tachyon_bn254_univariate_evaluation_domain*
@@ -139,8 +139,8 @@ tachyon_halo2_bn254_prover_get_domain(const tachyon_halo2_bn254_prover* prover);
  * This function generates a commitment to a given polynomial as part of the
  * proof generation process.
  *
- * @param prover A pointer to the prover.
- * @param poly A pointer to the polynomial to commit.
+ * @param prover A const pointer to the prover.
+ * @param poly A const pointer to the polynomial to commit.
  * @return A pointer to the commitment in the form of a G1 projective point.
  */
 TACHYON_C_EXPORT tachyon_bn254_g1_projective* tachyon_halo2_bn254_prover_commit(
@@ -153,8 +153,8 @@ TACHYON_C_EXPORT tachyon_bn254_g1_projective* tachyon_halo2_bn254_prover_commit(
  * This function generates a commitment to the evaluations of a polynomial,
  * allowing for efficient handling of the polynomial in its evaluated form.
  *
- * @param prover A pointer to the prover.
- * @param evals A pointer to the evaluations to commit.
+ * @param prover A const pointer to the prover.
+ * @param evals A const pointer to the evaluations to commit.
  * @return A pointer to the commitment in the form of a G1 projective point.
  */
 TACHYON_C_EXPORT tachyon_bn254_g1_projective*
@@ -165,7 +165,7 @@ tachyon_halo2_bn254_prover_commit_lagrange(
 /**
  * @brief Marks the prover to prepare for batch commitment.
  *
- * @param prover A pointer to the prover.
+ * @param prover A const pointer to the prover.
  * @param len The number of commitments.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_start(
@@ -177,8 +177,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_start(
  * Unlike \ref tachyon_halo2_bn254_prover_commit(), this function doesn't
  * generate a commitment immediately to avoid expensive inverse operations.
  *
- * @param prover A pointer to the prover.
- * @param poly A pointer to the polynomial to commit.
+ * @param prover A const pointer to the prover.
+ * @param poly A const pointer to the polynomial to commit.
  * @param idx The index of the commitment.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_commit(
@@ -192,8 +192,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_commit(
  * this function doesn't generate a commitment immediately to avoid expensive
  * inverse operation.
  *
- * @param prover A pointer to the prover.
- * @param evals A pointer to the evaluations to commit.
+ * @param prover A const pointer to the prover.
+ * @param evals A const pointer to the evaluations to commit.
  * @param idx The index of the commitment.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_commit_lagrange(
@@ -203,7 +203,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_commit_lagrange(
 /**
  * @brief Retrieves the resulting commitment from the prover.
  *
- * @param prover A pointer to the prover.
+ * @param prover A const pointer to the prover.
  * @param points A pointer to the affine points.
  * @param len The number of commitments.
  */
@@ -219,7 +219,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_batch_end(
  *
  * @param prover A pointer to the prover.
  * @param rng_type Identifier for the rng type.
- * @param state A pointer to the RNG state.
+ * @param state A const pointer to the RNG state.
  * @param state_len Length of the RNG state array.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_rng_state(
@@ -233,7 +233,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_rng_state(
  * generation and verification process.
  *
  * @param prover A pointer to the prover.
- * @param state A pointer to the transcript state.
+ * @param state A const pointer to the transcript state.
  * @param state_len Length of the transcript state array.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_transcript_state(
@@ -248,7 +248,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_transcript_state(
  * domain.
  *
  * @param prover A pointer to the prover.
- * @param pk A pointer to the proving key that contains the extended domain.
+ * @param pk A const pointer to the proving key that contains the extended
+ * domain.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_set_extended_domain(
     tachyon_halo2_bn254_prover* prover,
@@ -273,7 +274,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_create_proof(
  * length for the proof via proof_len. If the proof parameter is not NULL, the
  * function will fill it with the generated proof data.
  *
- * @param prover A pointer to the prover that generated the proof.
+ * @param prover A const pointer to the prover that generated the proof.
  * @param proof A pointer to the buffer where the proof will be stored.
  * @param proof_len A pointer to a variable where the length of the proof will
  * be stored.
@@ -289,7 +290,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_prover_get_proof(
  * This function configures how the prover should interpret the transcript,
  * impacting the format and structure of the generated proof.
  *
- * @param prover A pointer to the prover.
+ * @param prover A const pointer to the prover.
  * @param pk A pointer to the proving key that dictates the transcript
  * representation.
  */

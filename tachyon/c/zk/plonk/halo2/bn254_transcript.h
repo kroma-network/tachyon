@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_transcript.h
  * @brief Defines the interface for the transcript writer used within the Halo2
  * bn254 proof system.
  */

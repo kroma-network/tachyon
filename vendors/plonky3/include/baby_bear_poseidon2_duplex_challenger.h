@@ -9,7 +9,7 @@
 
 namespace tachyon::plonky3_api::baby_bear_poseidon2 {
 
-struct BabyBear;
+struct TachyonBabyBear;
 
 class DuplexChallenger {
  public:
@@ -21,8 +21,8 @@ class DuplexChallenger {
   DuplexChallenger& operator=(const DuplexChallenger& other) = delete;
   ~DuplexChallenger();
 
-  void observe(const BabyBear& value);
-  rust::Box<BabyBear> sample();
+  void observe(const TachyonBabyBear& value);
+  rust::Box<TachyonBabyBear> sample();
   std::unique_ptr<DuplexChallenger> clone() const;
 
  private:

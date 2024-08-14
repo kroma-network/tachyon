@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file baby_bear_poseidon2_duplex_challenger.h
  * @brief Defines the interface for the duplex challenger used within the
  * Plonky3(BabyBear + Poseidon2) proof system.
  */
@@ -29,12 +29,13 @@ tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_create();
  *
  * Creates a deep copy of the given duplex challenger structure.
  *
- * @param challenger A pointer to the duplex challenger structure to clone.
+ * @param challenger A const pointer to the duplex challenger structure to
+ * clone.
  * @return A pointer to the cloned duplex challenger structure.
  */
 TACHYON_C_EXPORT tachyon_plonky3_baby_bear_poseidon2_duplex_challenger*
 tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_clone(
-    tachyon_plonky3_baby_bear_poseidon2_duplex_challenger* challenger);
+    const tachyon_plonky3_baby_bear_poseidon2_duplex_challenger* challenger);
 
 /**
  * @brief Destroys a duplex challenger, freeing its resources.
@@ -49,7 +50,7 @@ tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_destroy(
  * @brief Observes a new value.
  *
  * @param challenger A pointer to the duplex challenger.
- * @param value A pointer to the value.
+ * @param value A const pointer to the value.
  */
 TACHYON_C_EXPORT void
 tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_observe(

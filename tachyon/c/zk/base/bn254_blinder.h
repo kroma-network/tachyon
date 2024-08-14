@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_blinder.h
  * @brief Blinder for the BN254 Curve.
  *
  * This header file defines the structure and API for managing blinding factors

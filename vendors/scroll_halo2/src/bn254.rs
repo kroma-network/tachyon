@@ -791,7 +791,7 @@ impl Evals {
     }
 
     pub fn set_value(&mut self, idx: usize, fr: &halo2curves::bn256::Fr) {
-        let cpp_fr = unsafe { std::mem::transmute::<_, &Fr>(fr) };
+        let cpp_fr = unsafe { std::mem::transmute(fr) };
         self.inner.pin_mut().set_value(idx, cpp_fr)
     }
 }
@@ -854,7 +854,7 @@ impl RationalEvalsView {
     }
 
     pub fn set_trivial(&mut self, idx: usize, numerator: &halo2curves::bn256::Fr) {
-        let cpp_numerator = unsafe { std::mem::transmute::<_, &Fr>(numerator) };
+        let cpp_numerator = unsafe { std::mem::transmute(numerator) };
         self.inner.pin_mut().set_trivial(idx, cpp_numerator)
     }
 
@@ -864,8 +864,8 @@ impl RationalEvalsView {
         numerator: &halo2curves::bn256::Fr,
         denominator: &halo2curves::bn256::Fr,
     ) {
-        let cpp_numerator = unsafe { std::mem::transmute::<_, &Fr>(numerator) };
-        let cpp_denominator = unsafe { std::mem::transmute::<_, &Fr>(denominator) };
+        let cpp_numerator = unsafe { std::mem::transmute(numerator) };
+        let cpp_denominator = unsafe { std::mem::transmute(denominator) };
         self.inner
             .pin_mut()
             .set_rational(idx, cpp_numerator, cpp_denominator)
@@ -873,7 +873,7 @@ impl RationalEvalsView {
 
     pub fn evaluate(&self, idx: usize, value: &mut halo2curves::bn256::Fr) {
         self.inner
-            .evaluate(idx, unsafe { std::mem::transmute::<_, &mut Fr>(value) })
+            .evaluate(idx, unsafe { std::mem::transmute(value) })
     }
 }
 
@@ -947,7 +947,7 @@ pub struct GWCProver<Scheme: CommitmentScheme> {
 
 impl<Scheme: CommitmentScheme> GWCProver<Scheme> {
     pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> GWCProver<Scheme> {
-        let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
+        let cpp_s = unsafe { std::mem::transmute(s) };
         GWCProver {
             inner: ffi::new_prover(PCSType::GWC as u8, transcript_type, k, cpp_s),
             _marker: PhantomData,
@@ -978,7 +978,7 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
     }
 
     fn s_g2(&self) -> &G2Affine {
-        unsafe { std::mem::transmute::<_, &G2Affine>(self.inner.s_g2()) }
+        unsafe { std::mem::transmute(self.inner.s_g2()) }
     }
 
     fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
@@ -1010,8 +1010,7 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
     }
 
     fn batch_end(&self, points: &mut [G1Affine]) {
-        self.inner
-            .batch_end(unsafe { std::mem::transmute::<_, &mut [G1AffinePoint]>(points) })
+        self.inner.batch_end(unsafe { std::mem::transmute(points) })
     }
 
     fn empty_evals(&self) -> Evals {
@@ -1081,7 +1080,7 @@ pub struct SHPlonkProver<Scheme: CommitmentScheme> {
 
 impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
     pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver<Scheme> {
-        let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
+        let cpp_s = unsafe { std::mem::transmute(s) };
         SHPlonkProver {
             inner: ffi::new_prover(PCSType::SHPlonk as u8, transcript_type, k, cpp_s),
             _marker: PhantomData,
@@ -1112,7 +1111,7 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
     }
 
     fn s_g2(&self) -> &G2Affine {
-        unsafe { std::mem::transmute::<_, &G2Affine>(self.inner.s_g2()) }
+        unsafe { std::mem::transmute(self.inner.s_g2()) }
     }
 
     fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
@@ -1144,8 +1143,7 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
     }
 
     fn batch_end(&self, points: &mut [G1Affine]) {
-        self.inner
-            .batch_end(unsafe { std::mem::transmute::<_, &mut [G1AffinePoint]>(points) })
+        self.inner.batch_end(unsafe { std::mem::transmute(points) })
     }
 
     fn empty_evals(&self) -> Evals {

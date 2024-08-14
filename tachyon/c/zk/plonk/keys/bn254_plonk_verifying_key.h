@@ -32,7 +32,7 @@ extern "C" {
 /**
  * @brief Gets the constraint system associated with the verifying key.
  *
- * @param vk Pointer to the verifying key.
+ * @param vk A const pointer to the verifying key.
  * @return A pointer to the constraint system used by the verifying key.
  */
 TACHYON_C_EXPORT const tachyon_bn254_plonk_constraint_system*
@@ -42,7 +42,7 @@ tachyon_bn254_plonk_verifying_key_get_constraint_system(
 /**
  * @brief Gets the transcript representation used in the verifying key.
  *
- * @param vk Pointer to the verifying key.
+ * @param vk A const pointer to the verifying key.
  * @return The transcript representation as a field element.
  */
 TACHYON_C_EXPORT tachyon_bn254_fr

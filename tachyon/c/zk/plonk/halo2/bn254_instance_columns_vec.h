@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_instance_columns_vec.h
  * @brief Defines the vector of instance columns for Halo2 proofs on the BN254
  * curve.
  *
@@ -79,7 +79,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_instance_columns_vec_reserve_values(
  * @param data A pointer to the instance columns vector.
  * @param circuit_idx Index of the circuit containing the column.
  * @param column_idx Index of the column to add values to.
- * @param value A pointer to the values to add.
+ * @param value A const pointer to the values to add.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_instance_columns_vec_add_values(
     tachyon_halo2_bn254_instance_columns_vec* data, size_t circuit_idx,

@@ -24,7 +24,7 @@ tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_create() {
 
 tachyon_plonky3_baby_bear_poseidon2_duplex_challenger*
 tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_clone(
-    tachyon_plonky3_baby_bear_poseidon2_duplex_challenger* challenger) {
+    const tachyon_plonky3_baby_bear_poseidon2_duplex_challenger* challenger) {
   zk::air::plonky3::DuplexChallenger<Poseidon2, 16, 4>* cloned_challenger =
       new zk::air::plonky3::DuplexChallenger<Poseidon2, 16, 4>(
           *c::base::native_cast(challenger));

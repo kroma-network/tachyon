@@ -92,9 +92,7 @@ where
                         if !P::QUERY_INSTANCE {
                             transcript.common_scalar(values[i])?;
                         }
-                        poly.set_value(i, unsafe {
-                            std::mem::transmute::<_, &halo2curves::bn256::Fr>(&values[i])
-                        });
+                        poly.set_value(i, unsafe { std::mem::transmute(&values[i]) });
                     }
                     Ok(poly)
                 })
@@ -108,11 +106,8 @@ where
                     .for_each(|(idx, poly)| prover.batch_commit_lagrange(poly, idx));
                 let mut instance_commitments =
                     vec![Scheme::Curve::identity(); instance_values.len()];
-                prover.batch_end(unsafe {
-                    std::mem::transmute::<_, &mut [halo2curves::bn256::G1Affine]>(
-                        instance_commitments.as_mut_slice(),
-                    )
-                });
+                prover
+                    .batch_end(unsafe { std::mem::transmute(instance_commitments.as_mut_slice()) });
                 for commitment in &instance_commitments {
                     transcript.common_point(*commitment)?;
                 }
@@ -253,7 +248,7 @@ where
                 .and_then(|v| {
                     let mut r = F::ZERO;
                     v.evaluate(row - self.rw_rows.start, unsafe {
-                        std::mem::transmute::<_, &mut Fr>(&mut r)
+                        std::mem::transmute(&mut r)
                     });
                     Some(r)
                 })
@@ -317,12 +312,12 @@ where
             match &value {
                 Assigned::Zero => rational_evals.set_zero(row_idx),
                 Assigned::Trivial(numerator) => {
-                    let numerator = unsafe { std::mem::transmute::<_, &Fr>(numerator) };
+                    let numerator = unsafe { std::mem::transmute(numerator) };
                     rational_evals.set_trivial(row_idx, numerator);
                 }
                 Assigned::Rational(numerator, denominator) => {
-                    let numerator = unsafe { std::mem::transmute::<_, &Fr>(numerator) };
-                    let denominator = unsafe { std::mem::transmute::<_, &Fr>(denominator) };
+                    let numerator = unsafe { std::mem::transmute(numerator) };
+                    let denominator = unsafe { std::mem::transmute(denominator) };
                     rational_evals.set_rational(row_idx, numerator, denominator)
                 }
             }
@@ -523,16 +518,10 @@ where
                     .enumerate()
                     .for_each(|(idx, poly)| prover.batch_commit_lagrange(poly, idx));
                 let mut advice_commitments = vec![Scheme::Curve::identity(); advice_values.len()];
-                prover.batch_end(unsafe {
-                    std::mem::transmute::<_, &mut [halo2curves::bn256::G1Affine]>(
-                        advice_commitments.as_mut_slice(),
-                    )
-                });
+                prover.batch_end(unsafe { std::mem::transmute(advice_commitments.as_mut_slice()) });
 
                 for commitment in &advice_commitments {
-                    transcript.write_point(unsafe {
-                        std::mem::transmute::<_, Scheme::Curve>(*commitment)
-                    })?;
+                    transcript.write_point(unsafe { std::mem::transmute(*commitment) })?;
                 }
                 for ((column_index, advice_values), blind) in
                     column_indices.iter().zip(advice_values).zip(blinds)

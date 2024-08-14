@@ -32,8 +32,8 @@ extern "C" {
  *
  * @param vendor Identifier for the vendor.
  * @param pcs_type Identifier for the pcs type.
- * @param state A pointer to the buffer containing the serialized state of the
- * proving key.
+ * @param state A const pointer to the buffer containing the serialized state of
+ * the proving key.
  * @param state_len The length of the state buffer.
  * @return A pointer to the newly created PLONK proving key.
  */
@@ -56,7 +56,7 @@ TACHYON_C_EXPORT void tachyon_bn254_plonk_proving_key_destroy(
  * @brief Retrieves the corresponding verifying key for a given PLONK scroll
  * versioned proving key.
  *
- * @param pk A pointer to the PLONK proving key.
+ * @param pk A const pointer to the PLONK proving key.
  * @return A pointer to the corresponding PLONK verifying key.
  */
 TACHYON_C_EXPORT const tachyon_bn254_plonk_verifying_key*

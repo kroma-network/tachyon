@@ -1,6 +1,6 @@
 // clang-format off
 /**
- * @file
+ * @file %{type}_%{g1_or_g2}.h
  * @brief Defines structures and operations for elliptic curve points in %{g1_or_g2} group using %{type} curve.
  *
  * This header file provides definitions for different representations of elliptic curve points (affine, projective, Jacobian, and XYZZ coordinates)

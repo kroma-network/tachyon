@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file bn254_univariate_rational_evaluations.h
  * @brief Univariate Rational Evaluations for BN254 Curve.
  *
  * This header file defines the structures and API for univariate rational
@@ -44,7 +44,7 @@ tachyon_bn254_univariate_rational_evaluations_create();
  *
  * Creates a deep copy of the given rational evaluations structure.
  *
- * @param evals A pointer to the rational evaluations structure to clone.
+ * @param evals A const pointer to the rational evaluations structure to clone.
  * @return A pointer to the cloned rational evaluations structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_rational_evaluations*
@@ -64,7 +64,7 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_destroy(
 /**
  * @brief Retrieves the length of the univariate rational evaluations structure.
  *
- * @param evals A pointer to the rational evaluations structure.
+ * @param evals A const pointer to the rational evaluations structure.
  * @return The number of rational evaluations stored in the structure.
  */
 TACHYON_C_EXPORT size_t tachyon_bn254_univariate_rational_evaluations_len(
@@ -85,7 +85,7 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_set_zero(
  *
  * @param evals A pointer to the rational evaluations structure.
  * @param i Index at which to set the value.
- * @param numerator A pointer to the numerator value.
+ * @param numerator A const pointer to the numerator value.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_set_trivial(
     tachyon_bn254_univariate_rational_evaluations* evals, size_t i,
@@ -97,8 +97,8 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_set_trivial(
  *
  * @param evals A pointer to the rational evaluations structure.
  * @param i Index at which to set the rational value.
- * @param numerator A pointer to the numerator value.
- * @param denominator A pointer to the denominator value.
+ * @param numerator A const pointer to the numerator value.
+ * @param denominator A const pointer to the denominator value.
  */
 TACHYON_C_EXPORT void
 tachyon_bn254_univariate_rational_evaluations_set_rational(
@@ -108,7 +108,8 @@ tachyon_bn254_univariate_rational_evaluations_set_rational(
 /**
  * @brief Evaluates the rational evaluations structure at the given index.
  *
- * @param evals A pointer to the rational evaluations structure to evaluate.
+ * @param evals A const pointer to the rational evaluations structure to
+ * evaluate.
  * @param i Index at which to perform the evaluation.
  * @param value A pointer to the value resulting from the evaluation.
  */
@@ -119,7 +120,8 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_rational_evaluations_evaluate(
 /**
  * @brief Performs a batch evaluation on the rational evaluations structure.
  *
- * @param evals A pointer to the rational evaluations structure to evaluate.
+ * @param evals A const pointer to the rational evaluations structure to
+ * evaluate.
  * @return A pointer to the univariate evaluations resulting from the batch
  * evaluation.
  */

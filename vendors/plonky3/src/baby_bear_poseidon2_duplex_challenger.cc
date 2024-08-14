@@ -10,16 +10,17 @@ DuplexChallenger::~DuplexChallenger() {
   tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_destroy(challenger_);
 }
 
-void DuplexChallenger::observe(const BabyBear& value) {
+void DuplexChallenger::observe(const TachyonBabyBear& value) {
   tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_observe(
       challenger_, reinterpret_cast<const tachyon_baby_bear*>(&value));
 }
 
-rust::Box<BabyBear> DuplexChallenger::sample() {
+rust::Box<TachyonBabyBear> DuplexChallenger::sample() {
   tachyon_baby_bear* ret = new tachyon_baby_bear;
   *ret =
       tachyon_plonky3_baby_bear_poseidon2_duplex_challenger_sample(challenger_);
-  return rust::Box<BabyBear>::from_raw(reinterpret_cast<BabyBear*>(ret));
+  return rust::Box<TachyonBabyBear>::from_raw(
+      reinterpret_cast<TachyonBabyBear*>(ret));
 }
 
 std::unique_ptr<DuplexChallenger> DuplexChallenger::clone() const {

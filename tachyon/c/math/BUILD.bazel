@@ -7,6 +7,7 @@ filegroup(
     srcs = [
         "//tachyon/c/math/elliptic_curves:elliptic_curves_hdrs",
         "//tachyon/c/math/finite_fields:finite_fields_hdrs",
+        "//tachyon/c/math/matrix:matrix_hdrs",
         "//tachyon/c/math/polynomials:polynomials_hdrs",
     ],
 )
@@ -16,6 +17,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/c/math/elliptic_curves",
         "//tachyon/c/math/finite_fields",
+        "//tachyon/c/math/matrix",
         "//tachyon/c/math/polynomials",
     ],
 )

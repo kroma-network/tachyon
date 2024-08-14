@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file phase.h
  * @brief Phase Structure for PLONK Constraint System.
  *
  * This header file defines the tachyon_phase structure, which represents the
