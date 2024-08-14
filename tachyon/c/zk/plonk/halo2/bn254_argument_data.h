@@ -100,8 +100,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_reserve_advice_blinds(
  * @param data A pointer to the argument data structure.
  * @param circuit_idx The index of the circuit to which the advice blind is
  * added.
- * @param value A pointer to the scalar field element representing the blind
- * value.
+ * @param value A const pointer to the scalar field element representing the
+ * blind value.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_advice_blind(
     tachyon_halo2_bn254_argument_data* data, size_t circuit_idx,
@@ -184,8 +184,8 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_reserve_challenges(
  * providing randomness and contributing to the security of the protocol.
  *
  * @param data A pointer to the argument data structure.
- * @param value A pointer to the scalar field element representing the challenge
- * value.
+ * @param value A const pointer to the scalar field element representing the
+ * challenge value.
  */
 TACHYON_C_EXPORT void tachyon_halo2_bn254_argument_data_add_challenge(
     tachyon_halo2_bn254_argument_data* data, const tachyon_bn254_fr* value);

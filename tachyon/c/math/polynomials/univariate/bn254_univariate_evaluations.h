@@ -41,7 +41,7 @@ tachyon_bn254_univariate_evaluations_create();
  *
  * Creates a deep copy of the given evaluations structure.
  *
- * @param evals A pointer to the evaluations structure to clone.
+ * @param evals A const pointer to the evaluations structure to clone.
  * @return A pointer to the cloned evaluations structure.
  */
 TACHYON_C_EXPORT tachyon_bn254_univariate_evaluations*
@@ -61,7 +61,7 @@ TACHYON_C_EXPORT void tachyon_bn254_univariate_evaluations_destroy(
 /**
  * @brief Retrieves the length of the univariate evaluations structure.
  *
- * @param evals A pointer to the evaluations structure.
+ * @param evals A const pointer to the evaluations structure.
  * @return The number of evaluations stored in the structure.
  */
 TACHYON_C_EXPORT size_t tachyon_bn254_univariate_evaluations_len(
@@ -72,7 +72,7 @@ TACHYON_C_EXPORT size_t tachyon_bn254_univariate_evaluations_len(
  *
  * @param evals A pointer to the evaluations structure.
  * @param i Index at which to set the value.
- * @param value A pointer to the value to set at index i.
+ * @param value A const pointer to the value to set at index i.
  */
 TACHYON_C_EXPORT void tachyon_bn254_univariate_evaluations_set_value(
     tachyon_bn254_univariate_evaluations* evals, size_t i,

@@ -102,7 +102,7 @@ TACHYON_C_EXPORT uint64_t tachyon_rng_get_next_u64(tachyon_rng* rng);
  * the necessary length to hold the state. This can be used to allocate enough
  * storage before calling the function again with a non-NULL @p state.
  *
- * @param rng A pointer to the random number generator.
+ * @param rng A const pointer to the random number generator.
  * @param state A pointer to the buffer where the RNG's state will be stored. If
  * NULL, the function only populates @p state_len.
  * @param state_len A pointer to a variable where the length of the state will
