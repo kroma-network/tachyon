@@ -29,12 +29,17 @@ class TwoAdicSubgroup {
     }
     FFTBatch(mat);
     Eigen::Index rows = mat.rows();
+    // TODO(chokobole): Use |size_inv_| instead of directly computing the value.
     F inv = unwrap(F(rows).Inverse());
 
-    mat *= inv;
-
-    for (Eigen::Index row = 1; row < rows / 2; ++row) {
-      mat.row(row).swap(mat.row(rows - row));
+    mat.row(0) *= inv;
+    mat.row(rows / 2) *= inv;
+    OMP_PARALLEL_FOR(Eigen::Index row = 1; row < rows / 2; ++row) {
+      auto row1 = mat.row(row);
+      auto row2 = mat.row(rows - row);
+      row1 *= inv;
+      row2 *= inv;
+      row1.swap(row2);
     }
   }
 
