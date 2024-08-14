@@ -93,7 +93,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     return base::bits::SafeLog2Ceiling(num_coeffs) <= F::Config::kTwoAdicity;
   }
 
-  void FFTBatch(RowMajorMatrix<F>& mat) override {
+  void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) override {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::FFTBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -110,9 +110,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     ReverseMatrixIndexBits(mat);
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(RowMajorMatrix<F>& mat,
-                                             size_t added_bits,
-                                             F shift) override {
+  CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
+      Eigen::MatrixBase<RowMajorMatrix<F>>& mat, size_t added_bits,
+      F shift) override {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -385,7 +385,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   // This can be used as the first half of a parallelized butterfly network.
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunks(
-      RowMajorMatrix<F>& mat, const std::vector<F>& twiddles,
+      Eigen::MatrixBase<RowMajorMatrix<F>>& mat, const std::vector<F>& twiddles,
       const std::vector<PackedPrimeField>& packed_twiddles_rev) {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunks");
     if constexpr (F::Config::kModulusBits > 32) {
@@ -412,7 +412,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   // This can be used as the second half of a parallelized butterfly network.
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunksReversed(
-      RowMajorMatrix<F>& mat, const std::vector<F>& twiddles_rev,
+      Eigen::MatrixBase<RowMajorMatrix<F>>& mat,
+      const std::vector<F>& twiddles_rev,
       const std::vector<PackedPrimeField>& packed_twiddles_rev) {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunksReversed");
 

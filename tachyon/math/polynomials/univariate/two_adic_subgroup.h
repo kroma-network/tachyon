@@ -7,6 +7,7 @@
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_TWO_ADIC_SUBGROUP_H_
 
 #include <optional>
+#include <utility>
 #include <vector>
 
 #include "tachyon/base/optional.h"
@@ -20,10 +21,10 @@ class TwoAdicSubgroup {
   virtual ~TwoAdicSubgroup() = default;
 
   // Compute the discrete Fourier transform (DFT) of each column in |mat|.
-  virtual void FFTBatch(RowMajorMatrix<F>& mat) = 0;
+  virtual void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) = 0;
 
   // Compute the inverse DFT of each column in |mat|.
-  void IFFTBatch(RowMajorMatrix<F>& mat) {
+  void IFFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -45,8 +46,8 @@ class TwoAdicSubgroup {
 
   // Compute the low-degree extension of each column in |mat| onto a coset of
   // a larger subgroup.
-  virtual void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits,
-                             F shift) {
+  virtual void CosetLDEBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat,
+                             size_t added_bits, F shift) {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -72,7 +73,7 @@ class TwoAdicSubgroup {
   // Compute the "coset DFT" of each column in |mat|. This can be viewed as
   // interpolation onto a coset of a multiplicative subgroup, rather than the
   // subgroup itself.
-  void CosetFFTBatch(RowMajorMatrix<F>& mat, F shift) {
+  void CosetFFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat, F shift) {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }

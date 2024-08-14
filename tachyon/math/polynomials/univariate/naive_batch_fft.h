@@ -18,7 +18,7 @@ namespace tachyon::math {
 template <typename F>
 class NaiveBatchFFT : public TwoAdicSubgroup<F> {
  public:
-  void FFTBatch(RowMajorMatrix<F>& mat) override {
+  void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) override {
     size_t rows = mat.rows();
     size_t cols = mat.cols();
     CHECK(base::bits::IsPowerOfTwo(rows));
