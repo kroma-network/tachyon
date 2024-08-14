@@ -81,7 +81,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   static std::unique_ptr<Radix2EvaluationDomain> Create(size_t num_coeffs) {
     auto ret = absl::WrapUnique(new Radix2EvaluationDomain(
         absl::bit_ceil(num_coeffs), base::bits::SafeLog2Ceiling(num_coeffs)));
-    ret->PrepareRootsVecCache();
+    ret->PrepareRootsVecCache(/*packed_vec_only=*/false);
     return ret;
   }
 
@@ -156,9 +156,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     ExpandInPlaceWithZeroPad(mat, added_bits);
 
     size_t rows = static_cast<size_t>(mat.rows());
-    CHECK(base::bits::IsPowerOfTwo(rows));
-    std::unique_ptr<Radix2EvaluationDomain> domain =
-        Radix2EvaluationDomain::Create(rows);
+    uint32_t log_size_of_group = base::bits::CheckedLog2(rows);
+    auto domain =
+        absl::WrapUnique(new Radix2EvaluationDomain(rows, log_size_of_group));
+    domain->PrepareRootsVecCache(/*packed_vec_only=*/true);
     log_n = domain->log_size_of_group_;
     domain->mid_ = log_n / 2;
 
@@ -306,7 +307,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   //   [1],
   // ]
   // clang-format on
-  CONSTEXPR_IF_NOT_OPENMP void PrepareRootsVecCache() {
+  CONSTEXPR_IF_NOT_OPENMP void PrepareRootsVecCache(bool packed_vec_only) {
     TRACE_EVENT("EvaluationDomain", "PrepareRootsVecCache");
     if (this->log_size_of_group_ == 0) return;
 
@@ -346,6 +347,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
     roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
     inv_roots_vec_[0] = std::move(largest_inv);
+
+    if (packed_vec_only) return;
 
     // Prepare space in each vector for the others.
     size_t size = this->size_ / 2;
