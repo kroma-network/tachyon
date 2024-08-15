@@ -15,3 +15,37 @@ tachyon_cc_library(
         "@com_github_soblin_matplotlibcpp17//:matplotlibcpp17",
     ]),
 )
+
+tachyon_cc_library(
+    name = "field_type",
+    hdrs = ["field_type.h"],
+    visibility = ["//benchmark:__subpackages__"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/flag",
+    ],
+)
+
+tachyon_cc_library(
+    name = "vendor",
+    hdrs = ["vendor.h"],
+    visibility = ["//benchmark:__subpackages__"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/flag",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "config",
+    srcs = ["config.cc"],
+    hdrs = ["config.h"],
+    visibility = ["//benchmark:__subpackages__"],
+    deps = [
+        "//benchmark:vendor",
+        "//tachyon/base:logging",
+        "//tachyon/base/console",
+        "//tachyon/base/flag:flag_parser",
+    ],
+)
