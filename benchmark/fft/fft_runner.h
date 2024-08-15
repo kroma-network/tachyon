@@ -64,6 +64,8 @@ class FFTRunner {
                 tachyon_bn254_univariate_dense_polynomial>>
   void Run(Fn fn, const std::vector<size_t>& degrees,
            std::vector<RetPoly>* results, bool should_record) {
+    results->clear();
+    results->reserve(degrees.size());
     for (size_t i = 0; i < degrees.size(); ++i) {
       PolyOrEvals poly = polys_[i];
       base::TimeTicks now = base::TimeTicks::Now();
@@ -79,6 +81,8 @@ class FFTRunner {
   template <typename RetPoly>
   void RunExternal(FFTExternalFn fn, const std::vector<size_t>& exponents,
                    std::vector<RetPoly>* results) const {
+    results->clear();
+    results->reserve(exponents.size());
     for (size_t i = 0; i < exponents.size(); ++i) {
       uint64_t duration_in_us;
       size_t n = size_t{1} << exponents[i];

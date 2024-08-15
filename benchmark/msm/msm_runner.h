@@ -45,6 +45,7 @@ class MSMRunner {
   void Run(Fn fn, MSMPtr msm, const std::vector<uint64_t>& point_nums,
            std::vector<RetPoint>* results) {
     results->clear();
+    results->reserve(point_nums.size());
     for (size_t i = 0; i < point_nums.size(); ++i) {
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CRetPoint> ret;
@@ -58,6 +59,8 @@ class MSMRunner {
   void RunExternal(MSMAffineExternalFn fn,
                    const std::vector<uint64_t>& point_nums,
                    std::vector<RetPoint>* results) const {
+    results->clear();
+    results->reserve(point_nums.size());
     for (size_t i = 0; i < point_nums.size(); ++i) {
       std::unique_ptr<CRetPoint> ret;
       uint64_t duration_in_us;
