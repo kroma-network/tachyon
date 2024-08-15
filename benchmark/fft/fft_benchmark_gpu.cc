@@ -46,7 +46,7 @@ void Run(const FFTConfig& config) {
   IcicleNTTHolder<F> icicle_ntt_holder = IcicleNTTHolder<F>::Create();
   CHECK(icicle_ntt_holder->Init(domains.back()->group_gen()));
 
-  FFTRunner<Domain, PolyOrEvals> runner(&reporter);
+  FFTRunner<Domain, PolyOrEvals> runner(reporter);
   runner.set_polys(polys);
   runner.set_domains(absl::MakeSpan(domains));
 

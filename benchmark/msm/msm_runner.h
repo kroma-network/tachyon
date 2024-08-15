@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+#include "absl/types/span.h"
+
 // clang-format off
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
 // clang-format on
@@ -32,53 +34,50 @@ class MSMRunner {
                                             size_t size,
                                             uint64_t* duration_in_us);
 
-  explicit MSMRunner(SimpleMSMBenchmarkReporter* reporter)
+  explicit MSMRunner(SimpleMSMBenchmarkReporter& reporter)
       : reporter_(reporter) {}
 
-  void SetInputs(const std::vector<Point>* bases,
-                 const std::vector<ScalarField>* scalars) {
+  void SetInputs(absl::Span<const Point> bases,
+                 absl::Span<const ScalarField> scalars) {
     bases_ = bases;
     scalars_ = scalars;
   }
 
   template <typename Fn, typename MSMPtr>
   void Run(Fn fn, MSMPtr msm, const std::vector<uint64_t>& point_nums,
-           std::vector<RetPoint>* results) {
-    results->clear();
-    results->reserve(point_nums.size());
+           std::vector<RetPoint>& results) {
+    results.clear();
+    results.reserve(point_nums.size());
     for (size_t i = 0; i < point_nums.size(); ++i) {
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CRetPoint> ret;
-      ret.reset(fn(msm, c::base::c_cast(bases_->data()),
-                   c::base::c_cast(scalars_->data()), point_nums[i]));
-      reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
-      results->push_back(*c::base::native_cast(ret.get()));
+      ret.reset(fn(msm, c::base::c_cast(bases_.data()),
+                   c::base::c_cast(scalars_.data()), point_nums[i]));
+      reporter_.AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
+      results.push_back(*c::base::native_cast(ret.get()));
     }
   }
 
   void RunExternal(MSMAffineExternalFn fn,
                    const std::vector<uint64_t>& point_nums,
-                   std::vector<RetPoint>* results) const {
-    results->clear();
-    results->reserve(point_nums.size());
+                   std::vector<RetPoint>& results) const {
+    results.clear();
+    results.reserve(point_nums.size());
     for (size_t i = 0; i < point_nums.size(); ++i) {
       std::unique_ptr<CRetPoint> ret;
       uint64_t duration_in_us;
-      ret.reset(fn(c::base::c_cast(bases_->data()),
-                   c::base::c_cast(scalars_->data()), point_nums[i],
+      ret.reset(fn(c::base::c_cast(bases_.data()),
+                   c::base::c_cast(scalars_.data()), point_nums[i],
                    &duration_in_us));
-      reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
-      results->push_back(*c::base::native_cast(ret.get()));
+      reporter_.AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
+      results.push_back(*c::base::native_cast(ret.get()));
     }
   }
 
  private:
-  // not owned
-  SimpleMSMBenchmarkReporter* const reporter_;
-  // not owned
-  const std::vector<Point>* bases_ = nullptr;
-  // not owned
-  const std::vector<ScalarField>* scalars_ = nullptr;
+  SimpleMSMBenchmarkReporter& reporter_;
+  absl::Span<const Point> bases_;
+  absl::Span<const ScalarField> scalars_;
 };
 
 }  // namespace tachyon

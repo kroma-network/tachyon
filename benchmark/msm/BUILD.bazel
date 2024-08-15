@@ -22,6 +22,7 @@ tachyon_cc_library(
         ":simple_msm_benchmark_reporter",
         "//tachyon/base/time",
         "//tachyon/c/math/elliptic_curves:point_traits_forward",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

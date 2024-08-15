@@ -60,21 +60,21 @@ int RealMain(int argc, char** argv) {
   CHECK(config.GenerateTestSet(max_point_num, &test_set));
   std::cout << "Generation completed" << std::endl;
 
-  MSMRunner<bn254::G1AffinePoint> runner(&reporter);
-  runner.SetInputs(&test_set.bases, &test_set.scalars);
+  MSMRunner<bn254::G1AffinePoint> runner(reporter);
+  runner.SetInputs(test_set.bases, test_set.scalars);
   std::vector<bn254::G1JacobianPoint> results;
-  runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, &results);
+  runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, results);
   for (const MSMConfig::Vendor vendor : config.vendors()) {
     std::vector<bn254::G1JacobianPoint> results_vendor;
     switch (vendor) {
       case MSMConfig::Vendor::kArkworks:
-        runner.RunExternal(run_msm_arkworks, point_nums, &results_vendor);
+        runner.RunExternal(run_msm_arkworks, point_nums, results_vendor);
         break;
       case MSMConfig::Vendor::kBellman:
-        runner.RunExternal(run_msm_bellman, point_nums, &results_vendor);
+        runner.RunExternal(run_msm_bellman, point_nums, results_vendor);
         break;
       case MSMConfig::Vendor::kHalo2:
-        runner.RunExternal(run_msm_halo2_adapter, point_nums, &results_vendor);
+        runner.RunExternal(run_msm_halo2_adapter, point_nums, results_vendor);
         break;
     }
 

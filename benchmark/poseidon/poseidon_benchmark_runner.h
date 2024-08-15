@@ -27,20 +27,20 @@ class PoseidonBenchmarkRunner {
 
   typedef CPrimeField* (*PoseidonExternalFn)(uint64_t* duration);
 
-  PoseidonBenchmarkRunner(SimplePoseidonBenchmarkReporter* reporter,
-                          const PoseidonConfig* config)
+  PoseidonBenchmarkRunner(SimplePoseidonBenchmarkReporter& reporter,
+                          const PoseidonConfig& config)
       : reporter_(reporter), config_(config) {}
 
   Field Run() {
     Field ret;
-    for (size_t i = 0; i < config_->repeating_num(); ++i) {
+    for (size_t i = 0; i < config_.repeating_num(); ++i) {
       crypto::PoseidonConfig<Field> config =
           crypto::PoseidonConfig<Field>::CreateCustom(8, 5, 8, 63, 0);
       crypto::PoseidonSponge<Field> sponge(std::move(config));
       crypto::SpongeState<Field> state(sponge.config);
       base::TimeTicks start = base::TimeTicks::Now();
       sponge.Permute(state);
-      reporter_->AddTime(i, (base::TimeTicks::Now() - start).InSecondsF());
+      reporter_.AddTime(i, (base::TimeTicks::Now() - start).InSecondsF());
       if (i == 0) {
         ret = state.elements[1];
       }
@@ -50,19 +50,17 @@ class PoseidonBenchmarkRunner {
 
   Field RunExternal(PoseidonExternalFn fn) {
     std::unique_ptr<CPrimeField> ret;
-    for (size_t i = 0; i < config_->repeating_num(); ++i) {
+    for (size_t i = 0; i < config_.repeating_num(); ++i) {
       uint64_t duration_in_us;
       ret.reset(fn(&duration_in_us));
-      reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
+      reporter_.AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
     }
     return *c::base::native_cast(ret.get());
   }
 
  private:
-  // not owned
-  SimplePoseidonBenchmarkReporter* const reporter_;
-  // not owned
-  const PoseidonConfig* const config_;
+  SimplePoseidonBenchmarkReporter& reporter_;
+  const PoseidonConfig& config_;
 };
 
 }  // namespace tachyon

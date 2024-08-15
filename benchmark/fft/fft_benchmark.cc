@@ -98,7 +98,7 @@ void Run(const FFTConfig& config) {
       degrees, [](size_t degree) { return PolyOrEvals::Random(degree); });
   std::cout << "Generation completed" << std::endl;
 
-  FFTRunner<Domain, PolyOrEvals> runner(&reporter);
+  FFTRunner<Domain, PolyOrEvals> runner(reporter);
   runner.set_polys(polys);
 
   std::vector<RetPoly> results;
@@ -106,27 +106,27 @@ void Run(const FFTConfig& config) {
   if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
     runner.set_domains(absl::MakeSpan(domains));
     runner.Run(tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
-               &results, true);
+               results, true);
     if (!halo2_domains.empty()) {
       runner.set_domains(absl::MakeSpan(halo2_domains));
       runner.Run(tachyon_bn254_univariate_evaluation_domain_ifft_inplace,
-                 degrees, &halo2_results, false);
+                 degrees, halo2_results, false);
     }
     for (const FFTConfig::Vendor vendor : config.vendors()) {
       std::vector<RetPoly> results_vendor;
       if (vendor == FFTConfig::Vendor::kArkworks) {
         runner.set_domains(absl::MakeSpan(domains));
         runner.RunExternal(run_ifft_arkworks, config.exponents(),
-                           &results_vendor);
+                           results_vendor);
         CheckResults(config.check_results(), results, results_vendor);
       } else if (vendor == FFTConfig::Vendor::kBellman) {
         runner.set_domains(absl::MakeSpan(halo2_domains));
         runner.RunExternal(run_ifft_bellman, config.exponents(),
-                           &results_vendor);
+                           results_vendor);
         CheckResults(config.check_results(), halo2_results, results_vendor);
       } else if (vendor == FFTConfig::Vendor::kHalo2) {
         runner.set_domains(absl::MakeSpan(halo2_domains));
-        runner.RunExternal(run_ifft_halo2, config.exponents(), &results_vendor);
+        runner.RunExternal(run_ifft_halo2, config.exponents(), results_vendor);
         CheckResults(config.check_results(), halo2_results, results_vendor);
       }
     }
@@ -135,27 +135,26 @@ void Run(const FFTConfig& config) {
                                       typename Domain::DensePoly>) {
     runner.set_domains(absl::MakeSpan(domains));
     runner.Run(tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
-               &results, true);
+               results, true);
     if (!halo2_domains.empty()) {
       runner.set_domains(absl::MakeSpan(halo2_domains));
       runner.Run(tachyon_bn254_univariate_evaluation_domain_fft_inplace,
-                 degrees, &halo2_results, false);
+                 degrees, halo2_results, false);
     }
     for (const FFTConfig::Vendor vendor : config.vendors()) {
       std::vector<RetPoly> results_vendor;
       if (vendor == FFTConfig::Vendor::kArkworks) {
         runner.set_domains(absl::MakeSpan(domains));
         runner.RunExternal(run_fft_arkworks, config.exponents(),
-                           &results_vendor);
+                           results_vendor);
         CheckResults(config.check_results(), results, results_vendor);
       } else if (vendor == FFTConfig::Vendor::kBellman) {
         runner.set_domains(absl::MakeSpan(halo2_domains));
-        runner.RunExternal(run_fft_bellman, config.exponents(),
-                           &results_vendor);
+        runner.RunExternal(run_fft_bellman, config.exponents(), results_vendor);
         CheckResults(config.check_results(), halo2_results, results_vendor);
       } else if (vendor == FFTConfig::Vendor::kHalo2) {
         runner.set_domains(absl::MakeSpan(halo2_domains));
-        runner.RunExternal(run_fft_halo2, config.exponents(), &results_vendor);
+        runner.RunExternal(run_fft_halo2, config.exponents(), results_vendor);
         CheckResults(config.check_results(), halo2_results, results_vendor);
       }
     }

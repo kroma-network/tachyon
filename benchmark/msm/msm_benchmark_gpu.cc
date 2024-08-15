@@ -39,18 +39,17 @@ int RealMain(int argc, char** argv) {
   CHECK(config.GenerateTestSet(max_point_num, &test_set));
   std::cout << "Generation completed" << std::endl;
 
-  MSMRunner<bn254::G1AffinePoint> runner(&reporter);
-  runner.SetInputs(&test_set.bases, &test_set.scalars);
+  MSMRunner<bn254::G1AffinePoint> runner(reporter);
+  runner.SetInputs(test_set.bases, test_set.scalars);
 
   std::vector<bn254::G1JacobianPoint> results_cpu;
-  runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, &results_cpu);
+  runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, results_cpu);
   tachyon_bn254_g1_destroy_msm(msm);
 
   tachyon_bn254_g1_msm_gpu_ptr msm_gpu =
       tachyon_bn254_g1_create_msm_gpu(config.exponents().back());
   std::vector<bn254::G1JacobianPoint> results_gpu;
-  runner.Run(tachyon_bn254_g1_affine_msm_gpu, msm_gpu, point_nums,
-             &results_gpu);
+  runner.Run(tachyon_bn254_g1_affine_msm_gpu, msm_gpu, point_nums, results_gpu);
   tachyon_bn254_g1_destroy_msm_gpu(msm_gpu);
 
   if (config.check_results()) {

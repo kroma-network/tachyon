@@ -36,7 +36,7 @@ class FFTRunner {
       const tachyon_bn254_fr* omega_or_omega_inv, uint32_t k,
       uint64_t* duration_in_us);
 
-  explicit FFTRunner(SimpleFFTBenchmarkReporter* reporter)
+  explicit FFTRunner(SimpleFFTBenchmarkReporter& reporter)
       : reporter_(reporter) {}
 
   void set_polys(absl::Span<const PolyOrEvals> polys) { polys_ = polys; }
@@ -63,26 +63,26 @@ class FFTRunner {
                 tachyon_bn254_univariate_evaluations,
                 tachyon_bn254_univariate_dense_polynomial>>
   void Run(Fn fn, const std::vector<size_t>& degrees,
-           std::vector<RetPoly>* results, bool should_record) {
-    results->clear();
-    results->reserve(degrees.size());
+           std::vector<RetPoly>& results, bool should_record) {
+    results.clear();
+    results.reserve(degrees.size());
     for (size_t i = 0; i < degrees.size(); ++i) {
       PolyOrEvals poly = polys_[i];
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CRetPoly> ret;
       ret.reset(fn(c::base::c_cast(domains_[i].get()), c::base::c_cast(&poly)));
       if (should_record) {
-        reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
+        reporter_.AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
       }
-      results->push_back(*c::base::native_cast(ret.get()));
+      results.push_back(*c::base::native_cast(ret.get()));
     }
   }
 
   template <typename RetPoly>
   void RunExternal(FFTExternalFn fn, const std::vector<size_t>& exponents,
-                   std::vector<RetPoly>* results) const {
-    results->clear();
-    results->reserve(exponents.size());
+                   std::vector<RetPoly>& results) const {
+    results.clear();
+    results.reserve(exponents.size());
     for (size_t i = 0; i < exponents.size(); ++i) {
       uint64_t duration_in_us;
       size_t n = size_t{1} << exponents[i];
@@ -94,7 +94,7 @@ class FFTRunner {
             fn(c::base::c_cast(polys_[i].evaluations().data()), n,
                c::base::c_cast(&omega_inv), exponents[i], &duration_in_us)));
         std::vector<F> res_vec(ret.get(), ret.get() + n);
-        results->emplace_back(
+        results.emplace_back(
             typename RetPoly::Coefficients(std::move(res_vec)));
         // NOLINTNEXTLINE(readability/braces)
       } else if constexpr (std::is_same_v<PolyOrEvals,
@@ -104,15 +104,14 @@ class FFTRunner {
             fn(c::base::c_cast(polys_[i].coefficients().coefficients().data()),
                n, c::base::c_cast(&omega), exponents[i], &duration_in_us)));
         std::vector<F> res_vec(ret.get(), ret.get() + n);
-        results->emplace_back(std::move(res_vec));
+        results.emplace_back(std::move(res_vec));
       }
-      reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
+      reporter_.AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
     }
   }
 
  private:
-  // not owned
-  SimpleFFTBenchmarkReporter* reporter_ = nullptr;
+  SimpleFFTBenchmarkReporter& reporter_;
   absl::Span<const PolyOrEvals> polys_;
   absl::Span<std::unique_ptr<Domain>> domains_;
 };

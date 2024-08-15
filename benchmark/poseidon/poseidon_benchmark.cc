@@ -28,7 +28,7 @@ int RealMain(int argc, char** argv) {
   SimplePoseidonBenchmarkReporter reporter("Poseidon Benchmark",
                                            config.repeating_num());
   reporter.AddVendor("arkworks");
-  PoseidonBenchmarkRunner<Field> runner(&reporter, &config);
+  PoseidonBenchmarkRunner<Field> runner(reporter, config);
 
   Field result = runner.Run();
   Field result_arkworks = runner.RunExternal(run_poseidon_arkworks);

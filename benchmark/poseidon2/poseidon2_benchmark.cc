@@ -33,7 +33,7 @@ void Run(SimplePoseidonBenchmarkReporter& reporter,
          const tachyon::Poseidon2Config& config, Fn horizen_fn, Fn plonky3_fn) {
   Field::Init();
 
-  Poseidon2BenchmarkRunner<Field> runner(&reporter, &config);
+  Poseidon2BenchmarkRunner<Field> runner(reporter, config);
 
   crypto::Poseidon2Config<Field> poseidon2_config;
   if constexpr (std::is_same_v<Field, math::BabyBear>) {
