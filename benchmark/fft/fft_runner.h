@@ -83,7 +83,7 @@ class FFTRunner {
 
   template <typename RetPoly>
   void RunExternal(Vendor vendor, FFTExternalFn fn,
-                   const std::vector<size_t>& exponents,
+                   const std::vector<uint32_t>& exponents,
                    std::vector<RetPoly>& results) const {
     reporter_.AddVendor(vendor);
 

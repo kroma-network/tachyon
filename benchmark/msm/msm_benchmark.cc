@@ -45,18 +45,18 @@ int RealMain(int argc, char** argv) {
   SimpleReporter reporter("MSM Benchmark");
 
   reporter.SetXLabel("Degree (2ˣ)");
-  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint64_t exponent) {
+  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint32_t exponent) {
     return base::NumberToString(exponent);
   }));
 
-  std::vector<uint64_t> point_nums = config.GetPointNums();
+  std::vector<size_t> point_nums = config.GetPointNums();
 
   tachyon_bn254_g1_init();
   tachyon_bn254_g1_msm_ptr msm =
       tachyon_bn254_g1_create_msm(config.exponents().back());
 
   std::cout << "Generating random points..." << std::endl;
-  uint64_t max_point_num = point_nums.back();
+  size_t max_point_num = point_nums.back();
   VariableBaseMSMTestSet<bn254::G1AffinePoint> test_set;
   CHECK(config.GenerateTestSet(max_point_num, &test_set));
   std::cout << "Generation completed" << std::endl;

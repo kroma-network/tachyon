@@ -11,7 +11,7 @@ namespace tachyon::benchmark {
 
 bool FFTConfig::Parse(int argc, char** argv, const Options& options) {
   // clang-format off
-  parser_.AddFlag<base::Flag<std::vector<size_t>>>(&exponents_)
+  parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
       .set_help("Specify the exponent 'k's where the degree of poly to test is 2ᵏ.");
@@ -36,8 +36,9 @@ bool FFTConfig::Parse(int argc, char** argv, const Options& options) {
 }
 
 std::vector<size_t> FFTConfig::GetDegrees() const {
-  return base::Map(exponents_,
-                   [](size_t exponent) { return (size_t{1} << exponent) - 1; });
+  return base::Map(exponents_, [](uint32_t exponent) {
+    return (size_t{1} << exponent) - 1;
+  });
 }
 
 }  // namespace tachyon::benchmark

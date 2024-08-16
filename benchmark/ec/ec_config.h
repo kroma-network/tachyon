@@ -17,12 +17,12 @@ class ECConfig : public Config {
   ECConfig(const ECConfig& other) = delete;
   ECConfig& operator=(const ECConfig& other) = delete;
 
-  const std::vector<uint64_t>& point_nums() const { return point_nums_; }
+  const std::vector<size_t>& point_nums() const { return point_nums_; }
 
   bool Parse(int argc, char** argv);
 
  private:
-  std::vector<uint64_t> point_nums_;
+  std::vector<size_t> point_nums_;
 };
 
 }  // namespace tachyon::benchmark

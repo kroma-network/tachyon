@@ -9,7 +9,7 @@
 namespace tachyon::benchmark {
 
 bool ECConfig::Parse(int argc, char** argv) {
-  parser_.AddFlag<base::Flag<std::vector<uint64_t>>>(&point_nums_)
+  parser_.AddFlag<base::Flag<std::vector<size_t>>>(&point_nums_)
       .set_short_name("-n")
       .set_required()
       .set_help("The number of points to test");

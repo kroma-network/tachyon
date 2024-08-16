@@ -34,7 +34,7 @@ void Run(const FFTConfig& config) {
   SimpleReporter reporter(name);
 
   reporter.SetXLabel("Degree (2ˣ)");
-  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint64_t exponent) {
+  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint32_t exponent) {
     return base::NumberToString(exponent);
   }));
 

@@ -44,7 +44,7 @@ class MSMRunner {
 
   template <typename Fn, typename MSMPtr>
   void Run(Vendor vendor, Fn fn, MSMPtr msm,
-           const std::vector<uint64_t>& point_nums,
+           const std::vector<size_t>& point_nums,
            std::vector<RetPoint>& results) {
     reporter_.AddVendor(vendor);
 
@@ -61,7 +61,7 @@ class MSMRunner {
   }
 
   void RunExternal(Vendor vendor, MSMAffineExternalFn fn,
-                   const std::vector<uint64_t>& point_nums,
+                   const std::vector<size_t>& point_nums,
                    std::vector<RetPoint>& results) const {
     reporter_.AddVendor(vendor);
 

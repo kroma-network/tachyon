@@ -24,14 +24,14 @@ class MSMConfig : public Config {
   MSMConfig(const MSMConfig& other) = delete;
   MSMConfig& operator=(const MSMConfig& other) = delete;
 
-  const std::vector<uint64_t>& exponents() const { return exponents_; }
+  const std::vector<uint32_t>& exponents() const { return exponents_; }
 
   bool Parse(int argc, char** argv, const Options& options);
 
-  std::vector<uint64_t> GetPointNums() const;
+  std::vector<size_t> GetPointNums() const;
 
   template <typename Point, typename Bucket>
-  bool GenerateTestSet(uint64_t size,
+  bool GenerateTestSet(size_t size,
                        math::VariableBaseMSMTestSet<Point, Bucket>* out) const {
     switch (test_set_) {
       case TestSet::kRandom:
@@ -47,7 +47,7 @@ class MSMConfig : public Config {
   }
 
  private:
-  std::vector<uint64_t> exponents_;
+  std::vector<uint32_t> exponents_;
   TestSet test_set_ = TestSet::kRandom;
 };
 

@@ -37,7 +37,7 @@ class FlagValueTraits<MSMConfig::TestSet> {
 bool MSMConfig::Parse(int argc, char** argv,
                       const MSMConfig::Options& options) {
   // clang-format off
-  parser_.AddFlag<base::Flag<std::vector<uint64_t>>>(&exponents_)
+  parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
       .set_help("Specify the exponent 'k' where the number of points to test is 2ᵏ.");
@@ -65,9 +65,9 @@ bool MSMConfig::Parse(int argc, char** argv,
   return true;
 }
 
-std::vector<uint64_t> MSMConfig::GetPointNums() const {
+std::vector<size_t> MSMConfig::GetPointNums() const {
   return base::Map(exponents_,
-                   [](uint64_t exponent) { return uint64_t{1} << exponent; });
+                   [](uint32_t exponent) { return size_t{1} << exponent; });
 }
 
 }  // namespace tachyon

@@ -18,7 +18,7 @@ class FFTConfig : public Config {
   FFTConfig(const FFTConfig& other) = delete;
   FFTConfig& operator=(const FFTConfig& other) = delete;
 
-  const std::vector<size_t>& exponents() const { return exponents_; }
+  const std::vector<uint32_t>& exponents() const { return exponents_; }
   bool run_ifft() const { return run_ifft_; }
 
   bool Parse(int argc, char** argv, const Options& options);
@@ -26,7 +26,7 @@ class FFTConfig : public Config {
   std::vector<size_t> GetDegrees() const;
 
  private:
-  std::vector<size_t> exponents_;
+  std::vector<uint32_t> exponents_;
   bool run_ifft_ = false;
 };
 
