@@ -38,6 +38,12 @@ bool Poseidon2Config::Validate() const {
       }
     }
   }
+  if ((prime_field_.value() != FieldType::kBabyBear) &&
+      (prime_field_.value() != FieldType::kBn254Fr)) {
+    tachyon_cerr << "Unsupported prime field " << prime_field_.ToString()
+                 << std::endl;
+    return false;
+  }
   return true;
 }
 

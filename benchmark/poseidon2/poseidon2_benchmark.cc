@@ -5,7 +5,6 @@
 #include "benchmark/poseidon2/poseidon2_benchmark_runner.h"
 #include "benchmark/poseidon2/poseidon2_config.h"
 // clang-format on
-#include "tachyon/base/console/iostream.h"
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
@@ -98,8 +97,7 @@ int RealMain(int argc, char** argv) {
     Run<math::bn254::Fr>(reporter, config, run_poseidon2_horizen_bn254_fr,
                          run_poseidon2_plonky3_bn254_fr);
   } else {
-    tachyon_cerr << "Unsupported prime field" << std::endl;
-    return 1;
+    NOTREACHED();
   }
 
   reporter.AddAverageAsLastColumn();

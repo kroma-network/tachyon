@@ -7,7 +7,6 @@
 #include "benchmark/fft_batch/fft_batch_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
-#include "tachyon/base/console/iostream.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
 
 namespace tachyon::benchmark {
@@ -98,8 +97,7 @@ int RealMain(int argc, char** argv) {
   if (config.prime_field().value() == FieldType::kBabyBear) {
     Run<math::BabyBear>(config);
   } else {
-    tachyon_cerr << "Unsupported prime field\n";
-    return 1;
+    NOTREACHED();
   }
   return 0;
 }

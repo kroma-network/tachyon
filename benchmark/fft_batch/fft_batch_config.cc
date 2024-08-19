@@ -50,6 +50,11 @@ bool FFTBatchConfig::Validate() const {
       return false;
     }
   }
+  if (prime_field_.value() != FieldType::kBabyBear) {
+    tachyon_cerr << "Unsupported prime field " << prime_field_.ToString()
+                 << std::endl;
+    return false;
+  }
   return true;
 }
 
