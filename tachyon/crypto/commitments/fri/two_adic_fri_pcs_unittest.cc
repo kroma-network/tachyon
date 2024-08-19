@@ -27,7 +27,7 @@ constexpr size_t kN = 2;
 using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 using PackedF = math::PackedBabyBear;
-using ExtendedPackedF = math::PackedBabyBear4;
+using ExtPackedF = math::PackedBabyBear4;
 using Domain = zk::air::plonky3::TwoAdicMultiplicativeCoset<F>;
 using Poseidon2 =
     Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>>;
@@ -52,7 +52,7 @@ class TwoAdicFriPCSTest : public testing::Test {
 
   static void SetUpTestSuite() {
     ExtF::Init();
-    ExtendedPackedF::Init();
+    ExtPackedF::Init();
   }
 
   void SetUp() override {
