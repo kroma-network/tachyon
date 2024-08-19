@@ -14,7 +14,6 @@ class Config {
  public:
   struct Options {
     bool include_check_results = false;
-    bool include_vendors = false;
   };
 
   Config() = default;

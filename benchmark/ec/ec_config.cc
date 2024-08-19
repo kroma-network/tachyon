@@ -10,9 +10,7 @@ bool ECConfig::Parse(int argc, char** argv) {
       .set_required()
       .set_help("The number of points to test");
 
-  if (!Config::Parse(
-          argc, argv,
-          {/*include_check_results=*/false, /*include_vendors=*/false})) {
+  if (!Config::Parse(argc, argv, {/*include_check_results=*/false})) {
     return false;
   }
 

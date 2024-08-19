@@ -7,8 +7,7 @@ bool PoseidonConfig::Parse(int argc, char** argv) {
       .set_short_name("-n")
       .set_help("Specify the number of repetition 'n'. By default, 10.");
 
-  return Config::Parse(
-      argc, argv, {/*include_check_results=*/true, /*include_vendors=*/false});
+  return Config::Parse(argc, argv, {/*include_check_results=*/true});
 }
 
 }  // namespace tachyon::benchmark

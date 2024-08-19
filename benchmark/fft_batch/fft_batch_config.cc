@@ -33,9 +33,7 @@ bool FFTBatchConfig::Parse(int argc, char** argv) {
       .set_long_name("--vendor")
       .set_help("Vendors to be benchmarked with. (supported vendors: plonky3");
 
-  if (!Config::Parse(
-          argc, argv,
-          {/*include_check_results=*/true, /*include_vendors=*/false})) {
+  if (!Config::Parse(argc, argv, {/*include_check_results=*/true})) {
     return false;
   }
 

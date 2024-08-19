@@ -94,6 +94,7 @@ int RealMain(int argc, char** argv) {
 
   FFTConfig config;
   FFTConfig::Options options;
+  options.include_check_results = true;
   if (!config.Parse(argc, argv, options)) {
     return 1;
   }

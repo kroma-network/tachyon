@@ -17,15 +17,15 @@ bool FFTConfig::Parse(int argc, char** argv, const Options& options) {
   parser_.AddFlag<base::BoolFlag>(&run_ifft_)
       .set_long_name("--run_ifft")
       .set_help("Run IFFT benchmark. Default is FFT benchmark.");
-  parser_.AddFlag<base::Flag<std::set<Vendor>>>(&vendors_)
-      .set_long_name("--vendor")
-      .set_help(
-          "Vendors to be benchmarked with. (supported vendors: arkworks, "
-          "bellman, halo2)");
+  if (options.include_vendors) {
+    parser_.AddFlag<base::Flag<std::set<Vendor>>>(&vendors_)
+        .set_long_name("--vendor")
+        .set_help(
+            "Vendors to be benchmarked with. (supported vendors: arkworks, "
+            "bellman, halo2)");
+  }
 
-  if (!Config::Parse(
-          argc, argv,
-          {/*include_check_results=*/true, /*include_vendors=*/false})) {
+  if (!Config::Parse(argc, argv, options)) {
     return false;
   }
 

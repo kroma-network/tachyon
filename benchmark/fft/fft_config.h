@@ -13,6 +13,10 @@ namespace tachyon::benchmark {
 
 class FFTConfig : public Config {
  public:
+  struct Options : public Config::Options {
+    bool include_vendors = false;
+  };
+
   FFTConfig() = default;
   FFTConfig(const FFTConfig& other) = delete;
   FFTConfig& operator=(const FFTConfig& other) = delete;

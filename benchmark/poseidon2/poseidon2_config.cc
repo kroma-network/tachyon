@@ -22,8 +22,7 @@ bool Poseidon2Config::Parse(int argc, char** argv) {
           "Vendors to be benchmarked with. (supported vendors: horizen, "
           "plonky3)");
 
-  return Config::Parse(
-      argc, argv, {/*include_check_results=*/true, /*include_vendors=*/false});
+  return Config::Parse(argc, argv, {/*include_check_results=*/true});
 }
 
 }  // namespace tachyon::benchmark

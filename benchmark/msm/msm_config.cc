@@ -54,9 +54,7 @@ bool MSMConfig::Parse(int argc, char** argv,
             "bellman, halo2)");
   }
 
-  if (!Config::Parse(
-          argc, argv,
-          {/*include_check_results=*/true, /*include_vendors=*/false})) {
+  if (!Config::Parse(argc, argv, options)) {
     return false;
   }
 

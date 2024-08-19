@@ -19,6 +19,10 @@ class MSMConfig : public Config {
     kNonUniform,
   };
 
+  struct Options : public Config::Options {
+    bool include_vendors = false;
+  };
+
   MSMConfig() = default;
   MSMConfig(const MSMConfig& other) = delete;
   MSMConfig& operator=(const MSMConfig& other) = delete;
