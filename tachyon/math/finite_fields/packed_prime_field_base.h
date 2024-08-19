@@ -134,12 +134,12 @@ class PackedPrimeFieldBase : public Field<Derived> {
   // MultiplicativeGroup methods
   std::optional<Derived> Inverse() const {
     Derived ret;
-    CHECK(PrimeField::BatchInverse(values_, &ret.values_));
+    CHECK(PrimeField::BatchInverseSerial(values_, &ret.values_));
     return ret;
   }
 
   [[nodiscard]] std::optional<Derived*> InverseInPlace() {
-    CHECK(PrimeField::BatchInverseInPlace(values_));
+    CHECK(PrimeField::BatchInverseInPlaceSerial(values_));
     return static_cast<Derived*>(this);
   }
 
