@@ -13,7 +13,7 @@ namespace tachyon::benchmark {
 class Config {
  public:
   struct Options {
-    bool include_check_results = false;
+    bool include_check_results = true;
   };
 
   Config();

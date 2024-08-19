@@ -92,9 +92,7 @@ int RealMain(int argc, char** argv) {
 
   Field::Init();
 
-  FFTConfig::Options options;
-  options.include_check_results = true;
-  FFTConfig config(options);
+  FFTConfig config;
   if (!config.Parse(argc, argv)) {
     return 1;
   }

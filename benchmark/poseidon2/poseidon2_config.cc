@@ -6,7 +6,7 @@
 
 namespace tachyon::benchmark {
 
-Poseidon2Config::Poseidon2Config() : Config({/*include_check_results=*/true}) {
+Poseidon2Config::Poseidon2Config() {
   parser_.AddFlag<base::Flag<size_t>>(&repeating_num_)
       .set_short_name("-n")
       .set_help("Specify the number of repetition 'n'. By default, 10.");

@@ -8,6 +8,8 @@
 
 namespace tachyon::benchmark {
 
+FFTConfig::FFTConfig() : FFTConfig(Options()) {}
+
 FFTConfig::FFTConfig(const Options& options) : Config(options) {
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")

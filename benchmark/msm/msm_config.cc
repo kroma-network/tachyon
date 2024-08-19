@@ -34,6 +34,8 @@ class FlagValueTraits<MSMConfig::TestSet> {
 
 }  // namespace base
 
+MSMConfig::MSMConfig() : MSMConfig(Options()) {}
+
 MSMConfig::MSMConfig(const Options& options) : Config(options) {
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")

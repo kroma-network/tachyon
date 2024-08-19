@@ -17,6 +17,7 @@ class FFTConfig : public Config {
     bool include_vendors = false;
   };
 
+  FFTConfig();
   explicit FFTConfig(const Options& options);
   FFTConfig(const FFTConfig& other) = delete;
   FFTConfig& operator=(const FFTConfig& other) = delete;

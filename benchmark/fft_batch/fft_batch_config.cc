@@ -7,7 +7,7 @@
 
 namespace tachyon::benchmark {
 
-FFTBatchConfig::FFTBatchConfig() : Config({/*include_check_results=*/true}) {
+FFTBatchConfig::FFTBatchConfig() {
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()

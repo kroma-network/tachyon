@@ -17,9 +17,7 @@ namespace tachyon::benchmark {
 using namespace math;
 
 int RealMain(int argc, char** argv) {
-  MSMConfig::Options options;
-  options.include_check_results = true;
-  MSMConfig config(options);
+  MSMConfig config;
   if (!config.Parse(argc, argv)) {
     return 1;
   }

@@ -36,7 +36,6 @@ tachyon_bn254_g1_jacobian* run_msm_halo2_adapter(
 
 int RealMain(int argc, char** argv) {
   MSMConfig::Options options;
-  options.include_check_results = true;
   options.include_vendors = true;
   MSMConfig config(options);
   if (!config.Parse(argc, argv)) {

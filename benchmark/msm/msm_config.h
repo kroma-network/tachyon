@@ -23,6 +23,7 @@ class MSMConfig : public Config {
     bool include_vendors = false;
   };
 
+  MSMConfig();
   explicit MSMConfig(const Options& options);
   MSMConfig(const MSMConfig& other) = delete;
   MSMConfig& operator=(const MSMConfig& other) = delete;
