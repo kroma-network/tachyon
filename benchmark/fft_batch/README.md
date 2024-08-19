@@ -25,7 +25,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/f
 
 #### On Intel i9-13900K
 
-| Exponent | TachyonCPU   | Plonky3      |
+| Exponent | Tachyon      | Plonky3      |
 | :------- | ------------ | ------------ |
 | 16       | **0.003543** | 0.005809     |
 | 17       | **0.007168** | 0.009239     |
@@ -40,7 +40,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/f
 
 #### On Mac M3 Pro
 
-| Exponent | TachyonCPU   | Plonky3  |
+| Exponent | Tachyon      | Plonky3  |
 | :------- | ------------ | -------- |
 | 16       | **0.007926** | 0.01639  |
 | 17       | **0.016391** | 0.024321 |
@@ -61,7 +61,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/f
 
 #### On Intel i9-13900K
 
-| Exponent | TachyonCPU   | Plonky3  |
+| Exponent | Tachyon      | Plonky3  |
 | :------- | ------------ | -------- |
 | 16       | **0.008384** | 0.018529 |
 | 17       | **0.017164** | 0.043266 |
@@ -76,7 +76,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/f
 
 #### On Mac M3 Pro
 
-| Exponent | TachyonCPU   | Plonky3      |
+| Exponent | Tachyon      | Plonky3      |
 | :------- | ------------ | ------------ |
 | 16       | **0.013503** | 0.020251     |
 | 17       | **0.028850** | 0.044731     |

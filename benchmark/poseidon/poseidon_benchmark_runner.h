@@ -32,7 +32,7 @@ class PoseidonBenchmarkRunner {
       : reporter_(reporter), config_(config) {}
 
   Field Run() {
-    reporter_.AddVendor(Vendor::TachyonCPU());
+    reporter_.AddVendor(Vendor::Tachyon());
     Field ret;
     for (size_t i = 0; i < config_.repeating_num(); ++i) {
       crypto::PoseidonConfig<Field> config =
@@ -41,7 +41,7 @@ class PoseidonBenchmarkRunner {
       crypto::SpongeState<Field> state(sponge.config);
       base::TimeTicks start = base::TimeTicks::Now();
       sponge.Permute(state);
-      reporter_.AddTime(Vendor::TachyonCPU(), base::TimeTicks::Now() - start);
+      reporter_.AddTime(Vendor::Tachyon(), base::TimeTicks::Now() - start);
       if (i == 0) {
         ret = state.elements[1];
       }

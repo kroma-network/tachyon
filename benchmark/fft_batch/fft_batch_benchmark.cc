@@ -69,7 +69,7 @@ int Run(const FFTBatchConfig& config) {
   runner.set_inputs(absl::MakeSpan(inputs));
 
   std::vector<math::RowMajorMatrix<F>> results;
-  runner.Run(Vendor::TachyonCPU(), results, config.run_coset_lde());
+  runner.Run(Vendor::Tachyon(), results, config.run_coset_lde());
   for (Vendor vendor : config.vendors()) {
     std::vector<math::RowMajorMatrix<F>> results_vendor;
     if (vendor.value() == Vendor::kPlonky3) {

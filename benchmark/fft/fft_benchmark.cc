@@ -108,12 +108,12 @@ void Run(const FFTConfig& config) {
   std::vector<RetPoly> halo2_results;
   if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
     runner.set_domains(absl::MakeSpan(domains));
-    runner.Run(Vendor::TachyonCPU(),
+    runner.Run(Vendor::Tachyon(),
                tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
                results, true);
     if (!halo2_domains.empty()) {
       runner.set_domains(absl::MakeSpan(halo2_domains));
-      runner.Run(Vendor::TachyonCPU(),
+      runner.Run(Vendor::Tachyon(),
                  tachyon_bn254_univariate_evaluation_domain_ifft_inplace,
                  degrees, halo2_results, false);
     }
@@ -142,12 +142,12 @@ void Run(const FFTConfig& config) {
   } else if constexpr (std::is_same_v<PolyOrEvals,
                                       typename Domain::DensePoly>) {
     runner.set_domains(absl::MakeSpan(domains));
-    runner.Run(Vendor::TachyonCPU(),
+    runner.Run(Vendor::Tachyon(),
                tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
                results, true);
     if (!halo2_domains.empty()) {
       runner.set_domains(absl::MakeSpan(halo2_domains));
-      runner.Run(Vendor::TachyonCPU(),
+      runner.Run(Vendor::Tachyon(),
                  tachyon_bn254_univariate_evaluation_domain_fft_inplace,
                  degrees, halo2_results, false);
     }

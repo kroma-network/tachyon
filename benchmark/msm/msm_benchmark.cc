@@ -64,7 +64,7 @@ int RealMain(int argc, char** argv) {
   MSMRunner<bn254::G1AffinePoint> runner(reporter);
   runner.SetInputs(test_set.bases, test_set.scalars);
   std::vector<bn254::G1JacobianPoint> results;
-  runner.Run(Vendor::TachyonCPU(), tachyon_bn254_g1_affine_msm, msm, point_nums,
+  runner.Run(Vendor::Tachyon(), tachyon_bn254_g1_affine_msm, msm, point_nums,
              results);
   for (Vendor vendor : config.vendors()) {
     std::vector<bn254::G1JacobianPoint> results_vendor;
