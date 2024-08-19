@@ -44,6 +44,7 @@ class Vendor {
 
   constexpr bool operator==(Vendor a) const { return value_ == a.value_; }
   constexpr bool operator!=(Vendor a) const { return value_ != a.value_; }
+  constexpr bool operator<(Vendor a) const { return value_ < a.value_; }
 
   std::string_view ToString() const {
     switch (value_) {

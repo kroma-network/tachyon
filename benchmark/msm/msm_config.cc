@@ -1,5 +1,6 @@
 #include "benchmark/msm/msm_config.h"
 
+#include <set>
 #include <string>
 
 #include "absl/strings/substitute.h"
@@ -47,7 +48,7 @@ bool MSMConfig::Parse(int argc, char** argv,
           "Testset to be benchmarked with. (supported testset: random, "
           "non_uniform)");
   if (options.include_vendors) {
-    parser_.AddFlag<base::Flag<std::vector<benchmark::Vendor>>>(&vendors_)
+    parser_.AddFlag<base::Flag<std::set<benchmark::Vendor>>>(&vendors_)
         .set_long_name("--vendor")
         .set_help(
             "Vendors to be benchmarked with. (supported vendors: arkworks, "

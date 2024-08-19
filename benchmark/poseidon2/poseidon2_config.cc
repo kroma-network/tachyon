@@ -1,5 +1,7 @@
 #include "benchmark/poseidon2/poseidon2_config.h"
 
+#include <set>
+
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/flag/flag_parser.h"
 
@@ -15,7 +17,7 @@ bool Poseidon2Config::Parse(int argc, char** argv) {
       .set_help(
           "A prime field to be benchmarked with. (supported prime fields: "
           "bn254_fr)");
-  parser_.AddFlag<base::Flag<std::vector<Vendor>>>(&vendors_)
+  parser_.AddFlag<base::Flag<std::set<Vendor>>>(&vendors_)
       .set_long_name("--vendor")
       .set_help(
           "Vendors to be benchmarked with. (supported vendors: horizen, "

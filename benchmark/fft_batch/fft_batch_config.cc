@@ -1,6 +1,7 @@
 #include "benchmark/fft_batch/fft_batch_config.h"
 
 #include <algorithm>
+#include <set>
 
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/containers/container_util.h"
@@ -30,7 +31,7 @@ bool FFTBatchConfig::Parse(int argc, char** argv) {
       .set_help(
           "A prime field to be benchmarked with. (supported prime fields: "
           "baby_bear");
-  parser_.AddFlag<base::Flag<std::vector<Vendor>>>(&vendors_)
+  parser_.AddFlag<base::Flag<std::set<Vendor>>>(&vendors_)
       .set_long_name("--vendor")
       .set_help("Vendors to be benchmarked with. (supported vendors: plonky3");
 

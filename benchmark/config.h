@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include <vector>
+#include <set>
 
 // clang-format off
 #include "benchmark/vendor.h"
@@ -23,14 +23,14 @@ class Config {
   Config(const Config& other) = delete;
   Config& operator=(const Config& other) = delete;
 
-  const std::vector<Vendor>& vendors() const { return vendors_; }
+  const std::set<Vendor>& vendors() const { return vendors_; }
   bool check_results() const { return check_results_; }
 
   bool Parse(int argc, char** argv, const Options& options);
 
  protected:
   base::FlagParser parser_;
-  std::vector<Vendor> vendors_;
+  std::set<Vendor> vendors_;
   bool check_results_;
 };
 

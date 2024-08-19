@@ -1,5 +1,6 @@
 #include "benchmark/fft/fft_config.h"
 
+#include <set>
 #include <string>
 
 #include "tachyon/base/console/iostream.h"
@@ -18,7 +19,7 @@ bool FFTConfig::Parse(int argc, char** argv, const Options& options) {
   parser_.AddFlag<base::BoolFlag>(&run_ifft_)
       .set_long_name("--run_ifft")
       .set_help("Run IFFT benchmark. Default is FFT benchmark.");
-  parser_.AddFlag<base::Flag<std::vector<Vendor>>>(&vendors_)
+  parser_.AddFlag<base::Flag<std::set<Vendor>>>(&vendors_)
       .set_long_name("--vendor")
       .set_help(
           "Vendors to be benchmarked with. (supported vendors: arkworks, "
