@@ -7,6 +7,7 @@
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_TWO_ADIC_SUBGROUP_H_
 
 #include <optional>
+#include <utility>
 #include <vector>
 
 #include "tachyon/base/optional.h"
@@ -20,27 +21,62 @@ class TwoAdicSubgroup {
   virtual ~TwoAdicSubgroup() = default;
 
   // Compute the discrete Fourier transform (DFT) of each column in |mat|.
-  virtual void FFTBatch(RowMajorMatrix<F>& mat) = 0;
+  virtual void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) = 0;
 
   // Compute the inverse DFT of each column in |mat|.
-  void IFFTBatch(RowMajorMatrix<F>& mat) {
-    static_assert(F::Config::kModulusBits <= 32);
+  void IFFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) {
+    if constexpr (F::Config::kModulusBits > 32) {
+      NOTREACHED();
+    }
     FFTBatch(mat);
     Eigen::Index rows = mat.rows();
+    // TODO(chokobole): Use |size_inv_| instead of directly computing the value.
     F inv = unwrap(F(rows).Inverse());
 
-    mat *= inv;
-
-    for (Eigen::Index row = 1; row < rows / 2; ++row) {
-      mat.row(row).swap(mat.row(rows - row));
+    mat.row(0) *= inv;
+    mat.row(rows / 2) *= inv;
+    OMP_PARALLEL_FOR(Eigen::Index row = 1; row < rows / 2; ++row) {
+      auto row1 = mat.row(row);
+      auto row2 = mat.row(rows - row);
+      row1 *= inv;
+      row2 *= inv;
+      row1.swap(row2);
     }
   }
 
+  // Compute the low-degree extension of each column in |mat| onto a coset of
+  // a larger subgroup.
+  virtual void CosetLDEBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat,
+                             size_t added_bits, F shift) {
+    if constexpr (F::Config::kModulusBits > 32) {
+      NOTREACHED();
+    }
+    IFFTBatch(mat);
+    Eigen::Index rows = mat.rows();
+    Eigen::Index new_rows = rows << added_bits;
+    Eigen::Index cols = mat.cols();
+
+    // Possible crash if the new resized length overflows
+    RowMajorMatrix<F> new_mat(new_rows, cols);
+    OMP_PARALLEL_FOR(Eigen::Index row = 0; row < new_rows; ++row) {
+      if (row < rows) {
+        new_mat.row(row) = mat.row(row);
+      } else {
+        new_mat.row(row).setZero();
+      }
+    }
+    mat = std::move(new_mat);
+    CosetFFTBatch(mat, shift);
+  }
+
+ private:
   // Compute the "coset DFT" of each column in |mat|. This can be viewed as
   // interpolation onto a coset of a multiplicative subgroup, rather than the
   // subgroup itself.
-  void CosetFFTBatch(RowMajorMatrix<F>& mat, F shift) {
-    static_assert(F::Config::kModulusBits <= 32);
+  void CosetFFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat, F shift) {
+    if constexpr (F::Config::kModulusBits > 32) {
+      NOTREACHED();
+    }
     // Observe that
     // yᵢ = ∑ⱼ cⱼ (s gⁱ)ʲ
     //    = ∑ⱼ (cⱼ sʲ) (gⁱ)ʲ
@@ -64,20 +100,6 @@ class TwoAdicSubgroup {
           }
         });
     FFTBatch(mat);
-  }
-
-  // Compute the low-degree extension of each column in |mat| onto a coset of
-  // a larger subgroup.
-  void CosetLDEBatch(RowMajorMatrix<F>& mat, size_t added_bits, F shift) {
-    static_assert(F::Config::kModulusBits <= 32);
-    IFFTBatch(mat);
-    Eigen::Index rows = mat.rows();
-    Eigen::Index cols = mat.cols();
-
-    // Possible crash if the new resized length overflows
-    mat.conservativeResizeLike(
-        RowMajorMatrix<F>::Zero(rows << added_bits, cols));
-    CosetFFTBatch(mat, shift);
   }
 };
 

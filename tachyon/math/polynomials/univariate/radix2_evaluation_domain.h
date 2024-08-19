@@ -81,7 +81,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   static std::unique_ptr<Radix2EvaluationDomain> Create(size_t num_coeffs) {
     auto ret = absl::WrapUnique(new Radix2EvaluationDomain(
         absl::bit_ceil(num_coeffs), base::bits::SafeLog2Ceiling(num_coeffs)));
-    ret->PrepareRootsVecCache();
+    ret->PrepareRootsVecCache(/*packed_vec_only=*/false);
     return ret;
   }
 
@@ -93,18 +93,16 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     return base::bits::SafeLog2Ceiling(num_coeffs) <= F::Config::kTwoAdicity;
   }
 
-  void FFTBatch(RowMajorMatrix<F>& mat) override {
+  void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) override {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::FFTBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    uint32_t log_n = this->log_size_of_group_;
-    mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
     ReverseMatrixIndexBits(mat);
-    RunParallelRowChunks(mat, roots_vec_[log_n - 1], packed_roots_vec_[0]);
+    RunParallelRowChunks(mat, roots_vec_.back(), packed_roots_vec_[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
     ReverseMatrixIndexBits(mat);
@@ -112,16 +110,14 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     ReverseMatrixIndexBits(mat);
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(RowMajorMatrix<F>& mat,
-                                             size_t added_bits,
-                                             const F& shift) {
+  CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
+      Eigen::MatrixBase<RowMajorMatrix<F>>& mat, size_t added_bits,
+      F shift) override {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
-    uint32_t log_n = this->log_size_of_group_;
-    mid_ = log_n / 2;
 
     // The first half looks like a normal DIT.
     ReverseMatrixIndexBits(mat);
@@ -153,17 +149,16 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       mat.row(base::bits::ReverseBitsLen(start + len - 1,
                                          this->log_size_of_group_)) *= weight;
     });
-    ExpandInPlaceWithZeroPad<RowMajorMatrix<F>>(mat, added_bits);
+    ExpandInPlaceWithZeroPad(mat, added_bits);
 
     size_t rows = static_cast<size_t>(mat.rows());
-    CHECK(base::bits::IsPowerOfTwo(rows));
-    std::unique_ptr<Radix2EvaluationDomain> domain =
-        Radix2EvaluationDomain::Create(rows);
-    log_n = domain->log_size_of_group_;
-    domain->mid_ = log_n / 2;
+    uint32_t log_size_of_group = base::bits::CheckedLog2(rows);
+    auto domain =
+        absl::WrapUnique(new Radix2EvaluationDomain(rows, log_size_of_group));
+    domain->PrepareRootsVecCache(/*packed_vec_only=*/true);
 
     // The first half looks like a normal DIT.
-    domain->RunParallelRowChunks(mat, domain->roots_vec_[log_n - 1],
+    domain->RunParallelRowChunks(mat, domain->roots_vec_.back(),
                                  domain->packed_roots_vec_[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
@@ -306,7 +301,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   //   [1],
   // ]
   // clang-format on
-  CONSTEXPR_IF_NOT_OPENMP void PrepareRootsVecCache() {
+  CONSTEXPR_IF_NOT_OPENMP void PrepareRootsVecCache(bool packed_vec_only) {
     TRACE_EVENT("EvaluationDomain", "PrepareRootsVecCache");
     if (this->log_size_of_group_ == 0) return;
 
@@ -346,6 +341,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
     roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
     inv_roots_vec_[0] = std::move(largest_inv);
+
+    if (packed_vec_only) return;
 
     // Prepare space in each vector for the others.
     size_t size = this->size_ / 2;
@@ -388,7 +385,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   // This can be used as the first half of a parallelized butterfly network.
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunks(
-      RowMajorMatrix<F>& mat, const std::vector<F>& twiddles,
+      Eigen::MatrixBase<RowMajorMatrix<F>>& mat, const std::vector<F>& twiddles,
       const std::vector<PackedPrimeField>& packed_twiddles_rev) {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunks");
     if constexpr (F::Config::kModulusBits > 32) {
@@ -396,15 +393,17 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
     CHECK(base::bits::IsPowerOfTwo(mat.rows()));
     size_t cols = static_cast<size_t>(mat.cols());
-    size_t chunk_rows = size_t{1} << mid_;
+    uint32_t log_n = this->log_size_of_group_;
+    uint32_t mid = log_n / 2;
+    size_t chunk_rows = size_t{1} << mid;
 
-    // max block size: 2^|mid_|
+    // max block size: 2^|mid|
     OMP_PARALLEL_FOR(size_t block_start = 0; block_start < this->size_;
                      block_start += chunk_rows) {
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
       Eigen::Block<RowMajorMatrix<F>> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
-      for (uint32_t layer = 0; layer < mid_; ++layer) {
+      for (uint32_t layer = 0; layer < mid; ++layer) {
         RunDitLayers(submat, layer, absl::MakeSpan(twiddles),
                      absl::MakeSpan(packed_twiddles_rev), false);
       }
@@ -413,7 +412,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   // This can be used as the second half of a parallelized butterfly network.
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunksReversed(
-      RowMajorMatrix<F>& mat, const std::vector<F>& twiddles_rev,
+      Eigen::MatrixBase<RowMajorMatrix<F>>& mat,
+      const std::vector<F>& twiddles_rev,
       const std::vector<PackedPrimeField>& packed_twiddles_rev) {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunksReversed");
 
@@ -422,18 +422,20 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
     CHECK(base::bits::IsPowerOfTwo(mat.rows()));
     size_t cols = static_cast<size_t>(mat.cols());
-    size_t chunk_rows = size_t{1} << (this->log_size_of_group_ - mid_);
+    uint32_t log_n = this->log_size_of_group_;
+    uint32_t mid = log_n / 2;
+    size_t chunk_rows = size_t{1} << (log_n - mid);
 
     TRACE_EVENT("Subtask", "RunDitLayersLoop");
-    // max block size: 2^(|this->log_size_of_group_| - |mid_|)
+    // max block size: 2^(|log_n| - |mid|)
     OMP_PARALLEL_FOR(size_t block_start = 0; block_start < this->size_;
                      block_start += chunk_rows) {
       size_t thread = block_start / chunk_rows;
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
       Eigen::Block<RowMajorMatrix<F>> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
-      for (uint32_t layer = mid_; layer < this->log_size_of_group_; ++layer) {
-        size_t first_block = thread << (layer - mid_);
+      for (uint32_t layer = mid; layer < log_n; ++layer) {
+        size_t first_block = thread << (layer - mid);
         RunDitLayers(submat, layer,
                      absl::MakeSpan(twiddles_rev.data() + first_block,
                                     twiddles_rev.size() - first_block),
@@ -501,7 +503,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
   }
 
-  uint32_t mid_ = 0;
   // For small prime fields
   std::vector<F> rev_roots_vec_;
   std::vector<F> rev_inv_roots_vec_;

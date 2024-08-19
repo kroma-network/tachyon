@@ -43,7 +43,7 @@ class TwoAdicMultiplicativeCoset {
     return x * domain_->group_gen();
   }
 
-  TwoAdicMultiplicativeCoset<F> CreateDisjointDomain(size_t min_size) const {
+  TwoAdicMultiplicativeCoset CreateDisjointDomain(size_t min_size) const {
     return {
         base::bits::SafeLog2Ceiling(min_size),
         domain_->offset() * F::FromMontgomery(F::Config::kSubgroupGenerator)};
@@ -56,7 +56,7 @@ class TwoAdicMultiplicativeCoset {
            ExtField::One();
   }
 
-  std::vector<TwoAdicMultiplicativeCoset<F>> SplitDomains(
+  std::vector<TwoAdicMultiplicativeCoset> SplitDomains(
       size_t num_chunks) const {
     uint32_t log_chunks = base::bits::CheckedLog2(num_chunks);
     F f = domain_->offset();
