@@ -19,6 +19,7 @@ __m256i kZero;
 __m256i kOne;
 __m256i kMinusOne;
 __m256i kTwoInv;
+__m256i kRawOne;
 
 __m256i ToVector(const PackedKoalaBearAVX2& packed) {
   return _mm256_loadu_si256(
@@ -58,6 +59,7 @@ void PackedKoalaBearAVX2::Init() {
   kOne = _mm256_set1_epi32(KoalaBear::Config::kOne);
   kMinusOne = _mm256_set1_epi32(KoalaBear::Config::kMinusOne);
   kTwoInv = _mm256_set1_epi32(KoalaBear::Config::kTwoInv);
+  kRawOne = _mm256_set1_epi32(1);
 }
 
 // static
@@ -74,6 +76,11 @@ PackedKoalaBearAVX2 PackedKoalaBearAVX2::MinusOne() {
 // static
 PackedKoalaBearAVX2 PackedKoalaBearAVX2::TwoInv() {
   return FromVector(kTwoInv);
+}
+
+// static
+PackedKoalaBearAVX2 PackedKoalaBearAVX2::RawOne() {
+  return FromVector(kRawOne);
 }
 
 // static

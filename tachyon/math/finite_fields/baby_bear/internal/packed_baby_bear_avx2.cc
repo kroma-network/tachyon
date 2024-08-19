@@ -19,6 +19,7 @@ __m256i kZero;
 __m256i kOne;
 __m256i kMinusOne;
 __m256i kTwoInv;
+__m256i kRawOne;
 
 __m256i ToVector(const PackedBabyBearAVX2& packed) {
   return _mm256_loadu_si256(
@@ -58,6 +59,7 @@ void PackedBabyBearAVX2::Init() {
   kOne = _mm256_set1_epi32(BabyBear::Config::kOne);
   kMinusOne = _mm256_set1_epi32(BabyBear::Config::kMinusOne);
   kTwoInv = _mm256_set1_epi32(BabyBear::Config::kTwoInv);
+  kRawOne = _mm256_set1_epi32(1);
 }
 
 // static
@@ -73,6 +75,9 @@ PackedBabyBearAVX2 PackedBabyBearAVX2::MinusOne() {
 
 // static
 PackedBabyBearAVX2 PackedBabyBearAVX2::TwoInv() { return FromVector(kTwoInv); }
+
+// static
+PackedBabyBearAVX2 PackedBabyBearAVX2::RawOne() { return FromVector(kRawOne); }
 
 // static
 PackedBabyBearAVX2 PackedBabyBearAVX2::Broadcast(const PrimeField& value) {

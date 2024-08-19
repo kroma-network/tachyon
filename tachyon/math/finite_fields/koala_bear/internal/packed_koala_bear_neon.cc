@@ -19,6 +19,7 @@ uint32x4_t kZero;
 uint32x4_t kOne;
 uint32x4_t kMinusOne;
 uint32x4_t kTwoInv;
+uint32x4_t kRawOne;
 
 uint32x4_t ToVector(const PackedKoalaBearNeon& packed) {
   return vld1q_u32(reinterpret_cast<const uint32_t*>(packed.values().data()));
@@ -60,6 +61,7 @@ void PackedKoalaBearNeon::Init() {
   kOne = vdupq_n_u32(KoalaBear::Config::kOne);
   kMinusOne = vdupq_n_u32(KoalaBear::Config::kMinusOne);
   kTwoInv = vdupq_n_u32(KoalaBear::Config::kTwoInv);
+  kRawOne = vdupq_n_u32(1);
 }
 
 // static
@@ -76,6 +78,11 @@ PackedKoalaBearNeon PackedKoalaBearNeon::MinusOne() {
 // static
 PackedKoalaBearNeon PackedKoalaBearNeon::TwoInv() {
   return FromVector(kTwoInv);
+}
+
+// static
+PackedKoalaBearNeon PackedKoalaBearNeon::RawOne() {
+  return FromVector(kRawOne);
 }
 
 // static
