@@ -52,11 +52,19 @@ class TwoAdicSubgroup {
     }
     IFFTBatch(mat);
     Eigen::Index rows = mat.rows();
+    Eigen::Index new_rows = rows << added_bits;
     Eigen::Index cols = mat.cols();
 
     // Possible crash if the new resized length overflows
-    mat.conservativeResizeLike(
-        RowMajorMatrix<F>::Zero(rows << added_bits, cols));
+    RowMajorMatrix<F> new_mat(new_rows, cols);
+    OMP_PARALLEL_FOR(Eigen::Index row = 0; row < new_rows; ++row) {
+      if (row < rows) {
+        new_mat.row(row) = mat.row(row);
+      } else {
+        new_mat.row(row).setZero();
+      }
+    }
+    mat = std::move(new_mat);
     CosetFFTBatch(mat, shift);
   }
 
