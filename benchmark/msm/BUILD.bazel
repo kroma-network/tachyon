@@ -9,7 +9,6 @@ tachyon_cc_library(
         "//benchmark:config",
         "//tachyon/base/console",
         "//tachyon/base/containers:container_util",
-        "//tachyon/base/flag:flag_parser",
         "//tachyon/base/ranges:algorithm",
         "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
         "@com_google_absl//absl/strings",

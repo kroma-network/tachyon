@@ -1,8 +1,6 @@
 #ifndef BENCHMARK_SIMPLE_REPORTER_H_
 #define BENCHMARK_SIMPLE_REPORTER_H_
 
-#include <stddef.h>
-
 #include <string>
 #include <unordered_map>
 #include <utility>

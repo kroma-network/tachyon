@@ -1,8 +1,6 @@
 #ifndef BENCHMARK_CONFIG_H_
 #define BENCHMARK_CONFIG_H_
 
-#include <stdint.h>
-
 #include <set>
 
 // clang-format off

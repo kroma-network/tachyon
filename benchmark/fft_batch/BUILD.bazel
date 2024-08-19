@@ -14,7 +14,6 @@ tachyon_cc_library(
         "//benchmark:field_type",
         "//tachyon/base/console",
         "//tachyon/base/containers:container_util",
-        "//tachyon/base/flag:flag_parser",
     ],
 )
 

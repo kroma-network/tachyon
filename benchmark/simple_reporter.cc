@@ -6,13 +6,9 @@
 using namespace matplotlibcpp17;
 #endif  // defined(TACHYON_HAS_MATPLOTLIB)
 
-// clang-format off
-#include "benchmark/vendor.h"
-// clang-format on
 #include "tachyon/base/console/table_writer.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/strings/string_number_conversions.h"
-#include "tachyon/base/time/time.h"
 
 namespace tachyon::benchmark {
 

@@ -6,8 +6,6 @@ tachyon_cc_library(
     hdrs = ["ec_config.h"],
     deps = [
         "//benchmark:config",
-        "//tachyon/base/console",
-        "//tachyon/base/flag:flag_parser",
         "//tachyon/base/ranges:algorithm",
     ],
 )

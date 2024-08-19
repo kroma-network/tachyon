@@ -1,9 +1,5 @@
 #include "benchmark/ec/ec_config.h"
 
-#include <string>
-
-#include "tachyon/base/console/iostream.h"
-#include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/ranges/algorithm.h"
 
 namespace tachyon::benchmark {

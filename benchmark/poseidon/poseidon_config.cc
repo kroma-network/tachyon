@@ -1,10 +1,5 @@
 #include "benchmark/poseidon/poseidon_config.h"
 
-#include <string>
-
-#include "tachyon/base/console/iostream.h"
-#include "tachyon/base/flag/flag_parser.h"
-
 namespace tachyon::benchmark {
 
 bool PoseidonConfig::Parse(int argc, char** argv) {

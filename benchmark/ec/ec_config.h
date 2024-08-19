@@ -1,8 +1,6 @@
 #ifndef BENCHMARK_EC_EC_CONFIG_H_
 #define BENCHMARK_EC_EC_CONFIG_H_
 
-#include <stdint.h>
-
 #include <vector>
 
 // clang-format off
