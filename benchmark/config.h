@@ -16,16 +16,22 @@ class Config {
     bool include_check_results = false;
   };
 
-  Config() = default;
+  Config();
+  explicit Config(const Options& options);
   Config(const Config& other) = delete;
   Config& operator=(const Config& other) = delete;
+  virtual ~Config() = default;
 
   const std::set<Vendor>& vendors() const { return vendors_; }
   bool check_results() const { return check_results_; }
 
-  bool Parse(int argc, char** argv, const Options& options);
+  bool Parse(int argc, char** argv);
 
  protected:
+  // Override this method if you need to perform any actions after |Parse()| is
+  // called.
+  virtual void PostParse() {}
+
   base::FlagParser parser_;
   std::set<Vendor> vendors_;
   bool check_results_;

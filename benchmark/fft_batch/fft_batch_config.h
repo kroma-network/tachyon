@@ -14,7 +14,7 @@ namespace tachyon::benchmark {
 
 class FFTBatchConfig : public Config {
  public:
-  FFTBatchConfig() = default;
+  FFTBatchConfig();
   FFTBatchConfig(const FFTBatchConfig& other) = delete;
   FFTBatchConfig& operator=(const FFTBatchConfig& other) = delete;
 
@@ -23,11 +23,12 @@ class FFTBatchConfig : public Config {
   bool run_coset_lde() const { return run_coset_lde_; }
   FieldType prime_field() const { return prime_field_; }
 
-  bool Parse(int argc, char** argv);
-
   std::vector<size_t> GetDegrees() const;
 
  private:
+  // Config methods
+  void PostParse() override;
+
   std::vector<uint32_t> exponents_;
   bool run_coset_lde_;
   size_t batch_size_;

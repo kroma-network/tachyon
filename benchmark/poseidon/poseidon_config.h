@@ -11,13 +11,11 @@ namespace tachyon::benchmark {
 
 class PoseidonConfig : public Config {
  public:
-  PoseidonConfig() = default;
+  PoseidonConfig();
   PoseidonConfig(const PoseidonConfig& other) = delete;
   PoseidonConfig& operator=(const PoseidonConfig& other) = delete;
 
   size_t repeating_num() const { return repeating_num_; }
-
-  bool Parse(int argc, char** argv);
 
  private:
   size_t repeating_num_ = 10;

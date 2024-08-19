@@ -7,7 +7,7 @@
 
 namespace tachyon::benchmark {
 
-bool FFTBatchConfig::Parse(int argc, char** argv) {
+FFTBatchConfig::FFTBatchConfig() : Config({/*include_check_results=*/true}) {
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
@@ -32,13 +32,10 @@ bool FFTBatchConfig::Parse(int argc, char** argv) {
   parser_.AddFlag<base::Flag<std::set<Vendor>>>(&vendors_)
       .set_long_name("--vendor")
       .set_help("Vendors to be benchmarked with. (supported vendors: plonky3");
+}
 
-  if (!Config::Parse(argc, argv, {/*include_check_results=*/true})) {
-    return false;
-  }
-
+void FFTBatchConfig::PostParse() {
   base::ranges::sort(exponents_);  // NOLINT(build/include_what_you_use)
-  return true;
 }
 
 std::vector<size_t> FFTBatchConfig::GetDegrees() const {

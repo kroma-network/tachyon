@@ -6,7 +6,7 @@
 
 namespace tachyon::benchmark {
 
-bool Poseidon2Config::Parse(int argc, char** argv) {
+Poseidon2Config::Poseidon2Config() : Config({/*include_check_results=*/true}) {
   parser_.AddFlag<base::Flag<size_t>>(&repeating_num_)
       .set_short_name("-n")
       .set_help("Specify the number of repetition 'n'. By default, 10.");
@@ -21,8 +21,6 @@ bool Poseidon2Config::Parse(int argc, char** argv) {
       .set_help(
           "Vendors to be benchmarked with. (supported vendors: horizen, "
           "plonky3)");
-
-  return Config::Parse(argc, argv, {/*include_check_results=*/true});
 }
 
 }  // namespace tachyon::benchmark

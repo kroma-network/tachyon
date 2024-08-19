@@ -8,7 +8,7 @@
 
 namespace tachyon::benchmark {
 
-bool FFTConfig::Parse(int argc, char** argv, const Options& options) {
+FFTConfig::FFTConfig(const Options& options) : Config(options) {
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
@@ -24,13 +24,10 @@ bool FFTConfig::Parse(int argc, char** argv, const Options& options) {
             "Vendors to be benchmarked with. (supported vendors: arkworks, "
             "bellman, halo2)");
   }
+}
 
-  if (!Config::Parse(argc, argv, options)) {
-    return false;
-  }
-
+void FFTConfig::PostParse() {
   base::ranges::sort(exponents_);  // NOLINT(build/include_what_you_use)
-  return true;
 }
 
 std::vector<size_t> FFTConfig::GetDegrees() const {

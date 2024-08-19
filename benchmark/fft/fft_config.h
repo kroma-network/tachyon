@@ -17,18 +17,19 @@ class FFTConfig : public Config {
     bool include_vendors = false;
   };
 
-  FFTConfig() = default;
+  explicit FFTConfig(const Options& options);
   FFTConfig(const FFTConfig& other) = delete;
   FFTConfig& operator=(const FFTConfig& other) = delete;
 
   const std::vector<uint32_t>& exponents() const { return exponents_; }
   bool run_ifft() const { return run_ifft_; }
 
-  bool Parse(int argc, char** argv, const Options& options);
-
   std::vector<size_t> GetDegrees() const;
 
  private:
+  // Config methods
+  void PostParse() override;
+
   std::vector<uint32_t> exponents_;
   bool run_ifft_ = false;
 };
