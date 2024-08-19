@@ -75,7 +75,8 @@ class TwoAdicFriPCSTest : public testing::Test {
                 std::move(compressor), std::move(packed_compressor)));
 
     // TODO(ashjeong): Include separate test for |log_blowup| = 2
-    TwoAdicFriConfig<ChallengeMMCS> fri_config{1, 10, 8, challenge_mmcs};
+    TwoAdicFriConfig<ChallengeMMCS> fri_config{1, 10, 8,
+                                               std::move(challenge_mmcs)};
 
     pcs_ = MyPcs(std::move(mmcs), std::move(fri_config));
     challenger_ = Challenger(std::move(sponge));
