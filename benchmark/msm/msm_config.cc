@@ -60,7 +60,7 @@ bool MSMConfig::Parse(int argc, char** argv,
     return false;
   }
 
-  base::ranges::sort(exponents_);  // NOLINT
+  base::ranges::sort(exponents_);  // NOLINT(build/include_what_you_use)
   return true;
 }
 

@@ -29,7 +29,7 @@ bool FFTConfig::Parse(int argc, char** argv, const Options& options) {
     return false;
   }
 
-  base::ranges::sort(exponents_);  // NOLINT
+  base::ranges::sort(exponents_);  // NOLINT(build/include_what_you_use)
   return true;
 }
 

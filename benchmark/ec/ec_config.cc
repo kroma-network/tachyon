@@ -16,7 +16,7 @@ bool ECConfig::Parse(int argc, char** argv) {
     return false;
   }
 
-  base::ranges::sort(point_nums_);  // NOLINT
+  base::ranges::sort(point_nums_);  // NOLINT(build/include_what_you_use)
   return true;
 }
 

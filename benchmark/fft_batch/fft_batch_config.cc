@@ -1,6 +1,5 @@
 #include "benchmark/fft_batch/fft_batch_config.h"
 
-#include <algorithm>
 #include <set>
 
 #include "tachyon/base/console/iostream.h"
@@ -40,7 +39,7 @@ bool FFTBatchConfig::Parse(int argc, char** argv) {
     return false;
   }
 
-  base::ranges::sort(exponents_);
+  base::ranges::sort(exponents_);  // NOLINT(build/include_what_you_use)
   return true;
 }
 
