@@ -86,7 +86,8 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  SimpleReporter reporter("Poseidon2 Benchmark");
+  SimpleReporter reporter;
+  reporter.set_title("Poseidon2 Benchmark");
   reporter.set_x_label("Trial number");
   reporter.set_column_labels(
       base::CreateVector(config.repeating_num(),

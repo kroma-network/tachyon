@@ -16,10 +16,10 @@ namespace tachyon::benchmark {
 class SimpleReporter {
  public:
   SimpleReporter() = default;
-  explicit SimpleReporter(std::string_view title)
-      : title_(std::string(title)) {}
   SimpleReporter(const SimpleReporter& other) = delete;
   SimpleReporter& operator=(const SimpleReporter& other) = delete;
+
+  void set_title(std::string_view title) { title_ = std::string(title); }
 
   void set_x_label(std::string_view x_label) {
     x_label_ = std::string(x_label);

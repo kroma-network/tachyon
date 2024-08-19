@@ -23,8 +23,8 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  SimpleReporter reporter("MSM Benchmark");
-
+  SimpleReporter reporter;
+  reporter.set_title("MSM Benchmark");
   reporter.set_x_label("Degree (2ˣ)");
   reporter.set_column_labels(base::Map(
       config.exponents(),

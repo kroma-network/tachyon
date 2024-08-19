@@ -44,8 +44,8 @@ int Run(const FFTBatchConfig& config) {
                             config.batch_size());
   }
 
-  SimpleReporter reporter(name);
-
+  SimpleReporter reporter;
+  reporter.set_title(name);
   reporter.set_x_label("Degree (2ˣ)");
   reporter.set_column_labels(base::Map(
       config.exponents(),
