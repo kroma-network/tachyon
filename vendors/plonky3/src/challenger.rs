@@ -23,7 +23,7 @@ mod test {
         const ROUNDS_F: usize = 8;
         const ROUNDS_P: usize = 13;
 
-        const RATE: usize = 4;
+        const RATE: usize = 8;
 
         // Copy over round constants from zkhash.
         let mut round_constants: Vec<[BabyBear; WIDTH]> = RC16

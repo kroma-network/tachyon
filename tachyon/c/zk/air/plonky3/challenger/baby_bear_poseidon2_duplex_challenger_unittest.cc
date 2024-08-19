@@ -28,7 +28,7 @@ class DuplexChallengerTest : public math::FiniteFieldTest<F> {
 };
 
 TEST_F(DuplexChallengerTest, APIs) {
-  DuplexChallenger<Poseidon2, 16, 4> challenger =
+  DuplexChallenger<Poseidon2, 16, 8> challenger =
       c::base::native_cast(*challenger_);
   for (size_t i = 0; i < 20; ++i) {
     F value(i);

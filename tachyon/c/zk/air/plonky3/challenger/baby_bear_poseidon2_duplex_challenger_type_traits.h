@@ -15,7 +15,7 @@ struct TypeTraits<tachyon::zk::air::plonky3::DuplexChallenger<
     tachyon::crypto::Poseidon2Sponge<tachyon::crypto::Poseidon2ExternalMatrix<
         tachyon::crypto::Poseidon2Plonky3ExternalMatrix<
             tachyon::math::BabyBear>>>,
-    16, 4>> {
+    16, 8>> {
   using CType = tachyon_plonky3_baby_bear_poseidon2_duplex_challenger;
 };
 
@@ -25,7 +25,7 @@ struct TypeTraits<tachyon_plonky3_baby_bear_poseidon2_duplex_challenger> {
       tachyon::crypto::Poseidon2Sponge<tachyon::crypto::Poseidon2ExternalMatrix<
           tachyon::crypto::Poseidon2Plonky3ExternalMatrix<
               tachyon::math::BabyBear>>>,
-      16, 4>;
+      16, 8>;
 };
 
 }  // namespace tachyon::c::base
