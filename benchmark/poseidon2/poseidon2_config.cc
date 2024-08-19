@@ -14,9 +14,10 @@ Poseidon2Config::Poseidon2Config() {
   parser_.AddFlag<base::Flag<FieldType>>(&prime_field_)
       .set_short_name("-p")
       .set_long_name("--prime_field")
+      .set_required()
       .set_help(
           "A prime field to be benchmarked with. (supported prime fields: "
-          "bn254_fr)");
+          "baby_bear, bn254_fr)");
   parser_.AddFlag<base::Flag<std::set<Vendor>>>(&vendors_)
       .set_long_name("--vendor")
       .set_help(
