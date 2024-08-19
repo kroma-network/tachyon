@@ -36,12 +36,11 @@ class FlagValueTraits<MSMConfig::TestSet> {
 
 bool MSMConfig::Parse(int argc, char** argv,
                       const MSMConfig::Options& options) {
-  // clang-format off
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
-      .set_help("Specify the exponent 'k' where the number of points to test is 2ᵏ.");
-  // clang-format on
+      .set_help(
+          "Specify the exponent 'k' where the number of points to test is 2ᵏ.");
   parser_.AddFlag<base::Flag<TestSet>>(&test_set_)
       .set_long_name("--test_set")
       .set_help(

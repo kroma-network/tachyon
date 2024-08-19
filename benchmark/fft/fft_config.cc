@@ -10,12 +10,11 @@
 namespace tachyon::benchmark {
 
 bool FFTConfig::Parse(int argc, char** argv, const Options& options) {
-  // clang-format off
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
-      .set_help("Specify the exponent 'k's where the degree of poly to test is 2ᵏ.");
-  // clang-format on
+      .set_help(
+          "Specify the exponent 'k's where the degree of poly to test is 2ᵏ.");
   parser_.AddFlag<base::BoolFlag>(&run_ifft_)
       .set_long_name("--run_ifft")
       .set_help("Run IFFT benchmark. Default is FFT benchmark.");
