@@ -2499,6 +2499,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db23d408679286588f4d4644f965003d056e3dd5abcaaa938116871d7ce2fee7"
 
 [[package]]
+name = "plonky3_batch_fft_benchmark"
+version = "0.0.1"
+dependencies = [
+ "p3-baby-bear",
+ "p3-dft",
+ "p3-field",
+ "p3-matrix",
+ "tachyon_rs",
+]
+
+[[package]]
 name = "plonky3_poseidon2_benchmark"
 version = "0.0.1"
 dependencies = [

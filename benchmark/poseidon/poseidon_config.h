@@ -3,24 +3,26 @@
 
 #include <stddef.h>
 
-namespace tachyon {
+// clang-format off
+#include "benchmark/config.h"
+// clang-format on
 
-class PoseidonConfig {
+namespace tachyon::benchmark {
+
+class PoseidonConfig : public Config {
  public:
   PoseidonConfig() = default;
   PoseidonConfig(const PoseidonConfig& other) = delete;
   PoseidonConfig& operator=(const PoseidonConfig& other) = delete;
 
-  bool check_results() const { return check_results_; }
   size_t repeating_num() const { return repeating_num_; }
 
   bool Parse(int argc, char** argv);
 
  private:
-  bool check_results_ = false;
   size_t repeating_num_ = 10;
 };
 
-}  // namespace tachyon
+}  // namespace tachyon::benchmark
 
 #endif  // BENCHMARK_POSEIDON_POSEIDON_CONFIG_H_

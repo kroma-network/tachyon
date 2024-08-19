@@ -1,0 +1,50 @@
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_binary",
+    "tachyon_cc_library",
+)
+
+tachyon_cc_library(
+    name = "fft_batch_config",
+    testonly = True,
+    srcs = ["fft_batch_config.cc"],
+    hdrs = ["fft_batch_config.h"],
+    deps = [
+        "//benchmark:config",
+        "//benchmark:field_type",
+        "//tachyon/base/console",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/flag:flag_parser",
+    ],
+)
+
+tachyon_cc_library(
+    name = "fft_batch_runner",
+    testonly = True,
+    hdrs = ["fft_batch_runner.h"],
+    deps = [
+        ":fft_batch_config",
+        "//benchmark:simple_reporter",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/time",
+        "//tachyon/c/math/matrix",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/math/polynomials/univariate:radix2_evaluation_domain",
+    ],
+)
+
+tachyon_cc_binary(
+    name = "fft_batch_benchmark",
+    testonly = True,
+    srcs = ["fft_batch_benchmark.cc"],
+    deps = [
+        ":fft_batch_config",
+        ":fft_batch_runner",
+        "//benchmark:simple_reporter",
+        "//benchmark/fft_batch/plonky3",
+        "//tachyon/c/math/finite_fields/baby_bear",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/math/polynomials/univariate:radix2_evaluation_domain",
+        "@com_google_absl//absl/strings",
+    ],
+)

@@ -6,6 +6,7 @@ tachyon_cc_library(
     srcs = ["msm_config.cc"],
     hdrs = ["msm_config.h"],
     deps = [
+        "//benchmark:config",
         "//tachyon/base/console",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/flag:flag_parser",
@@ -19,20 +20,10 @@ tachyon_cc_library(
     name = "msm_runner",
     hdrs = ["msm_runner.h"],
     deps = [
-        ":simple_msm_benchmark_reporter",
+        "//benchmark:simple_reporter",
         "//tachyon/base/time",
         "//tachyon/c/math/elliptic_curves:point_traits_forward",
-    ],
-)
-
-tachyon_cc_library(
-    name = "simple_msm_benchmark_reporter",
-    srcs = ["simple_msm_benchmark_reporter.cc"],
-    hdrs = ["simple_msm_benchmark_reporter.h"],
-    deps = [
-        "//benchmark:simple_benchmark_reporter",
-        "//tachyon/base/containers:container_util",
-        "//tachyon/base/strings:string_number_conversions",
+        "@com_google_absl//absl/types:span",
     ],
 )
 
@@ -43,6 +34,7 @@ tachyon_cc_binary(
     deps = [
         ":msm_config",
         ":msm_runner",
+        "//benchmark:simple_reporter",
         "//benchmark/msm/arkworks",
         "//benchmark/msm/bellman",
         "//benchmark/msm/halo2",
@@ -57,6 +49,7 @@ tachyon_cc_binary(
     deps = [
         ":msm_config",
         ":msm_runner",
+        "//benchmark:simple_reporter",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
     ],

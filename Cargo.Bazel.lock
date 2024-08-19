@@ -1,5 +1,5 @@
 {
-  "checksum": "e580ed4d35bc3975a2a92b01f0b25307c5311abb39e26d03b4f436f05ad77d8a",
+  "checksum": "fe9ae6f4561ad04bed9e5ebe9cba69153f8f8ff4c819e68d1aa1ffc9128967e2",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -12906,6 +12906,52 @@
       },
       "license": "Apache-2.0 OR MIT"
     },
+    "plonky3_batch_fft_benchmark 0.0.1": {
+      "name": "plonky3_batch_fft_benchmark",
+      "version": "0.0.1",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "plonky3_batch_fft_benchmark",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "plonky3_batch_fft_benchmark",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "p3-baby-bear 0.1.3-succinct",
+              "target": "p3_baby_bear"
+            },
+            {
+              "id": "p3-dft 0.1.3-succinct",
+              "target": "p3_dft"
+            },
+            {
+              "id": "p3-field 0.1.3-succinct",
+              "target": "p3_field"
+            },
+            {
+              "id": "p3-matrix 0.1.3-succinct",
+              "target": "p3_matrix"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "plonky3_poseidon2_benchmark 0.0.1": {
       "name": "plonky3_poseidon2_benchmark",
       "version": "0.0.1",
@@ -21494,6 +21540,7 @@
     "halo2_fft_benchmark 0.0.1": "benchmark/fft/halo2",
     "halo2_msm_benchmark 0.0.1": "benchmark/msm/halo2",
     "horizen_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/horizen",
+    "plonky3_batch_fft_benchmark 0.0.1": "benchmark/fft_batch/plonky3",
     "plonky3_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/plonky3",
     "tachyon_plonky3 0.0.1": "vendors/plonky3",
     "tachyon_rs 0.0.1": "tachyon/rs",

@@ -10,6 +10,8 @@ tachyon_cc_library(
     srcs = ["poseidon2_config.cc"],
     hdrs = ["poseidon2_config.h"],
     deps = [
+        "//benchmark:config",
+        "//benchmark:field_type",
         "//tachyon/base/console",
         "//tachyon/base/flag:flag_parser",
     ],
@@ -21,7 +23,7 @@ tachyon_cc_library(
     hdrs = ["poseidon2_benchmark_runner.h"],
     deps = [
         ":poseidon2_config",
-        "//benchmark/poseidon:simple_poseidon_benchmark_reporter",
+        "//benchmark:simple_reporter",
         "//tachyon/base:logging",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/time",
@@ -38,9 +40,10 @@ tachyon_cc_binary(
     deps = [
         ":poseidon2_benchmark_runner",
         ":poseidon2_config",
-        "//benchmark/poseidon:simple_poseidon_benchmark_reporter",
+        "//benchmark:simple_reporter",
         "//benchmark/poseidon2/horizen",
         "//benchmark/poseidon2/plonky3",
+        "//tachyon/base/console",
         "//tachyon/base/containers:contains",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/math/finite_fields/baby_bear",

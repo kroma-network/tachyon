@@ -2,6 +2,7 @@
 #define TACHYON_C_MATH_MATRIX_BABY_BEAR_ROW_MAJOR_MATRIX_TYPE_TRAITS_H_
 
 #include "tachyon/c/base/type_traits_forward.h"
+#include "tachyon/c/math/matrix/baby_bear_row_major_matrix.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
 #include "tachyon/math/matrix/matrix_types.h"
 

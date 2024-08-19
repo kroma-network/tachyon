@@ -5,21 +5,10 @@ tachyon_cc_library(
     srcs = ["ec_config.cc"],
     hdrs = ["ec_config.h"],
     deps = [
+        "//benchmark:config",
         "//tachyon/base/console",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/base/ranges:algorithm",
-    ],
-)
-
-tachyon_cc_library(
-    name = "simple_ec_benchmark_reporter",
-    srcs = ["simple_ec_benchmark_reporter.cc"],
-    hdrs = ["simple_ec_benchmark_reporter.h"],
-    visibility = ["//benchmark:__subpackages__"],
-    deps = [
-        "//benchmark:simple_benchmark_reporter",
-        "//tachyon/base/containers:container_util",
-        "//tachyon/base/strings:string_number_conversions",
     ],
 )
 
@@ -29,7 +18,7 @@ tachyon_cuda_binary(
     srcs = ["ec_double_benchmark_gpu.cc"],
     deps = [
         ":ec_config",
-        ":simple_ec_benchmark_reporter",
+        "//benchmark:simple_reporter",
         "//tachyon/base/time:time_interval",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
