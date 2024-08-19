@@ -8,6 +8,7 @@
 #include "benchmark/simple_reporter.h"
 // clang-format on
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
+#include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 
 namespace tachyon::benchmark {
 
@@ -31,8 +32,12 @@ void CheckResults(bool check_results,
 template <typename F>
 void Run(const FFTBatchConfig& config) {
   using Domain = math::Radix2EvaluationDomain<F, SIZE_MAX - 1>;
+  using PackedPrimeField =
+      // NOLINTNEXTLINE(whitespace/operators)
+      std::conditional_t<F::Config::kModulusBits <= 32,
+                         typename math::PackedFieldTraits<F>::PackedField, F>;
 
-  F::Init();
+  PackedPrimeField::Init();
 
   std::string name;
   if (config.run_coset_lde()) {
