@@ -7,7 +7,6 @@
 #define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON2_POSEIDON2_H_
 
 #include <utility>
-#include <vector>
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/logging.h"

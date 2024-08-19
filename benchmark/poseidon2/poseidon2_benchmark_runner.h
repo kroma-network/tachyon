@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <utility>
-#include <vector>
 
 // clang-format off
 #include "benchmark/simple_reporter.h"
