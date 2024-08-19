@@ -4,7 +4,7 @@
 // clang-format off
 #include "benchmark/fft/fft_config.h"
 #include "benchmark/fft/fft_runner.h"
-#include "benchmark/fft/simple_fft_benchmark_reporter.h"
+#include "benchmark/simple_reporter.h"
 // clang-format on
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
@@ -13,7 +13,7 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
-namespace tachyon {
+namespace tachyon::benchmark {
 
 using namespace math;
 
@@ -30,9 +30,13 @@ void Run(const FFTConfig& config) {
   } else {
     name = "FFT Benchmark GPU";
   }
-  SimpleFFTBenchmarkReporter reporter(name, config.exponents());
-  reporter.AddVendor("tachyon_cpu");
-  reporter.AddVendor("tachyon_gpu");
+
+  SimpleReporter reporter(name);
+
+  reporter.SetXLabel("Degree (2ˣ)");
+  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint64_t exponent) {
+    return base::NumberToString(exponent);
+  }));
 
   std::vector<size_t> degrees = config.GetDegrees();
 
@@ -54,19 +58,23 @@ void Run(const FFTConfig& config) {
   std::vector<RetPoly> results_gpu;
   bool kShouldRecord = true;
   if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
-    runner.Run(tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
-               &results, kShouldRecord);
+    runner.Run(Vendor::TachyonCPU(),
+               tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
+               results, kShouldRecord);
     runner.SwitchToIcicle(&icicle_ntt_holder);
-    runner.Run(tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
-               &results_gpu, kShouldRecord);
+    runner.Run(Vendor::TachyonGPU(),
+               tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
+               results_gpu, kShouldRecord);
     // NOLINTNEXTLINE(readability/braces)
   } else if constexpr (std::is_same_v<PolyOrEvals,
                                       typename Domain::DensePoly>) {
-    runner.Run(tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
-               &results, kShouldRecord);
+    runner.Run(Vendor::TachyonCPU(),
+               tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
+               results, kShouldRecord);
     runner.SwitchToIcicle(&icicle_ntt_holder);
-    runner.Run(tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
-               &results_gpu, kShouldRecord);
+    runner.Run(Vendor::TachyonGPU(),
+               tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
+               results_gpu, kShouldRecord);
   }
   if (config.check_results()) {
     CHECK(results == results_gpu) << "Results not matched";
@@ -99,9 +107,11 @@ int RealMain(int argc, char** argv) {
   return 0;
 }
 
-}  // namespace tachyon
+}  // namespace tachyon::benchmark
 
-int main(int argc, char** argv) { return tachyon::RealMain(argc, argv); }
+int main(int argc, char** argv) {
+  return tachyon::benchmark::RealMain(argc, argv);
+}
 #else
 #include "tachyon/base/console/iostream.h"
 

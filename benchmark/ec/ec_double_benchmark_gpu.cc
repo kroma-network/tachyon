@@ -3,7 +3,7 @@
 #include <iostream>
 
 // clang-format off
-#include "benchmark/ec/simple_ec_benchmark_reporter.h"
+#include "benchmark/simple_reporter.h"
 #include "benchmark/ec/ec_config.h"
 // clang-format on
 #include "tachyon/base/time/time_interval.h"
@@ -13,7 +13,7 @@
 #include "tachyon/math/elliptic_curves/test/random.h"
 #include "tachyon/math/geometry/point_conversions.h"
 
-namespace tachyon {
+namespace tachyon::benchmark {
 
 using namespace device;
 using namespace math;
@@ -61,7 +61,11 @@ int RealMain(int argc, char** argv) {
   math::bn254::G1CurveGpu::Init();
 
   const std::vector<uint64_t>& point_nums = config.point_nums();
-  SimpleECBenchmarkReporter reporter("EC double benchmark", point_nums);
+  SimpleReporter reporter("EC double benchmark");
+
+  reporter.SetXLabel("# of points");
+  reporter.SetColumnLabels(base::Map(
+      point_nums, [](uint64_t num) { return base::NumberToString(num); }));
 
   std::cout << "Generating random points..." << std::endl;
   uint64_t max_point_num = point_nums.back();
@@ -73,10 +77,11 @@ int RealMain(int argc, char** argv) {
 
   std::vector<math::bn254::G1JacobianPoint> results_cpu;
   results_cpu.resize(max_point_num);
+  reporter.AddVendor(Vendor::TachyonCPU());
   base::TimeInterval interval(base::TimeTicks::Now());
   for (size_t i = 0; i < point_nums.size(); ++i) {
     TestDoubleOnCPU(bases, results_cpu, point_nums[i]);
-    reporter.AddTime(i, interval.GetTimeDelta().InSecondsF());
+    reporter.AddTime(Vendor::TachyonCPU(), interval.GetTimeDelta());
   }
 
   GPU_MUST_SUCCEED(gpuDeviceReset(), "Failed gpuDeviceReset()");
@@ -87,11 +92,12 @@ int RealMain(int argc, char** argv) {
       gpu::GpuMemory<math::bn254::G1JacobianPointGpu>::MallocManaged(
           max_point_num);
 
+  reporter.AddVendor(Vendor::TachyonGPU());
   interval.Reset();
   for (size_t i = 0; i < point_nums.size(); ++i) {
     TestDoubleOnGPU(bases_cuda.data(), results_cuda.data(), bases,
                     point_nums[i]);
-    reporter.AddTime(i, interval.GetTimeDelta().InSecondsF());
+    reporter.AddTime(Vendor::TachyonGPU(), interval.GetTimeDelta());
   }
 
   reporter.Show();
@@ -99,9 +105,11 @@ int RealMain(int argc, char** argv) {
   return 0;
 }
 
-}  // namespace tachyon
+}  // namespace tachyon::benchmark
 
-int main(int argc, char** argv) { return tachyon::RealMain(argc, argv); }
+int main(int argc, char** argv) {
+  return tachyon::benchmark::RealMain(argc, argv);
+}
 #else
 #include "tachyon/base/console/iostream.h"
 

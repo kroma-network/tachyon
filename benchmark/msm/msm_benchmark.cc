@@ -3,13 +3,13 @@
 // clang-format off
 #include "benchmark/msm/msm_config.h"
 #include "benchmark/msm/msm_runner.h"
-#include "benchmark/msm/simple_msm_benchmark_reporter.h"
+#include "benchmark/simple_reporter.h"
 // clang-format on
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm.h"
 
-namespace tachyon {
+namespace tachyon::benchmark {
 
 using namespace math;
 
@@ -42,11 +42,12 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  SimpleMSMBenchmarkReporter reporter("MSM Benchmark", config.exponents());
-  reporter.AddVendor("tachyon");
-  for (const MSMConfig::Vendor vendor : config.vendors()) {
-    reporter.AddVendor(MSMConfig::VendorToString(vendor));
-  }
+  SimpleReporter reporter("MSM Benchmark");
+
+  reporter.SetXLabel("Degree (2ˣ)");
+  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint64_t exponent) {
+    return base::NumberToString(exponent);
+  }));
 
   std::vector<uint64_t> point_nums = config.GetPointNums();
 
@@ -63,19 +64,17 @@ int RealMain(int argc, char** argv) {
   MSMRunner<bn254::G1AffinePoint> runner(reporter);
   runner.SetInputs(test_set.bases, test_set.scalars);
   std::vector<bn254::G1JacobianPoint> results;
-  runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, results);
-  for (const MSMConfig::Vendor vendor : config.vendors()) {
+  runner.Run(Vendor::TachyonCPU(), tachyon_bn254_g1_affine_msm, msm, point_nums,
+             results);
+  for (Vendor vendor : config.vendors()) {
     std::vector<bn254::G1JacobianPoint> results_vendor;
-    switch (vendor) {
-      case MSMConfig::Vendor::kArkworks:
-        runner.RunExternal(run_msm_arkworks, point_nums, results_vendor);
-        break;
-      case MSMConfig::Vendor::kBellman:
-        runner.RunExternal(run_msm_bellman, point_nums, results_vendor);
-        break;
-      case MSMConfig::Vendor::kHalo2:
-        runner.RunExternal(run_msm_halo2_adapter, point_nums, results_vendor);
-        break;
+    if (vendor.value() == Vendor::kArkworks) {
+      runner.RunExternal(vendor, run_msm_arkworks, point_nums, results_vendor);
+    } else if (vendor.value() == Vendor::kBellman) {
+      runner.RunExternal(vendor, run_msm_bellman, point_nums, results_vendor);
+    } else if (vendor.value() == Vendor::kScrollHalo2) {
+      runner.RunExternal(vendor, run_msm_halo2_adapter, point_nums,
+                         results_vendor);
     }
 
     if (config.check_results()) {
@@ -90,6 +89,8 @@ int RealMain(int argc, char** argv) {
   return 0;
 }
 
-}  // namespace tachyon
+}  // namespace tachyon::benchmark
 
-int main(int argc, char** argv) { return tachyon::RealMain(argc, argv); }
+int main(int argc, char** argv) {
+  return tachyon::benchmark::RealMain(argc, argv);
+}

@@ -6,36 +6,25 @@
 #include <string>
 #include <vector>
 
+// clang-format off
+#include "benchmark/config.h"
+// clang-format on
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
-namespace tachyon {
+namespace tachyon::benchmark {
 
-class MSMConfig {
+class MSMConfig : public Config {
  public:
   enum class TestSet {
     kRandom,
     kNonUniform,
   };
 
-  enum class Vendor {
-    kArkworks,
-    kBellman,
-    kHalo2,
-  };
-
-  struct Options {
-    bool include_vendors = false;
-  };
-
-  static std::string VendorToString(Vendor vendor);
-
   MSMConfig() = default;
   MSMConfig(const MSMConfig& other) = delete;
   MSMConfig& operator=(const MSMConfig& other) = delete;
 
   const std::vector<uint64_t>& exponents() const { return exponents_; }
-  const std::vector<Vendor>& vendors() const { return vendors_; }
-  bool check_results() const { return check_results_; }
 
   bool Parse(int argc, char** argv, const Options& options);
 
@@ -59,11 +48,9 @@ class MSMConfig {
 
  private:
   std::vector<uint64_t> exponents_;
-  std::vector<Vendor> vendors_;
   TestSet test_set_ = TestSet::kRandom;
-  bool check_results_ = false;
 };
 
-}  // namespace tachyon
+}  // namespace tachyon::benchmark
 
 #endif  // BENCHMARK_MSM_MSM_CONFIG_H_

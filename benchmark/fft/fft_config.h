@@ -6,30 +6,20 @@
 #include <string>
 #include <vector>
 
-namespace tachyon {
+// clang-format off
+#include "benchmark/config.h"
+// clang-format on
 
-class FFTConfig {
+namespace tachyon::benchmark {
+
+class FFTConfig : public Config {
  public:
-  enum class Vendor {
-    kArkworks,
-    kBellman,
-    kHalo2,
-  };
-
-  struct Options {
-    bool include_vendors = false;
-  };
-
-  static std::string VendorToString(Vendor vendor);
-
   FFTConfig() = default;
   FFTConfig(const FFTConfig& other) = delete;
   FFTConfig& operator=(const FFTConfig& other) = delete;
 
   const std::vector<size_t>& exponents() const { return exponents_; }
-  const std::vector<Vendor>& vendors() const { return vendors_; }
   bool run_ifft() const { return run_ifft_; }
-  bool check_results() const { return check_results_; }
 
   bool Parse(int argc, char** argv, const Options& options);
 
@@ -37,11 +27,9 @@ class FFTConfig {
 
  private:
   std::vector<size_t> exponents_;
-  std::vector<Vendor> vendors_;
   bool run_ifft_ = false;
-  bool check_results_ = false;
 };
 
-}  // namespace tachyon
+}  // namespace tachyon::benchmark
 
 #endif  // BENCHMARK_FFT_FFT_CONFIG_H_

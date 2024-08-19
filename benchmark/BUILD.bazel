@@ -2,15 +2,17 @@ load("//bazel:tachyon.bzl", "if_has_matplotlib")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_matplotlib_defines")
 
 tachyon_cc_library(
-    name = "simple_benchmark_reporter",
-    srcs = ["simple_benchmark_reporter.cc"],
-    hdrs = ["simple_benchmark_reporter.h"],
+    name = "simple_reporter",
+    srcs = ["simple_reporter.cc"],
+    hdrs = ["simple_reporter.h"],
     local_defines = tachyon_matplotlib_defines(),
     visibility = ["//benchmark:__subpackages__"],
     deps = [
+        ":vendor",
         "//tachyon/base/console:table_writer",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/time",
     ] + if_has_matplotlib([
         "@com_github_soblin_matplotlibcpp17//:matplotlibcpp17",
     ]),

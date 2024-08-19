@@ -5,9 +5,13 @@
 
 #include <vector>
 
-namespace tachyon {
+// clang-format off
+#include "benchmark/config.h"
+// clang-format on
 
-class ECConfig {
+namespace tachyon::benchmark {
+
+class ECConfig : public Config {
  public:
   ECConfig() = default;
   ECConfig(const ECConfig& other) = delete;
@@ -21,6 +25,6 @@ class ECConfig {
   std::vector<uint64_t> point_nums_;
 };
 
-}  // namespace tachyon
+}  // namespace tachyon::benchmark
 
 #endif  // BENCHMARK_EC_EC_CONFIG_H_

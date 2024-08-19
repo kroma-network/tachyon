@@ -10,6 +10,7 @@ tachyon_cc_library(
     srcs = ["fft_config.cc"],
     hdrs = ["fft_config.h"],
     deps = [
+        "//benchmark:config",
         "//tachyon/base/console",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/flag:flag_parser",
@@ -22,21 +23,9 @@ tachyon_cc_library(
     testonly = True,
     hdrs = ["fft_runner.h"],
     deps = [
-        ":simple_fft_benchmark_reporter",
+        "//benchmark:simple_reporter",
         "//tachyon/base/time",
         "//tachyon/math/polynomials/univariate/icicle:icicle_ntt_holder",
-    ],
-)
-
-tachyon_cc_library(
-    name = "simple_fft_benchmark_reporter",
-    testonly = True,
-    srcs = ["simple_fft_benchmark_reporter.cc"],
-    hdrs = ["simple_fft_benchmark_reporter.h"],
-    deps = [
-        "//benchmark:simple_benchmark_reporter",
-        "//tachyon/base/containers:container_util",
-        "//tachyon/base/strings:string_number_conversions",
     ],
 )
 
@@ -50,6 +39,7 @@ tachyon_cc_binary(
         "//benchmark/fft/arkworks",
         "//benchmark/fft/bellman",
         "//benchmark/fft/halo2",
+        "//tachyon/base/console",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",

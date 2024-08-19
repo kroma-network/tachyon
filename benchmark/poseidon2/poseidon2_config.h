@@ -6,40 +6,29 @@
 #include <string>
 #include <vector>
 
-namespace tachyon {
+// clang-format off
+#include "benchmark/config.h"
+#include "benchmark/field_type.h"
+// clang-format on
 
-class Poseidon2Config {
+namespace tachyon::benchmark {
+
+class Poseidon2Config : public Config {
  public:
-  enum class PrimeField {
-    kBabyBear,
-    kBn254Fr,
-  };
-
-  enum class Vendor {
-    kHorizen,
-    kPlonky3,
-  };
-
-  static std::string VendorToString(Vendor vendor);
-
   Poseidon2Config() = default;
   Poseidon2Config(const Poseidon2Config& other) = delete;
   Poseidon2Config& operator=(const Poseidon2Config& other) = delete;
 
-  bool check_results() const { return check_results_; }
   size_t repeating_num() const { return repeating_num_; }
-  PrimeField prime_field() const { return prime_field_; }
-  const std::vector<Vendor>& vendors() const { return vendors_; }
+  FieldType prime_field() const { return prime_field_; }
 
   bool Parse(int argc, char** argv);
 
  private:
-  bool check_results_ = false;
   size_t repeating_num_ = 10;
-  PrimeField prime_field_;
-  std::vector<Vendor> vendors_;
+  FieldType prime_field_;
 };
 
-}  // namespace tachyon
+}  // namespace tachyon::benchmark
 
 #endif  // BENCHMARK_POSEIDON2_POSEIDON2_CONFIG_H_

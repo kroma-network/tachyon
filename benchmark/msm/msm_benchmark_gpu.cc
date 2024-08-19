@@ -4,7 +4,7 @@
 // clang-format off
 #include "benchmark/msm/msm_config.h"
 #include "benchmark/msm/msm_runner.h"
-#include "benchmark/msm/simple_msm_benchmark_reporter.h"
+#include "benchmark/simple_reporter.h"
 // clang-format on
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
@@ -12,7 +12,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm_gpu.h"
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
-namespace tachyon {
+namespace tachyon::benchmark {
 
 using namespace math;
 
@@ -23,9 +23,12 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  SimpleMSMBenchmarkReporter reporter("MSM Benchmark GPU", config.exponents());
-  reporter.AddVendor("tachyon_cpu");
-  reporter.AddVendor("tachyon_gpu");
+  SimpleReporter reporter("MSM Benchmark");
+
+  reporter.SetXLabel("Degree (2ˣ)");
+  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint64_t exponent) {
+    return base::NumberToString(exponent);
+  }));
 
   std::vector<uint64_t> point_nums = config.GetPointNums();
 
@@ -43,13 +46,15 @@ int RealMain(int argc, char** argv) {
   runner.SetInputs(test_set.bases, test_set.scalars);
 
   std::vector<bn254::G1JacobianPoint> results_cpu;
-  runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, results_cpu);
+  runner.Run(Vendor::TachyonCPU(), tachyon_bn254_g1_affine_msm, msm, point_nums,
+             results_cpu);
   tachyon_bn254_g1_destroy_msm(msm);
 
   tachyon_bn254_g1_msm_gpu_ptr msm_gpu =
       tachyon_bn254_g1_create_msm_gpu(config.exponents().back());
   std::vector<bn254::G1JacobianPoint> results_gpu;
-  runner.Run(tachyon_bn254_g1_affine_msm_gpu, msm_gpu, point_nums, results_gpu);
+  runner.Run(Vendor::TachyonGPU(), tachyon_bn254_g1_affine_msm_gpu, msm_gpu,
+             point_nums, results_gpu);
   tachyon_bn254_g1_destroy_msm_gpu(msm_gpu);
 
   if (config.check_results()) {
@@ -61,9 +66,11 @@ int RealMain(int argc, char** argv) {
   return 0;
 }
 
-}  // namespace tachyon
+}  // namespace tachyon::benchmark
 
-int main(int argc, char** argv) { return tachyon::RealMain(argc, argv); }
+int main(int argc, char** argv) {
+  return tachyon::benchmark::RealMain(argc, argv);
+}
 #else
 #include "tachyon/base/console/iostream.h"
 
