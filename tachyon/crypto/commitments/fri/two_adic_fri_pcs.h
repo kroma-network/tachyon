@@ -48,8 +48,8 @@ class TwoAdicFriPCS {
   TwoAdicFriPCS(InputMMCS&& mmcs, TwoAdicFriConfig<ChallengeMMCS>&& fri)
       : mmcs_(std::move(mmcs)), fri_(std::move(fri)) {}
 
-  Coset GetNaturalDomainForDegree(size_t degree) {
-    uint32_t log_n = base::bits::CheckedLog2(degree);
+  Coset GetNaturalDomainForDegree(size_t size) {
+    uint32_t log_n = base::bits::CheckedLog2(size);
     return Coset(log_n, F::One());
   }
 
