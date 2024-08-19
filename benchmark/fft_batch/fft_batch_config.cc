@@ -43,4 +43,14 @@ std::vector<size_t> FFTBatchConfig::GetDegrees() const {
                    [](uint32_t exponent) { return (size_t{1} << exponent); });
 }
 
+bool FFTBatchConfig::Validate() const {
+  for (const Vendor vendor : vendors_) {
+    if (vendor.value() != Vendor::kPlonky3) {
+      tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+
 }  // namespace tachyon::benchmark

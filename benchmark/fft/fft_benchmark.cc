@@ -8,7 +8,6 @@
 #include "benchmark/fft/fft_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
-#include "tachyon/base/console/iostream.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
@@ -135,7 +134,7 @@ void Run(const FFTConfig& config) {
                            results_vendor);
         CheckResults(config.check_results(), halo2_results, results_vendor);
       } else {
-        tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
+        NOTREACHED();
       }
     }
     // NOLINTNEXTLINE(readability/braces)
@@ -169,7 +168,7 @@ void Run(const FFTConfig& config) {
                            results_vendor);
         CheckResults(config.check_results(), halo2_results, results_vendor);
       } else {
-        tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
+        NOTREACHED();
       }
     }
   }

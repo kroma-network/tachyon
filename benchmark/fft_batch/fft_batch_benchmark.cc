@@ -30,7 +30,7 @@ void CheckResults(bool check_results,
 }
 
 template <typename F>
-int Run(const FFTBatchConfig& config) {
+void Run(const FFTBatchConfig& config) {
   using Domain = math::Radix2EvaluationDomain<F, SIZE_MAX - 1>;
 
   F::Init();
@@ -82,13 +82,11 @@ int Run(const FFTBatchConfig& config) {
       }
       CheckResults(config.check_results(), results, results_vendor);
     } else {
-      tachyon_cerr << "Unsupported vendor\n";
-      return 1;
+      NOTREACHED();
     }
   }
 
   reporter.Show();
-  return 0;
 }
 
 int RealMain(int argc, char** argv) {
@@ -98,11 +96,12 @@ int RealMain(int argc, char** argv) {
   }
 
   if (config.prime_field().value() == FieldType::kBabyBear) {
-    return Run<math::BabyBear>(config);
+    Run<math::BabyBear>(config);
   } else {
     tachyon_cerr << "Unsupported prime field\n";
     return 1;
   }
+  return 0;
 }
 
 }  // namespace tachyon::benchmark

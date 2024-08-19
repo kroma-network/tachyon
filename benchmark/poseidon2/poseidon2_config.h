@@ -22,6 +22,9 @@ class Poseidon2Config : public Config {
   FieldType prime_field() const { return prime_field_; }
 
  private:
+  // Config methods
+  bool Validate() const override;
+
   size_t repeating_num_ = 10;
   FieldType prime_field_;
 };

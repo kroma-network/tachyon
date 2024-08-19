@@ -75,6 +75,8 @@ int RealMain(int argc, char** argv) {
     } else if (vendor.value() == Vendor::kScrollHalo2) {
       runner.RunExternal(vendor, run_msm_halo2_adapter, point_nums,
                          results_vendor);
+    } else {
+      NOTREACHED();
     }
 
     if (config.check_results()) {

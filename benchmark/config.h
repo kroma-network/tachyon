@@ -27,6 +27,8 @@ class Config {
 
   bool Parse(int argc, char** argv);
 
+  virtual bool Validate() const { return true; }
+
  protected:
   // Override this method if you need to perform any actions after |Parse()| is
   // called.

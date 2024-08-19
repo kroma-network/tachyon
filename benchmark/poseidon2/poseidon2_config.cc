@@ -23,4 +23,22 @@ Poseidon2Config::Poseidon2Config() {
           "plonky3)");
 }
 
+bool Poseidon2Config::Validate() const {
+  for (const Vendor vendor : vendors_) {
+    if ((vendor.value() != Vendor::kHorizen) &&
+        (vendor.value() != Vendor::kPlonky3)) {
+      tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
+      return false;
+    }
+    if (vendor.value() == Vendor::kPlonky3) {
+      if (vendors_.size() != 1) {
+        tachyon_cerr << "Please run one vendor at a time for Baby Bear!"
+                     << std::endl;
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 }  // namespace tachyon::benchmark

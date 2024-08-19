@@ -51,9 +51,11 @@ class MSMConfig : public Config {
  private:
   // Config methods
   void PostParse() override;
+  bool Validate() const override;
 
   std::vector<uint32_t> exponents_;
   TestSet test_set_ = TestSet::kRandom;
+  bool include_vendors_;
 };
 
 }  // namespace tachyon::benchmark

@@ -26,7 +26,7 @@ bool Config::Parse(int argc, char** argv) {
   }
 
   PostParse();
-  return true;
+  return Validate();
 }
 
 }  // namespace tachyon::benchmark

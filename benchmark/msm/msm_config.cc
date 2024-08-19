@@ -36,7 +36,8 @@ class FlagValueTraits<MSMConfig::TestSet> {
 
 MSMConfig::MSMConfig() : MSMConfig(Options()) {}
 
-MSMConfig::MSMConfig(const Options& options) : Config(options) {
+MSMConfig::MSMConfig(const Options& options)
+    : Config(options), include_vendors_(options.include_vendors) {
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
@@ -47,7 +48,7 @@ MSMConfig::MSMConfig(const Options& options) : Config(options) {
       .set_help(
           "Testset to be benchmarked with. (supported testset: random, "
           "non_uniform)");
-  if (options.include_vendors) {
+  if (include_vendors_) {
     parser_.AddFlag<base::Flag<std::set<benchmark::Vendor>>>(&vendors_)
         .set_long_name("--vendor")
         .set_help(
@@ -58,6 +59,20 @@ MSMConfig::MSMConfig(const Options& options) : Config(options) {
 
 void MSMConfig::PostParse() {
   base::ranges::sort(exponents_);  // NOLINT(build/include_what_you_use)
+}
+
+bool MSMConfig::Validate() const {
+  if (include_vendors_) {
+    for (const Vendor vendor : vendors_) {
+      if ((vendor.value() != Vendor::kArkworks) &&
+          (vendor.value() != Vendor::kBellman) &&
+          (vendor.value() != Vendor::kScrollHalo2)) {
+        tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 std::vector<size_t> MSMConfig::GetPointNums() const {

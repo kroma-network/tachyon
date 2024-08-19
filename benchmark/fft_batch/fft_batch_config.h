@@ -28,6 +28,7 @@ class FFTBatchConfig : public Config {
  private:
   // Config methods
   void PostParse() override;
+  bool Validate() const override;
 
   std::vector<uint32_t> exponents_;
   bool run_coset_lde_;

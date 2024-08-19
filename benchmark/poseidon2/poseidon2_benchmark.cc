@@ -41,8 +41,7 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
     if (base::Contains(config.vendors(), Vendor::Plonky3())) {
       poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
           15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
-      CHECK_EQ(config.vendors().size(), static_cast<size_t>(1))
-          << "Run one vendor at a time for Baby Bear!";
+      CHECK_EQ(config.vendors().size(), static_cast<size_t>(1));
     } else {
       poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
           15, 7, 8, 13, math::GetPoseidon2BabyBearInternalDiagonalVector<16>());
@@ -59,8 +58,7 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
     } else if (vendor.value() == Vendor::kPlonky3) {
       result_vendor = runner.RunExternal(vendor, plonky3_fn);
     } else {
-      tachyon_cerr << "Unsupported vendor: " << vendor.ToString() << std::endl;
-      break;
+      NOTREACHED();
     }
 
     if (config.check_results()) {

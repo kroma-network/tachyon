@@ -30,9 +30,11 @@ class FFTConfig : public Config {
  private:
   // Config methods
   void PostParse() override;
+  bool Validate() const override;
 
   std::vector<uint32_t> exponents_;
   bool run_ifft_ = false;
+  bool include_vendors_;
 };
 
 }  // namespace tachyon::benchmark
