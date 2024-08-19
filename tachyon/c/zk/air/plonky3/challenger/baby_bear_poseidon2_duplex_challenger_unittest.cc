@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
+#include "tachyon/c/zk/air/plonky3/baby_bear_poseidon2_constants.h"
 #include "tachyon/c/zk/air/plonky3/challenger/baby_bear_poseidon2_duplex_challenger_type_traits.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
@@ -28,8 +29,9 @@ class DuplexChallengerTest : public math::FiniteFieldTest<F> {
 };
 
 TEST_F(DuplexChallengerTest, APIs) {
-  DuplexChallenger<Poseidon2, 16, 8> challenger =
-      c::base::native_cast(*challenger_);
+  DuplexChallenger<Poseidon2, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH,
+                   TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE>
+      challenger = c::base::native_cast(*challenger_);
   for (size_t i = 0; i < 20; ++i) {
     F value(i);
     challenger.Observe(value);

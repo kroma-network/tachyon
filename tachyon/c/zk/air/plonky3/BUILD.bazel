@@ -4,7 +4,15 @@ package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "plonky3_hdrs",
-    srcs = ["//tachyon/c/zk/air/plonky3/challenger:challenger_hdrs"],
+    srcs = [
+        "baby_bear_poseidon2_constants.h",
+        "//tachyon/c/zk/air/plonky3/challenger:challenger_hdrs",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_constants",
+    hdrs = ["baby_bear_poseidon2_constants.h"],
 )
 
 tachyon_cc_library(
