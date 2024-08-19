@@ -39,11 +39,11 @@ using MyPackedHasher = PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
 using MyCompressor = TruncatedPermutation<Poseidon2, kChunk, kN>;
 using MyPackedCompressor = TruncatedPermutation<PackedPoseidon2, kChunk, kN>;
 using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
-                                 MyPackedCompressor, 8>;
+                                 MyPackedCompressor, kChunk>;
 using ExtMMCS = FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher,
-                                    MyCompressor, MyPackedCompressor, 8>;
+                                    MyCompressor, MyPackedCompressor, kChunk>;
 using ChallengeMMCS = ExtensionFieldMerkleTreeMMCS<ExtF, ExtMMCS>;
-using Challenger = zk::air::plonky3::DuplexChallenger<Poseidon2, 16, 8>;
+using Challenger = zk::air::plonky3::DuplexChallenger<Poseidon2, 16, kRate>;
 using Coset = zk::air::plonky3::TwoAdicMultiplicativeCoset<F>;
 using MyPcs = TwoAdicFriPCS<ExtF, MMCS, ChallengeMMCS, Challenger, Coset>;
 
