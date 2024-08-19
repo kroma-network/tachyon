@@ -5,6 +5,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 // clang-format off
@@ -22,10 +23,21 @@ class SimpleReporter {
   SimpleReporter(const SimpleReporter& other) = delete;
   SimpleReporter& operator=(const SimpleReporter& other) = delete;
 
-  void SetXLabel(std::string_view x_label);
-  void SetYLabel(std::string_view x_label);
-  void SetColumnLabels(const std::vector<std::string>& column_labels);
-  void SetColumnLabels(std::vector<std::string>&& column_labels);
+  void set_x_label(std::string_view x_label) {
+    x_label_ = std::string(x_label);
+  }
+
+  void set_y_label(std::string_view y_label) {
+    y_label_ = std::string(y_label);
+  }
+
+  void set_column_labels(const std::vector<std::string>& column_labels) {
+    column_labels_ = column_labels;
+  }
+
+  void set_column_labels(std::vector<std::string>&& column_labels) {
+    column_labels_ = std::move(column_labels);
+  }
 
   void AddTime(Vendor vendor, base::TimeDelta time_taken);
   void AddVendor(Vendor name);

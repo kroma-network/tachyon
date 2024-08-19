@@ -63,8 +63,8 @@ int RealMain(int argc, char** argv) {
   const std::vector<size_t>& point_nums = config.point_nums();
   SimpleReporter reporter("EC double benchmark");
 
-  reporter.SetXLabel("# of points");
-  reporter.SetColumnLabels(base::Map(
+  reporter.set_x_label("# of points");
+  reporter.set_column_labels(base::Map(
       point_nums, [](size_t num) { return base::NumberToString(num); }));
 
   std::cout << "Generating random points..." << std::endl;

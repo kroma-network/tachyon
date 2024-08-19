@@ -1,7 +1,5 @@
 #include "benchmark/simple_reporter.h"
 
-#include <utility>
-
 #if defined(TACHYON_HAS_MATPLOTLIB)
 #include "third_party/matplotlibcpp17/include/pyplot.h"
 
@@ -23,23 +21,6 @@ void SimpleReporter::AddTime(Vendor vendor, base::TimeDelta time_taken) {
 }
 
 void SimpleReporter::AddVendor(Vendor vendor) { vendors_.push_back(vendor); }
-
-void SimpleReporter::SetXLabel(std::string_view x_label) {
-  x_label_ = std::string(x_label);
-}
-
-void SimpleReporter::SetYLabel(std::string_view x_label) {
-  y_label_ = std::string(x_label);
-}
-
-void SimpleReporter::SetColumnLabels(
-    const std::vector<std::string>& column_labels) {
-  column_labels_ = column_labels;
-}
-
-void SimpleReporter::SetColumnLabels(std::vector<std::string>&& column_labels) {
-  column_labels_ = std::move(column_labels);
-}
 
 void SimpleReporter::AddAverageAsLastColumn() {
   for (Vendor vendor : vendors_) {

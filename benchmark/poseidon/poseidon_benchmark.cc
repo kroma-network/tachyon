@@ -26,8 +26,8 @@ int RealMain(int argc, char** argv) {
   SimpleReporter reporter("Poseidon Benchmark");
   PoseidonBenchmarkRunner<Field> runner(reporter, config);
 
-  reporter.SetXLabel("Trial number");
-  reporter.SetColumnLabels(
+  reporter.set_x_label("Trial number");
+  reporter.set_column_labels(
       base::CreateVector(config.repeating_num(),
                          [](size_t i) { return base::NumberToString(i); }));
 
