@@ -45,9 +45,10 @@ MSMConfig::MSMConfig(const Options& options)
           "Specify the exponent 'k' where the number of points to test is 2ᵏ.");
   parser_.AddFlag<base::Flag<TestSet>>(&test_set_)
       .set_long_name("--test_set")
+      .set_default_value(TestSet::kRandom)
       .set_help(
           "Testset to be benchmarked with. (supported testset: random, "
-          "non_uniform)");
+          "non_uniform). By default, random.");
   if (include_vendors_) {
     parser_.AddFlag<base::Flag<std::set<benchmark::Vendor>>>(&vendors_)
         .set_long_name("--vendor")

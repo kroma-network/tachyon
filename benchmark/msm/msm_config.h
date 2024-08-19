@@ -54,7 +54,7 @@ class MSMConfig : public Config {
   bool Validate() const override;
 
   std::vector<uint32_t> exponents_;
-  TestSet test_set_ = TestSet::kRandom;
+  TestSet test_set_;
   bool include_vendors_;
 };
 

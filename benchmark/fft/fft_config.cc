@@ -19,7 +19,9 @@ FFTConfig::FFTConfig(const Options& options)
           "Specify the exponent 'k's where the degree of poly to test is 2ᵏ.");
   parser_.AddFlag<base::BoolFlag>(&run_ifft_)
       .set_long_name("--run_ifft")
-      .set_help("Run IFFT benchmark. Default is FFT benchmark.");
+      .set_default_value(false)
+      .set_help(
+          "Run IFFT benchmark. Default is FFT benchmark. By default, false.");
   if (include_vendors_) {
     parser_.AddFlag<base::Flag<std::set<Vendor>>>(&vendors_)
         .set_long_name("--vendor")

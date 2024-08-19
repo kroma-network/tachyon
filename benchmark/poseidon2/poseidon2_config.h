@@ -25,7 +25,7 @@ class Poseidon2Config : public Config {
   // Config methods
   bool Validate() const override;
 
-  size_t repeating_num_ = 10;
+  size_t repeating_num_;
   FieldType prime_field_;
 };
 

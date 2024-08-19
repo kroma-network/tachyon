@@ -33,7 +33,7 @@ class FFTConfig : public Config {
   bool Validate() const override;
 
   std::vector<uint32_t> exponents_;
-  bool run_ifft_ = false;
+  bool run_ifft_;
   bool include_vendors_;
 };
 

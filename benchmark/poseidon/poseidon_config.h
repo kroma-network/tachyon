@@ -18,7 +18,7 @@ class PoseidonConfig : public Config {
   size_t repeating_num() const { return repeating_num_; }
 
  private:
-  size_t repeating_num_ = 10;
+  size_t repeating_num_;
 };
 
 }  // namespace tachyon::benchmark
