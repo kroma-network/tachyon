@@ -4,7 +4,6 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear4.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::math {
