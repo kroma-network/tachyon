@@ -35,19 +35,19 @@ tachyon_bn254_g1_jacobian* run_msm_halo2_adapter(
 }
 
 int RealMain(int argc, char** argv) {
-  MSMConfig config;
   MSMConfig::Options options;
   options.include_vendors = true;
-  if (!config.Parse(argc, argv, options)) {
+  MSMConfig config(options);
+  if (!config.Parse(argc, argv)) {
     return 1;
   }
 
-  SimpleReporter reporter("MSM Benchmark");
-
-  reporter.SetXLabel("Degree (2ˣ)");
-  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint32_t exponent) {
-    return base::NumberToString(exponent);
-  }));
+  SimpleReporter reporter;
+  reporter.set_title("MSM Benchmark");
+  reporter.set_x_label("Degree (2ˣ)");
+  reporter.set_column_labels(base::Map(
+      config.exponents(),
+      [](uint32_t exponent) { return base::NumberToString(exponent); }));
 
   std::vector<size_t> point_nums = config.GetPointNums();
 
@@ -64,7 +64,7 @@ int RealMain(int argc, char** argv) {
   MSMRunner<bn254::G1AffinePoint> runner(reporter);
   runner.SetInputs(test_set.bases, test_set.scalars);
   std::vector<bn254::G1JacobianPoint> results;
-  runner.Run(Vendor::TachyonCPU(), tachyon_bn254_g1_affine_msm, msm, point_nums,
+  runner.Run(Vendor::Tachyon(), tachyon_bn254_g1_affine_msm, msm, point_nums,
              results);
   for (Vendor vendor : config.vendors()) {
     std::vector<bn254::G1JacobianPoint> results_vendor;
@@ -75,6 +75,8 @@ int RealMain(int argc, char** argv) {
     } else if (vendor.value() == Vendor::kScrollHalo2) {
       runner.RunExternal(vendor, run_msm_halo2_adapter, point_nums,
                          results_vendor);
+    } else {
+      NOTREACHED();
     }
 
     if (config.check_results()) {

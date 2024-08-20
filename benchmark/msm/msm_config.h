@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#include <string>
 #include <vector>
 
 // clang-format off
@@ -20,13 +19,16 @@ class MSMConfig : public Config {
     kNonUniform,
   };
 
-  MSMConfig() = default;
+  struct Options : public Config::Options {
+    bool include_vendors = false;
+  };
+
+  MSMConfig();
+  explicit MSMConfig(const Options& options);
   MSMConfig(const MSMConfig& other) = delete;
   MSMConfig& operator=(const MSMConfig& other) = delete;
 
   const std::vector<uint32_t>& exponents() const { return exponents_; }
-
-  bool Parse(int argc, char** argv, const Options& options);
 
   std::vector<size_t> GetPointNums() const;
 
@@ -47,8 +49,13 @@ class MSMConfig : public Config {
   }
 
  private:
+  // Config methods
+  void PostParse() override;
+  bool Validate() const override;
+
   std::vector<uint32_t> exponents_;
-  TestSet test_set_ = TestSet::kRandom;
+  TestSet test_set_;
+  bool include_vendors_;
 };
 
 }  // namespace tachyon::benchmark

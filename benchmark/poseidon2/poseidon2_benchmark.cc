@@ -5,7 +5,6 @@
 #include "benchmark/poseidon2/poseidon2_benchmark_runner.h"
 #include "benchmark/poseidon2/poseidon2_config.h"
 // clang-format on
-#include "tachyon/base/console/iostream.h"
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
@@ -41,8 +40,7 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
     if (base::Contains(config.vendors(), Vendor::Plonky3())) {
       poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
           15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
-      CHECK_EQ(config.vendors().size(), static_cast<size_t>(1))
-          << "Run one vendor at a time for Baby Bear!";
+      CHECK_EQ(config.vendors().size(), static_cast<size_t>(1));
     } else {
       poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
           15, 7, 8, 13, math::GetPoseidon2BabyBearInternalDiagonalVector<16>());
@@ -59,8 +57,7 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
     } else if (vendor.value() == Vendor::kPlonky3) {
       result_vendor = runner.RunExternal(vendor, plonky3_fn);
     } else {
-      tachyon_cerr << "Unsupported vendor: " << vendor.ToString() << std::endl;
-      break;
+      NOTREACHED();
     }
 
     if (config.check_results()) {
@@ -86,9 +83,10 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  SimpleReporter reporter("Poseidon2 Benchmark");
-  reporter.SetXLabel("Trial number");
-  reporter.SetColumnLabels(
+  SimpleReporter reporter;
+  reporter.set_title("Poseidon2 Benchmark");
+  reporter.set_x_label("Trial number");
+  reporter.set_column_labels(
       base::CreateVector(config.repeating_num(),
                          [](size_t i) { return base::NumberToString(i); }));
 
@@ -99,8 +97,7 @@ int RealMain(int argc, char** argv) {
     Run<math::bn254::Fr>(reporter, config, run_poseidon2_horizen_bn254_fr,
                          run_poseidon2_plonky3_bn254_fr);
   } else {
-    tachyon_cerr << "Unsupported prime field" << std::endl;
-    return 1;
+    NOTREACHED();
   }
 
   reporter.AddAverageAsLastColumn();

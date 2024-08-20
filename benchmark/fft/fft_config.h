@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#include <string>
 #include <vector>
 
 // clang-format off
@@ -14,20 +13,28 @@ namespace tachyon::benchmark {
 
 class FFTConfig : public Config {
  public:
-  FFTConfig() = default;
+  struct Options : public Config::Options {
+    bool include_vendors = false;
+  };
+
+  FFTConfig();
+  explicit FFTConfig(const Options& options);
   FFTConfig(const FFTConfig& other) = delete;
   FFTConfig& operator=(const FFTConfig& other) = delete;
 
   const std::vector<uint32_t>& exponents() const { return exponents_; }
   bool run_ifft() const { return run_ifft_; }
 
-  bool Parse(int argc, char** argv, const Options& options);
-
   std::vector<size_t> GetDegrees() const;
 
  private:
+  // Config methods
+  void PostParse() override;
+  bool Validate() const override;
+
   std::vector<uint32_t> exponents_;
-  bool run_ifft_ = false;
+  bool run_ifft_;
+  bool include_vendors_;
 };
 
 }  // namespace tachyon::benchmark

@@ -1,9 +1,7 @@
 #ifndef BENCHMARK_CONFIG_H_
 #define BENCHMARK_CONFIG_H_
 
-#include <stdint.h>
-
-#include <vector>
+#include <set>
 
 // clang-format off
 #include "benchmark/vendor.h"
@@ -15,22 +13,29 @@ namespace tachyon::benchmark {
 class Config {
  public:
   struct Options {
-    bool include_check_results = false;
-    bool include_vendors = false;
+    bool include_check_results = true;
   };
 
-  Config() = default;
+  Config();
+  explicit Config(const Options& options);
   Config(const Config& other) = delete;
   Config& operator=(const Config& other) = delete;
+  virtual ~Config() = default;
 
-  const std::vector<Vendor>& vendors() const { return vendors_; }
+  const std::set<Vendor>& vendors() const { return vendors_; }
   bool check_results() const { return check_results_; }
 
-  bool Parse(int argc, char** argv, const Options& options);
+  bool Parse(int argc, char** argv);
+
+  virtual bool Validate() const { return true; }
 
  protected:
+  // Override this method if you need to perform any actions after |Parse()| is
+  // called.
+  virtual void PostParse() {}
+
   base::FlagParser parser_;
-  std::vector<Vendor> vendors_;
+  std::set<Vendor> vendors_;
   bool check_results_;
 };
 

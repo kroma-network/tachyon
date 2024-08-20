@@ -9,6 +9,7 @@
 
 #include <limits>
 #include <numeric>
+#include <set>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -154,6 +155,20 @@ class FlagValueTraits<std::vector<T>> {
     T element;
     if (FlagValueTraits<T>::ParseValue(input, &element, reason)) {
       value->push_back(std::move(element));
+      return true;
+    }
+    return false;
+  }
+};
+
+template <typename T>
+class FlagValueTraits<std::set<T>> {
+ public:
+  static bool ParseValue(std::string_view input, std::set<T>* value,
+                         std::string* reason) {
+    T element;
+    if (FlagValueTraits<T>::ParseValue(input, &element, reason)) {
+      value->insert(std::move(element));
       return true;
     }
     return false;

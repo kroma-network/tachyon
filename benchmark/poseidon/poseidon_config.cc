@@ -1,19 +1,12 @@
 #include "benchmark/poseidon/poseidon_config.h"
 
-#include <string>
-
-#include "tachyon/base/console/iostream.h"
-#include "tachyon/base/flag/flag_parser.h"
-
 namespace tachyon::benchmark {
 
-bool PoseidonConfig::Parse(int argc, char** argv) {
+PoseidonConfig::PoseidonConfig() {
   parser_.AddFlag<base::Flag<size_t>>(&repeating_num_)
       .set_short_name("-n")
+      .set_default_value(10)
       .set_help("Specify the number of repetition 'n'. By default, 10.");
-
-  return Config::Parse(
-      argc, argv, {/*include_check_results=*/true, /*include_vendors=*/false});
 }
 
 }  // namespace tachyon::benchmark

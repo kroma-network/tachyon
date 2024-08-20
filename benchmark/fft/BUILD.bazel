@@ -13,7 +13,6 @@ tachyon_cc_library(
         "//benchmark:config",
         "//tachyon/base/console",
         "//tachyon/base/containers:container_util",
-        "//tachyon/base/flag:flag_parser",
         "//tachyon/base/ranges:algorithm",
     ],
 )
@@ -39,7 +38,6 @@ tachyon_cc_binary(
         "//benchmark/fft/arkworks",
         "//benchmark/fft/bellman",
         "//benchmark/fft/halo2",
-        "//tachyon/base/console",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",

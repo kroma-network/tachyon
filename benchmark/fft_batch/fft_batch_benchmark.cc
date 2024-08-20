@@ -7,7 +7,6 @@
 #include "benchmark/fft_batch/fft_batch_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
-#include "tachyon/base/console/iostream.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
 
 namespace tachyon::benchmark {
@@ -30,7 +29,7 @@ void CheckResults(bool check_results,
 }
 
 template <typename F>
-int Run(const FFTBatchConfig& config) {
+void Run(const FFTBatchConfig& config) {
   using Domain = math::Radix2EvaluationDomain<F, SIZE_MAX - 1>;
 
   F::Init();
@@ -44,12 +43,12 @@ int Run(const FFTBatchConfig& config) {
                             config.batch_size());
   }
 
-  SimpleReporter reporter(name);
-
-  reporter.SetXLabel("Degree (2ˣ)");
-  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint32_t exponent) {
-    return base::NumberToString(exponent);
-  }));
+  SimpleReporter reporter;
+  reporter.set_title(name);
+  reporter.set_x_label("Degree (2ˣ)");
+  reporter.set_column_labels(base::Map(
+      config.exponents(),
+      [](uint32_t exponent) { return base::NumberToString(exponent); }));
 
   std::vector<size_t> degrees = config.GetDegrees();
 
@@ -69,7 +68,7 @@ int Run(const FFTBatchConfig& config) {
   runner.set_inputs(absl::MakeSpan(inputs));
 
   std::vector<math::RowMajorMatrix<F>> results;
-  runner.Run(Vendor::TachyonCPU(), results, config.run_coset_lde());
+  runner.Run(Vendor::Tachyon(), results, config.run_coset_lde());
   for (Vendor vendor : config.vendors()) {
     std::vector<math::RowMajorMatrix<F>> results_vendor;
     if (vendor.value() == Vendor::kPlonky3) {
@@ -82,13 +81,11 @@ int Run(const FFTBatchConfig& config) {
       }
       CheckResults(config.check_results(), results, results_vendor);
     } else {
-      tachyon_cerr << "Unsupported vendor\n";
-      return 1;
+      NOTREACHED();
     }
   }
 
   reporter.Show();
-  return 0;
 }
 
 int RealMain(int argc, char** argv) {
@@ -98,11 +95,11 @@ int RealMain(int argc, char** argv) {
   }
 
   if (config.prime_field().value() == FieldType::kBabyBear) {
-    return Run<math::BabyBear>(config);
+    Run<math::BabyBear>(config);
   } else {
-    tachyon_cerr << "Unsupported prime field\n";
-    return 1;
+    NOTREACHED();
   }
+  return 0;
 }
 
 }  // namespace tachyon::benchmark

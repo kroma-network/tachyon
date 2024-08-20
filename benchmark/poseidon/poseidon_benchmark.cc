@@ -23,11 +23,12 @@ int RealMain(int argc, char** argv) {
   }
 
   Field::Init();
-  SimpleReporter reporter("Poseidon Benchmark");
+  SimpleReporter reporter;
   PoseidonBenchmarkRunner<Field> runner(reporter, config);
 
-  reporter.SetXLabel("Trial number");
-  reporter.SetColumnLabels(
+  reporter.set_title("Poseidon Benchmark");
+  reporter.set_x_label("Trial number");
+  reporter.set_column_labels(
       base::CreateVector(config.repeating_num(),
                          [](size_t i) { return base::NumberToString(i); }));
 

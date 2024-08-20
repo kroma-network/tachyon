@@ -31,12 +31,12 @@ void Run(const FFTConfig& config) {
     name = "FFT Benchmark GPU";
   }
 
-  SimpleReporter reporter(name);
-
-  reporter.SetXLabel("Degree (2ˣ)");
-  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint32_t exponent) {
-    return base::NumberToString(exponent);
-  }));
+  SimpleReporter reporter;
+  reporter.set_title(name);
+  reporter.set_x_label("Degree (2ˣ)");
+  reporter.set_column_labels(base::Map(
+      config.exponents(),
+      [](uint32_t exponent) { return base::NumberToString(exponent); }));
 
   std::vector<size_t> degrees = config.GetDegrees();
 
@@ -93,8 +93,7 @@ int RealMain(int argc, char** argv) {
   Field::Init();
 
   FFTConfig config;
-  FFTConfig::Options options;
-  if (!config.Parse(argc, argv, options)) {
+  if (!config.Parse(argc, argv)) {
     return 1;
   }
 

@@ -18,6 +18,9 @@ class Vendor {
  public:
   enum Value : uint32_t {
     // clang-format off
+    // Use |kTachyon| when comparing CPU results across vendors.
+    kTachyon     = 1 << 0,
+    // Use |kTachyonCPU| and |kTachyonGPU| when comparing CPU and GPU results.
     kTachyonCPU  = 1 << 1,
     kTachyonGPU  = 1 << 2,
     kArkworks    = 1 << 3,
@@ -29,6 +32,7 @@ class Vendor {
     // clang-format on
   };
 
+  constexpr static Vendor Tachyon() { return Vendor(kTachyon); }
   constexpr static Vendor TachyonCPU() { return Vendor(kTachyonCPU); }
   constexpr static Vendor TachyonGPU() { return Vendor(kTachyonGPU); }
   constexpr static Vendor Arkworks() { return Vendor(kArkworks); }
@@ -44,9 +48,12 @@ class Vendor {
 
   constexpr bool operator==(Vendor a) const { return value_ == a.value_; }
   constexpr bool operator!=(Vendor a) const { return value_ != a.value_; }
+  constexpr bool operator<(Vendor a) const { return value_ < a.value_; }
 
   std::string_view ToString() const {
     switch (value_) {
+      case Vendor::kTachyon:
+        return "tachyon";
       case Vendor::kTachyonCPU:
         return "tachyon_cpu";
       case Vendor::kTachyonGPU:

@@ -1,14 +1,13 @@
 #include "benchmark/fft_batch/fft_batch_config.h"
 
-#include <algorithm>
+#include <set>
 
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/base/flag/flag_parser.h"
 
 namespace tachyon::benchmark {
 
-bool FFTBatchConfig::Parse(int argc, char** argv) {
+FFTBatchConfig::FFTBatchConfig() {
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
@@ -30,23 +29,33 @@ bool FFTBatchConfig::Parse(int argc, char** argv) {
       .set_help(
           "A prime field to be benchmarked with. (supported prime fields: "
           "baby_bear");
-  parser_.AddFlag<base::Flag<std::vector<Vendor>>>(&vendors_)
+  parser_.AddFlag<base::Flag<std::set<Vendor>>>(&vendors_)
       .set_long_name("--vendor")
       .set_help("Vendors to be benchmarked with. (supported vendors: plonky3");
+}
 
-  if (!Config::Parse(
-          argc, argv,
-          {/*include_check_results=*/true, /*include_vendors=*/false})) {
-    return false;
-  }
-
-  base::ranges::sort(exponents_);
-  return true;
+void FFTBatchConfig::PostParse() {
+  base::ranges::sort(exponents_);  // NOLINT(build/include_what_you_use)
 }
 
 std::vector<size_t> FFTBatchConfig::GetDegrees() const {
   return base::Map(exponents_,
                    [](uint32_t exponent) { return (size_t{1} << exponent); });
+}
+
+bool FFTBatchConfig::Validate() const {
+  for (const Vendor vendor : vendors_) {
+    if (vendor.value() != Vendor::kPlonky3) {
+      tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
+      return false;
+    }
+  }
+  if (prime_field_.value() != FieldType::kBabyBear) {
+    tachyon_cerr << "Unsupported prime field " << prime_field_.ToString()
+                 << std::endl;
+    return false;
+  }
+  return true;
 }
 
 }  // namespace tachyon::benchmark

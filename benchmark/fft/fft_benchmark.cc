@@ -8,7 +8,6 @@
 #include "benchmark/fft/fft_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
-#include "tachyon/base/console/iostream.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
@@ -74,12 +73,13 @@ void Run(const FFTConfig& config) {
   } else {
     name = "FFT Benchmark";
   }
-  SimpleReporter reporter(name);
 
-  reporter.SetXLabel("Degree (2ˣ)");
-  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint32_t exponent) {
-    return base::NumberToString(exponent);
-  }));
+  SimpleReporter reporter;
+  reporter.set_title(name);
+  reporter.set_x_label("Degree (2ˣ)");
+  reporter.set_column_labels(base::Map(
+      config.exponents(),
+      [](uint32_t exponent) { return base::NumberToString(exponent); }));
 
   std::vector<size_t> degrees = config.GetDegrees();
 
@@ -107,12 +107,12 @@ void Run(const FFTConfig& config) {
   std::vector<RetPoly> halo2_results;
   if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
     runner.set_domains(absl::MakeSpan(domains));
-    runner.Run(Vendor::TachyonCPU(),
+    runner.Run(Vendor::Tachyon(),
                tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
                results, true);
     if (!halo2_domains.empty()) {
       runner.set_domains(absl::MakeSpan(halo2_domains));
-      runner.Run(Vendor::TachyonCPU(),
+      runner.Run(Vendor::Tachyon(),
                  tachyon_bn254_univariate_evaluation_domain_ifft_inplace,
                  degrees, halo2_results, false);
     }
@@ -134,19 +134,19 @@ void Run(const FFTConfig& config) {
                            results_vendor);
         CheckResults(config.check_results(), halo2_results, results_vendor);
       } else {
-        tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
+        NOTREACHED();
       }
     }
     // NOLINTNEXTLINE(readability/braces)
   } else if constexpr (std::is_same_v<PolyOrEvals,
                                       typename Domain::DensePoly>) {
     runner.set_domains(absl::MakeSpan(domains));
-    runner.Run(Vendor::TachyonCPU(),
+    runner.Run(Vendor::Tachyon(),
                tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
                results, true);
     if (!halo2_domains.empty()) {
       runner.set_domains(absl::MakeSpan(halo2_domains));
-      runner.Run(Vendor::TachyonCPU(),
+      runner.Run(Vendor::Tachyon(),
                  tachyon_bn254_univariate_evaluation_domain_fft_inplace,
                  degrees, halo2_results, false);
     }
@@ -168,7 +168,7 @@ void Run(const FFTConfig& config) {
                            results_vendor);
         CheckResults(config.check_results(), halo2_results, results_vendor);
       } else {
-        tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
+        NOTREACHED();
       }
     }
   }
@@ -185,10 +185,10 @@ int RealMain(int argc, char** argv) {
 
   Field::Init();
 
-  FFTConfig config;
   FFTConfig::Options options;
   options.include_vendors = true;
-  if (!config.Parse(argc, argv, options)) {
+  FFTConfig config(options);
+  if (!config.Parse(argc, argv)) {
     return 1;
   }
 

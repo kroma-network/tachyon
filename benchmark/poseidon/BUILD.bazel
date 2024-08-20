@@ -11,11 +11,7 @@ tachyon_cc_library(
     testonly = True,
     srcs = ["poseidon_config.cc"],
     hdrs = ["poseidon_config.h"],
-    deps = [
-        "//benchmark:config",
-        "//tachyon/base/console",
-        "//tachyon/base/flag:flag_parser",
-    ],
+    deps = ["//benchmark:config"],
 )
 
 tachyon_cc_library(

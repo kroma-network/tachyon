@@ -1,12 +1,12 @@
 #include "benchmark/msm/msm_config.h"
 
+#include <set>
 #include <string>
 
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/ranges/algorithm.h"
 
 namespace tachyon {
@@ -34,8 +34,10 @@ class FlagValueTraits<MSMConfig::TestSet> {
 
 }  // namespace base
 
-bool MSMConfig::Parse(int argc, char** argv,
-                      const MSMConfig::Options& options) {
+MSMConfig::MSMConfig() : MSMConfig(Options()) {}
+
+MSMConfig::MSMConfig(const Options& options)
+    : Config(options), include_vendors_(options.include_vendors) {
   parser_.AddFlag<base::Flag<std::vector<uint32_t>>>(&exponents_)
       .set_short_name("-k")
       .set_required()
@@ -43,24 +45,34 @@ bool MSMConfig::Parse(int argc, char** argv,
           "Specify the exponent 'k' where the number of points to test is 2ᵏ.");
   parser_.AddFlag<base::Flag<TestSet>>(&test_set_)
       .set_long_name("--test_set")
+      .set_default_value(TestSet::kRandom)
       .set_help(
           "Testset to be benchmarked with. (supported testset: random, "
-          "non_uniform)");
-  if (options.include_vendors) {
-    parser_.AddFlag<base::Flag<std::vector<benchmark::Vendor>>>(&vendors_)
+          "non_uniform). By default, random.");
+  if (include_vendors_) {
+    parser_.AddFlag<base::Flag<std::set<benchmark::Vendor>>>(&vendors_)
         .set_long_name("--vendor")
         .set_help(
             "Vendors to be benchmarked with. (supported vendors: arkworks, "
             "bellman, halo2)");
   }
+}
 
-  if (!Config::Parse(
-          argc, argv,
-          {/*include_check_results=*/true, /*include_vendors=*/false})) {
-    return false;
+void MSMConfig::PostParse() {
+  base::ranges::sort(exponents_);  // NOLINT(build/include_what_you_use)
+}
+
+bool MSMConfig::Validate() const {
+  if (include_vendors_) {
+    for (const Vendor vendor : vendors_) {
+      if ((vendor.value() != Vendor::kArkworks) &&
+          (vendor.value() != Vendor::kBellman) &&
+          (vendor.value() != Vendor::kScrollHalo2)) {
+        tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
+        return false;
+      }
+    }
   }
-
-  base::ranges::sort(exponents_);  // NOLINT
   return true;
 }
 

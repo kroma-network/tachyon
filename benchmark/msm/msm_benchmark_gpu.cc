@@ -18,17 +18,16 @@ using namespace math;
 
 int RealMain(int argc, char** argv) {
   MSMConfig config;
-  MSMConfig::Options options;
-  if (!config.Parse(argc, argv, options)) {
+  if (!config.Parse(argc, argv)) {
     return 1;
   }
 
-  SimpleReporter reporter("MSM Benchmark");
-
-  reporter.SetXLabel("Degree (2ˣ)");
-  reporter.SetColumnLabels(base::Map(config.exponents(), [](uint32_t exponent) {
-    return base::NumberToString(exponent);
-  }));
+  SimpleReporter reporter;
+  reporter.set_title("MSM Benchmark");
+  reporter.set_x_label("Degree (2ˣ)");
+  reporter.set_column_labels(base::Map(
+      config.exponents(),
+      [](uint32_t exponent) { return base::NumberToString(exponent); }));
 
   std::vector<size_t> point_nums = config.GetPointNums();
 
