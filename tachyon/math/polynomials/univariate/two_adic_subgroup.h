@@ -21,10 +21,10 @@ class TwoAdicSubgroup {
   virtual ~TwoAdicSubgroup() = default;
 
   // Compute the discrete Fourier transform (DFT) of each column in |mat|.
-  virtual void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) = 0;
+  virtual void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) const = 0;
 
   // Compute the inverse DFT of each column in |mat|.
-  void IFFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) {
+  void IFFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) const {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -47,7 +47,7 @@ class TwoAdicSubgroup {
   // Compute the low-degree extension of each column in |mat| onto a coset of
   // a larger subgroup.
   virtual void CosetLDEBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat,
-                             size_t added_bits, F shift) {
+                             size_t added_bits, F shift) const {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -73,7 +73,7 @@ class TwoAdicSubgroup {
   // Compute the "coset DFT" of each column in |mat|. This can be viewed as
   // interpolation onto a coset of a multiplicative subgroup, rather than the
   // subgroup itself.
-  void CosetFFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat, F shift) {
+  void CosetFFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat, F shift) const {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }

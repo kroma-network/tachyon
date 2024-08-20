@@ -93,7 +93,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     return base::bits::SafeLog2Ceiling(num_coeffs) <= F::Config::kTwoAdicity;
   }
 
-  void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) override {
+  void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) const override {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::FFTBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -114,7 +114,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
       Eigen::MatrixBase<RowMajorMatrix<F>>& mat, size_t added_bits,
-      F shift) override {
+      F shift) const override {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -390,7 +390,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // This can be used as the first half of a parallelized butterfly network.
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunks(
       Eigen::MatrixBase<RowMajorMatrix<F>>& mat, absl::Span<const F> twiddles,
-      absl::Span<const PackedPrimeField> packed_twiddles_rev) {
+      absl::Span<const PackedPrimeField> packed_twiddles_rev) const {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunks");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -417,7 +417,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunksReversed(
       Eigen::MatrixBase<RowMajorMatrix<F>>& mat,
       absl::Span<const F> twiddles_rev,
-      absl::Span<const PackedPrimeField> packed_twiddles_rev) {
+      absl::Span<const PackedPrimeField> packed_twiddles_rev) const {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunksReversed");
 
     if constexpr (F::Config::kModulusBits > 32) {
@@ -452,7 +452,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   CONSTEXPR_IF_NOT_OPENMP void RunDitLayers(
       Eigen::Block<RowMajorMatrix<F>>& submat, uint32_t layer,
       absl::Span<const F> twiddles,
-      absl::Span<const PackedPrimeField> packed_twiddles, bool rev) {
+      absl::Span<const PackedPrimeField> packed_twiddles, bool rev) const {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -477,7 +477,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void ApplyButterflyToRows(
+  CONSTEXPR_IF_NOT_OPENMP static void ApplyButterflyToRows(
       Eigen::Block<RowMajorMatrix<F>>& mat, size_t row_1, size_t row_2,
       F twiddle, const PackedPrimeField& packed_twiddle) {
     if constexpr (F::Config::kModulusBits > 32) {
