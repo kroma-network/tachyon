@@ -15,6 +15,7 @@ def repo():
             "@kroma_network_tachyon//third_party/icicle:remove_kernels_from_header.patch",
             "@kroma_network_tachyon//third_party/icicle:separate_msm_config.patch",
             "@kroma_network_tachyon//third_party/icicle:separate_ntt_algorithm.patch",
+            "@kroma_network_tachyon//third_party/icicle:separate_hash_config.patch",
         ],
         build_file = "//third_party/icicle:icicle.BUILD",
         link_files = {"//third_party/icicle:build_defs.bzl": "build_defs.bzl"},

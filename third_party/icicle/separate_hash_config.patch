@@ -1,0 +1,72 @@
+diff --git a/icicle/include/hash/hash.cu.h b/icicle/include/hash/hash.cu.h
+index 7ca414cc..85693c9f 100644
+--- a/icicle/include/hash/hash.cu.h
++++ b/icicle/include/hash/hash.cu.h
+@@ -2,8 +2,8 @@
+ #ifndef HASH_H
+ #define HASH_H
+
+-#include "gpu-utils/device_context.cu.h"
+ #include "gpu-utils/error_handler.cu.h"
++#include "hash/hash_config.h"
+ #include "matrix/matrix.cu.h"
+ #include <cassert>
+
+@@ -14,22 +14,6 @@ using matrix::Matrix;
+  * Includes classes and methods for describing hash functions.
+  */
+ namespace hash {
+-
+-  /**
+-   * @struct HashConfig
+-   * Encodes hash operations parameters.
+-   */
+-  struct HashConfig {
+-    device_context::DeviceContext ctx; /**< Details related to the device such as its id and stream id. */
+-    bool are_inputs_on_device; /**< True if inputs are on device and false if they're on host. Default value: false. */
+-    bool
+-      are_outputs_on_device; /**< True if outputs are on device and false if they're on host. Default value: false. */
+-    bool is_async; /**< Whether to run the hash operations asynchronously. If set to `true`, the functions will be
+-                    *   non-blocking and you'd need to synchronize it explicitly by running
+-                    *   `cudaStreamSynchronize` or `cudaDeviceSynchronize`. If set to false,
+-                    *   functions will block the current CPU thread. */
+-  };
+-
+   /**
+    * A function that returns the default value of [HashConfig](@ref HashConfig) for the [Hasher](@ref
+    * Hasher) class.
+@@ -171,4 +155,4 @@ namespace hash {
+   };
+ } // namespace hash
+
+-#endif
++#endif
+diff --git a/icicle/include/hash/hash_config.h b/icicle/include/hash/hash_config.h
+new file mode 100644
+index 00000000..2f5b05c7
+--- /dev/null
++++ b/icicle/include/hash/hash_config.h
+@@ -0,0 +1,23 @@
++#ifndef HASH_CONFIG_H
++#define HASH_CONFIG_H
++
++#include "gpu-utils/device_context.cu.h"
++
++namespace hash {
++  /**
++   * @struct HashConfig
++   * Encodes hash operations parameters.
++   */
++  struct HashConfig {
++    device_context::DeviceContext ctx; /**< Details related to the device such as its id and stream id. */
++    bool are_inputs_on_device; /**< True if inputs are on device and false if they're on host. Default value: false. */
++    bool
++      are_outputs_on_device; /**< True if outputs are on device and false if they're on host. Default value: false. */
++    bool is_async; /**< Whether to run the hash operations asynchronously. If set to `true`, the functions will be
++                    *   non-blocking and you'd need to synchronize it explicitly by running
++                    *   `cudaStreamSynchronize` or `cudaDeviceSynchronize`. If set to false,
++                    *   functions will block the current CPU thread. */
++  };
++} // namespace hash
++
++#endif // HASH_CONFIG_H
