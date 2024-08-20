@@ -53,11 +53,11 @@ class TwoAdicFriPCS {
     return Coset(log_n, F::One());
   }
 
-  [[nodiscard]] bool Commit(std::vector<Coset>& cosets,
+  [[nodiscard]] bool Commit(const std::vector<Coset>& cosets,
                             std::vector<math::RowMajorMatrix<F>>& matrices,
                             Commitment* commitment, ProverData* prover_data) {
     std::vector<math::RowMajorMatrix<F>> ldes =
-        base::Map(cosets, [this, &matrices](size_t i, Coset& coset) {
+        base::Map(cosets, [this, &matrices](size_t i, const Coset& coset) {
           math::RowMajorMatrix<F>& mat = matrices[i];
           CHECK_EQ(coset.domain()->size(), static_cast<size_t>(mat.rows()));
           coset.domain()->CosetLDEBatch(
