@@ -63,10 +63,10 @@ TYPED_TEST(Radix2EvaluationDomainTest, CosetLDEBatch) {
     RowMajorMatrix<F> result = expected;
     NaiveBatchFFT<F> naive;
     F shift = F::FromMontgomery(F::Config::kSubgroupGenerator);
-    naive.CosetLDEBatch(expected, 1, shift);
+    expected = naive.CosetLDEBatch(expected, 1, shift);
     std::unique_ptr<Radix2EvaluationDomain<F>> domain =
         Radix2EvaluationDomain<F>::Create(size_t{1} << log_r);
-    domain->CosetLDEBatch(result, 1, shift);
+    result = domain->CosetLDEBatch(result, 1, shift);
     EXPECT_EQ(expected, result);
   }
 }

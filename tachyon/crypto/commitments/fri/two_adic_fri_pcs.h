@@ -60,12 +60,12 @@ class TwoAdicFriPCS {
         base::Map(cosets, [this, &matrices](size_t i, const Coset& coset) {
           math::RowMajorMatrix<F>& mat = matrices[i];
           CHECK_EQ(coset.domain()->size(), static_cast<size_t>(mat.rows()));
-          coset.domain()->CosetLDEBatch(
+          math::RowMajorMatrix<F> ret = coset.domain()->CosetLDEBatch(
               mat, fri_.log_blowup,
               F::FromMontgomery(F::Config::kSubgroupGenerator) *
                   coset.domain()->offset_inv());
-          ReverseMatrixIndexBits(mat);
-          return mat;
+          ReverseMatrixIndexBits(ret);
+          return ret;
         });
     return mmcs_.Commit(std::move(ldes), commitment, prover_data);
   }
