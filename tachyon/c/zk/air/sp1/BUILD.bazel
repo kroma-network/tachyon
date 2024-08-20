@@ -35,6 +35,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "baby_bear_poseidon2_field_merkle_tree",
+    srcs = ["baby_bear_poseidon2_field_merkle_tree.cc"],
+    hdrs = [
+        "baby_bear_poseidon2_field_merkle_tree.h",
+        "baby_bear_poseidon2_field_merkle_tree_type_traits.h",
+    ],
+    deps = [
+        ":baby_bear_poseidon2_constants",
+        "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree",
+        "//tachyon/math/finite_fields/baby_bear",
+    ],
+)
+
+tachyon_cc_library(
     name = "sp1",
     deps = [":baby_bear_poseidon2_duplex_challenger"],
 )
