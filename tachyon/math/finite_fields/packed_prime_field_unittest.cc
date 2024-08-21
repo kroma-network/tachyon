@@ -88,6 +88,18 @@ TYPED_TEST(PackedPrimeFieldTest, TwoInv) {
   }
 }
 
+TYPED_TEST(PackedPrimeFieldTest, RawOne) {
+  using PackedPrimeField = TypeParam;
+  using PrimeField = typename PackedFieldTraits<PackedPrimeField>::Field;
+
+  if constexpr (PrimeField::Config::kUseMontgomery) {
+    EXPECT_EQ(PackedPrimeField::RawOne(),
+              PackedPrimeField::Broadcast(PrimeField::FromMontgomery(1)));
+  } else {
+    GTEST_SKIP() << "RawOne() doesn't exist";
+  }
+}
+
 TYPED_TEST(PackedPrimeFieldTest, Broadcast) {
   using PackedPrimeField = TypeParam;
   using PrimeField = typename PackedPrimeField::PrimeField;

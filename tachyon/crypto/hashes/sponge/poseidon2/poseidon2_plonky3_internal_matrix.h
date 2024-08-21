@@ -29,7 +29,7 @@ class Poseidon2Plonky3InternalMatrix {
     if constexpr (PrimeField::Config::kUseMontgomery) {
       static_assert(PrimeField::Config::kModulusBits <= 32);
       for (F& f : v) {
-        f *= F::Broadcast(PrimeField::FromMontgomery(1));
+        f *= F::RawOne();
       }
     }
   }

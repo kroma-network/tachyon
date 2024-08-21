@@ -19,6 +19,7 @@ uint32x4_t kZero;
 uint32x4_t kOne;
 uint32x4_t kMinusOne;
 uint32x4_t kTwoInv;
+uint32x4_t kRawOne;
 
 uint32x4_t ToVector(const PackedBabyBearNeon& packed) {
   return vld1q_u32(reinterpret_cast<const uint32_t*>(packed.values().data()));
@@ -60,6 +61,7 @@ void PackedBabyBearNeon::Init() {
   kOne = vdupq_n_u32(BabyBear::Config::kOne);
   kMinusOne = vdupq_n_u32(BabyBear::Config::kMinusOne);
   kTwoInv = vdupq_n_u32(BabyBear::Config::kTwoInv);
+  kRawOne = vdupq_n_u32(1);
 }
 
 // static
@@ -75,6 +77,9 @@ PackedBabyBearNeon PackedBabyBearNeon::MinusOne() {
 
 // static
 PackedBabyBearNeon PackedBabyBearNeon::TwoInv() { return FromVector(kTwoInv); }
+
+// static
+PackedBabyBearNeon PackedBabyBearNeon::RawOne() { return FromVector(kRawOne); }
 
 // static
 PackedBabyBearNeon PackedBabyBearNeon::Broadcast(const PrimeField& value) {
