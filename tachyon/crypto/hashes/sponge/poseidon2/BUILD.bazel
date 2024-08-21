@@ -12,6 +12,10 @@ tachyon_cc_library(
         "//tachyon/base/buffer:copyable",
         "//tachyon/crypto/hashes/sponge:sponge_state",
         "//tachyon/crypto/hashes/sponge/poseidon:poseidon_sponge_base",
+        "//tachyon/crypto/hashes/sponge/poseidon2/icicle",
+        "//tachyon/device/gpu:gpu_memory",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_stream",
         "//tachyon/math/finite_fields:finite_field_traits",
     ],
 )
