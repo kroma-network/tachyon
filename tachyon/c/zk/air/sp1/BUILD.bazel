@@ -3,13 +3,16 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
-    name = "challenger_hdrs",
-    srcs = ["baby_bear_poseidon2_duplex_challenger.h"],
+    name = "sp1_hdrs",
+    srcs = [
+        "baby_bear_poseidon2_constants.h",
+        "baby_bear_poseidon2_duplex_challenger.h",
+    ],
 )
 
 tachyon_cc_library(
-    name = "challenger",
-    deps = [":baby_bear_poseidon2_duplex_challenger"],
+    name = "baby_bear_poseidon2_constants",
+    hdrs = ["baby_bear_poseidon2_constants.h"],
 )
 
 tachyon_cc_library(
@@ -20,10 +23,10 @@ tachyon_cc_library(
         "baby_bear_poseidon2_duplex_challenger_type_traits.h",
     ],
     deps = [
+        ":baby_bear_poseidon2_constants",
         "//tachyon/c:export",
         "//tachyon/c/base:type_traits_forward",
         "//tachyon/c/math/finite_fields/baby_bear",
-        "//tachyon/c/zk/air/plonky3:baby_bear_poseidon2_constants",
         "//tachyon/crypto/hashes/sponge/poseidon2",
         "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_plonky3_external_matrix",
         "//tachyon/math/finite_fields/baby_bear:poseidon2",
@@ -31,11 +34,16 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "sp1",
+    deps = [":baby_bear_poseidon2_duplex_challenger"],
+)
+
 tachyon_cc_unittest(
-    name = "challenger_unittests",
+    name = "sp1_unittests",
     srcs = ["baby_bear_poseidon2_duplex_challenger_unittest.cc"],
     deps = [
-        ":baby_bear_poseidon2_duplex_challenger",
+        ":sp1",
         "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )

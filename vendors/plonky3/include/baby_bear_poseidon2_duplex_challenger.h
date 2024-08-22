@@ -5,7 +5,7 @@
 
 #include "rust/cxx.h"
 
-#include "tachyon/c/zk/air/plonky3/challenger/baby_bear_poseidon2_duplex_challenger.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_duplex_challenger.h"
 
 namespace tachyon::plonky3_api::baby_bear_poseidon2 {
 
@@ -15,7 +15,7 @@ class DuplexChallenger {
  public:
   DuplexChallenger();
   explicit DuplexChallenger(
-      tachyon_plonky3_baby_bear_poseidon2_duplex_challenger* challenger)
+      tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger)
       : challenger_(challenger) {}
   DuplexChallenger(const DuplexChallenger& other) = delete;
   DuplexChallenger& operator=(const DuplexChallenger& other) = delete;
@@ -26,7 +26,7 @@ class DuplexChallenger {
   std::unique_ptr<DuplexChallenger> clone() const;
 
  private:
-  tachyon_plonky3_baby_bear_poseidon2_duplex_challenger* challenger_;
+  tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger_;
 };
 
 std::unique_ptr<DuplexChallenger> new_duplex_challenger();

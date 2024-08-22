@@ -69,7 +69,7 @@ tachyon_cc_library(
     name = "baby_bear_poseidon2_api_hdrs",
     hdrs = ["include/baby_bear_poseidon2_duplex_challenger.h"],
     deps = [
-        "//tachyon/c/zk/air/plonky3/challenger:baby_bear_poseidon2_duplex_challenger",
+        "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_duplex_challenger",
         "@cxx.rs//:core",
     ],
 )
