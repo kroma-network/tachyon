@@ -1,21 +1,12 @@
 #[cfg(test)]
 mod test {
     use crate::baby_bear_poseidon2::DuplexChallenger as TachyonDuplexChallenger;
-    use p3_baby_bear::{BabyBear, DiffusionMatrixBabyBear};
+    use p3_baby_bear::BabyBear;
     use p3_challenger::{CanObserve, CanSample, DuplexChallenger};
     use p3_field::AbstractField;
-    use p3_poseidon2::{Poseidon2, Poseidon2ExternalMatrixGeneral};
-
-    use zkhash::ark_ff::PrimeField as ark_PrimeField;
-    use zkhash::fields::babybear::FpBabyBear as ark_FpBabyBear;
-    use zkhash::poseidon2::poseidon2_instance_babybear::RC16;
+    use sp1_core::utils::baby_bear_poseidon2::{my_perm, Perm};
 
     type F = BabyBear;
-
-    fn baby_bear_from_ark_ff(input: ark_FpBabyBear) -> BabyBear {
-        let v = input.into_bigint();
-        BabyBear::from_wrapped_u32(v.0[0] as u32)
-    }
 
     #[test]
     fn test_duplex_challenger() {
@@ -25,35 +16,7 @@ mod test {
 
         const RATE: usize = 8;
 
-        // Copy over round constants from zkhash.
-        let mut round_constants: Vec<[BabyBear; WIDTH]> = RC16
-            .iter()
-            .map(|vec| {
-                vec.iter()
-                    .cloned()
-                    .map(baby_bear_from_ark_ff)
-                    .collect::<Vec<_>>()
-                    .try_into()
-                    .unwrap()
-            })
-            .collect();
-        let internal_start = ROUNDS_F / 2;
-        let internal_end = (ROUNDS_F / 2) + ROUNDS_P;
-        let internal_round_constants = round_constants
-            .drain(internal_start..internal_end)
-            .map(|vec| vec[0])
-            .collect::<Vec<_>>();
-        let external_round_constants = round_constants;
-
-        type Perm = Poseidon2<F, Poseidon2ExternalMatrixGeneral, DiffusionMatrixBabyBear, 16, 7>;
-        let perm = Perm::new(
-            ROUNDS_F,
-            external_round_constants,
-            Poseidon2ExternalMatrixGeneral,
-            ROUNDS_P,
-            internal_round_constants,
-            DiffusionMatrixBabyBear,
-        );
+        let perm = my_perm();
 
         let mut tachyon_duplex_challenger: TachyonDuplexChallenger<F, Perm, WIDTH, RATE> =
             TachyonDuplexChallenger::new();

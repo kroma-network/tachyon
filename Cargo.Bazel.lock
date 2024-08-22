@@ -1,5 +1,5 @@
 {
-  "checksum": "1778ff2c504daf97f978635cf4bb1c54f367a36dc3a757bb5d6d0c96f713a434",
+  "checksum": "f18b47b24d322559ba405f9cb8683e71d3b1c15dedbda6554ce1275594c7e08f",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -18148,17 +18148,12 @@
               "target": "sp1_core"
             },
             {
+              "id": "sp1-primitives 1.0.1",
+              "target": "sp1_primitives"
+            },
+            {
               "id": "sp1-prover 1.0.1",
               "target": "sp1_prover"
-            }
-          ],
-          "selects": {}
-        },
-        "deps_dev": {
-          "common": [
-            {
-              "id": "zkhash 0.2.0",
-              "target": "zkhash"
             }
           ],
           "selects": {}

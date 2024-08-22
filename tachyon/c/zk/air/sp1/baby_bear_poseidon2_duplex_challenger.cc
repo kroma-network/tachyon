@@ -14,13 +14,23 @@ using Poseidon2 = crypto::Poseidon2Sponge<
 
 tachyon_sp1_baby_bear_poseidon2_duplex_challenger*
 tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create() {
+  math::Matrix<F> ark(TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_FULL_ROUNDS +
+                          TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_PARTIAL_ROUNDS,
+                      TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH);
+  for (Eigen::Index r = 0; r < ark.rows(); ++r) {
+    for (Eigen::Index c = 0; c < ark.cols(); ++c) {
+      ark(r, c) = F(kRoundConstants[r][c] % F::Config::kModulus);
+    }
+  }
+
   crypto::Poseidon2Config<F> config = crypto::Poseidon2Config<F>::CreateCustom(
       TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
       TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA,
       TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_FULL_ROUNDS,
       TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_PARTIAL_ROUNDS,
       math::GetPoseidon2BabyBearInternalShiftVector<
-          TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1>());
+          TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1>(),
+      std::move(ark));
   Poseidon2 sponge(std::move(config));
   return c::base::c_cast(
       new zk::air::plonky3::DuplexChallenger<
