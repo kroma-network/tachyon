@@ -78,7 +78,7 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
         ret.internal_diagonal_minus_one[i] = internal_diagonal_minus_one[i];
       }
     }
-    FindPoseidon2ARK<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
+    FindPoseidon2ARK(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
     return ret;
   }
 
@@ -102,7 +102,7 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
         ret.internal_shifts[i] = internal_shifts[i];
       }
     }
-    FindPoseidon2ARK<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
+    FindPoseidon2ARK(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
     return ret;
   }
 };
