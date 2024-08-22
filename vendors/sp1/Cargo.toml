@@ -34,6 +34,8 @@ sp1-primitives = { git = "https://github.com/kroma-network/sp1.git", rev = "dd03
 tachyon_rs = { path = "../../tachyon/rs" }
 
 [dev-dependencies]
+rand = "0.8.5"
+rand_chacha = "0.3.1"
 
 [features]
 default = []

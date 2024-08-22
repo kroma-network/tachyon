@@ -1,5 +1,5 @@
 {
-  "checksum": "f18b47b24d322559ba405f9cb8683e71d3b1c15dedbda6554ce1275594c7e08f",
+  "checksum": "493a31da6b3ac2a5605ba241c05d083f25487a1fdd2efcb09d582c8b3be8cba9",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -18154,6 +18154,19 @@
             {
               "id": "sp1-prover 1.0.1",
               "target": "sp1_prover"
+            }
+          ],
+          "selects": {}
+        },
+        "deps_dev": {
+          "common": [
+            {
+              "id": "rand 0.8.5",
+              "target": "rand"
+            },
+            {
+              "id": "rand_chacha 0.3.1",
+              "target": "rand_chacha"
             }
           ],
           "selects": {}

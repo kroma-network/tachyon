@@ -16,6 +16,8 @@ tachyon_rust_library(
     deps = all_crate_deps(normal = True) + [
         ":baby_bear_poseidon2_cxx_bridge",
         ":baby_bear_poseidon2_duplex_challenger",
+        ":baby_bear_poseidon2_prover_data",
+        ":baby_bear_poseidon2_two_adic_fri_pcs",
         "//tachyon/rs:tachyon_rs",
     ],
 )
@@ -59,9 +61,14 @@ rust_cxx_bridge(
 
 tachyon_cc_library(
     name = "baby_bear_poseidon2_api_hdrs",
-    hdrs = ["include/baby_bear_poseidon2_duplex_challenger.h"],
+    hdrs = [
+        "include/baby_bear_poseidon2_duplex_challenger.h",
+        "include/baby_bear_poseidon2_prover_data.h",
+        "include/baby_bear_poseidon2_two_adic_fri_pcs.h",
+    ],
     deps = [
         "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_duplex_challenger",
+        "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_two_adic_fri_pcs",
         "@cxx.rs//:core",
     ],
 )
@@ -69,6 +76,24 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "baby_bear_poseidon2_duplex_challenger",
     srcs = ["src/baby_bear_poseidon2_duplex_challenger.cc"],
+    deps = [
+        ":baby_bear_poseidon2_api_hdrs",
+        ":baby_bear_poseidon2_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_prover_data",
+    srcs = ["src/baby_bear_poseidon2_prover_data.cc"],
+    deps = [
+        ":baby_bear_poseidon2_api_hdrs",
+        ":baby_bear_poseidon2_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_two_adic_fri_pcs",
+    srcs = ["src/baby_bear_poseidon2_two_adic_fri_pcs.cc"],
     deps = [
         ":baby_bear_poseidon2_api_hdrs",
         ":baby_bear_poseidon2_cxx_bridge/include",
