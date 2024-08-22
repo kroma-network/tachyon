@@ -15,8 +15,6 @@ tachyon_rust_library(
     proc_macro_deps = all_crate_deps(proc_macro = True),
     deps = all_crate_deps(normal = True) + [
         ":baby_bear_cxx_bridge",
-        ":baby_bear_poseidon2_cxx_bridge",
-        ":baby_bear_poseidon2_duplex_challenger",
         ":baby_bear_row_major_matrix",
         "//tachyon/rs:tachyon_rs",
     ],
@@ -48,15 +46,6 @@ tachyon_rust_test(
 )
 
 rust_cxx_bridge(
-    name = "baby_bear_poseidon2_cxx_bridge",
-    src = "src/baby_bear_poseidon2.rs",
-    args = if_gpu_is_configured([
-        '--cfg=feature="gpu"',
-    ]),
-    deps = [":baby_bear_poseidon2_api_hdrs"],
-)
-
-rust_cxx_bridge(
     name = "baby_bear_cxx_bridge",
     src = "src/baby_bear.rs",
     args = if_gpu_is_configured([
@@ -66,29 +55,11 @@ rust_cxx_bridge(
 )
 
 tachyon_cc_library(
-    name = "baby_bear_poseidon2_api_hdrs",
-    hdrs = ["include/baby_bear_poseidon2_duplex_challenger.h"],
-    deps = [
-        "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_duplex_challenger",
-        "@cxx.rs//:core",
-    ],
-)
-
-tachyon_cc_library(
     name = "baby_bear_api_hdrs",
     hdrs = ["include/baby_bear_row_major_matrix.h"],
     deps = [
         "//tachyon/c/math/matrix:baby_bear_row_major_matrix",
         "@cxx.rs//:core",
-    ],
-)
-
-tachyon_cc_library(
-    name = "baby_bear_poseidon2_duplex_challenger",
-    srcs = ["src/baby_bear_poseidon2_duplex_challenger.cc"],
-    deps = [
-        ":baby_bear_poseidon2_api_hdrs",
-        ":baby_bear_poseidon2_cxx_bridge/include",
     ],
 )
 

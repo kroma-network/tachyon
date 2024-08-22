@@ -1,5 +1,5 @@
-#ifndef VENDORS_PLONKY3_INCLUDE_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_
-#define VENDORS_PLONKY3_INCLUDE_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_
+#ifndef VENDORS_SP1_INCLUDE_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_
+#define VENDORS_SP1_INCLUDE_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_
 
 #include <memory>
 
@@ -7,7 +7,7 @@
 
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_duplex_challenger.h"
 
-namespace tachyon::plonky3_api::baby_bear_poseidon2 {
+namespace tachyon::sp1_api::baby_bear_poseidon2 {
 
 struct TachyonBabyBear;
 
@@ -31,6 +31,6 @@ class DuplexChallenger {
 
 std::unique_ptr<DuplexChallenger> new_duplex_challenger();
 
-}  // namespace tachyon::plonky3_api::baby_bear_poseidon2
+}  // namespace tachyon::sp1_api::baby_bear_poseidon2
 
-#endif  // VENDORS_PLONKY3_INCLUDE_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_
+#endif  // VENDORS_SP1_INCLUDE_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_

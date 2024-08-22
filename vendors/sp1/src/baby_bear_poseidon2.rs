@@ -7,14 +7,14 @@ use tachyon_rs::math::finite_fields::baby_bear::BabyBear as TachyonBabyBearImpl;
 
 pub struct TachyonBabyBear(pub TachyonBabyBearImpl);
 
-#[cxx::bridge(namespace = "tachyon::plonky3_api::baby_bear_poseidon2")]
+#[cxx::bridge(namespace = "tachyon::sp1_api::baby_bear_poseidon2")]
 pub mod ffi {
     extern "Rust" {
         type TachyonBabyBear;
     }
 
     unsafe extern "C++" {
-        include!("vendors/plonky3/include/baby_bear_poseidon2_duplex_challenger.h");
+        include!("vendors/sp1/include/baby_bear_poseidon2_duplex_challenger.h");
 
         type DuplexChallenger;
 

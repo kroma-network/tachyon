@@ -1,3 +1,5 @@
+pub mod baby_bear_poseidon2;
+pub mod challenger;
 pub mod sp1;
 
 #[cfg(test)]

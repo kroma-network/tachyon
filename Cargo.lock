@@ -3473,13 +3473,9 @@ version = "0.0.1"
 dependencies = [
  "cxx",
  "p3-baby-bear",
- "p3-challenger",
  "p3-field",
  "p3-matrix",
- "p3-poseidon2",
- "p3-symmetric",
  "tachyon_rs",
- "zkhash 0.2.0 (git+https://github.com/HorizenLabs/poseidon2)",
 ]
 
 [[package]]
@@ -3513,6 +3509,7 @@ version = "0.0.1"
 dependencies = [
  "anyhow",
  "cxx",
+ "p3-baby-bear",
  "p3-challenger",
  "p3-commit",
  "p3-dft",
@@ -3520,10 +3517,13 @@ dependencies = [
  "p3-fri",
  "p3-matrix",
  "p3-maybe-rayon",
+ "p3-poseidon2",
+ "p3-symmetric",
  "p3-util",
  "sp1-core",
  "sp1-prover",
  "tachyon_rs",
+ "zkhash 0.2.0 (git+https://github.com/HorizenLabs/poseidon2)",
 ]
 
 [[package]]
