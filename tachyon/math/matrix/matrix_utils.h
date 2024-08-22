@@ -144,8 +144,16 @@ void ExpandInPlaceWithZeroPad(Eigen::MatrixBase<Derived>& mat,
 // accessed with the reversed bits of the current index. Crashes if the number
 // of rows is not a power of two.
 template <typename Derived>
+#if HAS_ATTRIBUTE(optimize)
+void __attribute__((optimize(3)))
+ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
+#else
 void ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
+#endif
   TRACE_EVENT("Utils", "MatrixUtils::ReverseMatrixIndexBits");
+
+  static_assert(Derived::IsRowMajor);
+
   size_t rows = static_cast<size_t>(mat.rows());
   if (rows == 0) {
     return;
@@ -155,7 +163,14 @@ void ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
   OMP_PARALLEL_FOR(size_t row = 1; row < rows; ++row) {
     size_t ridx = base::bits::ReverseBitsLen(row, log_n);
     if (row < ridx) {
-      mat.row(row).swap(mat.row(ridx));
+      absl::Span<uint8_t> row1(
+          reinterpret_cast<uint8_t*>(mat.derived().data() + row * mat.cols()),
+          mat.cols() * sizeof(typename Derived::Scalar));
+      absl::Span<uint8_t> row2(
+          reinterpret_cast<uint8_t*>(mat.derived().data() + ridx * mat.cols()),
+          mat.cols() * sizeof(typename Derived::Scalar));
+
+      std::swap_ranges(row1.begin(), row1.end(), row2.begin());
     }
   }
 }
