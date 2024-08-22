@@ -25,7 +25,16 @@
 #include "tachyon/math/matrix/matrix_utils.h"
 #include "tachyon/math/polynomials/univariate/evaluations_utils.h"
 
-namespace tachyon::crypto {
+namespace tachyon {
+namespace c::crypto {
+
+template <typename ExtF, typename InputMMCS, typename ChallengeMMCS,
+          typename Challenger, typename Coset>
+class TwoAdicFriPCSImpl;
+
+}  // namespace c::crypto
+
+namespace crypto {
 
 template <typename ExtF, typename InputMMCS, typename ChallengeMMCS,
           typename Challenger, typename Coset>
@@ -284,6 +293,9 @@ class TwoAdicFriPCS {
   }
 
  private:
+  friend class c::crypto::TwoAdicFriPCSImpl<ExtF, InputMMCS, ChallengeMMCS,
+                                            Challenger, Coset>;
+
   absl::flat_hash_map<ExtF, std::vector<ExtF>> ComputeInverseDenominators(
       const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
           matrices_by_round,
@@ -391,6 +403,7 @@ class TwoAdicFriPCS {
   TwoAdicFriConfig<ChallengeMMCS> fri_;
 };
 
-}  // namespace tachyon::crypto
+}  // namespace crypto
+}  // namespace tachyon
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PCS_H_
