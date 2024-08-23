@@ -30,8 +30,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "two_adic_fri_config",
-    hdrs = ["two_adic_fri_config.h"],
+    name = "fri_config",
+    hdrs = ["fri_config.h"],
     deps = [
         "//tachyon/base:optional",
         "//tachyon/math/finite_fields:extension_field_traits_forward",
@@ -69,7 +69,7 @@ tachyon_cc_library(
     name = "two_adic_fri_prover",
     hdrs = ["two_adic_fri_prover.h"],
     deps = [
-        ":two_adic_fri_config",
+        ":fri_config",
         ":two_adic_fri_proof",
         "//tachyon/base:bits",
         "//tachyon/math/finite_fields:extension_field_traits_forward",
@@ -82,7 +82,7 @@ tachyon_cc_library(
     name = "two_adic_fri_verifier",
     hdrs = ["two_adic_fri_verifier.h"],
     deps = [
-        ":two_adic_fri_config",
+        ":fri_config",
         ":two_adic_fri_proof",
         "//tachyon/base:bits",
         "//tachyon/math/geometry:dimensions",
@@ -93,13 +93,13 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "fri_unittests",
     srcs = [
+        "fri_config_unittest.cc",
         "fri_unittest.cc",
-        "two_adic_fri_config_unittest.cc",
         "two_adic_fri_pcs_unittest.cc",
     ],
     deps = [
         ":fri",
-        ":two_adic_fri_config",
+        ":fri_config",
         ":two_adic_fri_pcs",
         "//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree",
         "//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:binary_merkle_hasher",

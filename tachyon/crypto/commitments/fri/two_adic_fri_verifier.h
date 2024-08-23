@@ -10,7 +10,7 @@
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/ranges/algorithm.h"
-#include "tachyon/crypto/commitments/fri/two_adic_fri_config.h"
+#include "tachyon/crypto/commitments/fri/fri_config.h"
 #include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
 #include "tachyon/math/geometry/dimensions.h"
 #include "tachyon/zk/air/plonky3/challenger/challenger.h"
@@ -30,7 +30,7 @@ struct CommitStep {
 
 template <typename PCS, typename MMCS, typename F>
 F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
-              const TwoAdicFriConfig<MMCS>& config,
+              const FriConfig<MMCS>& config,
               const std::vector<CommitStep<PCS>>& steps,
               const std::vector<size_t>& ro_num_rows,
               const std::vector<F>& ro_values) {
@@ -63,10 +63,10 @@ F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
 
 template <typename PCS, typename ChallengeMMCS, typename Challenger,
           typename OpenInputCallback>
-[[nodiscard]] bool TwoAdicFriPCSVerify(
-    const TwoAdicFriConfig<ChallengeMMCS>& config,
-    const TwoAdicFriProof<PCS>& proof, Challenger& challenger,
-    OpenInputCallback open_input) {
+[[nodiscard]] bool TwoAdicFriPCSVerify(const FriConfig<ChallengeMMCS>& config,
+                                       const TwoAdicFriProof<PCS>& proof,
+                                       Challenger& challenger,
+                                       OpenInputCallback open_input) {
   using ExtF = typename ChallengeMMCS::Field;
   using Commitment = typename ChallengeMMCS::Commitment;
   size_t num_commits = proof.commit_phase_commits.size();

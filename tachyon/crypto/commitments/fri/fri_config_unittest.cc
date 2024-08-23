@@ -1,4 +1,4 @@
-#include "tachyon/crypto/commitments/fri/two_adic_fri_config.h"
+#include "tachyon/crypto/commitments/fri/fri_config.h"
 
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -10,11 +10,11 @@ namespace {
 using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 
-class TwoAdicFriConfigTest : public math::FiniteFieldTest<ExtF> {};
+class FriConfigTest : public math::FiniteFieldTest<ExtF> {};
 
 }  // namespace
 
-TEST_F(TwoAdicFriConfigTest, FoldMatrix) {
+TEST_F(FriConfigTest, FoldMatrix) {
   math::RowMajorMatrix<ExtF> inside(4, 2);
   inside << ExtF(F(7)), ExtF(F(1)), ExtF(F(2)), ExtF(F(3)), ExtF(F(5)),
       ExtF(F(3)), ExtF(F(2)), ExtF(F(5));

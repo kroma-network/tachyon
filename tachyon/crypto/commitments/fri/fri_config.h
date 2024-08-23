@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_CONFIG_H_
-#define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_CONFIG_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_CONFIG_H_
+#define TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_CONFIG_H_
 
 #include <vector>
 
@@ -17,7 +17,7 @@
 namespace tachyon::crypto {
 
 template <typename MMCS>
-struct TwoAdicFriConfig {
+struct FriConfig {
   uint32_t log_blowup;
   size_t num_queries;
   size_t proof_of_work_bits;
@@ -85,4 +85,4 @@ ExtF FoldRow(size_t index, uint32_t log_num_rows, const ExtF& beta,
 
 }  // namespace tachyon::crypto
 
-#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_CONFIG_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_CONFIG_H_

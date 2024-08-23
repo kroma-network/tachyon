@@ -57,7 +57,7 @@ class TwoAdicFriPCS {
   using OpenedValues = std::vector<OpenedValuesForRound>;
 
   TwoAdicFriPCS() = default;
-  TwoAdicFriPCS(InputMMCS&& mmcs, TwoAdicFriConfig<ChallengeMMCS>&& fri)
+  TwoAdicFriPCS(InputMMCS&& mmcs, FriConfig<ChallengeMMCS>&& fri)
       : mmcs_(std::move(mmcs)), fri_(std::move(fri)) {}
 
   Coset GetNaturalDomainForDegree(size_t size) {
@@ -405,7 +405,7 @@ class TwoAdicFriPCS {
   }
 
   InputMMCS mmcs_;
-  TwoAdicFriConfig<ChallengeMMCS> fri_;
+  FriConfig<ChallengeMMCS> fri_;
 };
 
 }  // namespace crypto

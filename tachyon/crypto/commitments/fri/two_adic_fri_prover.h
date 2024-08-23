@@ -11,7 +11,7 @@
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/ranges/algorithm.h"
-#include "tachyon/crypto/commitments/fri/two_adic_fri_config.h"
+#include "tachyon/crypto/commitments/fri/fri_config.h"
 #include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
@@ -21,7 +21,7 @@ namespace tachyon::crypto {
 
 template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger>
-CommitPhaseResult<PCS> CommitPhase(TwoAdicFriConfig<ChallengeMMCS>& config,
+CommitPhaseResult<PCS> CommitPhase(FriConfig<ChallengeMMCS>& config,
                                    std::vector<std::vector<ExtF>>&& inputs,
                                    Challenger& challenger) {
   // NOTE(ashjeong): This is empirically determined in case the size of the for
@@ -93,7 +93,7 @@ CommitPhaseResult<PCS> CommitPhase(TwoAdicFriConfig<ChallengeMMCS>& config,
 
 template <typename PCS, typename ChallengeMMCS = typename PCS::ChallengeMMCS>
 std::vector<CommitPhaseProofStep<PCS>> AnswerQuery(
-    size_t index, TwoAdicFriConfig<ChallengeMMCS>& config,
+    size_t index, FriConfig<ChallengeMMCS>& config,
     const std::vector<typename ChallengeMMCS::ProverData>&
         commit_phase_commits) {
   return base::CreateVector(
@@ -120,7 +120,7 @@ std::vector<CommitPhaseProofStep<PCS>> AnswerQuery(
 template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger, typename OpenInputCallback,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
-TwoAdicFriProof<PCS> TwoAdicFriPCSProve(TwoAdicFriConfig<ChallengeMMCS>& config,
+TwoAdicFriProof<PCS> TwoAdicFriPCSProve(FriConfig<ChallengeMMCS>& config,
                                         std::vector<std::vector<ExtF>>&& inputs,
                                         Challenger& challenger,
                                         OpenInputCallback open_input) {
