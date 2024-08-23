@@ -115,14 +115,12 @@ std::vector<CommitPhaseProofStep<MMCS>> AnswerQuery(
 }
 
 template <typename InputMMCS, typename ExtF, typename ChallengeMMCS,
-          typename Challenger,
-          typename Function = base::RepeatingCallback<
-              std::vector<BatchOpening<InputMMCS>>(size_t)>,
+          typename Challenger, typename OpenInputCallback,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
 TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>, F>
 TwoAdicFriPcsProve(TwoAdicFriConfig<ChallengeMMCS>& config,
                    std::vector<std::vector<ExtF>>&& inputs,
-                   Challenger& challenger, Function open_input) {
+                   Challenger& challenger, OpenInputCallback open_input) {
   using QueryProof =
       QueryProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>>;
 
