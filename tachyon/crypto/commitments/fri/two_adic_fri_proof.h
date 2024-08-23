@@ -32,7 +32,7 @@ struct CommitPhaseProofStep {
   typename MMCS::Proof opening_proof;
 };
 
-// Note(ashjeong): |InputProof| is usually a vector of |BatchOpenings|
+// Note(ashjeong): |InputProof| is usually a vector of |BatchOpening|
 template <typename MMCS, typename InputProof>
 struct QueryProof {
   InputProof input_proof;

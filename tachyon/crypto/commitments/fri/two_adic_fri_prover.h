@@ -66,7 +66,7 @@ CommitPhaseResult<ChallengeMMCS> CommitPhase(
     folded = FoldMatrix(beta, config.mmcs.GetMatrices(data.back()).back());
     // NOTE(ashjeong): |inputs| is sorted by largest to smallest size, and the
     // size of |folded| is divided by two every loop. This means that if
-    // |folded| is intialized as |inputs[0]|, the size of the next iteration of
+    // |folded| is initialized as |inputs[0]|, the size of the next iteration of
     // |folded| will never be the size of |inputs[0]|.
     for (size_t i = 1; i < inputs.size(); ++i) {
       if (inputs[i].size() == folded.size()) {
