@@ -19,10 +19,11 @@
 
 namespace tachyon::crypto {
 
-template <typename ExtF, typename ChallengeMMCS, typename Challenger>
-CommitPhaseResult<ChallengeMMCS> CommitPhase(
-    TwoAdicFriConfig<ChallengeMMCS>& config,
-    std::vector<std::vector<ExtF>>&& inputs, Challenger& challenger) {
+template <typename PCS, typename ExtF, typename ChallengeMMCS,
+          typename Challenger>
+CommitPhaseResult<PCS> CommitPhase(TwoAdicFriConfig<ChallengeMMCS>& config,
+                                   std::vector<std::vector<ExtF>>&& inputs,
+                                   Challenger& challenger) {
   // NOTE(ashjeong): This is empirically determined in case the size of the for
   // loop is small enough to not need parallelization.
   constexpr size_t kThreshold = 1024;
@@ -133,8 +134,8 @@ TwoAdicFriPCSProve(TwoAdicFriConfig<ChallengeMMCS>& config,
 #endif
 
   uint32_t log_max_num_rows = base::bits::CheckedLog2(inputs[0].size());
-  CommitPhaseResult<ChallengeMMCS> commit_phase_result =
-      CommitPhase(config, std::move(inputs), challenger);
+  CommitPhaseResult<PCS> commit_phase_result =
+      CommitPhase<PCS>(config, std::move(inputs), challenger);
   F pow_witness = challenger.Grind(config.proof_of_work_bits);
   VLOG(2) << "FRI(pow): " << pow_witness.ToHexString(true);
 

@@ -22,11 +22,16 @@ struct BatchOpening {
   Proof opening_proof;
 };
 
-template <typename MMCS>
+template <typename PCS>
 struct CommitPhaseResult {
-  std::vector<typename MMCS::Commitment> commits;
-  std::vector<typename MMCS::ProverData> data;
-  typename MMCS::Field final_eval;
+  using ChallengeMMCS = typename PCS::ChallengeMMCS;
+  using Commitment = typename ChallengeMMCS::Commitment;
+  using ProverData = typename ChallengeMMCS::ProverData;
+  using Field = typename ChallengeMMCS::Field;
+
+  std::vector<Commitment> commits;
+  std::vector<ProverData> data;
+  Field final_eval;
 };
 
 template <typename MMCS>
