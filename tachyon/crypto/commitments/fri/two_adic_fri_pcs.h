@@ -36,15 +36,18 @@ class TwoAdicFriPCSImpl;
 
 namespace crypto {
 
-template <typename ExtF, typename InputMMCS, typename ChallengeMMCS,
+template <typename ExtF, typename _InputMMCS, typename _ChallengeMMCS,
           typename Challenger, typename Coset>
 class TwoAdicFriPCS {
  public:
+  using InputMMCS = _InputMMCS;
+  using ChallengeMMCS = _ChallengeMMCS;
+
   using F = typename math::ExtensionFieldTraits<ExtF>::BaseField;
   using Commitment = typename InputMMCS::Commitment;
   using ProverData = typename InputMMCS::ProverData;
   using Proof = typename InputMMCS::Proof;
-  using InputProof = std::vector<BatchOpening<InputMMCS>>;
+  using InputProof = std::vector<BatchOpening<TwoAdicFriPCS>>;
   using TwoAdicFriProof = crypto::TwoAdicFriProof<ChallengeMMCS, InputProof, F>;
 
   using Points = std::vector<std::vector<ExtF>>;
@@ -175,11 +178,11 @@ class TwoAdicFriPCS {
       }
     }
 
-    TwoAdicFriProof fri_proof = TwoAdicFriPCSProve<InputMMCS>(
+    TwoAdicFriProof fri_proof = TwoAdicFriPCSProve<TwoAdicFriPCS>(
         fri_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();
-          std::vector<BatchOpening<InputMMCS>> ret = base::CreateVector(
+          std::vector<BatchOpening<TwoAdicFriPCS>> ret = base::CreateVector(
               num_rounds, [this, log_global_max_num_rows, index,
                            &prover_data_by_round](size_t round) {
                 Proof proof;
@@ -192,8 +195,8 @@ class TwoAdicFriPCS {
                 uint32_t reduced_index = index >> bits_reduced;
                 CHECK(mmcs_.CreateOpeningProof(reduced_index, prover_data,
                                                &openings, &proof));
-                return BatchOpening<InputMMCS>{std::move(openings),
-                                               std::move(proof)};
+                return BatchOpening<TwoAdicFriPCS>{std::move(openings),
+                                                   std::move(proof)};
               });
 
           return ret;

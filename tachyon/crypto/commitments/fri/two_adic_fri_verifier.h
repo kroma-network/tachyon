@@ -60,13 +60,13 @@ F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
   return folded_eval;
 }
 
-template <typename F, typename InputMMCS, typename ChallengeMMCS,
-          typename Challenger, typename OpenInputCallback,
+template <typename F, typename PCS, typename ChallengeMMCS, typename Challenger,
+          typename OpenInputCallback,
           typename ExtF = typename ChallengeMMCS::Field>
 [[nodiscard]] bool TwoAdicFriPCSVerify(
     const TwoAdicFriConfig<ChallengeMMCS>& config,
-    const TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>,
-                          F>& proof,
+    const TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<PCS>>, F>&
+        proof,
     Challenger& challenger, OpenInputCallback open_input) {
   using Commitment = typename ChallengeMMCS::Commitment;
   size_t num_commits = proof.commit_phase_commits.size();

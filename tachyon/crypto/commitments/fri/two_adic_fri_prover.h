@@ -114,15 +114,14 @@ std::vector<CommitPhaseProofStep<MMCS>> AnswerQuery(
       });
 }
 
-template <typename InputMMCS, typename ExtF, typename ChallengeMMCS,
+template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger, typename OpenInputCallback,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
-TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>, F>
+TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<PCS>>, F>
 TwoAdicFriPCSProve(TwoAdicFriConfig<ChallengeMMCS>& config,
                    std::vector<std::vector<ExtF>>&& inputs,
                    Challenger& challenger, OpenInputCallback open_input) {
-  using QueryProof =
-      QueryProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>>;
+  using QueryProof = QueryProof<ChallengeMMCS, std::vector<BatchOpening<PCS>>>;
 
 #if DCHECK_IS_ON()
   // Ensure |inputs| is in order from largest to smallest
@@ -144,7 +143,7 @@ TwoAdicFriPCSProve(TwoAdicFriConfig<ChallengeMMCS>& config,
                            &commit_phase_result](size_t query_idx) {
         size_t index = challenger.SampleBits(log_max_num_rows);
         VLOG(2) << "FRI(index[" << query_idx << "]): " << index;
-        std::vector<BatchOpening<InputMMCS>> x = open_input(index);
+        std::vector<BatchOpening<PCS>> x = open_input(index);
 
         std::vector<CommitPhaseProofStep<ChallengeMMCS>> answered_query =
             AnswerQuery<ExtF, ChallengeMMCS>(index, config,

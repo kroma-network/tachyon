@@ -12,10 +12,14 @@
 
 namespace tachyon::crypto {
 
-template <typename MMCS>
+template <typename PCS>
 struct BatchOpening {
-  std::vector<std::vector<typename MMCS::Field>> opened_values;
-  typename MMCS::Proof opening_proof;
+  using InputMMCS = typename PCS::InputMMCS;
+  using Field = typename InputMMCS::Field;
+  using Proof = typename InputMMCS::Proof;
+
+  std::vector<std::vector<Field>> opened_values;
+  Proof opening_proof;
 };
 
 template <typename MMCS>
