@@ -79,6 +79,7 @@ template <typename F, typename PCS, typename ChallengeMMCS, typename Challenger,
         return beta;
       });
   challenger.ObserveContainer(proof.final_eval);
+  VLOG(2) << "FRI(final_eval): " << proof.final_eval.ToHexString(true);
 
   if (proof.query_proofs.size() != config.num_queries) {
     LOG(ERROR) << "proof size doesn't match " << proof.query_proofs.size()
@@ -95,7 +96,6 @@ template <typename F, typename PCS, typename ChallengeMMCS, typename Challenger,
 
   uint32_t log_max_num_rows = num_commits + config.log_blowup;
 
-  VLOG(2) << "FRI(final_eval): " << proof.final_eval.ToHexString(true);
   for (size_t i = 0; i < proof.query_proofs.size(); ++i) {
     std::vector<size_t> ro_num_rows;
     std::vector<ExtF> ro_value;
