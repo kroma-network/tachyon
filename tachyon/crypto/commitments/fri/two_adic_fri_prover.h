@@ -118,7 +118,7 @@ template <typename InputMMCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger, typename OpenInputCallback,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
 TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>, F>
-TwoAdicFriPcsProve(TwoAdicFriConfig<ChallengeMMCS>& config,
+TwoAdicFriPCSProve(TwoAdicFriConfig<ChallengeMMCS>& config,
                    std::vector<std::vector<ExtF>>&& inputs,
                    Challenger& challenger, OpenInputCallback open_input) {
   using QueryProof =

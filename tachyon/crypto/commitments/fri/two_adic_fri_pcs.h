@@ -175,7 +175,7 @@ class TwoAdicFriPCS {
       }
     }
 
-    TwoAdicFriProof fri_proof = TwoAdicFriPcsProve<InputMMCS>(
+    TwoAdicFriProof fri_proof = TwoAdicFriPCSProve<InputMMCS>(
         fri_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();

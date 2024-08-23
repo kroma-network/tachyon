@@ -44,7 +44,7 @@ using ExtMMCS = FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher,
 using ChallengeMMCS = ExtensionFieldMerkleTreeMMCS<ExtF, ExtMMCS>;
 using Challenger = zk::air::plonky3::DuplexChallenger<Poseidon2, 16, kRate>;
 using Coset = zk::air::plonky3::TwoAdicMultiplicativeCoset<F>;
-using MyPcs = TwoAdicFriPCS<ExtF, MMCS, ChallengeMMCS, Challenger, Coset>;
+using MyPCS = TwoAdicFriPCS<ExtF, MMCS, ChallengeMMCS, Challenger, Coset>;
 
 class TwoAdicFriPCSTest : public testing::Test {
  public:
@@ -78,7 +78,7 @@ class TwoAdicFriPCSTest : public testing::Test {
     TwoAdicFriConfig<ChallengeMMCS> fri_config{1, 10, 8,
                                                std::move(challenge_mmcs)};
 
-    pcs_ = MyPcs(std::move(mmcs), std::move(fri_config));
+    pcs_ = MyPCS(std::move(mmcs), std::move(fri_config));
     challenger_ = Challenger(std::move(sponge));
   }
 
@@ -144,7 +144,7 @@ class TwoAdicFriPCSTest : public testing::Test {
   }
 
  protected:
-  MyPcs pcs_;
+  MyPCS pcs_;
   Challenger challenger_;
 };
 
