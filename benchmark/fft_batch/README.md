@@ -20,71 +20,67 @@ CPU Caches:
 ### FFTBatch
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor plonky3 -p baby_bear --check_results
+bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 --vendor plonky3 -p baby_bear --check_results
 ```
+
+WARNING: On Mac M3, tests beyond degree 24 are not feasible due to memory constraints.
 
 #### On Intel i9-13900K
 
 | Exponent | Tachyon      | Plonky3      |
 | :------- | ------------ | ------------ |
-| 16       | **0.003543** | 0.005809     |
-| 17       | **0.007168** | 0.009239     |
-| 18       | 0.027791     | **0.023848** |
-| 19       | 0.063468     | **0.049085** |
-| 20       | 0.133178     | **0.102343** |
-| 21       | 0.238817     | **0.208557** |
-| 22       | 0.507061     | **0.427260** |
-| 23       | 1.11136      | **0.922439** |
+| 20       | 0.117925     | **0.110098** |
+| 21       | 0.222959     | **0.218505** |
+| 22       | 0.459209     | **0.447758** |
+| 23       | 0.97874      | **0.964644** |
+| 24       | 2.09675      | **2.092210** |
+| 25       | **6.20441**  | 6.98453      |
+| 26       | **18.6084**  | 20.7476      |
 
 ![image](/benchmark/fft_batch/fft_batch_benchmark_ubuntu_i9.png)
 
 #### On Mac M3 Pro
 
-| Exponent | Tachyon      | Plonky3  |
-| :------- | ------------ | -------- |
-| 16       | **0.007926** | 0.01639  |
-| 17       | **0.016391** | 0.024321 |
-| 18       | **0.035098** | 0.085961 |
-| 19       | **0.076266** | 0.096928 |
-| 20       | **0.145975** | 0.151024 |
-| 21       | **0.309752** | 0.339549 |
-| 22       | **0.674991** | 2.66605  |
-| 23       | **1.727520** | 7.79002  |
+| Exponent | Tachyon   | Plonky3      |
+| :------- | --------- | ------------ |
+| 20       | 0.132521  | **0.072505** |
+| 21       | 0.287744  | **0.140527** |
+| 22       | 0.588894  | **0.280177** |
+| 23       | 1.17446   | **0.621024** |
+| 24       | 3.17213   | **2.399220** |
 
 ![image](/benchmark/fft_batch/fft_batch_benchmark_mac_m3.png)
 
 ### CosetLDEBatch
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor plonky3 -p baby_bear --run_coset_lde --check_results
+bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 --vendor plonky3 -p baby_bear --run_coset_lde --check_results
 ```
+
+WARNING: On Mac M3, tests beyond degree 24 are not feasible due to memory constraints.
 
 #### On Intel i9-13900K
 
 | Exponent | Tachyon      | Plonky3  |
 | :------- | ------------ | -------- |
-| 16       | **0.008384** | 0.018529 |
-| 17       | **0.017164** | 0.043266 |
-| 18       | **0.052999** | 0.093348 |
-| 19       | **0.128624** | 0.19531  |
-| 20       | **0.246412** | 0.418079 |
-| 21       | **0.508587** | 0.816136 |
-| 22       | **1.071360** | 1.63289  |
-| 23       | **2.225130** | 3.53348  |
+| 20       | **0.241410** | 0.396681 |
+| 21       | **0.480885** | 0.794424 |
+| 22       | **0.978230** | 1.60685  |
+| 23       | **2.005920** | 3.48347  |
+| 24       | **4.615940** | 7.89591  |
+| 25       | **12.62420** | 22.158   |
+| 26       | **35.45570** | 56.9609  |
 
 ![image](/benchmark/fft_batch/coset_lde_batch_benchmark_ubuntu_i9.png)
 
 #### On Mac M3 Pro
 
-| Exponent | Tachyon      | Plonky3      |
-| :------- | ------------ | ------------ |
-| 16       | **0.013503** | 0.020251     |
-| 17       | **0.028850** | 0.044731     |
-| 18       | 0.061675     | **0.055980** |
-| 19       | 0.132670     | **0.113062** |
-| 20       | **0.263582** | 0.300933     |
-| 21       | **0.548267** | 0.573641     |
-| 22       | **1.164400** | 1.19051      |
-| 23       | **2.818220** | 5.11368      |
+| Exponent | Tachyon   | Plonky3      |
+| :------- | --------- | ------------ |
+| 20       | 0.269538  | **0.204846** |
+| 21       | 0.543247  | **0.414618** |
+| 22       | 1.15925   | **0.877114** |
+| 23       | 2.43017   | **1.835210** |
+| 24       | 6.89016   | **4.846630** |
 
 ![image](/benchmark/fft_batch/coset_lde_batch_benchmark_mac_m3.png)
