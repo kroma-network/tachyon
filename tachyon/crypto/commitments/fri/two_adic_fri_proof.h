@@ -34,28 +34,40 @@ struct CommitPhaseResult {
   Field final_eval;
 };
 
-template <typename MMCS>
+template <typename PCS>
 struct CommitPhaseProofStep {
+  using ChallengeMMCS = typename PCS::ChallengeMMCS;
+  using Field = typename ChallengeMMCS::Field;
+  using Proof = typename ChallengeMMCS::Proof;
+
   // The opening of the commit phase codeword at the sibling location.
-  typename MMCS::Field sibling_value;
-  typename MMCS::Proof opening_proof;
+  Field sibling_value;
+  Proof opening_proof;
 };
 
 // Note(ashjeong): |InputProof| is usually a vector of |BatchOpening|
-template <typename MMCS, typename InputProof>
+template <typename PCS>
 struct QueryProof {
+  using InputProof = typename PCS::InputProof;
+
   InputProof input_proof;
   // For each commit phase commitment, this contains openings of a commit phase
   // codeword at the queried location, along with an opening proof.
-  std::vector<CommitPhaseProofStep<MMCS>> commit_phase_openings;
+  std::vector<CommitPhaseProofStep<PCS>> commit_phase_openings;
 };
 
-template <typename MMCS, typename InputProof, typename Witness>
+template <typename PCS>
 struct TwoAdicFriProof {
-  std::vector<typename MMCS::Commitment> commit_phase_commits;
-  std::vector<QueryProof<MMCS, InputProof>> query_proofs;
-  typename MMCS::Field final_eval;
-  Witness pow_witness;
+  using ChallengeMMCS = typename PCS::ChallengeMMCS;
+  using Commitment = typename ChallengeMMCS::Commitment;
+  using ExtField = typename ChallengeMMCS::Field;
+  using InputMMCS = typename PCS::InputMMCS;
+  using Field = typename InputMMCS::Field;
+
+  std::vector<Commitment> commit_phase_commits;
+  std::vector<QueryProof<PCS>> query_proofs;
+  ExtField final_eval;
+  Field pow_witness;
 };
 
 }  // namespace tachyon::crypto

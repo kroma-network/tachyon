@@ -17,20 +17,21 @@
 
 namespace tachyon::crypto {
 
-template <typename MMCS>
+template <typename PCS>
 struct CommitStep {
-  using F = typename MMCS::Field;
-  using Commitment = typename MMCS::Commitment;
+  using ChallengeMMCS = typename PCS::ChallengeMMCS;
+  using F = typename ChallengeMMCS::Field;
+  using Commitment = typename ChallengeMMCS::Commitment;
 
   F beta;
   Commitment commit;
-  CommitPhaseProofStep<MMCS> opening;
+  CommitPhaseProofStep<PCS> opening;
 };
 
-template <typename MMCS, typename F = typename MMCS::Field>
+template <typename PCS, typename MMCS, typename F>
 F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
               const TwoAdicFriConfig<MMCS>& config,
-              const std::vector<CommitStep<MMCS>>& steps,
+              const std::vector<CommitStep<PCS>>& steps,
               const std::vector<size_t>& ro_num_rows,
               const std::vector<F>& ro_values) {
   F folded_eval = F::Zero();
@@ -60,14 +61,13 @@ F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
   return folded_eval;
 }
 
-template <typename F, typename PCS, typename ChallengeMMCS, typename Challenger,
-          typename OpenInputCallback,
-          typename ExtF = typename ChallengeMMCS::Field>
+template <typename PCS, typename ChallengeMMCS, typename Challenger,
+          typename OpenInputCallback>
 [[nodiscard]] bool TwoAdicFriPCSVerify(
     const TwoAdicFriConfig<ChallengeMMCS>& config,
-    const TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<PCS>>, F>&
-        proof,
-    Challenger& challenger, OpenInputCallback open_input) {
+    const TwoAdicFriProof<PCS>& proof, Challenger& challenger,
+    OpenInputCallback open_input) {
+  using ExtF = typename ChallengeMMCS::Field;
   using Commitment = typename ChallengeMMCS::Commitment;
   size_t num_commits = proof.commit_phase_commits.size();
   std::vector<ExtF> betas = base::Map(
@@ -108,9 +108,9 @@ template <typename F, typename PCS, typename ChallengeMMCS, typename Challenger,
     DCHECK(base::ranges::is_sorted(ro_num_rows.begin(), ro_num_rows.end(),
                                    base::ranges::greater()));
 #endif
-    std::vector<CommitStep<ChallengeMMCS>> steps =
+    std::vector<CommitStep<PCS>> steps =
         base::CreateVector(num_commits, [&betas, &proof, i](size_t j) {
-          return CommitStep<ChallengeMMCS>{
+          return CommitStep<PCS>{
               betas[j], proof.commit_phase_commits[j],
               proof.query_proofs[i].commit_phase_openings[j]};
         });

@@ -91,14 +91,16 @@ CommitPhaseResult<PCS> CommitPhase(TwoAdicFriConfig<ChallengeMMCS>& config,
   return {std::move(commits), std::move(data), std::move(final_eval)};
 }
 
-template <typename F, typename MMCS>
-std::vector<CommitPhaseProofStep<MMCS>> AnswerQuery(
-    size_t index, TwoAdicFriConfig<MMCS>& config,
-    const std::vector<typename MMCS::ProverData>& commit_phase_commits) {
+template <typename PCS, typename ChallengeMMCS = typename PCS::ChallengeMMCS>
+std::vector<CommitPhaseProofStep<PCS>> AnswerQuery(
+    size_t index, TwoAdicFriConfig<ChallengeMMCS>& config,
+    const std::vector<typename ChallengeMMCS::ProverData>&
+        commit_phase_commits) {
   return base::CreateVector(
       commit_phase_commits.size(),
       [index, &config, &commit_phase_commits](size_t i) {
-        using Proof = typename MMCS::Proof;
+        using F = typename ChallengeMMCS::Field;
+        using Proof = typename ChallengeMMCS::Proof;
 
         size_t index_i = index >> i;
         size_t index_i_sibling = index_i ^ 1;
@@ -110,19 +112,19 @@ std::vector<CommitPhaseProofStep<MMCS>> AnswerQuery(
         CHECK_EQ(opened_rows.size(), size_t{1});
         CHECK_EQ(opened_rows[0].size(), size_t{2});
         const F& sibling_value = opened_rows[0][index_i_sibling % 2];
-        return CommitPhaseProofStep<MMCS>{sibling_value,
-                                          std::move(opening_proof)};
+        return CommitPhaseProofStep<PCS>{sibling_value,
+                                         std::move(opening_proof)};
       });
 }
 
 template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger, typename OpenInputCallback,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
-TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<PCS>>, F>
-TwoAdicFriPCSProve(TwoAdicFriConfig<ChallengeMMCS>& config,
-                   std::vector<std::vector<ExtF>>&& inputs,
-                   Challenger& challenger, OpenInputCallback open_input) {
-  using QueryProof = QueryProof<ChallengeMMCS, std::vector<BatchOpening<PCS>>>;
+TwoAdicFriProof<PCS> TwoAdicFriPCSProve(TwoAdicFriConfig<ChallengeMMCS>& config,
+                                        std::vector<std::vector<ExtF>>&& inputs,
+                                        Challenger& challenger,
+                                        OpenInputCallback open_input) {
+  using QueryProof = QueryProof<PCS>;
 
 #if DCHECK_IS_ON()
   // Ensure |inputs| is in order from largest to smallest
@@ -146,9 +148,8 @@ TwoAdicFriPCSProve(TwoAdicFriConfig<ChallengeMMCS>& config,
         VLOG(2) << "FRI(index[" << query_idx << "]): " << index;
         std::vector<BatchOpening<PCS>> x = open_input(index);
 
-        std::vector<CommitPhaseProofStep<ChallengeMMCS>> answered_query =
-            AnswerQuery<ExtF, ChallengeMMCS>(index, config,
-                                             commit_phase_result.data);
+        std::vector<CommitPhaseProofStep<PCS>> answered_query =
+            AnswerQuery<PCS>(index, config, commit_phase_result.data);
         return QueryProof{std::move(x), std::move(answered_query)};
       });
   return {std::move(commit_phase_result.commits), std::move(query_proofs),

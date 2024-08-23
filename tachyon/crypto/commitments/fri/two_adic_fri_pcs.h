@@ -48,7 +48,7 @@ class TwoAdicFriPCS {
   using ProverData = typename InputMMCS::ProverData;
   using Proof = typename InputMMCS::Proof;
   using InputProof = std::vector<BatchOpening<TwoAdicFriPCS>>;
-  using TwoAdicFriProof = crypto::TwoAdicFriProof<ChallengeMMCS, InputProof, F>;
+  using TwoAdicFriProof = crypto::TwoAdicFriProof<TwoAdicFriPCS>;
 
   using Points = std::vector<std::vector<ExtF>>;
 
