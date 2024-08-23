@@ -94,7 +94,6 @@ template <typename F, typename PCS, typename ChallengeMMCS, typename Challenger,
   }
 
   uint32_t log_max_num_rows = num_commits + config.log_blowup;
-  std::vector<CommitStep<ChallengeMMCS>> steps(num_commits);
 
   VLOG(2) << "FRI(final_eval): " << proof.final_eval.ToHexString(true);
   for (size_t i = 0; i < proof.query_proofs.size(); ++i) {
@@ -109,11 +108,12 @@ template <typename F, typename PCS, typename ChallengeMMCS, typename Challenger,
     DCHECK(base::ranges::is_sorted(ro_num_rows.begin(), ro_num_rows.end(),
                                    base::ranges::greater()));
 #endif
-    for (size_t j = 0; j < num_commits; ++j) {
-      steps[j] = CommitStep<ChallengeMMCS>{
-          betas[j], proof.commit_phase_commits[j],
-          proof.query_proofs[i].commit_phase_openings[j]};
-    }
+    std::vector<CommitStep<ChallengeMMCS>> steps =
+        base::CreateVector(num_commits, [&betas, &proof, i](size_t j) {
+          return CommitStep<ChallengeMMCS>{
+              betas[j], proof.commit_phase_commits[j],
+              proof.query_proofs[i].commit_phase_openings[j]};
+        });
     ExtF folded_eval = VerifyQuery(index, log_max_num_rows, config, steps,
                                    ro_num_rows, ro_value);
     if (folded_eval != proof.final_eval) {
