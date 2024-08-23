@@ -450,7 +450,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       Eigen::Block<RowMajorMatrix<F>>& submat, uint32_t layer,
       absl::Span<const F> twiddles,
       absl::Span<const PackedPrimeField> packed_twiddles, bool rev) {
-    TRACE_EVENT("EvaluationDomain", "RunDitLayers");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -478,7 +477,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   CONSTEXPR_IF_NOT_OPENMP void ApplyButterflyToRows(
       Eigen::Block<RowMajorMatrix<F>>& mat, size_t row_1, size_t row_2,
       F twiddle, const PackedPrimeField& packed_twiddle) {
-    TRACE_EVENT("EvaluationDomain", "ApplyButterflyToRows");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }

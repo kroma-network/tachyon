@@ -10,6 +10,7 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/math/finite_fields/extended_packed_field_traits_forward.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
@@ -144,6 +145,7 @@ void ExpandInPlaceWithZeroPad(Eigen::MatrixBase<Derived>& mat,
 // of rows is not a power of two.
 template <typename Derived>
 void ReverseMatrixIndexBits(Eigen::MatrixBase<Derived>& mat) {
+  TRACE_EVENT("Utils", "MatrixUtils::ReverseMatrixIndexBits");
   size_t rows = static_cast<size_t>(mat.rows());
   if (rows == 0) {
     return;
