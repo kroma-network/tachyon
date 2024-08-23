@@ -151,7 +151,7 @@ TwoAdicFriPcsProve(TwoAdicFriConfig<ChallengeMMCS>& config,
         std::vector<CommitPhaseProofStep<ChallengeMMCS>> answered_query =
             AnswerQuery<ExtF, ChallengeMMCS>(index, config,
                                              commit_phase_result.data);
-        return QueryProof{x, std::move(answered_query)};
+        return QueryProof{std::move(x), std::move(answered_query)};
       });
   return {std::move(commit_phase_result.commits), std::move(query_proofs),
           std::move(commit_phase_result.final_eval), std::move(pow_witness)};

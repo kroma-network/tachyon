@@ -162,9 +162,9 @@ class TwoAdicFriPCS {
               num_reduced[log_num_rows] += num_cols;
               return ys;
             });
-        opened_values_for_round[matrix_idx] = opened_values_for_mat;
+        opened_values_for_round[matrix_idx] = std::move(opened_values_for_mat);
       }
-      opened_values[round] = opened_values_for_round;
+      opened_values[round] = std::move(opened_values_for_round);
     }
     std::vector<std::vector<ExtF>> fri_input;
     fri_input.reserve(reduced_openings.size() - 1);
@@ -191,7 +191,8 @@ class TwoAdicFriPCS {
                 uint32_t reduced_index = index >> bits_reduced;
                 CHECK(mmcs_.CreateOpeningProof(reduced_index, prover_data,
                                                &openings, &proof));
-                return BatchOpening<InputMMCS>{openings, proof};
+                return BatchOpening<InputMMCS>{std::move(openings),
+                                               std::move(proof)};
               });
 
           return ret;
