@@ -153,8 +153,9 @@ class TwoAdicFriPCS {
               reduced_ys += alpha_pow * ys[num_cols - 1];
               std::vector<ExtF> reduced_rows = DotExtPowers(mat, alpha);
               const std::vector<ExtF>& inv_denom = inv_denoms[point];
-              for (size_t i = 0; i < reduced_opening_for_log_num_rows.size();
-                   ++i) {
+              OMP_PARALLEL_FOR(size_t i = 0;
+                               i < reduced_opening_for_log_num_rows.size();
+                               ++i) {
                 reduced_opening_for_log_num_rows[i] +=
                     alpha_pow_offset * (reduced_rows[i] - reduced_ys) *
                     inv_denom[i];
