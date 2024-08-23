@@ -122,7 +122,7 @@ template <typename InputMMCS, typename ExtF, typename ChallengeMMCS,
 TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>, F>
 TwoAdicFriPcsProve(TwoAdicFriConfig<ChallengeMMCS>& config,
                    std::vector<std::vector<ExtF>>&& inputs,
-                   Challenger& challenger, Function OpenInput) {
+                   Challenger& challenger, Function open_input) {
   using QueryProof =
       QueryProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>>;
 
@@ -142,11 +142,11 @@ TwoAdicFriPcsProve(TwoAdicFriConfig<ChallengeMMCS>& config,
   VLOG(2) << "FRI(pow): " << pow_witness.ToHexString(true);
 
   std::vector<QueryProof> query_proofs = base::CreateVector(
-      config.num_queries, [log_max_num_rows, &challenger, &OpenInput, &config,
+      config.num_queries, [log_max_num_rows, &challenger, &open_input, &config,
                            &commit_phase_result](size_t query_idx) {
         size_t index = challenger.SampleBits(log_max_num_rows);
         VLOG(2) << "FRI(index[" << query_idx << "]): " << index;
-        std::vector<BatchOpening<InputMMCS>> x = OpenInput(index);
+        std::vector<BatchOpening<InputMMCS>> x = open_input(index);
 
         std::vector<CommitPhaseProofStep<ChallengeMMCS>> answered_query =
             AnswerQuery<ExtF, ChallengeMMCS>(index, config,

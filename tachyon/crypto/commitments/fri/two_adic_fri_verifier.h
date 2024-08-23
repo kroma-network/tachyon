@@ -69,7 +69,7 @@ template <typename F, typename InputMMCS, typename ChallengeMMCS,
     const TwoAdicFriConfig<ChallengeMMCS>& config,
     const TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>,
                           F>& proof,
-    Challenger& challenger, Function OpenInput) {
+    Challenger& challenger, Function open_input) {
   using Commitment = typename ChallengeMMCS::Commitment;
   size_t num_commits = proof.commit_phase_commits.size();
   std::vector<ExtF> betas = base::Map(
@@ -104,7 +104,7 @@ template <typename F, typename InputMMCS, typename ChallengeMMCS,
     std::vector<ExtF> ro_value;
     size_t index = challenger.SampleBits(log_max_num_rows);
     VLOG(2) << "FRI(index[" << i << "]): " << index;
-    OpenInput(index, proof.query_proofs[i].input_proof, ro_num_rows, ro_value);
+    open_input(index, proof.query_proofs[i].input_proof, ro_num_rows, ro_value);
 
 #if DCHECK_IS_ON()
     // Check reduced openings sorted by |num_rows| descending
