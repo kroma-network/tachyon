@@ -6,6 +6,7 @@
 #include "benchmark/fft/fft_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
+#include "tachyon/base/profiler.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
@@ -89,6 +90,14 @@ int RealMain(int argc, char** argv) {
   using Domain = UnivariateEvaluationDomain<Field, kMaxDegree>;
   using DensePoly = Domain::DensePoly;
   using Evals = Domain::Evals;
+
+  base::FilePath tmp_file;
+  CHECK(base::GetTempDir(&tmp_file));
+  tmp_file = tmp_file.Append("fft_benchmark_gpu.perfetto-trace");
+  base::Profiler profiler({tmp_file});
+
+  profiler.Init();
+  profiler.Start();
 
   Field::Init();
 

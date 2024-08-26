@@ -41,6 +41,7 @@ tachyon_cc_binary(
         ":fft_batch_runner",
         "//benchmark:simple_reporter",
         "//benchmark/fft_batch/plonky3",
+        "//tachyon/base:profiler",
         "//tachyon/c/math/finite_fields/baby_bear",
         "//tachyon/math/finite_fields:packed_field_traits_forward",
         "//tachyon/math/matrix:matrix_types",

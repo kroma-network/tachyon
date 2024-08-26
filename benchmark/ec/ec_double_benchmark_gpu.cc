@@ -6,6 +6,7 @@
 #include "benchmark/simple_reporter.h"
 #include "benchmark/ec/ec_config.h"
 // clang-format on
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/time/time_interval.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
@@ -52,6 +53,14 @@ void TestDoubleOnGPU(math::bn254::G1AffinePointGpu* bases_cuda,
 }  // namespace
 
 int RealMain(int argc, char** argv) {
+  base::FilePath tmp_file;
+  CHECK(base::GetTempDir(&tmp_file));
+  tmp_file = tmp_file.Append("ec_double_benchmark_gpu.perfetto-trace");
+  base::Profiler profiler({tmp_file});
+
+  profiler.Init();
+  profiler.Start();
+
   ECConfig config;
   if (!config.Parse(argc, argv)) {
     return 1;

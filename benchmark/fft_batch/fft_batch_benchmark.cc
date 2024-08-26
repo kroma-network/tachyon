@@ -7,6 +7,7 @@
 #include "benchmark/fft_batch/fft_batch_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
+#include "tachyon/base/profiler.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
 #include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 
@@ -94,6 +95,14 @@ void Run(const FFTBatchConfig& config) {
 }
 
 int RealMain(int argc, char** argv) {
+  base::FilePath tmp_file;
+  CHECK(base::GetTempDir(&tmp_file));
+  tmp_file = tmp_file.Append("fft_batch_benchmark.perfetto-trace");
+  base::Profiler profiler({tmp_file});
+
+  profiler.Init();
+  profiler.Start();
+
   FFTBatchConfig config;
   if (!config.Parse(argc, argv)) {
     return 1;

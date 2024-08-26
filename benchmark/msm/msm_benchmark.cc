@@ -5,6 +5,7 @@
 #include "benchmark/msm/msm_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
+#include "tachyon/base/profiler.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm.h"
@@ -35,6 +36,14 @@ tachyon_bn254_g1_jacobian* run_msm_halo2_adapter(
 }
 
 int RealMain(int argc, char** argv) {
+  base::FilePath tmp_file;
+  CHECK(base::GetTempDir(&tmp_file));
+  tmp_file = tmp_file.Append("msm_benchmark.perfetto-trace");
+  base::Profiler profiler({tmp_file});
+
+  profiler.Init();
+  profiler.Start();
+
   MSMConfig::Options options;
   options.include_vendors = true;
   MSMConfig config(options);

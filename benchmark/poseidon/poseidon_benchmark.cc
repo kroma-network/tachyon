@@ -6,6 +6,7 @@
 #include "benchmark/simple_reporter.h"
 // clang-format on
 #include "tachyon/base/logging.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
@@ -17,6 +18,14 @@ using Field = math::bn254::Fr;
 extern "C" tachyon_bn254_fr* run_poseidon_arkworks(uint64_t* duration);
 
 int RealMain(int argc, char** argv) {
+  base::FilePath tmp_file;
+  CHECK(base::GetTempDir(&tmp_file));
+  tmp_file = tmp_file.Append("poseidon_benchmark.perfetto-trace");
+  base::Profiler profiler({tmp_file});
+
+  profiler.Init();
+  profiler.Start();
+
   PoseidonConfig config;
   if (!config.Parse(argc, argv)) {
     return 1;
