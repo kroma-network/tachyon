@@ -38,88 +38,59 @@ class FFTRunner {
 
   explicit FFTRunner(SimpleReporter& reporter) : reporter_(reporter) {}
 
-  void set_polys(absl::Span<const PolyOrEvals> polys) { polys_ = polys; }
-
-  void set_domains(absl::Span<std::unique_ptr<Domain>> domains) {
-    domains_ = domains;
-  }
-
-#if TACHYON_CUDA
-  void SwitchToIcicle(math::IcicleNTTHolder<F>* icicle_ntt_holder) {
-    for (std::unique_ptr<Domain>& domain : domains_) {
-      domain->set_icicle(icicle_ntt_holder);
-    }
-  }
-#endif
-
   template <typename Fn, typename RetPoly,
             typename FunctorTraits = base::internal::MakeFunctorTraits<Fn>,
             typename RunType = typename FunctorTraits::RunType,
             typename ArgList = base::internal::ExtractArgs<RunType>,
-            typename CPolyOrEvals = base::internal::GetType<1, ArgList>,
             typename CRetPoly = std::conditional_t<
                 std::is_same_v<RetPoly, typename Domain::Evals>,
                 tachyon_bn254_univariate_evaluations,
                 tachyon_bn254_univariate_dense_polynomial>>
-  void Run(Vendor vendor, Fn fn, const std::vector<size_t>& degrees,
-           std::vector<RetPoly>& results, bool should_record) {
+  void Run(Vendor vendor, Fn fn, Domain* domain, const PolyOrEvals& input,
+           bool should_record, RetPoly& result) {
+    PolyOrEvals poly = input;
+
+    base::TimeTicks now = base::TimeTicks::Now();
+    std::unique_ptr<CRetPoly> ret;
+    ret.reset(fn(c::base::c_cast(domain), c::base::c_cast(&poly)));
     if (should_record) {
-      reporter_.AddVendor(vendor);
+      reporter_.AddTime(vendor, (base::TimeTicks::Now() - now));
     }
 
-    results.clear();
-    results.reserve(degrees.size());
-    for (size_t i = 0; i < degrees.size(); ++i) {
-      PolyOrEvals poly = polys_[i];
-      base::TimeTicks now = base::TimeTicks::Now();
-      std::unique_ptr<CRetPoly> ret;
-      ret.reset(fn(c::base::c_cast(domains_[i].get()), c::base::c_cast(&poly)));
-      if (should_record) {
-        reporter_.AddTime(vendor, (base::TimeTicks::Now() - now));
-      }
-      results.push_back(*c::base::native_cast(ret.get()));
-    }
+    result = std::move(*c::base::native_cast(ret.get()));
   }
 
   template <typename RetPoly>
-  void RunExternal(Vendor vendor, FFTExternalFn fn,
-                   const std::vector<uint32_t>& exponents,
-                   std::vector<RetPoly>& results) const {
-    reporter_.AddVendor(vendor);
+  void RunExternal(Vendor vendor, FFTExternalFn fn, Domain* domain,
+                   const PolyOrEvals& input, RetPoly& result) const {
+    uint64_t duration_in_us;
 
-    results.clear();
-    results.reserve(exponents.size());
-    for (size_t i = 0; i < exponents.size(); ++i) {
-      uint64_t duration_in_us;
-      size_t n = size_t{1} << exponents[i];
-
-      std::unique_ptr<F> ret;
-      if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
-        const F& omega_inv = domains_[i]->group_gen_inv();
-        ret.reset(c::base::native_cast(
-            fn(c::base::c_cast(polys_[i].evaluations().data()), n,
-               c::base::c_cast(&omega_inv), exponents[i], &duration_in_us)));
-        std::vector<F> res_vec(ret.get(), ret.get() + n);
-        results.emplace_back(
-            typename RetPoly::Coefficients(std::move(res_vec)));
-        // NOLINTNEXTLINE(readability/braces)
-      } else if constexpr (std::is_same_v<PolyOrEvals,
-                                          typename Domain::DensePoly>) {
-        const F& omega = domains_[i]->group_gen();
-        ret.reset(c::base::native_cast(
-            fn(c::base::c_cast(polys_[i].coefficients().coefficients().data()),
-               n, c::base::c_cast(&omega), exponents[i], &duration_in_us)));
-        std::vector<F> res_vec(ret.get(), ret.get() + n);
-        results.emplace_back(std::move(res_vec));
-      }
+    std::unique_ptr<F> ret;
+    if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
+      const F& omega_inv = domain->group_gen_inv();
+      ret.reset(c::base::native_cast(
+          fn(c::base::c_cast(input.evaluations().data()), input.NumElements(),
+             c::base::c_cast(&omega_inv), domain->log_size_of_group(),
+             &duration_in_us)));
+      std::vector<F> res_vec(ret.get(), ret.get() + input.NumElements());
       reporter_.AddTime(vendor, base::Microseconds(duration_in_us));
+      result = RetPoly(typename RetPoly::Coefficients(std::move(res_vec)));
+      // NOLINTNEXTLINE(readability/braces)
+    } else if constexpr (std::is_same_v<PolyOrEvals,
+                                        typename Domain::DensePoly>) {
+      const F& omega = domain->group_gen();
+      ret.reset(c::base::native_cast(
+          fn(c::base::c_cast(input.coefficients().coefficients().data()),
+             input.NumElements(), c::base::c_cast(&omega),
+             domain->log_size_of_group(), &duration_in_us)));
+      std::vector<F> res_vec(ret.get(), ret.get() + input.NumElements());
+      reporter_.AddTime(vendor, base::Microseconds(duration_in_us));
+      result = RetPoly(std::move(res_vec));
     }
   }
 
  private:
   SimpleReporter& reporter_;
-  absl::Span<const PolyOrEvals> polys_;
-  absl::Span<std::unique_ptr<Domain>> domains_;
 };
 
 }  // namespace tachyon::benchmark

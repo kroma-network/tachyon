@@ -8,11 +8,10 @@ use tachyon_rs::math::finite_fields::baby_bear::BabyBear as CppBabyBear;
 #[no_mangle]
 pub extern "C" fn run_fft_batch_plonky3_baby_bear(
     data: *const BabyBear,
-    n_log: u32,
+    n: usize,
     batch_size: usize,
     duration: *mut u64,
 ) -> *mut CppBabyBear {
-    let n = 1 << n_log;
     let size = n * batch_size;
     let values: Vec<BabyBear> = unsafe { Vec::from_raw_parts(data as *mut BabyBear, size, size) };
 
@@ -30,11 +29,10 @@ pub extern "C" fn run_fft_batch_plonky3_baby_bear(
 #[no_mangle]
 pub extern "C" fn run_coset_lde_batch_plonky3_baby_bear(
     data: *const BabyBear,
-    n_log: u32,
+    n: usize,
     batch_size: usize,
     duration: *mut u64,
 ) -> *mut CppBabyBear {
-    let n = 1 << n_log;
     let size = n * batch_size;
     let values: Vec<BabyBear> = unsafe { Vec::from_raw_parts(data as *mut BabyBear, size, size) };
 
