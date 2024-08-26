@@ -98,6 +98,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
+    CHECK_GT(roots_vec_.size(), size_t{0});
+    CHECK_GT(packed_roots_vec_.size(), size_t{0});
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
 
     // The first half looks like a normal DIT.
@@ -117,6 +119,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
+    CHECK_GT(roots_vec_.size(), size_t{0});
+    CHECK_GT(packed_roots_vec_.size(), size_t{0});
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
 
     // The first half looks like a normal DIT.
