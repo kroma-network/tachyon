@@ -11,7 +11,6 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
-#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear4.h"
 #include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/air/plonky3/base/two_adic_multiplicative_coset.h"
@@ -28,7 +27,7 @@ constexpr size_t kN = 2;
 using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 using PackedF = math::PackedBabyBear;
-using ExtendedPackedF = math::PackedBabyBear4;
+using ExtPackedF = math::PackedBabyBear4;
 using Domain = zk::air::plonky3::TwoAdicMultiplicativeCoset<F>;
 using Poseidon2 =
     Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>>;
@@ -39,11 +38,11 @@ using MyPackedHasher = PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
 using MyCompressor = TruncatedPermutation<Poseidon2, kChunk, kN>;
 using MyPackedCompressor = TruncatedPermutation<PackedPoseidon2, kChunk, kN>;
 using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
-                                 MyPackedCompressor, 8>;
+                                 MyPackedCompressor, kChunk>;
 using ExtMMCS = FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher,
-                                    MyCompressor, MyPackedCompressor, 8>;
+                                    MyCompressor, MyPackedCompressor, kChunk>;
 using ChallengeMMCS = ExtensionFieldMerkleTreeMMCS<ExtF, ExtMMCS>;
-using Challenger = zk::air::plonky3::DuplexChallenger<Poseidon2, 16, 8>;
+using Challenger = zk::air::plonky3::DuplexChallenger<Poseidon2, 16, kRate>;
 using Coset = zk::air::plonky3::TwoAdicMultiplicativeCoset<F>;
 using MyPcs = TwoAdicFriPCS<ExtF, MMCS, ChallengeMMCS, Challenger, Coset>;
 
@@ -53,7 +52,7 @@ class TwoAdicFriPCSTest : public testing::Test {
 
   static void SetUpTestSuite() {
     ExtF::Init();
-    ExtendedPackedF::Init();
+    ExtPackedF::Init();
   }
 
   void SetUp() override {
@@ -76,7 +75,8 @@ class TwoAdicFriPCSTest : public testing::Test {
                 std::move(compressor), std::move(packed_compressor)));
 
     // TODO(ashjeong): Include separate test for |log_blowup| = 2
-    TwoAdicFriConfig<ChallengeMMCS> fri_config{1, 10, 8, challenge_mmcs};
+    TwoAdicFriConfig<ChallengeMMCS> fri_config{1, 10, 8,
+                                               std::move(challenge_mmcs)};
 
     pcs_ = MyPcs(std::move(mmcs), std::move(fri_config));
     challenger_ = Challenger(std::move(sponge));
@@ -101,11 +101,11 @@ class TwoAdicFriPCSTest : public testing::Test {
       std::vector<Domain> inner_domains(log_degrees.size());
       std::vector<math::RowMajorMatrix<F>> inner_polys(log_degrees.size());
       for (size_t i = 0; i < log_degrees.size(); ++i) {
-        size_t d = size_t{1} << log_degrees[i];
+        size_t rows = size_t{1} << log_degrees[i];
         // TODO(ashjeong): make the latter number randomized from 0-10
         size_t cols = 5;
-        inner_domains[i] = pcs_.GetNaturalDomainForDegree(d);
-        inner_polys[i] = math::RowMajorMatrix<F>::Random(d, cols);
+        inner_domains[i] = pcs_.GetNaturalDomainForDegree(rows);
+        inner_polys[i] = math::RowMajorMatrix<F>::Random(rows, cols);
       }
       ASSERT_TRUE(pcs_.Commit(inner_domains, inner_polys,
                               &commits_by_round[round], &data_by_round[round]));

@@ -45,6 +45,7 @@ tachyon_cc_library(
     name = "matrix_utils",
     hdrs = ["matrix_utils.h"],
     deps = [
+        ":matrix_types",
         "//tachyon/base:bits",
         "//tachyon/base:openmp_util",
         "//tachyon/base:profiler",

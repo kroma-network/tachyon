@@ -3473,13 +3473,9 @@ version = "0.0.1"
 dependencies = [
  "cxx",
  "p3-baby-bear",
- "p3-challenger",
  "p3-field",
  "p3-matrix",
- "p3-poseidon2",
- "p3-symmetric",
  "tachyon_rs",
- "zkhash 0.2.0 (git+https://github.com/HorizenLabs/poseidon2)",
 ]
 
 [[package]]
@@ -3513,6 +3509,7 @@ version = "0.0.1"
 dependencies = [
  "anyhow",
  "cxx",
+ "p3-baby-bear",
  "p3-challenger",
  "p3-commit",
  "p3-dft",
@@ -3520,8 +3517,13 @@ dependencies = [
  "p3-fri",
  "p3-matrix",
  "p3-maybe-rayon",
+ "p3-poseidon2",
+ "p3-symmetric",
  "p3-util",
+ "rand 0.8.5",
+ "rand_chacha",
  "sp1-core",
+ "sp1-primitives",
  "sp1-prover",
  "tachyon_rs",
 ]
@@ -4105,32 +4107,6 @@ dependencies = [
 name = "zkhash"
 version = "0.2.0"
 source = "git+https://github.com/HorizenLabs/poseidon2.git?rev=bb476b9#bb476b9ca38198cf5092487283c8b8c5d4317c4e"
-dependencies = [
- "ark-ff",
- "ark-std 0.4.0",
- "bitvec",
- "blake2",
- "bls12_381",
- "byteorder",
- "cfg-if 1.0.0",
- "group 0.12.1",
- "group 0.13.0",
- "halo2",
- "hex",
- "jubjub",
- "lazy_static",
- "pasta_curves 0.5.1",
- "rand 0.8.5",
- "serde",
- "sha2",
- "sha3 0.10.8",
- "subtle",
-]
-
-[[package]]
-name = "zkhash"
-version = "0.2.0"
-source = "git+https://github.com/HorizenLabs/poseidon2#bb476b9ca38198cf5092487283c8b8c5d4317c4e"
 dependencies = [
  "ark-ff",
  "ark-std 0.4.0",

@@ -1,5 +1,5 @@
 {
-  "checksum": "fe9ae6f4561ad04bed9e5ebe9cba69153f8f8ff4c819e68d1aa1ffc9128967e2",
+  "checksum": "493a31da6b3ac2a5605ba241c05d083f25487a1fdd2efcb09d582c8b3be8cba9",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -17929,33 +17929,12 @@
               "target": "p3_baby_bear"
             },
             {
-              "id": "p3-challenger 0.1.3-succinct",
-              "target": "p3_challenger"
-            },
-            {
               "id": "p3-field 0.1.3-succinct",
               "target": "p3_field"
             },
             {
               "id": "p3-matrix 0.1.3-succinct",
               "target": "p3_matrix"
-            },
-            {
-              "id": "p3-poseidon2 0.1.3-succinct",
-              "target": "p3_poseidon2"
-            },
-            {
-              "id": "p3-symmetric 0.1.3-succinct",
-              "target": "p3_symmetric"
-            }
-          ],
-          "selects": {}
-        },
-        "deps_dev": {
-          "common": [
-            {
-              "id": "zkhash 0.2.0",
-              "target": "zkhash"
             }
           ],
           "selects": {}
@@ -18121,6 +18100,10 @@
               "target": "cxx"
             },
             {
+              "id": "p3-baby-bear 0.1.3-succinct",
+              "target": "p3_baby_bear"
+            },
+            {
               "id": "p3-challenger 0.1.3-succinct",
               "target": "p3_challenger"
             },
@@ -18149,6 +18132,14 @@
               "target": "p3_maybe_rayon"
             },
             {
+              "id": "p3-poseidon2 0.1.3-succinct",
+              "target": "p3_poseidon2"
+            },
+            {
+              "id": "p3-symmetric 0.1.3-succinct",
+              "target": "p3_symmetric"
+            },
+            {
               "id": "p3-util 0.1.3-succinct",
               "target": "p3_util"
             },
@@ -18157,8 +18148,25 @@
               "target": "sp1_core"
             },
             {
+              "id": "sp1-primitives 1.0.1",
+              "target": "sp1_primitives"
+            },
+            {
               "id": "sp1-prover 1.0.1",
               "target": "sp1_prover"
+            }
+          ],
+          "selects": {}
+        },
+        "deps_dev": {
+          "common": [
+            {
+              "id": "rand 0.8.5",
+              "target": "rand"
+            },
+            {
+              "id": "rand_chacha 0.3.1",
+              "target": "rand_chacha"
             }
           ],
           "selects": {}

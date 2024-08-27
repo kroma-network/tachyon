@@ -1,7 +1,8 @@
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load("@cxx.rs//tools/bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon.bzl", "if_gpu_is_configured", "if_has_openmp_on_macos")
-load("//bazel:tachyon_cc.bzl", "tachyon_openmp_linkopts")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_openmp_linkopts")
 load("//bazel:tachyon_rust.bzl", "tachyon_rust_library", "tachyon_rust_test")
 
 FEATURES = if_gpu_is_configured(["gpu"])
@@ -13,6 +14,10 @@ tachyon_rust_library(
     crate_features = FEATURES,
     proc_macro_deps = all_crate_deps(proc_macro = True),
     deps = all_crate_deps(normal = True) + [
+        ":baby_bear_poseidon2_cxx_bridge",
+        ":baby_bear_poseidon2_duplex_challenger",
+        ":baby_bear_poseidon2_prover_data",
+        ":baby_bear_poseidon2_two_adic_fri_pcs",
         "//tachyon/rs:tachyon_rs",
     ],
 )
@@ -43,4 +48,54 @@ tachyon_rust_test(
     ]) + if_has_openmp_on_macos([
         "@local_config_omp//:omp",
     ]),
+)
+
+rust_cxx_bridge(
+    name = "baby_bear_poseidon2_cxx_bridge",
+    src = "src/baby_bear_poseidon2.rs",
+    args = if_gpu_is_configured([
+        '--cfg=feature="gpu"',
+    ]),
+    deps = [":baby_bear_poseidon2_api_hdrs"],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_api_hdrs",
+    hdrs = [
+        "include/baby_bear_poseidon2_duplex_challenger.h",
+        "include/baby_bear_poseidon2_prover_data.h",
+        "include/baby_bear_poseidon2_two_adic_fri_pcs.h",
+    ],
+    deps = [
+        "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_duplex_challenger",
+        "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_two_adic_fri_pcs",
+        "@cxx.rs//:core",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_duplex_challenger",
+    srcs = ["src/baby_bear_poseidon2_duplex_challenger.cc"],
+    deps = [
+        ":baby_bear_poseidon2_api_hdrs",
+        ":baby_bear_poseidon2_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_prover_data",
+    srcs = ["src/baby_bear_poseidon2_prover_data.cc"],
+    deps = [
+        ":baby_bear_poseidon2_api_hdrs",
+        ":baby_bear_poseidon2_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_two_adic_fri_pcs",
+    srcs = ["src/baby_bear_poseidon2_two_adic_fri_pcs.cc"],
+    deps = [
+        ":baby_bear_poseidon2_api_hdrs",
+        ":baby_bear_poseidon2_cxx_bridge/include",
+    ],
 )

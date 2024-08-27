@@ -78,7 +78,7 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
         ret.internal_diagonal_minus_one[i] = internal_diagonal_minus_one[i];
       }
     }
-    FindPoseidon2ARK<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
+    FindPoseidon2ARK(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
     return ret;
   }
 
@@ -87,6 +87,24 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
       size_t rate, uint64_t alpha, size_t full_rounds, size_t partial_rounds,
       const std::array<uint8_t, N>& internal_shifts) {
     Poseidon2ConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds);
+    math::Matrix<F> ark;
+    FindPoseidon2ARK(config_entry.ToPoseidonGrainLFSRConfig<F>(), ark);
+    return CreateCustom(config_entry, internal_shifts, std::move(ark));
+  }
+
+  template <size_t N>
+  constexpr static Poseidon2Config CreateCustom(
+      size_t rate, uint64_t alpha, size_t full_rounds, size_t partial_rounds,
+      const std::array<uint8_t, N>& internal_shifts, math::Matrix<F>&& ark) {
+    Poseidon2ConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds);
+    return CreateCustom(config_entry, internal_shifts, std::move(ark));
+  }
+
+ private:
+  template <size_t N>
+  constexpr static Poseidon2Config CreateCustom(
+      const Poseidon2ConfigEntry& config_entry,
+      const std::array<uint8_t, N>& internal_shifts, math::Matrix<F>&& ark) {
     Poseidon2Config ret = config_entry.ToPoseidon2Config<F>();
     ret.use_plonky3_internal_matrix = true;
     if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
@@ -102,7 +120,7 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
         ret.internal_shifts[i] = internal_shifts[i];
       }
     }
-    FindPoseidon2ARK<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
+    ret.ark = std::move(ark);
     return ret;
   }
 };

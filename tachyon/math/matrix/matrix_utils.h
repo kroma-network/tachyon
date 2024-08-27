@@ -15,6 +15,7 @@
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 #include "tachyon/math/finite_fields/packed_field_traits_forward.h"
+#include "tachyon/math/matrix/matrix_types.h"
 
 namespace tachyon::math {
 
@@ -117,17 +118,17 @@ std::vector<PackedField> PackRowVertically(
 // Expands a |Eigen::MatrixBase|'s rows from |rows| to |rows|^(|added_bits|),
 // moving values from row |i| to row |i|^(|added_bits|). All new entries are set
 // to |F::Zero()|.
-template <typename Derived>
-void ExpandInPlaceWithZeroPad(Eigen::MatrixBase<Derived>& mat,
-                              size_t added_bits) {
+template <typename Derived, typename Scalar = typename Derived::Scalar>
+RowMajorMatrix<Scalar> ExpandInPlaceWithZeroPad(Eigen::MatrixBase<Derived>& mat,
+                                                size_t added_bits) {
   if (added_bits == 0) {
-    return;
+    return mat;
   }
 
   Eigen::Index new_rows = mat.rows() << added_bits;
   Eigen::Index cols = mat.cols();
 
-  Derived padded(new_rows, cols);
+  RowMajorMatrix<Scalar> padded(new_rows, cols);
   Eigen::Index mask = (Eigen::Index{1} << added_bits) - 1;
 
   OMP_PARALLEL_FOR(Eigen::Index row = 0; row < new_rows; ++row) {
@@ -137,7 +138,7 @@ void ExpandInPlaceWithZeroPad(Eigen::MatrixBase<Derived>& mat,
       padded.row(row).setZero();
     }
   }
-  mat = std::move(padded);
+  return padded;
 }
 
 // Swaps rows of a |Eigen::MatrixBase| such that each row is changed to the row

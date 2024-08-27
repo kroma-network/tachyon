@@ -4,10 +4,10 @@ package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "air_hdrs",
-    srcs = ["//tachyon/c/zk/air/plonky3:plonky3_hdrs"],
+    srcs = ["//tachyon/c/zk/air/sp1:sp1_hdrs"],
 )
 
 tachyon_cc_library(
     name = "air",
-    deps = ["//tachyon/c/zk/air/plonky3"],
+    deps = ["//tachyon/c/zk/air/sp1"],
 )

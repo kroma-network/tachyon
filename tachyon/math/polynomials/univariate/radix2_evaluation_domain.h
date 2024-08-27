@@ -52,8 +52,9 @@ namespace tachyon::math {
 // power-of-2.
 template <typename F,
           size_t MaxDegree = (size_t{1} << F::Config::kTwoAdicity) - 1>
-class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
-                               public TwoAdicSubgroup<F> {
+class Radix2EvaluationDomain
+    : public UnivariateEvaluationDomain<F, MaxDegree>,
+      public TwoAdicSubgroup<Radix2EvaluationDomain<F, MaxDegree>> {
  public:
   using Base = UnivariateEvaluationDomain<F, MaxDegree>;
   using Field = F;
@@ -93,7 +94,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     return base::bits::SafeLog2Ceiling(num_coeffs) <= F::Config::kTwoAdicity;
   }
 
-  void FFTBatch(Eigen::MatrixBase<RowMajorMatrix<F>>& mat) override {
+  template <typename Derived>
+  void FFTBatch(Eigen::MatrixBase<Derived>& mat) const {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::FFTBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -112,9 +114,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     ReverseMatrixIndexBits(mat);
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
-      Eigen::MatrixBase<RowMajorMatrix<F>>& mat, size_t added_bits,
-      F shift) override {
+  template <typename Derived>
+  CONSTEXPR_IF_NOT_OPENMP RowMajorMatrix<F> CosetLDEBatch(
+      Eigen::MatrixBase<Derived>& mat, size_t added_bits, F shift) const {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -153,23 +155,24 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       mat.row(base::bits::ReverseBitsLen(start + len - 1,
                                          this->log_size_of_group_)) *= weight;
     });
-    ExpandInPlaceWithZeroPad(mat, added_bits);
+    RowMajorMatrix<F> ret = ExpandInPlaceWithZeroPad(mat, added_bits);
 
-    size_t rows = static_cast<size_t>(mat.rows());
+    size_t rows = static_cast<size_t>(ret.rows());
     uint32_t log_size_of_group = base::bits::CheckedLog2(rows);
     auto domain =
         absl::WrapUnique(new Radix2EvaluationDomain(rows, log_size_of_group));
     domain->PrepareRootsVecCache(/*packed_vec_only=*/true);
 
     // The first half looks like a normal DIT.
-    domain->RunParallelRowChunks(mat, domain->roots_vec_.back(),
+    domain->RunParallelRowChunks(ret, domain->roots_vec_.back(),
                                  domain->packed_roots_vec_[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
-    ReverseMatrixIndexBits(mat);
-    domain->RunParallelRowChunksReversed(mat, domain->rev_roots_vec_,
+    ReverseMatrixIndexBits(ret);
+    domain->RunParallelRowChunksReversed(ret, domain->rev_roots_vec_,
                                          domain->packed_roots_vec_[1]);
-    ReverseMatrixIndexBits(mat);
+    ReverseMatrixIndexBits(ret);
+    return ret;
   }
 
  private:
@@ -388,9 +391,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   // This can be used as the first half of a parallelized butterfly network.
+  template <typename Derived>
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunks(
-      Eigen::MatrixBase<RowMajorMatrix<F>>& mat, absl::Span<const F> twiddles,
-      absl::Span<const PackedPrimeField> packed_twiddles_rev) {
+      Eigen::MatrixBase<Derived>& mat, absl::Span<const F> twiddles,
+      absl::Span<const PackedPrimeField> packed_twiddles_rev) const {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunks");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -405,7 +409,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     OMP_PARALLEL_FOR(size_t block_start = 0; block_start < this->size_;
                      block_start += chunk_rows) {
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
-      Eigen::Block<RowMajorMatrix<F>> submat =
+      Eigen::Block<Derived> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
       for (uint32_t layer = 0; layer < mid; ++layer) {
         RunDitLayers(submat, layer, twiddles, packed_twiddles_rev, false);
@@ -414,10 +418,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   }
 
   // This can be used as the second half of a parallelized butterfly network.
+  template <typename Derived>
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunksReversed(
-      Eigen::MatrixBase<RowMajorMatrix<F>>& mat,
-      absl::Span<const F> twiddles_rev,
-      absl::Span<const PackedPrimeField> packed_twiddles_rev) {
+      Eigen::MatrixBase<Derived>& mat, absl::Span<const F> twiddles_rev,
+      absl::Span<const PackedPrimeField> packed_twiddles_rev) const {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunksReversed");
 
     if constexpr (F::Config::kModulusBits > 32) {
@@ -435,7 +439,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
                      block_start += chunk_rows) {
       size_t thread = block_start / chunk_rows;
       size_t cur_chunk_rows = std::min(chunk_rows, this->size_ - block_start);
-      Eigen::Block<RowMajorMatrix<F>> submat =
+      Eigen::Block<Derived> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
       for (uint32_t layer = mid; layer < log_n; ++layer) {
         size_t first_block = thread << (layer - mid);
@@ -449,10 +453,11 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
   }
 
+  template <typename Derived>
   CONSTEXPR_IF_NOT_OPENMP void RunDitLayers(
-      Eigen::Block<RowMajorMatrix<F>>& submat, uint32_t layer,
+      Eigen::Block<Derived>& submat, uint32_t layer,
       absl::Span<const F> twiddles,
-      absl::Span<const PackedPrimeField> packed_twiddles, bool rev) {
+      absl::Span<const PackedPrimeField> packed_twiddles, bool rev) const {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -477,9 +482,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     }
   }
 
-  CONSTEXPR_IF_NOT_OPENMP void ApplyButterflyToRows(
-      Eigen::Block<RowMajorMatrix<F>>& mat, size_t row_1, size_t row_2,
-      F twiddle, const PackedPrimeField& packed_twiddle) {
+  template <typename Derived>
+  CONSTEXPR_IF_NOT_OPENMP static void ApplyButterflyToRows(
+      Eigen::Block<Derived>& mat, size_t row_1, size_t row_2, F twiddle,
+      const PackedPrimeField& packed_twiddle) {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -512,6 +518,11 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // For all finite fields
   std::vector<std::vector<F>> roots_vec_;
   std::vector<std::vector<F>> inv_roots_vec_;
+};
+
+template <typename F, size_t MaxDegree>
+struct TwoAdicSubgroupTraits<Radix2EvaluationDomain<F, MaxDegree>> {
+  using Field = F;
 };
 
 }  // namespace tachyon::math

@@ -88,9 +88,15 @@ tachyon_cc_library(
     name = "two_adic_subgroup",
     hdrs = ["two_adic_subgroup.h"],
     deps = [
+        ":two_adic_subgroup_traits_forward",
         "//tachyon/base:optional",
         "//tachyon/math/matrix:matrix_types",
     ],
+)
+
+tachyon_cc_library(
+    name = "two_adic_subgroup_traits_forward",
+    hdrs = ["two_adic_subgroup_traits_forward.h"],
 )
 
 tachyon_cc_library(

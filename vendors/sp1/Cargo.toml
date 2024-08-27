@@ -17,6 +17,7 @@ publish = false
 [dependencies]
 anyhow = "1.0.83"
 cxx = "1.0"
+p3-baby-bear = "0.1.3-succinct"
 p3-challenger = "0.1.3-succinct"
 p3-commit = "0.1.3-succinct"
 p3-dft = "0.1.3-succinct"
@@ -24,12 +25,17 @@ p3-field = "0.1.3-succinct"
 p3-fri = "0.1.3-succinct"
 p3-matrix = "0.1.3-succinct"
 p3-maybe-rayon = "0.1.3-succinct"
+p3-poseidon2 = "0.1.3-succinct"
+p3-symmetric = "0.1.3-succinct"
 p3-util = "0.1.3-succinct"
 sp1-core = { git = "https://github.com/kroma-network/sp1.git", rev = "dd032eb" }
 sp1-prover = { git = "https://github.com/kroma-network/sp1.git", rev = "dd032eb" }
+sp1-primitives = { git = "https://github.com/kroma-network/sp1.git", rev = "dd032eb" }
 tachyon_rs = { path = "../../tachyon/rs" }
 
 [dev-dependencies]
+rand = "0.8.5"
+rand_chacha = "0.3.1"
 
 [features]
 default = []

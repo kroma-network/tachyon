@@ -25,7 +25,16 @@
 #include "tachyon/math/matrix/matrix_utils.h"
 #include "tachyon/math/polynomials/univariate/evaluations_utils.h"
 
-namespace tachyon::crypto {
+namespace tachyon {
+namespace c::crypto {
+
+template <typename ExtF, typename InputMMCS, typename ChallengeMMCS,
+          typename Challenger, typename Coset>
+class TwoAdicFriPCSImpl;
+
+}  // namespace c::crypto
+
+namespace crypto {
 
 template <typename ExtF, typename InputMMCS, typename ChallengeMMCS,
           typename Challenger, typename Coset>
@@ -48,24 +57,24 @@ class TwoAdicFriPCS {
   TwoAdicFriPCS(InputMMCS&& mmcs, TwoAdicFriConfig<ChallengeMMCS>&& fri)
       : mmcs_(std::move(mmcs)), fri_(std::move(fri)) {}
 
-  Coset GetNaturalDomainForDegree(size_t degree) {
-    uint32_t log_n = base::bits::CheckedLog2(degree);
+  Coset GetNaturalDomainForDegree(size_t size) {
+    uint32_t log_n = base::bits::CheckedLog2(size);
     return Coset(log_n, F::One());
   }
 
-  [[nodiscard]] bool Commit(std::vector<Coset>& cosets,
+  [[nodiscard]] bool Commit(const std::vector<Coset>& cosets,
                             std::vector<math::RowMajorMatrix<F>>& matrices,
                             Commitment* commitment, ProverData* prover_data) {
     std::vector<math::RowMajorMatrix<F>> ldes =
-        base::Map(cosets, [this, &matrices](size_t i, Coset& coset) {
+        base::Map(cosets, [this, &matrices](size_t i, const Coset& coset) {
           math::RowMajorMatrix<F>& mat = matrices[i];
           CHECK_EQ(coset.domain()->size(), static_cast<size_t>(mat.rows()));
-          coset.domain()->CosetLDEBatch(
+          math::RowMajorMatrix<F> ret = coset.domain()->CosetLDEBatch(
               mat, fri_.log_blowup,
               F::FromMontgomery(F::Config::kSubgroupGenerator) *
                   coset.domain()->offset_inv());
-          ReverseMatrixIndexBits(mat);
-          return mat;
+          ReverseMatrixIndexBits(ret);
+          return ret;
         });
     return mmcs_.Commit(std::move(ldes), commitment, prover_data);
   }
@@ -284,6 +293,9 @@ class TwoAdicFriPCS {
   }
 
  private:
+  friend class c::crypto::TwoAdicFriPCSImpl<ExtF, InputMMCS, ChallengeMMCS,
+                                            Challenger, Coset>;
+
   absl::flat_hash_map<ExtF, std::vector<ExtF>> ComputeInverseDenominators(
       const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
           matrices_by_round,
@@ -391,6 +403,7 @@ class TwoAdicFriPCS {
   TwoAdicFriConfig<ChallengeMMCS> fri_;
 };
 
-}  // namespace tachyon::crypto
+}  // namespace crypto
+}  // namespace tachyon
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PCS_H_

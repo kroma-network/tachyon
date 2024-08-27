@@ -1,8 +1,9 @@
-#ifndef TACHYON_C_ZK_AIR_PLONKY3_CHALLENGER_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_TYPE_TRAITS_H_
-#define TACHYON_C_ZK_AIR_PLONKY3_CHALLENGER_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_TYPE_TRAITS_H_
+#ifndef TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_TYPE_TRAITS_H_
+#define TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_TYPE_TRAITS_H_
 
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/c/zk/air/plonky3/challenger/baby_bear_poseidon2_duplex_challenger.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_constants.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_duplex_challenger.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
@@ -15,19 +16,21 @@ struct TypeTraits<tachyon::zk::air::plonky3::DuplexChallenger<
     tachyon::crypto::Poseidon2Sponge<tachyon::crypto::Poseidon2ExternalMatrix<
         tachyon::crypto::Poseidon2Plonky3ExternalMatrix<
             tachyon::math::BabyBear>>>,
-    16, 4>> {
-  using CType = tachyon_plonky3_baby_bear_poseidon2_duplex_challenger;
+    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH,
+    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE>> {
+  using CType = tachyon_sp1_baby_bear_poseidon2_duplex_challenger;
 };
 
 template <>
-struct TypeTraits<tachyon_plonky3_baby_bear_poseidon2_duplex_challenger> {
+struct TypeTraits<tachyon_sp1_baby_bear_poseidon2_duplex_challenger> {
   using NativeType = tachyon::zk::air::plonky3::DuplexChallenger<
       tachyon::crypto::Poseidon2Sponge<tachyon::crypto::Poseidon2ExternalMatrix<
           tachyon::crypto::Poseidon2Plonky3ExternalMatrix<
               tachyon::math::BabyBear>>>,
-      16, 4>;
+      TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH,
+      TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE>;
 };
 
 }  // namespace tachyon::c::base
 
-#endif  // TACHYON_C_ZK_AIR_PLONKY3_CHALLENGER_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_TYPE_TRAITS_H_
+#endif  // TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_TYPE_TRAITS_H_
