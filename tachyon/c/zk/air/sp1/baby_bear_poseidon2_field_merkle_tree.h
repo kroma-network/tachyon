@@ -20,21 +20,21 @@ extern "C" {
  *
  * Creates a deep copy of the given field merkle tree structure.
  *
- * @param challenger A const pointer to the field merkle tree structure to
- * clone.
+ * @param tree A const pointer to the field merkle tree structure
+ * to clone.
  * @return A pointer to the cloned field merkle tree structure.
  */
 TACHYON_C_EXPORT tachyon_sp1_baby_bear_poseidon2_field_merkle_tree*
 tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_clone(
-    const tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* challenger);
+    const tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* tree);
 
 /**
  * @brief Destroys a field merkle tree, freeing its resources.
  *
- * @param pcs A pointer to the field merkle tree to destroy.
+ * @param tree A pointer to the field merkle tree to destroy.
  */
 TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_destroy(
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* field_merkle_tree);
+    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* tree);
 
 #ifdef __cplusplus
 }  // extern "C"
