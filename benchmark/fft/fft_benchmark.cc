@@ -8,6 +8,7 @@
 #include "benchmark/fft/fft_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
+#include "tachyon/base/profiler.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
@@ -55,10 +56,10 @@ extern "C" tachyon_bn254_fr* run_ifft_halo2(const tachyon_bn254_fr* coeffs,
                                             uint64_t* duration_in_us);
 
 template <typename PolyOrEvals>
-void CheckResults(bool check_results, const std::vector<PolyOrEvals>& results,
-                  const std::vector<PolyOrEvals>& results_vendor) {
-  if (check_results) {
-    CHECK(results == results_vendor) << "Results not matched";
+void CheckResult(bool check_result, const PolyOrEvals& tachyon_result,
+                 const PolyOrEvals& vendor_result) {
+  if (check_result) {
+    CHECK_EQ(tachyon_result, vendor_result) << "Results not matched";
   }
 }
 
@@ -81,94 +82,94 @@ void Run(const FFTConfig& config) {
       config.exponents(),
       [](uint32_t exponent) { return base::NumberToString(exponent); }));
 
-  std::vector<size_t> degrees = config.GetDegrees();
-
-  std::cout << "Generating evaluation domain and random polys..." << std::endl;
-  std::vector<std::unique_ptr<Domain>> domains = base::Map(
-      degrees, [](size_t degree) { return Domain::Create(degree + 1); });
-  std::vector<std::unique_ptr<Domain>> halo2_domains;
-  for (const Vendor vendor : config.vendors()) {
-    if (vendor.value() == Vendor::kBellman ||
-        vendor.value() == Vendor::kScrollHalo2) {
-      math::halo2::ScopedSubgroupGeneratorOverrider scoped_overrider;
-      halo2_domains = base::Map(
-          degrees, [](size_t degree) { return Domain::Create(degree + 1); });
-      break;
-    }
+  reporter.AddVendor(Vendor::Tachyon());
+  for (Vendor vendor : config.vendors()) {
+    reporter.AddVendor(vendor);
   }
-  std::vector<PolyOrEvals> polys = base::Map(
-      degrees, [](size_t degree) { return PolyOrEvals::Random(degree); });
-  std::cout << "Generation completed" << std::endl;
 
   FFTRunner<Domain, PolyOrEvals> runner(reporter);
-  runner.set_polys(polys);
 
-  std::vector<RetPoly> results;
-  std::vector<RetPoly> halo2_results;
-  if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
-    runner.set_domains(absl::MakeSpan(domains));
-    runner.Run(Vendor::Tachyon(),
-               tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
-               results, true);
-    if (!halo2_domains.empty()) {
-      runner.set_domains(absl::MakeSpan(halo2_domains));
+  std::vector<size_t> degrees = config.GetDegrees();
+
+  bool need_halo2_results =
+      base::Contains(config.vendors(), Vendor::Bellman()) ||
+      base::Contains(config.vendors(), Vendor::ScrollHalo2());
+  for (size_t degree : degrees) {
+    PolyOrEvals input = PolyOrEvals::Random(degree);
+    std::unique_ptr<Domain> domain = Domain::Create(degree + 1);
+    std::unique_ptr<Domain> halo2_domain;
+    if (need_halo2_results) {
+      math::halo2::ScopedSubgroupGeneratorOverrider scoped_overrider;
+      halo2_domain = Domain::Create(degree + 1);
+    }
+
+    if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
+      RetPoly tachyon_result, tachyon_halo2_result;
       runner.Run(Vendor::Tachyon(),
                  tachyon_bn254_univariate_evaluation_domain_ifft_inplace,
-                 degrees, halo2_results, false);
-    }
-    for (const Vendor vendor : config.vendors()) {
-      std::vector<RetPoly> results_vendor;
-      if (vendor.value() == Vendor::kArkworks) {
-        runner.set_domains(absl::MakeSpan(domains));
-        runner.RunExternal(vendor, run_ifft_arkworks, config.exponents(),
-                           results_vendor);
-        CheckResults(config.check_results(), results, results_vendor);
-      } else if (vendor.value() == Vendor::kBellman) {
-        runner.set_domains(absl::MakeSpan(halo2_domains));
-        runner.RunExternal(vendor, run_ifft_bellman, config.exponents(),
-                           results_vendor);
-        CheckResults(config.check_results(), halo2_results, results_vendor);
-      } else if (vendor.value() == Vendor::kScrollHalo2) {
-        runner.set_domains(absl::MakeSpan(halo2_domains));
-        runner.RunExternal(vendor, run_ifft_halo2, config.exponents(),
-                           results_vendor);
-        CheckResults(config.check_results(), halo2_results, results_vendor);
-      } else {
-        NOTREACHED();
+                 domain.get(), input, true, tachyon_result);
+      if (halo2_domain) {
+        runner.Run(Vendor::Tachyon(),
+                   tachyon_bn254_univariate_evaluation_domain_ifft_inplace,
+                   halo2_domain.get(), input, false, tachyon_halo2_result);
       }
-    }
-    // NOLINTNEXTLINE(readability/braces)
-  } else if constexpr (std::is_same_v<PolyOrEvals,
-                                      typename Domain::DensePoly>) {
-    runner.set_domains(absl::MakeSpan(domains));
-    runner.Run(Vendor::Tachyon(),
-               tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
-               results, true);
-    if (!halo2_domains.empty()) {
-      runner.set_domains(absl::MakeSpan(halo2_domains));
+
+      for (const Vendor vendor : config.vendors()) {
+        if (vendor.value() == Vendor::kArkworks) {
+          RetPoly vendor_result;
+          runner.RunExternal(vendor, run_ifft_arkworks, domain.get(), input,
+                             vendor_result);
+          CheckResult(config.check_results(), tachyon_result, vendor_result);
+        } else if (vendor.value() == Vendor::kBellman) {
+          RetPoly vendor_result;
+          runner.RunExternal(vendor, run_ifft_bellman, halo2_domain.get(),
+                             input, vendor_result);
+          CheckResult(config.check_results(), tachyon_halo2_result,
+                      vendor_result);
+        } else if (vendor.value() == Vendor::kScrollHalo2) {
+          RetPoly vendor_result;
+          runner.RunExternal(vendor, run_ifft_halo2, halo2_domain.get(), input,
+                             vendor_result);
+          CheckResult(config.check_results(), tachyon_halo2_result,
+                      vendor_result);
+        } else {
+          NOTREACHED();
+        }
+      }
+      // NOLINTNEXTLINE(readability/braces)
+    } else if constexpr (std::is_same_v<PolyOrEvals,
+                                        typename Domain::DensePoly>) {
+      RetPoly tachyon_result, tachyon_halo2_result;
       runner.Run(Vendor::Tachyon(),
                  tachyon_bn254_univariate_evaluation_domain_fft_inplace,
-                 degrees, halo2_results, false);
-    }
-    for (const Vendor vendor : config.vendors()) {
-      std::vector<RetPoly> results_vendor;
-      if (vendor.value() == Vendor::kArkworks) {
-        runner.set_domains(absl::MakeSpan(domains));
-        runner.RunExternal(vendor, run_fft_arkworks, config.exponents(),
-                           results_vendor);
-        CheckResults(config.check_results(), results, results_vendor);
-      } else if (vendor.value() == Vendor::kBellman) {
-        runner.set_domains(absl::MakeSpan(halo2_domains));
-        runner.RunExternal(vendor, run_fft_bellman, config.exponents(),
-                           results_vendor);
-        CheckResults(config.check_results(), halo2_results, results_vendor);
-      } else if (vendor.value() == Vendor::kScrollHalo2) {
-        runner.set_domains(absl::MakeSpan(halo2_domains));
-        runner.RunExternal(vendor, run_fft_halo2, config.exponents(),
-                           results_vendor);
-        CheckResults(config.check_results(), halo2_results, results_vendor);
-      } else {
-        NOTREACHED();
+                 domain.get(), input, true, tachyon_result);
+      if (halo2_domain) {
+        runner.Run(Vendor::Tachyon(),
+                   tachyon_bn254_univariate_evaluation_domain_fft_inplace,
+                   halo2_domain.get(), input, false, tachyon_halo2_result);
+      }
+
+      for (const Vendor vendor : config.vendors()) {
+        if (vendor.value() == Vendor::kArkworks) {
+          RetPoly vendor_result;
+          runner.RunExternal(vendor, run_fft_arkworks, domain.get(), input,
+                             vendor_result);
+          CheckResult(config.check_results(), tachyon_result, vendor_result);
+        } else if (vendor.value() == Vendor::kBellman) {
+          RetPoly vendor_result;
+          runner.RunExternal(vendor, run_fft_bellman, halo2_domain.get(), input,
+                             vendor_result);
+          CheckResult(config.check_results(), tachyon_halo2_result,
+                      vendor_result);
+        } else if (vendor.value() == Vendor::kScrollHalo2) {
+          RetPoly vendor_result;
+          runner.RunExternal(vendor, run_fft_halo2, halo2_domain.get(), input,
+                             vendor_result);
+          CheckResult(config.check_results(), tachyon_halo2_result,
+                      vendor_result);
+        } else {
+          NOTREACHED();
+        }
       }
     }
   }
@@ -182,6 +183,14 @@ int RealMain(int argc, char** argv) {
   using Domain = UnivariateEvaluationDomain<Field, kMaxDegree>;
   using DensePoly = Domain::DensePoly;
   using Evals = Domain::Evals;
+
+  base::FilePath tmp_file;
+  CHECK(base::GetTempDir(&tmp_file));
+  tmp_file = tmp_file.Append("fft_benchmark.perfetto-trace");
+  base::Profiler profiler({tmp_file});
+
+  profiler.Init();
+  profiler.Start();
 
   Field::Init();
 

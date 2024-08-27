@@ -7,6 +7,7 @@
 // clang-format on
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear.h"
@@ -78,6 +79,14 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
 }
 
 int RealMain(int argc, char** argv) {
+  base::FilePath tmp_file;
+  CHECK(base::GetTempDir(&tmp_file));
+  tmp_file = tmp_file.Append("poseidon2_benchmark.perfetto-trace");
+  base::Profiler profiler({tmp_file});
+
+  profiler.Init();
+  profiler.Start();
+
   Poseidon2Config config;
   if (!config.Parse(argc, argv)) {
     return 1;

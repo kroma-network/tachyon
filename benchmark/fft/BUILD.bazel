@@ -38,6 +38,7 @@ tachyon_cc_binary(
         "//benchmark/fft/arkworks",
         "//benchmark/fft/bellman",
         "//benchmark/fft/halo2",
+        "//tachyon/base:profiler",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/elliptic_curves/bn/bn254/halo2:bn254",
@@ -53,6 +54,7 @@ tachyon_cc_binary(
     deps = [
         ":fft_config",
         ":fft_runner",
+        "//tachyon/base:profiler",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",

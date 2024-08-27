@@ -37,6 +37,7 @@ tachyon_cc_binary(
         "//benchmark/msm/arkworks",
         "//benchmark/msm/bellman",
         "//benchmark/msm/halo2",
+        "//tachyon/base:profiler",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
     ],
 )
@@ -49,6 +50,7 @@ tachyon_cc_binary(
         ":msm_config",
         ":msm_runner",
         "//benchmark:simple_reporter",
+        "//tachyon/base:profiler",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
     ],

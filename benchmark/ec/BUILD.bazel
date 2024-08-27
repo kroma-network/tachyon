@@ -17,6 +17,7 @@ tachyon_cuda_binary(
     deps = [
         ":ec_config",
         "//benchmark:simple_reporter",
+        "//tachyon/base:profiler",
         "//tachyon/base/time:time_interval",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",

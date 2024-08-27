@@ -98,6 +98,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
+    CHECK_GT(roots_vec_.size(), size_t{0});
+    CHECK_GT(packed_roots_vec_.size(), size_t{0});
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
 
     // The first half looks like a normal DIT.
@@ -117,6 +119,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
+    CHECK_GT(roots_vec_.size(), size_t{0});
+    CHECK_GT(packed_roots_vec_.size(), size_t{0});
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
 
     // The first half looks like a normal DIT.
@@ -385,8 +389,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
 
   // This can be used as the first half of a parallelized butterfly network.
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunks(
-      Eigen::MatrixBase<RowMajorMatrix<F>>& mat, const std::vector<F>& twiddles,
-      const std::vector<PackedPrimeField>& packed_twiddles_rev) {
+      Eigen::MatrixBase<RowMajorMatrix<F>>& mat, absl::Span<const F> twiddles,
+      absl::Span<const PackedPrimeField> packed_twiddles_rev) {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunks");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -404,8 +408,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       Eigen::Block<RowMajorMatrix<F>> submat =
           mat.block(block_start, 0, cur_chunk_rows, cols);
       for (uint32_t layer = 0; layer < mid; ++layer) {
-        RunDitLayers(submat, layer, absl::MakeSpan(twiddles),
-                     absl::MakeSpan(packed_twiddles_rev), false);
+        RunDitLayers(submat, layer, twiddles, packed_twiddles_rev, false);
       }
     }
   }
@@ -413,8 +416,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   // This can be used as the second half of a parallelized butterfly network.
   CONSTEXPR_IF_NOT_OPENMP void RunParallelRowChunksReversed(
       Eigen::MatrixBase<RowMajorMatrix<F>>& mat,
-      const std::vector<F>& twiddles_rev,
-      const std::vector<PackedPrimeField>& packed_twiddles_rev) {
+      absl::Span<const F> twiddles_rev,
+      absl::Span<const PackedPrimeField> packed_twiddles_rev) {
     TRACE_EVENT("EvaluationDomain", "RunParallelRowChunksReversed");
 
     if constexpr (F::Config::kModulusBits > 32) {
@@ -437,10 +440,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       for (uint32_t layer = mid; layer < log_n; ++layer) {
         size_t first_block = thread << (layer - mid);
         RunDitLayers(submat, layer,
-                     absl::MakeSpan(twiddles_rev.data() + first_block,
-                                    twiddles_rev.size() - first_block),
-                     absl::MakeSpan(packed_twiddles_rev.data() + first_block,
-                                    packed_twiddles_rev.size() - first_block),
+                     twiddles_rev.subspan(first_block,
+                                          twiddles_rev.size() - first_block),
+                     packed_twiddles_rev.subspan(
+                         first_block, packed_twiddles_rev.size() - first_block),
                      true);
       }
     }
@@ -450,7 +453,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
       Eigen::Block<RowMajorMatrix<F>>& submat, uint32_t layer,
       absl::Span<const F> twiddles,
       absl::Span<const PackedPrimeField> packed_twiddles, bool rev) {
-    TRACE_EVENT("EvaluationDomain", "RunDitLayers");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
@@ -478,7 +480,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
   CONSTEXPR_IF_NOT_OPENMP void ApplyButterflyToRows(
       Eigen::Block<RowMajorMatrix<F>>& mat, size_t row_1, size_t row_2,
       F twiddle, const PackedPrimeField& packed_twiddle) {
-    TRACE_EVENT("EvaluationDomain", "ApplyButterflyToRows");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }

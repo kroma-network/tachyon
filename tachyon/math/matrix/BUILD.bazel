@@ -47,6 +47,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:bits",
         "//tachyon/base:openmp_util",
+        "//tachyon/base:profiler",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/finite_fields:extended_packed_field_traits_forward",
         "//tachyon/math/finite_fields:extension_field_traits_forward",

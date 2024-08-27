@@ -6,6 +6,7 @@
 #include "benchmark/fft/fft_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
+#include "tachyon/base/profiler.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain_type_traits.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluations_type_traits.h"
@@ -38,46 +39,48 @@ void Run(const FFTConfig& config) {
       config.exponents(),
       [](uint32_t exponent) { return base::NumberToString(exponent); }));
 
+  reporter.AddVendor(Vendor::TachyonCPU());
+  reporter.AddVendor(Vendor::TachyonGPU());
+
   std::vector<size_t> degrees = config.GetDegrees();
 
-  std::cout << "Generating evaluation domain and random polys..." << std::endl;
-  std::vector<std::unique_ptr<Domain>> domains =
-      base::Map(degrees, [](size_t degree) { return Domain::Create(degree); });
-  std::vector<PolyOrEvals> polys = base::Map(
-      degrees, [](size_t degree) { return PolyOrEvals::Random(degree); });
-  std::cout << "Generation completed" << std::endl;
-
-  IcicleNTTHolder<F> icicle_ntt_holder = IcicleNTTHolder<F>::Create();
-  CHECK(icicle_ntt_holder->Init(domains.back()->group_gen()));
-
   FFTRunner<Domain, PolyOrEvals> runner(reporter);
-  runner.set_polys(polys);
-  runner.set_domains(absl::MakeSpan(domains));
 
-  std::vector<RetPoly> results;
-  std::vector<RetPoly> results_gpu;
-  bool kShouldRecord = true;
-  if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
-    runner.Run(Vendor::TachyonCPU(),
-               tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
-               results, kShouldRecord);
-    runner.SwitchToIcicle(&icicle_ntt_holder);
-    runner.Run(Vendor::TachyonGPU(),
-               tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
-               results_gpu, kShouldRecord);
-    // NOLINTNEXTLINE(readability/braces)
-  } else if constexpr (std::is_same_v<PolyOrEvals,
-                                      typename Domain::DensePoly>) {
-    runner.Run(Vendor::TachyonCPU(),
-               tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
-               results, kShouldRecord);
-    runner.SwitchToIcicle(&icicle_ntt_holder);
-    runner.Run(Vendor::TachyonGPU(),
-               tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
-               results_gpu, kShouldRecord);
-  }
-  if (config.check_results()) {
-    CHECK(results == results_gpu) << "Results not matched";
+  for (size_t degree : degrees) {
+    PolyOrEvals input = PolyOrEvals::Random(degree);
+    std::unique_ptr<Domain> domain = Domain::Create(degree + 1);
+    bool kShouldRecord = true;
+
+    IcicleNTTHolder<F> icicle_ntt_holder = IcicleNTTHolder<F>::Create();
+    CHECK(icicle_ntt_holder->Init(domain->group_gen()));
+
+    RetPoly cpu_result, gpu_result;
+    if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
+      runner.Run(Vendor::TachyonCPU(),
+                 tachyon_bn254_univariate_evaluation_domain_ifft_inplace,
+                 domain.get(), input, kShouldRecord, cpu_result);
+
+      domain->set_icicle(&icicle_ntt_holder);
+
+      runner.Run(Vendor::TachyonGPU(),
+                 tachyon_bn254_univariate_evaluation_domain_ifft_inplace,
+                 domain.get(), input, kShouldRecord, gpu_result);
+      // NOLINTNEXTLINE(readability/braces)
+    } else if constexpr (std::is_same_v<PolyOrEvals,
+                                        typename Domain::DensePoly>) {
+      runner.Run(Vendor::TachyonCPU(),
+                 tachyon_bn254_univariate_evaluation_domain_fft_inplace,
+                 domain.get(), input, kShouldRecord, cpu_result);
+
+      domain->set_icicle(&icicle_ntt_holder);
+
+      runner.Run(Vendor::TachyonGPU(),
+                 tachyon_bn254_univariate_evaluation_domain_fft_inplace,
+                 domain.get(), input, kShouldRecord, gpu_result);
+    }
+    if (config.check_results()) {
+      CHECK_EQ(cpu_result, gpu_result) << "Results not matched";
+    }
   }
 
   reporter.Show();
@@ -89,6 +92,14 @@ int RealMain(int argc, char** argv) {
   using Domain = UnivariateEvaluationDomain<Field, kMaxDegree>;
   using DensePoly = Domain::DensePoly;
   using Evals = Domain::Evals;
+
+  base::FilePath tmp_file;
+  CHECK(base::GetTempDir(&tmp_file));
+  tmp_file = tmp_file.Append("fft_benchmark_gpu.perfetto-trace");
+  base::Profiler profiler({tmp_file});
+
+  profiler.Init();
+  profiler.Start();
 
   Field::Init();
 

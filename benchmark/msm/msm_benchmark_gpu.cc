@@ -6,6 +6,7 @@
 #include "benchmark/msm/msm_runner.h"
 #include "benchmark/simple_reporter.h"
 // clang-format on
+#include "tachyon/base/profiler.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm.h"
@@ -17,6 +18,14 @@ namespace tachyon::benchmark {
 using namespace math;
 
 int RealMain(int argc, char** argv) {
+  base::FilePath tmp_file;
+  CHECK(base::GetTempDir(&tmp_file));
+  tmp_file = tmp_file.Append("msm_benchmark_gpu.perfetto-trace");
+  base::Profiler profiler({tmp_file});
+
+  profiler.Init();
+  profiler.Start();
+
   MSMConfig config;
   if (!config.Parse(argc, argv)) {
     return 1;
