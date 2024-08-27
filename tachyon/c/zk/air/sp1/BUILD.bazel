@@ -7,6 +7,8 @@ filegroup(
     srcs = [
         "baby_bear_poseidon2_constants.h",
         "baby_bear_poseidon2_duplex_challenger.h",
+        "baby_bear_poseidon2_field_merkle_tree.h",
+        "baby_bear_poseidon2_field_merkle_tree_vec.h",
         "baby_bear_poseidon2_two_adic_fri.h",
     ],
 )
@@ -52,6 +54,23 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "baby_bear_poseidon2_field_merkle_tree_vec",
+    srcs = ["baby_bear_poseidon2_field_merkle_tree_vec.cc"],
+    hdrs = [
+        "baby_bear_poseidon2_field_merkle_tree_vec.h",
+        "baby_bear_poseidon2_field_merkle_tree_vec_type_traits.h",
+    ],
+    deps = [
+        ":baby_bear_poseidon2_constants",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree",
+        "//tachyon/math/finite_fields/baby_bear",
+    ],
+)
+
+tachyon_cc_library(
     name = "baby_bear_poseidon2_two_adic_fri",
     srcs = ["baby_bear_poseidon2_two_adic_fri.cc"],
     hdrs = [
@@ -61,6 +80,7 @@ tachyon_cc_library(
     deps = [
         ":baby_bear_poseidon2_constants",
         ":baby_bear_poseidon2_field_merkle_tree",
+        ":baby_bear_poseidon2_field_merkle_tree_vec",
         "//tachyon/c:export",
         "//tachyon/c/base:type_traits_forward",
         "//tachyon/c/crypto/commitments/fri:two_adic_fri_impl",

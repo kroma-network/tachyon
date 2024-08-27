@@ -22,14 +22,20 @@ class TwoAdicFRITest : public testing::Test {
  public:
   void SetUp() override {
     pcs_ = tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(1, 10, 8);
+    prover_data_vec_ =
+        tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_create();
   }
 
   void TearDown() override {
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri_destroy(pcs_);
+    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_destroy(
+        prover_data_vec_);
   }
 
  protected:
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs_ = nullptr;
+  tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* prover_data_vec_ =
+      nullptr;
 };
 
 }  // namespace
@@ -61,8 +67,8 @@ TEST_F(TwoAdicFRITest, APIs) {
           kCols, c::base::c_cast(shift), &new_rows);
   tachyon_baby_bear commitment[TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_CHUNK];
   tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* prover_data = nullptr;
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(pcs_, commitment,
-                                                      &prover_data);
+  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
+      pcs_, commitment, &prover_data, prover_data_vec_);
 
   Commitment native_commitment;
   ProverData native_prover_data;

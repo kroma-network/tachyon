@@ -39,16 +39,16 @@ class TwoAdicFRIImpl
 
   using Base::Commit;
 
-  void Commit(Commitment* commitment, ProverData** prover_data_out) {
+  void Commit(Commitment* commitment, ProverData** prover_data_out,
+              std::vector<std::unique_ptr<ProverData>>* prover_data_by_round) {
     std::unique_ptr<ProverData> prover_data(new ProverData);
     CHECK(this->mmcs_.Commit(std::move(ldes_), commitment, prover_data.get()));
     *prover_data_out = prover_data.get();
-    prover_data_by_round_.push_back(std::move(prover_data));
+    prover_data_by_round->push_back(std::move(prover_data));
   }
 
  protected:
   std::vector<math::RowMajorMatrix<F>> ldes_;
-  std::vector<std::unique_ptr<ProverData>> prover_data_by_round_;
 };
 
 }  // namespace tachyon::c::crypto

@@ -14,6 +14,7 @@ namespace tachyon::sp1_api::baby_bear_poseidon2 {
 
 class CommitResult;
 class ProverData;
+class ProverDataVec;
 struct TachyonBabyBear;
 
 class TwoAdicFriPcs {
@@ -28,7 +29,8 @@ class TwoAdicFriPcs {
   rust::Slice<TachyonBabyBear> coset_lde_batch(
       rust::Slice<TachyonBabyBear> values, size_t cols,
       const TachyonBabyBear& shift) const;
-  std::unique_ptr<ProverData> commit() const;
+  std::unique_ptr<ProverData> commit(
+      const ProverDataVec& prover_data_vec) const;
 
  private:
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs_;

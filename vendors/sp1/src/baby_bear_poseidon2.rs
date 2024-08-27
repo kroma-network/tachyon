@@ -44,6 +44,15 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("vendors/sp1/include/baby_bear_poseidon2_prover_data_vec.h");
+
+        type ProverDataVec;
+
+        fn new_prover_data_vec() -> UniquePtr<ProverDataVec>;
+        fn clone(&self) -> UniquePtr<ProverDataVec>;
+    }
+
+    unsafe extern "C++" {
         include!("vendors/sp1/include/baby_bear_poseidon2_two_adic_fri_pcs.h");
 
         type TwoAdicFriPcs;
@@ -60,7 +69,7 @@ pub mod ffi {
             cols: usize,
             shift: &TachyonBabyBear,
         ) -> &mut [TachyonBabyBear];
-        fn commit(&self) -> UniquePtr<ProverData>;
+        fn commit(&self, prover_data_vec: &ProverDataVec) -> UniquePtr<ProverData>;
     }
 }
 
@@ -179,9 +188,39 @@ impl<Val> ProverData<Val> {
     }
 }
 
+pub struct ProverDataVec<Val> {
+    inner: cxx::UniquePtr<ffi::ProverDataVec>,
+    _marker: PhantomData<Val>,
+}
+
+impl<Val: Clone> Clone for ProverDataVec<Val> {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl<Val> Debug for ProverDataVec<Val> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ProverDataVec").finish()
+    }
+}
+
+impl<Val> ProverDataVec<Val> {
+    pub fn new(inner: cxx::UniquePtr<ffi::ProverDataVec>) -> Self {
+        Self {
+            inner,
+            _marker: PhantomData,
+        }
+    }
+}
+
 pub struct TwoAdicFriPcs<Val, Dft, InputMmcs, FriMmcs> {
     log_n: usize,
     inner: cxx::UniquePtr<ffi::TwoAdicFriPcs>,
+    prover_data_vec: ProverDataVec<Val>,
     _marker: PhantomData<(Val, Dft, InputMmcs, FriMmcs)>,
 }
 
@@ -206,6 +245,7 @@ where
                 fri_config.num_queries,
                 fri_config.proof_of_work_bits,
             ),
+            prover_data_vec: ProverDataVec::new(ffi::new_prover_data_vec()),
             _marker: PhantomData,
         }
     }
@@ -236,7 +276,7 @@ where
     }
 
     pub fn do_commit(&self) -> ProverData<Val> {
-        ProverData::new(self.inner.commit())
+        ProverData::new(self.inner.commit(&self.prover_data_vec.inner))
     }
 }
 
