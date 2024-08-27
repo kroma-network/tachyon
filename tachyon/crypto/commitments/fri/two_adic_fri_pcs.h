@@ -17,8 +17,8 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
 #include "tachyon/crypto/commitments/fri/two_adic_fri_prover.h"
-#include "tachyon/crypto/commitments/fri/two_adic_fri_verifier.h"
 #include "tachyon/crypto/commitments/fri/two_adic_multiplicative_coset.h"
+#include "tachyon/crypto/commitments/fri/verify.h"
 #include "tachyon/crypto/commitments/mixed_matrix_commitment_scheme.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/geometry/dimensions.h"
@@ -222,7 +222,7 @@ class TwoAdicFriPCS {
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
     uint32_t log_global_max_num_rows =
         proof.commit_phase_commits.size() + fri_.log_blowup;
-    return TwoAdicFriPCSVerify(
+    return fri::Verify(
         fri_, proof, challenger,
         [this, alpha, log_global_max_num_rows, &commits_by_round,
          &domains_by_round, &claims_by_round](

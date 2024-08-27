@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_VERIFIER_H_
-#define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_VERIFIER_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_VERIFY_H_
+#define TACHYON_CRYPTO_COMMITMENTS_FRI_VERIFY_H_
 
 #include <vector>
 
@@ -15,7 +15,7 @@
 #include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
 #include "tachyon/math/geometry/dimensions.h"
 
-namespace tachyon::crypto {
+namespace tachyon::crypto::fri {
 
 template <typename PCS>
 struct CommitStep {
@@ -63,10 +63,10 @@ F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
 
 template <typename PCS, typename ChallengeMMCS, typename Challenger,
           typename OpenInputCallback>
-[[nodiscard]] bool TwoAdicFriPCSVerify(const FriConfig<ChallengeMMCS>& config,
-                                       const TwoAdicFriProof<PCS>& proof,
-                                       Challenger& challenger,
-                                       OpenInputCallback open_input) {
+[[nodiscard]] bool Verify(const FriConfig<ChallengeMMCS>& config,
+                          const TwoAdicFriProof<PCS>& proof,
+                          Challenger& challenger,
+                          OpenInputCallback open_input) {
   using ExtF = typename ChallengeMMCS::Field;
   using Commitment = typename ChallengeMMCS::Commitment;
   size_t num_commits = proof.commit_phase_commits.size();
@@ -125,6 +125,6 @@ template <typename PCS, typename ChallengeMMCS, typename Challenger,
   return true;
 }
 
-}  // namespace tachyon::crypto
+}  // namespace tachyon::crypto::fri
 
-#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_VERIFIER_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_VERIFY_H_
