@@ -11,11 +11,11 @@
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/ranges/algorithm.h"
+#include "tachyon/crypto/challenger/challenger.h"
 #include "tachyon/crypto/commitments/fri/fri_config.h"
 #include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
-#include "tachyon/zk/air/plonky3/challenger/challenger.h"
 
 namespace tachyon::crypto {
 

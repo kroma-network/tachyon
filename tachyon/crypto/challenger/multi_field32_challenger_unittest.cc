@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#include "tachyon/zk/air/plonky3/challenger/multi_field32_challenger.h"
+#include "tachyon/crypto/challenger/multi_field32_challenger.h"
 
 #include <memory>
 
@@ -14,11 +14,11 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/poseidon2.h"
 #include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 
-namespace tachyon::zk::air::plonky3 {
+namespace tachyon::crypto {
 
 using F = math::BabyBear;
-using Poseidon2 = crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
-    crypto::Poseidon2Plonky3ExternalMatrix<math::bn254::Fr>>>;
+using Poseidon2 = Poseidon2Sponge<
+    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<math::bn254::Fr>>>;
 
 namespace {
 
@@ -32,8 +32,8 @@ class MultiField32ChallengerTest : public testing::Test {
   }
 
   void SetUp() override {
-    crypto::Poseidon2Config<math::bn254::Fr> config =
-        crypto::Poseidon2Config<math::bn254::Fr>::CreateCustom(
+    Poseidon2Config<math::bn254::Fr> config =
+        Poseidon2Config<math::bn254::Fr>::CreateCustom(
             2, 5, 8, 56, math::bn254::GetPoseidon2InternalDiagonalVector<3>());
     Poseidon2 sponge(std::move(config));
     challenger_.reset(
@@ -66,4 +66,4 @@ TEST_F(MultiField32ChallengerTest, Grind) {
   EXPECT_TRUE(challenger_->CheckWitness(kBits, witness));
 }
 
-}  // namespace tachyon::zk::air::plonky3
+}  // namespace tachyon::crypto

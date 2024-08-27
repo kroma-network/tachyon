@@ -4,15 +4,15 @@
 #include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_constants.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_duplex_challenger.h"
+#include "tachyon/crypto/challenger/duplex_challenger.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
-#include "tachyon/zk/air/plonky3/challenger/duplex_challenger.h"
 
 namespace tachyon::c::base {
 
 template <>
-struct TypeTraits<tachyon::zk::air::plonky3::DuplexChallenger<
+struct TypeTraits<tachyon::crypto::DuplexChallenger<
     tachyon::crypto::Poseidon2Sponge<tachyon::crypto::Poseidon2ExternalMatrix<
         tachyon::crypto::Poseidon2Plonky3ExternalMatrix<
             tachyon::math::BabyBear>>>,
@@ -23,7 +23,7 @@ struct TypeTraits<tachyon::zk::air::plonky3::DuplexChallenger<
 
 template <>
 struct TypeTraits<tachyon_sp1_baby_bear_poseidon2_duplex_challenger> {
-  using NativeType = tachyon::zk::air::plonky3::DuplexChallenger<
+  using NativeType = tachyon::crypto::DuplexChallenger<
       tachyon::crypto::Poseidon2Sponge<tachyon::crypto::Poseidon2ExternalMatrix<
           tachyon::crypto::Poseidon2Plonky3ExternalMatrix<
               tachyon::math::BabyBear>>>,

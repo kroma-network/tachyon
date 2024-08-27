@@ -43,10 +43,20 @@ tachyon_cc_library(
     hdrs = ["multi_field32_challenger.h"],
     deps = [
         ":challenger",
+        ":multi_field32_conversions",
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/hashes/sponge:sponge_state",
-        "//tachyon/zk/air/plonky3/base:multi_field32_conversions",
         "@com_google_absl//absl/container:inlined_vector",
+    ],
+)
+
+tachyon_cc_library(
+    name = "multi_field32_conversions",
+    hdrs = ["multi_field32_conversions.h"],
+    deps = [
+        "//tachyon/base/containers:adapters",
+        "//tachyon/build:build_config",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

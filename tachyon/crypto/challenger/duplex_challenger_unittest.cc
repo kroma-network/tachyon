@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#include "tachyon/zk/air/plonky3/challenger/duplex_challenger.h"
+#include "tachyon/crypto/challenger/duplex_challenger.h"
 
 #include "gtest/gtest.h"
 
@@ -13,11 +13,11 @@
 #include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
-namespace tachyon::zk::air::plonky3 {
+namespace tachyon::crypto {
 
 using F = math::BabyBear;
-using Poseidon2 = crypto::Poseidon2Sponge<
-    crypto::Poseidon2ExternalMatrix<crypto::Poseidon2Plonky3ExternalMatrix<F>>>;
+using Poseidon2 =
+    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>>;
 
 namespace {
 
@@ -27,9 +27,8 @@ class DuplexChallengerTest : public math::FiniteFieldTest<F> {
   constexpr static size_t kRate = 4;
 
   void SetUp() override {
-    crypto::Poseidon2Config<F> config =
-        crypto::Poseidon2Config<F>::CreateCustom(
-            15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+    Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
+        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
     Poseidon2 sponge(std::move(config));
     challenger_ = DuplexChallenger<Poseidon2, kWidth, kRate>(std::move(sponge));
   }
@@ -60,4 +59,4 @@ TEST_F(DuplexChallengerTest, Grind) {
   EXPECT_TRUE(challenger_.CheckWitness(kBits, witness));
 }
 
-}  // namespace tachyon::zk::air::plonky3
+}  // namespace tachyon::crypto

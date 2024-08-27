@@ -4,6 +4,8 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/crypto/challenger/duplex_challenger.h"
+#include "tachyon/crypto/commitments/fri/two_adic_multiplicative_coset.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/extension_field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
@@ -13,8 +15,6 @@
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
 #include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
-#include "tachyon/zk/air/plonky3/base/two_adic_multiplicative_coset.h"
-#include "tachyon/zk/air/plonky3/challenger/duplex_challenger.h"
 
 namespace tachyon::crypto {
 
@@ -28,7 +28,7 @@ using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 using PackedF = math::PackedBabyBear;
 using ExtPackedF = math::PackedBabyBear4;
-using Domain = zk::air::plonky3::TwoAdicMultiplicativeCoset<F>;
+using Domain = TwoAdicMultiplicativeCoset<F>;
 using Poseidon2 =
     Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>>;
 using PackedPoseidon2 = Poseidon2Sponge<
@@ -42,8 +42,8 @@ using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
 using ExtMMCS = FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher,
                                     MyCompressor, MyPackedCompressor, kChunk>;
 using ChallengeMMCS = ExtensionFieldMerkleTreeMMCS<ExtF, ExtMMCS>;
-using Challenger = zk::air::plonky3::DuplexChallenger<Poseidon2, 16, kRate>;
-using Coset = zk::air::plonky3::TwoAdicMultiplicativeCoset<F>;
+using Challenger = DuplexChallenger<Poseidon2, 16, kRate>;
+using Coset = TwoAdicMultiplicativeCoset<F>;
 using MyPCS = TwoAdicFriPCS<ExtF, MMCS, ChallengeMMCS, Challenger, Coset>;
 
 class TwoAdicFriPCSTest : public testing::Test {

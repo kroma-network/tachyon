@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_ZK_AIR_PLONKY3_BASE_TWO_ADIC_MULTIPLICATIVE_COSET_H_
-#define TACHYON_ZK_AIR_PLONKY3_BASE_TWO_ADIC_MULTIPLICATIVE_COSET_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_MULTIPLICATIVE_COSET_H_
+#define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_MULTIPLICATIVE_COSET_H_
 
 #include <memory>
 #include <optional>
@@ -14,10 +14,10 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/optional.h"
+#include "tachyon/crypto/commitments/fri/lagrange_selectors.h"
 #include "tachyon/math/polynomials/univariate/radix2_evaluation_domain.h"
-#include "tachyon/zk/air/plonky3/base/lagrange_selectors.h"
 
-namespace tachyon::zk::air::plonky3 {
+namespace tachyon::crypto {
 
 template <typename F>
 class TwoAdicMultiplicativeCoset {
@@ -153,6 +153,6 @@ class TwoAdicMultiplicativeCoset {
   std::unique_ptr<math::Radix2EvaluationDomain<F>> domain_;
 };
 
-}  // namespace tachyon::zk::air::plonky3
+}  // namespace tachyon::crypto
 
-#endif  // TACHYON_ZK_AIR_PLONKY3_BASE_TWO_ADIC_MULTIPLICATIVE_COSET_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_MULTIPLICATIVE_COSET_H_

@@ -3,10 +3,10 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_ZK_AIR_PLONKY3_BASE_LAGRANGE_SELECTORS_H_
-#define TACHYON_ZK_AIR_PLONKY3_BASE_LAGRANGE_SELECTORS_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_LAGRANGE_SELECTORS_H_
+#define TACHYON_CRYPTO_COMMITMENTS_FRI_LAGRANGE_SELECTORS_H_
 
-namespace tachyon::zk::air::plonky3 {
+namespace tachyon::crypto {
 
 template <typename T>
 struct LagrangeSelectors {
@@ -25,6 +25,6 @@ struct LagrangeSelectors {
   }
 };
 
-}  // namespace tachyon::zk::air::plonky3
+}  // namespace tachyon::crypto
 
-#endif  // TACHYON_ZK_AIR_PLONKY3_BASE_LAGRANGE_SELECTORS_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_LAGRANGE_SELECTORS_H_
