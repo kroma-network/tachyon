@@ -5,7 +5,6 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/crypto/challenger/duplex_challenger.h"
-#include "tachyon/crypto/commitments/fri/two_adic_multiplicative_coset.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/extension_field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
@@ -44,7 +43,7 @@ using ExtMMCS = FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher,
 using ChallengeMMCS = ExtensionFieldMerkleTreeMMCS<ExtF, ExtMMCS>;
 using Challenger = DuplexChallenger<Poseidon2, 16, kRate>;
 using Coset = TwoAdicMultiplicativeCoset<F>;
-using MyPCS = TwoAdicFriPCS<ExtF, MMCS, ChallengeMMCS, Challenger, Coset>;
+using MyPCS = TwoAdicFriPCS<ExtF, MMCS, ChallengeMMCS, Challenger>;
 
 class TwoAdicFriPCSTest : public testing::Test {
  public:

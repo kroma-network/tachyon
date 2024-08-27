@@ -18,6 +18,7 @@
 #include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
 #include "tachyon/crypto/commitments/fri/two_adic_fri_prover.h"
 #include "tachyon/crypto/commitments/fri/two_adic_fri_verifier.h"
+#include "tachyon/crypto/commitments/fri/two_adic_multiplicative_coset.h"
 #include "tachyon/crypto/commitments/mixed_matrix_commitment_scheme.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/geometry/dimensions.h"
@@ -29,7 +30,7 @@ namespace tachyon {
 namespace c::crypto {
 
 template <typename ExtF, typename InputMMCS, typename ChallengeMMCS,
-          typename Challenger, typename Coset>
+          typename Challenger>
 class TwoAdicFriPCSImpl;
 
 }  // namespace c::crypto
@@ -37,13 +38,14 @@ class TwoAdicFriPCSImpl;
 namespace crypto {
 
 template <typename ExtF, typename _InputMMCS, typename _ChallengeMMCS,
-          typename Challenger, typename Coset>
+          typename Challenger>
 class TwoAdicFriPCS {
  public:
   using InputMMCS = _InputMMCS;
   using ChallengeMMCS = _ChallengeMMCS;
 
   using F = typename math::ExtensionFieldTraits<ExtF>::BaseField;
+  using Domain = TwoAdicMultiplicativeCoset<F>;
   using Commitment = typename InputMMCS::Commitment;
   using ProverData = typename InputMMCS::ProverData;
   using Proof = typename InputMMCS::Proof;
@@ -60,16 +62,16 @@ class TwoAdicFriPCS {
   TwoAdicFriPCS(InputMMCS&& mmcs, FriConfig<ChallengeMMCS>&& fri)
       : mmcs_(std::move(mmcs)), fri_(std::move(fri)) {}
 
-  Coset GetNaturalDomainForDegree(size_t size) {
+  Domain GetNaturalDomainForDegree(size_t size) {
     uint32_t log_n = base::bits::CheckedLog2(size);
-    return Coset(log_n, F::One());
+    return Domain(log_n, F::One());
   }
 
-  [[nodiscard]] bool Commit(const std::vector<Coset>& cosets,
+  [[nodiscard]] bool Commit(const std::vector<Domain>& cosets,
                             std::vector<math::RowMajorMatrix<F>>& matrices,
                             Commitment* commitment, ProverData* prover_data) {
     std::vector<math::RowMajorMatrix<F>> ldes =
-        base::Map(cosets, [this, &matrices](size_t i, const Coset& coset) {
+        base::Map(cosets, [this, &matrices](size_t i, const Domain& coset) {
           math::RowMajorMatrix<F>& mat = matrices[i];
           CHECK_EQ(coset.domain()->size(), static_cast<size_t>(mat.rows()));
           math::RowMajorMatrix<F> ret = coset.domain()->CosetLDEBatch(
@@ -210,7 +212,7 @@ class TwoAdicFriPCS {
   // containers applicable names.
   [[nodiscard]] bool VerifyOpeningProof(
       const std::vector<Commitment>& commits_by_round,
-      const std::vector<std::vector<Coset>>& domains_by_round,
+      const std::vector<std::vector<Domain>>& domains_by_round,
       const std::vector<
           std::vector<std::vector<std::tuple<ExtF, std::vector<ExtF>>>>>&
           claims_by_round,
@@ -236,7 +238,7 @@ class TwoAdicFriPCS {
             std::vector<math::Dimensions> batch_dims = base::CreateVector(
                 vals_size, [this, round, &batch_max_num_rows,
                             &domains_by_round](size_t batch_idx) {
-                  const Coset& mat_domain = domains_by_round[round][batch_idx];
+                  const Domain& mat_domain = domains_by_round[round][batch_idx];
                   size_t num_rows = mat_domain.domain()->size()
                                     << fri_.log_blowup;
                   batch_max_num_rows = std::max(batch_max_num_rows, num_rows);
@@ -253,7 +255,7 @@ class TwoAdicFriPCS {
                                            input_proof[round].opening_proof));
 
             for (size_t batch_idx = 0; batch_idx < vals_size; ++batch_idx) {
-              const Coset& mat_domain = domains_by_round[round][batch_idx];
+              const Domain& mat_domain = domains_by_round[round][batch_idx];
               const std::vector<std::tuple<ExtF, std::vector<ExtF>>>&
                   mat_points_and_values = claim[batch_idx];
               uint32_t log_num_rows =
@@ -299,7 +301,7 @@ class TwoAdicFriPCS {
 
  private:
   friend class c::crypto::TwoAdicFriPCSImpl<ExtF, InputMMCS, ChallengeMMCS,
-                                            Challenger, Coset>;
+                                            Challenger>;
 
   absl::flat_hash_map<ExtF, std::vector<ExtF>> ComputeInverseDenominators(
       const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&

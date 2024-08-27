@@ -52,6 +52,7 @@ tachyon_cc_library(
         ":two_adic_fri_proof",
         ":two_adic_fri_prover",
         ":two_adic_fri_verifier",
+        ":two_adic_multiplicative_coset",
         "//tachyon/base:bits",
         "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward",
         "//tachyon/math/finite_fields:extension_field_traits_forward",

@@ -74,7 +74,7 @@ using Coset =
     tachyon::crypto::TwoAdicMultiplicativeCoset<tachyon::math::BabyBear>;
 
 using PCS = crypto::TwoAdicFriPCSImpl<tachyon::math::BabyBear4, MMCS,
-                                      ChallengeMMCS, Challenger, Coset>;
+                                      ChallengeMMCS, Challenger>;
 
 }  // namespace zk::air::plonky3::baby_bear
 
