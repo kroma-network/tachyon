@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PROVER_H_
-#define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PROVER_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_PROVE_H_
+#define TACHYON_CRYPTO_COMMITMENTS_FRI_PROVE_H_
 
 #include <utility>
 #include <vector>
@@ -17,7 +17,7 @@
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 
-namespace tachyon::crypto {
+namespace tachyon::crypto::fri {
 
 template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger>
@@ -120,10 +120,10 @@ std::vector<CommitPhaseProofStep<PCS>> AnswerQuery(
 template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger, typename OpenInputCallback,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
-TwoAdicFriProof<PCS> TwoAdicFriPCSProve(FriConfig<ChallengeMMCS>& config,
-                                        std::vector<std::vector<ExtF>>&& inputs,
-                                        Challenger& challenger,
-                                        OpenInputCallback open_input) {
+TwoAdicFriProof<PCS> Prove(FriConfig<ChallengeMMCS>& config,
+                           std::vector<std::vector<ExtF>>&& inputs,
+                           Challenger& challenger,
+                           OpenInputCallback open_input) {
   using QueryProof = QueryProof<PCS>;
 
 #if DCHECK_IS_ON()
@@ -156,6 +156,6 @@ TwoAdicFriProof<PCS> TwoAdicFriPCSProve(FriConfig<ChallengeMMCS>& config,
           std::move(commit_phase_result.final_eval), std::move(pow_witness)};
 }
 
-}  // namespace tachyon::crypto
+}  // namespace tachyon::crypto::fri
 
-#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PROVER_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_PROVE_H_

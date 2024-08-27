@@ -15,8 +15,8 @@
 #include "absl/container/flat_hash_map.h"
 
 #include "tachyon/base/bits.h"
+#include "tachyon/crypto/commitments/fri/prove.h"
 #include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
-#include "tachyon/crypto/commitments/fri/two_adic_fri_prover.h"
 #include "tachyon/crypto/commitments/fri/two_adic_multiplicative_coset.h"
 #include "tachyon/crypto/commitments/fri/verify.h"
 #include "tachyon/crypto/commitments/mixed_matrix_commitment_scheme.h"
@@ -180,7 +180,7 @@ class TwoAdicFriPCS {
       }
     }
 
-    TwoAdicFriProof fri_proof = TwoAdicFriPCSProve<TwoAdicFriPCS>(
+    TwoAdicFriProof fri_proof = fri::Prove<TwoAdicFriPCS>(
         fri_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();
