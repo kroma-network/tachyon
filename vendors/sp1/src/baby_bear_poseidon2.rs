@@ -105,7 +105,7 @@ impl<F, P, const WIDTH: usize, const RATE: usize> DuplexChallenger<F, P, WIDTH, 
 impl<F, P, const WIDTH: usize, const RATE: usize> CanObserve<F>
     for DuplexChallenger<F, P, WIDTH, RATE>
 where
-    F: Copy + Debug,
+    F: Copy,
     P: CryptographicPermutation<[F; WIDTH]>,
 {
     fn observe(&mut self, value: F) {
@@ -118,7 +118,7 @@ where
 impl<F, P, const N: usize, const WIDTH: usize, const RATE: usize> CanObserve<[F; N]>
     for DuplexChallenger<F, P, WIDTH, RATE>
 where
-    F: Copy + Debug,
+    F: Copy,
     P: CryptographicPermutation<[F; WIDTH]>,
 {
     fn observe(&mut self, values: [F; N]) {
@@ -131,7 +131,7 @@ where
 impl<F, P, const WIDTH: usize, const RATE: usize> CanObserve<Vec<Vec<F>>>
     for DuplexChallenger<F, P, WIDTH, RATE>
 where
-    F: Copy + Debug,
+    F: Copy,
     P: CryptographicPermutation<[F; WIDTH]>,
 {
     fn observe(&mut self, valuess: Vec<Vec<F>>) {
