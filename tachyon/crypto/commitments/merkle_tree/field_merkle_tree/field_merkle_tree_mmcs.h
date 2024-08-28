@@ -15,6 +15,7 @@
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree.h"
 #include "tachyon/crypto/commitments/mixed_matrix_commitment_scheme.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
@@ -87,6 +88,7 @@ class FieldMerkleTreeMMCS final
 
   [[nodiscard]] bool DoCommit(std::vector<math::RowMajorMatrix<F>>&& matrices,
                               Commitment* commitment, ProverData* prover_data) {
+    TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommit");
     *prover_data =
         FieldMerkleTree<F, N>::Build(hasher_, packed_hasher_, compressor_,
                                      packed_compressor_, std::move(matrices));
@@ -104,6 +106,7 @@ class FieldMerkleTreeMMCS final
                                           const ProverData& prover_data,
                                           std::vector<std::vector<F>>* openings,
                                           Proof* proof) const {
+    TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCreateOpeningProof");
     size_t max_row_size = this->GetMaxRowSize(prover_data);
     uint32_t log_max_row_size = base::bits::Log2Ceiling(max_row_size);
 
@@ -136,6 +139,8 @@ class FieldMerkleTreeMMCS final
       absl::Span<const math::Dimensions> dimensions_list, size_t index,
       absl::Span<const std::vector<F>> opened_values,
       const Proof& proof) const {
+    TRACE_EVENT("ProofVerification",
+                "FieldMerkleTreeMMCS::DoVerifyOpeningProof");
     CHECK_EQ(dimensions_list.size(), opened_values.size());
 
     std::vector<IndexedDimensions> sorted_dimensions_list = base::Map(
@@ -182,6 +187,7 @@ class FieldMerkleTreeMMCS final
   constexpr static size_t CountLayers(
       size_t target_height,
       absl::Span<const IndexedDimensions> dimensions_list) {
+    TRACE_EVENT("Utils", "CountLayers");
     size_t ret = 0;
     for (size_t i = 0; i < dimensions_list.size(); ++i) {
       if (target_height == absl::bit_ceil(static_cast<size_t>(
@@ -197,6 +203,7 @@ class FieldMerkleTreeMMCS final
   static std::vector<PrimeField> GetOpenedValuesAsPrimeFieldVectors(
       absl::Span<const std::vector<F>> opened_values,
       absl::Span<const IndexedDimensions> dimensions_list) {
+    TRACE_EVENT("Utils", "GetOpenedValuesAsPrimeFieldVectors");
     if constexpr (math::FiniteFieldTraits<F>::kIsExtensionField) {
       static_assert(math::ExtensionFieldTraits<F>::kDegreeOverBasePrimeField ==
                     math::ExtensionFieldTraits<F>::kDegreeOverBaseField);

@@ -19,6 +19,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/sort.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
@@ -49,6 +50,7 @@ class FieldMerkleTree {
                                const Compressor& compressor,
                                const PackedCompressor& packed_compressor,
                                std::vector<math::RowMajorMatrix<F>>&& leaves) {
+    TRACE_EVENT("Utils", "FieldMerkleTree::Build");
     CHECK(!leaves.empty());
 
     std::vector<RowMajorMatrixView> sorted_leaves =
@@ -155,6 +157,7 @@ class FieldMerkleTree {
   static std::vector<Digest> CreateFirstDigestLayer(
       const Hasher& hasher, const PackedHasher& packed_hasher,
       absl::Span<RowMajorMatrixView> tallest_matrices) {
+    TRACE_EVENT("Utils", "CreateFirstDigestLayer");
     size_t max_rows = static_cast<size_t>(tallest_matrices[0]->rows());
     size_t max_rows_padded = absl::bit_ceil(max_rows);
 
@@ -194,6 +197,7 @@ class FieldMerkleTree {
       const Compressor& compressor, const PackedCompressor& packed_compressor,
       const std::vector<Digest>& prev_layer,
       absl::Span<RowMajorMatrixView> matrices_to_inject) {
+    TRACE_EVENT("Utils", "CompressAndInject");
     if (matrices_to_inject.empty())
       return Compress(compressor, packed_compressor, prev_layer);
 
@@ -270,6 +274,7 @@ class FieldMerkleTree {
   static std::vector<Digest> Compress(const Compressor& compressor,
                                       const PackedCompressor& packed_compressor,
                                       const std::vector<Digest>& prev_layer) {
+    TRACE_EVENT("Utils", "Compress");
     size_t next_rows = prev_layer.size() / 2;
 
     std::vector<Digest> ret(next_rows);
@@ -314,6 +319,7 @@ class FieldMerkleTree {
 
   static std::vector<PrimeField> GetRowAsPrimeFieldVector(
       absl::Span<RowMajorMatrixView> matrices, size_t row) {
+    TRACE_EVENT("Utils", "GetRowAsPrimeFieldVector");
     return base::FlatMap(matrices, [row](RowMajorMatrixView m) {
       if constexpr (math::FiniteFieldTraits<F>::kIsExtensionField) {
         static_assert(
