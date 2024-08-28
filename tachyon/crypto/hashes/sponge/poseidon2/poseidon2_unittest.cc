@@ -14,6 +14,7 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_goldilocks.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {
@@ -80,12 +81,12 @@ class Poseidon2BabyBearTest
 
 }  // namespace
 
-TEST_F(Poseidon2BabyBearTest, Permute) {
+TEST_F(Poseidon2BabyBearTest, PermuteHorizen) {
   using F = math::BabyBear;
   using Params = Poseidon2Params<F, 15, 7>;
 
   auto config =
-      Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
+      Poseidon2Config<Params>::Create(GetPoseidon2InternalDiagonalArray<Params>());
   Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
                   Params>
       sponge(std::move(config));
@@ -95,10 +96,33 @@ TEST_F(Poseidon2BabyBearTest, Permute) {
   }
   sponge.Permute(state);
   math::Vector<F> expected{
-      {F(1699737005)}, {F(296394369)},  {F(268410240)},  {F(828329642)},
-      {F(1491697358)}, {F(1128780676)}, {F(287184043)},  {F(1806152977)},
-      {F(1380147856)}, {F(345666717)},  {F(491196631)},  {F(1875224538)},
-      {F(697740550)},  {F(1854502887)}, {F(1201727753)}, {F(1802410886)},
+      {F(896560466)},  {F(771677727)},  {F(128113032)},  {F(1378976435)},
+      {F(160019712)},  {F(1452738514)}, {F(682850273)},  {F(223500421)},
+      {F(501450187)},  {F(1804685789)}, {F(1671399593)}, {F(1788755219)},
+      {F(1736880027)}, {F(1352180784)}, {F(1928489698)}, {F(1128802977)},
+  };
+  EXPECT_EQ(state.elements, expected);
+}
+
+TEST_F(Poseidon2BabyBearTest, PermutePlonky3) {
+  using F = math::BabyBear;
+  using Params = Poseidon2Params<F, 15, 7>;
+
+  auto config =
+      Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
+  Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
+                  Params>
+      sponge(std::move(config));
+  SpongeState<Params> state;
+  for (size_t i = 0; i < 16; ++i) {
+    state.elements[i] = F(i);
+  }
+  sponge.Permute(state);
+  math::Vector<F> expected{
+      {F(1725067959)}, {F(492891312)},  {F(708718444)},  {F(1714119627)},
+      {F(69974149)},   {F(1488934420)}, {F(1195469650)}, {F(1590944545)},
+      {F(1782584526)}, {F(1872279324)}, {F(1058585049)}, {F(567365101)},
+      {F(499742566)},  {F(1943033388)}, {F(1481719018)}, {F(1994552805)},
   };
   EXPECT_EQ(state.elements, expected);
 }
@@ -112,7 +136,7 @@ TEST_F(Poseidon2BabyBearTest, PermutePacked) {
   auto packed_config = Poseidon2Config<PackedParams>::Create(
       GetPoseidon2InternalShiftArray<PackedParams>());
   Poseidon2Sponge<
-      Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<PackedF>>,
+      Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<PackedF>>,
       PackedParams>
       packed_sponge(std::move(packed_config));
   SpongeState<PackedParams> packed_state;
@@ -123,7 +147,7 @@ TEST_F(Poseidon2BabyBearTest, PermutePacked) {
 
   auto config =
       Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
-  Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
+  Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
                   Params>
       sponge(std::move(config));
   SpongeState<Params> state;
