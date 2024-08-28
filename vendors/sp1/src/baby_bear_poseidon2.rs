@@ -143,14 +143,17 @@ where
     }
 }
 
-impl<F, P, const WIDTH: usize, const RATE: usize> CanSample<F>
+impl<F, EF, P, const WIDTH: usize, const RATE: usize> CanSample<EF>
     for DuplexChallenger<F, P, WIDTH, RATE>
 where
     F: Field,
+    EF: ExtensionField<F>,
     P: CryptographicPermutation<[F; WIDTH]>,
 {
-    fn sample(&mut self) -> F {
-        *unsafe { std::mem::transmute::<_, Box<F>>(self.inner.pin_mut().sample()) }
+    fn sample(&mut self) -> EF {
+        EF::from_base_fn(|_| *unsafe {
+            std::mem::transmute::<_, Box<F>>(self.inner.pin_mut().sample())
+        })
     }
 }
 
