@@ -1,5 +1,5 @@
 {
-  "checksum": "9871a4efaf95d41779221d5e5a0d86242b4e5832107cd0c8e50ccc004fb34199",
+  "checksum": "cea03189298ccac5555669cf0374dddee03d3105364e2cc46f2d04aa4ed8ad0c",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -18232,6 +18232,10 @@
             {
               "id": "sp1-prover 1.0.1",
               "target": "sp1_prover"
+            },
+            {
+              "id": "tracing 0.1.40",
+              "target": "tracing"
             }
           ],
           "selects": {}

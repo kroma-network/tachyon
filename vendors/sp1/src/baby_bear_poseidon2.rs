@@ -1,19 +1,21 @@
 use std::{fmt::Debug, marker::PhantomData};
 
 use p3_baby_bear::BabyBear;
-use p3_challenger::{CanObserve, CanSample, GrindingChallenger};
+use p3_challenger::{CanObserve, CanSample, CanSampleBits, FieldChallenger, GrindingChallenger};
 use p3_commit::{Mmcs, OpenedValues, Pcs, PolynomialSpace, TwoAdicMultiplicativeCoset};
 use p3_dft::TwoAdicSubgroupDft;
-use p3_field::{ExtensionField, Field, PackedField, PackedValue, TwoAdicField};
+use p3_field::{ExtensionField, Field, PackedField, PackedValue, PrimeField64, TwoAdicField};
 use p3_fri::{FriConfig, TwoAdicFriPcsProof, VerificationError};
 use p3_matrix::{
     bitrev::BitReversableMatrix,
     dense::{DenseMatrix, RowMajorMatrix},
     Matrix,
 };
+use p3_maybe_rayon::prelude::*;
 use p3_symmetric::{CryptographicPermutation, Hash};
 use p3_util::log2_strict_usize;
 use tachyon_rs::math::finite_fields::baby_bear::BabyBear as TachyonBabyBearImpl;
+use tracing::instrument;
 
 pub struct TachyonBabyBear(pub TachyonBabyBearImpl);
 
@@ -78,6 +80,10 @@ pub struct DuplexChallenger<F, P, const WIDTH: usize, const RATE: usize> {
     _marker: PhantomData<(F, P)>,
 }
 
+// NOTE(chokobole): This is needed by `GrindingChallenger` trait.
+// See https://github.com/Plonky3/Plonky3/blob/eeb4e37/challenger/src/grinding_challenger.rs#L8-L9.
+unsafe impl Sync for ffi::DuplexChallenger {}
+
 impl<F, P, const WIDTH: usize, const RATE: usize> Clone for DuplexChallenger<F, P, WIDTH, RATE> {
     fn clone(&self) -> Self {
         Self {
@@ -102,6 +108,14 @@ impl<F, P, const WIDTH: usize, const RATE: usize> DuplexChallenger<F, P, WIDTH, 
     }
 }
 
+impl<F, P, const WIDTH: usize, const RATE: usize> FieldChallenger<F>
+    for DuplexChallenger<F, P, WIDTH, RATE>
+where
+    F: PrimeField64,
+    P: CryptographicPermutation<[F; WIDTH]>,
+{
+}
+
 impl<F, P, const WIDTH: usize, const RATE: usize> CanObserve<F>
     for DuplexChallenger<F, P, WIDTH, RATE>
 where
@@ -122,6 +136,19 @@ where
     P: CryptographicPermutation<[F; WIDTH]>,
 {
     fn observe(&mut self, values: [F; N]) {
+        for value in values {
+            self.observe(value);
+        }
+    }
+}
+
+impl<F, P, const N: usize, const WIDTH: usize, const RATE: usize> CanObserve<Hash<F, F, N>>
+    for DuplexChallenger<F, P, WIDTH, RATE>
+where
+    F: Copy,
+    P: CryptographicPermutation<[F; WIDTH]>,
+{
+    fn observe(&mut self, values: Hash<F, F, N>) {
         for value in values {
             self.observe(value);
         }
@@ -154,6 +181,41 @@ where
         EF::from_base_fn(|_| *unsafe {
             std::mem::transmute::<_, Box<F>>(self.inner.pin_mut().sample())
         })
+    }
+}
+
+impl<F, P, const WIDTH: usize, const RATE: usize> CanSampleBits<usize>
+    for DuplexChallenger<F, P, WIDTH, RATE>
+where
+    F: PrimeField64,
+    P: CryptographicPermutation<[F; WIDTH]>,
+{
+    fn sample_bits(&mut self, bits: usize) -> usize {
+        debug_assert!(bits < (usize::BITS as usize));
+        debug_assert!((1 << bits) < F::ORDER_U64);
+        let rand_f: F = self.sample();
+        let rand_usize = rand_f.as_canonical_u64() as usize;
+        rand_usize & ((1 << bits) - 1)
+    }
+}
+
+impl<F, P, const WIDTH: usize, const RATE: usize> GrindingChallenger
+    for DuplexChallenger<F, P, WIDTH, RATE>
+where
+    F: PrimeField64,
+    P: CryptographicPermutation<[F; WIDTH]>,
+{
+    type Witness = F;
+
+    #[instrument(name = "grind for proof-of-work witness", skip_all)]
+    fn grind(&mut self, bits: usize) -> Self::Witness {
+        let witness = (0..F::ORDER_U64)
+            .into_par_iter()
+            .map(|i| F::from_canonical_u64(i))
+            .find_any(|witness| self.clone().check_witness(bits, *witness))
+            .expect("failed to find witness");
+        assert!(self.check_witness(bits, witness));
+        witness
     }
 }
 

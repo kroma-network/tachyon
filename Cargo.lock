@@ -3545,6 +3545,7 @@ dependencies = [
  "sp1-primitives",
  "sp1-prover",
  "tachyon_rs",
+ "tracing",
 ]
 
 [[package]]

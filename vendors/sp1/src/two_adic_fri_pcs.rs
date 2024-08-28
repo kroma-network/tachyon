@@ -10,11 +10,15 @@ mod test {
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha20Rng;
     use sp1_core::utils::baby_bear_poseidon2::{
-        default_fri_config, my_perm, Challenge, ChallengeMmcs, Challenger, Dft, MyCompress, MyHash,
-        Val, ValMmcs,
+        default_fri_config, my_perm, Challenge, ChallengeMmcs, Dft, MyCompress, MyHash, Perm, Val,
+        ValMmcs,
     };
 
-    use crate::baby_bear_poseidon2::TwoAdicFriPcs as TachyonTwoAdicFriPcs;
+    use crate::baby_bear_poseidon2::{
+        DuplexChallenger as TachyonDuplexChallenger, TwoAdicFriPcs as TachyonTwoAdicFriPcs,
+    };
+
+    type Challenger = TachyonDuplexChallenger<Val, Perm, 16, 8>;
 
     fn seeded_rng() -> impl Rng {
         ChaCha20Rng::seed_from_u64(0)
