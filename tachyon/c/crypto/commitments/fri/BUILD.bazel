@@ -3,7 +3,7 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "two_adic_fri_pcs_impl",
-    hdrs = ["two_adic_fri_pcs_impl.h"],
-    deps = ["//tachyon/crypto/commitments/fri:two_adic_fri_pcs"],
+    name = "two_adic_fri_impl",
+    hdrs = ["two_adic_fri_impl.h"],
+    deps = ["//tachyon/crypto/commitments/fri:two_adic_fri"],
 )

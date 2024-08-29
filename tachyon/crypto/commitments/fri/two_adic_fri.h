@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PCS_H_
-#define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PCS_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_H_
+#define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_H_
 
 #include <algorithm>
 #include <tuple>
@@ -31,7 +31,7 @@ namespace c::crypto {
 
 template <typename ExtF, typename InputMMCS, typename ChallengeMMCS,
           typename Challenger>
-class TwoAdicFriPCSImpl;
+class TwoAdicFRIImpl;
 
 }  // namespace c::crypto
 
@@ -39,7 +39,7 @@ namespace crypto {
 
 template <typename ExtF, typename _InputMMCS, typename _ChallengeMMCS,
           typename Challenger>
-class TwoAdicFriPCS {
+class TwoAdicFRI {
  public:
   using InputMMCS = _InputMMCS;
   using ChallengeMMCS = _ChallengeMMCS;
@@ -49,8 +49,8 @@ class TwoAdicFriPCS {
   using Commitment = typename InputMMCS::Commitment;
   using ProverData = typename InputMMCS::ProverData;
   using Proof = typename InputMMCS::Proof;
-  using InputProof = std::vector<BatchOpening<TwoAdicFriPCS>>;
-  using FriProof = crypto::FriProof<TwoAdicFriPCS>;
+  using InputProof = std::vector<BatchOpening<TwoAdicFRI>>;
+  using FriProof = crypto::FriProof<TwoAdicFRI>;
 
   using Points = std::vector<std::vector<ExtF>>;
 
@@ -58,8 +58,8 @@ class TwoAdicFriPCS {
   using OpenedValuesForRound = std::vector<OpenedValuesForMat>;
   using OpenedValues = std::vector<OpenedValuesForRound>;
 
-  TwoAdicFriPCS() = default;
-  TwoAdicFriPCS(InputMMCS&& mmcs, FriConfig<ChallengeMMCS>&& fri)
+  TwoAdicFRI() = default;
+  TwoAdicFRI(InputMMCS&& mmcs, FriConfig<ChallengeMMCS>&& fri)
       : mmcs_(std::move(mmcs)), fri_(std::move(fri)) {}
 
   Domain GetNaturalDomainForDegree(size_t size) {
@@ -180,11 +180,11 @@ class TwoAdicFriPCS {
       }
     }
 
-    FriProof fri_proof = fri::Prove<TwoAdicFriPCS>(
+    FriProof fri_proof = fri::Prove<TwoAdicFRI>(
         fri_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();
-          std::vector<BatchOpening<TwoAdicFriPCS>> ret = base::CreateVector(
+          std::vector<BatchOpening<TwoAdicFRI>> ret = base::CreateVector(
               num_rounds, [this, log_global_max_num_rows, index,
                            &prover_data_by_round](size_t round) {
                 Proof proof;
@@ -197,8 +197,8 @@ class TwoAdicFriPCS {
                 uint32_t reduced_index = index >> bits_reduced;
                 CHECK(mmcs_.CreateOpeningProof(reduced_index, prover_data,
                                                &openings, &proof));
-                return BatchOpening<TwoAdicFriPCS>{std::move(openings),
-                                                   std::move(proof)};
+                return BatchOpening<TwoAdicFRI>{std::move(openings),
+                                                std::move(proof)};
               });
 
           return ret;
@@ -300,8 +300,8 @@ class TwoAdicFriPCS {
   }
 
  private:
-  friend class c::crypto::TwoAdicFriPCSImpl<ExtF, InputMMCS, ChallengeMMCS,
-                                            Challenger>;
+  friend class c::crypto::TwoAdicFRIImpl<ExtF, InputMMCS, ChallengeMMCS,
+                                         Challenger>;
 
   absl::flat_hash_map<ExtF, std::vector<ExtF>> ComputeInverseDenominators(
       const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
@@ -413,4 +413,4 @@ class TwoAdicFriPCS {
 }  // namespace crypto
 }  // namespace tachyon
 
-#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PCS_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_H_

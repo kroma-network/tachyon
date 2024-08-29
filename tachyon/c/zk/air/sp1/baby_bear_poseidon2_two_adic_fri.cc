@@ -1,11 +1,11 @@
-#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri_pcs.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri.h"
 
 #include <utility>
 
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
 #include "tachyon/c/math/matrix/baby_bear_row_major_matrix_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_type_traits.h"
-#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri_pcs_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri_type_traits.h"
 
 using namespace tachyon;
 
@@ -25,9 +25,10 @@ using ExtMMCS = c::zk::air::plonky3::baby_bear::ExtMMCS;
 using ChallengeMMCS = c::zk::air::plonky3::baby_bear::ChallengeMMCS;
 using PCS = c::zk::air::plonky3::baby_bear::PCS;
 
-tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs*
-tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_create(
-    uint32_t log_blowup, size_t num_queries, size_t proof_of_work_bits) {
+tachyon_sp1_baby_bear_poseidon2_two_adic_fri*
+tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,
+                                                    size_t num_queries,
+                                                    size_t proof_of_work_bits) {
   ExtF::Init();
   ExtPackedF::Init();
 
@@ -86,19 +87,18 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_create(
   return c::base::c_cast(new PCS(std::move(mmcs), std::move(fri_config)));
 }
 
-void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_destroy(
-    tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs* pcs) {
+void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_destroy(
+    tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs) {
   delete c::base::native_cast(pcs);
 }
 
-void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_allocate_ldes(
-    tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs* pcs, size_t size) {
+void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(
+    tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs, size_t size) {
   c::base::native_cast(pcs)->AllocateLDEs(size);
 }
 
-tachyon_baby_bear*
-tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_coset_lde_batch(
-    tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs* pcs,
+tachyon_baby_bear* tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
+    tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
     tachyon_baby_bear* values, size_t rows, size_t cols,
     tachyon_baby_bear shift, size_t* new_rows) {
   Eigen::Map<math::RowMajorMatrix<F>> matrix(c::base::native_cast(values),
@@ -110,8 +110,8 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_coset_lde_batch(
   return c::base::c_cast(ret.data());
 }
 
-void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_commit(
-    tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs* pcs,
+void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
+    tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
     tachyon_baby_bear* commitment,
     tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data) {
   using Commitment = MMCS::Commitment;

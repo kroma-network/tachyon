@@ -1,22 +1,22 @@
-#ifndef TACHYON_C_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PCS_IMPL_H_
-#define TACHYON_C_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PCS_IMPL_H_
+#ifndef TACHYON_C_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_IMPL_H_
+#define TACHYON_C_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_IMPL_H_
 
 #include <memory>
 #include <utility>
 #include <vector>
 
-#include "tachyon/crypto/commitments/fri/two_adic_fri_pcs.h"
+#include "tachyon/crypto/commitments/fri/two_adic_fri.h"
 
 namespace tachyon::c::crypto {
 
 template <typename ExtF, typename InputMMCS, typename ChallengeMMCS,
           typename Challenger>
-class TwoAdicFriPCSImpl
-    : public tachyon::crypto::TwoAdicFriPCS<ExtF, InputMMCS, ChallengeMMCS,
-                                            Challenger> {
+class TwoAdicFRIImpl
+    : public tachyon::crypto::TwoAdicFRI<ExtF, InputMMCS, ChallengeMMCS,
+                                         Challenger> {
  public:
-  using Base = tachyon::crypto::TwoAdicFriPCS<ExtF, InputMMCS, ChallengeMMCS,
-                                              Challenger>;
+  using Base =
+      tachyon::crypto::TwoAdicFRI<ExtF, InputMMCS, ChallengeMMCS, Challenger>;
   using F = typename Base::F;
   using Commitment = typename Base::Commitment;
   using ProverData = typename Base::ProverData;
@@ -53,4 +53,4 @@ class TwoAdicFriPCSImpl
 
 }  // namespace tachyon::c::crypto
 
-#endif  // TACHYON_C_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_PCS_IMPL_H_
+#endif  // TACHYON_C_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_IMPL_H_

@@ -1,4 +1,4 @@
-#include "tachyon/crypto/commitments/fri/two_adic_fri_pcs.h"
+#include "tachyon/crypto/commitments/fri/two_adic_fri.h"
 
 #include <tuple>
 
@@ -43,11 +43,11 @@ using ExtMMCS = FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher,
 using ChallengeMMCS = ExtensionFieldMerkleTreeMMCS<ExtF, ExtMMCS>;
 using Challenger = DuplexChallenger<Poseidon2, 16, kRate>;
 using Coset = TwoAdicMultiplicativeCoset<F>;
-using MyPCS = TwoAdicFriPCS<ExtF, MMCS, ChallengeMMCS, Challenger>;
+using MyPCS = TwoAdicFRI<ExtF, MMCS, ChallengeMMCS, Challenger>;
 
-class TwoAdicFriPCSTest : public testing::Test {
+class TwoAdicFRITest : public testing::Test {
  public:
-  TwoAdicFriPCSTest() = default;
+  TwoAdicFRITest() = default;
 
   static void SetUpTestSuite() {
     ExtF::Init();
@@ -147,15 +147,15 @@ class TwoAdicFriPCSTest : public testing::Test {
 
 }  // namespace
 
-TEST_F(TwoAdicFriPCSTest, Single) {
+TEST_F(TwoAdicFRITest, Single) {
   for (uint32_t i = 3; i < 6; ++i) TestProtocol({{i}});
 }
 
-TEST_F(TwoAdicFriPCSTest, ManyEqual) {
+TEST_F(TwoAdicFRITest, ManyEqual) {
   for (uint32_t i = 2; i < 5; ++i) TestProtocol({std::vector<uint32_t>(5, i)});
 }
 
-TEST_F(TwoAdicFriPCSTest, ManyDifferent) {
+TEST_F(TwoAdicFRITest, ManyDifferent) {
   for (uint32_t i = 2; i < 4; ++i) {
     std::vector<uint32_t> input(i);
     for (uint32_t j = 3; j < 3 + i; ++j) {
@@ -165,7 +165,7 @@ TEST_F(TwoAdicFriPCSTest, ManyDifferent) {
   }
 }
 
-TEST_F(TwoAdicFriPCSTest, ManyDifferentRev) {
+TEST_F(TwoAdicFRITest, ManyDifferentRev) {
   for (uint32_t i = 2; i < 4; ++i) {
     std::vector<uint32_t> input(i);
     for (uint32_t j = 3 + i - 1; j >= 3; --j) {
@@ -175,7 +175,7 @@ TEST_F(TwoAdicFriPCSTest, ManyDifferentRev) {
   }
 }
 
-TEST_F(TwoAdicFriPCSTest, MultipleRounds) {
+TEST_F(TwoAdicFRITest, MultipleRounds) {
   TestProtocol({{3}});
   TestProtocol({{3}, {3}});
   TestProtocol({{3}, {2}});

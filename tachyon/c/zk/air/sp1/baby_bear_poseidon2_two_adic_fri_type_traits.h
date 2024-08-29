@@ -1,10 +1,10 @@
-#ifndef TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_TWO_ADIC_FRI_PCS_TYPE_TRAITS_H_
-#define TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_TWO_ADIC_FRI_PCS_TYPE_TRAITS_H_
+#ifndef TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_TWO_ADIC_FRI_TYPE_TRAITS_H_
+#define TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_TWO_ADIC_FRI_TYPE_TRAITS_H_
 
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/c/crypto/commitments/fri/two_adic_fri_pcs_impl.h"
+#include "tachyon/c/crypto/commitments/fri/two_adic_fri_impl.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_constants.h"
-#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri_pcs.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri.h"
 #include "tachyon/crypto/challenger/duplex_challenger.h"
 #include "tachyon/crypto/commitments/fri/two_adic_multiplicative_coset.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/extension_field_merkle_tree_mmcs.h"
@@ -73,8 +73,8 @@ using Challenger =
 using Coset =
     tachyon::crypto::TwoAdicMultiplicativeCoset<tachyon::math::BabyBear>;
 
-using PCS = crypto::TwoAdicFriPCSImpl<tachyon::math::BabyBear4, MMCS,
-                                      ChallengeMMCS, Challenger>;
+using PCS = crypto::TwoAdicFRIImpl<tachyon::math::BabyBear4, MMCS,
+                                   ChallengeMMCS, Challenger>;
 
 }  // namespace zk::air::plonky3::baby_bear
 
@@ -82,15 +82,15 @@ namespace base {
 
 template <>
 struct TypeTraits<zk::air::plonky3::baby_bear::PCS> {
-  using CType = tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs;
+  using CType = tachyon_sp1_baby_bear_poseidon2_two_adic_fri;
 };
 
 template <>
-struct TypeTraits<tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs> {
+struct TypeTraits<tachyon_sp1_baby_bear_poseidon2_two_adic_fri> {
   using NativeType = zk::air::plonky3::baby_bear::PCS;
 };
 
 }  // namespace base
 }  // namespace tachyon::c
 
-#endif  // TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_TWO_ADIC_FRI_PCS_TYPE_TRAITS_H_
+#endif  // TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_TWO_ADIC_FRI_TYPE_TRAITS_H_

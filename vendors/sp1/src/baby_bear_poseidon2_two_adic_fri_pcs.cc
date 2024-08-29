@@ -6,18 +6,17 @@ namespace tachyon::sp1_api::baby_bear_poseidon2 {
 
 TwoAdicFriPcs::TwoAdicFriPcs(size_t log_blowup, size_t num_queries,
                              size_t proof_of_work_bits)
-    : pcs_(tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_create(
+    : pcs_(tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(
           static_cast<uint32_t>(log_blowup), num_queries, proof_of_work_bits)) {
 }
 
 TwoAdicFriPcs::~TwoAdicFriPcs() {
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_destroy(pcs_);
+  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_destroy(pcs_);
 }
 
 void TwoAdicFriPcs::allocate_ldes(size_t size) const {
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_allocate_ldes(
-      const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs*>(pcs_),
-      size);
+  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(
+      const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri*>(pcs_), size);
 }
 
 rust::Slice<TachyonBabyBear> TwoAdicFriPcs::coset_lde_batch(
@@ -25,8 +24,8 @@ rust::Slice<TachyonBabyBear> TwoAdicFriPcs::coset_lde_batch(
     const TachyonBabyBear& shift) const {
   size_t new_rows;
   tachyon_baby_bear* data =
-      tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_coset_lde_batch(
-          const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs*>(pcs_),
+      tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
+          const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri*>(pcs_),
           reinterpret_cast<tachyon_baby_bear*>(values.data()),
           values.size() / cols, cols,
           reinterpret_cast<const tachyon_baby_bear&>(shift), &new_rows);
@@ -35,8 +34,8 @@ rust::Slice<TachyonBabyBear> TwoAdicFriPcs::coset_lde_batch(
 
 std::unique_ptr<ProverData> TwoAdicFriPcs::commit() const {
   std::unique_ptr<ProverData> ret(new ProverData);
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs_commit(
-      const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs*>(pcs_),
+  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
+      const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri*>(pcs_),
       ret->commitment(), ret->tree_ptr());
   return ret;
 }
