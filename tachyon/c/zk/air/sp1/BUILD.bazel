@@ -10,6 +10,7 @@ filegroup(
         "baby_bear_poseidon2_field_merkle_tree.h",
         "baby_bear_poseidon2_field_merkle_tree_vec.h",
         "baby_bear_poseidon2_opened_values.h",
+        "baby_bear_poseidon2_opening_points.h",
         "baby_bear_poseidon2_two_adic_fri.h",
     ],
 )
@@ -81,6 +82,20 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:auto_reset",
         "//tachyon/base/buffer",
+        "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/c/math/finite_fields/baby_bear:baby_bear4",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_opening_points",
+    srcs = ["baby_bear_poseidon2_opening_points.cc"],
+    hdrs = [
+        "baby_bear_poseidon2_opening_points.h",
+        "baby_bear_poseidon2_opening_points_type_traits.h",
+    ],
+    deps = [
         "//tachyon/c:export",
         "//tachyon/c/base:type_traits_forward",
         "//tachyon/c/math/finite_fields/baby_bear:baby_bear4",
