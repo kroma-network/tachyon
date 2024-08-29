@@ -193,7 +193,6 @@ class Copyable<
   using value_type = typename T::value_type;
   using BigInt = typename T::BigIntTy;
 
-  static bool s_allow_value_greater_than_or_equal_to_modulus;
   static bool s_is_in_montgomery;
 
   static bool WriteTo(const T& prime_field, Buffer* buffer) {
@@ -216,11 +215,6 @@ class Copyable<
   static bool ReadFrom(const ReadOnlyBuffer& buffer, T* prime_field) {
     value_type v;
     if (!buffer.Read(&v)) return false;
-    if (s_allow_value_greater_than_or_equal_to_modulus) {
-      if (v >= T::Config::kModulus) {
-        v %= T::Config::kModulus;
-      }
-    }
     if constexpr (T::Config::kUseMontgomery) {
       if (s_is_in_montgomery) {
         *prime_field = T::FromMontgomery(v);
@@ -242,12 +236,6 @@ class Copyable<
 
 // static
 template <typename T>
-bool Copyable<T,
-              std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>>::
-    s_allow_value_greater_than_or_equal_to_modulus = false;
-
-// static
-template <typename T>
 bool Copyable<T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>,
                                                     T>>>::s_is_in_montgomery =
     false;
@@ -259,7 +247,6 @@ class RapidJsonValueConverter<
   using value_type = typename T::value_type;
   using BigInt = typename T::BigIntTy;
 
-  static bool s_allow_value_greater_than_or_equal_to_modulus;
   static bool s_is_in_montgomery;
 
   template <typename Allocator>
@@ -289,11 +276,6 @@ class RapidJsonValueConverter<
     if (!RapidJsonValueConverter<value_type>::To(json_value, key, &v, error))
       return false;
 
-    if (s_allow_value_greater_than_or_equal_to_modulus) {
-      if (v >= T::Config::kModulus) {
-        v %= T::Config::kModulus;
-      }
-    }
     if constexpr (T::Config::kUseMontgomery) {
       if (s_is_in_montgomery) {
         *value = T::FromMontgomery(v);
@@ -304,12 +286,6 @@ class RapidJsonValueConverter<
     return true;
   }
 };
-
-// static
-template <typename T>
-bool RapidJsonValueConverter<
-    T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>>::
-    s_allow_value_greater_than_or_equal_to_modulus = false;
 
 // static
 template <typename T>
