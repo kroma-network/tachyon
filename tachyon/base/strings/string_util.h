@@ -184,6 +184,21 @@ std::string Container3DToString(const Container& data) {
 }
 
 template <typename Container>
+std::string Container4DToString(const Container& data) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
+  std::stringstream ss;
+  ss << "[";
+  for (size_t i = 0; i < size - 1; ++i) {
+    ss << Container3DToString(data[i]) << ", ";
+  }
+  ss << Container3DToString(data[size - 1]) << "]";
+  return ss.str();
+}
+
+template <typename Container>
 std::string ContainerToHexString(const Container& data, bool pad_zero = false) {
   size_t size = std::size(data);
 
@@ -227,6 +242,22 @@ std::string Container3DToHexString(const Container& data,
     ss << Container2DToHexString(data[i], pad_zero) << ", ";
   }
   ss << Container2DToHexString(data[size - 1], pad_zero) << "]";
+  return ss.str();
+}
+
+template <typename Container>
+std::string Container4DToHexString(const Container& data,
+                                   bool pad_zero = false) {
+  size_t size = std::size(data);
+
+  if (size == 0) return "[]";
+
+  std::stringstream ss;
+  ss << "[";
+  for (size_t i = 0; i < size - 1; ++i) {
+    ss << Container3DToHexString(data[i], pad_zero) << ", ";
+  }
+  ss << Container3DToHexString(data[size - 1], pad_zero) << "]";
   return ss.str();
 }
 
