@@ -85,7 +85,7 @@ class TwoAdicFriPCSTest : public testing::Test {
     using ProverData = typename MMCS::ProverData;
     using OpenedValues =
         std::vector<std::vector<std::vector<std::vector<ExtF>>>>;
-    using Proof = TwoAdicFriProof<MyPCS>;
+    using Proof = FriProof<MyPCS>;
     using Claims = std::vector<std::tuple<ExtF, std::vector<ExtF>>>;
 
     size_t num_rounds = log_degrees_by_round.size();

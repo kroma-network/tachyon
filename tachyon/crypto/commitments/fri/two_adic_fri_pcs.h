@@ -15,8 +15,8 @@
 #include "absl/container/flat_hash_map.h"
 
 #include "tachyon/base/bits.h"
+#include "tachyon/crypto/commitments/fri/fri_proof.h"
 #include "tachyon/crypto/commitments/fri/prove.h"
-#include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
 #include "tachyon/crypto/commitments/fri/two_adic_multiplicative_coset.h"
 #include "tachyon/crypto/commitments/fri/verify.h"
 #include "tachyon/crypto/commitments/mixed_matrix_commitment_scheme.h"
@@ -50,7 +50,7 @@ class TwoAdicFriPCS {
   using ProverData = typename InputMMCS::ProverData;
   using Proof = typename InputMMCS::Proof;
   using InputProof = std::vector<BatchOpening<TwoAdicFriPCS>>;
-  using TwoAdicFriProof = crypto::TwoAdicFriProof<TwoAdicFriPCS>;
+  using FriProof = crypto::FriProof<TwoAdicFriPCS>;
 
   using Points = std::vector<std::vector<ExtF>>;
 
@@ -87,7 +87,7 @@ class TwoAdicFriPCS {
   [[nodiscard]] bool CreateOpeningProof(
       const std::vector<ProverData>& prover_data_by_round,
       const std::vector<Points>& points_by_round, Challenger& challenger,
-      OpenedValues* openings, TwoAdicFriProof* proof) {
+      OpenedValues* openings, FriProof* proof) {
     ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
     size_t num_rounds = prover_data_by_round.size();
@@ -180,7 +180,7 @@ class TwoAdicFriPCS {
       }
     }
 
-    TwoAdicFriProof fri_proof = fri::Prove<TwoAdicFriPCS>(
+    FriProof fri_proof = fri::Prove<TwoAdicFriPCS>(
         fri_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();
@@ -216,7 +216,7 @@ class TwoAdicFriPCS {
       const std::vector<
           std::vector<std::vector<std::tuple<ExtF, std::vector<ExtF>>>>>&
           claims_by_round,
-      const TwoAdicFriProof& proof, Challenger& challenger) {
+      const FriProof& proof, Challenger& challenger) {
     // Batch combination challenge
     const ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);

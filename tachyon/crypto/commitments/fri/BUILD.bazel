@@ -14,6 +14,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "fri_proof",
+    hdrs = ["fri_proof.h"],
+    deps = ["//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward"],
+)
+
+tachyon_cc_library(
     name = "lagrange_selectors",
     hdrs = ["lagrange_selectors.h"],
 )
@@ -23,7 +29,7 @@ tachyon_cc_library(
     hdrs = ["prove.h"],
     deps = [
         ":fri_config",
-        ":two_adic_fri_proof",
+        ":fri_proof",
         "//tachyon/base:bits",
         "//tachyon/crypto/challenger",
         "//tachyon/math/finite_fields:extension_field_traits_forward",
@@ -62,8 +68,8 @@ tachyon_cc_library(
     name = "two_adic_fri_pcs",
     hdrs = ["two_adic_fri_pcs.h"],
     deps = [
+        ":fri_proof",
         ":prove",
-        ":two_adic_fri_proof",
         ":two_adic_multiplicative_coset",
         ":verify",
         "//tachyon/base:bits",
@@ -76,12 +82,6 @@ tachyon_cc_library(
         "@com_google_absl//absl/container:btree",
         "@com_google_absl//absl/container:flat_hash_map",
     ],
-)
-
-tachyon_cc_library(
-    name = "two_adic_fri_proof",
-    hdrs = ["two_adic_fri_proof.h"],
-    deps = ["//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward"],
 )
 
 tachyon_cc_library(
@@ -101,7 +101,7 @@ tachyon_cc_library(
     hdrs = ["verify.h"],
     deps = [
         ":fri_config",
-        ":two_adic_fri_proof",
+        ":fri_proof",
         "//tachyon/base:bits",
         "//tachyon/base/ranges:algorithm",
         "//tachyon/math/geometry:dimensions",

@@ -13,7 +13,7 @@
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/crypto/challenger/challenger.h"
 #include "tachyon/crypto/commitments/fri/fri_config.h"
-#include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
+#include "tachyon/crypto/commitments/fri/fri_proof.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 
@@ -120,10 +120,9 @@ std::vector<CommitPhaseProofStep<PCS>> AnswerQuery(
 template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger, typename OpenInputCallback,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
-TwoAdicFriProof<PCS> Prove(FriConfig<ChallengeMMCS>& config,
-                           std::vector<std::vector<ExtF>>&& inputs,
-                           Challenger& challenger,
-                           OpenInputCallback open_input) {
+FriProof<PCS> Prove(FriConfig<ChallengeMMCS>& config,
+                    std::vector<std::vector<ExtF>>&& inputs,
+                    Challenger& challenger, OpenInputCallback open_input) {
   using QueryProof = QueryProof<PCS>;
 
 #if DCHECK_IS_ON()

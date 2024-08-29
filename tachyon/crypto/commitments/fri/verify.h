@@ -12,7 +12,7 @@
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/crypto/challenger/challenger.h"
 #include "tachyon/crypto/commitments/fri/fri_config.h"
-#include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
+#include "tachyon/crypto/commitments/fri/fri_proof.h"
 #include "tachyon/math/geometry/dimensions.h"
 
 namespace tachyon::crypto::fri {
@@ -64,8 +64,7 @@ F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
 template <typename PCS, typename ChallengeMMCS, typename Challenger,
           typename OpenInputCallback>
 [[nodiscard]] bool Verify(const FriConfig<ChallengeMMCS>& config,
-                          const TwoAdicFriProof<PCS>& proof,
-                          Challenger& challenger,
+                          const FriProof<PCS>& proof, Challenger& challenger,
                           OpenInputCallback open_input) {
   using ExtF = typename ChallengeMMCS::Field;
   using Commitment = typename ChallengeMMCS::Commitment;
