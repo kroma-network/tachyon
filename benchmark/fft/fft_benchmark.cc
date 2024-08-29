@@ -83,7 +83,7 @@ void Run(const FFTConfig& config) {
       [](uint32_t exponent) { return base::NumberToString(exponent); }));
 
   reporter.AddVendor(Vendor::Tachyon());
-  for (Vendor vendor : config.vendors()) {
+  for (const Vendor vendor : config.vendors()) {
     reporter.AddVendor(vendor);
   }
 

@@ -50,7 +50,7 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
         2, 5, 8, 56, math::bn254::GetPoseidon2InternalDiagonalArray<3>());
   }
   Field result = runner.Run(poseidon2_config);
-  for (Vendor vendor : config.vendors()) {
+  for (const Vendor vendor : config.vendors()) {
     Field result_vendor;
     if (vendor.value() == Vendor::kHorizen) {
       result_vendor = runner.RunExternal(vendor, horizen_fn);

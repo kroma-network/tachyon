@@ -75,7 +75,7 @@ int RealMain(int argc, char** argv) {
   std::vector<bn254::G1JacobianPoint> results;
   runner.Run(Vendor::Tachyon(), tachyon_bn254_g1_affine_msm, msm, point_nums,
              results);
-  for (Vendor vendor : config.vendors()) {
+  for (const Vendor vendor : config.vendors()) {
     std::vector<bn254::G1JacobianPoint> results_vendor;
     if (vendor.value() == Vendor::kArkworks) {
       runner.RunExternal(vendor, run_msm_arkworks, point_nums, results_vendor);

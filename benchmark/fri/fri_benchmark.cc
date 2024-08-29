@@ -111,7 +111,7 @@ void Run(const FRIConfig& config) {
   std::vector<size_t> degrees = config.GetDegrees();
 
   reporter.AddVendor(Vendor::Tachyon());
-  for (Vendor vendor : config.vendors()) {
+  for (const Vendor vendor : config.vendors()) {
     reporter.AddVendor(vendor);
   }
 
@@ -120,7 +120,7 @@ void Run(const FRIConfig& config) {
         math::RowMajorMatrix<F>::Random(degree, config.batch_size());
 
     F tachyon_commit = runner.Run(Vendor::Tachyon(), input);
-    for (Vendor vendor : config.vendors()) {
+    for (const Vendor vendor : config.vendors()) {
       if (vendor.value() == Vendor::kPlonky3) {
         F vendor_commit =
             runner.RunExternal(vendor, run_fri_plonky3_baby_bear, input);
