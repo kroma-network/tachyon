@@ -1,8 +1,8 @@
 // Use of this source code is governed by a Apache-2.0 style license that
 // can be found in the LICENSE.lambdaworks.
 
-#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_PROOF_H_
-#define TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_PROOF_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_SIMPLE_FRI_PROOF_H_
+#define TACHYON_CRYPTO_COMMITMENTS_FRI_SIMPLE_FRI_PROOF_H_
 
 #include <vector>
 
@@ -11,7 +11,7 @@
 namespace tachyon::crypto {
 
 template <typename F>
-struct FRIProof {
+struct SimpleFRIProof {
   std::vector<BinaryMerkleProof<F>> paths;
   std::vector<BinaryMerkleProof<F>> paths_sym;
   std::vector<F> evaluations;
@@ -20,4 +20,4 @@ struct FRIProof {
 
 }  // namespace tachyon::crypto
 
-#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_PROOF_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_SIMPLE_FRI_PROOF_H_
