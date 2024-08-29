@@ -9,6 +9,7 @@ filegroup(
         "baby_bear_poseidon2_duplex_challenger.h",
         "baby_bear_poseidon2_field_merkle_tree.h",
         "baby_bear_poseidon2_field_merkle_tree_vec.h",
+        "baby_bear_poseidon2_opened_values.h",
         "baby_bear_poseidon2_two_adic_fri.h",
     ],
 )
@@ -71,6 +72,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "baby_bear_poseidon2_opened_values",
+    srcs = ["baby_bear_poseidon2_opened_values.cc"],
+    hdrs = [
+        "baby_bear_poseidon2_opened_values.h",
+        "baby_bear_poseidon2_opened_values_type_traits.h",
+    ],
+    deps = [
+        "//tachyon/base:auto_reset",
+        "//tachyon/base/buffer",
+        "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/c/math/finite_fields/baby_bear:baby_bear4",
+    ],
+)
+
+tachyon_cc_library(
     name = "baby_bear_poseidon2_two_adic_fri",
     srcs = ["baby_bear_poseidon2_two_adic_fri.cc"],
     hdrs = [
@@ -112,9 +129,12 @@ tachyon_cc_unittest(
     name = "sp1_unittests",
     srcs = [
         "baby_bear_poseidon2_duplex_challenger_unittest.cc",
+        "baby_bear_poseidon2_opened_values_unittest.cc",
         "baby_bear_poseidon2_two_adic_fri_unittest.cc",
     ],
     deps = [
+        # TODO(chokobole): This will be added to sp1 target.
+        ":baby_bear_poseidon2_opened_values",
         ":sp1",
         "//tachyon/math/finite_fields/test:finite_field_test",
     ],
