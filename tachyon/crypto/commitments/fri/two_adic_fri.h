@@ -185,11 +185,12 @@ class TwoAdicFRI {
       }
     }
 
-    FRIProof fri_proof = fri::Prove<TwoAdicFRI>(
+    *opened_values_out = std::move(opened_values);
+    *proof = fri::Prove<TwoAdicFRI>(
         fri_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();
-          std::vector<BatchOpening<TwoAdicFRI>> ret = base::CreateVector(
+          return base::CreateVector(
               num_rounds, [this, log_global_max_num_rows, index,
                            &prover_data_by_round](size_t round) {
                 Proof proof;
@@ -205,11 +206,7 @@ class TwoAdicFRI {
                 return BatchOpening<TwoAdicFRI>{std::move(openings),
                                                 std::move(proof)};
               });
-
-          return ret;
         });
-    *opened_values_out = std::move(opened_values);
-    *proof = std::move(fri_proof);
     return true;
   }
 
