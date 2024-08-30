@@ -88,12 +88,12 @@ std::vector<PackedField> PackRowVertically(
     const Eigen::MatrixBase<Derived>& matrix, size_t row) {
   using Scalar = typename Eigen::internal::traits<Derived>::Scalar;
   if constexpr (FiniteFieldTraits<Scalar>::kIsExtensionField) {
-    size_t num =
-        matrix.cols() * ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
+    constexpr size_t kDegree =
+        ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
+    size_t num = matrix.cols() * kDegree;
     return base::CreateVector(num, [row, &matrix](size_t n) {
-      size_t col = n / ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
-      size_t idx =
-          n - col * ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
+      size_t col = n / kDegree;
+      size_t idx = n - col * kDegree;
       return PackedField::From([row, col, idx, &matrix](size_t i) {
         return matrix((row + i) % matrix.rows(), col)[idx];
       });
