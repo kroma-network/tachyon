@@ -53,7 +53,8 @@ class TwoAdicFRI {
   using InputProof = std::vector<BatchOpening<TwoAdicFRI>>;
   using FRIProof = crypto::FRIProof<TwoAdicFRI>;
 
-  using Points = std::vector<std::vector<ExtF>>;
+  using OpeningPointsForRound = std::vector<std::vector<ExtF>>;
+  using OpeningPoints = std::vector<OpeningPointsForRound>;
 
   using OpenedValuesForMat = std::vector<std::vector<ExtF>>;
   using OpenedValuesForRound = std::vector<OpenedValuesForMat>;
@@ -88,7 +89,7 @@ class TwoAdicFRI {
 
   [[nodiscard]] bool CreateOpeningProof(
       const std::vector<ProverData>& prover_data_by_round,
-      const std::vector<Points>& points_by_round, Challenger& challenger,
+      const OpeningPoints& points_by_round, Challenger& challenger,
       OpenedValues* openings, FRIProof* proof) {
     TRACE_EVENT("ProofGeneration", "TwoAdicFRI::CreateOpeningProof");
     ExtF alpha = challenger.template SampleExtElement<ExtF>();
@@ -121,7 +122,7 @@ class TwoAdicFRI {
     for (size_t round = 0; round < num_rounds; ++round) {
       absl::Span<const math::RowMajorMatrix<F>> matrices =
           matrices_by_round[round];
-      const Points& points = points_by_round[round];
+      const OpeningPointsForRound& points = points_by_round[round];
       OpenedValuesForRound opened_values_for_round(matrices.size());
       for (size_t matrix_idx = 0; matrix_idx < matrices.size(); ++matrix_idx) {
         const math::RowMajorMatrix<F>& mat = matrices[matrix_idx];
@@ -310,7 +311,7 @@ class TwoAdicFRI {
   absl::flat_hash_map<ExtF, std::vector<ExtF>> ComputeInverseDenominators(
       const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
           matrices_by_round,
-      const std::vector<Points>& points_by_round, F coset_shift) {
+      const OpeningPoints& points_by_round, F coset_shift) {
     TRACE_EVENT("Utils", "ComputeInverseDenominators");
     size_t num_rounds = matrices_by_round.size();
 
@@ -319,7 +320,7 @@ class TwoAdicFRI {
     for (size_t round = 0; round < num_rounds; ++round) {
       absl::Span<const math::RowMajorMatrix<F>> matrices =
           matrices_by_round[round];
-      const Points& points = points_by_round[round];
+      const OpeningPointsForRound& points = points_by_round[round];
       for (const math::RowMajorMatrix<F>& matrix : matrices) {
         uint32_t log_num_rows =
             base::bits::CheckedLog2(static_cast<uint32_t>(matrix.rows()));
