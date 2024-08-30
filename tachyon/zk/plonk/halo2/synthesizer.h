@@ -157,8 +157,9 @@ class Synthesizer {
         F challenge = prover->GetWriter()->SqueezeChallenge();
         VLOG(2) << "Halo2(challenge[" << i
                 << "]): " << challenge.ToHexString(true);
-        auto it = challenges_.try_emplace(i, std::move(challenge));
-        CHECK(it.second);
+        const auto [_, inserted] =
+            challenges_.try_emplace(i, std::move(challenge));
+        CHECK(inserted);
       }
     }
   }

@@ -68,13 +68,12 @@ class LinearCombination {
         base::Map(evaluations, [this](const std::shared_ptr<MLE>& evaluation) {
           CHECK_EQ(evaluation->Degree(), num_variables_);
           const MLE* evaluation_ptr = evaluation.get();
-          auto it = lookup_table_.try_emplace(evaluation_ptr,
-                                              flattened_ml_evaluations_.size());
-          // if inserted
-          if (it.second) {
+          const auto [it, inserted] = lookup_table_.try_emplace(
+              evaluation_ptr, flattened_ml_evaluations_.size());
+          if (inserted) {
             flattened_ml_evaluations_.push_back(evaluation);
           }
-          return (*it.first).second;
+          return it->second;
         });
     terms_.push_back({coefficient, std::move(indexes)});
   }

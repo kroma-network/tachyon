@@ -44,11 +44,11 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
   for (RowIndex i = 0; i < usable_rows; ++i) {
     const F& coeff = in.table()[i];
     // if key doesn't exist, insert the key and value 1 for the key.
-    auto it = leftover_table_map.try_emplace(coeff, RowIndex{1});
+    auto [it, inserted] = leftover_table_map.try_emplace(coeff, RowIndex{1});
     // no inserted value, meaning the key exists.
-    if (!it.second) {
+    if (!inserted) {
       // Increase value by 1 if not inserted.
-      ++((*it.first).second);
+      ++(it->second);
     }
   }
 
