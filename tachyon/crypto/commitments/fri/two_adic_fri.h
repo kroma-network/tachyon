@@ -345,6 +345,7 @@ class TwoAdicFRI {
         size_t{1} << max_log_num_rows, w, coset_shift);
 
     absl::flat_hash_map<ExtF, std::vector<ExtF>> ret;
+    ret.reserve(max_log_num_rows_for_point.size());
     for (auto it = max_log_num_rows_for_point.begin();
          it != max_log_num_rows_for_point.end(); ++it) {
       const ExtF& point = it->first;
