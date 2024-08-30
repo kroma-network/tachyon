@@ -410,7 +410,10 @@ inline constexpr bool AnalyzerAssumeTrue(bool arg) {
 // Safety explanations may not rely on invariants that are not fully
 // encapsulated close to the UNSAFE_BUFFERS() usage. Instead, use safer coding
 // patterns or stronger invariants.
-#if defined(__clang__)
+#if defined(__clang__) && (__clang_major__ >= 17 && \
+                           (__clang_minor__ > 0 || __clang_patchlevel__ >= 1))
+// See
+// https://releases.llvm.org/17.0.1/tools/clang/docs/ReleaseNotes.html#attribute-changes-in-clang.
 // clang-format off
 // Formatting is off so that we can put each _Pragma on its own line, as
 // recommended by the gcc docs.
