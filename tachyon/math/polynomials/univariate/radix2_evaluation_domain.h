@@ -293,14 +293,14 @@ class Radix2EvaluationDomain
   // clang-format off
   // Precompute |roots_vec_| and |inv_roots_vec_| for |OutInHelper()| and |InOutHelper()|.
   // Here is an example where |this->size_| equals 32.
-  // |root_vec_| = [
+  // |roots_vec_| = [
   //   [1],
   //   [1, ω⁸],
   //   [1, ω⁴, ω⁸, ω¹²],
   //   [1, ω², ω⁴, ω⁶, ω⁸, ω¹⁰, ω¹², ω¹⁴],
   //   [1, ω, ω², ω³, ω⁴, ω⁵, ω⁶, ω⁷, ω⁸, ω⁹, ω¹⁰, ω¹¹, ω¹², ω¹³, ω¹⁴, ω¹⁵],
   // ]
-  // |inv_root_vec_| = [
+  // |inv_roots_vec_| = [
   //   [1, ω⁻¹, ω⁻², ω⁻³, ω⁻⁴, ω⁻⁵, ω⁻⁶, ω⁻⁷, ω⁻⁸, ω⁻⁹, ω⁻¹⁰, ω⁻¹¹, ω⁻¹², ω⁻¹³, ω⁻¹⁴, ω⁻¹⁵],
   //   [1, ω⁻², ω⁻⁴, ω⁻⁶, ω⁻⁸, ω⁻¹⁰, ω⁻¹², ω⁻¹⁴],
   //   [1, ω⁻⁴, ω⁻⁸, ω⁻¹²],
@@ -317,7 +317,7 @@ class Radix2EvaluationDomain
 
     size_t vec_largest_size = this->size_ / 2;
 
-    // Compute biggest vector of |root_vec_| and |inv_root_vec_| first.
+    // Compute biggest vector of |roots_vec_| and |inv_roots_vec_| first.
     std::vector<F> largest =
         this->GetRootsOfUnity(vec_largest_size, this->group_gen_);
     std::vector<F> largest_inv =
