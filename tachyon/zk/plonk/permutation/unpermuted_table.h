@@ -57,7 +57,7 @@ class UnpermutedTable {
                                    const Domain* domain) {
     // The ω is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
     std::vector<F> omega_powers =
-        domain->GetRootsOfUnity(rows, domain->group_gen());
+        Domain::GetRootsOfUnity(rows, domain->group_gen());
 
     // The δ is g^2ˢ with order T where modulus = 2ˢ * T + 1.
     F delta = GetDelta<F>();
