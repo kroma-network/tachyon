@@ -67,6 +67,7 @@ tachyon_cc_library(
     hdrs = ["radix2_evaluation_domain.h"],
     deps = [
         ":evaluations_utils",
+        ":radix2_twiddle_cache",
         ":two_adic_subgroup",
         ":univariate_evaluation_domain",
         "//tachyon/base:bits",
@@ -81,6 +82,19 @@ tachyon_cc_library(
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",
         "@eigen_archive//:eigen3",
+    ],
+)
+
+tachyon_cc_library(
+    name = "radix2_twiddle_cache",
+    hdrs = ["radix2_twiddle_cache.h"],
+    deps = [
+        "//tachyon/base:no_destructor",
+        "//tachyon/base:openmp_util",
+        "//tachyon/base:profiler",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/synchronization",
     ],
 )
 
