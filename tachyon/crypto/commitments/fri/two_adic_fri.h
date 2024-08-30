@@ -207,15 +207,12 @@ class TwoAdicFRI {
     return true;
   }
 
-  // TODO(ashjeong): remove the use of |std::tuple| and name the separate
-  // containers applicable names.
   [[nodiscard]] bool VerifyOpeningProof(
       const std::vector<Commitment>& commits_by_round,
       const std::vector<std::vector<Domain>>& domains_by_round,
-      const std::vector<
-          std::vector<std::vector<std::tuple<ExtF, std::vector<ExtF>>>>>&
-          claims_by_round,
-      const FRIProof& proof, Challenger& challenger) {
+      const OpeningPoints& points_by_round,
+      const OpenedValues& opened_values_by_round, const FRIProof& proof,
+      Challenger& challenger) {
     TRACE_EVENT("ProofVerification", "TwoAdicFRI::VerifyOpeningProof");
     // Batch combination challenge
     const ExtF alpha = challenger.template SampleExtElement<ExtF>();
@@ -225,15 +222,16 @@ class TwoAdicFRI {
     return fri::Verify(
         fri_, proof, challenger,
         [this, alpha, log_global_max_num_rows, &commits_by_round,
-         &domains_by_round, &claims_by_round](
+         &domains_by_round, &points_by_round, &opened_values_by_round](
             size_t index, const InputProof& input_proof,
             std::vector<size_t>& ro_num_rows, std::vector<ExtF>& ro_values) {
           absl::btree_map<size_t, std::tuple<ExtF, ExtF>> reduced_openings;
           size_t num_rounds = commits_by_round.size();
           for (size_t round = 0; round < num_rounds; ++round) {
-            const std::vector<std::vector<std::tuple<ExtF, std::vector<ExtF>>>>&
-                claim = claims_by_round[round];
-            size_t vals_size = claim.size();
+            const OpeningPointsForRound& points = points_by_round[round];
+            const OpenedValuesForRound& opened_values =
+                opened_values_by_round[round];
+            size_t vals_size = opened_values.size();
             size_t batch_max_num_rows = 0;
             std::vector<math::Dimensions> batch_dims = base::CreateVector(
                 vals_size, [this, round, &batch_max_num_rows,
@@ -246,17 +244,18 @@ class TwoAdicFRI {
             uint32_t bits_reduced = log_global_max_num_rows -
                                     base::bits::CheckedLog2(batch_max_num_rows);
             uint32_t reduced_index = index >> bits_reduced;
-            const std::vector<std::vector<F>>& opened_values =
+            const std::vector<std::vector<F>>& opened_values_in =
                 input_proof[round].opened_values;
 
             CHECK(mmcs_.VerifyOpeningProof(commits_by_round[round], batch_dims,
-                                           reduced_index, opened_values,
+                                           reduced_index, opened_values_in,
                                            input_proof[round].opening_proof));
 
             for (size_t batch_idx = 0; batch_idx < vals_size; ++batch_idx) {
               const Domain& domain = domains_by_round[round][batch_idx];
-              const std::vector<std::tuple<ExtF, std::vector<ExtF>>>&
-                  mat_points_and_values = claim[batch_idx];
+              const std::vector<ExtF>& cur_points = points[batch_idx];
+              const std::vector<std::vector<ExtF>>& cur_values =
+                  opened_values[batch_idx];
               uint32_t log_num_rows =
                   domain.domain()->log_size_of_group() + fri_.log_blowup;
               uint32_t bits_reduced = log_global_max_num_rows - log_num_rows;
@@ -269,15 +268,14 @@ class TwoAdicFRI {
 
               reduced_openings.try_emplace(
                   log_num_rows, std::make_tuple(ExtF::One(), ExtF::Zero()));
-              for (size_t i = 0; i < mat_points_and_values.size(); ++i) {
-                const ExtF& z = std::get<0>(mat_points_and_values[i]);
-                const std::vector<ExtF>& ps_at_z =
-                    std::get<1>(mat_points_and_values[i]);
-                CHECK_EQ(ps_at_z.size(), opened_values[i].size());
+              for (size_t i = 0; i < cur_points.size(); ++i) {
+                const ExtF& z = cur_points[i];
+                const std::vector<ExtF>& ps_at_z = cur_values[i];
+                CHECK_EQ(ps_at_z.size(), opened_values_in[i].size());
                 for (size_t j = 0; j < ps_at_z.size(); ++j) {
                   const ExtF& p_at_z = ps_at_z[j];
                   ExtF quotient =
-                      unwrap((ExtF(opened_values[batch_idx][j]) - p_at_z) /
+                      unwrap((ExtF(opened_values_in[batch_idx][j]) - p_at_z) /
                              (ExtF(x) - z));
                   std::tuple<ExtF, ExtF>& reduced_opening =
                       reduced_openings[log_num_rows];
