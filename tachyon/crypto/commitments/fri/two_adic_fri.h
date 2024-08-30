@@ -328,12 +328,10 @@ class TwoAdicFRI {
         max_log_num_rows = std::max(max_log_num_rows, log_num_rows);
         for (const std::vector<ExtF>& point_list : points) {
           for (const ExtF& point : point_list) {
-            auto find_iter = max_log_num_rows_for_point.find(point);
-            if (find_iter != max_log_num_rows_for_point.end()) {
-              find_iter->second =
-                  std::max(max_log_num_rows_for_point[point], log_num_rows);
-            } else {
-              max_log_num_rows_for_point.try_emplace(point, log_num_rows);
+            const auto [it, inserted] =
+                max_log_num_rows_for_point.try_emplace(point, log_num_rows);
+            if (!inserted) {
+              it->second = std::max(it->second, log_num_rows);
             }
           }
         }
