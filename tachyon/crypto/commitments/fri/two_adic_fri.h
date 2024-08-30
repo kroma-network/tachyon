@@ -228,15 +228,16 @@ class TwoAdicFRI {
           absl::btree_map<size_t, std::tuple<ExtF, ExtF>> reduced_openings;
           size_t num_rounds = commits_by_round.size();
           for (size_t round = 0; round < num_rounds; ++round) {
+            const std::vector<Domain>& domains = domains_by_round[round];
             const OpeningPointsForRound& points = points_by_round[round];
             const OpenedValuesForRound& opened_values =
                 opened_values_by_round[round];
             size_t vals_size = opened_values.size();
             size_t batch_max_num_rows = 0;
             std::vector<math::Dimensions> batch_dims = base::CreateVector(
-                vals_size, [this, round, &batch_max_num_rows,
-                            &domains_by_round](size_t batch_idx) {
-                  const Domain& domain = domains_by_round[round][batch_idx];
+                vals_size,
+                [this, &batch_max_num_rows, &domains](size_t batch_idx) {
+                  const Domain& domain = domains[batch_idx];
                   size_t num_rows = domain.domain()->size() << fri_.log_blowup;
                   batch_max_num_rows = std::max(batch_max_num_rows, num_rows);
                   return math::Dimensions{0, num_rows};
@@ -252,10 +253,11 @@ class TwoAdicFRI {
                                            input_proof[round].opening_proof));
 
             for (size_t batch_idx = 0; batch_idx < vals_size; ++batch_idx) {
-              const Domain& domain = domains_by_round[round][batch_idx];
+              const Domain& domain = domains[batch_idx];
               const std::vector<ExtF>& cur_points = points[batch_idx];
               const std::vector<std::vector<ExtF>>& cur_values =
                   opened_values[batch_idx];
+              const std::vector<F>& cur_values_in = opened_values_in[batch_idx];
               uint32_t log_num_rows =
                   domain.domain()->log_size_of_group() + fri_.log_blowup;
               uint32_t bits_reduced = log_global_max_num_rows - log_num_rows;
@@ -266,19 +268,16 @@ class TwoAdicFRI {
               F x = F::FromMontgomery(F::Config::kSubgroupGenerator) *
                     w.Pow(rev_reduced_index);
 
-              reduced_openings.try_emplace(
+              auto it = reduced_openings.try_emplace(
                   log_num_rows, std::make_tuple(ExtF::One(), ExtF::Zero()));
+              std::tuple<ExtF, ExtF>& reduced_opening = it.first->second;
               for (size_t i = 0; i < cur_points.size(); ++i) {
                 const ExtF& z = cur_points[i];
                 const std::vector<ExtF>& ps_at_z = cur_values[i];
                 CHECK_EQ(ps_at_z.size(), opened_values_in[i].size());
                 for (size_t j = 0; j < ps_at_z.size(); ++j) {
-                  const ExtF& p_at_z = ps_at_z[j];
-                  ExtF quotient =
-                      unwrap((ExtF(opened_values_in[batch_idx][j]) - p_at_z) /
-                             (ExtF(x) - z));
-                  std::tuple<ExtF, ExtF>& reduced_opening =
-                      reduced_openings[log_num_rows];
+                  ExtF quotient = unwrap((ExtF(cur_values_in[j]) - ps_at_z[j]) /
+                                         (ExtF(x) - z));
                   std::get<1>(reduced_opening) +=
                       std::get<0>(reduced_opening) * quotient;
                   std::get<0>(reduced_opening) *= alpha;
