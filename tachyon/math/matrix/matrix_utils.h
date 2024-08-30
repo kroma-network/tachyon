@@ -195,29 +195,22 @@ std::vector<ExtField> DotExtPowers(const Eigen::MatrixBase<Derived>& mat,
       ExtField::GetExtendedPackedPowers(
           base, ((static_cast<size_t>(mat.cols()) + packed_n - 1) / packed_n) *
                     packed_n);
-  std::vector<ExtField> ret = base::CreateVectorParallel(
-      rows, [&mat, &packed_ext_powers](Eigen::Index r) {
-        std::vector<PackedField> row_packed =
-            PackRowHorizontallyPadded(mat.row(r));
-        ExtendedPackedField packed_sum_of_packed(ExtendedPackedField::Zero());
-        for (size_t i = 0; i < row_packed.size(); ++i) {
-          packed_sum_of_packed += packed_ext_powers[i] * row_packed[i];
-        }
-        std::array<PackedField, ExtendedPackedField::ExtensionDegree()>
-            packed_sum_of_packed_decomposed =
-                packed_sum_of_packed.ToBaseFields();
-        std::array<F, ExtField::ExtensionDegree()> base_field_sums =
-            base::CreateArray<ExtField::ExtensionDegree()>(
-                [&packed_sum_of_packed_decomposed](size_t d) {
-                  return std::accumulate(
-                      packed_sum_of_packed_decomposed[d].values().begin(),
-                      packed_sum_of_packed_decomposed[d].values().end(),
-                      F::Zero());
-                });
-
-        return ExtField::FromBasePrimeFields(base_field_sums);
-      });
-  return ret;
+  return base::CreateVectorParallel(rows, [&mat,
+                                           &packed_ext_powers](Eigen::Index r) {
+    std::vector<PackedField> row_packed = PackRowHorizontallyPadded(mat.row(r));
+    ExtendedPackedField packed_sum_of_packed(ExtendedPackedField::Zero());
+    for (size_t i = 0; i < row_packed.size(); ++i) {
+      packed_sum_of_packed += packed_ext_powers[i] * row_packed[i];
+    }
+    ExtField ret(ExtField::Zero());
+    for (size_t i = 0; i < ExtField::ExtensionDegree(); ++i) {
+      const PackedField& packed = packed_sum_of_packed[i];
+      for (size_t j = 0; j < PackedField::N; ++j) {
+        ret[i] += packed[j];
+      }
+    }
+    return ret;
+  });
 }
 
 }  // namespace tachyon::math
