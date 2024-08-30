@@ -11,10 +11,15 @@
 #include <stdint.h>
 
 #include "tachyon/c/export.h"
+#include "tachyon/c/math/finite_fields/baby_bear/baby_bear4.h"
 #include "tachyon/c/math/matrix/baby_bear_row_major_matrix.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_constants.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_duplex_challenger.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_vec.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_fri_proof.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_opened_values.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_opening_points.h"
 
 struct tachyon_sp1_baby_bear_poseidon2_two_adic_fri {};
 
@@ -86,6 +91,25 @@ TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
     tachyon_baby_bear* commitment,
     tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data,
     tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* prover_data_vec);
+
+/**
+ * @brief Creates an opening proof with prover data and points.
+ *
+ * @param pcs A pointer to the two adic fri pcs.
+ * @param prover_data_by_round A const pointer to the field merkle tree vector.
+ * @param points_by_round A const pointer to the opening points.
+ * @param challenger A pointer to the duplex challenger.
+ * @param opened_values A pointer to store the opened values.
+ * @param proof A pointer to store the fri proof.
+ */
+TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
+    tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
+    const tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec*
+        prover_data_by_round,
+    const tachyon_sp1_baby_bear_poseidon2_opening_points* points_by_round,
+    tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger,
+    tachyon_sp1_baby_bear_poseidon2_opened_values** opened_values,
+    tachyon_sp1_baby_bear_poseidon2_fri_proof** proof);
 
 #ifdef __cplusplus
 }  // extern "C"
