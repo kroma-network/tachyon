@@ -7,7 +7,6 @@
 #define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_H_
 
 #include <algorithm>
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -225,7 +224,19 @@ class TwoAdicFRI {
          &domains_by_round, &points_by_round, &opened_values_by_round](
             size_t index, const InputProof& input_proof,
             std::vector<size_t>& ro_num_rows, std::vector<ExtF>& ro_values) {
-          absl::btree_map<size_t, std::tuple<ExtF, ExtF>> reduced_openings;
+          struct ReducedOpening {
+            ExtF value;
+            ExtF pow;
+
+            static ReducedOpening Default() {
+              return {
+                  ExtF::Zero(),
+                  ExtF::One(),
+              };
+            }
+          };
+
+          absl::btree_map<size_t, ReducedOpening> reduced_openings;
           size_t num_rounds = commits_by_round.size();
           for (size_t round = 0; round < num_rounds; ++round) {
             const std::vector<Domain>& domains = domains_by_round[round];
@@ -269,9 +280,9 @@ class TwoAdicFRI {
               ExtF x(F::FromMontgomery(F::Config::kSubgroupGenerator) *
                      w.Pow(rev_reduced_index));
 
-              auto it = reduced_openings.try_emplace(
-                  log_num_rows, std::make_tuple(ExtF::One(), ExtF::Zero()));
-              std::tuple<ExtF, ExtF>& reduced_opening = it.first->second;
+              auto it = reduced_openings.try_emplace(log_num_rows,
+                                                     ReducedOpening::Default());
+              ReducedOpening& reduced_opening = it.first->second;
               for (size_t i = 0; i < cur_points.size(); ++i) {
                 const ExtF& z = cur_points[i];
                 ExtF denom = unwrap((x - z).Inverse());
@@ -279,9 +290,8 @@ class TwoAdicFRI {
                 CHECK_EQ(ps_at_z.size(), cur_values_in.size());
                 for (size_t j = 0; j < ps_at_z.size(); ++j) {
                   ExtF quotient = (cur_values_in[j] - ps_at_z[j]) * denom;
-                  std::get<1>(reduced_opening) +=
-                      std::get<0>(reduced_opening) * quotient;
-                  std::get<0>(reduced_opening) *= alpha;
+                  reduced_opening.value += reduced_opening.pow * quotient;
+                  reduced_opening.pow *= alpha;
                 }
               }
             }
@@ -291,7 +301,7 @@ class TwoAdicFRI {
           for (auto it = reduced_openings.rbegin();
                it != reduced_openings.rend(); ++it) {
             ro_num_rows.emplace_back(it->first);
-            ro_values.emplace_back(std::move(std::get<1>(it->second)));
+            ro_values.emplace_back(std::move(it->second.value));
           }
         });
   }
