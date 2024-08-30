@@ -57,8 +57,7 @@ class TwoAdicFRI {
   using OpeningPointsForRound = std::vector<std::vector<ExtF>>;
   using OpeningPoints = std::vector<OpeningPointsForRound>;
 
-  using OpenedValuesForMat = std::vector<std::vector<ExtF>>;
-  using OpenedValuesForRound = std::vector<OpenedValuesForMat>;
+  using OpenedValuesForRound = std::vector<std::vector<std::vector<ExtF>>>;
   using OpenedValues = std::vector<OpenedValuesForRound>;
 
   TwoAdicFRI() = default;
@@ -138,9 +137,8 @@ class TwoAdicFRI {
         std::vector<ExtF>& reduced_opening_for_log_num_rows =
             reduced_openings[log_num_rows];
         CHECK_EQ(reduced_opening_for_log_num_rows.size(), num_rows);
-        // TODO(ashjeong): Determine if using a matrix is a better fit for
-        // |opened_values_for_mat|.
-        OpenedValuesForMat opened_values_for_mat = base::CreateVector(
+        // TODO(ashjeong): Determine if using a matrix is a better fit.
+        opened_values_for_round[matrix_idx] = base::CreateVector(
             points[matrix_idx].size(),
             [this, matrix_idx, num_rows, num_cols, log_num_rows, &points, &mat,
              &alpha, &num_reduced, &inv_denoms,
@@ -173,7 +171,6 @@ class TwoAdicFRI {
               num_reduced[log_num_rows] += num_cols;
               return ys;
             });
-        opened_values_for_round[matrix_idx] = std::move(opened_values_for_mat);
       }
       opened_values[round] = std::move(opened_values_for_round);
     }
