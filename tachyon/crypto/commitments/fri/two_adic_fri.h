@@ -238,9 +238,8 @@ class TwoAdicFRI {
             std::vector<math::Dimensions> batch_dims = base::CreateVector(
                 vals_size, [this, round, &batch_max_num_rows,
                             &domains_by_round](size_t batch_idx) {
-                  const Domain& mat_domain = domains_by_round[round][batch_idx];
-                  size_t num_rows = mat_domain.domain()->size()
-                                    << fri_.log_blowup;
+                  const Domain& domain = domains_by_round[round][batch_idx];
+                  size_t num_rows = domain.domain()->size() << fri_.log_blowup;
                   batch_max_num_rows = std::max(batch_max_num_rows, num_rows);
                   return math::Dimensions{0, num_rows};
                 });
@@ -255,11 +254,11 @@ class TwoAdicFRI {
                                            input_proof[round].opening_proof));
 
             for (size_t batch_idx = 0; batch_idx < vals_size; ++batch_idx) {
-              const Domain& mat_domain = domains_by_round[round][batch_idx];
+              const Domain& domain = domains_by_round[round][batch_idx];
               const std::vector<std::tuple<ExtF, std::vector<ExtF>>>&
                   mat_points_and_values = claim[batch_idx];
               uint32_t log_num_rows =
-                  mat_domain.domain()->log_size_of_group() + fri_.log_blowup;
+                  domain.domain()->log_size_of_group() + fri_.log_blowup;
               uint32_t bits_reduced = log_global_max_num_rows - log_num_rows;
               uint32_t rev_reduced_index = base::bits::ReverseBitsLen(
                   index >> bits_reduced, log_num_rows);
