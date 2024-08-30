@@ -8,6 +8,7 @@
 #include "third_party/eigen3/Eigen/Core"
 
 #include "tachyon/base/bits.h"
+#include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/profiler.h"
@@ -62,29 +63,20 @@ template <typename Expr, int BlockRows, int BlockCols, bool InnerPanel,
               typename PackedFieldTraits<typename Expr::Scalar>::PackedField>
 std::vector<PackedField> PackRowHorizontallyPadded(
     const Eigen::Block<Expr, BlockRows, BlockCols, InnerPanel>& matrix_row) {
-  size_t cols = static_cast<size_t>(matrix_row.cols());
   using F = typename FiniteFieldTraits<PackedField>::PrimeField;
-  size_t num_full_packed = cols / PackedField::N;
-  bool full = cols % PackedField::N == 0;
 
-  std::vector<PackedField> ret;
-  ret.reserve(full ? num_full_packed : num_full_packed + 1);
-  for (size_t col = 0; col < num_full_packed; ++col) {
-    ret.push_back(PackedField::From(
-        [col, &matrix_row](size_t c) { return matrix_row(0, col + c); }));
-  }
-  // Add last padded |PackedField| element.
-  if (!full) {
-    size_t remaining_start_idx = num_full_packed * PackedField::N;
-    ret.push_back(
-        PackedField::From([cols, remaining_start_idx, &matrix_row](size_t i) {
-          if (remaining_start_idx + i < cols)
-            return matrix_row(0, remaining_start_idx + i);
-          else
-            return F::Zero();
-        }));
-  }
-  return ret;
+  size_t cols = static_cast<size_t>(matrix_row.cols());
+  size_t size = (cols + PackedField::N - 1) / PackedField::N;
+  return base::CreateVector(size, [cols, &matrix_row](size_t i) {
+    size_t col = i * PackedField::N;
+    return PackedField::From([col, cols, &matrix_row](size_t c) {
+      if (LIKELY(col + c < cols)) {
+        return matrix_row[col + c];
+      } else {
+        return F::Zero();
+      }
+    });
+  });
 }
 
 // Packs |PackedField::N| rows, starting at the given row index. Each

@@ -47,6 +47,7 @@ tachyon_cc_library(
     deps = [
         ":matrix_types",
         "//tachyon/base:bits",
+        "//tachyon/base:compiler_specific",
         "//tachyon/base:openmp_util",
         "//tachyon/base:profiler",
         "//tachyon/base/containers:container_util",
