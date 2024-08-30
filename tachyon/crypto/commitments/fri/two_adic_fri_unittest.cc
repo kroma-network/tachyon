@@ -74,7 +74,7 @@ class TwoAdicFRITest : public testing::Test {
                 std::move(compressor), std::move(packed_compressor)));
 
     // TODO(ashjeong): Include separate test for |log_blowup| = 2
-    FriConfig<ChallengeMMCS> fri_config{1, 10, 8, std::move(challenge_mmcs)};
+    FRIConfig<ChallengeMMCS> fri_config{1, 10, 8, std::move(challenge_mmcs)};
 
     pcs_ = MyPCS(std::move(mmcs), std::move(fri_config));
     challenger_ = Challenger(std::move(sponge));
@@ -85,7 +85,7 @@ class TwoAdicFRITest : public testing::Test {
     using ProverData = typename MMCS::ProverData;
     using OpenedValues =
         std::vector<std::vector<std::vector<std::vector<ExtF>>>>;
-    using Proof = FriProof<MyPCS>;
+    using Proof = FRIProof<MyPCS>;
     using Claims = std::vector<std::tuple<ExtF, std::vector<ExtF>>>;
 
     size_t num_rounds = log_degrees_by_round.size();

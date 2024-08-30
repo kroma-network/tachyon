@@ -10,11 +10,11 @@ namespace {
 using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 
-class FriConfigTest : public math::FiniteFieldTest<ExtF> {};
+class FRIConfigTest : public math::FiniteFieldTest<ExtF> {};
 
 }  // namespace
 
-TEST_F(FriConfigTest, FoldMatrix) {
+TEST_F(FRIConfigTest, FoldMatrix) {
   math::RowMajorMatrix<ExtF> inside(4, 2);
   inside << ExtF(F(7)), ExtF(F(1)), ExtF(F(2)), ExtF(F(3)), ExtF(F(5)),
       ExtF(F(3)), ExtF(F(2)), ExtF(F(5));

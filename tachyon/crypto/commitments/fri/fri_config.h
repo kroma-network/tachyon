@@ -17,7 +17,7 @@
 namespace tachyon::crypto {
 
 template <typename MMCS>
-struct FriConfig {
+struct FRIConfig {
   uint32_t log_blowup;
   size_t num_queries;
   size_t proof_of_work_bits;

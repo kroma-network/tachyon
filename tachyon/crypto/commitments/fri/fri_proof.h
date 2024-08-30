@@ -57,7 +57,7 @@ struct QueryProof {
 };
 
 template <typename PCS>
-struct FriProof {
+struct FRIProof {
   using ChallengeMMCS = typename PCS::ChallengeMMCS;
   using Commitment = typename ChallengeMMCS::Commitment;
   using ExtField = typename ChallengeMMCS::Field;

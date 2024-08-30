@@ -50,7 +50,7 @@ class TwoAdicFRI {
   using ProverData = typename InputMMCS::ProverData;
   using Proof = typename InputMMCS::Proof;
   using InputProof = std::vector<BatchOpening<TwoAdicFRI>>;
-  using FriProof = crypto::FriProof<TwoAdicFRI>;
+  using FRIProof = crypto::FRIProof<TwoAdicFRI>;
 
   using Points = std::vector<std::vector<ExtF>>;
 
@@ -59,7 +59,7 @@ class TwoAdicFRI {
   using OpenedValues = std::vector<OpenedValuesForRound>;
 
   TwoAdicFRI() = default;
-  TwoAdicFRI(InputMMCS&& mmcs, FriConfig<ChallengeMMCS>&& fri)
+  TwoAdicFRI(InputMMCS&& mmcs, FRIConfig<ChallengeMMCS>&& fri)
       : mmcs_(std::move(mmcs)), fri_(std::move(fri)) {}
 
   Domain GetNaturalDomainForDegree(size_t size) {
@@ -87,7 +87,7 @@ class TwoAdicFRI {
   [[nodiscard]] bool CreateOpeningProof(
       const std::vector<ProverData>& prover_data_by_round,
       const std::vector<Points>& points_by_round, Challenger& challenger,
-      OpenedValues* openings, FriProof* proof) {
+      OpenedValues* openings, FRIProof* proof) {
     ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
     size_t num_rounds = prover_data_by_round.size();
@@ -180,7 +180,7 @@ class TwoAdicFRI {
       }
     }
 
-    FriProof fri_proof = fri::Prove<TwoAdicFRI>(
+    FRIProof fri_proof = fri::Prove<TwoAdicFRI>(
         fri_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();
@@ -216,7 +216,7 @@ class TwoAdicFRI {
       const std::vector<
           std::vector<std::vector<std::tuple<ExtF, std::vector<ExtF>>>>>&
           claims_by_round,
-      const FriProof& proof, Challenger& challenger) {
+      const FRIProof& proof, Challenger& challenger) {
     // Batch combination challenge
     const ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
@@ -407,7 +407,7 @@ class TwoAdicFRI {
   }
 
   InputMMCS mmcs_;
-  FriConfig<ChallengeMMCS> fri_;
+  FRIConfig<ChallengeMMCS> fri_;
 };
 
 }  // namespace crypto

@@ -81,7 +81,7 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,
       ExtMMCS(std::move(hasher), std::move(packed_hasher),
               std::move(compressor), std::move(packed_compressor)));
 
-  crypto::FriConfig<ChallengeMMCS> fri_config{
+  crypto::FRIConfig<ChallengeMMCS> fri_config{
       log_blowup, num_queries, proof_of_work_bits, std::move(challenge_mmcs)};
 
   return c::base::c_cast(new PCS(std::move(mmcs), std::move(fri_config)));

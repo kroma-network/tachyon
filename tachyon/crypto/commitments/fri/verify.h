@@ -30,7 +30,7 @@ struct CommitStep {
 
 template <typename PCS, typename MMCS, typename F>
 F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
-              const FriConfig<MMCS>& config,
+              const FRIConfig<MMCS>& config,
               const std::vector<CommitStep<PCS>>& steps,
               const std::vector<size_t>& ro_num_rows,
               const std::vector<F>& ro_values) {
@@ -63,8 +63,8 @@ F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
 
 template <typename PCS, typename ChallengeMMCS, typename Challenger,
           typename OpenInputCallback>
-[[nodiscard]] bool Verify(const FriConfig<ChallengeMMCS>& config,
-                          const FriProof<PCS>& proof, Challenger& challenger,
+[[nodiscard]] bool Verify(const FRIConfig<ChallengeMMCS>& config,
+                          const FRIProof<PCS>& proof, Challenger& challenger,
                           OpenInputCallback open_input) {
   using ExtF = typename ChallengeMMCS::Field;
   using Commitment = typename ChallengeMMCS::Commitment;
