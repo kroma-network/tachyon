@@ -308,7 +308,8 @@ class TwoAdicFRI {
   friend class c::crypto::TwoAdicFRIImpl<ExtF, InputMMCS, ChallengeMMCS,
                                          Challenger>;
 
-  absl::flat_hash_map<ExtF, std::vector<ExtF>> ComputeInverseDenominators(
+  static absl::flat_hash_map<ExtF, std::vector<ExtF>>
+  ComputeInverseDenominators(
       const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
           matrices_by_round,
       const OpeningPoints& points_by_round, F coset_shift) {
