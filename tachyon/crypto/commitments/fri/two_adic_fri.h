@@ -257,7 +257,8 @@ class TwoAdicFRI {
               const std::vector<ExtF>& cur_points = points[batch_idx];
               const std::vector<std::vector<ExtF>>& cur_values =
                   opened_values[batch_idx];
-              const std::vector<F>& cur_values_in = opened_values_in[batch_idx];
+              const std::vector<ExtF> cur_values_in = base::Map(
+                  opened_values_in[batch_idx], [](F f) { return ExtF(f); });
               uint32_t log_num_rows =
                   domain.domain()->log_size_of_group() + fri_.log_blowup;
               uint32_t bits_reduced = log_global_max_num_rows - log_num_rows;
@@ -265,19 +266,19 @@ class TwoAdicFRI {
                   index >> bits_reduced, log_num_rows);
               F w;
               CHECK(F::GetRootOfUnity(size_t{1} << log_num_rows, &w));
-              F x = F::FromMontgomery(F::Config::kSubgroupGenerator) *
-                    w.Pow(rev_reduced_index);
+              ExtF x(F::FromMontgomery(F::Config::kSubgroupGenerator) *
+                     w.Pow(rev_reduced_index));
 
               auto it = reduced_openings.try_emplace(
                   log_num_rows, std::make_tuple(ExtF::One(), ExtF::Zero()));
               std::tuple<ExtF, ExtF>& reduced_opening = it.first->second;
               for (size_t i = 0; i < cur_points.size(); ++i) {
                 const ExtF& z = cur_points[i];
+                ExtF denom = unwrap((x - z).Inverse());
                 const std::vector<ExtF>& ps_at_z = cur_values[i];
                 CHECK_EQ(ps_at_z.size(), cur_values_in.size());
                 for (size_t j = 0; j < ps_at_z.size(); ++j) {
-                  ExtF quotient = unwrap((ExtF(cur_values_in[j]) - ps_at_z[j]) /
-                                         (ExtF(x) - z));
+                  ExtF quotient = (cur_values_in[j] - ps_at_z[j]) * denom;
                   std::get<1>(reduced_opening) +=
                       std::get<0>(reduced_opening) * quotient;
                   std::get<0>(reduced_opening) *= alpha;
