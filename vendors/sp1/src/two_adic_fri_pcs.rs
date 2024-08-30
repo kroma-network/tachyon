@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod test {
+    use p3_challenger::FieldChallenger;
     use p3_commit::Pcs;
     use p3_commit::PolynomialSpace;
     use p3_dft::TwoAdicSubgroupDft;
@@ -121,6 +122,30 @@ mod test {
                 );
             }
         }
+
+        let mut challenger = Challenger::new();
+        let zeta: Challenge = challenger.sample_ext_element();
+        let mut tachyon_challenger = challenger.clone();
+
+        let points_by_round = log_degrees_by_round
+            .iter()
+            .map(|log_degrees| vec![vec![zeta]; log_degrees.len()])
+            .collect::<Vec<_>>();
+        let data_and_points = data_by_round
+            .iter()
+            .zip(points_by_round.clone())
+            .collect::<Vec<_>>();
+        let (opening_by_round, proof) = pcs.open(data_and_points, &mut challenger);
+
+        let tachyon_data_and_points = tachyon_data_by_round
+            .iter()
+            .zip(points_by_round)
+            .collect::<Vec<_>>();
+        let (tachyon_opening_by_round, tachyon_proof) =
+            tachyon_pcs.open(tachyon_data_and_points, &mut tachyon_challenger);
+
+        assert_eq!(opening_by_round, tachyon_opening_by_round);
+
         // TODO(chokobole): `std::mem::forget` was used to prevent it from double-free. We need to figure out a more elegant solution.
         std::mem::forget(tachyon_data_by_round);
     }

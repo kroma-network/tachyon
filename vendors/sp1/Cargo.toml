@@ -28,6 +28,10 @@ p3-maybe-rayon = "0.1.3-succinct"
 p3-poseidon2 = "0.1.3-succinct"
 p3-symmetric = "0.1.3-succinct"
 p3-util = "0.1.3-succinct"
+serde = { version = "1.0", default-features = false, features = [
+  "derive",
+  "alloc",
+] }
 sp1-core = { git = "https://github.com/kroma-network/sp1.git", rev = "dd032eb" }
 sp1-prover = { git = "https://github.com/kroma-network/sp1.git", rev = "dd032eb" }
 sp1-primitives = { git = "https://github.com/kroma-network/sp1.git", rev = "dd032eb" }

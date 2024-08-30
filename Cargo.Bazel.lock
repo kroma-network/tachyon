@@ -1,5 +1,5 @@
 {
-  "checksum": "cea03189298ccac5555669cf0374dddee03d3105364e2cc46f2d04aa4ed8ad0c",
+  "checksum": "a9fbed09c049bf53d1422ae2fb19a3cea5955abe3cd56efe8444f998567af7ee",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -18220,6 +18220,10 @@
             {
               "id": "p3-util 0.1.3-succinct",
               "target": "p3_util"
+            },
+            {
+              "id": "serde 1.0.204",
+              "target": "serde"
             },
             {
               "id": "sp1-core 1.0.1",

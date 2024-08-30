@@ -1,11 +1,11 @@
-use std::{fmt::Debug, marker::PhantomData};
+use std::{fmt::Debug, io::Cursor, marker::PhantomData, pin::Pin};
 
 use p3_baby_bear::BabyBear;
 use p3_challenger::{CanObserve, CanSample, CanSampleBits, FieldChallenger, GrindingChallenger};
 use p3_commit::{Mmcs, OpenedValues, Pcs, PolynomialSpace, TwoAdicMultiplicativeCoset};
 use p3_dft::TwoAdicSubgroupDft;
 use p3_field::{ExtensionField, Field, PackedField, PackedValue, PrimeField64, TwoAdicField};
-use p3_fri::{FriConfig, TwoAdicFriPcsProof, VerificationError};
+use p3_fri::{FriConfig, VerificationError};
 use p3_matrix::{
     bitrev::BitReversableMatrix,
     dense::{DenseMatrix, RowMajorMatrix},
@@ -14,15 +14,20 @@ use p3_matrix::{
 use p3_maybe_rayon::prelude::*;
 use p3_symmetric::{CryptographicPermutation, Hash};
 use p3_util::log2_strict_usize;
-use tachyon_rs::math::finite_fields::baby_bear::BabyBear as TachyonBabyBearImpl;
+use serde::{Deserialize, Serialize};
+use tachyon_rs::math::finite_fields::{baby_bear::BabyBear as TachyonBabyBearImpl, Fp4};
 use tracing::instrument;
 
+use crate::util::Readable;
+
 pub struct TachyonBabyBear(pub TachyonBabyBearImpl);
+pub struct TachyonBabyBear4(pub Fp4<TachyonBabyBearImpl>);
 
 #[cxx::bridge(namespace = "tachyon::sp1_api::baby_bear_poseidon2")]
 pub mod ffi {
     extern "Rust" {
         type TachyonBabyBear;
+        type TachyonBabyBear4;
     }
 
     unsafe extern "C++" {
@@ -34,6 +39,40 @@ pub mod ffi {
         fn observe(self: Pin<&mut DuplexChallenger>, value: &TachyonBabyBear);
         fn sample(self: Pin<&mut DuplexChallenger>) -> Box<TachyonBabyBear>;
         fn clone(&self) -> UniquePtr<DuplexChallenger>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/sp1/include/baby_bear_poseidon2_fri_proof.h");
+
+        type FriProof;
+
+        fn clone(&self) -> UniquePtr<FriProof>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/sp1/include/baby_bear_poseidon2_opening_points.h");
+
+        type OpeningPoints;
+
+        fn new_opening_points(rounds: usize) -> UniquePtr<OpeningPoints>;
+        fn clone(&self) -> UniquePtr<OpeningPoints>;
+        fn allocate(self: Pin<&mut OpeningPoints>, rounds: usize, rows: usize, cols: usize);
+        fn set(
+            self: Pin<&mut OpeningPoints>,
+            round: usize,
+            row: usize,
+            col: usize,
+            point: &TachyonBabyBear4,
+        );
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/sp1/include/baby_bear_poseidon2_opening_proof.h");
+
+        type OpeningProof;
+
+        fn serialize_to_opened_values(&self) -> Vec<u8>;
+        fn take_fri_proof(self: Pin<&mut OpeningProof>) -> UniquePtr<FriProof>;
     }
 
     unsafe extern "C++" {
@@ -72,6 +111,12 @@ pub mod ffi {
             shift: &TachyonBabyBear,
         ) -> &mut [TachyonBabyBear];
         fn commit(&self, prover_data_vec: &ProverDataVec) -> UniquePtr<ProverData>;
+        fn do_open(
+            &self,
+            prover_data_vec: &ProverDataVec,
+            opening_points: &OpeningPoints,
+            challenger: Pin<&mut DuplexChallenger>,
+        ) -> UniquePtr<OpeningProof>;
     }
 }
 
@@ -219,6 +264,107 @@ where
     }
 }
 
+pub trait HasCXXDuplexChallenger {
+    fn get_inner_pin_mut(&mut self) -> Pin<&mut ffi::DuplexChallenger>;
+}
+
+impl<F, P, const WIDTH: usize, const RATE: usize> HasCXXDuplexChallenger
+    for DuplexChallenger<F, P, WIDTH, RATE>
+{
+    fn get_inner_pin_mut(&mut self) -> Pin<&mut ffi::DuplexChallenger> {
+        self.inner.pin_mut()
+    }
+}
+
+pub struct FriProof {
+    inner: cxx::UniquePtr<ffi::FriProof>,
+}
+
+impl Serialize for FriProof {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        todo!("Not implemented yet")
+    }
+}
+
+impl<'de> Deserialize<'de> for FriProof {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        todo!("Not implemented yet")
+    }
+}
+
+impl Clone for FriProof {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+        }
+    }
+}
+
+impl FriProof {
+    pub fn new(inner: cxx::UniquePtr<ffi::FriProof>) -> Self {
+        Self { inner }
+    }
+}
+
+pub struct OpeningPoints<Val> {
+    inner: cxx::UniquePtr<ffi::OpeningPoints>,
+    _marker: PhantomData<Val>,
+}
+
+impl<Val: Clone> Clone for OpeningPoints<Val> {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl<Val> OpeningPoints<Val> {
+    pub fn new(inner: cxx::UniquePtr<ffi::OpeningPoints>) -> Self {
+        Self {
+            inner,
+            _marker: PhantomData,
+        }
+    }
+
+    pub fn allocate(&mut self, round: usize, rows: usize, cols: usize) {
+        self.inner.pin_mut().allocate(round, rows, cols)
+    }
+
+    pub fn set(&mut self, round: usize, row: usize, col: usize, point: &Val) {
+        self.inner
+            .pin_mut()
+            .set(round, row, col, unsafe { std::mem::transmute(point) })
+    }
+}
+pub struct OpeningProof {
+    inner: cxx::UniquePtr<ffi::OpeningProof>,
+}
+
+impl OpeningProof {
+    pub fn new(inner: cxx::UniquePtr<ffi::OpeningProof>) -> Self {
+        Self { inner }
+    }
+
+    pub fn serialize_to_opened_values<Challenge>(&self) -> OpenedValues<Challenge> {
+        let buffer = self.inner.serialize_to_opened_values();
+        let mut reader = Cursor::new(buffer);
+        let values = OpenedValues::<[u32; 4]>::read_from(&mut reader).unwrap();
+        unsafe { std::mem::transmute(values) }
+    }
+
+    pub fn take_fri_proof(&mut self) -> FriProof {
+        FriProof::new(self.inner.pin_mut().take_fri_proof())
+    }
+}
+
 pub struct ProverData<Val> {
     inner: cxx::UniquePtr<ffi::ProverData>,
     pub ldes: Vec<DenseMatrix<Val>>,
@@ -343,6 +489,18 @@ where
     pub fn do_commit(&self) -> ProverData<Val> {
         ProverData::new(self.inner.commit(&self.prover_data_vec.inner))
     }
+
+    pub fn do_open<Challenge>(
+        &self,
+        opening_points: &OpeningPoints<Challenge>,
+        challenger: Pin<&mut ffi::DuplexChallenger>,
+    ) -> OpeningProof {
+        OpeningProof::new(self.inner.do_open(
+            &self.prover_data_vec.inner,
+            &opening_points.inner,
+            challenger,
+        ))
+    }
 }
 
 impl<Val, Dft, InputMmcs, FriMmcs, Challenge, Challenger> Pcs<Challenge, Challenger>
@@ -353,8 +511,10 @@ where
     InputMmcs: Mmcs<Val>,
     FriMmcs: Mmcs<Challenge>,
     Challenge: TwoAdicField + ExtensionField<Val>,
-    Challenger:
-        CanObserve<FriMmcs::Commitment> + CanSample<Challenge> + GrindingChallenger<Witness = Val>,
+    Challenger: CanObserve<FriMmcs::Commitment>
+        + CanSample<Challenge>
+        + GrindingChallenger<Witness = Val>
+        + HasCXXDuplexChallenger,
     <InputMmcs as Mmcs<Val>>::ProverData<RowMajorMatrix<Val>>: Clone,
 {
     type Domain = TwoAdicMultiplicativeCoset<Val>;
@@ -364,7 +524,7 @@ where
         8,
     >;
     type ProverData = crate::baby_bear_poseidon2::ProverData<Val>;
-    type Proof = TwoAdicFriPcsProof<Val, Challenge, InputMmcs, FriMmcs>;
+    type Proof = FriProof;
     type Error = VerificationError<InputMmcs::Error, FriMmcs::Error>;
 
     fn natural_domain_for_degree(&self, degree: usize) -> Self::Domain {
@@ -419,7 +579,20 @@ where
         )>,
         challenger: &mut Challenger,
     ) -> (OpenedValues<Challenge>, Self::Proof) {
-        todo!()
+        let mut opening_points = OpeningPoints::new(ffi::new_opening_points(rounds.len()));
+        for (round, (_, matrix)) in rounds.iter().enumerate() {
+            opening_points.allocate(round, matrix.len(), matrix[0].len());
+            for (row, rows) in matrix.iter().enumerate() {
+                for (col, challenge) in rows.iter().enumerate() {
+                    opening_points.set(round, row, col, challenge);
+                }
+            }
+        }
+        let mut opening_proof = self.do_open(&opening_points, challenger.get_inner_pin_mut());
+        (
+            opening_proof.serialize_to_opened_values(),
+            opening_proof.take_fri_proof(),
+        )
     }
 
     fn verify(
