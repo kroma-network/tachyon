@@ -6,6 +6,7 @@ filegroup(
     name = "sp1_hdrs",
     srcs = [
         "baby_bear_poseidon2_constants.h",
+        "baby_bear_poseidon2_domains.h",
         "baby_bear_poseidon2_duplex_challenger.h",
         "baby_bear_poseidon2_field_merkle_tree.h",
         "baby_bear_poseidon2_field_merkle_tree_vec.h",
@@ -19,6 +20,21 @@ filegroup(
 tachyon_cc_library(
     name = "baby_bear_poseidon2_constants",
     hdrs = ["baby_bear_poseidon2_constants.h"],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_domains",
+    srcs = ["baby_bear_poseidon2_domains.cc"],
+    hdrs = [
+        "baby_bear_poseidon2_domains.h",
+        "baby_bear_poseidon2_domains_type_traits.h",
+    ],
+    deps = [
+        "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/c/math/finite_fields/baby_bear",
+        "//tachyon/crypto/commitments/fri:two_adic_multiplicative_coset",
+    ],
 )
 
 tachyon_cc_library(
