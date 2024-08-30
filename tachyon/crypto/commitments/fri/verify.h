@@ -3,34 +3,35 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_VERIFIER_H_
-#define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_VERIFIER_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_VERIFY_H_
+#define TACHYON_CRYPTO_COMMITMENTS_FRI_VERIFY_H_
 
 #include <vector>
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/ranges/algorithm.h"
-#include "tachyon/crypto/commitments/fri/two_adic_fri_config.h"
-#include "tachyon/crypto/commitments/fri/two_adic_fri_proof.h"
+#include "tachyon/crypto/challenger/challenger.h"
+#include "tachyon/crypto/commitments/fri/fri_config.h"
+#include "tachyon/crypto/commitments/fri/fri_proof.h"
 #include "tachyon/math/geometry/dimensions.h"
-#include "tachyon/zk/air/plonky3/challenger/challenger.h"
 
-namespace tachyon::crypto {
+namespace tachyon::crypto::fri {
 
-template <typename MMCS>
+template <typename PCS>
 struct CommitStep {
-  using F = typename MMCS::Field;
-  using Commitment = typename MMCS::Commitment;
+  using ChallengeMMCS = typename PCS::ChallengeMMCS;
+  using F = typename ChallengeMMCS::Field;
+  using Commitment = typename ChallengeMMCS::Commitment;
 
   F beta;
   Commitment commit;
-  CommitPhaseProofStep<MMCS> opening;
+  CommitPhaseProofStep<PCS> opening;
 };
 
-template <typename MMCS, typename F = typename MMCS::Field>
+template <typename PCS, typename MMCS, typename F>
 F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
-              const TwoAdicFriConfig<MMCS>& config,
-              const std::vector<CommitStep<MMCS>>& steps,
+              const FRIConfig<MMCS>& config,
+              const std::vector<CommitStep<PCS>>& steps,
               const std::vector<size_t>& ro_num_rows,
               const std::vector<F>& ro_values) {
   F folded_eval = F::Zero();
@@ -60,16 +61,12 @@ F VerifyQuery(uint32_t index, uint32_t log_max_num_rows,
   return folded_eval;
 }
 
-template <typename F, typename InputMMCS, typename ChallengeMMCS,
-          typename Challenger, typename ExtF = typename ChallengeMMCS::Field,
-          typename Function = base::RepeatingCallback<
-              void(size_t, std::vector<BatchOpening<InputMMCS>>,
-                   std::vector<size_t>, std::vector<ExtF>)>>
-[[nodiscard]] bool TwoAdicFriPCSVerify(
-    const TwoAdicFriConfig<ChallengeMMCS>& config,
-    const TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<InputMMCS>>,
-                          F>& proof,
-    Challenger& challenger, Function OpenInput) {
+template <typename PCS, typename ChallengeMMCS, typename Challenger,
+          typename OpenInputCallback>
+[[nodiscard]] bool Verify(const FRIConfig<ChallengeMMCS>& config,
+                          const FRIProof<PCS>& proof, Challenger& challenger,
+                          OpenInputCallback open_input) {
+  using ExtF = typename ChallengeMMCS::Field;
   using Commitment = typename ChallengeMMCS::Commitment;
   size_t num_commits = proof.commit_phase_commits.size();
   std::vector<ExtF> betas = base::Map(
@@ -81,6 +78,7 @@ template <typename F, typename InputMMCS, typename ChallengeMMCS,
         return beta;
       });
   challenger.ObserveContainer(proof.final_eval);
+  VLOG(2) << "FRI(final_eval): " << proof.final_eval.ToHexString(true);
 
   if (proof.query_proofs.size() != config.num_queries) {
     LOG(ERROR) << "proof size doesn't match " << proof.query_proofs.size()
@@ -96,26 +94,25 @@ template <typename F, typename InputMMCS, typename ChallengeMMCS,
   }
 
   uint32_t log_max_num_rows = num_commits + config.log_blowup;
-  std::vector<CommitStep<ChallengeMMCS>> steps(num_commits);
 
-  VLOG(2) << "FRI(final_eval): " << proof.final_eval.ToHexString(true);
   for (size_t i = 0; i < proof.query_proofs.size(); ++i) {
     std::vector<size_t> ro_num_rows;
     std::vector<ExtF> ro_value;
     size_t index = challenger.SampleBits(log_max_num_rows);
     VLOG(2) << "FRI(index[" << i << "]): " << index;
-    OpenInput(index, proof.query_proofs[i].input_proof, ro_num_rows, ro_value);
+    open_input(index, proof.query_proofs[i].input_proof, ro_num_rows, ro_value);
 
 #if DCHECK_IS_ON()
     // Check reduced openings sorted by |num_rows| descending
     DCHECK(base::ranges::is_sorted(ro_num_rows.begin(), ro_num_rows.end(),
                                    base::ranges::greater()));
 #endif
-    for (size_t j = 0; j < num_commits; ++j) {
-      steps[j] = CommitStep<ChallengeMMCS>{
-          betas[j], proof.commit_phase_commits[j],
-          proof.query_proofs[i].commit_phase_openings[j]};
-    }
+    std::vector<CommitStep<PCS>> steps =
+        base::CreateVector(num_commits, [&betas, &proof, i](size_t j) {
+          return CommitStep<PCS>{
+              betas[j], proof.commit_phase_commits[j],
+              proof.query_proofs[i].commit_phase_openings[j]};
+        });
     ExtF folded_eval = VerifyQuery(index, log_max_num_rows, config, steps,
                                    ro_num_rows, ro_value);
     if (folded_eval != proof.final_eval) {
@@ -127,6 +124,6 @@ template <typename F, typename InputMMCS, typename ChallengeMMCS,
   return true;
 }
 
-}  // namespace tachyon::crypto
+}  // namespace tachyon::crypto::fri
 
-#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_VERIFIER_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_VERIFY_H_

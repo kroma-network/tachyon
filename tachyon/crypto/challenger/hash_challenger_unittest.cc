@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#include "tachyon/zk/air/plonky3/challenger/hash_challenger.h"
+#include "tachyon/crypto/challenger/hash_challenger.h"
 
 #include <memory>
 
@@ -15,32 +15,31 @@
 #include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
-namespace tachyon::zk::air::plonky3 {
+namespace tachyon::crypto {
 
 using F = math::BabyBear;
-using Poseidon2 = crypto::Poseidon2Sponge<
-    crypto::Poseidon2ExternalMatrix<crypto::Poseidon2Plonky3ExternalMatrix<F>>>;
-using Hasher = crypto::PaddingFreeSponge<Poseidon2, 8, 8>;
+using Poseidon2 =
+    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>>;
+using MyHasher = PaddingFreeSponge<Poseidon2, 8, 8>;
 
 namespace {
 
 class HashChallengerTest : public math::FiniteFieldTest<F> {
  public:
   void SetUp() override {
-    crypto::Poseidon2Config<F> config =
-        crypto::Poseidon2Config<F>::CreateCustom(
-            15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+    Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
+        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
     Poseidon2 sponge(std::move(config));
-    Hasher hasher(std::move(sponge));
+    MyHasher hasher(std::move(sponge));
 
     std::vector<F> initial_state =
         base::CreateVector(10, [](size_t i) { return F(i + 1); });
-    challenger_.reset(new HashChallenger<Hasher>(std::move(initial_state),
-                                                 std::move(hasher)));
+    challenger_.reset(new HashChallenger<MyHasher>(std::move(initial_state),
+                                                   std::move(hasher)));
   }
 
  protected:
-  std::unique_ptr<HashChallenger<Hasher>> challenger_;
+  std::unique_ptr<HashChallenger<MyHasher>> challenger_;
 };
 
 }  // namespace
@@ -64,4 +63,4 @@ TEST_F(HashChallengerTest, Sample) {
 // See
 // https://github.com/Plonky3/Plonky3/blob/7bb6db5/challenger/src/grinding_challenger.rs.
 
-}  // namespace tachyon::zk::air::plonky3
+}  // namespace tachyon::crypto

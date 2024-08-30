@@ -3,23 +3,46 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "fri_config",
+    hdrs = ["fri_config.h"],
+    deps = [
+        "//tachyon/base:optional",
+        "//tachyon/math/finite_fields:extension_field_traits_forward",
+        "//tachyon/math/polynomials/univariate:evaluations_utils",
+        "@eigen_archive//:eigen3",
+    ],
+)
+
+tachyon_cc_library(
     name = "fri_proof",
     hdrs = ["fri_proof.h"],
-    deps = ["//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:binary_merkle_proof"],
+    deps = ["//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward"],
 )
 
 tachyon_cc_library(
-    name = "fri_storage",
-    hdrs = ["fri_storage.h"],
-    deps = ["//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:binary_merkle_tree_storage"],
+    name = "lagrange_selectors",
+    hdrs = ["lagrange_selectors.h"],
 )
 
 tachyon_cc_library(
-    name = "fri",
-    hdrs = ["fri.h"],
+    name = "prove",
+    hdrs = ["prove.h"],
     deps = [
+        ":fri_config",
         ":fri_proof",
-        ":fri_storage",
+        "//tachyon/base:bits",
+        "//tachyon/crypto/challenger",
+        "//tachyon/math/finite_fields:extension_field_traits_forward",
+        "//tachyon/math/matrix:matrix_types",
+    ],
+)
+
+tachyon_cc_library(
+    name = "simple_fri",
+    hdrs = ["simple_fri.h"],
+    deps = [
+        ":simple_fri_proof",
+        ":simple_fri_storage",
         "//tachyon/base:logging",
         "//tachyon/base:optional",
         "//tachyon/base/containers:container_util",
@@ -30,23 +53,25 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "two_adic_fri_config",
-    hdrs = ["two_adic_fri_config.h"],
-    deps = [
-        "//tachyon/base:optional",
-        "//tachyon/math/finite_fields:extension_field_traits_forward",
-        "//tachyon/math/polynomials/univariate:evaluations_utils",
-        "@eigen_archive//:eigen3",
-    ],
+    name = "simple_fri_proof",
+    hdrs = ["simple_fri_proof.h"],
+    deps = ["//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:binary_merkle_proof"],
 )
 
 tachyon_cc_library(
-    name = "two_adic_fri_pcs",
-    hdrs = ["two_adic_fri_pcs.h"],
+    name = "simple_fri_storage",
+    hdrs = ["simple_fri_storage.h"],
+    deps = ["//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:binary_merkle_tree_storage"],
+)
+
+tachyon_cc_library(
+    name = "two_adic_fri",
+    hdrs = ["two_adic_fri.h"],
     deps = [
-        ":two_adic_fri_proof",
-        ":two_adic_fri_prover",
-        ":two_adic_fri_verifier",
+        ":fri_proof",
+        ":prove",
+        ":two_adic_multiplicative_coset",
+        ":verify",
         "//tachyon/base:bits",
         "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward",
         "//tachyon/math/finite_fields:extension_field_traits_forward",
@@ -60,47 +85,43 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "two_adic_fri_proof",
-    hdrs = ["two_adic_fri_proof.h"],
-    deps = ["//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward"],
-)
-
-tachyon_cc_library(
-    name = "two_adic_fri_prover",
-    hdrs = ["two_adic_fri_prover.h"],
+    name = "two_adic_multiplicative_coset",
+    hdrs = ["two_adic_multiplicative_coset.h"],
     deps = [
-        ":two_adic_fri_config",
-        ":two_adic_fri_proof",
+        ":lagrange_selectors",
         "//tachyon/base:bits",
-        "//tachyon/math/finite_fields:extension_field_traits_forward",
-        "//tachyon/math/matrix:matrix_types",
-        "//tachyon/zk/air/plonky3/challenger",
+        "//tachyon/base:optional",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/polynomials/univariate:radix2_evaluation_domain",
     ],
 )
 
 tachyon_cc_library(
-    name = "two_adic_fri_verifier",
-    hdrs = ["two_adic_fri_verifier.h"],
+    name = "verify",
+    hdrs = ["verify.h"],
     deps = [
-        ":two_adic_fri_config",
-        ":two_adic_fri_proof",
+        ":fri_config",
+        ":fri_proof",
         "//tachyon/base:bits",
+        "//tachyon/base/ranges:algorithm",
         "//tachyon/math/geometry:dimensions",
-        "//tachyon/zk/air/plonky3/challenger",
     ],
 )
 
 tachyon_cc_unittest(
     name = "fri_unittests",
     srcs = [
-        "fri_unittest.cc",
-        "two_adic_fri_config_unittest.cc",
-        "two_adic_fri_pcs_unittest.cc",
+        "fri_config_unittest.cc",
+        "simple_fri_unittest.cc",
+        "two_adic_fri_unittest.cc",
+        "two_adic_multiplicative_coset_unittest.cc",
     ],
     deps = [
-        ":fri",
-        ":two_adic_fri_config",
-        ":two_adic_fri_pcs",
+        ":fri_config",
+        ":simple_fri",
+        ":two_adic_fri",
+        ":two_adic_multiplicative_coset",
+        "//tachyon/crypto/challenger:duplex_challenger",
         "//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree",
         "//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:binary_merkle_hasher",
         "//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:simple_binary_merkle_tree_storage",
@@ -117,7 +138,5 @@ tachyon_cc_unittest(
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/matrix:matrix_types",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
-        "//tachyon/zk/air/plonky3/base:two_adic_multiplicative_coset",
-        "//tachyon/zk/air/plonky3/challenger:duplex_challenger",
     ],
 )

@@ -1,8 +1,8 @@
 // Use of this source code is governed by a Apache-2.0 style license that
 // can be found in the LICENSE.lambdaworks.
 
-#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_H_
-#define TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_SIMPLE_FRI_H_
+#define TACHYON_CRYPTO_COMMITMENTS_FRI_SIMPLE_FRI_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -14,8 +14,8 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/optional.h"
-#include "tachyon/crypto/commitments/fri/fri_proof.h"
-#include "tachyon/crypto/commitments/fri/fri_storage.h"
+#include "tachyon/crypto/commitments/fri/simple_fri_proof.h"
+#include "tachyon/crypto/commitments/fri/simple_fri_storage.h"
 #include "tachyon/crypto/commitments/merkle_tree/binary_merkle_tree/binary_merkle_tree.h"
 #include "tachyon/crypto/commitments/univariate_polynomial_commitment_scheme.h"
 #include "tachyon/crypto/transcripts/transcript.h"
@@ -23,17 +23,17 @@
 namespace tachyon::crypto {
 
 template <typename F, size_t MaxDegree>
-class FRI final
-    : public UnivariatePolynomialCommitmentScheme<FRI<F, MaxDegree>> {
+class SimpleFRI final
+    : public UnivariatePolynomialCommitmentScheme<SimpleFRI<F, MaxDegree>> {
  public:
-  using Base = UnivariatePolynomialCommitmentScheme<FRI<F, MaxDegree>>;
+  using Base = UnivariatePolynomialCommitmentScheme<SimpleFRI<F, MaxDegree>>;
   using Poly = typename Base::Poly;
   using Evals = typename Base::Evals;
   using Domain = typename Base::Domain;
 
-  FRI() = default;
-  FRI(const Domain* domain, FRIStorage<F>* storage,
-      BinaryMerkleHasher<F, F>* hasher)
+  SimpleFRI() = default;
+  SimpleFRI(const Domain* domain, SimpleFRIStorage<F>* storage,
+            BinaryMerkleHasher<F, F>* hasher)
       : domain_(domain), storage_(storage), hasher_(hasher) {
     // This ensures last folding process.
     CHECK_GE(domain->size(), size_t{2}) << "Domain size must be at least 2";
@@ -47,7 +47,7 @@ class FRI final
   }
 
   // UnivariatePolynomialCommitmentScheme methods
-  const char* Name() const { return "FRI"; }
+  const char* Name() const { return "SimpleFRI"; }
 
   size_t N() const { return domain_->size(); }
 
@@ -68,7 +68,8 @@ class FRI final
         // Pᵢ(X)   = Pᵢ_even(X²) + X * Pᵢ_odd(X²)
         // Pᵢ₊₁(X) = Pᵢ_even(X²) + β * Pᵢ_odd(X²)
         beta = writer->SqueezeChallenge();
-        VLOG(2) << "FRI(beta[" << i - 1 << "]): " << beta.ToHexString(true);
+        VLOG(2) << "SimpleFRI(beta[" << i - 1
+                << "]): " << beta.ToHexString(true);
         folded_poly = cur_poly->Fold(beta);
         BinaryMerkleTree<F, F, MaxDegree + 1> tree(storage_->GetLayer(i),
                                                    hasher_);
@@ -80,14 +81,14 @@ class FRI final
     }
 
     beta = writer->SqueezeChallenge();
-    VLOG(2) << "FRI(beta[" << num_layers - 1
+    VLOG(2) << "SimpleFRI(beta[" << num_layers - 1
             << "]): " << beta.ToHexString(true);
     folded_poly = cur_poly->Fold(beta);
     return writer->WriteToProof(folded_poly[0]);
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(size_t index,
-                                          FRIProof<F>* fri_proof) {
+                                          SimpleFRIProof<F>* fri_proof) {
     size_t domain_size = domain_->size();
     uint32_t num_layers = domain_->log_size_of_group();
     for (uint32_t i = 0; i < num_layers; ++i) {
@@ -117,9 +118,9 @@ class FRI final
     return true;
   }
 
-  [[nodiscard]] bool DoVerifyOpeningProof(Transcript<F>& transcript,
-                                          size_t index,
-                                          const FRIProof<F>& proof) const {
+  [[nodiscard]] bool DoVerifyOpeningProof(
+      Transcript<F>& transcript, size_t index,
+      const SimpleFRIProof<F>& proof) const {
     TranscriptReader<F>* reader = transcript.ToReader();
     size_t domain_size = domain_->size();
     uint32_t num_layers = domain_->log_size_of_group();
@@ -182,7 +183,7 @@ class FRI final
         x = sub_domains_[i - 1]->GetElement(leaf_index);
       }
       beta = reader->SqueezeChallenge();
-      VLOG(2) << "FRI(beta[" << i << "]): " << beta.ToHexString(true);
+      VLOG(2) << "SimpleFRI(beta[" << i << "]): " << beta.ToHexString(true);
       beta *= unwrap(x.Inverse());
       domain_size = domain_size >> 1;
     }
@@ -204,7 +205,7 @@ class FRI final
   // not owned
   const Domain* domain_ = nullptr;
   // not owned
-  mutable FRIStorage<F>* storage_ = nullptr;
+  mutable SimpleFRIStorage<F>* storage_ = nullptr;
   // not owned
   BinaryMerkleHasher<F, F>* hasher_ = nullptr;
   // not owned
@@ -213,7 +214,7 @@ class FRI final
 };
 
 template <typename F, size_t MaxDegree>
-struct VectorCommitmentSchemeTraits<FRI<F, MaxDegree>> {
+struct VectorCommitmentSchemeTraits<SimpleFRI<F, MaxDegree>> {
  public:
   constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = true;
@@ -225,4 +226,4 @@ struct VectorCommitmentSchemeTraits<FRI<F, MaxDegree>> {
 
 }  // namespace tachyon::crypto
 
-#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_SIMPLE_FRI_H_

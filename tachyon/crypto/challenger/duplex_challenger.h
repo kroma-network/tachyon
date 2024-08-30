@@ -3,17 +3,17 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_ZK_AIR_PLONKY3_CHALLENGER_DUPLEX_CHALLENGER_H_
-#define TACHYON_ZK_AIR_PLONKY3_CHALLENGER_DUPLEX_CHALLENGER_H_
+#ifndef TACHYON_CRYPTO_CHALLENGER_DUPLEX_CHALLENGER_H_
+#define TACHYON_CRYPTO_CHALLENGER_DUPLEX_CHALLENGER_H_
 
 #include <utility>
 
 #include "absl/container/inlined_vector.h"
 
+#include "tachyon/crypto/challenger/challenger.h"
 #include "tachyon/crypto/hashes/sponge/sponge_state.h"
-#include "tachyon/zk/air/plonky3/challenger/challenger.h"
 
-namespace tachyon::zk::air::plonky3 {
+namespace tachyon::crypto {
 
 template <typename Permutation, size_t W, size_t R>
 class DuplexChallenger final
@@ -63,7 +63,7 @@ class DuplexChallenger final
     }
   }
 
-  crypto::SpongeState<F> state_{W};
+  SpongeState<F> state_{W};
   absl::InlinedVector<F, R> input_buffer_;
   absl::InlinedVector<F, W> output_buffer_;
   Permutation permutation_;
@@ -74,6 +74,6 @@ struct ChallengerTraits<DuplexChallenger<Permutation, W, R>> {
   using Field = typename Permutation::F;
 };
 
-}  // namespace tachyon::zk::air::plonky3
+}  // namespace tachyon::crypto
 
-#endif  // TACHYON_ZK_AIR_PLONKY3_CHALLENGER_DUPLEX_CHALLENGER_H_
+#endif  // TACHYON_CRYPTO_CHALLENGER_DUPLEX_CHALLENGER_H_

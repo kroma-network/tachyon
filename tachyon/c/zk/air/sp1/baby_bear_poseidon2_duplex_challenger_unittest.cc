@@ -7,11 +7,11 @@
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_duplex_challenger_type_traits.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
-namespace tachyon::zk::air::plonky3 {
+namespace tachyon::crypto {
 
 using F = math::BabyBear;
-using Poseidon2 = crypto::Poseidon2Sponge<
-    crypto::Poseidon2ExternalMatrix<crypto::Poseidon2Plonky3ExternalMatrix<F>>>;
+using Poseidon2 =
+    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>>;
 
 class DuplexChallengerTest : public math::FiniteFieldTest<F> {
  public:
@@ -45,4 +45,4 @@ TEST_F(DuplexChallengerTest, APIs) {
   }
 }
 
-}  // namespace tachyon::zk::air::plonky3
+}  // namespace tachyon::crypto

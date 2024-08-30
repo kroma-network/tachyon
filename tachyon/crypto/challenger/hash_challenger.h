@@ -3,16 +3,16 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_ZK_AIR_PLONKY3_CHALLENGER_HASH_CHALLENGER_H_
-#define TACHYON_ZK_AIR_PLONKY3_CHALLENGER_HASH_CHALLENGER_H_
+#ifndef TACHYON_CRYPTO_CHALLENGER_HASH_CHALLENGER_H_
+#define TACHYON_CRYPTO_CHALLENGER_HASH_CHALLENGER_H_
 
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/zk/air/plonky3/challenger/challenger.h"
+#include "tachyon/crypto/challenger/challenger.h"
 
-namespace tachyon::zk::air::plonky3 {
+namespace tachyon::crypto {
 
 template <typename Hasher>
 class HashChallenger final : public Challenger<HashChallenger<Hasher>> {
@@ -63,6 +63,6 @@ struct ChallengerTraits<HashChallenger<Hasher>> {
   using Field = typename Hasher::F;
 };
 
-}  // namespace tachyon::zk::air::plonky3
+}  // namespace tachyon::crypto
 
-#endif  // TACHYON_ZK_AIR_PLONKY3_CHALLENGER_HASH_CHALLENGER_H_
+#endif  // TACHYON_CRYPTO_CHALLENGER_HASH_CHALLENGER_H_

@@ -68,7 +68,7 @@ tachyon_cc_library(
     ],
     deps = [
         "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_duplex_challenger",
-        "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_two_adic_fri_pcs",
+        "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_two_adic_fri",
         "@cxx.rs//:core",
     ],
 )

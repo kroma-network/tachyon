@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_ZK_AIR_PLONKY3_CHALLENGER_MULTI_FIELD32_CHALLENGER_H_
-#define TACHYON_ZK_AIR_PLONKY3_CHALLENGER_MULTI_FIELD32_CHALLENGER_H_
+#ifndef TACHYON_CRYPTO_CHALLENGER_MULTI_FIELD32_CHALLENGER_H_
+#define TACHYON_CRYPTO_CHALLENGER_MULTI_FIELD32_CHALLENGER_H_
 
 #include <algorithm>
 #include <utility>
@@ -12,11 +12,11 @@
 #include "absl/container/inlined_vector.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/crypto/challenger/challenger.h"
+#include "tachyon/crypto/challenger/multi_field32_conversions.h"
 #include "tachyon/crypto/hashes/sponge/sponge_state.h"
-#include "tachyon/zk/air/plonky3/base/multi_field32_conversions.h"
-#include "tachyon/zk/air/plonky3/challenger/challenger.h"
 
-namespace tachyon::zk::air::plonky3 {
+namespace tachyon::crypto {
 
 // A challenger that operates natively on |BigF| but produces challenges of
 // |SmallF|.
@@ -87,7 +87,7 @@ class MultiField32Challenger final
     }
   }
 
-  crypto::SpongeState<BigF> state_{W};
+  SpongeState<BigF> state_{W};
   absl::InlinedVector<SmallF, R> input_buffer_;
   absl::InlinedVector<SmallF, W * kNumFElements> output_buffer_;
   Permutation permutation_;
@@ -98,6 +98,6 @@ struct ChallengerTraits<MultiField32Challenger<SmallF, Permutation, W>> {
   using Field = SmallF;
 };
 
-}  // namespace tachyon::zk::air::plonky3
+}  // namespace tachyon::crypto
 
-#endif  // TACHYON_ZK_AIR_PLONKY3_CHALLENGER_MULTI_FIELD32_CHALLENGER_H_
+#endif  // TACHYON_CRYPTO_CHALLENGER_MULTI_FIELD32_CHALLENGER_H_

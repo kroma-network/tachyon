@@ -8,7 +8,7 @@
 
 #include "rust/cxx.h"
 
-#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri_pcs.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri.h"
 
 namespace tachyon::sp1_api::baby_bear_poseidon2 {
 
@@ -31,7 +31,7 @@ class TwoAdicFriPcs {
   std::unique_ptr<ProverData> commit() const;
 
  private:
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_pcs* pcs_;
+  tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs_;
 };
 
 std::unique_ptr<TwoAdicFriPcs> new_two_adic_fri_pcs(size_t log_blowup,

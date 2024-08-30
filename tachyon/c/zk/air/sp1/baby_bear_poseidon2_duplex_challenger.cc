@@ -33,18 +33,20 @@ tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create() {
       std::move(ark));
   Poseidon2 sponge(std::move(config));
   return c::base::c_cast(
-      new zk::air::plonky3::DuplexChallenger<
-          Poseidon2, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH,
-          TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE>(std::move(sponge)));
+      new crypto::DuplexChallenger<Poseidon2,
+                                   TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH,
+                                   TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE>(
+          std::move(sponge)));
 }
 
 tachyon_sp1_baby_bear_poseidon2_duplex_challenger*
 tachyon_sp1_baby_bear_poseidon2_duplex_challenger_clone(
     const tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger) {
-  return c::base::c_cast(new zk::air::plonky3::DuplexChallenger<
-                         Poseidon2, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH,
-                         TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE>(
-      *c::base::native_cast(challenger)));
+  return c::base::c_cast(
+      new crypto::DuplexChallenger<Poseidon2,
+                                   TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH,
+                                   TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE>(
+          *c::base::native_cast(challenger)));
 }
 
 void tachyon_sp1_baby_bear_poseidon2_duplex_challenger_destroy(

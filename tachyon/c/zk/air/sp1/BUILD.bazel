@@ -7,7 +7,7 @@ filegroup(
     srcs = [
         "baby_bear_poseidon2_constants.h",
         "baby_bear_poseidon2_duplex_challenger.h",
-        "baby_bear_poseidon2_two_adic_fri_pcs.h",
+        "baby_bear_poseidon2_two_adic_fri.h",
     ],
 )
 
@@ -28,10 +28,10 @@ tachyon_cc_library(
         "//tachyon/c:export",
         "//tachyon/c/base:type_traits_forward",
         "//tachyon/c/math/finite_fields/baby_bear",
+        "//tachyon/crypto/challenger:duplex_challenger",
         "//tachyon/crypto/hashes/sponge/poseidon2",
         "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_plonky3_external_matrix",
         "//tachyon/math/finite_fields/baby_bear:poseidon2",
-        "//tachyon/zk/air/plonky3/challenger:duplex_challenger",
     ],
 )
 
@@ -52,21 +52,23 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "baby_bear_poseidon2_two_adic_fri_pcs",
-    srcs = ["baby_bear_poseidon2_two_adic_fri_pcs.cc"],
+    name = "baby_bear_poseidon2_two_adic_fri",
+    srcs = ["baby_bear_poseidon2_two_adic_fri.cc"],
     hdrs = [
-        "baby_bear_poseidon2_two_adic_fri_pcs.h",
-        "baby_bear_poseidon2_two_adic_fri_pcs_type_traits.h",
+        "baby_bear_poseidon2_two_adic_fri.h",
+        "baby_bear_poseidon2_two_adic_fri_type_traits.h",
     ],
     deps = [
         ":baby_bear_poseidon2_constants",
         ":baby_bear_poseidon2_field_merkle_tree",
         "//tachyon/c:export",
         "//tachyon/c/base:type_traits_forward",
-        "//tachyon/c/crypto/commitments/fri:two_adic_fri_pcs_impl",
+        "//tachyon/c/crypto/commitments/fri:two_adic_fri_impl",
         "//tachyon/c/math/finite_fields/baby_bear",
         "//tachyon/c/math/matrix:baby_bear_row_major_matrix",
-        "//tachyon/crypto/commitments/fri:two_adic_fri_pcs",
+        "//tachyon/crypto/challenger:duplex_challenger",
+        "//tachyon/crypto/commitments/fri:two_adic_fri",
+        "//tachyon/crypto/commitments/fri:two_adic_multiplicative_coset",
         "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree:extension_field_merkle_tree_mmcs",
         "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree:field_merkle_tree_mmcs",
         "//tachyon/crypto/hashes/sponge:padding_free_sponge",
@@ -75,8 +77,6 @@ tachyon_cc_library(
         "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_plonky3_external_matrix",
         "//tachyon/math/finite_fields/baby_bear:baby_bear4",
         "//tachyon/math/finite_fields/baby_bear:poseidon2",
-        "//tachyon/zk/air/plonky3/base:two_adic_multiplicative_coset",
-        "//tachyon/zk/air/plonky3/challenger:duplex_challenger",
     ],
 )
 
@@ -84,7 +84,7 @@ tachyon_cc_library(
     name = "sp1",
     deps = [
         ":baby_bear_poseidon2_duplex_challenger",
-        ":baby_bear_poseidon2_two_adic_fri_pcs",
+        ":baby_bear_poseidon2_two_adic_fri",
     ],
 )
 
@@ -92,7 +92,7 @@ tachyon_cc_unittest(
     name = "sp1_unittests",
     srcs = [
         "baby_bear_poseidon2_duplex_challenger_unittest.cc",
-        "baby_bear_poseidon2_two_adic_fri_pcs_unittest.cc",
+        "baby_bear_poseidon2_two_adic_fri_unittest.cc",
     ],
     deps = [
         ":sp1",

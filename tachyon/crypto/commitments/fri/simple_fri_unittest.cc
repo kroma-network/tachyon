@@ -1,7 +1,7 @@
 // Use of this source code is governed by a Apache-2.0 style license that
 // can be found in the LICENSE.lambdaworks.
 
-#include "tachyon/crypto/commitments/fri/fri.h"
+#include "tachyon/crypto/commitments/fri/simple_fri.h"
 
 #include "gtest/gtest.h"
 
@@ -32,7 +32,7 @@ class SimpleHasher
   }
 };
 
-class SimpleFRIStorage : public FRIStorage<math::Goldilocks> {
+class SimpleFRIStorageImpl : public SimpleFRIStorage<math::Goldilocks> {
  public:
   const std::vector<SimpleBinaryMerkleTreeStorage<math::Goldilocks>>& layers()
       const {
@@ -55,7 +55,7 @@ class FRITest : public math::FiniteFieldTest<math::Goldilocks> {
   constexpr static size_t N = size_t{1} << K;
   constexpr static size_t kMaxDegree = N - 1;
 
-  using PCS = FRI<math::Goldilocks, kMaxDegree>;
+  using PCS = SimpleFRI<math::Goldilocks, kMaxDegree>;
   using F = PCS::Field;
   using Poly = PCS::Poly;
   using Commitment = PCS::Commitment;
@@ -68,7 +68,7 @@ class FRITest : public math::FiniteFieldTest<math::Goldilocks> {
 
  protected:
   std::unique_ptr<Domain> domain_;
-  SimpleFRIStorage storage_;
+  SimpleFRIStorageImpl storage_;
   SimpleHasher hasher_;
   PCS pcs_;
 };
@@ -82,7 +82,7 @@ TEST_F(FRITest, CommitAndVerify) {
   ASSERT_TRUE(pcs_.Commit(poly, &writer));
 
   size_t index = base::Uniform(base::Range<size_t>::Until(kMaxDegree + 1));
-  FRIProof<math::Goldilocks> proof;
+  SimpleFRIProof<math::Goldilocks> proof;
   ASSERT_TRUE(pcs_.CreateOpeningProof(index, &proof));
 
   SimpleTranscriptReader<F> reader(std::move(writer).TakeBuffer());

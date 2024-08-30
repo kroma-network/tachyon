@@ -1,9 +1,10 @@
-#include "tachyon/crypto/commitments/fri/two_adic_fri_pcs.h"
+#include "tachyon/crypto/commitments/fri/two_adic_fri.h"
 
 #include <tuple>
 
 #include "gtest/gtest.h"
 
+#include "tachyon/crypto/challenger/duplex_challenger.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/extension_field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
@@ -13,8 +14,6 @@
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
 #include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
-#include "tachyon/zk/air/plonky3/base/two_adic_multiplicative_coset.h"
-#include "tachyon/zk/air/plonky3/challenger/duplex_challenger.h"
 
 namespace tachyon::crypto {
 
@@ -28,7 +27,7 @@ using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 using PackedF = math::PackedBabyBear;
 using ExtPackedF = math::PackedBabyBear4;
-using Domain = zk::air::plonky3::TwoAdicMultiplicativeCoset<F>;
+using Domain = TwoAdicMultiplicativeCoset<F>;
 using Poseidon2 =
     Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>>;
 using PackedPoseidon2 = Poseidon2Sponge<
@@ -42,13 +41,13 @@ using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
 using ExtMMCS = FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher,
                                     MyCompressor, MyPackedCompressor, kChunk>;
 using ChallengeMMCS = ExtensionFieldMerkleTreeMMCS<ExtF, ExtMMCS>;
-using Challenger = zk::air::plonky3::DuplexChallenger<Poseidon2, 16, kRate>;
-using Coset = zk::air::plonky3::TwoAdicMultiplicativeCoset<F>;
-using MyPcs = TwoAdicFriPCS<ExtF, MMCS, ChallengeMMCS, Challenger, Coset>;
+using Challenger = DuplexChallenger<Poseidon2, 16, kRate>;
+using Coset = TwoAdicMultiplicativeCoset<F>;
+using MyPCS = TwoAdicFRI<ExtF, MMCS, ChallengeMMCS, Challenger>;
 
-class TwoAdicFriPCSTest : public testing::Test {
+class TwoAdicFRITest : public testing::Test {
  public:
-  TwoAdicFriPCSTest() = default;
+  TwoAdicFRITest() = default;
 
   static void SetUpTestSuite() {
     ExtF::Init();
@@ -75,10 +74,9 @@ class TwoAdicFriPCSTest : public testing::Test {
                 std::move(compressor), std::move(packed_compressor)));
 
     // TODO(ashjeong): Include separate test for |log_blowup| = 2
-    TwoAdicFriConfig<ChallengeMMCS> fri_config{1, 10, 8,
-                                               std::move(challenge_mmcs)};
+    FRIConfig<ChallengeMMCS> fri_config{1, 10, 8, std::move(challenge_mmcs)};
 
-    pcs_ = MyPcs(std::move(mmcs), std::move(fri_config));
+    pcs_ = MyPCS(std::move(mmcs), std::move(fri_config));
     challenger_ = Challenger(std::move(sponge));
   }
 
@@ -87,8 +85,7 @@ class TwoAdicFriPCSTest : public testing::Test {
     using ProverData = typename MMCS::ProverData;
     using OpenedValues =
         std::vector<std::vector<std::vector<std::vector<ExtF>>>>;
-    using Proof =
-        TwoAdicFriProof<ChallengeMMCS, std::vector<BatchOpening<MMCS>>, F>;
+    using Proof = FRIProof<MyPCS>;
     using Claims = std::vector<std::tuple<ExtF, std::vector<ExtF>>>;
 
     size_t num_rounds = log_degrees_by_round.size();
@@ -144,21 +141,21 @@ class TwoAdicFriPCSTest : public testing::Test {
   }
 
  protected:
-  MyPcs pcs_;
+  MyPCS pcs_;
   Challenger challenger_;
 };
 
 }  // namespace
 
-TEST_F(TwoAdicFriPCSTest, Single) {
+TEST_F(TwoAdicFRITest, Single) {
   for (uint32_t i = 3; i < 6; ++i) TestProtocol({{i}});
 }
 
-TEST_F(TwoAdicFriPCSTest, ManyEqual) {
+TEST_F(TwoAdicFRITest, ManyEqual) {
   for (uint32_t i = 2; i < 5; ++i) TestProtocol({std::vector<uint32_t>(5, i)});
 }
 
-TEST_F(TwoAdicFriPCSTest, ManyDifferent) {
+TEST_F(TwoAdicFRITest, ManyDifferent) {
   for (uint32_t i = 2; i < 4; ++i) {
     std::vector<uint32_t> input(i);
     for (uint32_t j = 3; j < 3 + i; ++j) {
@@ -168,7 +165,7 @@ TEST_F(TwoAdicFriPCSTest, ManyDifferent) {
   }
 }
 
-TEST_F(TwoAdicFriPCSTest, ManyDifferentRev) {
+TEST_F(TwoAdicFRITest, ManyDifferentRev) {
   for (uint32_t i = 2; i < 4; ++i) {
     std::vector<uint32_t> input(i);
     for (uint32_t j = 3 + i - 1; j >= 3; --j) {
@@ -178,7 +175,7 @@ TEST_F(TwoAdicFriPCSTest, ManyDifferentRev) {
   }
 }
 
-TEST_F(TwoAdicFriPCSTest, MultipleRounds) {
+TEST_F(TwoAdicFRITest, MultipleRounds) {
   TestProtocol({{3}});
   TestProtocol({{3}, {3}});
   TestProtocol({{3}, {2}});
