@@ -15,6 +15,7 @@
 #include "absl/container/flat_hash_map.h"
 
 #include "tachyon/base/bits.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/profiler.h"
 #include "tachyon/crypto/commitments/fri/fri_proof.h"
 #include "tachyon/crypto/commitments/fri/prove.h"
@@ -341,6 +342,7 @@ class TwoAdicFRI {
     // Compute the largest subgroup we will use, in bitrev order.
     F w;
     CHECK(F::GetRootOfUnity(size_t{1} << max_log_num_rows, &w));
+    // TODO(chokobole): Change type of |subgroup| to |std::vector<ExtF>|.
     std::vector<F> subgroup = F::GetBitRevIndexSuccessivePowers(
         size_t{1} << max_log_num_rows, w, coset_shift);
 
@@ -350,10 +352,16 @@ class TwoAdicFRI {
          it != max_log_num_rows_for_point.end(); ++it) {
       const ExtF& point = it->first;
       uint32_t log_num_rows = it->second;
-      std::vector<ExtF> temp = base::Map(
-          absl::MakeSpan(subgroup.data(), (size_t{1} << log_num_rows)),
-          [&point](F x) { return ExtF(x) - point; });
-      CHECK(ExtF::BatchInverseInPlace(temp));
+      std::vector<ExtF> temp(size_t{1} << log_num_rows);
+      base::Parallelize(
+          temp, [&subgroup, &point](absl::Span<ExtF> chunk, size_t chunk_offset,
+                                    size_t chunk_size) {
+            size_t start = chunk_offset * chunk_size;
+            for (size_t i = start; i < start + chunk.size(); ++i) {
+              chunk[i - start] = ExtF(subgroup[i]) - point;
+            }
+            CHECK(ExtF::BatchInverseInPlace(chunk));
+          });
       ret[point] = std::move(temp);
     }
     return ret;
