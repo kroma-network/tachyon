@@ -80,7 +80,8 @@ bool IcicleMerkleTree<math::BabyBear>::Build(
 
   for (size_t idx = 0; idx < digests_len; ++idx) {
     *(ret + idx) = ::babybear::scalar_t::to_montgomery(*(ret + idx));
-    *(digests + idx) = *reinterpret_cast<math::BabyBear*>(ret + idx);
+    // *(digests + idx) = *reinterpret_cast<math::BabyBear*>(ret + idx);
+    LOG(ERROR) << *reinterpret_cast<math::BabyBear*>(ret + idx) << "\t";
   }
 
   free(leaves);
