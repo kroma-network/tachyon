@@ -41,7 +41,6 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
     if (base::Contains(config.vendors(), Vendor::Plonky3())) {
       poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
           15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
-      CHECK_EQ(config.vendors().size(), static_cast<size_t>(1));
     } else {
       poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
           15, 7, 8, 13, math::GetPoseidon2BabyBearInternalDiagonalVector<16>());

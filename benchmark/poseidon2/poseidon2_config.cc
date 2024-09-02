@@ -32,13 +32,11 @@ bool Poseidon2Config::Validate() const {
       tachyon_cerr << "Unsupported vendor " << vendor.ToString() << std::endl;
       return false;
     }
-    if (vendor.value() == Vendor::kPlonky3) {
-      if (vendors_.size() != 1) {
-        tachyon_cerr << "Please run one vendor at a time for Baby Bear!"
-                     << std::endl;
-        return false;
-      }
-    }
+  }
+  if (prime_field_.value() == FieldType::kBabyBear && vendors_.size() != 1) {
+    tachyon_cerr << "Please run one vendor at a time for Baby Bear!"
+                 << std::endl;
+    return false;
   }
   if ((prime_field_.value() != FieldType::kBabyBear) &&
       (prime_field_.value() != FieldType::kBn254Fr)) {
