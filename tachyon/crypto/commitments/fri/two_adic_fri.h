@@ -383,14 +383,14 @@ class TwoAdicFRI {
 
     std::vector<std::vector<ExtF>> sums = base::ParallelizeMap(
         num_rows,
-        [num_cols, &w, &point, &shift, &coset_evals](
+        [num_cols, shift, w, &point, &coset_evals](
             size_t chunk_actual_size, size_t chunk_offset, size_t chunk_size) {
           size_t row_start = chunk_offset * chunk_size;
           F pow = w.Pow(row_start);
           std::vector<ExtF> sum_tracker(num_cols, ExtF::Zero());
           ExtF shifted_pow(shift * pow);
           std::vector<ExtF> diff_invs = base::CreateVector(
-              chunk_actual_size, [&point, &shifted_pow, &w](size_t i) {
+              chunk_actual_size, [w, &point, &shifted_pow](size_t i) {
                 ExtF temp = point - shifted_pow;
                 shifted_pow *= w;
                 return temp;
