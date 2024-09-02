@@ -72,21 +72,42 @@ TEST_F(FieldMerkleTreeTest, CommitSingle1x8) {
   auto h0_1 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(0, 0)}),
       hasher_.Hash(std::vector<F>{matrix(1, 0)})});
+  for (const auto& digest : h0_1) {
+    LOG(ERROR) << digest;
+  }
   auto h2_3 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(2, 0)}),
       hasher_.Hash(std::vector<F>{matrix(3, 0)})});
+  for (const auto& digest : h2_3) {
+    LOG(ERROR) << digest;
+  }
   auto h4_5 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(4, 0)}),
       hasher_.Hash(std::vector<F>{matrix(5, 0)})});
+  for (const auto& digest : h4_5) {
+    LOG(ERROR) << digest;
+  }
   auto h6_7 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(6, 0)}),
       hasher_.Hash(std::vector<F>{matrix(7, 0)})});
+  for (const auto& digest : h6_7) {
+    LOG(ERROR) << digest;
+  }
   auto h0_3 =
       compressor_.Compress(std::vector<std::array<F, kChunk>>{h0_1, h2_3});
+  for (const auto& digest : h0_3) {
+    LOG(ERROR) << digest;
+  }
   auto h4_7 =
       compressor_.Compress(std::vector<std::array<F, kChunk>>{h4_5, h6_7});
+  for (const auto& digest : h4_7) {
+    LOG(ERROR) << digest;
+  }
   auto expected =
       compressor_.Compress(std::vector<std::array<F, kChunk>>{h0_3, h4_7});
+  for (const auto& digest : expected) {
+    LOG(ERROR) << digest;
+  }
   EXPECT_EQ(tree.GetRoot(), expected);
 }
 
