@@ -37,7 +37,7 @@ class FFTBatchRunner {
         Domain::Create(static_cast<size_t>(input.rows()));
     base::TimeTicks start = base::TimeTicks::Now();
     if (run_coset_lde) {
-      domain->CosetLDEBatch(result, 0, F::Zero());
+      result = domain->CosetLDEBatch(result, 0, F::Zero());
     } else {
       domain->FFTBatch(result);
     }
