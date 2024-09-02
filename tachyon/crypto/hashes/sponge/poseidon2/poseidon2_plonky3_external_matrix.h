@@ -14,16 +14,17 @@ template <typename F>
 class Poseidon2Plonky3ExternalMatrix final
     : public Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>> {
  public:
-  static void DoApply(math::Vector<F>& v) {
-    F t0 = v[0] + v[1];
-    F t1 = v[2] + v[3];
+  template <typename Derived>
+  static void DoApply(Eigen::MatrixBase<Derived>& v) {
+    F t0 = v(0, 0) + v(1, 0);
+    F t1 = v(2, 0) + v(3, 0);
     F t2 = t0 + t1;
-    F t3 = t2 + v[1];
-    F t4 = t2 + v[3];
-    v[3] = t4 + v[0].Double();
-    v[1] = t3 + v[2].Double();
-    v[0] = t3 + t0;
-    v[2] = t4 + t1;
+    F t3 = t2 + v(1, 0);
+    F t4 = t2 + v(3, 0);
+    v(3, 0) = t4 + v(0, 0).Double();
+    v(1, 0) = t3 + v(2, 0).Double();
+    v(0, 0) = t3 + t0;
+    v(2, 0) = t4 + t1;
   }
 
   static math::Matrix<F> DoConstruct() {
