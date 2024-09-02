@@ -61,10 +61,11 @@ bool IcicleMerkleTree<math::BabyBear>::Build(
 
   // TODO(Noah)
   ::poseidon2::Poseidon2<::babybear::scalar_t> icicle_poseidon(
-      16, 8, ::poseidon2::MdsType::DEFAULT_MDS,
-      ::poseidon2::DiffusionStrategy::DEFAULT_DIFFUSION, config_->ctx);
+      16, 8, ::poseidon2::MdsType::PLONKY,
+      ::poseidon2::DiffusionStrategy::MONTGOMERY, config_->ctx);
 
-  config_->keep_rows = 3;  // TODO(Noah)
+  config_->keep_rows = max_tree_height + 1;  // TODO(Noah) : change value
+  config_->digest_elements = 8;              // TODO(Noah) : change value
   size_t digests_len = ::merkle_tree::get_digests_len(
       config_->keep_rows - 1, config_->arity, config_->digest_elements);
 
