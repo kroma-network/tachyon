@@ -9,6 +9,7 @@
 #include <stddef.h>
 
 #include <array>
+#include <memory>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -25,6 +26,13 @@
 #include "tachyon/math/finite_fields/packed_field_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
+
+#if TACHYON_CUDA
+#include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/icicle/icicle_merkle_tree.h"
+#include "tachyon/device/gpu/gpu_memory.h"
+#include "tachyon/device/gpu/scoped_mem_pool.h"
+#include "tachyon/device/gpu/scoped_stream.h"
+#endif
 
 namespace tachyon::crypto {
 
@@ -68,6 +76,43 @@ class FieldMerkleTree {
       }
     }
 #endif  // DCHECK_IS_ON()
+#if TACHYON_CUDA
+    if constexpr (IsIcicleMerkleTreeSupported<F>) {
+      device::gpu::ScopedMemPool mem_pool;
+      device::gpu::ScopedStream stream;
+      std::unique_ptr<IcicleMerkleTree<F>> merkle_tree_gpu;
+
+      gpuMemPoolProps props = {gpuMemAllocationTypePinned,
+                               gpuMemHandleTypeNone,
+                               {gpuMemLocationTypeDevice, 0}};
+      mem_pool = device::gpu::CreateMemPool(&props);
+
+      uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
+      gpuError_t error = gpuMemPoolSetAttribute(
+          mem_pool.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
+      CHECK_EQ(error, gpuSuccess);
+      stream = device::gpu::CreateStream();
+
+      merkle_tree_gpu.reset(
+          new IcicleMerkleTree<F>(mem_pool.get(), stream.get()));
+
+      if (merkle_tree_gpu) {
+        std::vector<math::RowMajorMatrix<F>> inputs;
+        inputs.reserve(sorted_leaves.size());
+
+        for (const auto& leaf : sorted_leaves) {
+          inputs.push_back(*leaf);
+        }
+
+        F digests = F::Zero();
+        std::vector<std::vector<Digest>> digest_layers_icicle;
+        bool result = merkle_tree_gpu->Build(std::move(inputs), &digests);
+        if (result) {
+          return {std::move(leaves), std::move(digest_layers_icicle)};
+        };
+      }
+    }
+#endif
 
     size_t first_layer_rows = sorted_leaves.front()->rows();
     size_t first_layer_size = 1;
