@@ -9,7 +9,7 @@
 namespace tachyon::math {
 
 template <size_t N>
-std::array<Goldilocks, N> GetPoseidon2GoldilocksInternalDiagonalVector() {
+std::array<Goldilocks, N> GetPoseidon2GoldilocksInternalDiagonalArray() {
   // TODO(chokobole): Remove this function once we can generate these parameters
   // internally.
   // This is taken and modified from

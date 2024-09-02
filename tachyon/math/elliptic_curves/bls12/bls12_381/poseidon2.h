@@ -9,7 +9,7 @@
 namespace tachyon::math::bls12_381 {
 
 template <size_t N>
-std::array<Fr, N> GetPoseidon2InternalDiagonalVector() {
+std::array<Fr, N> GetPoseidon2InternalDiagonalArray() {
   // TODO(chokobole): Remove this function once we can generate these parameters
   // internally.
   // This is taken and modified from

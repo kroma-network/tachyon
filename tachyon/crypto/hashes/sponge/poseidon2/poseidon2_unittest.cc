@@ -28,7 +28,7 @@ TEST_F(Poseidon2GoldilocksTest, Permute) {
   using F = math::Goldilocks;
 
   Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
-      7, 7, 8, 22, math::GetPoseidon2GoldilocksInternalDiagonalVector<8>());
+      7, 7, 8, 22, math::GetPoseidon2GoldilocksInternalDiagonalArray<8>());
   Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>>
       sponge(std::move(config));
   SpongeState<F> state(sponge.config);
@@ -49,7 +49,7 @@ TEST_F(Poseidon2GoldilocksTest, Copyable) {
   using F = math::Goldilocks;
 
   Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
-      7, 7, 8, 22, math::GetPoseidon2GoldilocksInternalDiagonalVector<8>());
+      7, 7, 8, 22, math::GetPoseidon2GoldilocksInternalDiagonalArray<8>());
   Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>>
       expected(config);
 
@@ -78,7 +78,7 @@ TEST_F(Poseidon2BabyBearTest, Permute) {
   using F = math::BabyBear;
 
   Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
-      15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+      15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
   Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>>
       sponge(std::move(config));
   SpongeState<F> state(sponge.config);
@@ -101,7 +101,7 @@ TEST_F(Poseidon2BabyBearTest, PermutePacked) {
 
   Poseidon2Config<PackedF> packed_config =
       Poseidon2Config<PackedF>::CreateCustom(
-          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
   Poseidon2Sponge<
       Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<PackedF>>>
       packed_sponge(std::move(packed_config));
@@ -112,7 +112,7 @@ TEST_F(Poseidon2BabyBearTest, PermutePacked) {
   packed_sponge.Permute(packed_state);
 
   Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
-      15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+      15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
   Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>>
       sponge(std::move(config));
   SpongeState<F> state(sponge.config);

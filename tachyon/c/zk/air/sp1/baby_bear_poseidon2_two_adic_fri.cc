@@ -56,7 +56,7 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,
       TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA,
       TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_FULL_ROUNDS,
       TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_PARTIAL_ROUNDS,
-      math::GetPoseidon2BabyBearInternalShiftVector<
+      math::GetPoseidon2BabyBearInternalShiftArray<
           TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1>(),
       std::move(ark));
   Poseidon2 sponge(config);
@@ -69,7 +69,7 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,
           TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA,
           TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_FULL_ROUNDS,
           TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_PARTIAL_ROUNDS,
-          math::GetPoseidon2BabyBearInternalShiftVector<
+          math::GetPoseidon2BabyBearInternalShiftArray<
               TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1>(),
           std::move(packed_ark));
   PackedPoseidon2 packed_sponge(packed_config);

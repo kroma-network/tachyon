@@ -54,14 +54,14 @@ class ExtensionFieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
 
   void SetUp() override {
     Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
-        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
     Poseidon2 sponge(std::move(config));
     MyHasher hasher(sponge);
     MyCompressor compressor(std::move(sponge));
 
     Poseidon2Config<PackedF> packed_config =
         Poseidon2Config<PackedF>::CreateCustom(
-            15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+            15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
     PackedPoseidon2 packed_sponge(std::move(packed_config));
     MyPackedHasher packed_hasher(packed_sponge);
     MyPackedCompressor packed_compressor(std::move(packed_sponge));
