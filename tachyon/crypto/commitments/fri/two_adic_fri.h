@@ -15,6 +15,7 @@
 #include "absl/container/flat_hash_map.h"
 
 #include "tachyon/base/bits.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/crypto/commitments/fri/fri_proof.h"
 #include "tachyon/crypto/commitments/fri/prove.h"
 #include "tachyon/crypto/commitments/fri/two_adic_multiplicative_coset.h"
@@ -70,6 +71,7 @@ class TwoAdicFRI {
   [[nodiscard]] bool Commit(const std::vector<Domain>& cosets,
                             std::vector<math::RowMajorMatrix<F>>& matrices,
                             Commitment* commitment, ProverData* prover_data) {
+    TRACE_EVENT("ProofGeneration", "TwoAdicFRI::Commit");
     std::vector<math::RowMajorMatrix<F>> ldes =
         base::Map(cosets, [this, &matrices](size_t i, const Domain& coset) {
           math::RowMajorMatrix<F>& mat = matrices[i];
@@ -88,6 +90,7 @@ class TwoAdicFRI {
       const std::vector<ProverData>& prover_data_by_round,
       const std::vector<Points>& points_by_round, Challenger& challenger,
       OpenedValues* openings, FRIProof* proof) {
+    TRACE_EVENT("ProofGeneration", "TwoAdicFRI::CreateOpeningProof");
     ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
     size_t num_rounds = prover_data_by_round.size();
@@ -217,6 +220,7 @@ class TwoAdicFRI {
           std::vector<std::vector<std::tuple<ExtF, std::vector<ExtF>>>>>&
           claims_by_round,
       const FRIProof& proof, Challenger& challenger) {
+    TRACE_EVENT("ProofVerification", "TwoAdicFRI::VerifyOpeningProof");
     // Batch combination challenge
     const ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
@@ -307,6 +311,7 @@ class TwoAdicFRI {
       const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
           matrices_by_round,
       const std::vector<Points>& points_by_round, F coset_shift) {
+    TRACE_EVENT("Utils", "ComputeInverseDenominators");
     size_t num_rounds = matrices_by_round.size();
 
     absl::flat_hash_map<ExtF, uint32_t> max_log_num_rows_for_point;
@@ -359,6 +364,7 @@ class TwoAdicFRI {
   static std::vector<ExtF> InterpolateCoset(
       const Eigen::MatrixBase<Derived>& coset_evals, F shift,
       const ExtF& point) {
+    TRACE_EVENT("Utils", "InterpolateCoset");
     size_t num_rows = static_cast<size_t>(coset_evals.rows());
     size_t num_cols = static_cast<size_t>(coset_evals.cols());
     uint32_t log_num_rows = base::bits::CheckedLog2(num_rows);

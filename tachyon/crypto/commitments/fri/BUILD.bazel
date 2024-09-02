@@ -73,6 +73,7 @@ tachyon_cc_library(
         ":two_adic_multiplicative_coset",
         ":verify",
         "//tachyon/base:bits",
+        "//tachyon/base:profiler",
         "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward",
         "//tachyon/math/finite_fields:extension_field_traits_forward",
         "//tachyon/math/geometry:dimensions",

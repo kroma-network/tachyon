@@ -14,6 +14,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:logging",
         "//tachyon/base:parallelize",
+        "//tachyon/base:profiler",
         "//tachyon/base:sort",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/finite_fields:extension_field_traits_forward",
@@ -32,6 +33,7 @@ tachyon_cc_library(
     deps = [
         ":field_merkle_tree",
         "//tachyon/base:bits",
+        "//tachyon/base:profiler",
         "//tachyon/base:sort",
         "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme",
     ],

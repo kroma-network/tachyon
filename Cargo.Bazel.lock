@@ -1,5 +1,5 @@
 {
-  "checksum": "493a31da6b3ac2a5605ba241c05d083f25487a1fdd2efcb09d582c8b3be8cba9",
+  "checksum": "9871a4efaf95d41779221d5e5a0d86242b4e5832107cd0c8e50ccc004fb34199",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -12952,6 +12952,84 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "plonky3_fri_benchmark 0.0.1": {
+      "name": "plonky3_fri_benchmark",
+      "version": "0.0.1",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "plonky3_fri_benchmark",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "plonky3_fri_benchmark",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "p3-baby-bear 0.1.3-succinct",
+              "target": "p3_baby_bear"
+            },
+            {
+              "id": "p3-challenger 0.1.3-succinct",
+              "target": "p3_challenger"
+            },
+            {
+              "id": "p3-commit 0.1.3-succinct",
+              "target": "p3_commit"
+            },
+            {
+              "id": "p3-dft 0.1.3-succinct",
+              "target": "p3_dft"
+            },
+            {
+              "id": "p3-field 0.1.3-succinct",
+              "target": "p3_field"
+            },
+            {
+              "id": "p3-fri 0.1.3-succinct",
+              "target": "p3_fri"
+            },
+            {
+              "id": "p3-matrix 0.1.3-succinct",
+              "target": "p3_matrix"
+            },
+            {
+              "id": "p3-merkle-tree 0.1.3-succinct",
+              "target": "p3_merkle_tree"
+            },
+            {
+              "id": "p3-poseidon2 0.1.3-succinct",
+              "target": "p3_poseidon2"
+            },
+            {
+              "id": "p3-symmetric 0.1.3-succinct",
+              "target": "p3_symmetric"
+            },
+            {
+              "id": "p3-util 0.1.3-succinct",
+              "target": "p3_util"
+            },
+            {
+              "id": "zkhash 0.2.0",
+              "target": "zkhash"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "plonky3_poseidon2_benchmark 0.0.1": {
       "name": "plonky3_poseidon2_benchmark",
       "version": "0.0.1",
@@ -21549,6 +21627,7 @@
     "halo2_msm_benchmark 0.0.1": "benchmark/msm/halo2",
     "horizen_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/horizen",
     "plonky3_batch_fft_benchmark 0.0.1": "benchmark/fft_batch/plonky3",
+    "plonky3_fri_benchmark 0.0.1": "benchmark/fri/plonky3",
     "plonky3_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/plonky3",
     "tachyon_plonky3 0.0.1": "vendors/plonky3",
     "tachyon_rs 0.0.1": "tachyon/rs",

@@ -1,0 +1,63 @@
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_binary",
+    "tachyon_cc_library",
+)
+
+tachyon_cc_library(
+    name = "fri_config",
+    testonly = True,
+    srcs = ["fri_config.cc"],
+    hdrs = ["fri_config.h"],
+    deps = [
+        "//benchmark:config",
+        "//tachyon/base/console",
+        "//tachyon/base/containers:container_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "fri_runner",
+    testonly = True,
+    hdrs = ["fri_runner.h"],
+    deps = [
+        ":fri_config",
+        "//benchmark:simple_reporter",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/time",
+        "//tachyon/c/math/matrix",
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_horizen_external_matrix",
+        "//tachyon/math/matrix:matrix_types",
+    ],
+)
+
+tachyon_cc_binary(
+    name = "fri_benchmark",
+    testonly = True,
+    srcs = ["fri_benchmark.cc"],
+    deps = [
+        ":fri_config",
+        ":fri_runner",
+        "//benchmark:simple_reporter",
+        "//benchmark/fri/plonky3",
+        "//tachyon/base:profiler",
+        "//tachyon/c/math/finite_fields/baby_bear",
+        "//tachyon/crypto/challenger:duplex_challenger",
+        "//tachyon/crypto/commitments/fri:fri_config",
+        "//tachyon/crypto/commitments/fri:two_adic_fri",
+        "//tachyon/crypto/commitments/fri:two_adic_multiplicative_coset",
+        "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree:extension_field_merkle_tree_mmcs",
+        "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree:field_merkle_tree_mmcs",
+        "//tachyon/crypto/hashes/sponge:padding_free_sponge",
+        "//tachyon/crypto/hashes/sponge:truncated_permutation",
+        "//tachyon/crypto/hashes/sponge/poseidon2",
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_horizen_external_matrix",
+        "//tachyon/math/finite_fields:packed_field_traits_forward",
+        "//tachyon/math/finite_fields/baby_bear:baby_bear4",
+        "//tachyon/math/finite_fields/baby_bear:packed_baby_bear4",
+        "//tachyon/math/finite_fields/baby_bear:poseidon2",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/math/polynomials/univariate:radix2_evaluation_domain",
+        "@com_google_absl//absl/strings",
+    ],
+)

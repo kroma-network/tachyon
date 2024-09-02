@@ -7,6 +7,7 @@ members = [
     "benchmark/fft/bellman",
     "benchmark/fft/halo2",
     "benchmark/fft_batch/plonky3",
+    "benchmark/fri/plonky3",
     "benchmark/poseidon/arkworks",
     "benchmark/poseidon2/horizen",
     "benchmark/poseidon2/plonky3",
