@@ -36,16 +36,22 @@ class PaddingFreeSponge final
 
   template <typename T>
   std::array<F, Out> DoHash(SpongeState<F>& state, const T& input) const {
+    LOG(ERROR) << "std::size(input): " << std::size(input);
+    LOG(ERROR) << "Rate: " << Rate;
+    LOG(ERROR) << "Input";
     for (size_t i = 0; i < std::size(input); i += Rate) {
       for (size_t j = 0; j < Rate; ++j) {
         if (i + j < std::size(input)) {
           state[j] = input[i + j];
         }
+        LOG(ERROR) << "state[" << j << "]: " << state[j];
       }
       derived_.Permute(state);
     }
+    LOG(ERROR) << "Result";
     std::array<F, Out> ret;
     for (size_t i = 0; i < Out; ++i) {
+      LOG(ERROR) << "state[" << i << "]: " << state[i];
       ret[i] = std::move(state[i]);
     }
     return ret;
