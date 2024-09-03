@@ -5,6 +5,7 @@ package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "sp1_hdrs",
     srcs = [
+        "baby_bear_poseidon2_commitment_vec.h",
         "baby_bear_poseidon2_constants.h",
         "baby_bear_poseidon2_domains.h",
         "baby_bear_poseidon2_duplex_challenger.h",
@@ -20,6 +21,21 @@ filegroup(
 tachyon_cc_library(
     name = "baby_bear_poseidon2_constants",
     hdrs = ["baby_bear_poseidon2_constants.h"],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_commitment_vec",
+    srcs = ["baby_bear_poseidon2_commitment_vec.cc"],
+    hdrs = [
+        "baby_bear_poseidon2_commitment_vec.h",
+        "baby_bear_poseidon2_commitment_vec_type_traits.h",
+    ],
+    deps = [
+        ":baby_bear_poseidon2_constants",
+        "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/c/math/finite_fields/baby_bear",
+    ],
 )
 
 tachyon_cc_library(
