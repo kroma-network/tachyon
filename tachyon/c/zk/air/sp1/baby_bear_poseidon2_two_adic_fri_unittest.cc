@@ -38,7 +38,7 @@ class TwoAdicFRITest : public testing::Test {
     opening_points_ =
         tachyon_sp1_baby_bear_poseidon2_opening_points_create(kRounds);
     challenger_ = tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create();
-    opened_values_ = tachyon_sp1_baby_bear_poseidon2_opened_values_create();
+    opened_values_ = tachyon_sp1_baby_bear_poseidon2_opened_values_create(0);
     proof_ = tachyon_sp1_baby_bear_poseidon2_fri_proof_create();
     commitment_vec_ =
         tachyon_sp1_baby_bear_poseidon2_commitment_vec_create(kRounds);

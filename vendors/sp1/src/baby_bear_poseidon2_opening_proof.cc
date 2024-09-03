@@ -7,7 +7,7 @@
 namespace tachyon::sp1_api::baby_bear_poseidon2 {
 
 OpeningProof::OpeningProof()
-    : opened_values_(tachyon_sp1_baby_bear_poseidon2_opened_values_create()),
+    : opened_values_(tachyon_sp1_baby_bear_poseidon2_opened_values_create(0)),
       proof_(tachyon_sp1_baby_bear_poseidon2_fri_proof_create()) {}
 
 OpeningProof::~OpeningProof() {
