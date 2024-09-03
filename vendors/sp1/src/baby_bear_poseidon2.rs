@@ -105,7 +105,7 @@ pub mod ffi {
 
         fn new_opening_points(rounds: usize) -> UniquePtr<OpeningPoints>;
         fn clone(&self) -> UniquePtr<OpeningPoints>;
-        fn allocate(self: Pin<&mut OpeningPoints>, rounds: usize, rows: usize, cols: usize);
+        fn allocate(self: Pin<&mut OpeningPoints>, round: usize, rows: usize, cols: usize);
         fn set(
             self: Pin<&mut OpeningPoints>,
             round: usize,
