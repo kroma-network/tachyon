@@ -90,7 +90,7 @@ fn run_poseidon2<
         .unwrap();
 
     let start = Instant::now();
-    for _ in 0..100 {
+    for _ in 0..10000 {
         poseidon2.permute_mut(&mut input);
     }
     unsafe {

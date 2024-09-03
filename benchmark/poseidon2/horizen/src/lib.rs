@@ -20,7 +20,7 @@ fn run_poseidon2<F: PrimeField + std::convert::From<i32>, R>(
     let mut input: Vec<F> = (0..t).map(|_| F::from(0)).collect();
 
     let start = Instant::now();
-    for _ in 0..100 {
+    for _ in 0..10000 {
         input = poseidon2.permutation(&input);
     }
     unsafe {
