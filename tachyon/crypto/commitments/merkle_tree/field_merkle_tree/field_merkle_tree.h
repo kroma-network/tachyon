@@ -52,11 +52,12 @@ class FieldMerkleTree {
 
   template <typename Hasher, typename PackedHasher, typename Compressor,
             typename PackedCompressor>
-  static FieldMerkleTree Build(const Hasher& hasher,
-                               const PackedHasher& packed_hasher,
-                               const Compressor& compressor,
-                               const PackedCompressor& packed_compressor,
-                               std::vector<math::RowMajorMatrix<F>>&& leaves) {
+  static FieldMerkleTree Build(
+      const Hasher& hasher, const PackedHasher& packed_hasher,
+      const Compressor& compressor, const PackedCompressor& packed_compressor,
+      std::vector<math::RowMajorMatrix<F>>&& leaves,
+      const absl::Span<const F>& round_constants,
+      const absl::Span<const F>& internal_matrix_diag) {
     CHECK(!leaves.empty());
 
     std::vector<RowMajorMatrixView> sorted_leaves =
@@ -106,7 +107,8 @@ class FieldMerkleTree {
 
         F digests = F::Zero();  // TODO(Noah): change type
         std::vector<std::vector<Digest>> digest_layers_icicle;
-        bool result = merkle_tree_gpu->Build(std::move(inputs), &digests);
+        bool result = merkle_tree_gpu->Build(
+            std::move(inputs), &digests, round_constants, internal_matrix_diag);
         LOG(ERROR) << digests;
 
         if (result) {

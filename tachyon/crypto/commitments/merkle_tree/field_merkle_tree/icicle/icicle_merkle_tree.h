@@ -64,7 +64,8 @@ class IcicleMerkleTree {
   IcicleMerkleTree& operator=(const IcicleMerkleTree& other) = delete;
 
   [[nodiscard]] bool Build(std::vector<math::RowMajorMatrix<F>>&& inputs,
-                           F* digests);
+                           F* digests, absl::Span<const F> round_constants,
+                           absl::Span<const F> internal_matrix_diag);
 
  private:
   gpuMemPool_t mem_pool_ = nullptr;
@@ -75,12 +76,14 @@ class IcicleMerkleTree {
 template <>
 TACHYON_EXPORT bool IcicleMerkleTree<math::BabyBear>::Build(
     std::vector<math::RowMajorMatrix<math::BabyBear>>&& inputs,
-    math::BabyBear* digests);
+    math::BabyBear* digests, absl::Span<const math::BabyBear> round_constants,
+    absl::Span<const math::BabyBear> internal_matrix_diag);
 
 template <>
 TACHYON_EXPORT bool IcicleMerkleTree<math::bn254::Fr>::Build(
     std::vector<math::RowMajorMatrix<math::bn254::Fr>>&& inputs,
-    math::bn254::Fr* digests);
+    math::bn254::Fr* digests, absl::Span<const math::bn254::Fr> round_constants,
+    absl::Span<const math::bn254::Fr> internal_matrix_diag);
 
 }  // namespace tachyon::crypto
 

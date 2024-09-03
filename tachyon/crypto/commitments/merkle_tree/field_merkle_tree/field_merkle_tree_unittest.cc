@@ -49,6 +49,36 @@ class FieldMerkleTreeTest : public math::FiniteFieldTest<PackedF> {
     PackedPoseidon2 packed_sponge(std::move(packed_config));
     packed_hasher_ = MyPackedHasher(packed_sponge);
     packed_compressor_ = MyPackedCompressor(std::move(packed_sponge));
+
+    Poseidon2Config<F> config2 = Poseidon2Config<F>::CreateCustom(
+        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+    if (config2.use_plonky3_internal_matrix) {
+      internal_vector_ = math::Vector<F>(config2.rate + config2.capacity);
+      internal_vector_[0] = F(F::Config::kModulus - 2);
+      for (Eigen::Index i = 1; i < internal_vector_.size(); ++i) {
+        internal_vector_[i] = F(uint32_t{1} << config2.internal_shifts[i - 1]);
+      }
+      internal_vector_span_ =
+          absl::Span<const F>(internal_vector_.data(), internal_vector_.size());
+      size_t capacity =
+          config2.full_rounds * (config2.rate + config2.capacity) +
+          config2.partial_rounds;
+
+      ark_vector_.reserve(capacity);
+      Eigen::Index partial_rounds_start = config2.full_rounds / 2;
+      Eigen::Index partial_rounds_end =
+          config2.full_rounds / 2 + config2.partial_rounds;
+      for (Eigen::Index i = 0; i < config2.ark.rows(); ++i) {
+        if (i < partial_rounds_start || i >= partial_rounds_end) {
+          for (Eigen::Index j = 0; j < config2.ark.cols(); ++j) {
+            ark_vector_.push_back(config2.ark(i, j));
+          }
+        } else {
+          ark_vector_.push_back(config2.ark(i, 0));
+        }
+      }
+      ark_span_ = absl::Span<const F>(ark_vector_.data(), ark_vector_.size());
+    }
   }
 
  protected:
@@ -56,6 +86,13 @@ class FieldMerkleTreeTest : public math::FiniteFieldTest<PackedF> {
   MyCompressor compressor_;
   MyPackedHasher packed_hasher_;
   MyPackedCompressor packed_compressor_;
+  absl::Span<const F> internal_vector_span_;
+  absl::Span<const F> ark_span_;
+  math::Vector<F> internal_vector_;
+  std::vector<F> ark_vector_;
+#if TACHYON_CUDA
+
+#endif
 };
 
 }  // namespace
@@ -66,8 +103,9 @@ TEST_F(FieldMerkleTreeTest, CommitSingle1x8) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  Tree tree = Tree::Build(hasher_, packed_hasher_, compressor_,
-                          packed_compressor_, std::move(matrices));
+  Tree tree =
+      Tree::Build(hasher_, packed_hasher_, compressor_, packed_compressor_,
+                  std::move(matrices), ark_span_, internal_vector_span_);
 
   auto h0_1 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(0, 0)}),
@@ -118,8 +156,9 @@ TEST_F(FieldMerkleTreeTest, CommitSingle2x2) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  Tree tree = Tree::Build(hasher_, packed_hasher_, compressor_,
-                          packed_compressor_, std::move(matrices));
+  Tree tree =
+      Tree::Build(hasher_, packed_hasher_, compressor_, packed_compressor_,
+                  std::move(matrices), ark_span_, internal_vector_span_);
 
   auto expected = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(0, 0), matrix(0, 1)}),
@@ -135,8 +174,9 @@ TEST_F(FieldMerkleTreeTest, CommitSingle2x3) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  Tree tree = Tree::Build(hasher_, packed_hasher_, compressor_,
-                          packed_compressor_, std::move(matrices));
+  Tree tree =
+      Tree::Build(hasher_, packed_hasher_, compressor_, packed_compressor_,
+                  std::move(matrices), ark_span_, internal_vector_span_);
   std::array<F, kChunk> default_digest =
       base::CreateArray<kChunk>([]() { return F::Zero(); });
   auto h0_3 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
@@ -162,8 +202,9 @@ TEST_F(FieldMerkleTreeTest, CommitMixed) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix, matrix2};
 
-  Tree tree = Tree::Build(hasher_, packed_hasher_, compressor_,
-                          packed_compressor_, std::move(matrices));
+  Tree tree =
+      Tree::Build(hasher_, packed_hasher_, compressor_, packed_compressor_,
+                  std::move(matrices), ark_span_, internal_vector_span_);
   std::array<F, kChunk> default_digest =
       base::CreateArray<kChunk>([]() { return F::Zero(); });
   auto h0_3 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
@@ -190,12 +231,14 @@ TEST_F(FieldMerkleTreeTest, CommitEitherOrder) {
   math::RowMajorMatrix<F> matrix2 = math::RowMajorMatrix<F>::Random(2, 3);
 
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix, matrix2};
-  Tree tree = Tree::Build(hasher_, packed_hasher_, compressor_,
-                          packed_compressor_, std::move(matrices));
+  Tree tree =
+      Tree::Build(hasher_, packed_hasher_, compressor_, packed_compressor_,
+                  std::move(matrices), ark_span_, internal_vector_span_);
 
   std::vector<math::RowMajorMatrix<F>> matrices2 = {matrix, matrix2};
-  Tree tree2 = Tree::Build(hasher_, packed_hasher_, compressor_,
-                           packed_compressor_, std::move(matrices2));
+  Tree tree2 =
+      Tree::Build(hasher_, packed_hasher_, compressor_, packed_compressor_,
+                  std::move(matrices), ark_span_, internal_vector_span_);
   EXPECT_EQ(tree.GetRoot(), tree2.GetRoot());
 }
 

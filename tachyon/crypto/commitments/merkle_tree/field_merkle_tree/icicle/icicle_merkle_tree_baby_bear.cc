@@ -29,7 +29,8 @@ namespace tachyon::crypto {
 template <>
 bool IcicleMerkleTree<math::BabyBear>::Build(
     std::vector<math::RowMajorMatrix<math::BabyBear>>&& inputs,
-    math::BabyBear* digests) {
+    math::BabyBear* digests, absl::Span<const math::BabyBear> round_constants,
+    absl::Span<const math::BabyBear> internal_matrix_diag) {
 #if FIELD_ID != BABY_BEAR
 #error Only BABY_BEAR is supported
 #endif
@@ -55,14 +56,39 @@ bool IcicleMerkleTree<math::BabyBear>::Build(
         leaves[idx] = ::babybear::scalar_t::from_montgomery(
             *reinterpret_cast<const ::babybear::scalar_t*>(valuePtr));
         ++idx;
+        // for (size_t k = 0; k < 7; ++k) {
+        //   leaves[idx + k] = ::babybear::scalar_t::zero();
+        // }
+        // idx += 7;
       }
     }
   }
 
+  ::babybear::scalar_t* round_constants_ptr =
+      static_cast<::babybear::scalar_t*>(
+          malloc(round_constants.size() * sizeof(::babybear::scalar_t)));
+
+  for (uint32_t i = 0; i < round_constants.size(); i++) {
+    round_constants_ptr[i] = ::babybear::scalar_t::from_montgomery(
+        reinterpret_cast<const ::babybear::scalar_t*>(
+            std::data(round_constants))[i]);
+  }
+
+  ::babybear::scalar_t* internal_matrix_diag_ptr =
+      static_cast<::babybear::scalar_t*>(
+          malloc(internal_matrix_diag.size() * sizeof(::babybear::scalar_t)));
+
+  for (uint32_t i = 0; i < internal_matrix_diag.size(); i++) {
+    internal_matrix_diag_ptr[i] = ::babybear::scalar_t::from_montgomery(
+        reinterpret_cast<const ::babybear::scalar_t*>(
+            std::data(internal_matrix_diag))[i]);
+  }
+
   // TODO(Noah)
   ::poseidon2::Poseidon2<::babybear::scalar_t> icicle_poseidon(
-      16, 8, ::poseidon2::MdsType::PLONKY,
-      ::poseidon2::DiffusionStrategy::MONTGOMERY, config_->ctx);
+      16, 8, 7, 13, 8, round_constants_ptr, internal_matrix_diag_ptr,
+      ::poseidon2::MdsType::PLONKY, ::poseidon2::DiffusionStrategy::MONTGOMERY,
+      config_->ctx);
 
   config_->keep_rows = max_tree_height + 1;  // TODO(Noah) : change value
   config_->digest_elements = 8;              // TODO(Noah) : change value
