@@ -274,7 +274,7 @@ class TwoAdicFRI {
               for (size_t i = 0; i < cur_points.size(); ++i) {
                 const ExtF& z = cur_points[i];
                 const std::vector<ExtF>& ps_at_z = cur_values[i];
-                CHECK_EQ(ps_at_z.size(), opened_values_in[i].size());
+                CHECK_EQ(ps_at_z.size(), cur_values_in.size());
                 for (size_t j = 0; j < ps_at_z.size(); ++j) {
                   ExtF quotient = unwrap((ExtF(cur_values_in[j]) - ps_at_z[j]) /
                                          (ExtF(x) - z));
