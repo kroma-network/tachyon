@@ -211,7 +211,7 @@ class TwoAdicFRI {
       const std::vector<std::vector<Domain>>& domains_by_round,
       const OpeningPoints& points_by_round,
       const OpenedValues& opened_values_by_round, const FRIProof& proof,
-      Challenger& challenger) {
+      Challenger& challenger) const {
     TRACE_EVENT("ProofVerification", "TwoAdicFRI::VerifyOpeningProof");
     // Batch combination challenge
     const ExtF alpha = challenger.template SampleExtElement<ExtF>();
