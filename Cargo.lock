@@ -3528,6 +3528,7 @@ version = "0.0.1"
 dependencies = [
  "anyhow",
  "cxx",
+ "itertools 0.13.0",
  "p3-baby-bear",
  "p3-challenger",
  "p3-commit",

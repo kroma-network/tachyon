@@ -1,5 +1,5 @@
 {
-  "checksum": "a9fbed09c049bf53d1422ae2fb19a3cea5955abe3cd56efe8444f998567af7ee",
+  "checksum": "b3816f6bd5dd0bec76c601bd49e3d4f7141a37c95eca3443b1d49dbb7182742d",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -18176,6 +18176,10 @@
             {
               "id": "cxx 1.0.122",
               "target": "cxx"
+            },
+            {
+              "id": "itertools 0.13.0",
+              "target": "itertools"
             },
             {
               "id": "p3-baby-bear 0.1.3-succinct",

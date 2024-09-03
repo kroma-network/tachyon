@@ -12,12 +12,16 @@
 
 namespace tachyon::sp1_api::baby_bear_poseidon2 {
 
+class CommitmentVec;
 class CommitResult;
+class Domains;
 class DuplexChallenger;
+class FriProof;
 class OpeningPoints;
 class OpeningProof;
 class ProverData;
 class ProverDataVec;
+class OpenedValues;
 struct TachyonBabyBear;
 struct TachyonBabyBear4;
 
@@ -38,6 +42,10 @@ class TwoAdicFriPcs {
   std::unique_ptr<OpeningProof> do_open(const ProverDataVec& prover_data_vec,
                                         const OpeningPoints& opening_points,
                                         DuplexChallenger& challenger) const;
+  bool do_verify(const CommitmentVec& commitment_vec, const Domains& domains,
+                 const OpeningPoints& opening_points,
+                 const OpenedValues& opened_values, const FriProof& proof,
+                 DuplexChallenger& challenger) const;
 
  private:
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs_;
