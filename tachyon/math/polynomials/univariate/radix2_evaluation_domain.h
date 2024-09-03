@@ -120,7 +120,8 @@ class Radix2EvaluationDomain
 
   template <typename Derived>
   CONSTEXPR_IF_NOT_OPENMP RowMajorMatrix<F> CosetLDEBatch(
-      Eigen::MatrixBase<Derived>& mat, size_t added_bits, F shift) const {
+      Eigen::MatrixBase<Derived>& mat, size_t added_bits, F shift,
+      bool reverse_at_last = true) const {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -177,7 +178,9 @@ class Radix2EvaluationDomain
     ReverseMatrixIndexBits(ret);
     domain->RunParallelRowChunksReversed(ret, domain->cache_->rev_roots_vec,
                                          domain->cache_->packed_roots_vec[1]);
-    ReverseMatrixIndexBits(ret);
+    if (reverse_at_last) {
+      ReverseMatrixIndexBits(ret);
+    }
     return ret;
   }
 

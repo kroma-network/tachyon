@@ -74,14 +74,11 @@ class TwoAdicFRI {
     TRACE_EVENT("ProofGeneration", "TwoAdicFRI::Commit");
     std::vector<math::RowMajorMatrix<F>> ldes =
         base::Map(cosets, [this, &matrices](size_t i, const Domain& coset) {
-          math::RowMajorMatrix<F>& mat = matrices[i];
-          CHECK_EQ(coset.domain()->size(), static_cast<size_t>(mat.rows()));
-          math::RowMajorMatrix<F> ret = coset.domain()->CosetLDEBatch(
-              mat, fri_.log_blowup,
+          return coset.domain()->CosetLDEBatch(
+              matrices[i], fri_.log_blowup,
               F::FromMontgomery(F::Config::kSubgroupGenerator) *
-                  coset.domain()->offset_inv());
-          ReverseMatrixIndexBits(ret);
-          return ret;
+                  coset.domain()->offset_inv(),
+              /*reverse_at_last=*/false);
         });
     return mmcs_.Commit(std::move(ldes), commitment, prover_data);
   }
