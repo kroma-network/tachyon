@@ -16,6 +16,15 @@ pub struct Fp2<PrimeField> {
 
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Hash, Zeroize)]
+pub struct Fp4<PrimeField> {
+    pub c0: PrimeField,
+    pub c1: PrimeField,
+    pub c2: PrimeField,
+    pub c3: PrimeField,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Hash, Zeroize)]
 pub struct Fp6<Fp2> {
     pub c0: Fp2,
     pub c1: Fp2,

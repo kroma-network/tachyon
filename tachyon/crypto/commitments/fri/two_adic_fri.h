@@ -15,6 +15,7 @@
 #include "absl/container/flat_hash_map.h"
 
 #include "tachyon/base/bits.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/profiler.h"
 #include "tachyon/crypto/commitments/fri/fri_proof.h"
 #include "tachyon/crypto/commitments/fri/prove.h"
@@ -53,7 +54,8 @@ class TwoAdicFRI {
   using InputProof = std::vector<BatchOpening<TwoAdicFRI>>;
   using FRIProof = crypto::FRIProof<TwoAdicFRI>;
 
-  using Points = std::vector<std::vector<ExtF>>;
+  using OpeningPointsForRound = std::vector<std::vector<ExtF>>;
+  using OpeningPoints = std::vector<OpeningPointsForRound>;
 
   using OpenedValuesForMat = std::vector<std::vector<ExtF>>;
   using OpenedValuesForRound = std::vector<OpenedValuesForMat>;
@@ -88,7 +90,7 @@ class TwoAdicFRI {
 
   [[nodiscard]] bool CreateOpeningProof(
       const std::vector<ProverData>& prover_data_by_round,
-      const std::vector<Points>& points_by_round, Challenger& challenger,
+      const OpeningPoints& points_by_round, Challenger& challenger,
       OpenedValues* openings, FRIProof* proof) {
     TRACE_EVENT("ProofGeneration", "TwoAdicFRI::CreateOpeningProof");
     ExtF alpha = challenger.template SampleExtElement<ExtF>();
@@ -121,7 +123,7 @@ class TwoAdicFRI {
     for (size_t round = 0; round < num_rounds; ++round) {
       absl::Span<const math::RowMajorMatrix<F>> matrices =
           matrices_by_round[round];
-      const Points& points = points_by_round[round];
+      const OpeningPointsForRound& points = points_by_round[round];
       OpenedValuesForRound opened_values_for_round(matrices.size());
       for (size_t matrix_idx = 0; matrix_idx < matrices.size(); ++matrix_idx) {
         const math::RowMajorMatrix<F>& mat = matrices[matrix_idx];
@@ -307,10 +309,11 @@ class TwoAdicFRI {
   friend class c::crypto::TwoAdicFRIImpl<ExtF, InputMMCS, ChallengeMMCS,
                                          Challenger>;
 
-  absl::flat_hash_map<ExtF, std::vector<ExtF>> ComputeInverseDenominators(
+  static absl::flat_hash_map<ExtF, std::vector<ExtF>>
+  ComputeInverseDenominators(
       const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
           matrices_by_round,
-      const std::vector<Points>& points_by_round, F coset_shift) {
+      const OpeningPoints& points_by_round, F coset_shift) {
     TRACE_EVENT("Utils", "ComputeInverseDenominators");
     size_t num_rounds = matrices_by_round.size();
 
@@ -319,19 +322,17 @@ class TwoAdicFRI {
     for (size_t round = 0; round < num_rounds; ++round) {
       absl::Span<const math::RowMajorMatrix<F>> matrices =
           matrices_by_round[round];
-      const Points& points = points_by_round[round];
+      const OpeningPointsForRound& points = points_by_round[round];
       for (const math::RowMajorMatrix<F>& matrix : matrices) {
         uint32_t log_num_rows =
             base::bits::CheckedLog2(static_cast<uint32_t>(matrix.rows()));
         max_log_num_rows = std::max(max_log_num_rows, log_num_rows);
         for (const std::vector<ExtF>& point_list : points) {
           for (const ExtF& point : point_list) {
-            auto find_iter = max_log_num_rows_for_point.find(point);
-            if (find_iter != max_log_num_rows_for_point.end()) {
-              find_iter->second =
-                  std::max(max_log_num_rows_for_point[point], log_num_rows);
-            } else {
-              max_log_num_rows_for_point.try_emplace(point, log_num_rows);
+            const auto [it, inserted] =
+                max_log_num_rows_for_point.try_emplace(point, log_num_rows);
+            if (!inserted) {
+              it->second = std::max(it->second, log_num_rows);
             }
           }
         }
@@ -341,18 +342,26 @@ class TwoAdicFRI {
     // Compute the largest subgroup we will use, in bitrev order.
     F w;
     CHECK(F::GetRootOfUnity(size_t{1} << max_log_num_rows, &w));
+    // TODO(chokobole): Change type of |subgroup| to |std::vector<ExtF>|.
     std::vector<F> subgroup = F::GetBitRevIndexSuccessivePowers(
         size_t{1} << max_log_num_rows, w, coset_shift);
 
     absl::flat_hash_map<ExtF, std::vector<ExtF>> ret;
+    ret.reserve(max_log_num_rows_for_point.size());
     for (auto it = max_log_num_rows_for_point.begin();
          it != max_log_num_rows_for_point.end(); ++it) {
       const ExtF& point = it->first;
       uint32_t log_num_rows = it->second;
-      std::vector<ExtF> temp = base::Map(
-          absl::MakeSpan(subgroup.data(), (size_t{1} << log_num_rows)),
-          [&point](F x) { return ExtF(x) - point; });
-      CHECK(ExtF::BatchInverseInPlace(temp));
+      std::vector<ExtF> temp(size_t{1} << log_num_rows);
+      base::Parallelize(
+          temp, [&subgroup, &point](absl::Span<ExtF> chunk, size_t chunk_offset,
+                                    size_t chunk_size) {
+            size_t start = chunk_offset * chunk_size;
+            for (size_t i = start; i < start + chunk.size(); ++i) {
+              chunk[i - start] = ExtF(subgroup[i]) - point;
+            }
+            CHECK(ExtF::BatchInverseInPlace(chunk));
+          });
       ret[point] = std::move(temp);
     }
     return ret;

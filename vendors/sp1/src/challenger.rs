@@ -3,10 +3,11 @@ mod test {
     use crate::baby_bear_poseidon2::DuplexChallenger as TachyonDuplexChallenger;
     use p3_baby_bear::BabyBear;
     use p3_challenger::{CanObserve, CanSample, DuplexChallenger};
-    use p3_field::AbstractField;
+    use p3_field::{extension::BinomialExtensionField, AbstractField};
     use sp1_core::utils::baby_bear_poseidon2::{my_perm, Perm};
 
     type F = BabyBear;
+    type EF = BinomialExtensionField<F, 4>;
 
     #[test]
     fn test_duplex_challenger() {
@@ -35,6 +36,17 @@ mod test {
                     &mut tachyon_duplex_challenger
                 ),
                 <DuplexChallenger<F, Perm, WIDTH, RATE> as CanSample<F>>::sample(
+                    &mut duplex_challenger
+                )
+            );
+        }
+
+        for _ in 0..10 {
+            assert_eq!(
+                <TachyonDuplexChallenger<F, Perm, WIDTH, RATE> as CanSample<EF>>::sample(
+                    &mut tachyon_duplex_challenger
+                ),
+                <DuplexChallenger<F, Perm, WIDTH, RATE> as CanSample<EF>>::sample(
                     &mut duplex_challenger
                 )
             );

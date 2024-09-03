@@ -3541,10 +3541,12 @@ dependencies = [
  "p3-util",
  "rand 0.8.5",
  "rand_chacha",
+ "serde",
  "sp1-core",
  "sp1-primitives",
  "sp1-prover",
  "tachyon_rs",
+ "tracing",
 ]
 
 [[package]]

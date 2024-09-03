@@ -2,9 +2,15 @@
 
 #include <utility>
 
+#include "tachyon/c/math/finite_fields/baby_bear/baby_bear4_type_traits.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
 #include "tachyon/c/math/matrix/baby_bear_row_major_matrix_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_duplex_challenger_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_vec_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_fri_proof_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_opened_values_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_opening_points_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri_type_traits.h"
 
 using namespace tachyon;
@@ -113,8 +119,29 @@ tachyon_baby_bear* tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
 void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
     tachyon_baby_bear* commitment,
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data) {
+    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data,
+    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* prover_data_vec) {
   using Commitment = MMCS::Commitment;
   c::base::native_cast(pcs)->Commit(reinterpret_cast<Commitment*>(commitment),
-                                    reinterpret_cast<Tree**>(prover_data));
+                                    reinterpret_cast<Tree**>(prover_data),
+                                    c::base::native_cast(prover_data_vec));
+}
+
+void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
+    tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
+    const tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec*
+        prover_data_by_round,
+    const tachyon_sp1_baby_bear_poseidon2_opening_points* points_by_round,
+    tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger,
+    tachyon_sp1_baby_bear_poseidon2_opened_values** opened_values,
+    tachyon_sp1_baby_bear_poseidon2_fri_proof** proof) {
+  c::base::native_cast(pcs)->CreateOpeningProof(
+      c::base::native_cast(*prover_data_by_round),
+      c::base::native_cast(*points_by_round), c::base::native_cast(*challenger),
+      c::base::native_cast(
+          reinterpret_cast<tachyon_sp1_baby_bear_poseidon2_opened_values*>(
+              *opened_values)),
+      c::base::native_cast(
+          reinterpret_cast<tachyon_sp1_baby_bear_poseidon2_fri_proof*>(
+              *proof)));
 }

@@ -8,6 +8,7 @@
 #include "third_party/eigen3/Eigen/Core"
 
 #include "tachyon/base/bits.h"
+#include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/profiler.h"
@@ -62,29 +63,20 @@ template <typename Expr, int BlockRows, int BlockCols, bool InnerPanel,
               typename PackedFieldTraits<typename Expr::Scalar>::PackedField>
 std::vector<PackedField> PackRowHorizontallyPadded(
     const Eigen::Block<Expr, BlockRows, BlockCols, InnerPanel>& matrix_row) {
-  size_t cols = static_cast<size_t>(matrix_row.cols());
   using F = typename FiniteFieldTraits<PackedField>::PrimeField;
-  size_t num_full_packed = cols / PackedField::N;
-  bool full = cols % PackedField::N == 0;
 
-  std::vector<PackedField> ret;
-  ret.reserve(full ? num_full_packed : num_full_packed + 1);
-  for (size_t col = 0; col < num_full_packed; ++col) {
-    ret.push_back(PackedField::From(
-        [col, &matrix_row](size_t c) { return matrix_row(0, col + c); }));
-  }
-  // Add last padded |PackedField| element.
-  if (!full) {
-    size_t remaining_start_idx = num_full_packed * PackedField::N;
-    ret.push_back(
-        PackedField::From([cols, remaining_start_idx, &matrix_row](size_t i) {
-          if (remaining_start_idx + i < cols)
-            return matrix_row(0, remaining_start_idx + i);
-          else
-            return F::Zero();
-        }));
-  }
-  return ret;
+  size_t cols = static_cast<size_t>(matrix_row.cols());
+  size_t size = (cols + PackedField::N - 1) / PackedField::N;
+  return base::CreateVector(size, [cols, &matrix_row](size_t i) {
+    size_t col = i * PackedField::N;
+    return PackedField::From([col, cols, &matrix_row](size_t c) {
+      if (LIKELY(col + c < cols)) {
+        return matrix_row[col + c];
+      } else {
+        return F::Zero();
+      }
+    });
+  });
 }
 
 // Packs |PackedField::N| rows, starting at the given row index. Each
@@ -96,12 +88,12 @@ std::vector<PackedField> PackRowVertically(
     const Eigen::MatrixBase<Derived>& matrix, size_t row) {
   using Scalar = typename Eigen::internal::traits<Derived>::Scalar;
   if constexpr (FiniteFieldTraits<Scalar>::kIsExtensionField) {
-    size_t num =
-        matrix.cols() * ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
+    constexpr size_t kDegree =
+        ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
+    size_t num = matrix.cols() * kDegree;
     return base::CreateVector(num, [row, &matrix](size_t n) {
-      size_t col = n / ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
-      size_t idx =
-          n - col * ExtensionFieldTraits<Scalar>::kDegreeOverBasePrimeField;
+      size_t col = n / kDegree;
+      size_t idx = n - col * kDegree;
       return PackedField::From([row, col, idx, &matrix](size_t i) {
         return matrix((row + i) % matrix.rows(), col)[idx];
       });
@@ -203,29 +195,22 @@ std::vector<ExtField> DotExtPowers(const Eigen::MatrixBase<Derived>& mat,
       ExtField::GetExtendedPackedPowers(
           base, ((static_cast<size_t>(mat.cols()) + packed_n - 1) / packed_n) *
                     packed_n);
-  std::vector<ExtField> ret = base::CreateVectorParallel(
-      rows, [&mat, &packed_ext_powers](Eigen::Index r) {
-        std::vector<PackedField> row_packed =
-            PackRowHorizontallyPadded(mat.row(r));
-        ExtendedPackedField packed_sum_of_packed(ExtendedPackedField::Zero());
-        for (size_t i = 0; i < row_packed.size(); ++i) {
-          packed_sum_of_packed += packed_ext_powers[i] * row_packed[i];
-        }
-        std::array<PackedField, ExtendedPackedField::ExtensionDegree()>
-            packed_sum_of_packed_decomposed =
-                packed_sum_of_packed.ToBaseFields();
-        std::array<F, ExtField::ExtensionDegree()> base_field_sums =
-            base::CreateArray<ExtField::ExtensionDegree()>(
-                [&packed_sum_of_packed_decomposed](size_t d) {
-                  return std::accumulate(
-                      packed_sum_of_packed_decomposed[d].values().begin(),
-                      packed_sum_of_packed_decomposed[d].values().end(),
-                      F::Zero());
-                });
-
-        return ExtField::FromBasePrimeFields(base_field_sums);
-      });
-  return ret;
+  return base::CreateVectorParallel(rows, [&mat,
+                                           &packed_ext_powers](Eigen::Index r) {
+    std::vector<PackedField> row_packed = PackRowHorizontallyPadded(mat.row(r));
+    ExtendedPackedField packed_sum_of_packed(ExtendedPackedField::Zero());
+    for (size_t i = 0; i < row_packed.size(); ++i) {
+      packed_sum_of_packed += packed_ext_powers[i] * row_packed[i];
+    }
+    ExtField ret(ExtField::Zero());
+    for (size_t i = 0; i < ExtField::ExtensionDegree(); ++i) {
+      const PackedField& packed = packed_sum_of_packed[i];
+      for (size_t j = 0; j < PackedField::N; ++j) {
+        ret[i] += packed[j];
+      }
+    }
+    return ret;
+  });
 }
 
 }  // namespace tachyon::math

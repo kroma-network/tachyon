@@ -7,6 +7,11 @@ filegroup(
     srcs = [
         "baby_bear_poseidon2_constants.h",
         "baby_bear_poseidon2_duplex_challenger.h",
+        "baby_bear_poseidon2_field_merkle_tree.h",
+        "baby_bear_poseidon2_field_merkle_tree_vec.h",
+        "baby_bear_poseidon2_fri_proof.h",
+        "baby_bear_poseidon2_opened_values.h",
+        "baby_bear_poseidon2_opening_points.h",
         "baby_bear_poseidon2_two_adic_fri.h",
     ],
 )
@@ -52,19 +57,76 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "baby_bear_poseidon2_two_adic_fri",
-    srcs = ["baby_bear_poseidon2_two_adic_fri.cc"],
+    name = "baby_bear_poseidon2_field_merkle_tree_vec",
+    srcs = ["baby_bear_poseidon2_field_merkle_tree_vec.cc"],
     hdrs = [
+        "baby_bear_poseidon2_field_merkle_tree_vec.h",
+        "baby_bear_poseidon2_field_merkle_tree_vec_type_traits.h",
+    ],
+    deps = [
+        ":baby_bear_poseidon2_constants",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree",
+        "//tachyon/math/finite_fields/baby_bear",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_opened_values",
+    srcs = ["baby_bear_poseidon2_opened_values.cc"],
+    hdrs = [
+        "baby_bear_poseidon2_opened_values.h",
+        "baby_bear_poseidon2_opened_values_type_traits.h",
+    ],
+    deps = [
+        "//tachyon/base:auto_reset",
+        "//tachyon/base/buffer",
+        "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/c/math/finite_fields/baby_bear:baby_bear4",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_opening_points",
+    srcs = ["baby_bear_poseidon2_opening_points.cc"],
+    hdrs = [
+        "baby_bear_poseidon2_opening_points.h",
+        "baby_bear_poseidon2_opening_points_type_traits.h",
+    ],
+    deps = [
+        "//tachyon/c:export",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/c/math/finite_fields/baby_bear:baby_bear4",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_two_adic_fri",
+    srcs = [
+        "baby_bear_poseidon2_fri_proof.cc",
+        "baby_bear_poseidon2_two_adic_fri.cc",
+    ],
+    hdrs = [
+        "baby_bear_poseidon2_fri_proof.h",
+        "baby_bear_poseidon2_fri_proof_type_traits.h",
         "baby_bear_poseidon2_two_adic_fri.h",
         "baby_bear_poseidon2_two_adic_fri_type_traits.h",
     ],
     deps = [
         ":baby_bear_poseidon2_constants",
+        ":baby_bear_poseidon2_duplex_challenger",
         ":baby_bear_poseidon2_field_merkle_tree",
+        ":baby_bear_poseidon2_field_merkle_tree_vec",
+        ":baby_bear_poseidon2_opened_values",
+        ":baby_bear_poseidon2_opening_points",
         "//tachyon/c:export",
         "//tachyon/c/base:type_traits_forward",
         "//tachyon/c/crypto/commitments/fri:two_adic_fri_impl",
         "//tachyon/c/math/finite_fields/baby_bear",
+        "//tachyon/c/math/finite_fields/baby_bear:baby_bear4",
         "//tachyon/c/math/matrix:baby_bear_row_major_matrix",
         "//tachyon/crypto/challenger:duplex_challenger",
         "//tachyon/crypto/commitments/fri:two_adic_fri",
@@ -75,23 +137,20 @@ tachyon_cc_library(
         "//tachyon/crypto/hashes/sponge:truncated_permutation",
         "//tachyon/crypto/hashes/sponge/poseidon2",
         "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_plonky3_external_matrix",
-        "//tachyon/math/finite_fields/baby_bear:baby_bear4",
         "//tachyon/math/finite_fields/baby_bear:poseidon2",
     ],
 )
 
 tachyon_cc_library(
     name = "sp1",
-    deps = [
-        ":baby_bear_poseidon2_duplex_challenger",
-        ":baby_bear_poseidon2_two_adic_fri",
-    ],
+    deps = [":baby_bear_poseidon2_two_adic_fri"],
 )
 
 tachyon_cc_unittest(
     name = "sp1_unittests",
     srcs = [
         "baby_bear_poseidon2_duplex_challenger_unittest.cc",
+        "baby_bear_poseidon2_opened_values_unittest.cc",
         "baby_bear_poseidon2_two_adic_fri_unittest.cc",
     ],
     deps = [

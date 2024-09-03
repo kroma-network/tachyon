@@ -67,30 +67,28 @@ class ExtensionFieldBase {
                                                                   size_t size) {
     using BaseField = typename T::BaseField;
     using PackedField = typename PackedFieldTraits<BaseField>::PackedField;
-    uint32_t degree = T::ExtensionDegree();
-    T pow = T::One();
-    std::array<std::array<BaseField, T::ExtensionDegree()>, PackedField::N + 1>
-        powers_base_field =
-            base::CreateArray<PackedField::N + 1>([&base, &pow]() {
-              auto ret = pow.ToBaseFields();
-              pow *= base;
-              return ret;
-            });
+    constexpr uint32_t kDegree = T::ExtensionDegree();
 
-    // Transpose first WIDTH powers
+    // if |PackedField::N| = 8:
+    // |first_n_powers[i]| = {1, aᵢ, ..., a⁷ᵢ}
     ExtendedPackedField first_n_powers;
-    // Broadcast self^WIDTH
-    ExtendedPackedField multiplier;
-    for (uint32_t deg = 0; deg < degree; ++deg) {
-      first_n_powers[deg] =
-          PackedField::From([&powers_base_field, deg](size_t j) {
-            return powers_base_field[j][deg];
-          });
-      multiplier[deg] = PackedField::From([&powers_base_field, deg](size_t j) {
-        return powers_base_field[PackedField::N][deg];
-      });
+    T pow = T::One();
+    for (size_t i = 0; i < PackedField::N; ++i) {
+      for (uint32_t j = 0; j < kDegree; ++j) {
+        first_n_powers[j][i] = pow[j];
+      }
+      pow *= base;
     }
 
+    // |multiplier[j]| = {a⁸ⱼ, a⁸ⱼ, ..., a⁸ⱼ, a⁸ⱼ}
+    ExtendedPackedField multiplier;
+    for (size_t i = 0; i < PackedField::N; ++i) {
+      for (uint32_t j = 0; j < kDegree; ++j) {
+        multiplier[j][i] = pow[j];
+      }
+    }
+
+    // |ret[i]| = {(a⁸ᵢ)ⁱ, aᵢ * (a⁸ᵢ)ⁱ, ..., a⁷ᵢ * (a⁸ᵢ)ⁱ}
     std::vector<ExtendedPackedField> ret;
     ret.reserve(size);
     ret.emplace_back(first_n_powers);

@@ -21,6 +21,10 @@ class DuplexChallenger {
   DuplexChallenger& operator=(const DuplexChallenger& other) = delete;
   ~DuplexChallenger();
 
+  tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger() {
+    return challenger_;
+  }
+
   void observe(const TachyonBabyBear& value);
   rust::Box<TachyonBabyBear> sample();
   std::unique_ptr<DuplexChallenger> clone() const;
