@@ -54,7 +54,7 @@ class TwoAdicFRIImpl
   void CreateOpeningProof(
       const std::vector<std::unique_ptr<ProverData>>& prover_data_by_round_in,
       const OpeningPoints& points_by_round, Challenger& challenger,
-      OpenedValues* opened_values_by_round, FRIProof* proof) {
+      OpenedValues* opened_values_by_round, FRIProof* proof) const {
     auto& prover_data_by_round =
         const_cast<std::vector<std::unique_ptr<ProverData>>&>(
             prover_data_by_round_in);

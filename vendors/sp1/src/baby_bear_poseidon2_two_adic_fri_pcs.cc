@@ -47,7 +47,7 @@ std::unique_ptr<OpeningProof> TwoAdicFriPcs::do_open(
     DuplexChallenger& challenger) const {
   std::unique_ptr<OpeningProof> ret(new OpeningProof);
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
-      const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri*>(pcs_),
+      pcs_,
       prover_data_vec.tree_vec(), opening_points.opening_points(),
       challenger.challenger(), ret->opened_values_ptr(), ret->proof_ptr());
   return ret;

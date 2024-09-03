@@ -128,7 +128,7 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
 }
 
 void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
-    tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
+    const tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
     const tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec*
         prover_data_by_round,
     const tachyon_sp1_baby_bear_poseidon2_opening_points* points_by_round,
