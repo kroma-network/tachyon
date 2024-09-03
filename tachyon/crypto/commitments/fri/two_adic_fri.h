@@ -89,7 +89,7 @@ class TwoAdicFRI {
   [[nodiscard]] bool CreateOpeningProof(
       const std::vector<ProverData>& prover_data_by_round,
       const OpeningPoints& points_by_round, Challenger& challenger,
-      OpenedValues* opened_values_out, FRIProof* proof) {
+      OpenedValues* opened_values_out, FRIProof* proof) const {
     TRACE_EVENT("ProofGeneration", "TwoAdicFRI::CreateOpeningProof");
     ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);

@@ -21,7 +21,7 @@ namespace tachyon::crypto::fri {
 
 template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger>
-CommitPhaseResult<PCS> CommitPhase(FRIConfig<ChallengeMMCS>& config,
+CommitPhaseResult<PCS> CommitPhase(const FRIConfig<ChallengeMMCS>& config,
                                    std::vector<std::vector<ExtF>>&& inputs,
                                    Challenger& challenger) {
   // NOTE(ashjeong): This is empirically determined in case the size of the for
@@ -93,7 +93,7 @@ CommitPhaseResult<PCS> CommitPhase(FRIConfig<ChallengeMMCS>& config,
 
 template <typename PCS, typename ChallengeMMCS = typename PCS::ChallengeMMCS>
 std::vector<CommitPhaseProofStep<PCS>> AnswerQuery(
-    size_t index, FRIConfig<ChallengeMMCS>& config,
+    size_t index, const FRIConfig<ChallengeMMCS>& config,
     const std::vector<typename ChallengeMMCS::ProverData>&
         commit_phase_commits) {
   return base::CreateVector(
@@ -120,7 +120,7 @@ std::vector<CommitPhaseProofStep<PCS>> AnswerQuery(
 template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename Challenger, typename OpenInputCallback,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
-FRIProof<PCS> Prove(FRIConfig<ChallengeMMCS>& config,
+FRIProof<PCS> Prove(const FRIConfig<ChallengeMMCS>& config,
                     std::vector<std::vector<ExtF>>&& inputs,
                     Challenger& challenger, OpenInputCallback open_input) {
   using QueryProof = QueryProof<PCS>;
