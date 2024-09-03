@@ -36,7 +36,7 @@ class ExtensionFieldMerkleTreeMMCS final
 
   [[nodiscard]] bool DoCommit(
       std::vector<math::RowMajorMatrix<ExtensionField>>&& matrices,
-      Commitment* commitment, ProverData* prover_data) {
+      Commitment* commitment, ProverData* prover_data) const {
     return inner_.Commit(std::move(matrices), commitment, prover_data);
   }
 

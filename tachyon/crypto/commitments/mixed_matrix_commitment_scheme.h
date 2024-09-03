@@ -35,14 +35,16 @@ class MixedMatrixCommitmentScheme {
   }
 
   [[nodiscard]] bool Commit(math::RowMajorMatrix<Field>&& matrix,
-                            Commitment* commitment, ProverData* prover_data) {
+                            Commitment* commitment,
+                            ProverData* prover_data) const {
     return Commit(std::vector<math::RowMajorMatrix<Field>>{std::move(matrix)},
                   commitment, prover_data);
   }
 
   [[nodiscard]] bool Commit(std::vector<math::RowMajorMatrix<Field>>&& matrices,
-                            Commitment* commitment, ProverData* prover_data) {
-    Derived* derived = static_cast<Derived*>(this);
+                            Commitment* commitment,
+                            ProverData* prover_data) const {
+    const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoCommit(std::move(matrices), commitment, prover_data);
   }
 

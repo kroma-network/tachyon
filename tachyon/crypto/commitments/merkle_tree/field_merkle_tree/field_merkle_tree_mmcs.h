@@ -87,7 +87,8 @@ class FieldMerkleTreeMMCS final
   };
 
   [[nodiscard]] bool DoCommit(std::vector<math::RowMajorMatrix<F>>&& matrices,
-                              Commitment* commitment, ProverData* prover_data) {
+                              Commitment* commitment,
+                              ProverData* prover_data) const {
     TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommit");
     *prover_data =
         FieldMerkleTree<F, N>::Build(hasher_, packed_hasher_, compressor_,
