@@ -86,8 +86,9 @@ class FieldMerkleTree {
         absl::MakeSpan(sorted_leaves.data() + first_layer_size,
                        sorted_leaves.size() - first_layer_size);
 
-    std::vector<std::vector<Digest>> digest_layers{
-        CreateFirstDigestLayer(hasher, packed_hasher, tallest_matrices)};
+    std::vector<std::vector<Digest>> digest_layers;
+    digest_layers.emplace_back(
+        CreateFirstDigestLayer(hasher, packed_hasher, tallest_matrices));
 
     while (true) {
       const std::vector<Digest>& prev_layer = digest_layers.back();
