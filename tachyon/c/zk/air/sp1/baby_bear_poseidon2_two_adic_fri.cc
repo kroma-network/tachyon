@@ -5,6 +5,8 @@
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear4_type_traits.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
 #include "tachyon/c/math/matrix/baby_bear_row_major_matrix_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_commitment_vec_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_domains_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_duplex_challenger_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_vec_type_traits.h"
@@ -144,4 +146,20 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
       c::base::native_cast(
           reinterpret_cast<tachyon_sp1_baby_bear_poseidon2_fri_proof*>(
               *proof)));
+}
+
+bool tachyon_sp1_baby_bear_poseidon2_two_adic_fri_verify(
+    const tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
+    const tachyon_sp1_baby_bear_poseidon2_commitment_vec* commitments_by_round,
+    const tachyon_sp1_baby_bear_poseidon2_domains* domains_by_round,
+    const tachyon_sp1_baby_bear_poseidon2_opening_points* points_by_round,
+    const tachyon_sp1_baby_bear_poseidon2_opened_values* opened_values_by_round,
+    const tachyon_sp1_baby_bear_poseidon2_fri_proof* proof,
+    tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger) {
+  return c::base::native_cast(pcs)->VerifyOpeningProof(
+      c::base::native_cast(*commitments_by_round),
+      c::base::native_cast(*domains_by_round),
+      c::base::native_cast(*points_by_round),
+      c::base::native_cast(*opened_values_by_round),
+      c::base::native_cast(*proof), c::base::native_cast(*challenger));
 }

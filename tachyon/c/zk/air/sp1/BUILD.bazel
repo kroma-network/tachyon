@@ -148,7 +148,9 @@ tachyon_cc_library(
         "baby_bear_poseidon2_two_adic_fri_type_traits.h",
     ],
     deps = [
+        ":baby_bear_poseidon2_commitment_vec",
         ":baby_bear_poseidon2_constants",
+        ":baby_bear_poseidon2_domains",
         ":baby_bear_poseidon2_duplex_challenger",
         ":baby_bear_poseidon2_field_merkle_tree",
         ":baby_bear_poseidon2_field_merkle_tree_vec",
