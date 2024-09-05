@@ -1,0 +1,57 @@
+load("@icicle//:build_defs.bzl", "BABY_BEAR", "BN254", "icicle_defines")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
+
+tachyon_cuda_library(
+    name = "icicle_mmcs_baby_bear",
+    srcs = if_cuda(["icicle_mmcs_baby_bear.cc"]),
+    hdrs = ["icicle_mmcs_baby_bear.h"],
+    local_defines = icicle_defines(BABY_BEAR),
+    deps = [
+        ":icicle_mmcs",
+        "//tachyon/base:bits",
+        "//tachyon/base:openmp_util",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@com_google_absl//absl/numeric:bits",
+        "@icicle//:merkle_tree_baby_bear",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
+
+tachyon_cuda_library(
+    name = "icicle_mmcs_bn254",
+    srcs = if_cuda(["icicle_mmcs_bn254.cc"]),
+    hdrs = ["icicle_mmcs_bn254.h"],
+    local_defines = icicle_defines(BN254),
+    deps = [
+        ":icicle_mmcs",
+        "//tachyon/base:bits",
+        "//tachyon/base:openmp_util",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@com_google_absl//absl/numeric:bits",
+        "@icicle//:merkle_tree_bn254",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "icicle_mmcs",
+    hdrs = ["icicle_mmcs.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "//tachyon/device/gpu:gpu_device_functions",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/finite_fields/baby_bear",
+        "//tachyon/math/matrix:matrix_types",
+        "@com_google_absl//absl/types:span",
+        "@icicle//:hdrs",
+    ],
+)

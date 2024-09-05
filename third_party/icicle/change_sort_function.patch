@@ -1,0 +1,19 @@
+diff --git a/icicle/src/merkle-tree/mmcs.cu.cc b/icicle/src/merkle-tree/mmcs.cu.cc
+index 1d695483..e0a0cf76 100644
+--- a/icicle/src/merkle-tree/mmcs.cu.cc
++++ b/icicle/src/merkle-tree/mmcs.cu.cc
+@@ -203,10 +203,10 @@ namespace merkle_tree {
+         IcicleError_t::InvalidArgument,
+         "Hash max preimage length does not match merkle tree arity multiplied by digest elements");
+
+-    std::vector<Matrix<L>> sorted_inputs(number_of_inputs);
+-    std::partial_sort_copy(
+-      inputs, inputs + number_of_inputs, sorted_inputs.begin(), sorted_inputs.end(),
+-      [](const Matrix<L>& left, const Matrix<L>& right) { return left.height > right.height; });
++    std::vector<Matrix<L>> sorted_inputs(inputs, inputs + number_of_inputs);
++    std::stable_sort(sorted_inputs.begin(), sorted_inputs.end(), [](const Matrix<L>& left, const Matrix<L>& right) {
++      return left.height > right.height;
++    });
+
+     // Check that the height of any two given matrices either rounds up
+     // to the same next power of two or otherwise equal
