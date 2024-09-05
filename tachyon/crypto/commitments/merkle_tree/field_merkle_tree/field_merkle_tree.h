@@ -106,14 +106,16 @@ class FieldMerkleTree {
         }
 
         F digests = F::Zero();  // TODO(Noah): change type
-        std::vector<std::vector<Digest>> digest_layers_icicle;
+        std::vector<std::vector<Digest>> digest_layers;
+        std::vector<std::vector<std::vector<PrimeField>>> digest_layers_icicle;
         bool result = merkle_tree_gpu->Build(
-            std::move(inputs), &digests, round_constants, internal_matrix_diag);
+            std::move(inputs), std::move(digest_layers_icicle), round_constants,
+            internal_matrix_diag);
         LOG(ERROR) << digests;
 
         if (result) {
           LOG(ERROR) << "test6";
-          return {std::move(leaves), std::move(digest_layers_icicle)};
+          return {std::move(leaves), std::move(digest_layers)};
         };
       }
     }

@@ -29,7 +29,8 @@ namespace tachyon::crypto {
 template <>
 bool IcicleMerkleTree<math::BabyBear>::Build(
     std::vector<math::RowMajorMatrix<math::BabyBear>>&& inputs,
-    math::BabyBear* digests, absl::Span<const math::BabyBear> round_constants,
+    std::vector<std::vector<std::vector<math::BabyBear>>>&& digests,
+    absl::Span<const math::BabyBear> round_constants,
     absl::Span<const math::BabyBear> internal_matrix_diag) {
 #if FIELD_ID != BABY_BEAR
 #error Only BABY_BEAR is supported
