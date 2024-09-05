@@ -38,12 +38,14 @@ class TwoAdicFRIImpl;
 
 namespace crypto {
 
-template <typename ExtF, typename _InputMMCS, typename _ChallengeMMCS,
-          typename Challenger>
+template <typename _ExtF, typename _InputMMCS, typename _ChallengeMMCS,
+          typename _Challenger>
 class TwoAdicFRI {
  public:
+  using ExtF = _ExtF;
   using InputMMCS = _InputMMCS;
   using ChallengeMMCS = _ChallengeMMCS;
+  using Challenger = _Challenger;
 
   using F = typename math::ExtensionFieldTraits<ExtF>::BaseField;
   using Domain = TwoAdicMultiplicativeCoset<F>;
