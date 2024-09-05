@@ -21,44 +21,44 @@ tachyon_cuda_library(
     ]),
 )
 
-tachyon_cuda_library(
-    name = "icicle_mmcs_bls12_381",
-    srcs = if_cuda(["icicle_mmcs_bls12_381.cc"]),
-    hdrs = ["icicle_mmcs_bls12_381.h"],
-    local_defines = icicle_defines(BLS12_381),
-    deps = [
-        ":icicle_mmcs",
-        "@com_google_absl//absl/types:span",
-        "@icicle//:merkle_tree_bls12_381",
-        "@icicle//:poseidon_bls12_381",
-    ] + if_cuda([
-        "@local_config_cuda//cuda:cudart_static",
-    ]),
-)
+# tachyon_cuda_library(
+#     name = "icicle_mmcs_bls12_381",
+#     srcs = if_cuda(["icicle_mmcs_bls12_381.cc"]),
+#     hdrs = ["icicle_mmcs_bls12_381.h"],
+#     local_defines = icicle_defines(BLS12_381),
+#     deps = [
+#         ":icicle_mmcs",
+#         "@com_google_absl//absl/types:span",
+#         "@icicle//:merkle_tree_bls12_381",
+#         "@icicle//:poseidon_bls12_381",
+#     ] + if_cuda([
+#         "@local_config_cuda//cuda:cudart_static",
+#     ]),
+# )
 
-tachyon_cuda_library(
-    name = "icicle_mmcs_bn254",
-    srcs = if_cuda(["icicle_mmcs_bn254.cc"]),
-    hdrs = ["icicle_mmcs_bn254.h"],
-    local_defines = icicle_defines(BN254),
-    deps = [
-        ":icicle_mmcs",
-        "@com_google_absl//absl/types:span",
-        "@icicle//:merkle_tree_bn254",
-        "@icicle//:poseidon_bn254",
-        "@icicle//:poseidon2_bn254",
-    ] + if_cuda([
-        "@local_config_cuda//cuda:cudart_static",
-    ]),
-)
+# tachyon_cuda_library(
+#     name = "icicle_mmcs_bn254",
+#     srcs = if_cuda(["icicle_mmcs_bn254.cc"]),
+#     hdrs = ["icicle_mmcs_bn254.h"],
+#     local_defines = icicle_defines(BN254),
+#     deps = [
+#         ":icicle_mmcs",
+#         "@com_google_absl//absl/types:span",
+#         "@icicle//:merkle_tree_bn254",
+#         "@icicle//:poseidon_bn254",
+#         "@icicle//:poseidon2_bn254",
+#     ] + if_cuda([
+#         "@local_config_cuda//cuda:cudart_static",
+#     ]),
+# )
 
 tachyon_cc_library(
     name = "icicle",
     visibility = ["//visibility:public"],
     deps = [
         ":icicle_mmcs_baby_bear",
-        ":icicle_mmcs_bls12_381",
-        ":icicle_mmcs_bn254",
+        # ":icicle_mmcs_bls12_381",
+        # ":icicle_mmcs_bn254",
     ],
 )
 
