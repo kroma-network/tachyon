@@ -18,18 +18,18 @@ CPU Caches:
 ```
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fri:fri_benchmark -- -k 18 -k 19 -k 20 -k 21 -k 22 --batch_size 100 --input_num 4 --log_blowup 2 --vendor plonky3 --check_results
+bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fri:fri_benchmark -- -k 18 -k 19 -k 20 -k 21 -k 22 --batch_size 100 --input_num 4 --round_num 4 --log_blowup 2 --vendor plonky3 --check_results
 ```
 
 ## On Intel i9-13900K
 
 | Exponent | Tachyon     | Plonky3 |
 | :------- | ----------- | ------- |
-| 18       | **1.49223** | 1.70032 |
-| 19       | **2.84027** | 3.45716 |
-| 20       | **5.77075** | 6.91221 |
-| 21       | **11.6113** | 13.8407 |
-| 22       | **23.3140** | 27.9832 |
+| 18       | **2.97871** | 3.73433 |
+| 19       | **5.76021** | 7.22556 |
+| 20       | **11.2744** | 14.3306 |
+| 21       | **22.5167** | 28.8935 |
+| 22       | **47.6511** | 58.5402 |
 
 ![image](/benchmark/fri/fri_benchmark_ubuntu_i9.png)
 

@@ -24,6 +24,11 @@ FRIConfig::FRIConfig() {
       .set_default_value(4)
       .set_help(
           "Specify the number of inputs in a single round. By default, 4.");
+  parser_.AddFlag<base::Flag<size_t>>(&round_num_)
+      .set_short_name("-r")
+      .set_long_name("--round_num")
+      .set_default_value(4)
+      .set_help("Specify the number of rounds. By default, 4.");
   parser_.AddFlag<base::Flag<uint32_t>>(&log_blowup_)
       .set_short_name("-l")
       .set_long_name("--log_blowup")
