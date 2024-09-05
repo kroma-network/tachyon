@@ -19,7 +19,7 @@ void SimpleReporter::AddTime(Vendor vendor, base::TimeDelta time_taken) {
 void SimpleReporter::AddVendor(Vendor vendor) { vendors_.push_back(vendor); }
 
 void SimpleReporter::AddAverageAsLastColumn() {
-  for (Vendor vendor : vendors_) {
+  for (const Vendor vendor : vendors_) {
     base::TimeDelta total =
         std::accumulate(measurements_[vendor].begin(),
                         measurements_[vendor].end(), base::TimeDelta());
@@ -35,7 +35,7 @@ void SimpleReporter::Show() {
       .FitToTerminalWidth()
       .StripTrailingAsciiWhitespace()
       .AddColumn("");
-  for (Vendor vendor : vendors_) {
+  for (const Vendor vendor : vendors_) {
     builder.AddColumn(vendor.ToString());
   }
   base::TableWriter writer = builder.Build();

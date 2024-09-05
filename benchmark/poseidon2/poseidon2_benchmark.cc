@@ -40,18 +40,17 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
   if constexpr (std::is_same_v<Field, math::BabyBear>) {
     if (base::Contains(config.vendors(), Vendor::Plonky3())) {
       poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
-          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
-      CHECK_EQ(config.vendors().size(), static_cast<size_t>(1));
+          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
     } else {
       poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
-          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalDiagonalVector<16>());
+          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalDiagonalArray<16>());
     }
   } else {
     poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
-        2, 5, 8, 56, math::bn254::GetPoseidon2InternalDiagonalVector<3>());
+        2, 5, 8, 56, math::bn254::GetPoseidon2InternalDiagonalArray<3>());
   }
   Field result = runner.Run(poseidon2_config);
-  for (Vendor vendor : config.vendors()) {
+  for (const Vendor vendor : config.vendors()) {
     Field result_vendor;
     if (vendor.value() == Vendor::kHorizen) {
       result_vendor = runner.RunExternal(vendor, horizen_fn);

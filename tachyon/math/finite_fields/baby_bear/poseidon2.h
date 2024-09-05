@@ -9,7 +9,7 @@
 namespace tachyon::math {
 
 template <size_t N>
-std::array<BabyBear, N> GetPoseidon2BabyBearInternalDiagonalVector() {
+std::array<BabyBear, N> GetPoseidon2BabyBearInternalDiagonalArray() {
   // TODO(chokobole): Remove this function once we can generate these parameters
   // internally.
   // This is taken and modified from
@@ -42,7 +42,7 @@ std::array<BabyBear, N> GetPoseidon2BabyBearInternalDiagonalVector() {
 }
 
 template <size_t N>
-std::array<uint8_t, N> GetPoseidon2BabyBearInternalShiftVector() {
+std::array<uint8_t, N> GetPoseidon2BabyBearInternalShiftArray() {
   // This is taken and modified from
   // https://github.com/Plonky3/Plonky3/blob/fde81db/baby-bear/src/poseidon2.rs.
   if constexpr (N == 15) {

@@ -44,14 +44,13 @@ class Poseidon2ExternalMatrix {
       return;
     }
 
-    math::Vector<Field> v_tmp(4);
     for (size_t i = 0; i < size; i += 4) {
-      v_tmp << v[i], v[i + 1], v[i + 2], v[i + 3];
-      Derived::DoApply(v_tmp);
-      v.block(i, 0, 4, 1) = v_tmp;
+      Eigen::Block<math::Vector<Field>> block = v.block(i, 0, 4, 1);
+      Derived::DoApply(block);
     }
 
-    v_tmp << Field::Zero(), Field::Zero(), Field::Zero(), Field::Zero();
+    std::array<Field, 4> v_tmp = {Field::Zero(), Field::Zero(), Field::Zero(),
+                                  Field::Zero()};
     for (size_t i = 0; i < 4; ++i) {
       for (size_t j = 0; j < size; j += 4) {
         v_tmp[i] += v[i + j];

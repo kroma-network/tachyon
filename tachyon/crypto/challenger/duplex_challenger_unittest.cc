@@ -28,7 +28,7 @@ class DuplexChallengerTest : public math::FiniteFieldTest<F> {
 
   void SetUp() override {
     Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
-        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
     Poseidon2 sponge(std::move(config));
     challenger_ = DuplexChallenger<Poseidon2, kWidth, kRate>(std::move(sponge));
   }

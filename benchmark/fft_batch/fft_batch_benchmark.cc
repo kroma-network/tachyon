@@ -61,7 +61,7 @@ void Run(const FFTBatchConfig& config) {
   FFTBatchRunner<Domain> runner(reporter, config);
 
   reporter.AddVendor(Vendor::Tachyon());
-  for (Vendor vendor : config.vendors()) {
+  for (const Vendor vendor : config.vendors()) {
     reporter.AddVendor(vendor);
   }
 
@@ -71,7 +71,7 @@ void Run(const FFTBatchConfig& config) {
 
     math::RowMajorMatrix<F> tachyon_result =
         runner.Run(Vendor::Tachyon(), config.run_coset_lde(), input);
-    for (Vendor vendor : config.vendors()) {
+    for (const Vendor vendor : config.vendors()) {
       math::RowMajorMatrix<F> vendor_result;
       if (vendor.value() == Vendor::kPlonky3) {
         if (config.run_coset_lde()) {

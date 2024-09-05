@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <utility>
-#include <vector>
 
 // clang-format off
 #include "benchmark/simple_reporter.h"
@@ -41,7 +40,7 @@ class Poseidon2BenchmarkRunner {
           sponge(config);
       crypto::SpongeState<Field> state(config);
       base::TimeTicks start = base::TimeTicks::Now();
-      for (size_t j = 0; j < 100; ++j) {
+      for (size_t j = 0; j < 10000; ++j) {
         sponge.Permute(state);
       }
       reporter_.AddTime(Vendor::Tachyon(), base::TimeTicks::Now() - start);
