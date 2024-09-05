@@ -112,6 +112,27 @@ bool IcicleMerkleTree<math::BabyBear>::Build(
     LOG(ERROR) << *reinterpret_cast<math::BabyBear*>(ret + idx) << "\t";
   }
 
+  digests.reserve(config_->keep_rows);
+  size_t previous_number_of_element = 0;
+  for (size_t layer_idx = 0; layer_idx <= max_tree_height; ++layer_idx) {
+    std::vector<std::vector<math::BabyBear>> digest_layer;
+    size_t number_of_node = 1 << (max_tree_height - layer_idx);
+    digest_layer.reserve(number_of_node);
+    for (size_t node_idx = 0; node_idx < number_of_node; ++node_idx) {
+      std::vector<math::BabyBear> digest;
+      digest.reserve(config_->digest_elements);
+      for (size_t element_idx = 0; element_idx < config_->digest_elements;
+           ++element_idx) {
+        digest.emplace_back(*reinterpret_cast<math::BabyBear*>(
+            ret + previous_number_of_element +
+            config_->digest_elements * node_idx + element_idx));
+      }
+      digest_layer.emplace_back(std::move(digest));
+    }
+    digests.emplace_back(std::move(digest_layer));
+    previous_number_of_element += number_of_node * config_->digest_elements;
+  }
+
   free(leaves);
   free(ret);
   return true;

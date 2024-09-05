@@ -113,6 +113,21 @@ class FieldMerkleTree {
             internal_matrix_diag);
         LOG(ERROR) << digests;
 
+        digest_layers.resize(digest_layers_icicle.size());
+        for (size_t i = 0; i < digest_layers_icicle.size(); ++i) {
+          digest_layers[i].resize(digest_layers_icicle[i].size());
+          for (size_t j = 0; j < digest_layers_icicle[i].size(); ++j) {
+            if (digest_layers_icicle[i][j].size() == N) {
+              std::array<PrimeField, N> arr;
+
+              std::move(digest_layers_icicle[i][j].begin(),
+                        digest_layers_icicle[i][j].end(), arr.begin());
+
+              digest_layers[i][j] = std::move(arr);
+            }
+          }
+        }
+
         if (result) {
           LOG(ERROR) << "test6";
           return {std::move(leaves), std::move(digest_layers)};
