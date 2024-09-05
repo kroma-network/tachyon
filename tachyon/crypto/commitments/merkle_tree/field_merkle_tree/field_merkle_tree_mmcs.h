@@ -126,7 +126,7 @@ class FieldMerkleTreeMMCS final
         });
 
     *proof =
-        base::CreateVector(log_max_row_size, [prover_data, index](size_t i) {
+        base::CreateVector(log_max_row_size, [&prover_data, index](size_t i) {
           // NOTE(chokobole): Let v be |index >> i|. If v is even, v ^ 1 is v
           // + 1. Otherwise, v ^ 1 is v - 1.
           return prover_data.digest_layers()[i][(index >> i) ^ 1];
