@@ -38,12 +38,15 @@ bool IcicleMerkleTree<math::BabyBear>::Build(
 
   size_t number_of_leaves = 0;
   size_t max_tree_height = 0;
+  size_t input_block_len = 0;
   for (const auto& matrix : inputs) {
     size_t tree_height = base::bits::Log2Ceiling(
-        absl::bit_ceil(static_cast<size_t>(matrix.size())));
+        absl::bit_ceil(static_cast<size_t>(matrix.rows())));
     max_tree_height =
         max_tree_height > tree_height ? max_tree_height : tree_height;
     number_of_leaves += matrix.size();
+    input_block_len =
+        input_block_len > matrix.cols() ? input_block_len : matrix.cols();
   }
 
   ::babybear::scalar_t* leaves = static_cast<::babybear::scalar_t*>(
@@ -99,7 +102,7 @@ bool IcicleMerkleTree<math::BabyBear>::Build(
   ::babybear::scalar_t* ret = static_cast<::babybear::scalar_t*>(
       malloc(digests_len * sizeof(::babybear::scalar_t)));
   gpuError_t error = tachyon_babybear_build_merkle_tree(
-      leaves, ret, max_tree_height, inputs.size(), &icicle_poseidon,
+      leaves, ret, max_tree_height, input_block_len, &icicle_poseidon,
       &icicle_poseidon, *config_);
   if (error != gpuSuccess) {
     GPU_LOG(ERROR, error) << "Failed tachyon_babybear_build_merkle_tree()";
