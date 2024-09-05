@@ -1,6 +1,8 @@
 #ifndef TACHYON_MATH_CIRCLE_CIRCLE_H_
 #define TACHYON_MATH_CIRCLE_CIRCLE_H_
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/circle/circle_traits_forward.h"
 #include "tachyon/math/geometry/affine_point.h"
 #include "tachyon/math/geometry/curve_type.h"
@@ -21,10 +23,13 @@ class Circle {
   constexpr static CurveType kType = CurveType::kCircle;
 
   static void Init() {
-    BaseField::Init();
-    ScalarField::Init();
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      BaseField::Init();
+      ScalarField::Init();
 
-    Config::Init();
+      Config::Init();
+    });
   }
 
   constexpr static bool IsOnCircle(const AffinePoint& point) {

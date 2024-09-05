@@ -6,6 +6,8 @@
 #include <string>
 #include <optional>
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
@@ -117,8 +119,11 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   }
 
   static void Init() {
-    Config::Init();
-    VLOG(1) << Config::kName << " initialized";
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      Config::Init();
+      VLOG(1) << Config::kName << " initialized";
+    });
   }
 
   const value_type& value() const { return value_; }

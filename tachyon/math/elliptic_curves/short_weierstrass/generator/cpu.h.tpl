@@ -1,4 +1,6 @@
 // clang-format off
+#include "absl/base/call_once.h"
+
 #include "tachyon/base/logging.h"
 #include "%{base_field_hdr}"
 #include "%{scalar_field_hdr}"
@@ -40,6 +42,16 @@ class %{class}CurveConfig {
   static mpz_class kGLVCoeffs[4];
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, &%{class}CurveConfig::DoInit);
+  }
+
+  constexpr static BaseField MulByA(const BaseField& v) {
+%{mul_by_a_code}
+  }
+
+ private:
+  static void DoInit() {
 %{a_init}
 %{b_init}
 %{x_init}
@@ -50,10 +62,6 @@ class %{class}CurveConfig {
 %{lambda_init_code}
 %{glv_coeffs_init_code}
     VLOG(1) << "%{namespace}::%{class} initialized";
-  }
-
-  constexpr static BaseField MulByA(const BaseField& v) {
-%{mul_by_a_code}
   }
 };
 

@@ -8,6 +8,8 @@
 
 #include <type_traits>
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/cubic_extension_field.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
@@ -33,6 +35,12 @@ class Fp3 final : public CubicExtensionField<Fp3<Config>> {
   constexpr static uint32_t kDegreeOverBasePrimeField = 3;
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, &Fp3::DoInit);
+  }
+
+ private:
+  static void DoInit() {
     Config::Init();
     // x³ = q = |Config::kNonResidue|
 

@@ -7,6 +7,8 @@
 #include <optional>
 #include <string>
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/finite_fields/goldilocks/internal/goldilocks_config.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
@@ -50,8 +52,11 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsTachyonMathGoldilocks>>
 #endif
 
   static void Init() {
-    Config::Init();
-    VLOG(1) << Config::kName << " initialized";
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      Config::Init();
+      VLOG(1) << Config::kName << " initialized";
+    });
   }
 
   // NOTE(chokobole): To be consistent with `PrimeField<F>` defined in

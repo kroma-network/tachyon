@@ -8,6 +8,8 @@
 
 #include <type_traits>
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
@@ -35,6 +37,12 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
   constexpr static uint32_t kDegreeOverBasePrimeField = 4;
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, &Fp4::DoInit);
+  }
+
+ private:
+  static void DoInit() {
     using BaseFieldConfig = typename BaseField::Config;
     // x⁴ = q = |BaseFieldConfig::kNonResidue|
 
@@ -116,6 +124,12 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 4>> final
   constexpr static uint32_t kDegreeOverBasePrimeField = 4;
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, &Fp4::DoInit);
+  }
+
+ private:
+  static void DoInit() {
     Config::Init();
     QuarticExtensionField<Fp4<Config>>::Init();
     // x⁴ = q = |Config::kNonResidue|

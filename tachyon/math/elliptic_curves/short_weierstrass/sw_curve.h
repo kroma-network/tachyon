@@ -3,6 +3,8 @@
 
 #include <utility>
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits_forward.h"
 #include "tachyon/math/geometry/affine_point.h"
 #include "tachyon/math/geometry/curve_type.h"
@@ -35,10 +37,13 @@ class SWCurve {
   constexpr static CurveType kType = CurveType::kShortWeierstrass;
 
   static void Init() {
-    BaseField::Init();
-    ScalarField::Init();
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      BaseField::Init();
+      ScalarField::Init();
 
-    Config::Init();
+      Config::Init();
+    });
   }
 
   // Attempts to construct an affine point given an |x| coordinate. The

@@ -200,6 +200,7 @@ def _do_generate_prime_fields(
         "//tachyon:export",
         "//tachyon/build:build_config",
         "//tachyon/math/base:big_int",
+        "@com_google_absl//absl/base",
     ]
 
     tachyon_cc_library(
@@ -297,12 +298,14 @@ def _do_generate_prime_fields(
                     ":{}_fail".format(name),
                     "//tachyon/math/base:byinverter",
                     "//tachyon/math/finite_fields:prime_field_base",
+                    "@com_google_absl//absl/base",
                 ],
                 "@kroma_network_tachyon//:macos_x86_64": [
                     ":{}_object".format(name),
                     ":{}_fail".format(name),
                     "//tachyon/math/base:byinverter",
                     "//tachyon/math/finite_fields:prime_field_base",
+                    "@com_google_absl//absl/base",
                 ],
                 "//conditions:default": ["//tachyon/math/finite_fields:prime_field_fallback"],
             }),

@@ -41,6 +41,7 @@ tachyon_cc_library(
     deps = [
         ":ell_coeff",
         ":twist_type",
+        "@com_google_absl//absl/base",
     ],
 )
 

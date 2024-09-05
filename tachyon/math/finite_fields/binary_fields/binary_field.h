@@ -14,6 +14,8 @@
 #include <tuple>
 #include <type_traits>
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/base/logging.h"
 #include "tachyon/base/numerics/safe_conversions.h"
 #include "tachyon/base/random.h"
@@ -145,8 +147,11 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   }
 
   static void Init() {
-    Config::Init();
-    VLOG(1) << Config::kName << " initialized";
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      Config::Init();
+      VLOG(1) << Config::kName << " initialized";
+    });
   }
 
   constexpr value_type value() const { return value_; }
