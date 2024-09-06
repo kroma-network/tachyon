@@ -89,6 +89,7 @@ def generate_bls12_curves(
             "//tachyon/base:logging",
             "//tachyon/math/elliptic_curves/bls12:bls12_curve",
             "//tachyon/math/elliptic_curves/pairing:twist_type",
+            "@com_google_absl//absl/base",
         ],
         **kwargs
     )

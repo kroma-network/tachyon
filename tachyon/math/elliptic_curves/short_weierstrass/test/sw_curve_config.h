@@ -1,6 +1,8 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_TEST_SW_CURVE_CONFIG_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_TEST_SW_CURVE_CONFIG_H_
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
@@ -33,10 +35,13 @@ class SWCurveConfig {
   static Point2<BaseField> kGenerator;
 
   static void Init() {
-    kA = BaseField::Zero();
-    kB = BaseField(5);
-    kGenerator.x = BaseField(5);
-    kGenerator.y = BaseField(5);
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      kA = BaseField::Zero();
+      kB = BaseField(5);
+      kGenerator.x = BaseField(5);
+      kGenerator.y = BaseField(5);
+    });
   }
 };
 

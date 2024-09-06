@@ -1,4 +1,6 @@
 // clang-format off
+#include "absl/base/call_once.h"
+
 #include "tachyon/base/logging.h"
 #include "tachyon/math/elliptic_curves/bls12/bls12_curve.h"
 #include "tachyon/math/elliptic_curves/pairing/twist_type.h"
@@ -28,9 +30,12 @@ class %{class}Config {
   using G2Curve = _G2Curve;
 
   static void Init() {
-    G1Curve::Init();
-    G2Curve::Init();
-    VLOG(1) << "%{namespace}::%{class} initialized";
+    static absl::once_flag once;
+    absl::call_once(once, [] {
+      G1Curve::Init();
+      G2Curve::Init();
+      VLOG(1) << "%{namespace}::%{class} initialized";
+    });
   }
 };
 

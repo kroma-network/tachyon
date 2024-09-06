@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 
+#include "absl/base/call_once.h"
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/logging.h"
@@ -124,8 +125,11 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   }
 
   static void Init() {
-    Config::Init();
-    VLOG(1) << Config::kName << " initialized";
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      Config::Init();
+      VLOG(1) << Config::kName << " initialized";
+    });
   }
 
   const value_type& value() const { return value_; }

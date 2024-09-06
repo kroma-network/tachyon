@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/elliptic_curves/pairing/ell_coeff.h"
 #include "tachyon/math/elliptic_curves/pairing/twist_type.h"
 
@@ -19,8 +21,11 @@ class PairingFriendlyCurve {
   using G1AffinePoint = typename G1Curve::AffinePoint;
 
   static void Init() {
-    Config::Init();
-    Fp12::Init();
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      Config::Init();
+      Fp12::Init();
+    });
   }
 
  protected:

@@ -1,4 +1,6 @@
 // clang-format off
+#include "absl/base/call_once.h"
+
 #include "tachyon/export.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/big_int.h"
@@ -83,6 +85,12 @@ class TACHYON_EXPORT %{class}Config {
 %{endif kHasTwoAdicRootOfUnity}
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, &%{class}Config::DoInit);
+  }
+
+ private:
+  static void DoInit() {
 %{if kHasTwoAdicRootOfUnity}
     kSubgroupGenerator = BigInt<%{n}>({
       %{subgroup_generator}

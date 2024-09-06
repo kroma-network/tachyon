@@ -42,6 +42,7 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
         "//tachyon/math/finite_fields:finite_field",
+        "@com_google_absl//absl/base",
     ],
 )
 

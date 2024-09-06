@@ -84,6 +84,7 @@ tachyon_cc_library(
     deps = [
         ":extension_field_traits_forward",
         ":quadratic_extension_field",
+        "@com_google_absl//absl/base",
     ],
 )
 
@@ -94,6 +95,7 @@ tachyon_cc_library(
         ":cubic_extension_field",
         ":extension_field_traits_forward",
         "//tachyon/math/base/gmp:gmp_util",
+        "@com_google_absl//absl/base",
     ],
 )
 
@@ -105,6 +107,7 @@ tachyon_cc_library(
         ":quadratic_extension_field",
         ":quartic_extension_field",
         "//tachyon/math/base/gmp:gmp_util",
+        "@com_google_absl//absl/base",
     ],
 )
 
@@ -116,6 +119,7 @@ tachyon_cc_library(
         ":extension_field_traits_forward",
         ":quadratic_extension_field",
         "//tachyon/math/base/gmp:gmp_util",
+        "@com_google_absl//absl/base",
     ],
 )
 
@@ -126,6 +130,7 @@ tachyon_cc_library(
         ":extension_field_traits_forward",
         ":quadratic_extension_field",
         "//tachyon/math/base/gmp:gmp_util",
+        "@com_google_absl//absl/base",
     ],
 )
 
@@ -209,6 +214,7 @@ tachyon_cc_library(
         "//tachyon/math/base:arithmetics",
         "//tachyon/math/base:byinverter",
         "//tachyon/math/base/gmp:gmp_util",
+        "@com_google_absl//absl/base",
         "@com_google_googletest//:gtest_prod",
     ],
 )
@@ -221,6 +227,7 @@ tachyon_cc_library(
         ":modulus",
         ":prime_field_base",
         "//tachyon/math/finite_fields/kernels:carry_chain",
+        "@com_google_absl//absl/base",
     ],
 )
 
@@ -281,6 +288,7 @@ tachyon_cc_library(
         ":extension_field_base",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/json",
+        "@com_google_absl//absl/base",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
     ],
@@ -297,6 +305,7 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
         "//tachyon/math/base:egcd",
+        "@com_google_absl//absl/base",
     ],
 )
 
@@ -310,6 +319,7 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
+        "@com_google_absl//absl/base",
     ],
 )
 

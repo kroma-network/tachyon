@@ -41,6 +41,7 @@
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
 #include "tachyon/math/polynomials/univariate/evaluations_utils.h"
+#include "tachyon/math/polynomials/univariate/radix2_twiddle_cache.h"
 #include "tachyon/math/polynomials/univariate/two_adic_subgroup.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -82,7 +83,8 @@ class Radix2EvaluationDomain
   static std::unique_ptr<Radix2EvaluationDomain> Create(size_t num_coeffs) {
     auto ret = absl::WrapUnique(new Radix2EvaluationDomain(
         absl::bit_ceil(num_coeffs), base::bits::SafeLog2Ceiling(num_coeffs)));
-    ret->PrepareRootsVecCache(/*packed_vec_only=*/false);
+    ret->cache_ =
+        Radix2TwiddleCache<F>::GetItem(ret.get(), /*packed_vec_only=*/false);
     return ret;
   }
 
@@ -100,17 +102,19 @@ class Radix2EvaluationDomain
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
-    CHECK_GT(roots_vec_.size(), size_t{0});
-    CHECK_GT(packed_roots_vec_.size(), size_t{0});
+    CHECK_GT(cache_->roots_vec.size(), size_t{0});
+    CHECK_GT(cache_->packed_roots_vec.size(), size_t{0});
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
 
     // The first half looks like a normal DIT.
     ReverseMatrixIndexBits(mat);
-    RunParallelRowChunks(mat, roots_vec_.back(), packed_roots_vec_[0]);
+    RunParallelRowChunks(mat, cache_->roots_vec.back(),
+                         cache_->packed_roots_vec[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
     ReverseMatrixIndexBits(mat);
-    RunParallelRowChunksReversed(mat, rev_roots_vec_, packed_roots_vec_[1]);
+    RunParallelRowChunksReversed(mat, cache_->rev_roots_vec,
+                                 cache_->packed_roots_vec[1]);
     ReverseMatrixIndexBits(mat);
   }
 
@@ -121,18 +125,19 @@ class Radix2EvaluationDomain
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
-    CHECK_GT(roots_vec_.size(), size_t{0});
-    CHECK_GT(packed_roots_vec_.size(), size_t{0});
+    CHECK_GT(cache_->roots_vec.size(), size_t{0});
+    CHECK_GT(cache_->packed_roots_vec.size(), size_t{0});
     CHECK_EQ(this->size_, static_cast<size_t>(mat.rows()));
 
     // The first half looks like a normal DIT.
     ReverseMatrixIndexBits(mat);
-    RunParallelRowChunks(mat, inv_roots_vec_[0], packed_inv_roots_vec_[0]);
+    RunParallelRowChunks(mat, cache_->inv_roots_vec[0],
+                         cache_->packed_inv_roots_vec[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
     ReverseMatrixIndexBits(mat);
-    RunParallelRowChunksReversed(mat, rev_inv_roots_vec_,
-                                 packed_inv_roots_vec_[1]);
+    RunParallelRowChunksReversed(mat, cache_->rev_inv_roots_vec,
+                                 cache_->packed_inv_roots_vec[1]);
     // We skip the final bit-reversal, since the next FFT expects bit-reversed
     // input.
 
@@ -161,16 +166,17 @@ class Radix2EvaluationDomain
     uint32_t log_size_of_group = base::bits::CheckedLog2(rows);
     auto domain =
         absl::WrapUnique(new Radix2EvaluationDomain(rows, log_size_of_group));
-    domain->PrepareRootsVecCache(/*packed_vec_only=*/true);
+    domain->cache_ =
+        Radix2TwiddleCache<F>::GetItem(domain.get(), /*packed_vec_only=*/true);
 
     // The first half looks like a normal DIT.
-    domain->RunParallelRowChunks(ret, domain->roots_vec_.back(),
-                                 domain->packed_roots_vec_[0]);
+    domain->RunParallelRowChunks(ret, domain->cache_->roots_vec.back(),
+                                 domain->cache_->packed_roots_vec[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
     ReverseMatrixIndexBits(ret);
-    domain->RunParallelRowChunksReversed(ret, domain->rev_roots_vec_,
-                                         domain->packed_roots_vec_[1]);
+    domain->RunParallelRowChunksReversed(ret, domain->cache_->rev_roots_vec,
+                                         domain->cache_->packed_roots_vec[1]);
     ReverseMatrixIndexBits(ret);
     return ret;
   }
@@ -290,91 +296,12 @@ class Radix2EvaluationDomain
     }
   }
 
-  // clang-format off
-  // Precompute |roots_vec_| and |inv_roots_vec_| for |OutInHelper()| and |InOutHelper()|.
-  // Here is an example where |this->size_| equals 32.
-  // |root_vec_| = [
-  //   [1],
-  //   [1, ω⁸],
-  //   [1, ω⁴, ω⁸, ω¹²],
-  //   [1, ω², ω⁴, ω⁶, ω⁸, ω¹⁰, ω¹², ω¹⁴],
-  //   [1, ω, ω², ω³, ω⁴, ω⁵, ω⁶, ω⁷, ω⁸, ω⁹, ω¹⁰, ω¹¹, ω¹², ω¹³, ω¹⁴, ω¹⁵],
-  // ]
-  // |inv_root_vec_| = [
-  //   [1, ω⁻¹, ω⁻², ω⁻³, ω⁻⁴, ω⁻⁵, ω⁻⁶, ω⁻⁷, ω⁻⁸, ω⁻⁹, ω⁻¹⁰, ω⁻¹¹, ω⁻¹², ω⁻¹³, ω⁻¹⁴, ω⁻¹⁵],
-  //   [1, ω⁻², ω⁻⁴, ω⁻⁶, ω⁻⁸, ω⁻¹⁰, ω⁻¹², ω⁻¹⁴],
-  //   [1, ω⁻⁴, ω⁻⁸, ω⁻¹²],
-  //   [1, ω⁻⁸],
-  //   [1],
-  // ]
-  // clang-format on
-  CONSTEXPR_IF_NOT_OPENMP void PrepareRootsVecCache(bool packed_vec_only) {
-    TRACE_EVENT("EvaluationDomain", "PrepareRootsVecCache");
-    if (this->log_size_of_group_ == 0) return;
-
-    roots_vec_.resize(this->log_size_of_group_);
-    inv_roots_vec_.resize(this->log_size_of_group_);
-
-    size_t vec_largest_size = this->size_ / 2;
-
-    // Compute biggest vector of |root_vec_| and |inv_root_vec_| first.
-    std::vector<F> largest =
-        this->GetRootsOfUnity(vec_largest_size, this->group_gen_);
-    std::vector<F> largest_inv =
-        this->GetRootsOfUnity(vec_largest_size, this->group_gen_inv_);
-
-    if constexpr (F::Config::kModulusBits <= 32) {
-      TRACE_EVENT("Subtask", "PreparePackedVec");
-      packed_roots_vec_.resize(2);
-      packed_inv_roots_vec_.resize(2);
-      packed_roots_vec_[0].resize(vec_largest_size);
-      packed_inv_roots_vec_[0].resize(vec_largest_size);
-      packed_roots_vec_[1].resize(vec_largest_size);
-      packed_inv_roots_vec_[1].resize(vec_largest_size);
-      rev_roots_vec_ = SwapBitRevElements(largest);
-      rev_inv_roots_vec_ = SwapBitRevElements(largest_inv);
-      OMP_PARALLEL_FOR(size_t i = 0; i < vec_largest_size; ++i) {
-        packed_roots_vec_[0][i] = PackedPrimeField::Broadcast(largest[i]);
-        packed_inv_roots_vec_[0][i] =
-            PackedPrimeField::Broadcast(largest_inv[i]);
-        packed_roots_vec_[1][i] =
-            PackedPrimeField::Broadcast(rev_roots_vec_[i]);
-        packed_inv_roots_vec_[1][i] =
-            PackedPrimeField::Broadcast(rev_inv_roots_vec_[i]);
-      }
-    }
-
-    TRACE_EVENT("Subtask", "PrepareRootsVec");
-
-    roots_vec_[this->log_size_of_group_ - 1] = std::move(largest);
-    inv_roots_vec_[0] = std::move(largest_inv);
-
-    if (packed_vec_only) return;
-
-    // Prepare space in each vector for the others.
-    size_t size = this->size_ / 2;
-    for (size_t i = 1; i < this->log_size_of_group_; ++i) {
-      size /= 2;
-      roots_vec_[this->log_size_of_group_ - i - 1].resize(size);
-      inv_roots_vec_[i].resize(size);
-    }
-
-    // Assign every element based on the biggest vector.
-    OMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
-      for (size_t j = 0; j < this->size_ / std::pow(2, i + 1); ++j) {
-        size_t k = std::pow(2, i) * j;
-        roots_vec_[this->log_size_of_group_ - i - 1][j] = roots_vec_.back()[k];
-        inv_roots_vec_[i][j] = inv_roots_vec_.front()[k];
-      }
-    }
-  }
-
   CONSTEXPR_IF_NOT_OPENMP void InOutHelper(DensePoly& poly) const {
     TRACE_EVENT("EvaluationDomain", "InOutHelper");
     size_t gap = poly.coefficients_.coefficients_.size() / 2;
     size_t idx = 0;
     while (gap > 0) {
-      ApplyButterfly<FFTOrder::kInOut>(poly, inv_roots_vec_[idx++], gap);
+      ApplyButterfly<FFTOrder::kInOut>(poly, cache_->inv_roots_vec[idx++], gap);
       gap /= 2;
     }
   }
@@ -385,7 +312,7 @@ class Radix2EvaluationDomain
     size_t gap = start_gap;
     size_t idx = base::bits::SafeLog2Ceiling(start_gap);
     while (gap < evals.evaluations_.size()) {
-      ApplyButterfly<FFTOrder::kOutIn>(evals, roots_vec_[idx++], gap);
+      ApplyButterfly<FFTOrder::kOutIn>(evals, cache_->roots_vec[idx++], gap);
       gap *= 2;
     }
   }
@@ -510,14 +437,7 @@ class Radix2EvaluationDomain
     }
   }
 
-  // For small prime fields
-  std::vector<F> rev_roots_vec_;
-  std::vector<F> rev_inv_roots_vec_;
-  std::vector<std::vector<PackedPrimeField>> packed_roots_vec_;
-  std::vector<std::vector<PackedPrimeField>> packed_inv_roots_vec_;
-  // For all finite fields
-  std::vector<std::vector<F>> roots_vec_;
-  std::vector<std::vector<F>> inv_roots_vec_;
+  typename Radix2TwiddleCache<F>::Item* cache_ = nullptr;
 };
 
 template <typename F, size_t MaxDegree>

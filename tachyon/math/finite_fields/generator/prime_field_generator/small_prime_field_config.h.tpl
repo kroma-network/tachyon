@@ -1,6 +1,8 @@
 // clang-format off
 #include <stdint.h>
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/export.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/big_int.h"
@@ -39,10 +41,13 @@ class TACHYON_EXPORT %{class}Config {
 %{endif kHasTwoAdicRootOfUnity}
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, []() {
 %{if kHasTwoAdicRootOfUnity}
-    kSubgroupGenerator = %{subgroup_generator};
-    kTwoAdicRootOfUnity = %{two_adic_root_of_unity};
+      kSubgroupGenerator = %{subgroup_generator};
+      kTwoAdicRootOfUnity = %{two_adic_root_of_unity};
 %{endif kHasTwoAdicRootOfUnity}
+    });
   }
 
   constexpr static uint32_t AddMod(uint32_t a, uint32_t b) {

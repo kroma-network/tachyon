@@ -1,4 +1,6 @@
 // clang-format off
+#include "absl/base/call_once.h"
+
 #include "tachyon/base/logging.h"
 #include "tachyon/math/circle/affine_point.h"
 #include "tachyon/math/circle/circle.h"
@@ -19,6 +21,12 @@ class %{class}CircleConfig {
   static Point2<BaseField> kGenerator;
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, &%{class}CircleConfig::DoInit);
+  }
+
+ private:
+  static void DoInit() {
 %{x_init}
 %{y_init}
     VLOG(1) << "%{namespace}::%{class} initialized";

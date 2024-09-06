@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 
+#include "absl/base/call_once.h"
 #include "absl/strings/substitute.h"
 #include "absl/types/span.h"
 
@@ -107,22 +108,25 @@ class QuarticExtensionField : public CyclotomicMultiplicativeSubgroup<Derived>,
   ConstIterator end() const { return {static_cast<const Derived&>(*this), 4}; }
 
   static void Init() {
-    kInv3 = *BaseField(3).Inverse();
-    kInv4 = *BaseField(4).Inverse();
-    kInv6 = *BaseField(6).Inverse();
-    kInv12 = *BaseField(12).Inverse();
-    kInv20 = *BaseField(20).Inverse();
-    kInv24 = *BaseField(24).Inverse();
-    kInv30 = *BaseField(30).Inverse();
-    kInv120 = *BaseField(120).Inverse();
-    kNeg5 = -BaseField(5);
-    kNegInv2 = -BaseField::TwoInv();
-    kNegInv3 = -kInv3;
-    kNegInv4 = -kInv4;
-    kNegInv6 = -kInv6;
-    kNegInv12 = -kInv12;
-    kNegInv24 = -kInv24;
-    kNegInv120 = -kInv120;
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      kInv3 = *BaseField(3).Inverse();
+      kInv4 = *BaseField(4).Inverse();
+      kInv6 = *BaseField(6).Inverse();
+      kInv12 = *BaseField(12).Inverse();
+      kInv20 = *BaseField(20).Inverse();
+      kInv24 = *BaseField(24).Inverse();
+      kInv30 = *BaseField(30).Inverse();
+      kInv120 = *BaseField(120).Inverse();
+      kNeg5 = -BaseField(5);
+      kNegInv2 = -BaseField::TwoInv();
+      kNegInv3 = -kInv3;
+      kNegInv4 = -kInv4;
+      kNegInv6 = -kInv6;
+      kNegInv12 = -kInv12;
+      kNegInv24 = -kInv24;
+      kNegInv120 = -kInv120;
+    });
   }
 
   constexpr bool IsZero() const {

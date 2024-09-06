@@ -9,6 +9,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/cubic_extension_field.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
@@ -38,75 +40,8 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
   constexpr static uint32_t kDegreeOverBasePrimeField = 6;
 
   static void Init() {
-    using BaseFieldConfig = typename BaseField::Config;
-    // x⁶ = q = |BaseFieldConfig::kNonResidue|
-
-    Config::Init();
-
-    // αᴾ = (α₀ + α₁x)ᴾ
-    //    = α₀ᴾ + α₁ᴾxᴾ
-    //    = α₀ᴾ + α₁ᴾxᴾ⁻¹x
-    //    = α₀ᴾ + α₁ᴾ(x⁶)^((P - 1) / 6) * x
-    //    = α₀ᴾ + α₁ᴾωx, where ω is a sextic root of unity.
-
-    using UnpackedBasePrimeField = MaybeUnpack<BasePrimeField>;
-
-    constexpr size_t N = UnpackedBasePrimeField::kLimbNums;
-    // m₁ = P
-    mpz_class m1;
-    if constexpr (UnpackedBasePrimeField::Config::kModulusBits <= 32) {
-      m1 = mpz_class(UnpackedBasePrimeField::Config::kModulus);
-    } else {
-      gmp::WriteLimbs(UnpackedBasePrimeField::Config::kModulus.limbs, N, &m1);
-    }
-
-#define SET_M(d, d_prev) mpz_class m##d = m##d_prev * m1
-
-    // m₂ = m₁ * P = P²
-    SET_M(2, 1);
-    // m₃ = m₂ * P = P³
-    SET_M(3, 2);
-    // m₄ = m₃ * P = P⁴
-    SET_M(4, 3);
-    // m₅ = m₄ * P = P⁵
-    SET_M(5, 4);
-
-#undef SET_M
-
-#define SET_EXP_GMP(d) mpz_class exp##d##_gmp = (m##d - 1) / mpz_class(6)
-
-    // exp₁ = (m₁ - 1) / 6 = (P¹ - 1) / 6
-    SET_EXP_GMP(1);
-    // exp₂ = (m₂ - 1) / 6 = (P² - 1) / 6
-    SET_EXP_GMP(2);
-    // exp₃ = (m₃ - 1) / 6 = (P³ - 1) / 6
-    SET_EXP_GMP(3);
-    // exp₄ = (m₄ - 1) / 6 = (P⁴ - 1) / 6
-    SET_EXP_GMP(4);
-    // exp₅ = (m₅ - 1) / 6 = (P⁵ - 1) / 6
-    SET_EXP_GMP(5);
-
-#undef SET_EXP_GMP
-
-    // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 6) = 1
-    Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
-#define SET_FROBENIUS_COEFF(d)                \
-  BigInt<d * N> exp##d;                       \
-  gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
-  Config::kFrobeniusCoeffs[d] = BaseFieldConfig::kNonResidue.Pow(exp##d)
-
-    // |kFrobeniusCoeffs[1]| = q^(exp₁) = q^((P¹ - 1) / 6) = ω
-    SET_FROBENIUS_COEFF(1);
-    // |kFrobeniusCoeffs[2]| = q^(exp₂) = q^((P² - 1) / 6)
-    SET_FROBENIUS_COEFF(2);
-    // |kFrobeniusCoeffs[3]| = q^(exp₃) = q^((P³ - 1) / 6)
-    SET_FROBENIUS_COEFF(3);
-    // |kFrobeniusCoeffs[4]| = q^(exp₄) = q^((P⁴ - 1) / 6)
-    SET_FROBENIUS_COEFF(4);
-    // |kFrobeniusCoeffs[5]| = q^(exp₅) = q^((P⁵ - 1) / 6)
-    SET_FROBENIUS_COEFF(5);
-
-#undef SET_FROBENIUS_COEFF
+    static absl::once_flag once;
+    absl::call_once(once, &Fp6::DoInit);
   }
 
   // Return α = {α₀', α₁', α₂', α₃', α₄', α₅'}, such that
@@ -212,6 +147,79 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     this->c1_.c2_ = (z1 * x4) + (z4 * x1) + (z5 * x0);
     return *this;
   }
+
+ private:
+  static void DoInit() {
+    using BaseFieldConfig = typename BaseField::Config;
+    // x⁶ = q = |BaseFieldConfig::kNonResidue|
+
+    Config::Init();
+
+    // αᴾ = (α₀ + α₁x)ᴾ
+    //    = α₀ᴾ + α₁ᴾxᴾ
+    //    = α₀ᴾ + α₁ᴾxᴾ⁻¹x
+    //    = α₀ᴾ + α₁ᴾ(x⁶)^((P - 1) / 6) * x
+    //    = α₀ᴾ + α₁ᴾωx, where ω is a sextic root of unity.
+
+    using UnpackedBasePrimeField = MaybeUnpack<BasePrimeField>;
+
+    constexpr size_t N = UnpackedBasePrimeField::kLimbNums;
+    // m₁ = P
+    mpz_class m1;
+    if constexpr (UnpackedBasePrimeField::Config::kModulusBits <= 32) {
+      m1 = mpz_class(UnpackedBasePrimeField::Config::kModulus);
+    } else {
+      gmp::WriteLimbs(UnpackedBasePrimeField::Config::kModulus.limbs, N, &m1);
+    }
+
+#define SET_M(d, d_prev) mpz_class m##d = m##d_prev * m1
+
+    // m₂ = m₁ * P = P²
+    SET_M(2, 1);
+    // m₃ = m₂ * P = P³
+    SET_M(3, 2);
+    // m₄ = m₃ * P = P⁴
+    SET_M(4, 3);
+    // m₅ = m₄ * P = P⁵
+    SET_M(5, 4);
+
+#undef SET_M
+
+#define SET_EXP_GMP(d) mpz_class exp##d##_gmp = (m##d - 1) / mpz_class(6)
+
+    // exp₁ = (m₁ - 1) / 6 = (P¹ - 1) / 6
+    SET_EXP_GMP(1);
+    // exp₂ = (m₂ - 1) / 6 = (P² - 1) / 6
+    SET_EXP_GMP(2);
+    // exp₃ = (m₃ - 1) / 6 = (P³ - 1) / 6
+    SET_EXP_GMP(3);
+    // exp₄ = (m₄ - 1) / 6 = (P⁴ - 1) / 6
+    SET_EXP_GMP(4);
+    // exp₅ = (m₅ - 1) / 6 = (P⁵ - 1) / 6
+    SET_EXP_GMP(5);
+
+#undef SET_EXP_GMP
+
+    // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 6) = 1
+    Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
+#define SET_FROBENIUS_COEFF(d)                \
+  BigInt<d * N> exp##d;                       \
+  gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
+  Config::kFrobeniusCoeffs[d] = BaseFieldConfig::kNonResidue.Pow(exp##d)
+
+    // |kFrobeniusCoeffs[1]| = q^(exp₁) = q^((P¹ - 1) / 6) = ω
+    SET_FROBENIUS_COEFF(1);
+    // |kFrobeniusCoeffs[2]| = q^(exp₂) = q^((P² - 1) / 6)
+    SET_FROBENIUS_COEFF(2);
+    // |kFrobeniusCoeffs[3]| = q^(exp₃) = q^((P³ - 1) / 6)
+    SET_FROBENIUS_COEFF(3);
+    // |kFrobeniusCoeffs[4]| = q^(exp₄) = q^((P⁴ - 1) / 6)
+    SET_FROBENIUS_COEFF(4);
+    // |kFrobeniusCoeffs[5]| = q^(exp₅) = q^((P⁵ - 1) / 6)
+    SET_FROBENIUS_COEFF(5);
+
+#undef SET_FROBENIUS_COEFF
+  }
 };
 
 template <typename Config>
@@ -235,6 +243,76 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
   constexpr static uint32_t kDegreeOverBasePrimeField = 6;
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, &Fp6::DoInit);
+  }
+
+  // Return α = {α₀', α₁', α₂'}, such that α = (α₀ + α₁x + α₂x²) * β₁x
+  Fp6& MulInPlaceBy1(const Fp2& beta1) {
+    // α = (α₀ + α₁x + α₂x²) * β₁x
+    //   = α₂β₁q + α₀β₁x + α₁β₁x², where q is a cubic non residue.
+
+    // t0 = α₂β₁
+    Fp2 t0 = this->c2_ * beta1;
+
+    // c2 = α₁β₁
+    this->c2_ = this->c1_ * beta1;
+    // c1 = α₀β₁
+    this->c1_ = this->c0_ * beta1;
+    // c0 = α₂β₁q
+    this->c0_ = Config::MulByNonResidue(t0);
+    return *this;
+  }
+
+  // Return α = {α₀', α₁', α₂'}, such that α = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
+  Fp6& MulInPlaceBy01(const Fp2& beta0, const Fp2& beta1) {
+    // α = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
+    //   = α₀β₀ + α₂β₁q + (α₀β₁ + α₁β₀)x + (α₂β₀ + α₁β₁)x²,
+    //     where q is a cubic non residue.
+
+    // The naive approach you need to multiply 6 times, but this code is
+    // optimized to multiply 5 times.
+
+    // t0 = α₂β₁
+    Fp2 t0 = this->c2_ * beta1;
+    // t0 = α₂β₁q
+    t0 = Config::MulByNonResidue(t0);
+    {
+      // tmp = α₀β₀
+      Fp2 tmp = this->c0_ * beta0;
+      // t0 = α₀β₀ + α₂β₁q
+      t0 += tmp;
+    }
+
+    // t1 = α₀β₁
+    Fp2 t1 = this->c0_ * beta1;
+    {
+      // tmp = α₁β₀
+      Fp2 tmp = this->c1_ * beta0;
+      // t1 = α₀β₁ + α₁β₀
+      t1 += tmp;
+    }
+
+    // t2 = α₂β₀
+    Fp2 t2 = this->c2_ * beta0;
+    {
+      // tmp = α₁β₁
+      Fp2 tmp = this->c1_ * beta1;
+      // t2 = α₂β₀ + α₁β₁
+      t2 += tmp;
+    }
+
+    // c0 = α₀β₀ + α₂β₁q
+    this->c0_ = std::move(t0);
+    // c1 = α₀β₁ + α₁β₀
+    this->c1_ = std::move(t1);
+    // c2 = α₂β₀ + α₁β₁
+    this->c2_ = std::move(t2);
+    return *this;
+  }
+
+ private:
+  static void DoInit() {
     Config::Init();
     // x³ = q = |Config::kNonResidue|
 
@@ -322,70 +400,6 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     SET_FROBENIUS_COEFF2(5);
 
 #undef SET_FROBENIUS_COEFF2
-  }
-
-  // Return α = {α₀', α₁', α₂'}, such that α = (α₀ + α₁x + α₂x²) * β₁x
-  Fp6& MulInPlaceBy1(const Fp2& beta1) {
-    // α = (α₀ + α₁x + α₂x²) * β₁x
-    //   = α₂β₁q + α₀β₁x + α₁β₁x², where q is a cubic non residue.
-
-    // t0 = α₂β₁
-    Fp2 t0 = this->c2_ * beta1;
-
-    // c2 = α₁β₁
-    this->c2_ = this->c1_ * beta1;
-    // c1 = α₀β₁
-    this->c1_ = this->c0_ * beta1;
-    // c0 = α₂β₁q
-    this->c0_ = Config::MulByNonResidue(t0);
-    return *this;
-  }
-
-  // Return α = {α₀', α₁', α₂'}, such that α = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
-  Fp6& MulInPlaceBy01(const Fp2& beta0, const Fp2& beta1) {
-    // α = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
-    //   = α₀β₀ + α₂β₁q + (α₀β₁ + α₁β₀)x + (α₂β₀ + α₁β₁)x²,
-    //     where q is a cubic non residue.
-
-    // The naive approach you need to multiply 6 times, but this code is
-    // optimized to multiply 5 times.
-
-    // t0 = α₂β₁
-    Fp2 t0 = this->c2_ * beta1;
-    // t0 = α₂β₁q
-    t0 = Config::MulByNonResidue(t0);
-    {
-      // tmp = α₀β₀
-      Fp2 tmp = this->c0_ * beta0;
-      // t0 = α₀β₀ + α₂β₁q
-      t0 += tmp;
-    }
-
-    // t1 = α₀β₁
-    Fp2 t1 = this->c0_ * beta1;
-    {
-      // tmp = α₁β₀
-      Fp2 tmp = this->c1_ * beta0;
-      // t1 = α₀β₁ + α₁β₀
-      t1 += tmp;
-    }
-
-    // t2 = α₂β₀
-    Fp2 t2 = this->c2_ * beta0;
-    {
-      // tmp = α₁β₁
-      Fp2 tmp = this->c1_ * beta1;
-      // t2 = α₂β₀ + α₁β₁
-      t2 += tmp;
-    }
-
-    // c0 = α₀β₀ + α₂β₁q
-    this->c0_ = std::move(t0);
-    // c1 = α₀β₁ + α₁β₀
-    this->c1_ = std::move(t1);
-    // c2 = α₂β₀ + α₁β₁
-    this->c2_ = std::move(t2);
-    return *this;
   }
 };
 

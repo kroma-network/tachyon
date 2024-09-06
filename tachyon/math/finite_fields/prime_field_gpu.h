@@ -13,6 +13,8 @@
 #include <string>
 #include <utility>
 
+#include "absl/base/call_once.h"
+
 #if TACHYON_CUDA
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
 #endif
@@ -107,8 +109,11 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   }
 
   static void Init() {
-    Config::Init();
-    VLOG(1) << Config::kName << " initialized";
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+      Config::Init();
+      VLOG(1) << Config::kName << " initialized";
+    });
   }
 
   constexpr const value_type& value() const { return value_; }

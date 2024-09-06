@@ -101,6 +101,7 @@ def generate_bn_curves(
             "//tachyon/base:logging",
             "//tachyon/math/elliptic_curves/bn:bn_curve",
             "//tachyon/math/elliptic_curves/pairing:twist_type",
+            "@com_google_absl//absl/base",
         ],
         **kwargs
     )

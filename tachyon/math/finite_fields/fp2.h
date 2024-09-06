@@ -6,6 +6,8 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_FP2_H_
 #define TACHYON_MATH_FINITE_FIELDS_FP2_H_
 
+#include "absl/base/call_once.h"
+
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
 
@@ -30,6 +32,12 @@ class Fp2 final : public QuadraticExtensionField<Fp2<Config>> {
   constexpr static uint32_t kDegreeOverBasePrimeField = 2;
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, &Fp2::DoInit);
+  }
+
+ private:
+  static void DoInit() {
     Config::Init();
 
     // αᴾ = (α₀ + α₁x)ᴾ

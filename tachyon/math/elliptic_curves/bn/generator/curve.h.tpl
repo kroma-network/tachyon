@@ -1,4 +1,6 @@
 // clang-format off
+#include "absl/base/call_once.h"
+
 #include "tachyon/base/logging.h"
 #include "tachyon/math/elliptic_curves/bn/bn_curve.h"
 #include "tachyon/math/elliptic_curves/pairing/twist_type.h"
@@ -35,6 +37,12 @@ class %{class}Config {
   static Fq2 kTwistMulByQY;
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, &%{class}Config::DoInit);
+  }
+
+ private:
+  static void DoInit() {
     // TODO(chokobole): This line below is needed by |GenerateInitExtField()|.
     // Later, I want GenerateInitExtField() to accept BasePrimeField as an argument.
     using BasePrimeField = Fq;

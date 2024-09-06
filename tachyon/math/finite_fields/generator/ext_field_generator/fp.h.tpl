@@ -1,4 +1,6 @@
 // clang-format off
+#include "absl/base/call_once.h"
+
 #include "tachyon/base/logging.h"
 #include "tachyon/math/finite_fields/fp%{degree}.h"
 #include "%{base_field_hdr}"
@@ -31,6 +33,12 @@ class %{class}Config {
   }
 
   static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, %{class}Config::DoInit);
+  }
+
+ private:
+  static void DoInit() {
     BaseField::Init();
 %{init_code}
     VLOG(1) << "%{namespace}::%{class} initialized";

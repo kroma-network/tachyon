@@ -142,6 +142,7 @@ def generate_ec_points(
             scalar_field_dep,
             "//tachyon/math/elliptic_curves/short_weierstrass:points",
             "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve",
+            "@com_google_absl//absl/base",
         ],
         **kwargs
     )

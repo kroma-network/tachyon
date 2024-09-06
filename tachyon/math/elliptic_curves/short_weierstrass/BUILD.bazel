@@ -48,6 +48,7 @@ tachyon_cc_library(
         "//tachyon/math/geometry:jacobian_point",
         "//tachyon/math/geometry:point_conversions",
         "//tachyon/math/geometry:projective_point",
+        "@com_google_absl//absl/base",
     ],
 )
 

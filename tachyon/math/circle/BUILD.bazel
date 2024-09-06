@@ -21,6 +21,7 @@ tachyon_cc_library(
         ":circle_traits_forward",
         "//tachyon/math/geometry:affine_point",
         "//tachyon/math/geometry:curve_type",
+        "@com_google_absl//absl/base",
     ],
 )
 
