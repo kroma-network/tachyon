@@ -46,6 +46,34 @@ class FieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
   void SetUp() override {
     auto config = Poseidon2Config<Params>::Create(
         GetPoseidon2InternalShiftArray<Params>());
+#if TACHYON_CUDA
+    if (config.use_plonky3_internal_matrix) {
+      internal_vector_ = math::Vector<F>(Params::kWidth);
+      internal_vector_[0] = F(F::Config::kModulus - 2);
+      for (Eigen::Index i = 1; i < internal_vector_.size(); ++i) {
+        internal_vector_[i] = F(uint32_t{1} << config.internal_shifts[i - 1]);
+      }
+      internal_vector_span_ =
+          absl::Span<const F>(internal_vector_.data(), internal_vector_.size());
+      size_t capacity =
+          Params::kFullRounds * Params::kWidth + Params::kPartialRounds;
+
+      ark_vector_.reserve(capacity);
+      Eigen::Index partial_rounds_start = Params::kFullRounds / 2;
+      Eigen::Index partial_rounds_end =
+          Params::kFullRounds / 2 + Params::kPartialRounds;
+      for (Eigen::Index i = 0; i < config.ark.rows(); ++i) {
+        if (i < partial_rounds_start || i >= partial_rounds_end) {
+          for (Eigen::Index j = 0; j < config.ark.cols(); ++j) {
+            ark_vector_.push_back(config.ark(i, j));
+          }
+        } else {
+          ark_vector_.push_back(config.ark(i, 0));
+        }
+      }
+      ark_span_ = absl::Span<const F>(ark_vector_.data(), ark_vector_.size());
+    }
+#endif
     Poseidon2 sponge(std::move(config));
     MyHasher hasher(sponge);
     MyCompressor compressor(std::move(sponge));
@@ -61,6 +89,12 @@ class FieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
 
  protected:
   MMCS mmcs_;
+#if TACHYON_CUDA
+  absl::Span<const F> internal_vector_span_;
+  absl::Span<const F> ark_span_;
+  math::Vector<F> internal_vector_;
+  std::vector<F> ark_vector_;
+#endif
 };
 
 }  // namespace
@@ -96,6 +130,35 @@ TEST_F(FieldMerkleTreeMMCSTest, Commit) {
     EXPECT_EQ(commitment, tree.GetRoot());
   }
 }
+
+#if TACHYON_CUDA
+TEST_F(FieldMerkleTreeMMCSTest, CommitGPU) {
+  std::vector<F> vector{F(2), F(1), F(2), F(2), F(0), F(0), F(1), F(0)};
+  math::RowMajorMatrix<F> matrix{
+      {F(2)}, {F(1)}, {F(2)}, {F(2)}, {F(0)}, {F(0)}, {F(1)}, {F(0)},
+  };
+  std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
+
+  std::vector<math::RowMajorMatrix<F>> matrices_tmp = matrices;
+  std::vector<std::vector<std::vector<F>>> outputs;
+  Tree tree =
+      Tree::Build(mmcs_.hasher(), mmcs_.packed_hasher(), mmcs_.compressor(),
+                  mmcs_.packed_compressor(), std::move(matrices_tmp));
+
+  {
+    std::array<F, kChunk> commitment;
+    ASSERT_TRUE(mmcs_.CommitGPU(std::move(matrices), std::move(outputs),
+                                ark_span_, internal_vector_span_));
+
+    size_t idx_i = outputs.size() - 1;
+    size_t idx_j = outputs[idx_i].size() - 1;
+    std::move(outputs[idx_i][idx_j].begin(), outputs[idx_i][idx_j].end(),
+              commitment.begin());
+
+    EXPECT_EQ(commitment, tree.GetRoot());
+  }
+}
+#endif
 
 TEST_F(FieldMerkleTreeMMCSTest, CommitAndVerify) {
   struct Config {
