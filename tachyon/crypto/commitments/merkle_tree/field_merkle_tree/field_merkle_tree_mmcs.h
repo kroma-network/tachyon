@@ -6,6 +6,7 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FIELD_MERKLE_TREE_FIELD_MERKLE_TREE_MMCS_H_
 #define TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FIELD_MERKLE_TREE_FIELD_MERKLE_TREE_MMCS_H_
 
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -20,6 +21,13 @@
 #include "tachyon/crypto/commitments/mixed_matrix_commitment_scheme.h"
 #include "tachyon/math/finite_fields/extension_field_traits_forward.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
+
+#if TACHYON_CUDA
+#include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/icicle/icicle_mmcs.h"
+#include "tachyon/device/gpu/gpu_memory.h"
+#include "tachyon/device/gpu/scoped_mem_pool.h"
+#include "tachyon/device/gpu/scoped_stream.h"
+#endif
 
 namespace tachyon::crypto {
 
@@ -45,14 +53,43 @@ class FieldMerkleTreeMMCS final
       : hasher_(hasher),
         packed_hasher_(packed_hasher),
         compressor_(compressor),
-        packed_compressor_(packed_compressor) {}
+        packed_compressor_(packed_compressor) {
+#if TACHYON_CUDA
+    SetupForGpu();
+#endif
+  }
   FieldMerkleTreeMMCS(Hasher&& hasher, PackedHasher&& packed_hasher,
                       Compressor&& compressor,
                       PackedCompressor&& packed_compressor)
       : hasher_(std::move(hasher)),
         packed_hasher_(std::move(packed_hasher)),
         compressor_(std::move(compressor)),
-        packed_compressor_(std::move(packed_compressor)) {}
+        packed_compressor_(std::move(packed_compressor)) {
+#if TACHYON_CUDA
+    SetupForGpu();
+#endif
+  }
+
+#if TACHYON_CUDA
+  void SetupForGpu() {
+    if constexpr (IsIcicleMMCSSupported<F>) {
+      if (mmcs_gpu_) return;
+
+      gpuMemPoolProps props = {gpuMemAllocationTypePinned,
+                               gpuMemHandleTypeNone,
+                               {gpuMemLocationTypeDevice, 0}};
+      mem_pool_ = device::gpu::CreateMemPool(&props);
+
+      uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
+      gpuError_t error = gpuMemPoolSetAttribute(
+          mem_pool_.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
+      CHECK_EQ(error, gpuSuccess);
+      stream_ = device::gpu::CreateStream();
+
+      mmcs_gpu_.reset(new IcicleMMCS<F>(mem_pool_.get(), stream_.get()));
+    }
+  }
+#endif
 
   const Hasher& hasher() const { return hasher_; }
   const PackedHasher& packed_hasher() const { return packed_hasher_; }
@@ -97,6 +134,23 @@ class FieldMerkleTreeMMCS final
 
     return true;
   }
+
+#if TACHYON_CUDA
+  [[nodiscard]] bool DoCommitGPU(
+      std::vector<math::RowMajorMatrix<F>>&& matrices,
+      std::vector<std::vector<std::vector<F>>>&& outputs,
+      absl::Span<const F> round_constants,
+      absl::Span<const F> internal_matrix_diag) {
+    if constexpr (IsIcicleMMCSSupported<F>) {
+      if (!mmcs_gpu_) return false;
+
+      bool result = mmcs_gpu_->DoCommit(std::move(matrices), std::move(outputs),
+                                        round_constants, internal_matrix_diag);
+      if (result) return true;
+    }
+    return false;
+  }
+#endif
 
   const std::vector<math::RowMajorMatrix<F>>& DoGetMatrices(
       const ProverData& prover_data) const {
@@ -242,6 +296,12 @@ class FieldMerkleTreeMMCS final
   PackedHasher packed_hasher_;
   Compressor compressor_;
   PackedCompressor packed_compressor_;
+
+#if TACHYON_CUDA
+  device::gpu::ScopedMemPool mem_pool_;
+  device::gpu::ScopedStream stream_;
+  std::unique_ptr<IcicleMMCS<F>> mmcs_gpu_;
+#endif
 };
 
 template <typename F, typename Hasher, typename PackedHasher,

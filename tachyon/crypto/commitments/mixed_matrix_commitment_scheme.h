@@ -48,6 +48,16 @@ class MixedMatrixCommitmentScheme {
     return derived->DoCommit(std::move(matrices), commitment, prover_data);
   }
 
+  [[nodiscard]] bool CommitGPU(
+      std::vector<math::RowMajorMatrix<Field>>&& matrices,
+      std::vector<std::vector<std::vector<Field>>>&& outputs,
+      absl::Span<const Field> round_constants,
+      absl::Span<const Field> internal_matrix_diag) {
+    Derived* derived = static_cast<Derived*>(this);
+    return derived->DoCommitGPU(std::move(matrices), std::move(outputs),
+                                round_constants, internal_matrix_diag);
+  }
+
   [[nodiscard]] bool CreateOpeningProof(
       size_t index, const ProverData& prover_data,
       std::vector<std::vector<Field>>* openings, Proof* proof) const {
