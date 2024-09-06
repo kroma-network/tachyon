@@ -5,6 +5,7 @@ mod test {
     use p3_challenger::FieldChallenger;
     use p3_commit::Pcs;
     use p3_commit::PolynomialSpace;
+    use p3_commit::TwoAdicMultiplicativeCoset;
     use p3_dft::TwoAdicSubgroupDft;
     use p3_field::AbstractField;
     use p3_fri::TwoAdicFriPcs;
@@ -91,6 +92,25 @@ mod test {
                 .unzip();
 
         assert_eq!(commits_by_round, tachyon_commits_by_round);
+
+        let domain = TwoAdicMultiplicativeCoset {
+            log_n: 2,
+            shift: Val::generator(),
+        };
+        let eval = <TwoAdicFriPcs<Val, Dft, ValMmcs, ChallengeMmcs> as Pcs<
+            Challenge,
+            Challenger,
+        >>::get_evaluations_on_domain(&pcs, &data_by_round[0], 1, domain)
+        .to_row_major_matrix();
+        let tachyon_eval = <TachyonTwoAdicFriPcs<Val, Dft, ValMmcs, ChallengeMmcs> as Pcs<
+            Challenge,
+            Challenger,
+        >>::get_evaluations_on_domain(
+            &tachyon_pcs, &tachyon_data_by_round[0], 1, domain
+        )
+        .to_row_major_matrix();
+
+        assert_eq!(eval, tachyon_eval);
 
         let ldes_vec = domains_and_polys_by_round
             .iter()
