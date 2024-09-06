@@ -133,16 +133,19 @@ class TwoAdicFRI {
         std::vector<ExtF>& reduced_opening_for_log_num_rows =
             reduced_openings[log_num_rows];
         CHECK_EQ(reduced_opening_for_log_num_rows.size(), num_rows);
+
+        math::RowMajorMatrix<F> block =
+            mat.topRows(num_rows >> fri_.log_blowup);
+        ReverseMatrixIndexBits(block);
+        std::vector<ExtF> reduced_rows = DotExtPowers(mat, alpha);
+
         // TODO(ashjeong): Determine if using a matrix is a better fit.
         opened_values_for_round[matrix_idx] = base::CreateVector(
             points[matrix_idx].size(),
-            [this, matrix_idx, num_rows, num_cols, log_num_rows, &points, &mat,
-             &alpha, &num_reduced, &inv_denoms,
+            [this, matrix_idx, num_rows, num_cols, log_num_rows, &points,
+             &block, &alpha, &num_reduced, &inv_denoms, &reduced_rows,
              &reduced_opening_for_log_num_rows](size_t point_idx) {
               const ExtF& point = points[matrix_idx][point_idx];
-              math::RowMajorMatrix<F> block =
-                  mat.topRows(num_rows >> fri_.log_blowup);
-              ReverseMatrixIndexBits(block);
               std::vector<ExtF> ys = InterpolateCoset(
                   block, F::FromMontgomery(F::Config::kSubgroupGenerator),
                   point);
@@ -155,7 +158,6 @@ class TwoAdicFRI {
                 alpha_pow *= alpha;
               }
               reduced_ys += alpha_pow * ys[num_cols - 1];
-              std::vector<ExtF> reduced_rows = DotExtPowers(mat, alpha);
               const std::vector<ExtF>& inv_denom = inv_denoms[point];
               OMP_PARALLEL_FOR(size_t i = 0;
                                i < reduced_opening_for_log_num_rows.size();
