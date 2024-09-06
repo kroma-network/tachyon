@@ -140,35 +140,33 @@ class TwoAdicFRI {
         std::vector<ExtF> reduced_rows = DotExtPowers(mat, alpha);
 
         // TODO(ashjeong): Determine if using a matrix is a better fit.
-        opened_values_for_round[matrix_idx] = base::CreateVector(
-            points[matrix_idx].size(),
-            [this, matrix_idx, num_rows, num_cols, log_num_rows, &points,
-             &block, &alpha, &num_reduced, &inv_denoms, &reduced_rows,
-             &reduced_opening_for_log_num_rows](size_t point_idx) {
-              const ExtF& point = points[matrix_idx][point_idx];
-              std::vector<ExtF> ys = InterpolateCoset(
-                  block, F::FromMontgomery(F::Config::kSubgroupGenerator),
-                  point);
-              const ExtF alpha_pow_offset =
-                  alpha.Pow(num_reduced[log_num_rows]);
-              ExtF alpha_pow = ExtF::One();
-              ExtF reduced_ys = ExtF::Zero();
-              for (size_t c = 0; c < num_cols - 1; ++c) {
-                reduced_ys += alpha_pow * ys[c];
-                alpha_pow *= alpha;
-              }
-              reduced_ys += alpha_pow * ys[num_cols - 1];
-              const std::vector<ExtF>& inv_denom = inv_denoms[point];
-              OMP_PARALLEL_FOR(size_t i = 0;
-                               i < reduced_opening_for_log_num_rows.size();
-                               ++i) {
-                reduced_opening_for_log_num_rows[i] +=
-                    alpha_pow_offset * (reduced_rows[i] - reduced_ys) *
-                    inv_denom[i];
-              }
-              num_reduced[log_num_rows] += num_cols;
-              return ys;
-            });
+        opened_values_for_round[matrix_idx].reserve(points[matrix_idx].size());
+        for (size_t point_idx = 0; point_idx < points[matrix_idx].size();
+             ++point_idx) {
+          const ExtF& point = points[matrix_idx][point_idx];
+          std::vector<ExtF> ys = InterpolateCoset(
+              block, F::FromMontgomery(F::Config::kSubgroupGenerator), point);
+
+          ExtF alpha_pow = ExtF::One();
+          ExtF reduced_ys = ExtF::Zero();
+          for (size_t c = 0; c < num_cols - 1; ++c) {
+            reduced_ys += alpha_pow * ys[c];
+            alpha_pow *= alpha;
+          }
+          reduced_ys += alpha_pow * ys[num_cols - 1];
+
+          const ExtF alpha_pow_offset = alpha.Pow(num_reduced[log_num_rows]);
+          num_reduced[log_num_rows] += num_cols;
+
+          const std::vector<ExtF>& inv_denom = inv_denoms[point];
+          OMP_PARALLEL_FOR(size_t i = 0;
+                           i < reduced_opening_for_log_num_rows.size(); ++i) {
+            reduced_opening_for_log_num_rows[i] +=
+                alpha_pow_offset * (reduced_rows[i] - reduced_ys) *
+                inv_denom[i];
+          }
+          opened_values_for_round[matrix_idx].emplace_back(std::move(ys));
+        }
       }
       opened_values[round] = std::move(opened_values_for_round);
     }
