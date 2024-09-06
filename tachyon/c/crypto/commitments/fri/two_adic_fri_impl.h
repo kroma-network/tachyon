@@ -28,7 +28,7 @@ class TwoAdicFRIImpl
 
   using Base::Base;
 
-  void AllocateLDEs(size_t size) { this->ldes_.reserve(size); }
+  void AllocateLDEs(size_t size) { ldes_.reserve(size); }
 
   template <typename Derived>
   absl::Span<F> CosetLDEBatch(Eigen::MatrixBase<Derived>& matrix, F shift) {
@@ -36,7 +36,7 @@ class TwoAdicFRIImpl
     tachyon::math::RowMajorMatrix<F> mat = coset.domain()->CosetLDEBatch(
         matrix, this->fri_.log_blowup, shift, /*reverse_at_last=*/false);
     absl::Span<F> ret(mat.data(), mat.size());
-    this->ldes_.push_back(std::move(mat));
+    ldes_.push_back(std::move(mat));
     return ret;
   }
 
