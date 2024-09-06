@@ -5,9 +5,13 @@ pub mod util;
 
 #[cfg(test)]
 mod test {
+    #[cfg(not(debug_assertions))]
     use anyhow::Result;
+    #[cfg(not(debug_assertions))]
     use sp1_core::io::SP1Stdin;
+    #[cfg(not(debug_assertions))]
     use sp1_core::{runtime::SP1Context, utils::setup_logger};
+    #[cfg(not(debug_assertions))]
     use sp1_prover::{components::DefaultProverComponents, SP1Prover};
 
     #[test]

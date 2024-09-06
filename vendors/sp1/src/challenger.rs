@@ -12,8 +12,6 @@ mod test {
     #[test]
     fn test_duplex_challenger() {
         const WIDTH: usize = 16;
-        const ROUNDS_F: usize = 8;
-        const ROUNDS_P: usize = 13;
 
         const RATE: usize = 8;
 

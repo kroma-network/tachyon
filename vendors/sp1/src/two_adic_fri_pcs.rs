@@ -9,7 +9,6 @@ mod test {
     use p3_field::AbstractField;
     use p3_fri::TwoAdicFriPcs;
     use p3_matrix::{bitrev::BitReversableMatrix, dense::RowMajorMatrix, Matrix};
-    use p3_util::log2_strict_usize;
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha20Rng;
     use sp1_core::utils::baby_bear_poseidon2::{
@@ -29,8 +28,6 @@ mod test {
 
     #[test]
     fn test_two_adic_fri_pcs() {
-        const ROWS: usize = 32;
-        const COLS: usize = 5;
         const LOG_N: usize = 20;
 
         let perm = my_perm();
@@ -102,7 +99,6 @@ mod test {
                     .into_iter()
                     .map(|(domain, evals)| {
                         assert_eq!(domain.size(), evals.height());
-                        let log_n = log2_strict_usize(domain.size());
                         let shift = Val::generator() / domain.shift;
                         // Commit to the bit-reversed LDE.
                         Dft {}
@@ -116,7 +112,7 @@ mod test {
 
         for (i, ldes) in ldes_vec.clone().into_iter().enumerate() {
             for (j, lde) in ldes.into_iter().enumerate() {
-                let v = assert_eq!(
+                assert_eq!(
                     lde.to_row_major_matrix(),
                     tachyon_data_by_round[i].ldes[j]
                         .clone()
@@ -138,7 +134,7 @@ mod test {
             .iter()
             .zip(points_by_round.clone())
             .collect::<Vec<_>>();
-        let (opening_by_round, proof) = pcs.open(data_and_points, &mut challenger);
+        let (opening_by_round, _proof) = pcs.open(data_and_points, &mut challenger);
 
         let tachyon_data_and_points = tachyon_data_by_round
             .iter()
