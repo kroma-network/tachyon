@@ -17,6 +17,10 @@ class FriProof {
   FriProof& operator=(const FriProof& other) = delete;
   ~FriProof();
 
+  const tachyon_sp1_baby_bear_poseidon2_fri_proof* proof() const {
+    return proof_;
+  }
+
   std::unique_ptr<FriProof> clone() const;
 
  private:

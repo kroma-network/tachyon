@@ -5,9 +5,12 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/base/bits.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear4_type_traits.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
 #include "tachyon/c/math/matrix/baby_bear_row_major_matrix_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_commitment_vec_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_domains_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_duplex_challenger_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_fri_proof_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_opened_values_type_traits.h"
@@ -24,16 +27,22 @@ using MMCS = c::zk::air::plonky3::baby_bear::MMCS;
 using Coset = c::zk::air::plonky3::baby_bear::Coset;
 using PCS = c::zk::air::plonky3::baby_bear::PCS;
 
+constexpr size_t kRounds = 1;
+
 class TwoAdicFRITest : public testing::Test {
  public:
   void SetUp() override {
     pcs_ = tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(1, 10, 8);
     prover_data_vec_ =
         tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_create();
-    opening_points_ = tachyon_sp1_baby_bear_poseidon2_opening_points_create(1);
+    opening_points_ =
+        tachyon_sp1_baby_bear_poseidon2_opening_points_create(kRounds);
     challenger_ = tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create();
-    opened_values_ = tachyon_sp1_baby_bear_poseidon2_opened_values_create();
+    opened_values_ = tachyon_sp1_baby_bear_poseidon2_opened_values_create(0);
     proof_ = tachyon_sp1_baby_bear_poseidon2_fri_proof_create();
+    commitment_vec_ =
+        tachyon_sp1_baby_bear_poseidon2_commitment_vec_create(kRounds);
+    domains_ = tachyon_sp1_baby_bear_poseidon2_domains_create(kRounds);
   }
 
   void TearDown() override {
@@ -44,6 +53,8 @@ class TwoAdicFRITest : public testing::Test {
     tachyon_sp1_baby_bear_poseidon2_duplex_challenger_destroy(challenger_);
     tachyon_sp1_baby_bear_poseidon2_opened_values_destroy(opened_values_);
     tachyon_sp1_baby_bear_poseidon2_fri_proof_destroy(proof_);
+    tachyon_sp1_baby_bear_poseidon2_commitment_vec_destroy(commitment_vec_);
+    tachyon_sp1_baby_bear_poseidon2_domains_destroy(domains_);
   }
 
  protected:
@@ -54,6 +65,8 @@ class TwoAdicFRITest : public testing::Test {
   tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger_ = nullptr;
   tachyon_sp1_baby_bear_poseidon2_opened_values* opened_values_ = nullptr;
   tachyon_sp1_baby_bear_poseidon2_fri_proof* proof_ = nullptr;
+  tachyon_sp1_baby_bear_poseidon2_commitment_vec* commitment_vec_ = nullptr;
+  tachyon_sp1_baby_bear_poseidon2_domains* domains_ = nullptr;
 };
 
 }  // namespace
@@ -118,11 +131,26 @@ TEST_F(TwoAdicFRITest, APIs) {
           opening_points_, 0, r, c, c::base::c_cast(&point));
     }
   }
+
+  tachyon_sp1_baby_bear_poseidon2_duplex_challenger* another_challenger =
+      tachyon_sp1_baby_bear_poseidon2_duplex_challenger_clone(challenger_);
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
       pcs_, prover_data_vec_, opening_points_, challenger_, &opened_values_,
       &proof_);
 
+  tachyon_sp1_baby_bear_poseidon2_commitment_vec_set(commitment_vec_, 0,
+                                                     commitment);
+  tachyon_sp1_baby_bear_poseidon2_domains_allocate(domains_, 0, 1);
+  tachyon_sp1_baby_bear_poseidon2_domains_set(
+      domains_, 0, 0, base::bits::CheckedLog2(kRowsForInput),
+      c::base::c_cast(&shift));
+
+  ASSERT_TRUE(tachyon_sp1_baby_bear_poseidon2_two_adic_fri_verify(
+      pcs_, commitment_vec_, domains_, opening_points_, opened_values_, proof_,
+      another_challenger));
+
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri_destroy(another_pcs);
+  tachyon_sp1_baby_bear_poseidon2_duplex_challenger_destroy(another_challenger);
 }
 
 }  // namespace tachyon

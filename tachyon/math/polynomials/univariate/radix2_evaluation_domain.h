@@ -140,9 +140,9 @@ class Radix2EvaluationDomain
     // - divide by number of rows (since we're doing an inverse DFT)
     // - multiply by powers of the coset shift (see default coset LDE impl for
     // an explanation)
-    base::Parallelize(this->size_, [this, &mat, &shift](size_t len,
-                                                        size_t chunk_offset,
-                                                        size_t chunk_size) {
+    base::Parallelize(this->size_, [this, shift, &mat](size_t len,
+                                                       size_t chunk_offset,
+                                                       size_t chunk_size) {
       // Reverse bits because |mat| is encoded in bit-reversed order
       size_t start = chunk_offset * chunk_size;
       F weight = this->size_inv_ * shift.Pow(start);

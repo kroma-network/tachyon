@@ -14,9 +14,12 @@ tachyon_rust_library(
     crate_features = FEATURES,
     proc_macro_deps = all_crate_deps(proc_macro = True),
     deps = all_crate_deps(normal = True) + [
+        ":baby_bear_poseidon2_commitment_vec",
         ":baby_bear_poseidon2_cxx_bridge",
+        ":baby_bear_poseidon2_domains",
         ":baby_bear_poseidon2_duplex_challenger",
         ":baby_bear_poseidon2_fri_proof",
+        ":baby_bear_poseidon2_opened_values",
         ":baby_bear_poseidon2_opening_points",
         ":baby_bear_poseidon2_opening_proof",
         ":baby_bear_poseidon2_prover_data",
@@ -66,8 +69,11 @@ rust_cxx_bridge(
 tachyon_cc_library(
     name = "baby_bear_poseidon2_api_hdrs",
     hdrs = [
+        "include/baby_bear_poseidon2_commitment_vec.h",
+        "include/baby_bear_poseidon2_domains.h",
         "include/baby_bear_poseidon2_duplex_challenger.h",
         "include/baby_bear_poseidon2_fri_proof.h",
+        "include/baby_bear_poseidon2_opened_values.h",
         "include/baby_bear_poseidon2_opening_points.h",
         "include/baby_bear_poseidon2_opening_proof.h",
         "include/baby_bear_poseidon2_prover_data.h",
@@ -78,6 +84,24 @@ tachyon_cc_library(
         "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_duplex_challenger",
         "//tachyon/c/zk/air/sp1:baby_bear_poseidon2_two_adic_fri",
         "@cxx.rs//:core",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_commitment_vec",
+    srcs = ["src/baby_bear_poseidon2_commitment_vec.cc"],
+    deps = [
+        ":baby_bear_poseidon2_api_hdrs",
+        ":baby_bear_poseidon2_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_domains",
+    srcs = ["src/baby_bear_poseidon2_domains.cc"],
+    deps = [
+        ":baby_bear_poseidon2_api_hdrs",
+        ":baby_bear_poseidon2_cxx_bridge/include",
     ],
 )
 
@@ -93,6 +117,15 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "baby_bear_poseidon2_fri_proof",
     srcs = ["src/baby_bear_poseidon2_fri_proof.cc"],
+    deps = [
+        ":baby_bear_poseidon2_api_hdrs",
+        ":baby_bear_poseidon2_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_opened_values",
+    srcs = ["src/baby_bear_poseidon2_opened_values.cc"],
     deps = [
         ":baby_bear_poseidon2_api_hdrs",
         ":baby_bear_poseidon2_cxx_bridge/include",

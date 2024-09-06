@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod test {
+    use itertools::{izip, Itertools};
+
     use p3_challenger::FieldChallenger;
     use p3_commit::Pcs;
     use p3_commit::PolynomialSpace;
@@ -126,6 +128,7 @@ mod test {
         let mut challenger = Challenger::new();
         let zeta: Challenge = challenger.sample_ext_element();
         let mut tachyon_challenger = challenger.clone();
+        let mut tachyon_challenger_for_verify = challenger.clone();
 
         let points_by_round = log_degrees_by_round
             .iter()
@@ -145,6 +148,25 @@ mod test {
             tachyon_pcs.open(tachyon_data_and_points, &mut tachyon_challenger);
 
         assert_eq!(opening_by_round, tachyon_opening_by_round);
+
+        let rounds = izip!(
+            commits_by_round,
+            domains_and_polys_by_round,
+            opening_by_round
+        )
+        .map(|(commit, domains_and_polys, openings)| {
+            let claims = domains_and_polys
+                .iter()
+                .zip(openings)
+                .map(|((domain, _), mat_openings)| (*domain, vec![(zeta, mat_openings[0].clone())]))
+                .collect_vec();
+            (commit, claims)
+        })
+        .collect_vec();
+
+        assert!(tachyon_pcs
+            .verify(rounds, &tachyon_proof, &mut tachyon_challenger_for_verify)
+            .is_ok());
 
         // TODO(chokobole): `std::mem::forget` was used to prevent it from double-free. We need to figure out a more elegant solution.
         std::mem::forget(tachyon_data_by_round);

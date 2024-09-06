@@ -86,7 +86,6 @@ class TwoAdicFRITest : public testing::Test {
     using OpenedValues =
         std::vector<std::vector<std::vector<std::vector<ExtF>>>>;
     using Proof = FRIProof<MyPCS>;
-    using Claims = std::vector<std::tuple<ExtF, std::vector<ExtF>>>;
 
     size_t num_rounds = log_degrees_by_round.size();
     std::vector<std::vector<Domain>> domains_by_round(num_rounds);
@@ -116,11 +115,12 @@ class TwoAdicFRITest : public testing::Test {
       points_by_round[round] = std::vector<std::vector<ExtF>>(
           log_degrees_by_round[round].size(), {zeta});
     }
-    OpenedValues openings;
+    OpenedValues opened_values_by_round;
     Proof proof;
     ASSERT_TRUE(pcs_.CreateOpeningProof(data_by_round, points_by_round,
-                                        p_challenger, &openings, &proof));
-    ASSERT_EQ(openings.size(), num_rounds);
+                                        p_challenger, &opened_values_by_round,
+                                        &proof));
+    ASSERT_EQ(opened_values_by_round.size(), num_rounds);
 
     // Verify the proof
     Challenger v_challenger = challenger_;
@@ -128,16 +128,9 @@ class TwoAdicFRITest : public testing::Test {
     ExtF verifier_zeta = v_challenger.template SampleExtElement<ExtF>();
     ASSERT_EQ(verifier_zeta, zeta);
 
-    std::vector<std::vector<Claims>> claims_by_round = base::CreateVector(
-        num_rounds, [&domains_by_round, &zeta, &openings](size_t round) {
-          return base::CreateVector(
-              domains_by_round[round].size(),
-              [round, &zeta, &openings](size_t i) {
-                return Claims{std::make_tuple(zeta, openings[round][i][0])};
-              });
-        });
     ASSERT_TRUE(pcs_.VerifyOpeningProof(commits_by_round, domains_by_round,
-                                        claims_by_round, proof, v_challenger));
+                                        points_by_round, opened_values_by_round,
+                                        proof, v_challenger));
   }
 
  protected:

@@ -2,7 +2,7 @@ use std::{fmt::Debug, io::Cursor, marker::PhantomData, pin::Pin};
 
 use p3_baby_bear::BabyBear;
 use p3_challenger::{CanObserve, CanSample, CanSampleBits, FieldChallenger, GrindingChallenger};
-use p3_commit::{Mmcs, OpenedValues, Pcs, PolynomialSpace, TwoAdicMultiplicativeCoset};
+use p3_commit::{Mmcs, Pcs, PolynomialSpace, TwoAdicMultiplicativeCoset};
 use p3_dft::TwoAdicSubgroupDft;
 use p3_field::{ExtensionField, Field, PackedField, PackedValue, PrimeField64, TwoAdicField};
 use p3_fri::{FriConfig, VerificationError};
@@ -31,6 +31,31 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("vendors/sp1/include/baby_bear_poseidon2_commitment_vec.h");
+
+        type CommitmentVec;
+
+        fn new_commitment_vec(rounds: usize) -> UniquePtr<CommitmentVec>;
+        fn set(self: Pin<&mut CommitmentVec>, round: usize, commitment: &[TachyonBabyBear]);
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/sp1/include/baby_bear_poseidon2_domains.h");
+
+        type Domains;
+
+        fn new_domains(rounds: usize) -> UniquePtr<Domains>;
+        fn allocate(self: Pin<&mut Domains>, round: usize, size: usize);
+        fn set(
+            self: Pin<&mut Domains>,
+            round: usize,
+            idx: usize,
+            log_n: u32,
+            shift: &TachyonBabyBear,
+        );
+    }
+
+    unsafe extern "C++" {
         include!("vendors/sp1/include/baby_bear_poseidon2_duplex_challenger.h");
 
         type DuplexChallenger;
@@ -50,13 +75,37 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("vendors/sp1/include/baby_bear_poseidon2_opened_values.h");
+
+        type OpenedValues;
+
+        fn new_opened_values(rounds: usize) -> UniquePtr<OpenedValues>;
+        fn allocate_outer(self: Pin<&mut OpenedValues>, round: usize, rows: usize, cols: usize);
+        fn allocate_inner(
+            self: Pin<&mut OpenedValues>,
+            round: usize,
+            row: usize,
+            cols: usize,
+            size: usize,
+        );
+        fn set(
+            self: Pin<&mut OpenedValues>,
+            round: usize,
+            row: usize,
+            col: usize,
+            idx: usize,
+            value: &TachyonBabyBear4,
+        );
+    }
+
+    unsafe extern "C++" {
         include!("vendors/sp1/include/baby_bear_poseidon2_opening_points.h");
 
         type OpeningPoints;
 
         fn new_opening_points(rounds: usize) -> UniquePtr<OpeningPoints>;
         fn clone(&self) -> UniquePtr<OpeningPoints>;
-        fn allocate(self: Pin<&mut OpeningPoints>, rounds: usize, rows: usize, cols: usize);
+        fn allocate(self: Pin<&mut OpeningPoints>, round: usize, rows: usize, cols: usize);
         fn set(
             self: Pin<&mut OpeningPoints>,
             round: usize,
@@ -117,6 +166,71 @@ pub mod ffi {
             opening_points: &OpeningPoints,
             challenger: Pin<&mut DuplexChallenger>,
         ) -> UniquePtr<OpeningProof>;
+        fn do_verify(
+            &self,
+            commitments: &CommitmentVec,
+            domains: &Domains,
+            opening_points: &OpeningPoints,
+            opened_values: &OpenedValues,
+            proof: &FriProof,
+            challenger: Pin<&mut DuplexChallenger>,
+        ) -> bool;
+    }
+}
+
+pub struct CommitmentVec<Val> {
+    inner: cxx::UniquePtr<ffi::CommitmentVec>,
+    _marker: PhantomData<Val>,
+}
+
+impl<Val> Debug for CommitmentVec<Val> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CommitmentVec").finish()
+    }
+}
+
+impl<Val> CommitmentVec<Val> {
+    pub fn new(inner: cxx::UniquePtr<ffi::CommitmentVec>) -> Self {
+        Self {
+            inner,
+            _marker: PhantomData,
+        }
+    }
+
+    pub fn set(&mut self, round: usize, commitment: &[Val]) {
+        self.inner
+            .pin_mut()
+            .set(round, unsafe { std::mem::transmute(commitment) })
+    }
+}
+
+pub struct Domains<Val> {
+    inner: cxx::UniquePtr<ffi::Domains>,
+    _marker: PhantomData<Val>,
+}
+
+impl<Val> Debug for Domains<Val> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Domains").finish()
+    }
+}
+
+impl<Val> Domains<Val> {
+    pub fn new(inner: cxx::UniquePtr<ffi::Domains>) -> Self {
+        Self {
+            inner,
+            _marker: PhantomData,
+        }
+    }
+
+    pub fn allocate(&mut self, round: usize, size: usize) {
+        self.inner.pin_mut().allocate(round, size)
+    }
+
+    pub fn set(&mut self, round: usize, idx: usize, log_n: u32, shift: Val) {
+        self.inner
+            .pin_mut()
+            .set(round, idx, log_n, unsafe { std::mem::transmute(&shift) })
     }
 }
 
@@ -312,6 +426,34 @@ impl FriProof {
     }
 }
 
+pub struct OpenedValues<Val> {
+    inner: cxx::UniquePtr<ffi::OpenedValues>,
+    _marker: PhantomData<Val>,
+}
+
+impl<Val> OpenedValues<Val> {
+    pub fn new(inner: cxx::UniquePtr<ffi::OpenedValues>) -> Self {
+        Self {
+            inner,
+            _marker: PhantomData,
+        }
+    }
+
+    pub fn allocate_outer(&mut self, round: usize, rows: usize, cols: usize) {
+        self.inner.pin_mut().allocate_outer(round, rows, cols)
+    }
+
+    pub fn allocate_inner(&mut self, round: usize, row: usize, cols: usize, size: usize) {
+        self.inner.pin_mut().allocate_inner(round, row, cols, size)
+    }
+
+    pub fn set(&mut self, round: usize, row: usize, col: usize, idx: usize, value: &Val) {
+        self.inner
+            .pin_mut()
+            .set(round, row, col, idx, unsafe { std::mem::transmute(value) })
+    }
+}
+
 pub struct OpeningPoints<Val> {
     inner: cxx::UniquePtr<ffi::OpeningPoints>,
     _marker: PhantomData<Val>,
@@ -353,10 +495,10 @@ impl OpeningProof {
         Self { inner }
     }
 
-    pub fn serialize_to_opened_values<Challenge>(&self) -> OpenedValues<Challenge> {
+    pub fn serialize_to_opened_values<Challenge>(&self) -> p3_commit::OpenedValues<Challenge> {
         let buffer = self.inner.serialize_to_opened_values();
         let mut reader = Cursor::new(buffer);
-        let values = OpenedValues::<[u32; 4]>::read_from(&mut reader).unwrap();
+        let values = p3_commit::OpenedValues::<[u32; 4]>::read_from(&mut reader).unwrap();
         unsafe { std::mem::transmute(values) }
     }
 
@@ -501,6 +643,25 @@ where
             challenger,
         ))
     }
+
+    fn do_verify<Challenge>(
+        &self,
+        commitment_vec: &CommitmentVec<Val>,
+        domains: &Domains<Val>,
+        opening_points: &OpeningPoints<Challenge>,
+        opened_values: &OpenedValues<Challenge>,
+        proof: &FriProof,
+        challenger: Pin<&mut ffi::DuplexChallenger>,
+    ) -> bool {
+        self.inner.do_verify(
+            &commitment_vec.inner,
+            &domains.inner,
+            &opening_points.inner,
+            &opened_values.inner,
+            &proof.inner,
+            challenger,
+        )
+    }
 }
 
 impl<Val, Dft, InputMmcs, FriMmcs, Challenge, Challenger> Pcs<Challenge, Challenger>
@@ -578,7 +739,7 @@ where
             >,
         )>,
         challenger: &mut Challenger,
-    ) -> (OpenedValues<Challenge>, Self::Proof) {
+    ) -> (p3_commit::OpenedValues<Challenge>, Self::Proof) {
         let mut opening_points = OpeningPoints::new(ffi::new_opening_points(rounds.len()));
         for (round, (_, matrix)) in rounds.iter().enumerate() {
             opening_points.allocate(round, matrix.len(), matrix[0].len());
@@ -616,6 +777,37 @@ where
         proof: &Self::Proof,
         challenger: &mut Challenger,
     ) -> Result<(), Self::Error> {
-        todo!()
+        let mut commitment_vec = CommitmentVec::new(ffi::new_commitment_vec(rounds.len()));
+        let mut domains = Domains::<Val>::new(ffi::new_domains(rounds.len()));
+        let mut opening_points = OpeningPoints::new(ffi::new_opening_points(rounds.len()));
+        let mut opened_values = OpenedValues::new(ffi::new_opened_values(rounds.len()));
+        for (round, (commitment, matrix)) in rounds.iter().enumerate() {
+            commitment_vec.set(round, commitment.as_ref());
+            domains.allocate(round, matrix.len());
+            let claims = &matrix[0].1;
+            opening_points.allocate(round, matrix.len(), claims.len());
+            opened_values.allocate_outer(round, matrix.len(), claims.len());
+            for (row, (domain, claims)) in matrix.iter().enumerate() {
+                domains.set(round, row, domain.log_n as u32, domain.shift);
+                let values = &claims[0].1;
+                opened_values.allocate_inner(round, row, claims.len(), values.len());
+                for (col, (challenge, values)) in claims.iter().enumerate() {
+                    opening_points.set(round, row, col, challenge);
+                    for (idx, value) in values.iter().enumerate() {
+                        opened_values.set(round, row, col, idx, value);
+                    }
+                }
+            }
+        }
+        let succeeded = self.do_verify(
+            &commitment_vec,
+            &domains,
+            &opening_points,
+            &opened_values,
+            proof,
+            challenger.get_inner_pin_mut(),
+        );
+        assert!(succeeded);
+        Ok(())
     }
 }

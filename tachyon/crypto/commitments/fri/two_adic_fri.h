@@ -7,7 +7,6 @@
 #define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_H_
 
 #include <algorithm>
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -57,8 +56,7 @@ class TwoAdicFRI {
   using OpeningPointsForRound = std::vector<std::vector<ExtF>>;
   using OpeningPoints = std::vector<OpeningPointsForRound>;
 
-  using OpenedValuesForMat = std::vector<std::vector<ExtF>>;
-  using OpenedValuesForRound = std::vector<OpenedValuesForMat>;
+  using OpenedValuesForRound = std::vector<std::vector<std::vector<ExtF>>>;
   using OpenedValues = std::vector<OpenedValuesForRound>;
 
   TwoAdicFRI() = default;
@@ -91,7 +89,7 @@ class TwoAdicFRI {
   [[nodiscard]] bool CreateOpeningProof(
       const std::vector<ProverData>& prover_data_by_round,
       const OpeningPoints& points_by_round, Challenger& challenger,
-      OpenedValues* openings, FRIProof* proof) {
+      OpenedValues* opened_values_out, FRIProof* proof) const {
     TRACE_EVENT("ProofGeneration", "TwoAdicFRI::CreateOpeningProof");
     ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
@@ -138,9 +136,8 @@ class TwoAdicFRI {
         std::vector<ExtF>& reduced_opening_for_log_num_rows =
             reduced_openings[log_num_rows];
         CHECK_EQ(reduced_opening_for_log_num_rows.size(), num_rows);
-        // TODO(ashjeong): Determine if using a matrix is a better fit for
-        // |opened_values_for_mat|.
-        OpenedValuesForMat opened_values_for_mat = base::CreateVector(
+        // TODO(ashjeong): Determine if using a matrix is a better fit.
+        opened_values_for_round[matrix_idx] = base::CreateVector(
             points[matrix_idx].size(),
             [this, matrix_idx, num_rows, num_cols, log_num_rows, &points, &mat,
              &alpha, &num_reduced, &inv_denoms,
@@ -173,7 +170,6 @@ class TwoAdicFRI {
               num_reduced[log_num_rows] += num_cols;
               return ys;
             });
-        opened_values_for_round[matrix_idx] = std::move(opened_values_for_mat);
       }
       opened_values[round] = std::move(opened_values_for_round);
     }
@@ -185,11 +181,12 @@ class TwoAdicFRI {
       }
     }
 
-    FRIProof fri_proof = fri::Prove<TwoAdicFRI>(
+    *opened_values_out = std::move(opened_values);
+    *proof = fri::Prove<TwoAdicFRI>(
         fri_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();
-          std::vector<BatchOpening<TwoAdicFRI>> ret = base::CreateVector(
+          return base::CreateVector(
               num_rounds, [this, log_global_max_num_rows, index,
                            &prover_data_by_round](size_t round) {
                 Proof proof;
@@ -205,23 +202,16 @@ class TwoAdicFRI {
                 return BatchOpening<TwoAdicFRI>{std::move(openings),
                                                 std::move(proof)};
               });
-
-          return ret;
         });
-    *openings = std::move(opened_values);
-    *proof = std::move(fri_proof);
     return true;
   }
 
-  // TODO(ashjeong): remove the use of |std::tuple| and name the separate
-  // containers applicable names.
   [[nodiscard]] bool VerifyOpeningProof(
       const std::vector<Commitment>& commits_by_round,
       const std::vector<std::vector<Domain>>& domains_by_round,
-      const std::vector<
-          std::vector<std::vector<std::tuple<ExtF, std::vector<ExtF>>>>>&
-          claims_by_round,
-      const FRIProof& proof, Challenger& challenger) {
+      const OpeningPoints& points_by_round,
+      const OpenedValues& opened_values_by_round, const FRIProof& proof,
+      Challenger& challenger) const {
     TRACE_EVENT("ProofVerification", "TwoAdicFRI::VerifyOpeningProof");
     // Batch combination challenge
     const ExtF alpha = challenger.template SampleExtElement<ExtF>();
@@ -231,66 +221,77 @@ class TwoAdicFRI {
     return fri::Verify(
         fri_, proof, challenger,
         [this, alpha, log_global_max_num_rows, &commits_by_round,
-         &domains_by_round, &claims_by_round](
+         &domains_by_round, &points_by_round, &opened_values_by_round](
             size_t index, const InputProof& input_proof,
             std::vector<size_t>& ro_num_rows, std::vector<ExtF>& ro_values) {
-          absl::btree_map<size_t, std::tuple<ExtF, ExtF>> reduced_openings;
+          struct ReducedOpening {
+            ExtF value;
+            ExtF pow;
+
+            static ReducedOpening Default() {
+              return {
+                  ExtF::Zero(),
+                  ExtF::One(),
+              };
+            }
+          };
+
+          absl::btree_map<size_t, ReducedOpening> reduced_openings;
           size_t num_rounds = commits_by_round.size();
           for (size_t round = 0; round < num_rounds; ++round) {
-            const std::vector<std::vector<std::tuple<ExtF, std::vector<ExtF>>>>&
-                claim = claims_by_round[round];
-            size_t vals_size = claim.size();
+            const std::vector<Domain>& domains = domains_by_round[round];
+            const OpeningPointsForRound& points = points_by_round[round];
+            const OpenedValuesForRound& opened_values =
+                opened_values_by_round[round];
+            size_t vals_size = opened_values.size();
             size_t batch_max_num_rows = 0;
             std::vector<math::Dimensions> batch_dims = base::CreateVector(
-                vals_size, [this, round, &batch_max_num_rows,
-                            &domains_by_round](size_t batch_idx) {
-                  const Domain& mat_domain = domains_by_round[round][batch_idx];
-                  size_t num_rows = mat_domain.domain()->size()
-                                    << fri_.log_blowup;
+                vals_size,
+                [this, &batch_max_num_rows, &domains](size_t batch_idx) {
+                  const Domain& domain = domains[batch_idx];
+                  size_t num_rows = domain.domain()->size() << fri_.log_blowup;
                   batch_max_num_rows = std::max(batch_max_num_rows, num_rows);
                   return math::Dimensions{0, num_rows};
                 });
             uint32_t bits_reduced = log_global_max_num_rows -
                                     base::bits::CheckedLog2(batch_max_num_rows);
             uint32_t reduced_index = index >> bits_reduced;
-            const std::vector<std::vector<F>>& opened_values =
+            const std::vector<std::vector<F>>& opened_values_in =
                 input_proof[round].opened_values;
 
             CHECK(mmcs_.VerifyOpeningProof(commits_by_round[round], batch_dims,
-                                           reduced_index, opened_values,
+                                           reduced_index, opened_values_in,
                                            input_proof[round].opening_proof));
 
             for (size_t batch_idx = 0; batch_idx < vals_size; ++batch_idx) {
-              const Domain& mat_domain = domains_by_round[round][batch_idx];
-              const std::vector<std::tuple<ExtF, std::vector<ExtF>>>&
-                  mat_points_and_values = claim[batch_idx];
+              const Domain& domain = domains[batch_idx];
+              const std::vector<ExtF>& cur_points = points[batch_idx];
+              const std::vector<std::vector<ExtF>>& cur_values =
+                  opened_values[batch_idx];
+              const std::vector<ExtF> cur_values_in = base::Map(
+                  opened_values_in[batch_idx], [](F f) { return ExtF(f); });
               uint32_t log_num_rows =
-                  mat_domain.domain()->log_size_of_group() + fri_.log_blowup;
+                  domain.domain()->log_size_of_group() + fri_.log_blowup;
               uint32_t bits_reduced = log_global_max_num_rows - log_num_rows;
               uint32_t rev_reduced_index = base::bits::ReverseBitsLen(
                   index >> bits_reduced, log_num_rows);
               F w;
               CHECK(F::GetRootOfUnity(size_t{1} << log_num_rows, &w));
-              F x = F::FromMontgomery(F::Config::kSubgroupGenerator) *
-                    w.Pow(rev_reduced_index);
+              ExtF x(F::FromMontgomery(F::Config::kSubgroupGenerator) *
+                     w.Pow(rev_reduced_index));
 
-              reduced_openings.try_emplace(
-                  log_num_rows, std::make_tuple(ExtF::One(), ExtF::Zero()));
-              for (size_t i = 0; i < mat_points_and_values.size(); ++i) {
-                const ExtF& z = std::get<0>(mat_points_and_values[i]);
-                const std::vector<ExtF>& ps_at_z =
-                    std::get<1>(mat_points_and_values[i]);
-                CHECK_EQ(ps_at_z.size(), opened_values[i].size());
+              auto it = reduced_openings.try_emplace(log_num_rows,
+                                                     ReducedOpening::Default());
+              ReducedOpening& reduced_opening = it.first->second;
+              for (size_t i = 0; i < cur_points.size(); ++i) {
+                const ExtF& z = cur_points[i];
+                ExtF denom = unwrap((x - z).Inverse());
+                const std::vector<ExtF>& ps_at_z = cur_values[i];
+                CHECK_EQ(ps_at_z.size(), cur_values_in.size());
                 for (size_t j = 0; j < ps_at_z.size(); ++j) {
-                  const ExtF& p_at_z = ps_at_z[j];
-                  ExtF quotient =
-                      unwrap((ExtF(opened_values[batch_idx][j]) - p_at_z) /
-                             (ExtF(x) - z));
-                  std::tuple<ExtF, ExtF>& reduced_opening =
-                      reduced_openings[log_num_rows];
-                  std::get<1>(reduced_opening) +=
-                      std::get<0>(reduced_opening) * quotient;
-                  std::get<0>(reduced_opening) *= alpha;
+                  ExtF quotient = (cur_values_in[j] - ps_at_z[j]) * denom;
+                  reduced_opening.value += reduced_opening.pow * quotient;
+                  reduced_opening.pow *= alpha;
                 }
               }
             }
@@ -300,7 +301,7 @@ class TwoAdicFRI {
           for (auto it = reduced_openings.rbegin();
                it != reduced_openings.rend(); ++it) {
             ro_num_rows.emplace_back(it->first);
-            ro_values.emplace_back(std::move(std::get<1>(it->second)));
+            ro_values.emplace_back(std::move(it->second.value));
           }
         });
   }
@@ -382,14 +383,14 @@ class TwoAdicFRI {
 
     std::vector<std::vector<ExtF>> sums = base::ParallelizeMap(
         num_rows,
-        [num_cols, &w, &point, &shift, &coset_evals](
+        [num_cols, shift, w, &point, &coset_evals](
             size_t chunk_actual_size, size_t chunk_offset, size_t chunk_size) {
           size_t row_start = chunk_offset * chunk_size;
           F pow = w.Pow(row_start);
           std::vector<ExtF> sum_tracker(num_cols, ExtF::Zero());
           ExtF shifted_pow(shift * pow);
           std::vector<ExtF> diff_invs = base::CreateVector(
-              chunk_actual_size, [&point, &shifted_pow, &w](size_t i) {
+              chunk_actual_size, [w, &point, &shifted_pow](size_t i) {
                 ExtF temp = point - shifted_pow;
                 shifted_pow *= w;
                 return temp;

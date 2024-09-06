@@ -47,10 +47,21 @@ std::unique_ptr<OpeningProof> TwoAdicFriPcs::do_open(
     DuplexChallenger& challenger) const {
   std::unique_ptr<OpeningProof> ret(new OpeningProof);
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
-      const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri*>(pcs_),
-      prover_data_vec.tree_vec(), opening_points.opening_points(),
+      pcs_, prover_data_vec.tree_vec(), opening_points.opening_points(),
       challenger.challenger(), ret->opened_values_ptr(), ret->proof_ptr());
   return ret;
+}
+
+bool TwoAdicFriPcs::do_verify(const CommitmentVec& commitment_vec,
+                              const Domains& domains,
+                              const OpeningPoints& opening_points,
+                              const OpenedValues& opened_values,
+                              const FriProof& proof,
+                              DuplexChallenger& challenger) const {
+  return tachyon_sp1_baby_bear_poseidon2_two_adic_fri_verify(
+      pcs_, commitment_vec.commitment_vec(), domains.domains(),
+      opening_points.opening_points(), opened_values.opened_values(),
+      proof.proof(), challenger.challenger());
 }
 
 std::unique_ptr<TwoAdicFriPcs> new_two_adic_fri_pcs(size_t log_blowup,

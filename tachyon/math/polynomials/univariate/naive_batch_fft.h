@@ -97,8 +97,8 @@ class NaiveBatchFFT : public TwoAdicSubgroup<NaiveBatchFFT<F>> {
     // is first replaced by cⱼ s.
     size_t rows = mat.rows();
     base::Parallelize(
-        rows, [&mat, &shift](Eigen::Index len, Eigen::Index chunk_offset,
-                             Eigen::Index chunk_size) {
+        rows, [shift, &mat](Eigen::Index len, Eigen::Index chunk_offset,
+                            Eigen::Index chunk_size) {
           Eigen::Index start = chunk_offset * chunk_size;
           F weight = shift.Pow(start);
           // NOTE: It is not possible to have empty chunk so this is safe
