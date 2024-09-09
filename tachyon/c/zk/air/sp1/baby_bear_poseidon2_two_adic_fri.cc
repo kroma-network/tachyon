@@ -67,9 +67,9 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,
       math::GetPoseidon2BabyBearInternalShiftArray<
           TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1>(),
       std::move(ark));
-  Poseidon2 sponge(config);
+  Poseidon2 sponge(std::move(config));
   Hasher hasher(sponge);
-  Compressor compressor(sponge);
+  Compressor compressor(std::move(sponge));
 
   crypto::Poseidon2Config<PackedF> packed_config =
       crypto::Poseidon2Config<PackedF>::CreateCustom(
@@ -80,7 +80,7 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,
           math::GetPoseidon2BabyBearInternalShiftArray<
               TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1>(),
           std::move(packed_ark));
-  PackedPoseidon2 packed_sponge(packed_config);
+  PackedPoseidon2 packed_sponge(std::move(packed_config));
   PackedHasher packed_hasher(packed_sponge);
   PackedCompressor packed_compressor(std::move(packed_sponge));
   MMCS mmcs(hasher, packed_hasher, compressor, packed_compressor);

@@ -38,7 +38,7 @@ class Poseidon2BenchmarkRunner {
       crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
           crypto::Poseidon2HorizenExternalMatrix<Field>>>
           sponge(config);
-      crypto::SpongeState<Field> state(config);
+      crypto::SpongeState<Field> state(std::move(config));
       base::TimeTicks start = base::TimeTicks::Now();
       for (size_t j = 0; j < 10000; ++j) {
         sponge.Permute(state);
