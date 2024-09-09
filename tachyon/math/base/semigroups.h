@@ -142,40 +142,41 @@ class MultiplicativeSemigroup {
   template <typename Scalar>
   [[nodiscard]] constexpr auto Pow(const Scalar& scalar) const {
     if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
-      const G& g = static_cast<const G&>(*this);
-      switch (scalar) {
-        case 0:
-          return MulResult::One();
-        case 1:
-          return g;
-        case 2:
-          return Square();
-        case 3:
-          return Square() * g;
-        case 4:
-          return Square().Square();
-        case 5: {
-          MulResult g4 = Square();
-          g4.SquareInPlace();
-          return g4 * g;
-        }
-        case 6: {
-          MulResult g2 = Square();
-          MulResult g4 = g2;
-          g4.SquareInPlace();
-          return g4 * g2;
-        }
-        case 7: {
-          MulResult g2 = Square();
-          MulResult g4 = g2;
-          g4.SquareInPlace();
-          return g4 * g2 * g;
-        }
-        default:
-          return DoPow(BigInt<1>(scalar));
-      }
+      return DoPow(BigInt<1>(scalar));
     } else {
       return DoPow(scalar.ToBigInt());
+    }
+  }
+
+  template <uint32_t Power>
+  [[nodiscard]] constexpr auto ConstPow() const {
+    const G& g = static_cast<const G&>(*this);
+    if constexpr (Power == 0)
+      return MulResult::One();
+    else if constexpr (Power == 1)
+      return g;
+    else if constexpr (Power == 2)
+      return Square();
+    else if constexpr (Power == 3)
+      return Square() * g;
+    else if constexpr (Power == 4)
+      return Square().Square();
+    else if constexpr (Power == 5) {
+      MulResult g4 = Square();
+      g4.SquareInPlace();
+      return g4 * g;
+    } else if constexpr (Power == 6) {
+      MulResult g2 = Square();
+      MulResult g4 = g2;
+      g4.SquareInPlace();
+      return g4 * g2;
+    } else if constexpr (Power == 7) {
+      MulResult g2 = Square();
+      MulResult g4 = g2;
+      g4.SquareInPlace();
+      return g4 * g2 * g;
+    } else {
+      return DoPow(BigInt<1>(Power));
     }
   }
 
