@@ -12,11 +12,12 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear_type_traits.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_bn254.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/poseidon2.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
-#include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 
 namespace tachyon::benchmark {
 
@@ -36,20 +37,28 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
 
   Poseidon2BenchmarkRunner<Field> runner(reporter, config);
 
-  crypto::Poseidon2Config<Field> poseidon2_config;
+  Field result;
   if constexpr (std::is_same_v<Field, math::BabyBear>) {
     if (base::Contains(config.vendors(), Vendor::Plonky3())) {
-      poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
-          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
+      using Params = Poseidon2Params<math::BabyBear, 15, 7>;
+      crypto::Poseidon2Config<Params> poseidon2_config =
+          crypto::Poseidon2Config<Params>::CreateCustom(
+              crypto::GetPoseidon2InternalShiftArray<Params>());
+      result = runner.Run(poseidon2_config);
     } else {
-      poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
-          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalDiagonalArray<16>());
+      using Params = Poseidon2Params<math::BabyBear, 15, 7>;
+      crypto::Poseidon2Config<Params> poseidon2_config =
+          crypto::Poseidon2Config<Params>::CreateCustom(
+              crypto::GetPoseidon2InternalDiagonalArray<Params>());
+      result = runner.Run(poseidon2_config);
     }
   } else {
-    poseidon2_config = crypto::Poseidon2Config<Field>::CreateCustom(
-        2, 5, 8, 56, math::bn254::GetPoseidon2InternalDiagonalArray<3>());
+    using Params = Poseidon2Params<math::bn254::Fr, 2, 5>;
+    crypto::Poseidon2Config<Params> poseidon2_config =
+        crypto::Poseidon2Config<Params>::CreateCustom(
+            crypto::GetPoseidon2InternalDiagonalArray<Params>());
+    result = runner.Run(poseidon2_config);
   }
-  Field result = runner.Run(poseidon2_config);
   for (const Vendor vendor : config.vendors()) {
     Field result_vendor;
     if (vendor.value() == Vendor::kHorizen) {

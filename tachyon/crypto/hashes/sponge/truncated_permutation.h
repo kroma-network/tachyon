@@ -20,6 +20,7 @@ template <typename Derived, size_t Chunk, size_t N>
 class TruncatedPermutation final
     : public Compressor<TruncatedPermutation<Derived, Chunk, N>> {
  public:
+  using Params = typename Derived::Params;
   using F = typename CryptographicSpongeTraits<Derived>::F;
 
   TruncatedPermutation() = default;
@@ -30,12 +31,11 @@ class TruncatedPermutation final
  private:
   friend class Compressor<TruncatedPermutation<Derived, Chunk, N>>;
 
-  SpongeState<F> CreateEmptyState() const {
-    return SpongeState<F>(derived_.config);
-  }
+  SpongeState<Params> CreateEmptyState() const { return SpongeState<Params>(); }
 
   template <typename T>
-  std::array<F, Chunk> DoCompress(SpongeState<F>& state, const T& input) const {
+  std::array<F, Chunk> DoCompress(SpongeState<Params>& state,
+                                  const T& input) const {
     size_t idx = 0;
     for (size_t i = 0; i < N; ++i) {
       for (size_t j = 0; j < Chunk; ++j) {

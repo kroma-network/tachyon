@@ -32,21 +32,25 @@ namespace crypto {
 // Squeeze: Squeeze elements out of the sponge.
 // This implementation of Poseidon is entirely Fractal's implementation in
 // [COS20][cos] with small syntax changes. See https://eprint.iacr.org/2019/1076
-template <typename F>
-struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
+template <typename _Params>
+struct PoseidonSponge final
+    : public PoseidonSpongeBase<PoseidonSponge<_Params>> {
+  using Params = _Params;
+  using F = typename Params::Field;
   // Sponge Config
-  PoseidonConfig<F> config;
+  PoseidonConfig<Params> config;
 
   PoseidonSponge() = default;
-  explicit PoseidonSponge(const PoseidonConfig<F>& config) : config(config) {}
-  explicit PoseidonSponge(PoseidonConfig<F>&& config)
+  explicit PoseidonSponge(const PoseidonConfig<Params>& config)
+      : config(config) {}
+  explicit PoseidonSponge(PoseidonConfig<Params>&& config)
       : config(std::move(config)) {}
 
   // PoseidonSpongeBase methods
-  void Permute(SpongeState<F>& state) const {
+  void Permute(SpongeState<Params>& state) const {
     this->ApplyARKFull(state, 0);
 
-    size_t full_rounds_over_2 = config.full_rounds / 2;
+    size_t full_rounds_over_2 = Params::kFullRounds / 2;
     for (size_t i = 1; i < full_rounds_over_2; ++i) {
       this->ApplySBoxFull(state);
       this->ApplyARKFull(state, i);
@@ -57,14 +61,14 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
     ApplyMixEfficientFull(state, full_rounds_over_2);
 
     for (size_t i = full_rounds_over_2 + 1;
-         i < full_rounds_over_2 + config.partial_rounds + 1; ++i) {
+         i < full_rounds_over_2 + Params::kPartialRounds + 1; ++i) {
       this->ApplySBoxPartial(state);
       this->ApplyARKPartial(state, i);
       ApplyMixEfficientPartial(state, i - (full_rounds_over_2 + 1));
     }
 
-    for (size_t i = full_rounds_over_2 + config.partial_rounds + 1;
-         i < config.partial_rounds + config.full_rounds; ++i) {
+    for (size_t i = full_rounds_over_2 + Params::kPartialRounds + 1;
+         i < Params::kPartialRounds + Params::kFullRounds; ++i) {
       this->ApplySBoxFull(state);
       this->ApplyARKFull(state, i);
       ApplyMixFull(state);
@@ -81,50 +85,52 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
   }
 
  private:
-  void ApplyMixFull(SpongeState<F>& state) const {
+  void ApplyMixFull(SpongeState<Params>& state) const {
     state.elements = math::MulMatVecSerial(config.mds, state.elements);
   }
 
-  void ApplyMixEfficientFull(SpongeState<F>& state, Eigen::Index index) const {
+  void ApplyMixEfficientFull(SpongeState<Params>& state,
+                             Eigen::Index index) const {
     state.elements =
         math::MulMatVecSerial(config.pre_sparse_mds, state.elements);
   }
 
-  void ApplyMixEfficientPartial(SpongeState<F>& state,
+  void ApplyMixEfficientPartial(SpongeState<Params>& state,
                                 Eigen::Index index) const {
     config.sparse_mds_matrices[index].Apply(state.elements);
   }
 };
 
-template <typename Field>
-struct CryptographicSpongeTraits<PoseidonSponge<Field>> {
-  using F = Field;
+template <typename _Params>
+struct CryptographicSpongeTraits<PoseidonSponge<_Params>> {
+  using Params = _Params;
+  using F = typename Params::Field;
 };
 
 }  // namespace crypto
 
 namespace base {
 
-template <typename F>
-class Copyable<crypto::PoseidonSponge<F>> {
+template <typename Params>
+class Copyable<crypto::PoseidonSponge<Params>> {
  public:
-  static bool WriteTo(const crypto::PoseidonSponge<F>& poseidon,
+  static bool WriteTo(const crypto::PoseidonSponge<Params>& poseidon,
                       Buffer* buffer) {
     return buffer->WriteMany(poseidon.config);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::PoseidonSponge<F>* poseidon) {
-    crypto::PoseidonConfig<F> config;
+                       crypto::PoseidonSponge<Params>* poseidon) {
+    crypto::PoseidonConfig<Params> config;
     if (!buffer.ReadMany(&config)) {
       return false;
     }
 
-    *poseidon = crypto::PoseidonSponge<F>(std::move(config));
+    *poseidon = crypto::PoseidonSponge<Params>(std::move(config));
     return true;
   }
 
-  static size_t EstimateSize(const crypto::PoseidonSponge<F>& poseidon) {
+  static size_t EstimateSize(const crypto::PoseidonSponge<Params>& poseidon) {
     return base::EstimateSize(poseidon.config);
   }
 };

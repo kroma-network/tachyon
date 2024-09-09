@@ -13,7 +13,7 @@
 
 namespace tachyon::crypto {
 
-template <typename F>
+template <typename Params>
 struct PoseidonConfig;
 
 // An entry in the Poseidon config
@@ -30,8 +30,8 @@ struct TACHYON_EXPORT PoseidonConfigEntry : public PoseidonConfigEntryBase {
       : PoseidonConfigEntryBase(rate, alpha, full_rounds, partial_rounds),
         skip_matrices(skip_matrices) {}
 
-  template <typename F>
-  PoseidonConfig<F> ToPoseidonConfig() const;
+  template <typename Params>
+  PoseidonConfig<Params> ToPoseidonConfig() const;
 
   bool operator==(const PoseidonConfigEntry& other) const {
     return PoseidonConfigEntryBase::operator==(other) &&
@@ -40,35 +40,6 @@ struct TACHYON_EXPORT PoseidonConfigEntry : public PoseidonConfigEntryBase {
   bool operator!=(const PoseidonConfigEntry& other) const {
     return !operator==(other);
   }
-};
-
-// An array of the default config optimized for constraints
-// (rate, alpha, full_rounds, partial_rounds, skip_matrices)
-// for rate = 2, 3, 4, 5, 6, 7, 8
-// Here, |skip_matrices| denotes how many matrices to skip before finding one
-// that satisfy all the requirements.
-constexpr const PoseidonConfigEntry
-    kPoseidonOptimizedConstraintsDefaultParams[] = {
-        PoseidonConfigEntry(2, 17, 8, 31, 0),
-        PoseidonConfigEntry(3, 5, 8, 56, 0),
-        PoseidonConfigEntry(4, 5, 8, 56, 0),
-        PoseidonConfigEntry(5, 5, 8, 57, 0),
-        PoseidonConfigEntry(6, 5, 8, 57, 0),
-        PoseidonConfigEntry(7, 5, 8, 57, 0),
-        PoseidonConfigEntry(8, 5, 8, 57, 0),
-};
-
-// An array of the default config optimized for weights
-// (rate, alpha, full_rounds, partial_rounds, skip_matrices)
-// for rate = 2, 3, 4, 5, 6, 7, 8
-constexpr const PoseidonConfigEntry kPoseidonOptimizedWeightsDefaultParams[] = {
-    PoseidonConfigEntry(2, 257, 8, 13, 0),
-    PoseidonConfigEntry(3, 257, 8, 13, 0),
-    PoseidonConfigEntry(4, 257, 8, 13, 0),
-    PoseidonConfigEntry(5, 257, 8, 13, 0),
-    PoseidonConfigEntry(6, 257, 8, 13, 0),
-    PoseidonConfigEntry(7, 257, 8, 13, 0),
-    PoseidonConfigEntry(8, 257, 8, 13, 0),
 };
 
 }  // namespace tachyon::crypto

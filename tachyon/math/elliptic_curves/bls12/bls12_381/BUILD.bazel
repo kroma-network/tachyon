@@ -1,5 +1,4 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//tachyon/math/elliptic_curves/bls12/generator:build_defs.bzl", "generate_bls12_curves")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load(
@@ -212,13 +211,4 @@ generate_bls12_curves(
     twist_type = "M",
     # Hex: 0xd201000000010000
     x = "-15132376222941642752",
-)
-
-tachyon_cc_library(
-    name = "poseidon2",
-    hdrs = ["poseidon2.h"],
-    deps = [
-        ":fr",
-        "//tachyon/base/types:always_false",
-    ],
 )

@@ -9,6 +9,7 @@
 #include "tachyon/base/profiler.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
+#include "tachyon/crypto/hashes/sponge/poseidon/poseidon_params.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 
 namespace tachyon::benchmark {
@@ -41,7 +42,7 @@ int RealMain(int argc, char** argv) {
       base::CreateVector(config.repeating_num(),
                          [](size_t i) { return base::NumberToString(i); }));
 
-  Field result = runner.Run();
+  Field result = runner.template Run<crypto::BN254PoseidonParams9>();
   Field result_arkworks =
       runner.RunExternal(Vendor::Arkworks(), run_poseidon_arkworks);
 

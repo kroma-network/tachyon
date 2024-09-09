@@ -31,14 +31,17 @@ class Poseidon2BenchmarkRunner {
                            const Poseidon2Config& config)
       : reporter_(reporter), config_(config) {}
 
-  Field Run(const crypto::Poseidon2Config<Field>& config) {
+  template <typename Params>
+  Field Run(const crypto::Poseidon2Config<Params>& config) {
     reporter_.AddVendor(Vendor::Tachyon());
     Field ret = Field::Zero();
     for (size_t i = 0; i < config_.repeating_num(); ++i) {
-      crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
-          crypto::Poseidon2HorizenExternalMatrix<Field>>>
-          sponge(config);
-      crypto::SpongeState<Field> state(std::move(config));
+      crypto::Poseidon2Sponge<
+          crypto::Poseidon2ExternalMatrix<
+              crypto::Poseidon2HorizenExternalMatrix<Field>>,
+          Params>
+          sponge(std::move(config));
+      crypto::SpongeState<Params> state;
       base::TimeTicks start = base::TimeTicks::Now();
       for (size_t j = 0; j < 10000; ++j) {
         sponge.Permute(state);

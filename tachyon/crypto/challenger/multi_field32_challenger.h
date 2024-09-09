@@ -27,23 +27,24 @@ namespace tachyon::crypto {
 // SAFETY: There are some bias complications with using this challenger. In
 // particular, samples are actually random in [0, 2⁶⁴) and then reduced to be
 // in |SmallF|.
-template <typename SmallF, typename Permutation, size_t W>
+template <typename SmallF, typename Permutation>
 class MultiField32Challenger final
-    : public Challenger<MultiField32Challenger<SmallF, Permutation, W>> {
+    : public Challenger<MultiField32Challenger<SmallF, Permutation>> {
  public:
+  using Params = typename Permutation::Params;
   using BigF = typename Permutation::F;
 
   static_assert(BigF::Config::kModulusBits > 64);
   static_assert(SmallF::Config::kModulusBits <= 32);
 
   constexpr static size_t kNumFElements = BigF::Config::kModulusBits / 64;
-  constexpr static size_t R = kNumFElements * W;
+  constexpr static size_t R = kNumFElements * Params::kWidth;
 
   explicit MultiField32Challenger(Permutation&& permutation)
       : permutation_(std::move(permutation)) {}
 
  private:
-  friend class Challenger<MultiField32Challenger<SmallF, Permutation, W>>;
+  friend class Challenger<MultiField32Challenger<SmallF, Permutation>>;
 
   // Challenger methods
   void DoObserve(const SmallF& value) {
@@ -79,7 +80,7 @@ class MultiField32Challenger final
     permutation_.Permute(state_);
 
     output_buffer_.clear();
-    for (size_t i = 0; i < W; ++i) {
+    for (size_t i = 0; i < Params::kWidth; ++i) {
       std::array<SmallF, kNumFElements> values = Split<SmallF>(state_[i]);
       for (size_t j = 0; j < kNumFElements; ++j) {
         output_buffer_.push_back(values[j]);
@@ -87,14 +88,14 @@ class MultiField32Challenger final
     }
   }
 
-  SpongeState<BigF> state_{W};
+  SpongeState<Params> state_;
   absl::InlinedVector<SmallF, R> input_buffer_;
-  absl::InlinedVector<SmallF, W * kNumFElements> output_buffer_;
+  absl::InlinedVector<SmallF, Params::kWidth * kNumFElements> output_buffer_;
   Permutation permutation_;
 };
 
-template <typename SmallF, typename Permutation, size_t W>
-struct ChallengerTraits<MultiField32Challenger<SmallF, Permutation, W>> {
+template <typename SmallF, typename Permutation>
+struct ChallengerTraits<MultiField32Challenger<SmallF, Permutation>> {
   using Field = SmallF;
 };
 

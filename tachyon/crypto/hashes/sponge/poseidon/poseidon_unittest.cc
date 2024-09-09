@@ -10,6 +10,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/crypto/hashes/sponge/poseidon/poseidon_params.h"
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -24,10 +25,11 @@ class PoseidonTest : public math::FiniteFieldTest<math::bls12_381::Fr> {};
 
 TEST_F(PoseidonTest, AbsorbSqueeze) {
   using Fr = math::bls12_381::Fr;
+  using Params = PoseidonParams<Fr, 2, 17, 8, 31>;
 
-  PoseidonConfig<Fr> config = PoseidonConfig<Fr>::CreateDefault(2, false);
-  PoseidonSponge<Fr> sponge(std::move(config));
-  SpongeState<Fr> state(config);
+  PoseidonConfig<Params> config = PoseidonConfig<Params>::CreateCustom(0);
+  PoseidonSponge<Params> sponge(std::move(config));
+  SpongeState<Params> state;
   std::vector<Fr> inputs = {Fr(0), Fr(1), Fr(2)};
   ASSERT_TRUE(sponge.Absorb(state, inputs));
   std::vector<Fr> result = sponge.SqueezeNativeFieldElements(state, 3);
@@ -47,9 +49,10 @@ TEST_F(PoseidonTest, AbsorbSqueeze) {
 
 TEST_F(PoseidonTest, Copyable) {
   using Fr = math::bls12_381::Fr;
+  using Params = PoseidonParams<Fr, 2, 17, 8, 31>;
 
-  PoseidonConfig<Fr> config = PoseidonConfig<Fr>::CreateDefault(2, false);
-  PoseidonSponge<Fr> expected(config);
+  PoseidonConfig<Params> config = PoseidonConfig<Params>::CreateCustom(0);
+  PoseidonSponge<Params> expected(std::move(config));
 
   base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
@@ -58,7 +61,7 @@ TEST_F(PoseidonTest, Copyable) {
 
   write_buf.set_buffer_offset(0);
 
-  PoseidonSponge<Fr> value;
+  PoseidonSponge<Params> value;
   ASSERT_TRUE(write_buf.Read(&value));
 
   EXPECT_EQ(value, expected);
@@ -72,21 +75,23 @@ class PackedPoseidonTest : public math::FiniteFieldTest<math::PackedBabyBear> {
 }  // namespace
 
 TEST_F(PackedPoseidonTest, AbsorbSqueeze) {
-  using PackedF = math::PackedBabyBear;
   using F = math::BabyBear;
+  using PackedF = math::PackedBabyBear;
+  using Params = PoseidonParams<F, 2, 17, 8, 31>;
+  using PackedParams = PoseidonParams<PackedF, 2, 17, 8, 31>;
 
-  PoseidonConfig<PackedF> packed_config =
-      PoseidonConfig<PackedF>::CreateDefault(2, false);
-  PoseidonSponge<PackedF> packed_sponge(std::move(packed_config));
-  SpongeState<PackedF> packed_state(packed_sponge.config);
+  PoseidonConfig<PackedParams> packed_config =
+      PoseidonConfig<PackedParams>::CreateCustom(0);
+  PoseidonSponge<PackedParams> packed_sponge(std::move(packed_config));
+  SpongeState<PackedParams> packed_state;
   std::vector<PackedF> packed_inputs = {PackedF(0), PackedF(1), PackedF(2)};
   ASSERT_TRUE(packed_sponge.Absorb(packed_state, packed_inputs));
   std::vector<PackedF> packed_result =
       packed_sponge.SqueezeNativeFieldElements(packed_state, 1);
 
-  PoseidonConfig<F> config = PoseidonConfig<F>::CreateDefault(2, false);
-  PoseidonSponge<F> sponge(std::move(config));
-  SpongeState<F> state(sponge.config);
+  PoseidonConfig<Params> config = PoseidonConfig<Params>::CreateCustom(0);
+  PoseidonSponge<Params> sponge(std::move(config));
+  SpongeState<Params> state;
   std::vector<F> inputs = {F(0), F(1), F(2)};
   ASSERT_TRUE(sponge.Absorb(state, inputs));
   std::vector<F> result = sponge.SqueezeNativeFieldElements(state, 1);

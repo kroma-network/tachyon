@@ -67,8 +67,9 @@ void FindPoseidonARKAndMDS(const PoseidonGrainLFSRConfig& config,
   }
 }
 
-template <typename F>
-struct PoseidonConfig : public PoseidonConfigBase<F> {
+template <typename Params>
+struct PoseidonConfig : public PoseidonConfigBase<Params> {
+  using F = typename Params::Field;
   // Maximally Distance Separating (MDS) Matrix.
   math::Matrix<F> mds;
 
@@ -78,64 +79,45 @@ struct PoseidonConfig : public PoseidonConfigBase<F> {
   std::vector<SparseMDSMatrix<F>> sparse_mds_matrices;
 
   PoseidonConfig() = default;
-  PoseidonConfig(const PoseidonConfigBase<F>& base, const math::Matrix<F>& mds,
+  PoseidonConfig(const PoseidonConfigBase<Params>& base,
+                 const math::Matrix<F>& mds,
                  const math::Matrix<F>& pre_sparse_mds,
                  const std::vector<SparseMDSMatrix<F>>& sparse_mds_matrices)
-      : PoseidonConfigBase<F>(base),
+      : PoseidonConfigBase<Params>(base),
         mds(mds),
         pre_sparse_mds(pre_sparse_mds),
         sparse_mds_matrices(sparse_mds_matrices) {}
-  PoseidonConfig(PoseidonConfigBase<F>&& base, math::Matrix<F>&& mds,
+  PoseidonConfig(PoseidonConfigBase<Params>&& base, math::Matrix<F>&& mds,
                  math::Matrix<F>&& pre_sparse_mds,
                  std::vector<SparseMDSMatrix<F>>&& sparse_mds_matrices)
-      : PoseidonConfigBase<F>(std::move(base)),
+      : PoseidonConfigBase<Params>(std::move(base)),
         mds(std::move(mds)),
         pre_sparse_mds(std::move(pre_sparse_mds)),
         sparse_mds_matrices(std::move(sparse_mds_matrices)) {}
 
-  static PoseidonConfig CreateDefault(size_t rate, bool optimized_for_weights) {
-    absl::Span<const PoseidonConfigEntry> param_set =
-        optimized_for_weights ? kPoseidonOptimizedWeightsDefaultParams
-                              : kPoseidonOptimizedConstraintsDefaultParams;
-
-    auto it = base::ranges::find_if(param_set.begin(), param_set.end(),
-                                    [rate](const PoseidonConfigEntry& param) {
-                                      return param.rate == rate;
-                                    });
-    CHECK_NE(it, param_set.end());
-    PoseidonConfig ret = it->template ToPoseidonConfig<F>();
-    FindPoseidonARKAndMDS<F>(it->template ToPoseidonGrainLFSRConfig<F>(),
-                             it->skip_matrices, ret.ark, ret.mds);
-    OptimizeARK(ret.full_rounds, ret.partial_rounds, ret.mds, ret.ark);
-    ComputeSparseMatrices(ret.partial_rounds, ret.mds, ret.pre_sparse_mds,
-                          ret.sparse_mds_matrices);
-    return ret;
-  }
-
-  constexpr static PoseidonConfig CreateCustom(size_t rate, uint64_t alpha,
-                                               size_t full_rounds,
-                                               size_t partial_rounds,
-                                               size_t skip_matrices) {
-    PoseidonConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds,
-                                     skip_matrices);
-    PoseidonConfig ret = config_entry.ToPoseidonConfig<F>();
+  constexpr static PoseidonConfig CreateCustom(size_t skip_matrices) {
+    PoseidonConfigEntry config_entry(Params::kRate, Params::kAlpha,
+                                     Params::kFullRounds,
+                                     Params::kPartialRounds, skip_matrices);
+    PoseidonConfig ret = config_entry.ToPoseidonConfig<Params>();
     FindPoseidonARKAndMDS<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(),
                              skip_matrices, ret.ark, ret.mds);
-    OptimizeARK(full_rounds, partial_rounds, ret.mds, ret.ark);
-    ComputeSparseMatrices(partial_rounds, ret.mds, ret.pre_sparse_mds,
-                          ret.sparse_mds_matrices);
+    OptimizeARK<Params::kFullRounds, Params::kPartialRounds>(ret.mds, ret.ark);
+    ComputeSparseMatrices<Params::kPartialRounds>(ret.mds, ret.pre_sparse_mds,
+                                                  ret.sparse_mds_matrices);
     return ret;
   }
 
   bool IsValid() const override {
-    bool ret = PoseidonConfigBase<F>::IsValid() &&
-               static_cast<size_t>(mds.rows()) == this->rate + this->capacity &&
-               static_cast<size_t>(mds.cols()) == this->rate + this->capacity &&
-               static_cast<size_t>(pre_sparse_mds.rows()) ==
-                   this->rate + this->capacity &&
-               static_cast<size_t>(pre_sparse_mds.cols()) ==
-                   this->rate + this->capacity &&
-               sparse_mds_matrices.size() == this->partial_rounds;
+    bool ret =
+        PoseidonConfigBase<Params>::IsValid() &&
+        static_cast<size_t>(mds.rows()) == Params::kRate + Params::kCapacity &&
+        static_cast<size_t>(mds.cols()) == Params::kRate + Params::kCapacity &&
+        static_cast<size_t>(pre_sparse_mds.rows()) ==
+            Params::kRate + Params::kCapacity &&
+        static_cast<size_t>(pre_sparse_mds.cols()) ==
+            Params::kRate + Params::kCapacity &&
+        sparse_mds_matrices.size() == Params::kPartialRounds;
     if (!ret) return false;
 
     for (const SparseMDSMatrix<F>& sparse_mds_matrix : sparse_mds_matrices) {
@@ -146,7 +128,7 @@ struct PoseidonConfig : public PoseidonConfigBase<F> {
   }
 
   bool operator==(const PoseidonConfig& other) const {
-    return PoseidonConfigBase<F>::operator==(other) && mds == other.mds &&
+    return PoseidonConfigBase<Params>::operator==(other) && mds == other.mds &&
            pre_sparse_mds == other.pre_sparse_mds &&
            sparse_mds_matrices == other.sparse_mds_matrices;
   }
@@ -155,44 +137,44 @@ struct PoseidonConfig : public PoseidonConfigBase<F> {
   }
 
  private:
-  constexpr static void OptimizeARK(size_t full_rounds, size_t partial_rounds,
-                                    const math::Matrix<F>& mds,
+  template <size_t FullRounds, size_t PartialRounds>
+  constexpr static void OptimizeARK(const math::Matrix<F>& mds,
                                     math::Matrix<F>& ark) {
     math::Matrix<F> mds_inverse = mds.inverse();
     math::Matrix<F> optimized_ark = {ark.rows(), ark.cols()};
     optimized_ark.row(0) = ark.row(0);
-    size_t full_rounds_over_2 = full_rounds / 2;
+    size_t full_rounds_over_2 = FullRounds / 2;
     for (size_t i = 1; i < full_rounds_over_2; ++i) {
       optimized_ark.row(i) = mds_inverse * ark.row(i).transpose();
     }
 
-    math::RowVector<F> acc = ark.row(full_rounds_over_2 + partial_rounds);
-    for (size_t i = full_rounds_over_2; i < full_rounds_over_2 + partial_rounds;
+    math::RowVector<F> acc = ark.row(full_rounds_over_2 + PartialRounds);
+    for (size_t i = full_rounds_over_2; i < full_rounds_over_2 + PartialRounds;
          ++i) {
       math::RowVector<F> tmp = mds_inverse * acc.transpose();
-      optimized_ark.row(full_rounds + partial_rounds - i).setZero();
-      optimized_ark.row(full_rounds + partial_rounds - i)[0] = tmp[0];
+      optimized_ark.row(FullRounds + PartialRounds - i).setZero();
+      optimized_ark.row(FullRounds + PartialRounds - i)[0] = tmp[0];
 
       tmp[0] = F::Zero();
-      acc = tmp + ark.row(full_rounds + partial_rounds - i - 1);
+      acc = tmp + ark.row(FullRounds + PartialRounds - i - 1);
     }
     optimized_ark.row(full_rounds_over_2) = mds_inverse * acc.transpose();
 
-    for (size_t i = full_rounds_over_2 + partial_rounds + 1;
-         i < partial_rounds + full_rounds; ++i) {
+    for (size_t i = full_rounds_over_2 + PartialRounds + 1;
+         i < PartialRounds + FullRounds; ++i) {
       optimized_ark.row(i) = mds_inverse * ark.row(i).transpose();
     }
     ark = std::move(optimized_ark);
   }
 
+  template <size_t PartialRounds>
   constexpr static void ComputeSparseMatrices(
-      size_t partial_rounds, const math::Matrix<F>& mds,
-      math::Matrix<F>& pre_sparse_mds,
+      const math::Matrix<F>& mds, math::Matrix<F>& pre_sparse_mds,
       std::vector<SparseMDSMatrix<F>>& sparse_matrices) {
     math::Matrix<F> mds_transpose = mds.transpose();
     math::Matrix<F> acc = mds_transpose;
     sparse_matrices =
-        base::CreateVector(partial_rounds, [&mds_transpose, &acc]() {
+        base::CreateVector(PartialRounds, [&mds_transpose, &acc]() {
           math::Matrix<F> m_prime;
           SparseMDSMatrix<F> m_prime_prime;
           Factorize(acc, m_prime, m_prime_prime);
@@ -230,32 +212,29 @@ struct PoseidonConfig : public PoseidonConfigBase<F> {
   }
 };
 
-template <typename F>
-PoseidonConfig<F> PoseidonConfigEntry::ToPoseidonConfig() const {
-  PoseidonConfig<F> config;
-  config.full_rounds = full_rounds;
-  config.partial_rounds = partial_rounds;
-  config.alpha = alpha;
-  config.rate = rate;
-  config.capacity = 1;
-  return config;
+template <typename Params>
+PoseidonConfig<Params> PoseidonConfigEntry::ToPoseidonConfig() const {
+  return PoseidonConfig<Params>();
 }
 
 }  // namespace crypto
 
 namespace base {
-template <typename F>
-class Copyable<crypto::PoseidonConfig<F>> {
+template <typename Params>
+class Copyable<crypto::PoseidonConfig<Params>> {
  public:
-  static bool WriteTo(const crypto::PoseidonConfig<F>& config, Buffer* buffer) {
-    return Copyable<crypto::PoseidonConfigBase<F>>::WriteTo(config, buffer) &&
+  using F = typename Params::Field;
+  static bool WriteTo(const crypto::PoseidonConfig<Params>& config,
+                      Buffer* buffer) {
+    return Copyable<crypto::PoseidonConfigBase<Params>>::WriteTo(config,
+                                                                 buffer) &&
            buffer->WriteMany(config.mds, config.pre_sparse_mds,
                              config.sparse_mds_matrices);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::PoseidonConfig<F>* config) {
-    crypto::PoseidonConfigBase<F> base;
+                       crypto::PoseidonConfig<Params>* config) {
+    crypto::PoseidonConfigBase<Params> base;
     math::Matrix<F> mds;
     math::Matrix<F> pre_sparse_mds;
     std::vector<crypto::SparseMDSMatrix<F>> sparse_mds_matrices;
@@ -268,9 +247,9 @@ class Copyable<crypto::PoseidonConfig<F>> {
     return true;
   }
 
-  static size_t EstimateSize(const crypto::PoseidonConfig<F>& config) {
-    const crypto::PoseidonConfigBase<F>& base =
-        static_cast<const crypto::PoseidonConfigBase<F>&>(config);
+  static size_t EstimateSize(const crypto::PoseidonConfig<Params>& config) {
+    const crypto::PoseidonConfigBase<Params>& base =
+        static_cast<const crypto::PoseidonConfigBase<Params>&>(config);
     return base::EstimateSize(base, config.mds, config.pre_sparse_mds,
                               config.sparse_mds_matrices);
   }

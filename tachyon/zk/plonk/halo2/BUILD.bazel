@@ -138,6 +138,7 @@ tachyon_cc_library(
         ":prime_field_conversion",
         ":proof_serializer",
         "//tachyon/crypto/hashes/sponge/poseidon",
+        "//tachyon/crypto/hashes/sponge/poseidon:poseidon_params",
         "//tachyon/crypto/transcripts:transcript",
     ],
 )
@@ -269,6 +270,7 @@ tachyon_cc_library(
         ":prime_field_conversion",
         ":proof_serializer",
         "//tachyon/crypto/hashes/sponge/poseidon",
+        "//tachyon/crypto/hashes/sponge/poseidon:poseidon_params",
         "//tachyon/crypto/transcripts:transcript",
     ],
 )

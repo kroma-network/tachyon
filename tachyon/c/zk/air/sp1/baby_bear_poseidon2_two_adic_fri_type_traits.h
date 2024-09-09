@@ -10,24 +10,35 @@
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/extension_field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
-#include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 
 namespace tachyon::c {
 namespace zk::air::plonky3::baby_bear {
 
-using Poseidon2 =
-    tachyon::crypto::Poseidon2Sponge<tachyon::crypto::Poseidon2ExternalMatrix<
+using Params = tachyon::crypto::Poseidon2Params<
+    tachyon::math::BabyBear, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
+using PackedParams =
+    tachyon::crypto::Poseidon2Params<tachyon::math::PackedBabyBear,
+                                     TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH -
+                                         1,
+                                     TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
+using Poseidon2 = tachyon::crypto::Poseidon2Sponge<
+    tachyon::crypto::Poseidon2ExternalMatrix<
         tachyon::crypto::Poseidon2Plonky3ExternalMatrix<
-            tachyon::math::BabyBear>>>;
+            tachyon::math::BabyBear>>,
+    Params>;
 
-using PackedPoseidon2 =
-    tachyon::crypto::Poseidon2Sponge<tachyon::crypto::Poseidon2ExternalMatrix<
+using PackedPoseidon2 = tachyon::crypto::Poseidon2Sponge<
+    tachyon::crypto::Poseidon2ExternalMatrix<
         tachyon::crypto::Poseidon2Plonky3ExternalMatrix<
-            tachyon::math::PackedBabyBear>>>;
+            tachyon::math::PackedBabyBear>>,
+    PackedParams>;
 
 using Hasher = tachyon::crypto::PaddingFreeSponge<
     Poseidon2, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE,
@@ -67,7 +78,6 @@ using ChallengeMMCS =
 
 using Challenger =
     tachyon::crypto::DuplexChallenger<Poseidon2,
-                                      TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH,
                                       TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE>;
 
 using Coset =

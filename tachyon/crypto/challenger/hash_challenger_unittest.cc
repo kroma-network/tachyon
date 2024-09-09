@@ -10,16 +10,19 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
-#include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {
 
 using F = math::BabyBear;
+using Params = Poseidon2Params<F, 15, 7>;
 using Poseidon2 =
-    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>>;
+    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
+                    Params>;
 using MyHasher = PaddingFreeSponge<Poseidon2, 8, 8>;
 
 namespace {
@@ -27,8 +30,8 @@ namespace {
 class HashChallengerTest : public math::FiniteFieldTest<F> {
  public:
   void SetUp() override {
-    Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
-        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
+    Poseidon2Config<Params> config = Poseidon2Config<Params>::CreateCustom(
+        GetPoseidon2InternalShiftArray<Params>());
     Poseidon2 sponge(std::move(config));
     MyHasher hasher(std::move(sponge));
 

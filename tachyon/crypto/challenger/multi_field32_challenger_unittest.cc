@@ -9,39 +9,38 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_bn254.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/poseidon2.h"
-#include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 
 namespace tachyon::crypto {
 
+using Params = Poseidon2Params<math::bn254::Fr, 2, 5>;
 using Poseidon2 = Poseidon2Sponge<
-    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<math::bn254::Fr>>>;
+    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<math::bn254::Fr>>,
+    Params>;
 
 namespace {
 
 class MultiField32ChallengerTest : public testing::Test {
  public:
-  constexpr static size_t kWidth = 3;
-
   static void SetUpTestSuite() {
     math::BabyBear::Init();
     math::bn254::Fr::Init();
   }
 
   void SetUp() override {
-    Poseidon2Config<math::bn254::Fr> config =
-        Poseidon2Config<math::bn254::Fr>::CreateCustom(
-            2, 5, 8, 56, math::bn254::GetPoseidon2InternalDiagonalArray<3>());
+    Poseidon2Config<Params> config = Poseidon2Config<Params>::CreateCustom(
+        crypto::GetPoseidon2InternalDiagonalArray<Params>());
     Poseidon2 sponge(std::move(config));
-    challenger_.reset(
-        new MultiField32Challenger<math::BabyBear, Poseidon2, kWidth>(
-            std::move(sponge)));
+    challenger_.reset(new MultiField32Challenger<math::BabyBear, Poseidon2>(
+        std::move(sponge)));
   }
 
  protected:
-  std::unique_ptr<MultiField32Challenger<math::BabyBear, Poseidon2, kWidth>>
+  std::unique_ptr<MultiField32Challenger<math::BabyBear, Poseidon2>>
       challenger_;
 };
 

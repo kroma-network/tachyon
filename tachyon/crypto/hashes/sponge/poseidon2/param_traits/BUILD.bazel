@@ -1,0 +1,75 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "poseidon2_baby_bear",
+    hdrs = ["poseidon2_baby_bear.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_param_traits_forward",
+        "//tachyon/math/finite_fields/baby_bear",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon2_bls12_381",
+    hdrs = ["poseidon2_bls12_381.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_param_traits_forward",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon2_bn254",
+    hdrs = ["poseidon2_bn254.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_param_traits_forward",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon2_goldilocks",
+    hdrs = ["poseidon2_goldilocks.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_param_traits_forward",
+        "//tachyon/math/finite_fields/goldilocks",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon2_koala_bear",
+    hdrs = ["poseidon2_koala_bear.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_param_traits_forward",
+        "//tachyon/math/finite_fields/koala_bear",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon2_mersenne31",
+    hdrs = ["poseidon2_mersenne31.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_param_traits_forward",
+        "//tachyon/math/finite_fields/mersenne31",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon2_pallas",
+    hdrs = ["poseidon2_pallas.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_param_traits_forward",
+        "//tachyon/math/elliptic_curves/pasta/pallas:fr",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon2_vesta",
+    hdrs = ["poseidon2_vesta.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_param_traits_forward",
+        "//tachyon/math/elliptic_curves/pasta/vesta:fr",
+    ],
+)
