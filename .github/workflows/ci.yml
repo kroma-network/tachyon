@@ -12,17 +12,17 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest-xlarge]
         build_flag: [fastbuild, opt]
-        openmp: ['openmp', 'no-openmp']
+        openmp: ["openmp", "no-openmp"]
         include:
           - os: ubuntu-latest
             bazel_config: linux
           - os: macos-latest-xlarge
             bazel_config: macos_arm64
-          - openmp: 'openmp'
-            has_openmp: '--//:has_openmp'
+          - openmp: "openmp"
+            has_openmp: "--//:has_openmp"
         exclude:
           - build_flag: fastbuild
-            openmp: 'openmp'
+            openmp: "openmp"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -70,16 +70,16 @@ jobs:
       - name: Add .bazelrc.user on linux
         if: matrix.os == 'ubuntu-latest'
         run: echo "build --config linux" > .bazelrc.user &&
-             echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user &&
-             echo "build --@rules_rust//rust/toolchain/channel=nightly" >> .bazelrc.user
+          echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user &&
+          echo "build --@rules_rust//rust/toolchain/channel=nightly" >> .bazelrc.user
 
       - name: Add .bazelrc.user on macos
         if: matrix.os == 'macos-latest-xlarge'
         run: brew install coreutils &&
-             export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH" &&
-             echo "build --config macos_arm64" > .bazelrc.user &&
-             echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user &&
-             echo "build --@rules_rust//rust/toolchain/channel=nightly" >> .bazelrc.user
+          export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH" &&
+          echo "build --config macos_arm64" > .bazelrc.user &&
+          echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user &&
+          echo "build --@rules_rust//rust/toolchain/channel=nightly" >> .bazelrc.user
 
       - name: Build
         run: bazel build -c ${{ matrix.build_flag }} ${{ matrix.has_openmp }} //...
