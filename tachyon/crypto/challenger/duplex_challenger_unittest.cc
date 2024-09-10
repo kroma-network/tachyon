@@ -29,7 +29,7 @@ class DuplexChallengerTest : public math::FiniteFieldTest<F> {
   constexpr static size_t kRate = 4;
 
   void SetUp() override {
-    Poseidon2Config<Params> config = Poseidon2Config<Params>::Create(
+    auto config = Poseidon2Config<Params>::Create(
         GetPoseidon2InternalShiftArray<Params>());
     Poseidon2 sponge(std::move(config));
     challenger_ = DuplexChallenger<Poseidon2, kRate>(std::move(sponge));

@@ -41,22 +41,19 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
   if constexpr (std::is_same_v<Field, math::BabyBear>) {
     if (base::Contains(config.vendors(), Vendor::Plonky3())) {
       using Params = Poseidon2Params<math::BabyBear, 15, 7>;
-      crypto::Poseidon2Config<Params> poseidon2_config =
-          crypto::Poseidon2Config<Params>::Create(
-              crypto::GetPoseidon2InternalShiftArray<Params>());
+      auto poseidon2_config = crypto::Poseidon2Config<Params>::Create(
+          crypto::GetPoseidon2InternalShiftArray<Params>());
       result = runner.Run(poseidon2_config);
     } else {
       using Params = Poseidon2Params<math::BabyBear, 15, 7>;
-      crypto::Poseidon2Config<Params> poseidon2_config =
-          crypto::Poseidon2Config<Params>::Create(
-              crypto::GetPoseidon2InternalDiagonalArray<Params>());
+      auto poseidon2_config = crypto::Poseidon2Config<Params>::Create(
+          crypto::GetPoseidon2InternalDiagonalArray<Params>());
       result = runner.Run(poseidon2_config);
     }
   } else {
     using Params = Poseidon2Params<math::bn254::Fr, 2, 5>;
-    crypto::Poseidon2Config<Params> poseidon2_config =
-        crypto::Poseidon2Config<Params>::Create(
-            crypto::GetPoseidon2InternalDiagonalArray<Params>());
+    auto poseidon2_config = crypto::Poseidon2Config<Params>::Create(
+        crypto::GetPoseidon2InternalDiagonalArray<Params>());
     result = runner.Run(poseidon2_config);
   }
   for (const Vendor vendor : config.vendors()) {

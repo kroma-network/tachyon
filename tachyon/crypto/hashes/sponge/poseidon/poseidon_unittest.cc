@@ -27,7 +27,7 @@ TEST_F(PoseidonTest, AbsorbSqueeze) {
   using Fr = math::bls12_381::Fr;
   using Params = PoseidonParams<Fr, 2, 17, 8, 31>;
 
-  PoseidonConfig<Params> config = PoseidonConfig<Params>::Create(0);
+  auto config = PoseidonConfig<Params>::Create(0);
   PoseidonSponge<Params> sponge(std::move(config));
   SpongeState<Params> state;
   std::vector<Fr> inputs = {Fr(0), Fr(1), Fr(2)};
@@ -51,7 +51,7 @@ TEST_F(PoseidonTest, Copyable) {
   using Fr = math::bls12_381::Fr;
   using Params = PoseidonParams<Fr, 2, 17, 8, 31>;
 
-  PoseidonConfig<Params> config = PoseidonConfig<Params>::Create(0);
+  auto config = PoseidonConfig<Params>::Create(0);
   PoseidonSponge<Params> expected(std::move(config));
 
   base::Uint8VectorBuffer write_buf;
@@ -80,8 +80,7 @@ TEST_F(PackedPoseidonTest, AbsorbSqueeze) {
   using Params = PoseidonParams<F, 2, 17, 8, 31>;
   using PackedParams = PoseidonParams<PackedF, 2, 17, 8, 31>;
 
-  PoseidonConfig<PackedParams> packed_config =
-      PoseidonConfig<PackedParams>::Create(0);
+  auto packed_config = PoseidonConfig<PackedParams>::Create(0);
   PoseidonSponge<PackedParams> packed_sponge(std::move(packed_config));
   SpongeState<PackedParams> packed_state;
   std::vector<PackedF> packed_inputs = {PackedF(0), PackedF(1), PackedF(2)};
@@ -89,7 +88,7 @@ TEST_F(PackedPoseidonTest, AbsorbSqueeze) {
   std::vector<PackedF> packed_result =
       packed_sponge.SqueezeNativeFieldElements(packed_state, 1);
 
-  PoseidonConfig<Params> config = PoseidonConfig<Params>::Create(0);
+  auto config = PoseidonConfig<Params>::Create(0);
   PoseidonSponge<Params> sponge(std::move(config));
   SpongeState<Params> state;
   std::vector<F> inputs = {F(0), F(1), F(2)};

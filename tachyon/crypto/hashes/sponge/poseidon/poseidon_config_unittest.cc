@@ -28,7 +28,7 @@ void RunTest(size_t skip_matrices, std::string ark00_str, std::string mds00_str,
              std::string sparse_matrices0_row0_str,
              std::string sparse_matrices0_col_hat0_str) {
   using Params = PoseidonParams<F, rate, alpha, full_rounds, partial_rounds>;
-  PoseidonConfig<Params> config = PoseidonConfig<Params>::Create(skip_matrices);
+  auto config = PoseidonConfig<Params>::Create(skip_matrices);
   ASSERT_TRUE(config.IsValid());
   EXPECT_EQ(config.ark(0, 0), *F::FromDecString(ark00_str));
   EXPECT_EQ(config.mds(0, 0), *F::FromDecString(mds00_str));

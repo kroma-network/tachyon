@@ -60,15 +60,14 @@ class TwoAdicFRITest : public testing::Test {
   }
 
   void SetUp() override {
-    Poseidon2Config<Params> config = Poseidon2Config<Params>::Create(
+    auto config = Poseidon2Config<Params>::Create(
         GetPoseidon2InternalShiftArray<Params>());
     Poseidon2 sponge(std::move(config));
     MyHasher hasher(sponge);
     MyCompressor compressor(sponge);
 
-    Poseidon2Config<PackedParams> packed_config =
-        Poseidon2Config<PackedParams>::Create(
-            GetPoseidon2InternalShiftArray<PackedParams>());
+    auto packed_config = Poseidon2Config<PackedParams>::Create(
+        GetPoseidon2InternalShiftArray<PackedParams>());
     PackedPoseidon2 packed_sponge(std::move(packed_config));
     MyPackedHasher packed_hasher(packed_sponge);
     MyPackedCompressor packed_compressor(std::move(packed_sponge));
