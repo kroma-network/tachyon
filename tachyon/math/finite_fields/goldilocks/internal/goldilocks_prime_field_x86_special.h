@@ -30,13 +30,17 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsTachyonMathGoldilocks>>
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
 
-  PrimeField() = default;
-  explicit PrimeField(uint64_t value);
-  explicit PrimeField(BigInt<N> value) : PrimeField(value[0]) {}
-  PrimeField(const PrimeField& other) = default;
-  PrimeField& operator=(const PrimeField& other) = default;
-  PrimeField(PrimeField&& other) = default;
-  PrimeField& operator=(PrimeField&& other) = default;
+  constexpr PrimeField() = default;
+  // NOTE(ashjeong): This constructor was changed to |constexpr| due to the
+  // |constexpr| function |GetPoseidon2InternalDiagonalArray()|. Note that
+  // running with |USE_MONTGOMERY| will now cause errors. Refer to this pr:
+  // https://github.com/kroma-network/tachyon/pull/536.
+  constexpr explicit PrimeField(uint64_t value) : value_(value) {}
+  constexpr explicit PrimeField(BigInt<N> value) : PrimeField(value[0]) {}
+  constexpr PrimeField(const PrimeField& other) = default;
+  constexpr PrimeField& operator=(const PrimeField& other) = default;
+  constexpr PrimeField(PrimeField&& other) = default;
+  constexpr PrimeField& operator=(PrimeField&& other) = default;
 
   constexpr static PrimeField Zero() { return PrimeField(); }
   static PrimeField One();
