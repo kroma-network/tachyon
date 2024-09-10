@@ -123,7 +123,8 @@ template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
 FRIProof<PCS> Prove(const FRIConfig<ChallengeMMCS>& config,
                     std::vector<std::vector<ExtF>>&& inputs,
-                    Challenger& challenger, OpenInputCallback open_input) {
+                    Challenger& challenger, OpenInputCallback open_input,
+                    std::optional<F> pow_witness_for_testing = std::nullopt) {
   using QueryProof = QueryProof<PCS>;
 
 #if DCHECK_IS_ON()
@@ -138,7 +139,8 @@ FRIProof<PCS> Prove(const FRIConfig<ChallengeMMCS>& config,
   uint32_t log_max_num_rows = base::bits::CheckedLog2(inputs[0].size());
   CommitPhaseResult<PCS> commit_phase_result =
       CommitPhase<PCS>(config, std::move(inputs), challenger);
-  F pow_witness = challenger.Grind(config.proof_of_work_bits);
+  F pow_witness =
+      challenger.Grind(config.proof_of_work_bits, pow_witness_for_testing);
   VLOG(2) << "FRI(pow): " << pow_witness.ToHexString(true);
 
   std::vector<QueryProof> query_proofs = base::CreateVector(

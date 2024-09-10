@@ -84,11 +84,13 @@ class Challenger {
     return rand_size & ((uint32_t{1} << bits) - 1);
   }
 
-  Field Grind(uint32_t bits) {
-    return Grind(bits, base::Range<uint32_t>::Until(Field::Config::kModulus));
+  Field Grind(uint32_t bits, std::optional<Field> pow_witness = std::nullopt) {
+    return Grind(bits, base::Range<uint32_t>::Until(Field::Config::kModulus),
+                 pow_witness);
   }
 
-  Field Grind(uint32_t bits, base::Range<uint32_t> range) {
+  Field Grind(uint32_t bits, base::Range<uint32_t> range,
+              std::optional<Field> pow_witness = std::nullopt) {
     std::vector<uint32_t> ret = base::ParallelizeMap(
         range.GetSize(),
         [this, bits, range](uint32_t len, uint32_t chunk_offset,
@@ -111,6 +113,10 @@ class Challenger {
       return v != std::numeric_limits<uint32_t>::max();
     });
     CHECK(it != ret.end());
+    if (pow_witness) {
+      CHECK(CheckWitness(bits, *pow_witness));
+      return *pow_witness;
+    }
     CHECK(CheckWitness(bits, Field(*it)));
     return Field(*it);
   }

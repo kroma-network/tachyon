@@ -86,7 +86,8 @@ class TwoAdicFRI {
   [[nodiscard]] bool CreateOpeningProof(
       const std::vector<ProverData>& prover_data_by_round,
       const OpeningPoints& points_by_round, Challenger& challenger,
-      OpenedValues* opened_values_out, FRIProof* proof) const {
+      OpenedValues* opened_values_out, FRIProof* proof,
+      std::optional<F> pow_witness_for_testing = std::nullopt) const {
     TRACE_EVENT("ProofGeneration", "TwoAdicFRI::CreateOpeningProof");
     ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
@@ -199,7 +200,8 @@ class TwoAdicFRI {
                 return BatchOpening<TwoAdicFRI>{std::move(openings),
                                                 std::move(proof)};
               });
-        });
+        },
+        pow_witness_for_testing);
     return true;
   }
 
