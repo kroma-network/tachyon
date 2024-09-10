@@ -32,12 +32,3 @@ tachyon_cc_library(
         "//tachyon/math/finite_fields/baby_bear/internal:packed_baby_bear4",
     ],
 )
-
-tachyon_cc_library(
-    name = "poseidon2",
-    hdrs = ["poseidon2.h"],
-    deps = [
-        ":baby_bear",
-        "//tachyon/base/types:always_false",
-    ],
-)

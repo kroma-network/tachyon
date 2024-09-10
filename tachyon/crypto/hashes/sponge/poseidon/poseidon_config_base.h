@@ -12,55 +12,33 @@
 #include <utility>
 
 #include "tachyon/base/buffer/copyable.h"
-#include "tachyon/crypto/hashes/sponge/sponge_config.h"
 #include "tachyon/math/matrix/matrix_types.h"
 
 namespace tachyon {
 namespace crypto {
 
-template <typename F>
-struct PoseidonConfigBase : public SpongeConfig {
-  // Number of rounds in a full-round operation.
-  size_t full_rounds = 0;
-
-  // Number of rounds in a partial-round operation.
-  size_t partial_rounds = 0;
-
-  // Exponent used in S-boxes.
-  uint64_t alpha = 0;
+template <typename Params>
+struct PoseidonConfigBase {
+  using F = typename Params::Field;
 
   // Additive Round Keys added before each MDS matrix application to make it an
   // affine shift. They are indexed by |ark[round_num][state_element_index]|.
   math::Matrix<F> ark;
 
   PoseidonConfigBase() = default;
-  PoseidonConfigBase(size_t full_rounds, size_t partial_rounds, uint64_t alpha,
-                     const math::Matrix<F>& ark, size_t rate, size_t capacity)
-      : SpongeConfig(rate, capacity),
-        full_rounds(full_rounds),
-        partial_rounds(partial_rounds),
-        alpha(alpha),
-        ark(ark) {}
-  PoseidonConfigBase(size_t full_rounds, size_t partial_rounds, uint64_t alpha,
-                     math::Matrix<F>&& ark, size_t rate, size_t capacity)
-      : SpongeConfig(rate, capacity),
-        full_rounds(full_rounds),
-        partial_rounds(partial_rounds),
-        alpha(alpha),
-        ark(std::move(ark)) {}
+  explicit PoseidonConfigBase(const math::Matrix<F>& ark) : ark(ark) {}
+  explicit PoseidonConfigBase(math::Matrix<F>&& ark) : ark(std::move(ark)) {}
 
   virtual ~PoseidonConfigBase() = default;
 
   virtual bool IsValid() const {
-    return static_cast<size_t>(ark.rows()) == full_rounds + partial_rounds &&
-           static_cast<size_t>(ark.cols()) == rate + capacity;
+    return static_cast<size_t>(ark.rows()) ==
+               Params::kFullRounds + Params::kPartialRounds &&
+           static_cast<size_t>(ark.cols()) == Params::kRate + Params::kCapacity;
   }
 
   bool operator==(const PoseidonConfigBase& other) const {
-    return SpongeConfig::operator==(other) &&
-           full_rounds == other.full_rounds &&
-           partial_rounds == other.partial_rounds && alpha == other.alpha &&
-           ark == other.ark;
+    return ark == other.ark;
   }
   bool operator!=(const PoseidonConfigBase& other) const {
     return !operator==(other);
@@ -71,39 +49,27 @@ struct PoseidonConfigBase : public SpongeConfig {
 
 namespace base {
 
-template <typename F>
-class Copyable<crypto::PoseidonConfigBase<F>> {
+template <typename Params>
+class Copyable<crypto::PoseidonConfigBase<Params>> {
  public:
-  static bool WriteTo(const crypto::PoseidonConfigBase<F>& config,
+  static bool WriteTo(const crypto::PoseidonConfigBase<Params>& config,
                       Buffer* buffer) {
-    if (!Copyable<crypto::SpongeConfig>::WriteTo(config, buffer)) return false;
-    return buffer->WriteMany(config.full_rounds, config.partial_rounds,
-                             config.alpha, config.ark);
+    return buffer->Write(config.ark);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::PoseidonConfigBase<F>* config) {
-    if (!Copyable<crypto::SpongeConfig>::ReadFrom(buffer, config)) return false;
-
-    size_t full_rounds;
-    size_t partial_rounds;
-    uint64_t alpha;
-    math::Matrix<F> ark;
-    if (!buffer.ReadMany(&full_rounds, &partial_rounds, &alpha, &ark)) {
+                       crypto::PoseidonConfigBase<Params>* config) {
+    math::Matrix<typename Params::Field> ark;
+    if (!buffer.Read(&ark)) {
       return false;
     }
 
-    config->full_rounds = full_rounds;
-    config->partial_rounds = partial_rounds;
-    config->alpha = alpha;
     config->ark = std::move(ark);
     return true;
   }
 
-  static size_t EstimateSize(const crypto::PoseidonConfigBase<F>& config) {
-    return Copyable<crypto::SpongeConfig>::EstimateSize(config) +
-           base::EstimateSize(config.full_rounds, config.partial_rounds,
-                              config.alpha, config.ark);
+  static size_t EstimateSize(const crypto::PoseidonConfigBase<Params>& config) {
+    return base::EstimateSize(config.ark);
   }
 };
 

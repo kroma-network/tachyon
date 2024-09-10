@@ -125,13 +125,13 @@ class CryptographicSponge {
 template <typename Derived>
 class FieldBasedCryptographicSponge : public CryptographicSponge<Derived> {
  public:
+  using Params = typename CryptographicSpongeTraits<Derived>::Params;
   using NativeField = typename CryptographicSpongeTraits<Derived>::F;
 
   // Squeeze |sizes.size()| field elements from the sponge.
   // where the |i|-th element of the output has |sizes[i]|.
   std::vector<NativeField> SqueezeNativeFieldElementsWithSizes(
-      SpongeState<NativeField>& state,
-      const std::vector<FieldElementSize>& sizes) {
+      SpongeState<Params>& state, const std::vector<FieldElementSize>& sizes) {
     bool all_full_size =
         std::all_of(sizes.begin(), sizes.end(),
                     [](const FieldElementSize& size) { return size.IsFull(); });

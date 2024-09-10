@@ -17,11 +17,6 @@ namespace tachyon::math {
 #define CLASS \
   PrimeField<Config, std::enable_if_t<Config::kIsTachyonMathGoldilocks>>
 
-template <typename Config>
-CLASS::PrimeField(uint64_t value) : value_(::Goldilocks::fromU64(value).fe) {
-  DCHECK_LT(value, Config::kModulus[0]);
-}
-
 // static
 template <typename Config>
 CLASS CLASS::One() {

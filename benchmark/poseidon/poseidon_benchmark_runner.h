@@ -31,14 +31,14 @@ class PoseidonBenchmarkRunner {
                           const PoseidonConfig& config)
       : reporter_(reporter), config_(config) {}
 
+  template <typename Params>
   Field Run() {
     reporter_.AddVendor(Vendor::Tachyon());
     Field ret;
     for (size_t i = 0; i < config_.repeating_num(); ++i) {
-      crypto::PoseidonConfig<Field> config =
-          crypto::PoseidonConfig<Field>::CreateCustom(8, 5, 8, 63, 0);
-      crypto::PoseidonSponge<Field> sponge(std::move(config));
-      crypto::SpongeState<Field> state(sponge.config);
+      auto config = crypto::PoseidonConfig<Params>::Create(0);
+      crypto::PoseidonSponge<Params> sponge(std::move(config));
+      crypto::SpongeState<Params> state;
       base::TimeTicks start = base::TimeTicks::Now();
       sponge.Permute(state);
       reporter_.AddTime(Vendor::Tachyon(), base::TimeTicks::Now() - start);

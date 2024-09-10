@@ -20,6 +20,7 @@ template <typename Derived, size_t Rate, size_t Out>
 class PaddingFreeSponge final
     : public Hasher<PaddingFreeSponge<Derived, Rate, Out>> {
  public:
+  using Params = typename Derived::Params;
   using F = typename CryptographicSpongeTraits<Derived>::F;
 
   PaddingFreeSponge() = default;
@@ -30,12 +31,10 @@ class PaddingFreeSponge final
  private:
   friend class Hasher<PaddingFreeSponge<Derived, Rate, Out>>;
 
-  SpongeState<F> CreateEmptyState() const {
-    return SpongeState<F>(derived_.config);
-  }
+  SpongeState<Params> CreateEmptyState() const { return SpongeState<Params>(); }
 
   template <typename T>
-  std::array<F, Out> DoHash(SpongeState<F>& state, const T& input) const {
+  std::array<F, Out> DoHash(SpongeState<Params>& state, const T& input) const {
     for (size_t i = 0; i < std::size(input); i += Rate) {
       for (size_t j = 0; j < Rate; ++j) {
         if (i + j < std::size(input)) {

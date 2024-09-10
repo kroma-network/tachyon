@@ -7,12 +7,3 @@ tachyon_cc_library(
     hdrs = ["mersenne31.h"],
     deps = ["//tachyon/math/finite_fields/mersenne31/internal:packed_mersenne31"],
 )
-
-tachyon_cc_library(
-    name = "poseidon2",
-    hdrs = ["poseidon2.h"],
-    deps = [
-        ":mersenne31",
-        "//tachyon/base/types:always_false",
-    ],
-)

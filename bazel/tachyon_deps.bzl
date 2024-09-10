@@ -102,7 +102,10 @@ def tachyon_deps():
             strip_prefix = "abseil-cpp-20230125.3",
             urls = ["https://github.com/abseil/abseil-cpp/archive/20230125.3.zip"],
             patch_args = ["-p1"],
-            patches = ["@kroma_network_tachyon//third_party/absl:add_missing_linkopts.patch"],
+            patches = [
+                "@kroma_network_tachyon//third_party/absl:add_missing_linkopts.patch",
+                "@kroma_network_tachyon//third_party/absl:ignore-maybe-uninitialized-warning.patch",
+            ],
         )
 
     if not native.existing_rule("com_google_boringssl"):

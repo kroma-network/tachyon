@@ -18,6 +18,7 @@
 
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon.h"
+#include "tachyon/crypto/hashes/sponge/poseidon/poseidon_params.h"
 #include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
@@ -32,13 +33,13 @@ class PoseidonBase {
   using ScalarField = typename AffinePoint::ScalarField;
   using Curve = typename AffinePoint::Curve;
   using CurveConfig = typename Curve::Config;
+  using Params = crypto::BN254PoseidonParams9;
 
   PoseidonBase()
       : poseidon_(
             // See
             // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/transcript/poseidon.rs#L28.
-            crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63, 0)),
-        state_(poseidon_.config) {
+            crypto::PoseidonConfig<Params>::Create(0)) {
     // See
     // https://github.com/kroma-network/poseidon/blob/00a2fe0/src/spec.rs#L15.
     state_.elements[0] = FromUint128<ScalarField>(absl::uint128(1) << 64);
@@ -92,19 +93,19 @@ class PoseidonBase {
     std::vector<ScalarField> input_elements = absorbing_;
     input_elements.insert(input_elements.end(), data, data + len);
 
-    size_t num_chunks = (input_elements.size() + poseidon_.config.rate - 1) /
-                        poseidon_.config.rate;
+    size_t num_chunks =
+        (input_elements.size() + Params::kRate - 1) / Params::kRate;
     for (size_t i = 0; i < num_chunks; ++i) {
-      size_t start = i * poseidon_.config.rate;
-      size_t chunk_len = i == num_chunks - 1 ? input_elements.size() - start
-                                             : poseidon_.config.rate;
+      size_t start = i * Params::kRate;
+      size_t chunk_len =
+          i == num_chunks - 1 ? input_elements.size() - start : Params::kRate;
       absl::Span<const ScalarField> chunk(input_elements.data() + start,
                                           chunk_len);
-      if (chunk_len < poseidon_.config.rate) {
+      if (chunk_len < Params::kRate) {
         absorbing_ = std::vector<ScalarField>(chunk.begin(), chunk.end());
       } else {
         // Add new chunk of inputs for the next permutation cycle.
-        for (size_t i = 0; i < poseidon_.config.rate; ++i) {
+        for (size_t i = 0; i < Params::kRate; ++i) {
           state_[i + 1] += chunk[i];
         }
 
@@ -133,9 +134,9 @@ class PoseidonBase {
     CHECK(buffer.Done());
   }
 
-  crypto::PoseidonSponge<ScalarField> poseidon_;
+  crypto::PoseidonSponge<Params> poseidon_;
   std::vector<ScalarField> absorbing_;
-  crypto::SpongeState<ScalarField> state_;
+  crypto::SpongeState<Params> state_;
 
  private:
   // See

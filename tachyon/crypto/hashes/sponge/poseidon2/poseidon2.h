@@ -27,37 +27,39 @@ namespace crypto {
 //   2. Apply S-Box (xᵅ) to |state|.
 //   3. Apply external and internal matrices to |state|.
 // Squeeze: Squeeze elements out of the sponge.
-template <typename ExternalMatrix>
+template <typename ExternalMatrix, typename _Params>
 struct Poseidon2Sponge final
-    : public PoseidonSpongeBase<Poseidon2Sponge<ExternalMatrix>> {
-  using F = typename ExternalMatrix::Field;
+    : public PoseidonSpongeBase<Poseidon2Sponge<ExternalMatrix, _Params>> {
+  using Params = _Params;
+  using F = typename Params::Field;
 
   // Sponge Config
-  Poseidon2Config<F> config;
+  Poseidon2Config<Params> config;
 
   Poseidon2Sponge() = default;
-  explicit Poseidon2Sponge(const Poseidon2Config<F>& config) : config(config) {}
-  explicit Poseidon2Sponge(Poseidon2Config<F>&& config)
+  explicit Poseidon2Sponge(const Poseidon2Config<Params>& config)
+      : config(config) {}
+  explicit Poseidon2Sponge(Poseidon2Config<Params>&& config)
       : config(std::move(config)) {}
 
   // PoseidonSpongeBase methods
-  void Permute(SpongeState<F>& state) const {
+  void Permute(SpongeState<Params>& state) const {
     ApplyMixFull(state);
 
-    size_t full_rounds_over_2 = config.full_rounds / 2;
+    size_t full_rounds_over_2 = Params::kFullRounds / 2;
     for (size_t i = 0; i < full_rounds_over_2; ++i) {
       this->ApplyARKFull(state, i);
       this->ApplySBoxFull(state);
       ApplyMixFull(state);
     }
     for (size_t i = full_rounds_over_2;
-         i < full_rounds_over_2 + config.partial_rounds; ++i) {
+         i < full_rounds_over_2 + Params::kPartialRounds; ++i) {
       this->ApplyARKPartial(state, i);
       this->ApplySBoxPartial(state);
       ApplyMixPartial(state);
     }
-    for (size_t i = full_rounds_over_2 + config.partial_rounds;
-         i < config.partial_rounds + config.full_rounds; ++i) {
+    for (size_t i = full_rounds_over_2 + Params::kPartialRounds;
+         i < Params::kPartialRounds + Params::kFullRounds; ++i) {
       this->ApplyARKFull(state, i);
       this->ApplySBoxFull(state);
       ApplyMixFull(state);
@@ -72,11 +74,11 @@ struct Poseidon2Sponge final
   }
 
  private:
-  void ApplyMixFull(SpongeState<F>& state) const {
+  void ApplyMixFull(SpongeState<Params>& state) const {
     ExternalMatrix::Apply(state.elements);
   }
 
-  void ApplyMixPartial(SpongeState<F>& state) const {
+  void ApplyMixPartial(SpongeState<Params>& state) const {
     using PrimeField = math::MaybeUnpack<F>;
 
     if constexpr (PrimeField::Config::kModulusBits <= 32) {
@@ -96,37 +98,41 @@ struct Poseidon2Sponge final
   }
 };
 
-template <typename ExternalMatrix>
-struct CryptographicSpongeTraits<Poseidon2Sponge<ExternalMatrix>> {
-  using F = typename ExternalMatrix::Field;
+template <typename ExternalMatrix, typename _Params>
+struct CryptographicSpongeTraits<Poseidon2Sponge<ExternalMatrix, _Params>> {
+  using Params = _Params;
+  using F = typename Params::Field;
 };
 
 }  // namespace crypto
 
 namespace base {
-template <typename ExternalMatrix>
-class Copyable<crypto::Poseidon2Sponge<ExternalMatrix>> {
+template <typename ExternalMatrix, typename Params>
+class Copyable<crypto::Poseidon2Sponge<ExternalMatrix, Params>> {
  public:
   using F = typename ExternalMatrix::Field;
 
-  static bool WriteTo(const crypto::Poseidon2Sponge<ExternalMatrix>& poseidon,
-                      Buffer* buffer) {
+  static bool WriteTo(
+      const crypto::Poseidon2Sponge<ExternalMatrix, Params>& poseidon,
+      Buffer* buffer) {
     return buffer->WriteMany(poseidon.config);
   }
 
-  static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::Poseidon2Sponge<ExternalMatrix>* poseidon) {
-    crypto::Poseidon2Config<F> config;
+  static bool ReadFrom(
+      const ReadOnlyBuffer& buffer,
+      crypto::Poseidon2Sponge<ExternalMatrix, Params>* poseidon) {
+    crypto::Poseidon2Config<Params> config;
     if (!buffer.ReadMany(&config)) {
       return false;
     }
 
-    *poseidon = crypto::Poseidon2Sponge<ExternalMatrix>(std::move(config));
+    *poseidon =
+        crypto::Poseidon2Sponge<ExternalMatrix, Params>(std::move(config));
     return true;
   }
 
   static size_t EstimateSize(
-      const crypto::Poseidon2Sponge<ExternalMatrix>& poseidon) {
+      const crypto::Poseidon2Sponge<ExternalMatrix, Params>& poseidon) {
     return base::EstimateSize(poseidon.config);
   }
 };

@@ -1,0 +1,19 @@
+diff --git a/absl/container/internal/inlined_vector.h b/absl/container/internal/inlined_vector.h
+index 0398f530..79caf140 100644
+--- a/absl/container/internal/inlined_vector.h
++++ b/absl/container/internal/inlined_vector.h
+@@ -465,7 +465,14 @@ class Storage {
+                           other_storage.GetIsAllocated());
+ 
+     GetSizeAndIsAllocated() = other_storage.GetSizeAndIsAllocated();
++#if defined(__GNUC__) && !defined(__clang__)
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
++#endif
+     data_ = other_storage.data_;
++#if defined(__GNUC__) && !defined(__clang__)
++#pragma GCC diagnostic pop
++#endif
+   }
+ 
+   void DeallocateIfAllocated() {

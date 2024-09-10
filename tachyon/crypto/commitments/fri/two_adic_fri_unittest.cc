@@ -8,11 +8,12 @@
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/extension_field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
-#include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {
@@ -27,11 +28,15 @@ using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 using PackedF = math::PackedBabyBear;
 using ExtPackedF = math::PackedBabyBear4;
+using Params = Poseidon2Params<F, 15, 7>;
+using PackedParams = Poseidon2Params<PackedF, 15, 7>;
 using Domain = TwoAdicMultiplicativeCoset<F>;
 using Poseidon2 =
-    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>>;
+    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
+                    Params>;
 using PackedPoseidon2 = Poseidon2Sponge<
-    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<PackedF>>>;
+    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<PackedF>>,
+    PackedParams>;
 using MyHasher = PaddingFreeSponge<Poseidon2, kRate, kChunk>;
 using MyPackedHasher = PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
 using MyCompressor = TruncatedPermutation<Poseidon2, kChunk, kN>;
@@ -41,7 +46,7 @@ using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
 using ExtMMCS = FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher,
                                     MyCompressor, MyPackedCompressor, kChunk>;
 using ChallengeMMCS = ExtensionFieldMerkleTreeMMCS<ExtF, ExtMMCS>;
-using Challenger = DuplexChallenger<Poseidon2, 16, kRate>;
+using Challenger = DuplexChallenger<Poseidon2, kRate>;
 using Coset = TwoAdicMultiplicativeCoset<F>;
 using MyPCS = TwoAdicFRI<ExtF, MMCS, ChallengeMMCS, Challenger>;
 
@@ -55,16 +60,15 @@ class TwoAdicFRITest : public testing::Test {
   }
 
   void SetUp() override {
-    Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
-        15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
-    Poseidon2 sponge(config);
+    auto config = Poseidon2Config<Params>::Create(
+        GetPoseidon2InternalShiftArray<Params>());
+    Poseidon2 sponge(std::move(config));
     MyHasher hasher(sponge);
     MyCompressor compressor(sponge);
 
-    Poseidon2Config<PackedF> packed_config =
-        Poseidon2Config<PackedF>::CreateCustom(
-            15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
-    PackedPoseidon2 packed_sponge(packed_config);
+    auto packed_config = Poseidon2Config<PackedParams>::Create(
+        GetPoseidon2InternalShiftArray<PackedParams>());
+    PackedPoseidon2 packed_sponge(std::move(packed_config));
     MyPackedHasher packed_hasher(packed_sponge);
     MyPackedCompressor packed_compressor(std::move(packed_sponge));
     MMCS mmcs(hasher, packed_hasher, compressor, packed_compressor);

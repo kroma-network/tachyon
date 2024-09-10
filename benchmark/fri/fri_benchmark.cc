@@ -16,12 +16,13 @@
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/extension_field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear4.h"
-#include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/polynomials/univariate/radix2_evaluation_domain.h"
 
@@ -49,11 +50,16 @@ void Run(const FRIConfig& config) {
   using ExtF = math::BabyBear4;
   using PackedF = math::PackedBabyBear;
   using ExtPackedF = math::PackedBabyBear4;
-  using Poseidon2 = crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
-      crypto::Poseidon2HorizenExternalMatrix<F>>>;
-  using PackedPoseidon2 =
+  using Params = crypto::Poseidon2Params<F, 15, 7>;
+  using PackedParams = crypto::Poseidon2Params<PackedF, 15, 7>;
+  using Poseidon2 =
       crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
-          crypto::Poseidon2HorizenExternalMatrix<PackedF>>>;
+                                  crypto::Poseidon2HorizenExternalMatrix<F>>,
+                              Params>;
+  using PackedPoseidon2 = crypto::Poseidon2Sponge<
+      crypto::Poseidon2ExternalMatrix<
+          crypto::Poseidon2HorizenExternalMatrix<PackedF>>,
+      PackedParams>;
   using MyHasher = crypto::PaddingFreeSponge<Poseidon2, kRate, kChunk>;
   using MyPackedHasher =
       crypto::PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
@@ -67,23 +73,21 @@ void Run(const FRIConfig& config) {
       crypto::FieldMerkleTreeMMCS<ExtF, MyHasher, MyPackedHasher, MyCompressor,
                                   MyPackedCompressor, kChunk>;
   using ChallengeMMCS = crypto::ExtensionFieldMerkleTreeMMCS<ExtF, ExtMMCS>;
-  using Challenger = crypto::DuplexChallenger<Poseidon2, 16, kRate>;
+  using Challenger = crypto::DuplexChallenger<Poseidon2, kRate>;
   using MyPCS = crypto::TwoAdicFRI<ExtF, MMCS, ChallengeMMCS, Challenger>;
 
   PackedF::Init();
   ExtPackedF::Init();
 
-  crypto::Poseidon2Config<F> poseidon2_config =
-      crypto::Poseidon2Config<F>::CreateCustom(
-          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
-  Poseidon2 sponge(poseidon2_config);
+  auto poseidon2_config = crypto::Poseidon2Config<Params>::Create(
+      crypto::GetPoseidon2InternalShiftArray<Params>());
+  Poseidon2 sponge(std::move(poseidon2_config));
   MyHasher hasher(sponge);
-  MyCompressor compressor(sponge);
+  MyCompressor compressor(std::move(sponge));
 
-  crypto::Poseidon2Config<PackedF> packed_config =
-      crypto::Poseidon2Config<PackedF>::CreateCustom(
-          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftArray<15>());
-  PackedPoseidon2 packed_sponge(packed_config);
+  auto packed_config = crypto::Poseidon2Config<PackedParams>::Create(
+      crypto::GetPoseidon2InternalShiftArray<PackedParams>());
+  PackedPoseidon2 packed_sponge(std::move(packed_config));
   MyPackedHasher packed_hasher(packed_sponge);
   MyPackedCompressor packed_compressor(std::move(packed_sponge));
   MMCS mmcs(hasher, packed_hasher, compressor, packed_compressor);

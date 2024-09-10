@@ -45,8 +45,9 @@ void FindPoseidon2ARK(const PoseidonGrainLFSRConfig& config,
   // TODO(chokobole): Enable generating |internal_diagonal_mins_one|.
 }
 
-template <typename F>
-struct Poseidon2Config : public PoseidonConfigBase<F> {
+template <typename Params>
+struct Poseidon2Config : public PoseidonConfigBase<Params> {
+  using F = typename Params::Field;
   using PrimeField = math::MaybeUnpack<F>;
 
   math::Vector<F> internal_diagonal_minus_one;
@@ -54,23 +55,24 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
   bool use_plonky3_internal_matrix = false;
 
   Poseidon2Config() = default;
-  Poseidon2Config(const PoseidonConfigBase<F>& base,
+  Poseidon2Config(const PoseidonConfigBase<Params>& base,
                   const math::Vector<F>& internal_diagonal_minus_one)
-      : PoseidonConfigBase<F>(base),
+      : PoseidonConfigBase<Params>(base),
         internal_diagonal_minus_one(internal_diagonal_minus_one) {}
-  Poseidon2Config(PoseidonConfigBase<F>&& base,
+  Poseidon2Config(PoseidonConfigBase<Params>&& base,
                   math::Vector<F>&& internal_diagonal_minus_one)
-      : PoseidonConfigBase<F>(std::move(base)),
+      : PoseidonConfigBase<Params>(std::move(base)),
         internal_diagonal_minus_one(std::move(internal_diagonal_minus_one)) {}
 
-  template <size_t N>
-  constexpr static Poseidon2Config CreateCustom(
-      size_t rate, uint64_t alpha, size_t full_rounds, size_t partial_rounds,
-      const std::array<PrimeField, N>& internal_diagonal_minus_one) {
-    Poseidon2ConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds);
-    Poseidon2Config ret = config_entry.ToPoseidon2Config<F>();
-    ret.internal_diagonal_minus_one = math::Vector<F>(N);
-    for (size_t i = 0; i < N; ++i) {
+  constexpr static Poseidon2Config Create(
+      const std::array<PrimeField, Params::kWidth>&
+          internal_diagonal_minus_one) {
+    constexpr Poseidon2ConfigEntry config_entry(Params::kRate, Params::kAlpha,
+                                                Params::kFullRounds,
+                                                Params::kPartialRounds);
+    Poseidon2Config ret = config_entry.ToPoseidon2Config<Params>();
+    ret.internal_diagonal_minus_one = math::Vector<F>(Params::kWidth);
+    for (size_t i = 0; i < Params::kWidth; ++i) {
       if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
         ret.internal_diagonal_minus_one[i] =
             F::Broadcast(internal_diagonal_minus_one[i]);
@@ -82,41 +84,42 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
     return ret;
   }
 
-  template <size_t N>
-  constexpr static Poseidon2Config CreateCustom(
-      size_t rate, uint64_t alpha, size_t full_rounds, size_t partial_rounds,
-      const std::array<uint8_t, N>& internal_shifts) {
-    Poseidon2ConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds);
+  constexpr static Poseidon2Config Create(
+      const std::array<uint8_t, Params::kRate>& internal_shifts) {
+    Poseidon2ConfigEntry config_entry(Params::kRate, Params::kAlpha,
+                                      Params::kFullRounds,
+                                      Params::kPartialRounds);
     math::Matrix<F> ark;
     FindPoseidon2ARK(config_entry.ToPoseidonGrainLFSRConfig<F>(), ark);
-    return CreateCustom(config_entry, internal_shifts, std::move(ark));
+    return Create(config_entry, internal_shifts, std::move(ark));
   }
 
-  template <size_t N>
-  constexpr static Poseidon2Config CreateCustom(
-      size_t rate, uint64_t alpha, size_t full_rounds, size_t partial_rounds,
-      const std::array<uint8_t, N>& internal_shifts, math::Matrix<F>&& ark) {
-    Poseidon2ConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds);
-    return CreateCustom(config_entry, internal_shifts, std::move(ark));
+  constexpr static Poseidon2Config Create(
+      const std::array<uint8_t, Params::kRate>& internal_shifts,
+      math::Matrix<F>&& ark) {
+    Poseidon2ConfigEntry config_entry(Params::kRate, Params::kAlpha,
+                                      Params::kFullRounds,
+                                      Params::kPartialRounds);
+    return Create(config_entry, internal_shifts, std::move(ark));
   }
 
  private:
-  template <size_t N>
-  constexpr static Poseidon2Config CreateCustom(
+  constexpr static Poseidon2Config Create(
       const Poseidon2ConfigEntry& config_entry,
-      const std::array<uint8_t, N>& internal_shifts, math::Matrix<F>&& ark) {
-    Poseidon2Config ret = config_entry.ToPoseidon2Config<F>();
+      const std::array<uint8_t, Params::kRate>& internal_shifts,
+      math::Matrix<F>&& ark) {
+    Poseidon2Config ret = config_entry.ToPoseidon2Config<Params>();
     ret.use_plonky3_internal_matrix = true;
     if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
-      ret.internal_diagonal_minus_one = math::Vector<F>(N + 1);
+      ret.internal_diagonal_minus_one = math::Vector<F>(Params::kWidth);
       ret.internal_diagonal_minus_one[0] = F(PrimeField::Config::kModulus - 2);
-      for (size_t i = 1; i < N + 1; ++i) {
+      for (size_t i = 1; i < Params::kWidth; ++i) {
         ret.internal_diagonal_minus_one[i] =
             F(uint32_t{1} << internal_shifts[i - 1]);
       }
     } else {
-      ret.internal_shifts = math::Vector<uint8_t>(N);
-      for (size_t i = 0; i < N; ++i) {
+      ret.internal_shifts = math::Vector<uint8_t>(Params::kRate);
+      for (size_t i = 0; i < Params::kRate; ++i) {
         ret.internal_shifts[i] = internal_shifts[i];
       }
     }
@@ -125,33 +128,29 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
   }
 };
 
-template <typename F>
-Poseidon2Config<F> Poseidon2ConfigEntry::ToPoseidon2Config() const {
-  Poseidon2Config<F> config;
-  config.full_rounds = full_rounds;
-  config.partial_rounds = partial_rounds;
-  config.alpha = alpha;
-  config.rate = rate;
-  config.capacity = 1;
-  return config;
+template <typename Params>
+Poseidon2Config<Params> Poseidon2ConfigEntry::ToPoseidon2Config() const {
+  return Poseidon2Config<Params>();
 }
 
 }  // namespace crypto
 
 namespace base {
 
-template <typename F>
-class Copyable<crypto::Poseidon2Config<F>> {
+template <typename Params>
+class Copyable<crypto::Poseidon2Config<Params>> {
  public:
-  static bool WriteTo(const crypto::Poseidon2Config<F>& config,
+  using F = typename Params::Field;
+  static bool WriteTo(const crypto::Poseidon2Config<Params>& config,
                       Buffer* buffer) {
-    return Copyable<crypto::PoseidonConfigBase<F>>::WriteTo(config, buffer) &&
+    return Copyable<crypto::PoseidonConfigBase<Params>>::WriteTo(config,
+                                                                 buffer) &&
            buffer->WriteMany(config.internal_diagonal_minus_one);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::Poseidon2Config<F>* config) {
-    crypto::PoseidonConfigBase<F> base;
+                       crypto::Poseidon2Config<Params>* config) {
+    crypto::PoseidonConfigBase<Params> base;
     math::Matrix<F> internal_diagonal_minus_one;
     if (!buffer.ReadMany(&base, &internal_diagonal_minus_one)) {
       return false;
@@ -161,9 +160,9 @@ class Copyable<crypto::Poseidon2Config<F>> {
     return true;
   }
 
-  static size_t EstimateSize(const crypto::Poseidon2Config<F>& config) {
-    const crypto::PoseidonConfigBase<F>& base =
-        static_cast<const crypto::PoseidonConfigBase<F>&>(config);
+  static size_t EstimateSize(const crypto::Poseidon2Config<Params>& config) {
+    const crypto::PoseidonConfigBase<Params>& base =
+        static_cast<const crypto::PoseidonConfigBase<Params>&>(config);
     return base::EstimateSize(base, config.internal_diagonal_minus_one);
   }
 };

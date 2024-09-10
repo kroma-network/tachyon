@@ -12,28 +12,21 @@
 
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/crypto/hashes/sponge/duplex_sponge_mode.h"
-#include "tachyon/crypto/hashes/sponge/sponge_config.h"
 #include "tachyon/math/matrix/matrix_types.h"
 
 namespace tachyon {
 namespace crypto {
 
-template <typename F>
+template <typename Params>
 struct SpongeState {
+  using F = typename Params::Field;
   // Current sponge's state (current elements in the permutation block)
   math::Vector<F> elements;
 
   // Current mode (whether its absorbing or squeezing)
   DuplexSpongeMode mode = DuplexSpongeMode::Absorbing();
 
-  SpongeState() = default;
-  explicit SpongeState(const SpongeConfig& config)
-      : SpongeState(config.rate + config.capacity) {}
-  explicit SpongeState(size_t size) : elements(size) {
-    for (size_t i = 0; i < size; ++i) {
-      elements[i] = F::Zero();
-    }
-  }
+  SpongeState() : elements(math::Vector<F>::Zero(Params::kWidth)) {}
 
   size_t size() const { return elements.size(); }
 
@@ -56,15 +49,17 @@ struct SpongeState {
 
 namespace base {
 
-template <typename F>
-class Copyable<crypto::SpongeState<F>> {
+template <typename Params>
+class Copyable<crypto::SpongeState<Params>> {
  public:
-  static bool WriteTo(const crypto::SpongeState<F>& state, Buffer* buffer) {
+  using F = typename Params::Field;
+  static bool WriteTo(const crypto::SpongeState<Params>& state,
+                      Buffer* buffer) {
     return buffer->WriteMany(state.elements, state.mode);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::SpongeState<F>* state) {
+                       crypto::SpongeState<Params>* state) {
     math::Vector<F> elements;
     crypto::DuplexSpongeMode mode;
     if (!buffer.ReadMany(&elements, &mode)) {
@@ -76,7 +71,7 @@ class Copyable<crypto::SpongeState<F>> {
     return true;
   }
 
-  static size_t EstimateSize(const crypto::SpongeState<F>& state) {
+  static size_t EstimateSize(const crypto::SpongeState<Params>& state) {
     return base::EstimateSize(state.elements, state.mode);
   }
 };

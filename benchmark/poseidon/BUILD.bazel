@@ -40,5 +40,6 @@ tachyon_cc_binary(
         "//benchmark/poseidon/arkworks",
         "//tachyon/base:profiler",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/crypto/hashes/sponge/poseidon:poseidon_params",
     ],
 )

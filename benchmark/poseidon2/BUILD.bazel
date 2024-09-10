@@ -46,7 +46,8 @@ tachyon_cc_binary(
         "//tachyon/base/containers:contains",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/math/finite_fields/baby_bear",
-        "//tachyon/math/elliptic_curves/bn/bn254:poseidon2",
-        "//tachyon/math/finite_fields/baby_bear:poseidon2",
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_params",
+        "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_baby_bear",
+        "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_bn254",
     ],
 )

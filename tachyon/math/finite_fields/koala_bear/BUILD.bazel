@@ -32,12 +32,3 @@ tachyon_cc_library(
         "//tachyon/math/finite_fields/koala_bear/internal:packed_koala_bear4",
     ],
 )
-
-tachyon_cc_library(
-    name = "poseidon2",
-    hdrs = ["poseidon2.h"],
-    deps = [
-        ":koala_bear",
-        "//tachyon/base/types:always_false",
-    ],
-)

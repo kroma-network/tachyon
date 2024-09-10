@@ -15,18 +15,19 @@
 
 namespace tachyon::crypto {
 
-template <typename Permutation, size_t W, size_t R>
+template <typename Permutation, size_t R>
 class DuplexChallenger final
-    : public Challenger<DuplexChallenger<Permutation, W, R>> {
+    : public Challenger<DuplexChallenger<Permutation, R>> {
  public:
-  using F = typename Permutation::F;
+  using Params = typename Permutation::Params;
+  using F = typename Params::Field;
 
   DuplexChallenger() = default;
   explicit DuplexChallenger(Permutation&& permutation)
       : permutation_(std::move(permutation)) {}
 
  private:
-  friend class Challenger<DuplexChallenger<Permutation, W, R>>;
+  friend class Challenger<DuplexChallenger<Permutation, R>>;
 
   // Challenger methods
   void DoObserve(const F& value) {
@@ -58,19 +59,19 @@ class DuplexChallenger final
     permutation_.Permute(state_);
 
     output_buffer_.clear();
-    for (size_t i = 0; i < W; ++i) {
+    for (size_t i = 0; i < Params::kWidth; ++i) {
       output_buffer_.push_back(state_[i]);
     }
   }
 
-  SpongeState<F> state_{W};
+  SpongeState<Params> state_;
   absl::InlinedVector<F, R> input_buffer_;
-  absl::InlinedVector<F, W> output_buffer_;
+  absl::InlinedVector<F, Params::kWidth> output_buffer_;
   Permutation permutation_;
 };
 
-template <typename Permutation, size_t W, size_t R>
-struct ChallengerTraits<DuplexChallenger<Permutation, W, R>> {
+template <typename Permutation, size_t R>
+struct ChallengerTraits<DuplexChallenger<Permutation, R>> {
   using Field = typename Permutation::F;
 };
 
