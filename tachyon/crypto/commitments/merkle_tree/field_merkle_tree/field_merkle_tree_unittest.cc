@@ -178,7 +178,7 @@ TEST_F(FieldMerkleTreeTest, CommitEitherOrder) {
   Tree tree = Tree::Build(hasher_, packed_hasher_, compressor_,
                           packed_compressor_, std::move(matrices));
 
-  std::vector<math::RowMajorMatrix<F>> matrices2 = {matrix, matrix2};
+  std::vector<math::RowMajorMatrix<F>> matrices2 = {matrix2, matrix};
   Tree tree2 = Tree::Build(hasher_, packed_hasher_, compressor_,
                            packed_compressor_, std::move(matrices2));
   EXPECT_EQ(tree.GetRoot(), tree2.GetRoot());
