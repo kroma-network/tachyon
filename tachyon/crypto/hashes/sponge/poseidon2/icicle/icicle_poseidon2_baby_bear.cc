@@ -213,6 +213,7 @@ bool IciclePoseidon2<math::BabyBear>::Hash(
   for (size_t idx = 0; idx < output_size; ++idx) {
     ret[idx] = ::babybear::scalar_t::to_montgomery(ret[idx]);
     output[idx] = *reinterpret_cast<math::BabyBear*>(&ret[idx]);
+    LOG(ERROR) << "output[idx]: " << output[idx];
   }
 
   return true;

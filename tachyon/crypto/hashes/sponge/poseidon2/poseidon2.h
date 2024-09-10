@@ -128,6 +128,19 @@ struct Poseidon2Sponge final
 
   // PoseidonSpongeBase methods
   void Permute(SpongeState<Params>& state) const {
+#if TACHYON_CUDA
+    if constexpr (IsIciclePoseidon2Supported<F>) {
+      if (!poseidon2_gpu_) return;
+
+      absl::Span<const F> state_span =
+          absl::Span<const F>(state.elements.data(), state.elements.size());
+
+      bool result =
+          poseidon2_gpu_->Hash(state_span, state.elements.data(), 1,
+                               state.elements.size(), state.elements.size());
+      if (result) return;
+    }
+#endif
     ApplyMixFull(state);
 
     size_t full_rounds_over_2 = Params::kFullRounds / 2;
