@@ -161,7 +161,14 @@ class Radix2EvaluationDomain
       mat.row(base::bits::ReverseBitsLen(start + len - 1,
                                          this->log_size_of_group_)) *= weight;
     });
-    RowMajorMatrix<F> ret = ExpandInPlaceWithZeroPad(mat, added_bits);
+
+    RowMajorMatrix<F> ret;
+    if (added_bits == 0) {
+      ret = mat;
+    } else {
+      ret = RowMajorMatrix<F>(this->size_ << added_bits, mat.cols());
+      ExpandWithZeroPad(mat, added_bits, ret);
+    }
 
     size_t rows = static_cast<size_t>(ret.rows());
     uint32_t log_size_of_group = base::bits::CheckedLog2(rows);
@@ -437,6 +444,30 @@ class Radix2EvaluationDomain
       UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
           *reinterpret_cast<F*>(&row_1_block.data()[i]),
           *reinterpret_cast<F*>(&row_2_block.data()[i]), twiddle);
+    }
+  }
+
+  // Expands a |Eigen::MatrixBase|'s rows from |rows| to |rows|^(|added_bits|),
+  // moving values from row |i| to row |i|^(|added_bits|). All new entries are
+  // set to |F::Zero()|.
+  // Note that it crashes if the |added_bits| is zero.
+  template <typename Derived, typename Derived2>
+  CONSTEXPR_IF_NOT_OPENMP static void ExpandWithZeroPad(
+      Eigen::MatrixBase<Derived>& mat, size_t added_bits,
+      Eigen::MatrixBase<Derived2>& out) {
+    CHECK_GT(added_bits, size_t{0});
+
+    Eigen::Index new_rows = mat.rows() << added_bits;
+    CHECK_EQ(out.rows(), new_rows);
+    CHECK_EQ(out.cols(), mat.cols());
+    Eigen::Index mask = (Eigen::Index{1} << added_bits) - 1;
+
+    OMP_PARALLEL_FOR(Eigen::Index row = 0; row < new_rows; ++row) {
+      if ((row & mask) == 0) {
+        out.row(row) = mat.row(row >> added_bits);
+      } else {
+        out.row(row).setZero();
+      }
     }
   }
 

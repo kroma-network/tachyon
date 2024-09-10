@@ -107,32 +107,6 @@ std::vector<PackedField> PackRowVertically(
   }
 }
 
-// Expands a |Eigen::MatrixBase|'s rows from |rows| to |rows|^(|added_bits|),
-// moving values from row |i| to row |i|^(|added_bits|). All new entries are set
-// to |F::Zero()|.
-template <typename Derived, typename Scalar = typename Derived::Scalar>
-RowMajorMatrix<Scalar> ExpandInPlaceWithZeroPad(Eigen::MatrixBase<Derived>& mat,
-                                                size_t added_bits) {
-  if (added_bits == 0) {
-    return mat;
-  }
-
-  Eigen::Index new_rows = mat.rows() << added_bits;
-  Eigen::Index cols = mat.cols();
-
-  RowMajorMatrix<Scalar> padded(new_rows, cols);
-  Eigen::Index mask = (Eigen::Index{1} << added_bits) - 1;
-
-  OMP_PARALLEL_FOR(Eigen::Index row = 0; row < new_rows; ++row) {
-    if ((row & mask) == 0) {
-      padded.row(row) = mat.row(row >> added_bits);
-    } else {
-      padded.row(row).setZero();
-    }
-  }
-  return padded;
-}
-
 // Swaps rows of a |Eigen::MatrixBase| such that each row is changed to the row
 // accessed with the reversed bits of the current index. Crashes if the number
 // of rows is not a power of two.
