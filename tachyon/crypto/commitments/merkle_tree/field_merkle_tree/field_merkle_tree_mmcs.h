@@ -98,7 +98,7 @@ class FieldMerkleTreeMMCS final
     return true;
   }
 
-  const std::vector<math::RowMajorMatrix<F>>& DoGetMatrices(
+  const std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>& DoGetMatrices(
       const ProverData& prover_data) const {
     return prover_data.leaves();
   }
@@ -114,7 +114,8 @@ class FieldMerkleTreeMMCS final
     // TODO(chokobole): Is it able to be parallelized?
     *openings = base::Map(
         prover_data.leaves(),
-        [log_max_row_size, index](const math::RowMajorMatrix<F>& matrix) {
+        [log_max_row_size,
+         index](const Eigen::Map<const math::RowMajorMatrix<F>>& matrix) {
           uint32_t log_row_size =
               base::bits::Log2Ceiling(static_cast<size_t>(matrix.rows()));
           uint32_t bits_reduced = log_max_row_size - log_row_size;

@@ -55,28 +55,30 @@ class MixedMatrixCommitmentScheme {
     return derived->DoCreateOpeningProof(index, prover_data, openings, proof);
   }
 
-  const std::vector<math::RowMajorMatrix<Field>>& GetMatrices(
+  const std::vector<Eigen::Map<const math::RowMajorMatrix<Field>>>& GetMatrices(
       const ProverData& prover_data) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoGetMatrices(prover_data);
   }
 
   std::vector<size_t> GetRowSizes() const {
-    return base::Map(GetMatrices(),
-                     [](const math::RowMajorMatrix<Field>& matrix) {
-                       return matrix.rows();
-                     });
+    return base::Map(
+        GetMatrices(),
+        [](const Eigen::Map<const math::RowMajorMatrix<Field>>& matrix) {
+          return matrix.rows();
+        });
   }
 
   size_t GetMaxRowSize(const ProverData& prover_data) const {
-    const std::vector<math::RowMajorMatrix<Field>>& matrices =
+    const std::vector<Eigen::Map<const math::RowMajorMatrix<Field>>>& matrices =
         GetMatrices(prover_data);
     if (matrices.empty()) return 0;
-    return std::max_element(matrices.begin(), matrices.end(),
-                            [](const math::RowMajorMatrix<Field>& a,
-                               const math::RowMajorMatrix<Field>& b) {
-                              return a.rows() < b.rows();
-                            })
+    return std::max_element(
+               matrices.begin(), matrices.end(),
+               [](const Eigen::Map<const math::RowMajorMatrix<Field>>& a,
+                  const Eigen::Map<const math::RowMajorMatrix<Field>>& b) {
+                 return a.rows() < b.rows();
+               })
         ->rows();
   }
 

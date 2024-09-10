@@ -96,13 +96,14 @@ class TwoAdicFRI {
     size_t num_rounds = prover_data_by_round.size();
 
     size_t global_max_num_rows = 0;
-    std::vector<absl::Span<const math::RowMajorMatrix<F>>> matrices_by_round =
-        base::Map(prover_data_by_round,
-                  [this, &global_max_num_rows](const ProverData& prover_data) {
-                    global_max_num_rows = std::max(
-                        global_max_num_rows, mmcs_.GetMaxRowSize(prover_data));
-                    return absl::MakeConstSpan(mmcs_.GetMatrices(prover_data));
-                  });
+    std::vector<absl::Span<const Eigen::Map<const math::RowMajorMatrix<F>>>>
+        matrices_by_round = base::Map(
+            prover_data_by_round,
+            [this, &global_max_num_rows](const ProverData& prover_data) {
+              global_max_num_rows = std::max(global_max_num_rows,
+                                             mmcs_.GetMaxRowSize(prover_data));
+              return absl::MakeConstSpan(mmcs_.GetMatrices(prover_data));
+            });
     uint32_t log_global_max_num_rows =
         base::bits::CheckedLog2(global_max_num_rows);
 
@@ -119,12 +120,13 @@ class TwoAdicFRI {
 
     OpenedValues opened_values(num_rounds);
     for (size_t round = 0; round < num_rounds; ++round) {
-      absl::Span<const math::RowMajorMatrix<F>> matrices =
+      absl::Span<const Eigen::Map<const math::RowMajorMatrix<F>>> matrices =
           matrices_by_round[round];
       const OpeningPointsForRound& points = points_by_round[round];
       OpenedValuesForRound opened_values_for_round(matrices.size());
       for (size_t matrix_idx = 0; matrix_idx < matrices.size(); ++matrix_idx) {
-        const math::RowMajorMatrix<F>& mat = matrices[matrix_idx];
+        const Eigen::Map<const math::RowMajorMatrix<F>>& mat =
+            matrices[matrix_idx];
         size_t num_rows = static_cast<size_t>(mat.rows());
         size_t num_cols = static_cast<size_t>(mat.cols());
         uint32_t log_num_rows = base::bits::CheckedLog2(num_rows);
@@ -313,8 +315,8 @@ class TwoAdicFRI {
 
   static absl::flat_hash_map<ExtF, std::vector<ExtF>>
   ComputeInverseDenominators(
-      const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
-          matrices_by_round,
+      const std::vector<absl::Span<
+          const Eigen::Map<const math::RowMajorMatrix<F>>>>& matrices_by_round,
       const OpeningPoints& points_by_round, F coset_shift) {
     TRACE_EVENT("Utils", "ComputeInverseDenominators");
     size_t num_rounds = matrices_by_round.size();
@@ -322,10 +324,10 @@ class TwoAdicFRI {
     absl::flat_hash_map<ExtF, uint32_t> max_log_num_rows_for_point;
     uint32_t max_log_num_rows = 0;
     for (size_t round = 0; round < num_rounds; ++round) {
-      absl::Span<const math::RowMajorMatrix<F>> matrices =
+      absl::Span<const Eigen::Map<const math::RowMajorMatrix<F>>> matrices =
           matrices_by_round[round];
       const OpeningPointsForRound& points = points_by_round[round];
-      for (const math::RowMajorMatrix<F>& matrix : matrices) {
+      for (const Eigen::Map<const math::RowMajorMatrix<F>>& matrix : matrices) {
         uint32_t log_num_rows =
             base::bits::CheckedLog2(static_cast<uint32_t>(matrix.rows()));
         max_log_num_rows = std::max(max_log_num_rows, log_num_rows);

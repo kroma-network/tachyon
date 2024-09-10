@@ -116,7 +116,9 @@ class FieldMerkleTree {
     return {std::move(leaves), std::move(digest_layers)};
   }
 
-  const std::vector<math::RowMajorMatrix<F>>& leaves() const { return leaves_; }
+  const std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>& leaves() const {
+    return leaves_;
+  }
   const std::vector<std::vector<Digest>>& digest_layers() const {
     return digest_layers_;
   }
@@ -152,7 +154,13 @@ class FieldMerkleTree {
 
   FieldMerkleTree(std::vector<math::RowMajorMatrix<F>>&& leaves,
                   std::vector<std::vector<Digest>>&& digest_layers)
-      : leaves_(std::move(leaves)), digest_layers_(std::move(digest_layers)) {}
+      : owned_leaves_(std::move(leaves)),
+        digest_layers_(std::move(digest_layers)) {
+    leaves_ = base::Map(owned_leaves_, [](const math::RowMajorMatrix<F>& leaf) {
+      return Eigen::Map<const math::RowMajorMatrix<F>>(leaf.data(), leaf.rows(),
+                                                       leaf.cols());
+    });
+  }
 
   template <typename Hasher, typename PackedHasher>
   static std::vector<Digest> CreateFirstDigestLayer(
@@ -345,7 +353,8 @@ class FieldMerkleTree {
     });
   }
 
-  std::vector<math::RowMajorMatrix<F>> leaves_;
+  std::vector<math::RowMajorMatrix<F>> owned_leaves_;
+  std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> leaves_;
   std::vector<std::vector<Digest>> digest_layers_;
 };
 

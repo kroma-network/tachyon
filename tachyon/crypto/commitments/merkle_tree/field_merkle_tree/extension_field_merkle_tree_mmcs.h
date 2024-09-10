@@ -40,8 +40,8 @@ class ExtensionFieldMerkleTreeMMCS final
     return inner_.Commit(std::move(matrices), commitment, prover_data);
   }
 
-  const std::vector<math::RowMajorMatrix<ExtensionField>>& DoGetMatrices(
-      const ProverData& prover_data) const {
+  const std::vector<Eigen::Map<const math::RowMajorMatrix<ExtensionField>>>&
+  DoGetMatrices(const ProverData& prover_data) const {
     return prover_data.leaves();
   }
 
