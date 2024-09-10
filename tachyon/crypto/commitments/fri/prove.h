@@ -41,21 +41,22 @@ CommitPhaseResult<PCS> CommitPhase(const FRIConfig<ChallengeMMCS>& config,
   data.reserve(total_folds);
 
   while (folded.size() > config.Blowup()) {
-    math::RowMajorMatrix<ExtF> leaves((folded.size() + 1) / 2, 2);
+    std::vector<math::RowMajorMatrix<ExtF>> leaves;
+    leaves.emplace_back((folded.size() + 1) / 2, 2);
     base::Parallelize(
         folded,
         [&leaves](absl::Span<ExtF> chunk, size_t chunk_offset,
                   size_t chunk_size) {
           size_t chunk_start = chunk_offset * chunk_size;
           for (size_t i = chunk_start; i < chunk_start + chunk.size(); ++i) {
-            leaves(i / 2, i % 2) = std::move(chunk[i - chunk_start]);
+            leaves[0](i / 2, i % 2) = std::move(chunk[i - chunk_start]);
           }
         },
         kThreshold);
 
     Commitment commit;
     ProverData prover_data;
-    CHECK(config.mmcs.Commit({std::move(leaves)}, &commit, &prover_data));
+    CHECK(config.mmcs.Commit(std::move(leaves), &commit, &prover_data));
     commits.push_back(std::move(commit));
     data.push_back(std::move(prover_data));
 
