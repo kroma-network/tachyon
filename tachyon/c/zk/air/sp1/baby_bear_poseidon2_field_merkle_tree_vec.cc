@@ -28,6 +28,6 @@ tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_clone(
 }
 
 void tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_destroy(
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* tree) {
-  delete c::base::native_cast(tree);
+    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* tree_vec) {
+  delete c::base::native_cast(tree_vec);
 }
