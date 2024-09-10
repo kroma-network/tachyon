@@ -86,13 +86,25 @@ class FieldMerkleTreeMMCS final
     }
   };
 
-  [[nodiscard]] bool DoCommit(std::vector<math::RowMajorMatrix<F>>&& matrices,
-                              Commitment* commitment,
-                              ProverData* prover_data) const {
+  [[nodiscard]] bool DoCommit(
+      std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& matrices,
+      Commitment* commitment, ProverData* prover_data) const {
     TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommit");
     *prover_data =
         FieldMerkleTree<F, N>::Build(hasher_, packed_hasher_, compressor_,
                                      packed_compressor_, std::move(matrices));
+    *commitment = prover_data->GetRoot();
+
+    return true;
+  }
+
+  [[nodiscard]] bool DoCommitOwned(
+      std::vector<math::RowMajorMatrix<F>>&& owned_matrices,
+      Commitment* commitment, ProverData* prover_data) const {
+    TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommitOwned");
+    *prover_data = FieldMerkleTree<F, N>::BuildOwned(
+        hasher_, packed_hasher_, compressor_, packed_compressor_,
+        std::move(owned_matrices));
     *commitment = prover_data->GetRoot();
 
     return true;

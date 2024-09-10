@@ -45,16 +45,15 @@ class FieldMerkleTree {
 
   template <typename Hasher, typename PackedHasher, typename Compressor,
             typename PackedCompressor>
-  static FieldMerkleTree Build(const Hasher& hasher,
-                               const PackedHasher& packed_hasher,
-                               const Compressor& compressor,
-                               const PackedCompressor& packed_compressor,
-                               std::vector<math::RowMajorMatrix<F>>&& leaves) {
+  static FieldMerkleTree Build(
+      const Hasher& hasher, const PackedHasher& packed_hasher,
+      const Compressor& compressor, const PackedCompressor& packed_compressor,
+      std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& leaves) {
     TRACE_EVENT("Utils", "FieldMerkleTree::Build");
     CHECK(!leaves.empty());
 
-    std::vector<RowMajorMatrixView> sorted_leaves =
-        base::Map(leaves, [](const math::RowMajorMatrix<F>& matrix) {
+    std::vector<RowMajorMatrixView> sorted_leaves = base::Map(
+        leaves, [](Eigen::Map<const math::RowMajorMatrix<F>>& matrix) {
           return RowMajorMatrixView(&matrix);
         });
     base::StableSort(sorted_leaves.begin(), sorted_leaves.end());
@@ -116,6 +115,22 @@ class FieldMerkleTree {
     return {std::move(leaves), std::move(digest_layers)};
   }
 
+  template <typename Hasher, typename PackedHasher, typename Compressor,
+            typename PackedCompressor>
+  static FieldMerkleTree BuildOwned(
+      const Hasher& hasher, const PackedHasher& packed_hasher,
+      const Compressor& compressor, const PackedCompressor& packed_compressor,
+      std::vector<math::RowMajorMatrix<F>>&& owned_leaves) {
+    std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> leaves =
+        base::Map(owned_leaves, [](const math::RowMajorMatrix<F>& owned_leaf) {
+          return math::Map(owned_leaf);
+        });
+    FieldMerkleTree ret = Build(hasher, packed_hasher, compressor,
+                                packed_compressor, std::move(leaves));
+    ret.owned_leaves_ = std::move(owned_leaves);
+    return ret;
+  }
+
   const std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>& leaves() const {
     return leaves_;
   }
@@ -129,7 +144,7 @@ class FieldMerkleTree {
   class RowMajorMatrixView {
    public:
     RowMajorMatrixView() = default;
-    explicit RowMajorMatrixView(const math::RowMajorMatrix<F>* ptr)
+    explicit RowMajorMatrixView(Eigen::Map<const math::RowMajorMatrix<F>>* ptr)
         : ptr_(ptr) {}
 
     // TODO(chokobole): This comparison is intentionally reversed to sort in
@@ -144,23 +159,22 @@ class FieldMerkleTree {
       return ptr_->rows() < other.ptr_->rows();
     }
 
-    const math::RowMajorMatrix<F>* operator->() const { return ptr_; }
+    Eigen::Map<const math::RowMajorMatrix<F>>* operator->() const {
+      return ptr_;
+    }
 
-    const math::RowMajorMatrix<F>& operator*() const { return *ptr_; }
+    Eigen::Map<const math::RowMajorMatrix<F>>& operator*() const {
+      return *ptr_;
+    }
 
    private:
-    const math::RowMajorMatrix<F>* ptr_ = nullptr;
+    Eigen::Map<const math::RowMajorMatrix<F>>* ptr_ = nullptr;
   };
 
-  FieldMerkleTree(std::vector<math::RowMajorMatrix<F>>&& leaves,
-                  std::vector<std::vector<Digest>>&& digest_layers)
-      : owned_leaves_(std::move(leaves)),
-        digest_layers_(std::move(digest_layers)) {
-    leaves_ = base::Map(owned_leaves_, [](const math::RowMajorMatrix<F>& leaf) {
-      return Eigen::Map<const math::RowMajorMatrix<F>>(leaf.data(), leaf.rows(),
-                                                       leaf.cols());
-    });
-  }
+  FieldMerkleTree(
+      std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& leaves,
+      std::vector<std::vector<Digest>>&& digest_layers)
+      : leaves_(std::move(leaves)), digest_layers_(std::move(digest_layers)) {}
 
   template <typename Hasher, typename PackedHasher>
   static std::vector<Digest> CreateFirstDigestLayer(

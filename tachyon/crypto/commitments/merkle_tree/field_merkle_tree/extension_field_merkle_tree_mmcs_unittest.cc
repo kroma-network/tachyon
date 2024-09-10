@@ -100,8 +100,8 @@ TEST_F(ExtensionFieldMerkleTreeMMCSTest, CommitAndVerify) {
       std::move(ext_matrix)};
   std::array<F, kChunk> ext_commitment;
   ExtTree ext_prover_data;
-  ASSERT_TRUE(ext_mmcs_->Commit(std::move(ext_matrices), &ext_commitment,
-                                &ext_prover_data));
+  ASSERT_TRUE(ext_mmcs_->CommitOwned(std::move(ext_matrices), &ext_commitment,
+                                     &ext_prover_data));
 
   const InnerMMCS& inner_mmcs = ext_mmcs_->inner();
   MMCS mmcs(inner_mmcs.hasher(), inner_mmcs.packed_hasher(),
@@ -109,7 +109,7 @@ TEST_F(ExtensionFieldMerkleTreeMMCSTest, CommitAndVerify) {
   std::vector<math::RowMajorMatrix<F>> matrices = {std::move(matrix)};
   std::array<F, kChunk> commitment;
   Tree prover_data;
-  ASSERT_TRUE(mmcs.Commit(std::move(matrices), &commitment, &prover_data));
+  ASSERT_TRUE(mmcs.CommitOwned(std::move(matrices), &commitment, &prover_data));
 
   EXPECT_EQ(ext_commitment, commitment);
 

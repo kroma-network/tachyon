@@ -82,7 +82,7 @@ class TwoAdicFRI {
                   coset.domain()->offset_inv(),
               /*reverse_at_last=*/false);
         });
-    return mmcs_.Commit(std::move(ldes), commitment, prover_data);
+    return mmcs_.CommitOwned(std::move(ldes), commitment, prover_data);
   }
 
   [[nodiscard]] bool CreateOpeningProof(

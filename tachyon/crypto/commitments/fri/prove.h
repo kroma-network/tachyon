@@ -56,7 +56,7 @@ CommitPhaseResult<PCS> CommitPhase(const FRIConfig<ChallengeMMCS>& config,
 
     Commitment commit;
     ProverData prover_data;
-    CHECK(config.mmcs.Commit(std::move(leaves), &commit, &prover_data));
+    CHECK(config.mmcs.CommitOwned(std::move(leaves), &commit, &prover_data));
     commits.push_back(std::move(commit));
     data.push_back(std::move(prover_data));
 

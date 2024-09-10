@@ -35,9 +35,16 @@ class ExtensionFieldMerkleTreeMMCS final
       ExtensionFieldMerkleTreeMMCS<ExtF, InnerMMCS>>;
 
   [[nodiscard]] bool DoCommit(
-      std::vector<math::RowMajorMatrix<ExtF>>&& matrices,
+      std::vector<Eigen::Map<const math::RowMajorMatrix<ExtF>>>&& matrices,
       Commitment* commitment, ProverData* prover_data) const {
     return inner_.Commit(std::move(matrices), commitment, prover_data);
+  }
+
+  [[nodiscard]] bool DoCommitOwned(
+      std::vector<math::RowMajorMatrix<ExtF>>&& owned_matrices,
+      Commitment* commitment, ProverData* prover_data) const {
+    return inner_.CommitOwned(std::move(owned_matrices), commitment,
+                              prover_data);
   }
 
   const std::vector<Eigen::Map<const math::RowMajorMatrix<ExtF>>>&

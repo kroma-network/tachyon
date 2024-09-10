@@ -213,6 +213,16 @@ std::vector<ExtField> DotExtPowers(const Eigen::MatrixBase<Derived>& mat,
   });
 }
 
+template <typename Derived>
+Eigen::Map<Derived> Map(Eigen::PlainObjectBase<Derived>& mat) {
+  return Eigen::Map<Derived>(mat.data(), mat.rows(), mat.cols());
+}
+
+template <typename Derived>
+Eigen::Map<const Derived> Map(const Eigen::PlainObjectBase<Derived>& mat) {
+  return Eigen::Map<const Derived>(mat.data(), mat.rows(), mat.cols());
+}
+
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_MATRIX_MATRIX_UTILS_H_

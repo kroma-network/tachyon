@@ -45,7 +45,8 @@ class TwoAdicFRIImpl
   void Commit(Commitment* commitment, ProverData** prover_data_out,
               std::vector<std::unique_ptr<ProverData>>* prover_data_by_round) {
     std::unique_ptr<ProverData> prover_data(new ProverData);
-    CHECK(this->mmcs_.Commit(std::move(ldes_), commitment, prover_data.get()));
+    CHECK(this->mmcs_.CommitOwned(std::move(ldes_), commitment,
+                                  prover_data.get()));
     *prover_data_out = prover_data.get();
     prover_data_by_round->push_back(std::move(prover_data));
   }
