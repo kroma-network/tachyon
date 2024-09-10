@@ -111,11 +111,11 @@ class Challenger {
       return v != std::numeric_limits<uint32_t>::max();
     });
     CHECK(it != ret.end());
-    CheckWitness(bits, Field(*it));
+    CHECK(CheckWitness(bits, Field(*it)));
     return Field(*it);
   }
 
-  bool CheckWitness(uint32_t bits, const Field& witness) {
+  [[nodiscard]] bool CheckWitness(uint32_t bits, const Field& witness) {
     Observe(witness);
     return SampleBits(bits) == 0;
   }
