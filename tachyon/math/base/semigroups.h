@@ -355,40 +355,41 @@ class AdditiveSemigroup {
   template <typename Scalar>
   [[nodiscard]] constexpr auto ScalarMul(const Scalar& scalar) const {
     if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
-      const G& g = static_cast<const G&>(*this);
-      switch (scalar) {
-        case 0:
-          return AddResult::Zero();
-        case 1:
-          return g;
-        case 2:
-          return Double();
-        case 3:
-          return Double() + g;
-        case 4:
-          return Double().Double();
-        case 5: {
-          AddResult g4 = Double();
-          g4.DoubleInPlace();
-          return g4 + g;
-        }
-        case 6: {
-          AddResult g2 = Double();
-          AddResult g4 = g2;
-          g4.DoubleInPlace();
-          return g4 + g2;
-        }
-        case 7: {
-          AddResult g2 = Double();
-          AddResult g4 = g2;
-          g4.DoubleInPlace();
-          return g4 + g2 + g;
-        }
-        default:
-          return DoScalarMul(BigInt<1>(scalar));
-      }
+      return DoScalarMul(BigInt<1>(scalar));
     } else {
       return DoScalarMul(scalar.ToBigInt());
+    }
+  }
+
+  template <uint64_t Scalar>
+  [[nodiscard]] constexpr auto ConstScalarMul() const {
+    const G& g = static_cast<const G&>(*this);
+    if constexpr (Scalar == 0)
+      return AddResult::Zero();
+    else if constexpr (Scalar == 1)
+      return g;
+    else if constexpr (Scalar == 2)
+      return Double();
+    else if constexpr (Scalar == 3)
+      return Double() + g;
+    else if constexpr (Scalar == 4)
+      return Double().Double();
+    else if constexpr (Scalar == 5) {
+      AddResult g4 = Double();
+      g4.DoubleInPlace();
+      return g4 + g;
+    } else if constexpr (Scalar == 6) {
+      AddResult g2 = Double();
+      AddResult g4 = g2;
+      g4.DoubleInPlace();
+      return g4 + g2;
+    } else if constexpr (Scalar == 7) {
+      AddResult g2 = Double();
+      AddResult g4 = g2;
+      g4.DoubleInPlace();
+      return g4 + g2 + g;
+    } else {
+      return DoScalarMul(BigInt<1>(Scalar));
     }
   }
 
