@@ -29,7 +29,7 @@ TEST_F(Poseidon2GoldilocksTest, Permute) {
   using F = math::Goldilocks;
   using Params = Poseidon2Params<F, 7, 7>;
 
-  Poseidon2Config<Params> config = Poseidon2Config<Params>::CreateCustom(
+  Poseidon2Config<Params> config = Poseidon2Config<Params>::Create(
       crypto::GetPoseidon2InternalDiagonalArray<Params>());
   Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
                   Params>
@@ -52,7 +52,7 @@ TEST_F(Poseidon2GoldilocksTest, Copyable) {
   using F = math::Goldilocks;
   using Params = Poseidon2Params<F, 7, 7>;
 
-  Poseidon2Config<Params> config = Poseidon2Config<Params>::CreateCustom(
+  Poseidon2Config<Params> config = Poseidon2Config<Params>::Create(
       crypto::GetPoseidon2InternalDiagonalArray<Params>());
   Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
                   Params>
@@ -84,8 +84,8 @@ TEST_F(Poseidon2BabyBearTest, Permute) {
   using F = math::BabyBear;
   using Params = Poseidon2Params<F, 15, 7>;
 
-  Poseidon2Config<Params> config = Poseidon2Config<Params>::CreateCustom(
-      GetPoseidon2InternalShiftArray<Params>());
+  Poseidon2Config<Params> config =
+      Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
   Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
                   Params>
       sponge(std::move(config));
@@ -110,7 +110,7 @@ TEST_F(Poseidon2BabyBearTest, PermutePacked) {
   using PackedParams = Poseidon2Params<PackedF, 15, 7>;
 
   Poseidon2Config<PackedParams> packed_config =
-      Poseidon2Config<PackedParams>::CreateCustom(
+      Poseidon2Config<PackedParams>::Create(
           GetPoseidon2InternalShiftArray<PackedParams>());
   Poseidon2Sponge<
       Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<PackedF>>,
@@ -122,8 +122,8 @@ TEST_F(Poseidon2BabyBearTest, PermutePacked) {
   }
   packed_sponge.Permute(packed_state);
 
-  Poseidon2Config<Params> config = Poseidon2Config<Params>::CreateCustom(
-      GetPoseidon2InternalShiftArray<Params>());
+  Poseidon2Config<Params> config =
+      Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
   Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
                   Params>
       sponge(std::move(config));

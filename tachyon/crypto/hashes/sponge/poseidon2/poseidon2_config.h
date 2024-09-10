@@ -64,7 +64,7 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
       : PoseidonConfigBase<Params>(std::move(base)),
         internal_diagonal_minus_one(std::move(internal_diagonal_minus_one)) {}
 
-  constexpr static Poseidon2Config CreateCustom(
+  constexpr static Poseidon2Config Create(
       const std::array<PrimeField, Params::kWidth>&
           internal_diagonal_minus_one) {
     constexpr Poseidon2ConfigEntry config_entry(Params::kRate, Params::kAlpha,
@@ -84,27 +84,27 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
     return ret;
   }
 
-  constexpr static Poseidon2Config CreateCustom(
+  constexpr static Poseidon2Config Create(
       const std::array<uint8_t, Params::kRate>& internal_shifts) {
     Poseidon2ConfigEntry config_entry(Params::kRate, Params::kAlpha,
                                       Params::kFullRounds,
                                       Params::kPartialRounds);
     math::Matrix<F> ark;
     FindPoseidon2ARK(config_entry.ToPoseidonGrainLFSRConfig<F>(), ark);
-    return CreateCustom(config_entry, internal_shifts, std::move(ark));
+    return Create(config_entry, internal_shifts, std::move(ark));
   }
 
-  constexpr static Poseidon2Config CreateCustom(
+  constexpr static Poseidon2Config Create(
       const std::array<uint8_t, Params::kRate>& internal_shifts,
       math::Matrix<F>&& ark) {
     Poseidon2ConfigEntry config_entry(Params::kRate, Params::kAlpha,
                                       Params::kFullRounds,
                                       Params::kPartialRounds);
-    return CreateCustom(config_entry, internal_shifts, std::move(ark));
+    return Create(config_entry, internal_shifts, std::move(ark));
   }
 
  private:
-  constexpr static Poseidon2Config CreateCustom(
+  constexpr static Poseidon2Config Create(
       const Poseidon2ConfigEntry& config_entry,
       const std::array<uint8_t, Params::kRate>& internal_shifts,
       math::Matrix<F>&& ark) {

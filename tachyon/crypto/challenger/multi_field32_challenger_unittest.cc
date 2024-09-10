@@ -32,7 +32,7 @@ class MultiField32ChallengerTest : public testing::Test {
   }
 
   void SetUp() override {
-    Poseidon2Config<Params> config = Poseidon2Config<Params>::CreateCustom(
+    Poseidon2Config<Params> config = Poseidon2Config<Params>::Create(
         crypto::GetPoseidon2InternalDiagonalArray<Params>());
     Poseidon2 sponge(std::move(config));
     challenger_.reset(new MultiField32Challenger<math::BabyBear, Poseidon2>(

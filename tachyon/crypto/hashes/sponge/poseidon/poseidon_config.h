@@ -95,7 +95,7 @@ struct PoseidonConfig : public PoseidonConfigBase<Params> {
         pre_sparse_mds(std::move(pre_sparse_mds)),
         sparse_mds_matrices(std::move(sparse_mds_matrices)) {}
 
-  constexpr static PoseidonConfig CreateCustom(size_t skip_matrices) {
+  constexpr static PoseidonConfig Create(size_t skip_matrices) {
     PoseidonConfigEntry config_entry(Params::kRate, Params::kAlpha,
                                      Params::kFullRounds,
                                      Params::kPartialRounds, skip_matrices);

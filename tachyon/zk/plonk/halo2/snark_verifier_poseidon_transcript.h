@@ -30,7 +30,7 @@ class SnarkVerifierPoseidonBase {
       : poseidon_(
             // See
             // https://github.com/scroll-tech/snark-verifier/blob/58c46b7/snark-verifier-sdk/src/param.rs#L7-L10.
-            crypto::PoseidonConfig<Params>::CreateCustom(0)) {
+            crypto::PoseidonConfig<Params>::Create(0)) {
     // See
     // https://github.com/scroll-tech/snark-verifier/blob/58c46b7/snark-verifier/src/util/hash/poseidon.rs#L28-L31.
     state_.elements[0] = FromUint128<ScalarField>(absl::uint128(1) << 64);

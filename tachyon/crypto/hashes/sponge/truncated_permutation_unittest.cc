@@ -29,8 +29,8 @@ TEST_F(TruncatedPermutationTest, Hash) {
   constexpr size_t kChunk = 8;
   constexpr size_t kN = 2;
 
-  Poseidon2Config<Params> config = Poseidon2Config<Params>::CreateCustom(
-      GetPoseidon2InternalShiftArray<Params>());
+  Poseidon2Config<Params> config =
+      Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
   Poseidon2 sponge(std::move(config));
   TruncatedPermutation<Poseidon2, kChunk, kN> compressor(std::move(sponge));
   std::vector<std::vector<F>> inputs = base::CreateVector(kN, [](uint32_t i) {

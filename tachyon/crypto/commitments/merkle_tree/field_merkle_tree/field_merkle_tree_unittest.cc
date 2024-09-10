@@ -44,14 +44,14 @@ class FieldMerkleTreeTest : public math::FiniteFieldTest<PackedF> {
   using Params = Poseidon2Params<F, 15, 7>;
   using PackedParams = Poseidon2Params<PackedF, 15, 7>;
   void SetUp() override {
-    Poseidon2Config<Params> config = Poseidon2Config<Params>::CreateCustom(
+    Poseidon2Config<Params> config = Poseidon2Config<Params>::Create(
         GetPoseidon2InternalShiftArray<Params>());
     Poseidon2 sponge(std::move(config));
     hasher_ = MyHasher(sponge);
     compressor_ = MyCompressor(std::move(sponge));
 
     Poseidon2Config<PackedParams> packed_config =
-        Poseidon2Config<PackedParams>::CreateCustom(
+        Poseidon2Config<PackedParams>::Create(
             GetPoseidon2InternalShiftArray<PackedParams>());
     PackedPoseidon2 packed_sponge(std::move(packed_config));
     packed_hasher_ = MyPackedHasher(packed_sponge);

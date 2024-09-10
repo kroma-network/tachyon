@@ -66,14 +66,14 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,
   }
 
   crypto::Poseidon2Config<Params> config =
-      crypto::Poseidon2Config<Params>::CreateCustom(
+      crypto::Poseidon2Config<Params>::Create(
           crypto::GetPoseidon2InternalShiftArray<Params>(), std::move(ark));
   Poseidon2 sponge(std::move(config));
   Hasher hasher(sponge);
   Compressor compressor(std::move(sponge));
 
   crypto::Poseidon2Config<PackedParams> packed_config =
-      crypto::Poseidon2Config<PackedParams>::CreateCustom(
+      crypto::Poseidon2Config<PackedParams>::Create(
           crypto::GetPoseidon2InternalShiftArray<PackedParams>(),
           std::move(packed_ark));
   PackedPoseidon2 packed_sponge(std::move(packed_config));

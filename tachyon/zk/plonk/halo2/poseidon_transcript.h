@@ -39,7 +39,7 @@ class PoseidonBase {
       : poseidon_(
             // See
             // https://github.com/kroma-network/halo2/blob/7d0a369/halo2_proofs/src/transcript/poseidon.rs#L28.
-            crypto::PoseidonConfig<Params>::CreateCustom(0)) {
+            crypto::PoseidonConfig<Params>::Create(0)) {
     // See
     // https://github.com/kroma-network/poseidon/blob/00a2fe0/src/spec.rs#L15.
     state_.elements[0] = FromUint128<ScalarField>(absl::uint128(1) << 64);

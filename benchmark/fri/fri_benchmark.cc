@@ -80,14 +80,14 @@ void Run(const FRIConfig& config) {
   ExtPackedF::Init();
 
   crypto::Poseidon2Config<Params> poseidon2_config =
-      crypto::Poseidon2Config<Params>::CreateCustom(
+      crypto::Poseidon2Config<Params>::Create(
           crypto::GetPoseidon2InternalShiftArray<Params>());
   Poseidon2 sponge(std::move(poseidon2_config));
   MyHasher hasher(sponge);
   MyCompressor compressor(std::move(sponge));
 
   crypto::Poseidon2Config<PackedParams> packed_config =
-      crypto::Poseidon2Config<PackedParams>::CreateCustom(
+      crypto::Poseidon2Config<PackedParams>::Create(
           crypto::GetPoseidon2InternalShiftArray<PackedParams>());
   PackedPoseidon2 packed_sponge(std::move(packed_config));
   MyPackedHasher packed_hasher(packed_sponge);
