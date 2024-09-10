@@ -26,6 +26,21 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Free up space on linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          df -h
+          rm -rf /usr/share/dotnet/
+          rm -rf /opt/hostedtoolcache
+          df -h
+
+      - name: Free up space on macos
+        if: matrix.os == 'macos-latest-xlarge'
+        run: |
+          df -h
+          sudo rm -rf ~/Library/Caches/*
+          df -h
+
       - name: Checkout code
         uses: actions/checkout@v4
 
