@@ -118,10 +118,10 @@ class Radix2EvaluationDomain
     ReverseMatrixIndexBits(mat);
   }
 
-  template <typename Derived>
-  CONSTEXPR_IF_NOT_OPENMP RowMajorMatrix<F> CosetLDEBatch(
+  template <typename Derived, typename Derived2>
+  CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
       Eigen::MatrixBase<Derived>& mat, size_t added_bits, F shift,
-      bool reverse_at_last = true) const {
+      Eigen::MatrixBase<Derived2>& out, bool reverse_at_last = true) const {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -162,15 +162,13 @@ class Radix2EvaluationDomain
                                          this->log_size_of_group_)) *= weight;
     });
 
-    RowMajorMatrix<F> ret;
     if (added_bits == 0) {
-      ret = mat;
+      out = mat;
     } else {
-      ret = RowMajorMatrix<F>(this->size_ << added_bits, mat.cols());
-      ExpandWithZeroPad(mat, added_bits, ret);
+      ExpandWithZeroPad(mat, added_bits, out);
     }
 
-    size_t rows = static_cast<size_t>(ret.rows());
+    size_t rows = static_cast<size_t>(out.rows());
     uint32_t log_size_of_group = base::bits::CheckedLog2(rows);
     auto domain =
         absl::WrapUnique(new Radix2EvaluationDomain(rows, log_size_of_group));
@@ -178,17 +176,16 @@ class Radix2EvaluationDomain
         Radix2TwiddleCache<F>::GetItem(domain.get(), /*packed_vec_only=*/true);
 
     // The first half looks like a normal DIT.
-    domain->RunParallelRowChunks(ret, domain->cache_->roots_vec.back(),
+    domain->RunParallelRowChunks(out, domain->cache_->roots_vec.back(),
                                  domain->cache_->packed_roots_vec[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
-    ReverseMatrixIndexBits(ret);
-    domain->RunParallelRowChunksReversed(ret, domain->cache_->rev_roots_vec,
+    ReverseMatrixIndexBits(out);
+    domain->RunParallelRowChunksReversed(out, domain->cache_->rev_roots_vec,
                                          domain->cache_->packed_roots_vec[1]);
     if (reverse_at_last) {
-      ReverseMatrixIndexBits(ret);
+      ReverseMatrixIndexBits(out);
     }
-    return ret;
   }
 
  private:

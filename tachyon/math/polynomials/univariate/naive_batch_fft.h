@@ -57,29 +57,27 @@ class NaiveBatchFFT : public TwoAdicSubgroup<NaiveBatchFFT<F>> {
   }
 
   // Compute the low-degree extension of each column in |mat| onto a coset of
-  // a larger subgroup.
+  // a larger subgroup and populate |out| with the result.
   template <typename Derived>
-  RowMajorMatrix<F> CosetLDEBatch(Eigen::MatrixBase<Derived>& mat,
-                                  size_t added_bits, F shift) const {
+  void CosetLDEBatch(Eigen::MatrixBase<Derived>& mat, size_t added_bits,
+                     F shift, Eigen::MatrixBase<Derived>& out) const {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
     }
-    this->IFFTBatch(mat);
     Eigen::Index rows = mat.rows();
     Eigen::Index new_rows = rows << added_bits;
-    Eigen::Index cols = mat.cols();
+    CHECK_EQ(out.rows(), new_rows);
+    CHECK_EQ(out.cols(), mat.cols());
+    this->IFFTBatch(mat);
 
-    // Possible crash if the new resized length overflows
-    RowMajorMatrix<F> ret(new_rows, cols);
     OMP_PARALLEL_FOR(Eigen::Index row = 0; row < new_rows; ++row) {
       if (row < rows) {
-        ret.row(row) = mat.row(row);
+        out.row(row) = mat.row(row);
       } else {
-        ret.row(row).setZero();
+        out.row(row).setZero();
       }
     }
-    CosetFFTBatch(ret, shift);
-    return ret;
+    CosetFFTBatch(out, shift);
   }
 
  private:
