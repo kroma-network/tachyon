@@ -33,9 +33,9 @@ class TwoAdicFRIImpl
   template <typename Derived>
   absl::Span<F> CosetLDEBatch(Eigen::MatrixBase<Derived>&& matrix, F shift) {
     Domain coset = this->GetNaturalDomainForDegree(matrix.rows());
-    tachyon::math::RowMajorMatrix<F> lde(matrix.rows() << this->fri_.log_blowup,
-                                         matrix.cols());
-    coset.domain()->CosetLDEBatch(std::move(matrix), this->fri_.log_blowup,
+    tachyon::math::RowMajorMatrix<F> lde(
+        matrix.rows() << this->config_.log_blowup, matrix.cols());
+    coset.domain()->CosetLDEBatch(std::move(matrix), this->config_.log_blowup,
                                   shift, lde,
                                   /*reverse_at_last=*/false);
     absl::Span<F> ret(lde.data(), lde.size());

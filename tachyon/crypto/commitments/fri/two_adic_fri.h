@@ -63,8 +63,8 @@ class TwoAdicFRI {
   using OpenedValues = std::vector<OpenedValuesForRound>;
 
   TwoAdicFRI() = default;
-  TwoAdicFRI(InputMMCS&& mmcs, FRIConfig<ChallengeMMCS>&& fri)
-      : mmcs_(std::move(mmcs)), fri_(std::move(fri)) {}
+  TwoAdicFRI(InputMMCS&& mmcs, FRIConfig<ChallengeMMCS>&& config)
+      : mmcs_(std::move(mmcs)), config_(std::move(config)) {}
 
   Domain GetNaturalDomainForDegree(size_t size) {
     uint32_t log_n = base::bits::CheckedLog2(size);
@@ -79,10 +79,10 @@ class TwoAdicFRI {
         base::Map(cosets, [this, &matrices](size_t i, const Domain& coset) {
           math::RowMajorMatrix<F>& mat = matrices[i];
           CHECK_EQ(coset.domain()->size(), static_cast<size_t>(mat.rows()));
-          math::RowMajorMatrix<F> lde(mat.rows() << fri_.log_blowup,
+          math::RowMajorMatrix<F> lde(mat.rows() << config_.log_blowup,
                                       mat.cols());
           coset.domain()->CosetLDEBatch(
-              std::move(mat), fri_.log_blowup,
+              std::move(mat), config_.log_blowup,
               F::FromMontgomery(F::Config::kSubgroupGenerator) *
                   coset.domain()->offset_inv(),
               lde, /*reverse_at_last=*/false);
@@ -147,7 +147,7 @@ class TwoAdicFRI {
         CHECK_EQ(reduced_opening_for_log_num_rows.size(), num_rows);
 
         math::RowMajorMatrix<F> block =
-            mat.topRows(num_rows >> fri_.log_blowup);
+            mat.topRows(num_rows >> config_.log_blowup);
         ReverseMatrixIndexBits(block);
         std::vector<ExtF> reduced_rows = DotExtPowers(mat, alpha);
 
@@ -192,7 +192,7 @@ class TwoAdicFRI {
 
     *opened_values_out = std::move(opened_values);
     *proof = fri::Prove<TwoAdicFRI>(
-        fri_, std::move(fri_input), challenger,
+        config_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();
           return base::CreateVector(
@@ -227,9 +227,9 @@ class TwoAdicFRI {
     const ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
     uint32_t log_global_max_num_rows =
-        proof.commit_phase_commits.size() + fri_.log_blowup;
+        proof.commit_phase_commits.size() + config_.log_blowup;
     return fri::Verify(
-        fri_, proof, challenger,
+        config_, proof, challenger,
         [this, alpha, log_global_max_num_rows, &commits_by_round,
          &domains_by_round, &points_by_round, &opened_values_by_round](
             size_t index, const InputProof& input_proof,
@@ -259,7 +259,8 @@ class TwoAdicFRI {
                 vals_size,
                 [this, &batch_max_num_rows, &domains](size_t batch_idx) {
                   const Domain& domain = domains[batch_idx];
-                  size_t num_rows = domain.domain()->size() << fri_.log_blowup;
+                  size_t num_rows = domain.domain()->size()
+                                    << config_.log_blowup;
                   batch_max_num_rows = std::max(batch_max_num_rows, num_rows);
                   return math::Dimensions{0, num_rows};
                 });
@@ -281,7 +282,7 @@ class TwoAdicFRI {
               const std::vector<ExtF> cur_values_in = base::Map(
                   opened_values_in[batch_idx], [](F f) { return ExtF(f); });
               uint32_t log_num_rows =
-                  domain.domain()->log_size_of_group() + fri_.log_blowup;
+                  domain.domain()->log_size_of_group() + config_.log_blowup;
               uint32_t bits_reduced = log_global_max_num_rows - log_num_rows;
               uint32_t rev_reduced_index = base::bits::ReverseBitsLen(
                   index >> bits_reduced, log_num_rows);
@@ -433,7 +434,7 @@ class TwoAdicFRI {
   }
 
   InputMMCS mmcs_;
-  FRIConfig<ChallengeMMCS> fri_;
+  FRIConfig<ChallengeMMCS> config_;
 };
 
 }  // namespace crypto
