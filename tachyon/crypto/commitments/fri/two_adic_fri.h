@@ -66,6 +66,8 @@ class TwoAdicFRI {
   TwoAdicFRI(InputMMCS&& mmcs, FRIConfig<ChallengeMMCS>&& config)
       : mmcs_(std::move(mmcs)), config_(std::move(config)) {}
 
+  const FRIConfig<ChallengeMMCS>& config() const { return config_; }
+
   Domain GetNaturalDomainForDegree(size_t size) {
     uint32_t log_n = base::bits::CheckedLog2(size);
     return Domain(log_n, F::One());

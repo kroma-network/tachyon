@@ -118,18 +118,18 @@ class Radix2EvaluationDomain
     ReverseMatrixIndexBits(mat);
   }
 
-  template <typename Derived, typename Derived2>
+  template <typename Derived>
   CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
       const Eigen::MatrixBase<Derived>& mat, size_t added_bits, F shift,
-      Eigen::MatrixBase<Derived2>& out, bool reverse_at_last = true) const {
+      Eigen::MatrixBase<Derived>& out, bool reverse_at_last = true) const {
     Derived mat_tmp = mat;
     CosetLDEBatch(std::move(mat_tmp), added_bits, shift, out);
   }
 
-  template <typename Derived, typename Derived2>
+  template <typename Derived>
   CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
       Eigen::MatrixBase<Derived>&& mat, size_t added_bits, F shift,
-      Eigen::MatrixBase<Derived2>& out, bool reverse_at_last = true) const {
+      Eigen::MatrixBase<Derived>& out, bool reverse_at_last = true) const {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -456,10 +456,10 @@ class Radix2EvaluationDomain
   // moving values from row |i| to row |i|^(|added_bits|). All new entries are
   // set to |F::Zero()|.
   // Note that it crashes if the |added_bits| is zero.
-  template <typename Derived, typename Derived2>
+  template <typename Derived>
   CONSTEXPR_IF_NOT_OPENMP static void ExpandWithZeroPad(
       Eigen::MatrixBase<Derived>& mat, size_t added_bits,
-      Eigen::MatrixBase<Derived2>& out) {
+      Eigen::MatrixBase<Derived>& out) {
     CHECK_GT(added_bits, size_t{0});
 
     Eigen::Index new_rows = mat.rows() << added_bits;

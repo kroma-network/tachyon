@@ -22,25 +22,20 @@ class TwoAdicFRIImpl
   using Commitment = typename Base::Commitment;
   using ProverData = typename Base::ProverData;
   using Domain = typename Base::Domain;
-  using OpeningPoints = typename Base::OpeningPoints;
-  using OpenedValues = typename Base::OpenedValues;
-  using FRIProof = typename Base::FRIProof;
 
   using Base::Base;
 
   void AllocateLDEs(size_t size) { ldes_.reserve(size); }
 
-  template <typename Derived>
-  absl::Span<F> CosetLDEBatch(Eigen::MatrixBase<Derived>&& matrix, F shift) {
+  void CosetLDEBatch(Eigen::Map<tachyon::math::RowMajorMatrix<F>>&& matrix,
+                     F shift,
+                     Eigen::Map<tachyon::math::RowMajorMatrix<F>>& lde) {
     Domain coset = this->GetNaturalDomainForDegree(matrix.rows());
-    tachyon::math::RowMajorMatrix<F> lde(
-        matrix.rows() << this->config_.log_blowup, matrix.cols());
     coset.domain()->CosetLDEBatch(std::move(matrix), this->config_.log_blowup,
                                   shift, lde,
                                   /*reverse_at_last=*/false);
-    absl::Span<F> ret(lde.data(), lde.size());
-    ldes_.push_back(std::move(lde));
-    return ret;
+    ldes_.push_back(Eigen::Map<const tachyon::math::RowMajorMatrix<F>>(
+        lde.data(), lde.rows(), lde.cols()));
   }
 
   using Base::Commit;
@@ -48,14 +43,13 @@ class TwoAdicFRIImpl
   void Commit(Commitment* commitment, ProverData** prover_data_out,
               std::vector<std::unique_ptr<ProverData>>* prover_data_by_round) {
     std::unique_ptr<ProverData> prover_data(new ProverData);
-    CHECK(this->mmcs_.CommitOwned(std::move(ldes_), commitment,
-                                  prover_data.get()));
+    CHECK(this->mmcs_.Commit(std::move(ldes_), commitment, prover_data.get()));
     *prover_data_out = prover_data.get();
     prover_data_by_round->push_back(std::move(prover_data));
   }
 
  protected:
-  std::vector<math::RowMajorMatrix<F>> ldes_;
+  std::vector<Eigen::Map<const tachyon::math::RowMajorMatrix<F>>> ldes_;
 };
 
 }  // namespace tachyon::c::crypto

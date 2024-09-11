@@ -157,8 +157,9 @@ pub mod ffi {
             &self,
             values: &mut [TachyonBabyBear],
             cols: usize,
+            extended_values: &mut [TachyonBabyBear],
             shift: &TachyonBabyBear,
-        ) -> &mut [TachyonBabyBear];
+        );
         fn commit(&self, prover_data_vec: &ProverDataVec) -> UniquePtr<ProverData>;
         fn do_open(
             &self,
@@ -572,6 +573,7 @@ impl<Val> ProverDataVec<Val> {
 
 pub struct TwoAdicFriPcs<Val, Dft, InputMmcs, FriMmcs> {
     log_n: usize,
+    log_blowup: usize,
     inner: cxx::UniquePtr<ffi::TwoAdicFriPcs>,
     prover_data_vec: ProverDataVec<Val>,
     _marker: PhantomData<(Val, Dft, InputMmcs, FriMmcs)>,
@@ -593,6 +595,7 @@ where
     ) -> TwoAdicFriPcs<Val, Dft, InputMmcs, FriMmcs> {
         Self {
             log_n,
+            log_blowup: fri_config.log_blowup,
             inner: ffi::new_two_adic_fri_pcs(
                 fri_config.log_blowup,
                 fri_config.num_queries,
@@ -610,21 +613,16 @@ where
     pub fn coset_lde_batch(
         &self,
         evals: &mut RowMajorMatrix<Val>,
+        extended_evals: &mut RowMajorMatrix<Val>,
         shift: Val,
-    ) -> RowMajorMatrix<Val> {
+    ) {
         unsafe {
-            let data = self.inner.coset_lde_batch(
+            self.inner.coset_lde_batch(
                 std::mem::transmute(evals.values.as_mut_slice()),
                 evals.width,
+                std::mem::transmute(extended_evals.values.as_mut_slice()),
                 std::mem::transmute(&shift),
             );
-
-            let vec = Vec::from_raw_parts(
-                std::mem::transmute(data.as_mut_ptr()),
-                data.len(),
-                data.len(),
-            );
-            RowMajorMatrix::new(vec, evals.width)
         }
     }
 
@@ -706,7 +704,9 @@ where
         for (domain, mut evals) in evaluations.into_iter() {
             assert_eq!(domain.size(), evals.height());
             let shift = Val::generator() / domain.shift;
-            ldes.push(self.coset_lde_batch(&mut evals, shift));
+            let mut lde = RowMajorMatrix::default(evals.width(), evals.height() << self.log_blowup);
+            self.coset_lde_batch(&mut evals, &mut lde, shift);
+            ldes.push(lde);
         }
         let mut prover_data = self.do_commit();
         prover_data.ldes = ldes;

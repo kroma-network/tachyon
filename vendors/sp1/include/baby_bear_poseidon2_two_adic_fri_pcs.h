@@ -34,9 +34,9 @@ class TwoAdicFriPcs {
   ~TwoAdicFriPcs();
 
   void allocate_ldes(size_t size) const;
-  rust::Slice<TachyonBabyBear> coset_lde_batch(
-      rust::Slice<TachyonBabyBear> values, size_t cols,
-      const TachyonBabyBear& shift) const;
+  void coset_lde_batch(rust::Slice<TachyonBabyBear> values, size_t cols,
+                       rust::Slice<TachyonBabyBear> extended_values,
+                       const TachyonBabyBear& shift) const;
   std::unique_ptr<ProverData> commit(
       const ProverDataVec& prover_data_vec) const;
   std::unique_ptr<OpeningProof> do_open(const ProverDataVec& prover_data_vec,

@@ -183,8 +183,5 @@ mod test {
         assert!(tachyon_pcs
             .verify(rounds, &tachyon_proof, &mut tachyon_challenger_for_verify)
             .is_ok());
-
-        // TODO(chokobole): `std::mem::forget` was used to prevent it from double-free. We need to figure out a more elegant solution.
-        std::mem::forget(tachyon_data_by_round);
     }
 }
