@@ -41,21 +41,22 @@ CommitPhaseResult<PCS> CommitPhase(const FRIConfig<ChallengeMMCS>& config,
   data.reserve(total_folds);
 
   while (folded.size() > config.Blowup()) {
-    math::RowMajorMatrix<ExtF> leaves((folded.size() + 1) / 2, 2);
+    std::vector<math::RowMajorMatrix<ExtF>> leaves;
+    leaves.emplace_back((folded.size() + 1) / 2, 2);
     base::Parallelize(
         folded,
         [&leaves](absl::Span<ExtF> chunk, size_t chunk_offset,
                   size_t chunk_size) {
           size_t chunk_start = chunk_offset * chunk_size;
           for (size_t i = chunk_start; i < chunk_start + chunk.size(); ++i) {
-            leaves(i / 2, i % 2) = std::move(chunk[i - chunk_start]);
+            leaves[0](i / 2, i % 2) = std::move(chunk[i - chunk_start]);
           }
         },
         kThreshold);
 
     Commitment commit;
     ProverData prover_data;
-    CHECK(config.mmcs.Commit({std::move(leaves)}, &commit, &prover_data));
+    CHECK(config.mmcs.Commit(std::move(leaves), &commit, &prover_data));
     commits.push_back(std::move(commit));
     data.push_back(std::move(prover_data));
 
@@ -122,7 +123,8 @@ template <typename PCS, typename ExtF, typename ChallengeMMCS,
           typename F = typename math::ExtensionFieldTraits<ExtF>::BaseField>
 FRIProof<PCS> Prove(const FRIConfig<ChallengeMMCS>& config,
                     std::vector<std::vector<ExtF>>&& inputs,
-                    Challenger& challenger, OpenInputCallback open_input) {
+                    Challenger& challenger, OpenInputCallback open_input,
+                    std::optional<F> pow_witness_for_testing = std::nullopt) {
   using QueryProof = QueryProof<PCS>;
 
 #if DCHECK_IS_ON()
@@ -137,7 +139,8 @@ FRIProof<PCS> Prove(const FRIConfig<ChallengeMMCS>& config,
   uint32_t log_max_num_rows = base::bits::CheckedLog2(inputs[0].size());
   CommitPhaseResult<PCS> commit_phase_result =
       CommitPhase<PCS>(config, std::move(inputs), challenger);
-  F pow_witness = challenger.Grind(config.proof_of_work_bits);
+  F pow_witness =
+      challenger.Grind(config.proof_of_work_bits, pow_witness_for_testing);
   VLOG(2) << "FRI(pow): " << pow_witness.ToHexString(true);
 
   std::vector<QueryProof> query_proofs = base::CreateVector(

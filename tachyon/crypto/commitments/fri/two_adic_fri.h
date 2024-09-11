@@ -38,12 +38,14 @@ class TwoAdicFRIImpl;
 
 namespace crypto {
 
-template <typename ExtF, typename _InputMMCS, typename _ChallengeMMCS,
-          typename Challenger>
+template <typename _ExtF, typename _InputMMCS, typename _ChallengeMMCS,
+          typename _Challenger>
 class TwoAdicFRI {
  public:
+  using ExtF = _ExtF;
   using InputMMCS = _InputMMCS;
   using ChallengeMMCS = _ChallengeMMCS;
+  using Challenger = _Challenger;
 
   using F = typename math::ExtensionFieldTraits<ExtF>::BaseField;
   using Domain = TwoAdicMultiplicativeCoset<F>;
@@ -74,14 +76,11 @@ class TwoAdicFRI {
     TRACE_EVENT("ProofGeneration", "TwoAdicFRI::Commit");
     std::vector<math::RowMajorMatrix<F>> ldes =
         base::Map(cosets, [this, &matrices](size_t i, const Domain& coset) {
-          math::RowMajorMatrix<F>& mat = matrices[i];
-          CHECK_EQ(coset.domain()->size(), static_cast<size_t>(mat.rows()));
-          math::RowMajorMatrix<F> ret = coset.domain()->CosetLDEBatch(
-              mat, fri_.log_blowup,
+          return coset.domain()->CosetLDEBatch(
+              matrices[i], fri_.log_blowup,
               F::FromMontgomery(F::Config::kSubgroupGenerator) *
-                  coset.domain()->offset_inv());
-          ReverseMatrixIndexBits(ret);
-          return ret;
+                  coset.domain()->offset_inv(),
+              /*reverse_at_last=*/false);
         });
     return mmcs_.Commit(std::move(ldes), commitment, prover_data);
   }
@@ -89,7 +88,8 @@ class TwoAdicFRI {
   [[nodiscard]] bool CreateOpeningProof(
       const std::vector<ProverData>& prover_data_by_round,
       const OpeningPoints& points_by_round, Challenger& challenger,
-      OpenedValues* opened_values_out, FRIProof* proof) const {
+      OpenedValues* opened_values_out, FRIProof* proof,
+      std::optional<F> pow_witness_for_testing = std::nullopt) const {
     TRACE_EVENT("ProofGeneration", "TwoAdicFRI::CreateOpeningProof");
     ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
@@ -136,40 +136,40 @@ class TwoAdicFRI {
         std::vector<ExtF>& reduced_opening_for_log_num_rows =
             reduced_openings[log_num_rows];
         CHECK_EQ(reduced_opening_for_log_num_rows.size(), num_rows);
+
+        math::RowMajorMatrix<F> block =
+            mat.topRows(num_rows >> fri_.log_blowup);
+        ReverseMatrixIndexBits(block);
+        std::vector<ExtF> reduced_rows = DotExtPowers(mat, alpha);
+
         // TODO(ashjeong): Determine if using a matrix is a better fit.
-        opened_values_for_round[matrix_idx] = base::CreateVector(
-            points[matrix_idx].size(),
-            [this, matrix_idx, num_rows, num_cols, log_num_rows, &points, &mat,
-             &alpha, &num_reduced, &inv_denoms,
-             &reduced_opening_for_log_num_rows](size_t point_idx) {
-              const ExtF& point = points[matrix_idx][point_idx];
-              math::RowMajorMatrix<F> block =
-                  mat.topRows(num_rows >> fri_.log_blowup);
-              ReverseMatrixIndexBits(block);
-              std::vector<ExtF> ys = InterpolateCoset(
-                  block, F::FromMontgomery(F::Config::kSubgroupGenerator),
-                  point);
-              const ExtF alpha_pow_offset =
-                  alpha.Pow(num_reduced[log_num_rows]);
-              ExtF alpha_pow = ExtF::One();
-              ExtF reduced_ys = ExtF::Zero();
-              for (size_t c = 0; c < num_cols - 1; ++c) {
-                reduced_ys += alpha_pow * ys[c];
-                alpha_pow *= alpha;
-              }
-              reduced_ys += alpha_pow * ys[num_cols - 1];
-              std::vector<ExtF> reduced_rows = DotExtPowers(mat, alpha);
-              const std::vector<ExtF>& inv_denom = inv_denoms[point];
-              OMP_PARALLEL_FOR(size_t i = 0;
-                               i < reduced_opening_for_log_num_rows.size();
-                               ++i) {
-                reduced_opening_for_log_num_rows[i] +=
-                    alpha_pow_offset * (reduced_rows[i] - reduced_ys) *
-                    inv_denom[i];
-              }
-              num_reduced[log_num_rows] += num_cols;
-              return ys;
-            });
+        opened_values_for_round[matrix_idx].reserve(points[matrix_idx].size());
+        for (size_t point_idx = 0; point_idx < points[matrix_idx].size();
+             ++point_idx) {
+          const ExtF& point = points[matrix_idx][point_idx];
+          std::vector<ExtF> ys = InterpolateCoset(
+              block, F::FromMontgomery(F::Config::kSubgroupGenerator), point);
+
+          ExtF alpha_pow = ExtF::One();
+          ExtF reduced_ys = ExtF::Zero();
+          for (size_t c = 0; c < num_cols - 1; ++c) {
+            reduced_ys += alpha_pow * ys[c];
+            alpha_pow *= alpha;
+          }
+          reduced_ys += alpha_pow * ys[num_cols - 1];
+
+          const ExtF alpha_pow_offset = alpha.Pow(num_reduced[log_num_rows]);
+          num_reduced[log_num_rows] += num_cols;
+
+          const std::vector<ExtF>& inv_denom = inv_denoms[point];
+          OMP_PARALLEL_FOR(size_t i = 0;
+                           i < reduced_opening_for_log_num_rows.size(); ++i) {
+            reduced_opening_for_log_num_rows[i] +=
+                alpha_pow_offset * (reduced_rows[i] - reduced_ys) *
+                inv_denom[i];
+          }
+          opened_values_for_round[matrix_idx].emplace_back(std::move(ys));
+        }
       }
       opened_values[round] = std::move(opened_values_for_round);
     }
@@ -202,7 +202,8 @@ class TwoAdicFRI {
                 return BatchOpening<TwoAdicFRI>{std::move(openings),
                                                 std::move(proof)};
               });
-        });
+        },
+        pow_witness_for_testing);
     return true;
   }
 

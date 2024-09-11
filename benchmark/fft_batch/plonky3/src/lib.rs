@@ -41,7 +41,9 @@ pub extern "C" fn run_coset_lde_batch_plonky3_baby_bear(
 
     let start = Instant::now();
     let shift = BabyBear::zero();
-    let dft_result = dft.coset_lde_batch(messages, 0, shift).to_row_major_matrix();
+    let dft_result = dft
+        .coset_lde_batch(messages, 0, shift)
+        .to_row_major_matrix();
     unsafe {
         duration.write(start.elapsed().as_micros() as u64);
     }

@@ -6,8 +6,8 @@ use p3_challenger::{CanObserve, DuplexChallenger, FieldChallenger};
 use p3_commit::{ExtensionMmcs, Pcs, PolynomialSpace};
 use p3_dft::Radix2DitParallel;
 use p3_field::extension::BinomialExtensionField;
-use p3_field::{AbstractField, ExtensionField, Field};
-use p3_fri::{FriConfig, TwoAdicFriPcs};
+use p3_field::{AbstractExtensionField, AbstractField, ExtensionField, Field};
+use p3_fri::{FriConfig, TwoAdicFriPcs, TwoAdicFriPcsProof};
 use p3_matrix::dense::RowMajorMatrix;
 use p3_merkle_tree::FieldMerkleTreeMmcs;
 use p3_poseidon2::{Poseidon2, Poseidon2ExternalMatrixHL};
@@ -83,60 +83,100 @@ fn get_pcs(log_blowup: usize, log_n: usize) -> (MyPcs, Challenger) {
     (pcs, Challenger::new(perm.clone()))
 }
 
-fn do_test_fri<Val, Challenge, Challenger, P>(
-    (pcs, _challenger): &(P, Challenger),
-    degrees: Vec<usize>,
-    data: Vec<RowMajorMatrix<Val>>,
+fn do_test_fri<Challenger, P>(
+    (pcs, challenger): &(P, Challenger),
+    degrees_by_round: Vec<Vec<usize>>,
+    data: *const Val,
+    batch_size: usize,
     duration: *mut u64,
 ) -> *mut CppBabyBear
 where
     P: Pcs<Challenge, Challenger>,
     P::Domain: PolynomialSpace<Val = Val>,
-    Val: Field,
     Challenge: ExtensionField<Val>,
+    P: Pcs<
+        Challenge,
+        Challenger,
+        Proof = TwoAdicFriPcsProof<Val, Challenge, ValMmcs, ChallengeMmcs>,
+    >,
     Challenger: Clone + CanObserve<P::Commitment> + FieldChallenger<Val>,
     <P as Pcs<Challenge, Challenger>>::Commitment: Debug,
 {
-    let domains: Vec<_> = degrees
+    let num_rounds = degrees_by_round.len();
+    let mut p_challenger = challenger.clone();
+
+    let domains_and_polys_by_round: Vec<Vec<_>> = degrees_by_round
         .iter()
-        .map(|&degree| pcs.natural_domain_for_degree(degree))
+        .enumerate()
+        .map(|(r, degrees)| {
+            degrees
+                .iter()
+                .map(|&degree| {
+                    let size = degree * batch_size;
+                    let values: Vec<Val> = unsafe {
+                        std::slice::from_raw_parts(data.add(r) as *mut Val, size).to_vec()
+                    };
+                    (
+                        pcs.natural_domain_for_degree(degree),
+                        RowMajorMatrix::<Val>::new(values, batch_size),
+                    )
+                })
+                .collect()
+        })
         .collect();
-    let domains_and_polys: Vec<(P::Domain, RowMajorMatrix<Val>)> =
-        domains.into_iter().zip(data.into_iter()).collect();
 
     let start = Instant::now();
-    let (commit, _data) = pcs.commit(domains_and_polys);
+    let (commits_by_round, data_by_round): (Vec<_>, Vec<_>) = domains_and_polys_by_round
+        .iter()
+        .map(|domains_and_polys| pcs.commit(domains_and_polys.clone()))
+        .unzip();
+    assert_eq!(commits_by_round.len(), num_rounds);
+    assert_eq!(data_by_round.len(), num_rounds);
+    p_challenger.observe_slice(&commits_by_round);
+
+    let zeta: Challenge = p_challenger.sample_ext_element();
+
+    let points_by_round: Vec<_> = degrees_by_round
+        .iter()
+        .map(|log_degrees| vec![vec![zeta]; log_degrees.len()])
+        .collect();
+    let data_and_points = data_by_round.iter().zip(points_by_round).collect();
+    let (_opening_by_round, proof) = pcs.open(data_and_points, &mut p_challenger);
     unsafe {
         duration.write(start.elapsed().as_micros() as u64);
     }
-    Box::into_raw(Box::new(commit)) as *mut CppBabyBear
+
+    let mut ret_values: [Val; 5] = [Val::zero(); 5];
+    ret_values[0] = proof.fri_proof.pow_witness;
+    ret_values[1..].copy_from_slice(proof.fri_proof.final_poly.as_base_slice());
+    Box::into_raw(Box::new(ret_values)) as *mut CppBabyBear
 }
 
 #[no_mangle]
 pub extern "C" fn run_fri_plonky3_baby_bear(
     data: *const BabyBear,
-    raw_degrees: *const usize,
-    num_of_degrees: usize,
+    input_num: usize,
+    round_num: usize,
+    max_degree: usize,
     batch_size: usize,
     log_blowup: u32,
     duration: *mut u64,
 ) -> *mut CppBabyBear {
-    let degrees =
-        unsafe { std::slice::from_raw_parts(raw_degrees as *mut usize, num_of_degrees).to_vec() };
-
-    let (pcs, challenger) = get_pcs(
-        log_blowup as usize,
-        log2_strict_usize(*degrees.last().unwrap()),
-    );
-
-    let polys: Vec<RowMajorMatrix<Val>> = degrees
-        .iter()
-        .map(|&degree| {
-            let size = degree * batch_size;
-            let values: Vec<BabyBear> =
-                unsafe { std::slice::from_raw_parts(data as *mut BabyBear, size).to_vec() };
-            RowMajorMatrix::<BabyBear>::new(values, batch_size)
+    let degrees_by_round: Vec<Vec<usize>> = (0..round_num)
+        .map(|r| {
+            (0..input_num)
+                .map(|i| max_degree >> (r + i))
+                .collect::<Vec<_>>()
         })
         .collect();
-    do_test_fri(&(pcs, challenger), degrees, polys, duration)
+
+    let (pcs, challenger) = get_pcs(log_blowup as usize, log2_strict_usize(max_degree));
+
+    do_test_fri(
+        &(pcs, challenger),
+        degrees_by_round,
+        data,
+        batch_size,
+        duration,
+    )
 }

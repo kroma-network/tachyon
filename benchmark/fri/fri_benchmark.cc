@@ -29,13 +29,13 @@
 namespace tachyon::benchmark {
 
 extern "C" tachyon_baby_bear* run_fri_plonky3_baby_bear(
-    const tachyon_baby_bear* data, const size_t* raw_degrees,
-    size_t num_of_degrees, size_t batch_size, uint32_t log_blowup,
+    const tachyon_baby_bear* data, size_t input_num, size_t round_num,
+    size_t max_degree, size_t batch_size, uint32_t log_blowup,
     uint64_t* duration);
 
-template <typename Commitment>
-void CheckResult(bool check_results, const Commitment& tachyon_result,
-                 const Commitment& vendor_result) {
+template <typename Result>
+void CheckResult(bool check_results, const Result& tachyon_result,
+                 const Result& vendor_result) {
   if (check_results) {
     CHECK_EQ(tachyon_result, vendor_result) << "Results not matched";
   }
@@ -76,7 +76,7 @@ void Run(const FRIConfig& config) {
   using Challenger = crypto::DuplexChallenger<Poseidon2, kRate>;
   using MyPCS = crypto::TwoAdicFRI<ExtF, MMCS, ChallengeMMCS, Challenger>;
 
-  PackedF::Init();
+  ExtF::Init();
   ExtPackedF::Init();
 
   auto poseidon2_config = crypto::Poseidon2Config<Params>::Create(
@@ -99,6 +99,7 @@ void Run(const FRIConfig& config) {
   crypto::FRIConfig<ChallengeMMCS> fri_config{config.log_blowup(), 10, 8,
                                               challenge_mmcs};
   MyPCS pcs = MyPCS(std::move(mmcs), std::move(fri_config));
+  Challenger challenger = Challenger(std::move(sponge));
 
   SimpleReporter reporter;
   std::string name;
@@ -110,7 +111,7 @@ void Run(const FRIConfig& config) {
       config.exponents(),
       [](uint32_t exponent) { return base::NumberToString(exponent); }));
 
-  FRIRunner runner(reporter, config, pcs);
+  FRIRunner runner(reporter, config, pcs, challenger);
 
   std::vector<size_t> degrees = config.GetDegrees();
 
@@ -123,16 +124,17 @@ void Run(const FRIConfig& config) {
     math::RowMajorMatrix<F> input =
         math::RowMajorMatrix<F>::Random(degree, config.batch_size());
 
-    F tachyon_commit = runner.Run(Vendor::Tachyon(), input);
+    ExtF tachyon_result, vendor_result;
     for (const Vendor vendor : config.vendors()) {
       if (vendor.value() == Vendor::kPlonky3) {
-        F vendor_commit =
+        vendor_result =
             runner.RunExternal(vendor, run_fri_plonky3_baby_bear, input);
-        CheckResult(config.check_results(), tachyon_commit, vendor_commit);
       } else {
         NOTREACHED();
       }
     }
+    tachyon_result = runner.Run(Vendor::Tachyon(), input);
+    CheckResult(config.check_results(), tachyon_result, vendor_result);
   }
 
   reporter.Show();

@@ -20,6 +20,7 @@ class FRIConfig : public Config {
   const std::vector<uint32_t>& exponents() const { return exponents_; }
   size_t batch_size() const { return batch_size_; }
   size_t input_num() const { return input_num_; }
+  size_t round_num() const { return round_num_; }
   uint32_t log_blowup() const { return log_blowup_; }
 
   std::vector<size_t> GetDegrees() const;
@@ -32,6 +33,7 @@ class FRIConfig : public Config {
   std::vector<uint32_t> exponents_;
   size_t batch_size_;
   size_t input_num_;
+  size_t round_num_;
   uint32_t log_blowup_;
 };
 
