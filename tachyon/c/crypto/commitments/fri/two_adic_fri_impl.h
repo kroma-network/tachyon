@@ -54,25 +54,6 @@ class TwoAdicFRIImpl
     prover_data_by_round->push_back(std::move(prover_data));
   }
 
-  void CreateOpeningProof(
-      const std::vector<std::unique_ptr<ProverData>>& prover_data_by_round_in,
-      const OpeningPoints& points_by_round, Challenger& challenger,
-      OpenedValues* opened_values_by_round, FRIProof* proof) const {
-    auto& prover_data_by_round =
-        const_cast<std::vector<std::unique_ptr<ProverData>>&>(
-            prover_data_by_round_in);
-    std::vector<ProverData> prover_data_by_round_tmp = tachyon::base::Map(
-        prover_data_by_round, [](std::unique_ptr<ProverData>& prover_data) {
-          return ProverData(std::move(*prover_data));
-        });
-    CHECK(Base::CreateOpeningProof(prover_data_by_round_tmp, points_by_round,
-                                   challenger, opened_values_by_round, proof));
-    prover_data_by_round = tachyon::base::Map(
-        prover_data_by_round_tmp, [](ProverData& prover_data) {
-          return std::make_unique<ProverData>(std::move(prover_data));
-        });
-  }
-
  protected:
   std::vector<math::RowMajorMatrix<F>> ldes_;
 };

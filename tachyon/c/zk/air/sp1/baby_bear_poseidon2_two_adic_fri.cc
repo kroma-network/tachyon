@@ -131,7 +131,7 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
     tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger,
     tachyon_sp1_baby_bear_poseidon2_opened_values** opened_values,
     tachyon_sp1_baby_bear_poseidon2_fri_proof** proof) {
-  c::base::native_cast(pcs)->CreateOpeningProof(
+  CHECK(c::base::native_cast(pcs)->CreateOpeningProof(
       c::base::native_cast(*prover_data_by_round),
       c::base::native_cast(*points_by_round), c::base::native_cast(*challenger),
       c::base::native_cast(
@@ -139,7 +139,7 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
               *opened_values)),
       c::base::native_cast(
           reinterpret_cast<tachyon_sp1_baby_bear_poseidon2_fri_proof*>(
-              *proof)));
+              *proof))));
 }
 
 bool tachyon_sp1_baby_bear_poseidon2_two_adic_fri_verify(

@@ -94,7 +94,7 @@ class TwoAdicFRITest : public testing::Test {
     size_t num_rounds = log_degrees_by_round.size();
     std::vector<std::vector<Domain>> domains_by_round(num_rounds);
     std::vector<Commitment> commits_by_round(num_rounds);
-    std::vector<ProverData> data_by_round(num_rounds);
+    std::vector<std::unique_ptr<ProverData>> data_by_round(num_rounds);
     Challenger p_challenger = challenger_;
     for (size_t round = 0; round < num_rounds; ++round) {
       const std::vector<uint32_t>& log_degrees = log_degrees_by_round[round];
@@ -107,8 +107,10 @@ class TwoAdicFRITest : public testing::Test {
         inner_domains[i] = pcs_.GetNaturalDomainForDegree(rows);
         inner_polys[i] = math::RowMajorMatrix<F>::Random(rows, cols);
       }
+      data_by_round[round].reset(new ProverData());
       ASSERT_TRUE(pcs_.Commit(inner_domains, inner_polys,
-                              &commits_by_round[round], &data_by_round[round]));
+                              &commits_by_round[round],
+                              data_by_round[round].get()));
       domains_by_round[round] = std::move(inner_domains);
     }
     p_challenger.ObserveContainer2D(commits_by_round);

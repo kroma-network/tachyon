@@ -7,6 +7,7 @@
 #define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_H_
 
 #include <algorithm>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -91,7 +92,7 @@ class TwoAdicFRI {
   }
 
   [[nodiscard]] bool CreateOpeningProof(
-      const std::vector<ProverData>& prover_data_by_round,
+      const std::vector<std::unique_ptr<ProverData>>& prover_data_by_round,
       const OpeningPoints& points_by_round, Challenger& challenger,
       OpenedValues* opened_values_out, FRIProof* proof,
       std::optional<F> pow_witness_for_testing = std::nullopt) const {
@@ -104,10 +105,11 @@ class TwoAdicFRI {
     std::vector<absl::Span<const Eigen::Map<const math::RowMajorMatrix<F>>>>
         matrices_by_round = base::Map(
             prover_data_by_round,
-            [this, &global_max_num_rows](const ProverData& prover_data) {
+            [this, &global_max_num_rows](
+                const std::unique_ptr<ProverData>& prover_data) {
               global_max_num_rows = std::max(global_max_num_rows,
-                                             mmcs_.GetMaxRowSize(prover_data));
-              return absl::MakeConstSpan(mmcs_.GetMatrices(prover_data));
+                                             mmcs_.GetMaxRowSize(*prover_data));
+              return absl::MakeConstSpan(mmcs_.GetMatrices(*prover_data));
             });
     uint32_t log_global_max_num_rows =
         base::bits::CheckedLog2(global_max_num_rows);
@@ -198,7 +200,7 @@ class TwoAdicFRI {
                            &prover_data_by_round](size_t round) {
                 Proof proof;
                 std::vector<std::vector<F>> openings;
-                const ProverData& prover_data = prover_data_by_round[round];
+                const ProverData& prover_data = *prover_data_by_round[round];
                 uint32_t log_max_num_rows =
                     base::bits::CheckedLog2(mmcs_.GetMaxRowSize(prover_data));
                 uint32_t bits_reduced =
