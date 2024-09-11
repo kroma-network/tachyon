@@ -1,0 +1,18 @@
+name: Delete Cache
+
+on:
+  pull_request:
+    branches: ["closed"]
+
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        # get the ref key
+        ref_key="refs/pull/${{ github.event.pull_request.number }}/merge"
+
+        # delete cache
+        gh cache list --ref $ref_key --limit 100 | cut -f 1 | xargs -n1 gh cache delete
+      continue-on-error: true
