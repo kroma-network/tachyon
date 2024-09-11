@@ -54,7 +54,7 @@ WARNING: On Mac M3, tests beyond degree 24 are not feasible due to memory constr
 ### CosetLDEBatch
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 --vendor plonky3 -p baby_bear --run_coset_lde --check_results
+bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 --vendor plonky3 -p baby_bear --run_coset_lde --check_results
 ```
 
 WARNING: On Mac M3, tests beyond degree 24 are not feasible due to memory constraints.
@@ -63,24 +63,24 @@ WARNING: On Mac M3, tests beyond degree 24 are not feasible due to memory constr
 
 | Exponent | Tachyon      | Plonky3  |
 | :------- | ------------ | -------- |
-| 20       | **0.241410** | 0.396681 |
-| 21       | **0.480885** | 0.794424 |
-| 22       | **0.978230** | 1.60685  |
-| 23       | **2.005920** | 3.48347  |
-| 24       | **4.615940** | 7.89591  |
-| 25       | **12.62420** | 22.158   |
-| 26       | **35.45570** | 56.9609  |
+| 20       | **0.414096** | 0.783275 |
+| 21       | **0.828539** | 1.47701  |
+| 22       | **1.784080** | 3.06198  |
+| 23       | **3.673930** | 6.49181  |
+| 24       | **9.325390** | 16.2383  |
+| 25       | **25.66560** | 41.3335  |
 
 ![image](/benchmark/fft_batch/coset_lde_batch_benchmark_ubuntu_i9.png)
 
 #### On Mac M3 Pro
 
-| Exponent | Tachyon   | Plonky3      |
-| :------- | --------- | ------------ |
-| 20       | 0.269538  | **0.204846** |
-| 21       | 0.543247  | **0.414618** |
-| 22       | 1.15925   | **0.877114** |
-| 23       | 2.43017   | **1.835210** |
-| 24       | 6.89016   | **4.846630** |
+| Exponent | Tachyon      | Plonky3      |
+| :------- | ------------ | ------------ |
+| 18       | 0.100942     | **0.086087** |
+| 19       | 0.214471     | **0.182212** |
+| 20       | 0.481229     | **0.359246** |
+| 21       | **0.981806** | 1.518190     |
+| 22       | 3.86094      | **3.244580** |
+| 23       | 7.50879      | **6.052250** |
 
 ![image](/benchmark/fft_batch/coset_lde_batch_benchmark_mac_m3.png)
