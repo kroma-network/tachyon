@@ -12,14 +12,14 @@ namespace tachyon::c::base {
 
 template <>
 struct TypeTraits<std::vector<
-    Eigen::Map<tachyon::math::RowMajorMatrix<tachyon::math::BabyBear>>>> {
+    Eigen::Map<const tachyon::math::RowMajorMatrix<tachyon::math::BabyBear>>>> {
   using CType = tachyon_sp1_baby_bear_poseidon2_lde_vec;
 };
 
 template <>
 struct TypeTraits<tachyon_sp1_baby_bear_poseidon2_lde_vec> {
   using NativeType =
-      std::vector<Eigen::Map<math::RowMajorMatrix<math::BabyBear>>>;
+      std::vector<Eigen::Map<const math::RowMajorMatrix<math::BabyBear>>>;
 };
 
 }  // namespace tachyon::c::base

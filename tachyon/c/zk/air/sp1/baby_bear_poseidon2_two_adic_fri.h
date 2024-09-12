@@ -20,6 +20,7 @@
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_vec.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_fri_proof.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_lde_vec.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_opened_values.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_opening_points.h"
 
@@ -51,16 +52,6 @@ TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_destroy(
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs);
 
 /**
- * @brief Allocates internal memory required for storing low-degree extensions.
- *
- * @param pcs A pointer to the two adic fri.
- * @param size The number of evaluations.
- */
-TACHYON_C_EXPORT void
-tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(
-    tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs, size_t size);
-
-/**
  * @brief Compute the low-degree extension of each column of the matrix onto a
  * coset of a larger subgroup.
  *
@@ -79,16 +70,17 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
     tachyon_baby_bear* extended_values, tachyon_baby_bear shift);
 
 /**
- * @brief Commits to the mixed matrix created by
- * tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch.
+ * @brief Commits to the lde vector.
  *
  * @param pcs A pointer to the two adic fri.
+ * @param lde_vec A pointer to the lde vector.
  * @param commitment A pointer to store the commitment.
  * @param prover_data A pointer to store the field merkle tree.
  * @param prover_data_vec A pointer to the field merkle tree vector.
  */
 TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
+    tachyon_sp1_baby_bear_poseidon2_lde_vec* lde_vec,
     tachyon_baby_bear* commitment,
     tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data,
     tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* prover_data_vec);

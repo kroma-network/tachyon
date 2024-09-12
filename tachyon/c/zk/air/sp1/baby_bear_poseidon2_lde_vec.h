@@ -39,13 +39,13 @@ TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_lde_vec_destroy(
  * @brief Adds lde.
  *
  * @param lde_vec A pointer to the lde vector.
- * @param lde A pointer to the values.
+ * @param lde A const pointer to the lde.
  * @param rows The number of the rows.
  * @param cols The number of the cols.
  */
 TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_lde_vec_add(
-    tachyon_sp1_baby_bear_poseidon2_lde_vec* lde_vec, tachyon_baby_bear* values,
-    size_t rows, size_t cols);
+    tachyon_sp1_baby_bear_poseidon2_lde_vec* lde_vec,
+    const tachyon_baby_bear* lde, size_t rows, size_t cols);
 
 #ifdef __cplusplus
 }  // extern "C"

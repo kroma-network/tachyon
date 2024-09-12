@@ -171,6 +171,7 @@ tachyon_cc_library(
         ":baby_bear_poseidon2_duplex_challenger",
         ":baby_bear_poseidon2_field_merkle_tree",
         ":baby_bear_poseidon2_field_merkle_tree_vec",
+        ":baby_bear_poseidon2_lde_vec",
         ":baby_bear_poseidon2_opened_values",
         ":baby_bear_poseidon2_opening_points",
         "//tachyon/c:export",

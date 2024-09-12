@@ -8,7 +8,8 @@
 
 using namespace tachyon;
 
-using LDEVec = std::vector<Eigen::Map<math::RowMajorMatrix<math::BabyBear>>>;
+using LDEVec =
+    std::vector<Eigen::Map<const math::RowMajorMatrix<math::BabyBear>>>;
 
 tachyon_sp1_baby_bear_poseidon2_lde_vec*
 tachyon_sp1_baby_bear_poseidon2_lde_vec_create() {
@@ -21,9 +22,9 @@ void tachyon_sp1_baby_bear_poseidon2_lde_vec_destroy(
 }
 
 void tachyon_sp1_baby_bear_poseidon2_lde_vec_add(
-    tachyon_sp1_baby_bear_poseidon2_lde_vec* lde_vec, tachyon_baby_bear* values,
-    size_t rows, size_t cols) {
+    tachyon_sp1_baby_bear_poseidon2_lde_vec* lde_vec,
+    const tachyon_baby_bear* lde, size_t rows, size_t cols) {
   c::base::native_cast(*lde_vec).push_back(
-      Eigen::Map<math::RowMajorMatrix<math::BabyBear>>(
-          c::base::native_cast(values), rows, cols));
+      Eigen::Map<const math::RowMajorMatrix<math::BabyBear>>(
+          c::base::native_cast(lde), rows, cols));
 }

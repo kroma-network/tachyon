@@ -75,6 +75,15 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("vendors/sp1/include/baby_bear_poseidon2_lde_vec.h");
+
+        type LDEVec;
+
+        fn new_lde_vec() -> UniquePtr<LDEVec>;
+        fn add(self: Pin<&mut LDEVec>, values: &[TachyonBabyBear], cols: usize);
+    }
+
+    unsafe extern "C++" {
         include!("vendors/sp1/include/baby_bear_poseidon2_opened_values.h");
 
         type OpenedValues;
@@ -152,7 +161,6 @@ pub mod ffi {
             num_queries: usize,
             proof_of_work_bits: usize,
         ) -> UniquePtr<TwoAdicFriPcs>;
-        fn allocate_ldes(&self, size: usize);
         fn coset_lde_batch(
             &self,
             values: &mut [TachyonBabyBear],
@@ -160,7 +168,11 @@ pub mod ffi {
             extended_values: &mut [TachyonBabyBear],
             shift: &TachyonBabyBear,
         );
-        fn commit(&self, prover_data_vec: &ProverDataVec) -> UniquePtr<ProverData>;
+        fn commit(
+            &self,
+            lde_vec: Pin<&mut LDEVec>,
+            prover_data_vec: &ProverDataVec,
+        ) -> UniquePtr<ProverData>;
         fn do_open(
             &self,
             prover_data_vec: &ProverDataVec,
@@ -427,6 +439,26 @@ impl FriProof {
     }
 }
 
+pub struct LDEVec<Val> {
+    inner: cxx::UniquePtr<ffi::LDEVec>,
+    _marker: PhantomData<Val>,
+}
+
+impl<Val> LDEVec<Val> {
+    pub fn new(inner: cxx::UniquePtr<ffi::LDEVec>) -> Self {
+        Self {
+            inner,
+            _marker: PhantomData,
+        }
+    }
+
+    pub fn add(&mut self, values: &[Val], cols: usize) {
+        self.inner
+            .pin_mut()
+            .add(unsafe { std::mem::transmute(values) }, cols)
+    }
+}
+
 pub struct OpenedValues<Val> {
     inner: cxx::UniquePtr<ffi::OpenedValues>,
     _marker: PhantomData<Val>,
@@ -606,10 +638,6 @@ where
         }
     }
 
-    pub fn allocate_ldes(&self, size: usize) {
-        self.inner.allocate_ldes(size)
-    }
-
     pub fn coset_lde_batch(
         &self,
         evals: &mut RowMajorMatrix<Val>,
@@ -626,8 +654,17 @@ where
         }
     }
 
-    pub fn do_commit(&self) -> ProverData<Val> {
-        ProverData::new(self.inner.commit(&self.prover_data_vec.inner))
+    pub fn do_commit(&self, ldes: Vec<DenseMatrix<Val>>) -> ProverData<Val> {
+        let mut lde_vec = LDEVec::new(ffi::new_lde_vec());
+        for lde in ldes.iter() {
+            lde_vec.add(lde.values.as_slice(), lde.width);
+        }
+        let mut prover_data = ProverData::new(
+            self.inner
+                .commit(lde_vec.inner.pin_mut(), &self.prover_data_vec.inner),
+        );
+        prover_data.ldes = ldes;
+        prover_data
     }
 
     pub fn do_open<Challenge>(
@@ -699,7 +736,6 @@ where
         &self,
         evaluations: Vec<(Self::Domain, RowMajorMatrix<Val>)>,
     ) -> (Self::Commitment, Self::ProverData) {
-        self.allocate_ldes(evaluations.len());
         let mut ldes = vec![];
         for (domain, mut evals) in evaluations.into_iter() {
             assert_eq!(domain.size(), evals.height());
@@ -708,8 +744,7 @@ where
             self.coset_lde_batch(&mut evals, &mut lde, shift);
             ldes.push(lde);
         }
-        let mut prover_data = self.do_commit();
-        prover_data.ldes = ldes;
+        let prover_data = self.do_commit(ldes);
         let mut value = [<<Val as Field>::Packing as PackedValue>::Value::default(); 8];
         prover_data.write_commit(unsafe { std::mem::transmute(value.as_mut_slice()) });
         (Self::Commitment::from(value), prover_data)

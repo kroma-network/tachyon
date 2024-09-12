@@ -25,8 +25,6 @@ class TwoAdicFRIImpl
 
   using Base::Base;
 
-  void AllocateLDEs(size_t size) { ldes_.reserve(size); }
-
   void CosetLDEBatch(Eigen::Map<tachyon::math::RowMajorMatrix<F>>&& matrix,
                      F shift,
                      Eigen::Map<tachyon::math::RowMajorMatrix<F>>& lde) {
@@ -34,22 +32,19 @@ class TwoAdicFRIImpl
     coset.domain()->CosetLDEBatch(std::move(matrix), this->config_.log_blowup,
                                   shift, lde,
                                   /*reverse_at_last=*/false);
-    ldes_.push_back(Eigen::Map<const tachyon::math::RowMajorMatrix<F>>(
-        lde.data(), lde.rows(), lde.cols()));
   }
 
   using Base::Commit;
 
-  void Commit(Commitment* commitment, ProverData** prover_data_out,
-              std::vector<std::unique_ptr<ProverData>>* prover_data_by_round) {
+  void Commit(
+      std::vector<Eigen::Map<const tachyon::math::RowMajorMatrix<F>>>&& ldes,
+      Commitment* commitment, ProverData** prover_data_out,
+      std::vector<std::unique_ptr<ProverData>>* prover_data_by_round) {
     std::unique_ptr<ProverData> prover_data(new ProverData);
-    CHECK(this->mmcs_.Commit(std::move(ldes_), commitment, prover_data.get()));
+    CHECK(this->mmcs_.Commit(std::move(ldes), commitment, prover_data.get()));
     *prover_data_out = prover_data.get();
     prover_data_by_round->push_back(std::move(prover_data));
   }
-
- protected:
-  std::vector<Eigen::Map<const tachyon::math::RowMajorMatrix<F>>> ldes_;
 };
 
 }  // namespace tachyon::c::crypto

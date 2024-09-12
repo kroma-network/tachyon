@@ -19,6 +19,7 @@ tachyon_rust_library(
         ":baby_bear_poseidon2_domains",
         ":baby_bear_poseidon2_duplex_challenger",
         ":baby_bear_poseidon2_fri_proof",
+        ":baby_bear_poseidon2_lde_vec",
         ":baby_bear_poseidon2_opened_values",
         ":baby_bear_poseidon2_opening_points",
         ":baby_bear_poseidon2_opening_proof",
@@ -72,6 +73,7 @@ tachyon_cc_library(
         "include/baby_bear_poseidon2_domains.h",
         "include/baby_bear_poseidon2_duplex_challenger.h",
         "include/baby_bear_poseidon2_fri_proof.h",
+        "include/baby_bear_poseidon2_lde_vec.h",
         "include/baby_bear_poseidon2_opened_values.h",
         "include/baby_bear_poseidon2_opening_points.h",
         "include/baby_bear_poseidon2_opening_proof.h",
@@ -116,6 +118,15 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "baby_bear_poseidon2_fri_proof",
     srcs = ["src/baby_bear_poseidon2_fri_proof.cc"],
+    deps = [
+        ":baby_bear_poseidon2_api_hdrs",
+        ":baby_bear_poseidon2_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "baby_bear_poseidon2_lde_vec",
+    srcs = ["src/baby_bear_poseidon2_lde_vec.cc"],
     deps = [
         ":baby_bear_poseidon2_api_hdrs",
         ":baby_bear_poseidon2_cxx_bridge/include",
