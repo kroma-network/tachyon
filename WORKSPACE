@@ -42,11 +42,6 @@ load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository")
 
 crates_repository(
     name = "crate_index",
-    annotations = {
-        "sp1-prover": [crate.annotation(
-            data = ["elf/riscv32im-succinct-zkvm-elf"],
-        )],
-    },
     cargo_lockfile = "//:Cargo.lock",
     lockfile = "//:Cargo.Bazel.lock",
     manifests = [

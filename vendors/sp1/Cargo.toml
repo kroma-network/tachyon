@@ -34,8 +34,6 @@ serde = { version = "1.0", default-features = false, features = [
   "alloc",
 ] }
 sp1-core = { git = "https://github.com/kroma-network/sp1.git", rev = "dd032eb" }
-sp1-prover = { git = "https://github.com/kroma-network/sp1.git", rev = "dd032eb" }
-sp1-primitives = { git = "https://github.com/kroma-network/sp1.git", rev = "dd032eb" }
 tracing = "0.1.37"
 tachyon_rs = { path = "../../tachyon/rs" }
 

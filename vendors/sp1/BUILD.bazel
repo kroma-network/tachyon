@@ -45,7 +45,6 @@ tachyon_rust_test(
     aliases = aliases(),
     crate = ":sp1",
     crate_features = FEATURES,
-    data = ["src/tests/fibonacci/elf/riscv32im-succinct-zkvm-elf"],
     proc_macro_deps = all_crate_deps(proc_macro_dev = True),
     deps = all_crate_deps(normal_dev = True) + [
         ":openmp",
