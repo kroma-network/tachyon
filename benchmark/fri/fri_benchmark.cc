@@ -83,7 +83,7 @@ void Run(const FRIConfig& config) {
       crypto::GetPoseidon2InternalShiftArray<Params>());
   Poseidon2 sponge(std::move(poseidon2_config));
   MyHasher hasher(sponge);
-  MyCompressor compressor(std::move(sponge));
+  MyCompressor compressor(sponge);
 
   auto packed_config = crypto::Poseidon2Config<PackedParams>::Create(
       crypto::GetPoseidon2InternalShiftArray<PackedParams>());
