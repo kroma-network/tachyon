@@ -1,7 +1,5 @@
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_commitment_vec.h"
 
-#include <string.h>
-
 #include <array>
 #include <vector>
 
