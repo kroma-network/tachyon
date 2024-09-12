@@ -116,7 +116,7 @@ For more information on our Commit Message Format, see [here](https://github.com
 
 ### Naming
 
-- If your gpu-based programs can be run independent to GPU vendors, please name them `Gpu`, not `Cuda` or `ROCm`.
+- If your gpu-based programs can be run independently to GPU vendors, please name them `Gpu`, not `Cuda` or `ROCm`.
 
 ### File Suffixes
 

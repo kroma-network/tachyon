@@ -34,7 +34,7 @@ Choose the [prime field generator](/tachyon/math/finite_fields/generator/prime_f
    - `small_subgroup_adicity`: Refers to the largest adicity $a$ (the exponent of the base) of a small subgroup such that $b^a$ is a divisor of $T$.
      - _Note_: Large FFT prime fields can construct a larger domain than FFT prime fields through a small subgroup. Given `small_subgroup_base` = $b$ and `small_subgroup_adicity` = $a$, if $b^a$ is a divisor of $T$ and $g^{2^s * T} = 1 \mod p$, then $(g^{T/b^a})^{2^s*b^a} = 1 \mod p$. This manipulation enables a domain size up to $b^a$ times larger than the maximum domain size of $2^s$ that general FFT prime fields can create. Additionally, the $n$-th root of unity is now $\omega = g^{2^{s-k} * T/b^{a-q}}$, where $n = 2^k * b^{a-q} (k \le s, q \le a)$ since $\omega$ satisfies $\omega^{2^k * b^{a-q}} = (g^{2^{s-k} * T/b^{a-q}})^{2^k * b^{a-q}} = 1 \mod p$.
 
-For instance, to implement a FFT prime field, create a directory (`/tachyon/math/finite_fields/<new_prime_field>`) and add a `BUILD.bazel` file as shown below:
+For instance, to implement an FFT prime field, create a directory (`/tachyon/math/finite_fields/<new_prime_field>`) and add a `BUILD.bazel` file as shown below:
 
 ```bazel
 # /tachyon/math/finite_fields/<new_prime_field>/BUILD.bazel

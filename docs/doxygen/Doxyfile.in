@@ -80,7 +80,7 @@ OUTPUT_DIRECTORY       = ${TACHYON_BINARY_DIR}/docs/doxygen
 # sub-directories (in 2 levels) under the output directory of each output format
 # and will distribute the generated files over these directories. Enabling this
 # option can be useful when feeding doxygen a huge amount of source files, where
-# putting all generated files in the same directory would otherwise causes
+# putting all generated files in the same directory would otherwise cause
 # performance problems for the file system. Adapt CREATE_SUBDIRS_LEVEL to
 # control the number of sub-directories.
 # The default value is: NO.
@@ -196,7 +196,7 @@ STRIP_FROM_PATH        =
 # path mentioned in the documentation of a class, which tells the reader which
 # header file to include in order to use a class. If left blank only the name of
 # the header file containing the class definition is used. Otherwise one should
-# specify the list of include paths that are normally passed to the compiler
+# specify the list of included paths that are normally passed to the compiler
 # using the -I flag.
 
 STRIP_FROM_INC_PATH    =
@@ -242,7 +242,7 @@ QT_AUTOBRIEF           = NO
 # tag to YES if you prefer the old behavior instead.
 #
 # Note that setting this tag to YES also means that rational rose comments are
-# not recognized any more.
+# not recognized anymore.
 # The default value is: NO.
 
 MULTILINE_CPP_IS_BRIEF = NO
