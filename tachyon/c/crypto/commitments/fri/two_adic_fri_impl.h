@@ -31,11 +31,12 @@ class TwoAdicFRIImpl
   void AllocateLDEs(size_t size) { ldes_.reserve(size); }
 
   template <typename Derived>
-  absl::Span<F> CosetLDEBatch(Eigen::MatrixBase<Derived>& matrix, F shift) {
+  absl::Span<F> CosetLDEBatch(Eigen::MatrixBase<Derived>&& matrix, F shift) {
     Domain coset = this->GetNaturalDomainForDegree(matrix.rows());
     tachyon::math::RowMajorMatrix<F> lde(matrix.rows() << this->fri_.log_blowup,
                                          matrix.cols());
-    coset.domain()->CosetLDEBatch(matrix, this->fri_.log_blowup, shift, lde,
+    coset.domain()->CosetLDEBatch(std::move(matrix), this->fri_.log_blowup,
+                                  shift, lde,
                                   /*reverse_at_last=*/false);
     absl::Span<F> ret(lde.data(), lde.size());
     ldes_.push_back(std::move(lde));

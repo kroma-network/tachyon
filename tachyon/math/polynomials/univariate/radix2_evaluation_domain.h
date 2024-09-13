@@ -120,7 +120,15 @@ class Radix2EvaluationDomain
 
   template <typename Derived, typename Derived2>
   CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
-      Eigen::MatrixBase<Derived>& mat, size_t added_bits, F shift,
+      const Eigen::MatrixBase<Derived>& mat, size_t added_bits, F shift,
+      Eigen::MatrixBase<Derived2>& out, bool reverse_at_last = true) const {
+    Derived mat_tmp = mat;
+    CosetLDEBatch(std::move(mat_tmp), added_bits, shift, out);
+  }
+
+  template <typename Derived, typename Derived2>
+  CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
+      Eigen::MatrixBase<Derived>&& mat, size_t added_bits, F shift,
       Eigen::MatrixBase<Derived2>& out, bool reverse_at_last = true) const {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {

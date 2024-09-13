@@ -81,7 +81,7 @@ class TwoAdicFRI {
           math::RowMajorMatrix<F> lde(mat.rows() << fri_.log_blowup,
                                       mat.cols());
           coset.domain()->CosetLDEBatch(
-              mat, fri_.log_blowup,
+              std::move(mat), fri_.log_blowup,
               F::FromMontgomery(F::Config::kSubgroupGenerator) *
                   coset.domain()->offset_inv(),
               lde, /*reverse_at_last=*/false);

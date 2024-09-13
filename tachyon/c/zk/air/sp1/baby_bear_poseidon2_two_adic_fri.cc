@@ -107,7 +107,7 @@ tachyon_baby_bear* tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
                                              static_cast<Eigen::Index>(rows),
                                              static_cast<Eigen::Index>(cols));
   absl::Span<F> ret = c::base::native_cast(pcs)->CosetLDEBatch(
-      matrix, c::base::native_cast(shift));
+      std::move(matrix), c::base::native_cast(shift));
   *new_rows = ret.size() / cols;
   return c::base::c_cast(ret.data());
 }

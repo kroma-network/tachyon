@@ -59,7 +59,14 @@ class NaiveBatchFFT : public TwoAdicSubgroup<NaiveBatchFFT<F>> {
   // Compute the low-degree extension of each column in |mat| onto a coset of
   // a larger subgroup and populate |out| with the result.
   template <typename Derived>
-  void CosetLDEBatch(Eigen::MatrixBase<Derived>& mat, size_t added_bits,
+  void CosetLDEBatch(const Eigen::MatrixBase<Derived>& mat, size_t added_bits,
+                     F shift, Eigen::MatrixBase<Derived>& out) const {
+    Derived mat_tmp = mat;
+    CosetLDEBatch(std::move(mat_tmp), added_bits, shift, out);
+  }
+
+  template <typename Derived>
+  void CosetLDEBatch(Eigen::MatrixBase<Derived>&& mat, size_t added_bits,
                      F shift, Eigen::MatrixBase<Derived>& out) const {
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();

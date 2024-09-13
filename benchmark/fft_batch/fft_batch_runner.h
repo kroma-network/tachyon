@@ -38,10 +38,9 @@ class FFTBatchRunner {
     base::TimeTicks start = base::TimeTicks::Now();
     if (run_coset_lde) {
       const size_t kAddedBits = 1;
-      math::RowMajorMatrix<F> input_tmp = input;
       result =
           math::RowMajorMatrix<F>(input.rows() << kAddedBits, input.cols());
-      domain->CosetLDEBatch(input_tmp, kAddedBits,
+      domain->CosetLDEBatch(input, kAddedBits,
                             F::FromMontgomery(F::Config::kSubgroupGenerator),
                             result);
     } else {
