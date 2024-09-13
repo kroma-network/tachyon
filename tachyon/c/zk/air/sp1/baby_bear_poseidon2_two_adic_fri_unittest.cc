@@ -37,7 +37,7 @@ class TwoAdicFRITest : public testing::Test {
         tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(kLogBlowup, 10, 8);
     lde_vec_ = tachyon_sp1_baby_bear_poseidon2_lde_vec_create();
     prover_data_vec_ =
-        tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_create();
+        tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_create(kRounds);
     opening_points_ =
         tachyon_sp1_baby_bear_poseidon2_opening_points_create(kRounds);
     challenger_ = tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create();
@@ -109,8 +109,10 @@ TEST_F(TwoAdicFRITest, APIs) {
       kExtendedRowsForInput, kColsForInput);
   tachyon_baby_bear commitment[TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_CHUNK];
   tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* prover_data = nullptr;
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
-      pcs_, lde_vec_, commitment, &prover_data, prover_data_vec_);
+  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(pcs_, lde_vec_,
+                                                      commitment, &prover_data);
+  tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_set(prover_data_vec_, 0,
+                                                            prover_data);
 
   Commitment native_commitment;
   ProverData native_prover_data;

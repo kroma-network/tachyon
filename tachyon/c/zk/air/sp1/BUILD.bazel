@@ -99,11 +99,13 @@ tachyon_cc_library(
     ],
     deps = [
         ":baby_bear_poseidon2_constants",
+        ":baby_bear_poseidon2_field_merkle_tree",
         "//tachyon/base/containers:container_util",
         "//tachyon/c:export",
         "//tachyon/c/base:type_traits_forward",
         "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree",
         "//tachyon/math/finite_fields/baby_bear",
+        "@com_google_absl//absl/debugging:leak_check",
     ],
 )
 

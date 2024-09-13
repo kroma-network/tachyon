@@ -76,14 +76,12 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
  * @param lde_vec A pointer to the lde vector.
  * @param commitment A pointer to store the commitment.
  * @param prover_data A pointer to store the field merkle tree.
- * @param prover_data_vec A pointer to the field merkle tree vector.
  */
 TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
     tachyon_sp1_baby_bear_poseidon2_lde_vec* lde_vec,
     tachyon_baby_bear* commitment,
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data,
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* prover_data_vec);
+    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data);
 
 /**
  * @brief Creates an opening proof with prover data and points.

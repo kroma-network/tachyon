@@ -115,13 +115,11 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
     tachyon_sp1_baby_bear_poseidon2_lde_vec* lde_vec,
     tachyon_baby_bear* commitment,
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data,
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* prover_data_vec) {
+    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data) {
   using Commitment = MMCS::Commitment;
   c::base::native_cast(pcs)->Commit(std::move(c::base::native_cast(*lde_vec)),
                                     reinterpret_cast<Commitment*>(commitment),
-                                    reinterpret_cast<Tree**>(prover_data),
-                                    c::base::native_cast(prover_data_vec));
+                                    reinterpret_cast<Tree**>(prover_data));
 }
 
 void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
@@ -132,7 +130,7 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
     tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger,
     tachyon_sp1_baby_bear_poseidon2_opened_values** opened_values,
     tachyon_sp1_baby_bear_poseidon2_fri_proof** proof) {
-  CHECK(c::base::native_cast(pcs)->CreateOpeningProof(
+  c::base::native_cast(pcs)->CreateOpeningProof(
       c::base::native_cast(*prover_data_by_round),
       c::base::native_cast(*points_by_round), c::base::native_cast(*challenger),
       c::base::native_cast(
@@ -140,7 +138,7 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
               *opened_values)),
       c::base::native_cast(
           reinterpret_cast<tachyon_sp1_baby_bear_poseidon2_fri_proof*>(
-              *proof))));
+              *proof)));
 }
 
 bool tachyon_sp1_baby_bear_poseidon2_two_adic_fri_verify(

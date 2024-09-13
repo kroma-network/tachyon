@@ -25,13 +25,11 @@ void TwoAdicFriPcs::coset_lde_batch(
       reinterpret_cast<const tachyon_baby_bear&>(shift));
 }
 
-std::unique_ptr<ProverData> TwoAdicFriPcs::commit(
-    LDEVec& lde_vec, const ProverDataVec& prover_data_vec) const {
+std::unique_ptr<ProverData> TwoAdicFriPcs::commit(LDEVec& lde_vec) const {
   std::unique_ptr<ProverData> ret(new ProverData);
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
       const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri*>(pcs_),
-      lde_vec.lde_vec(), ret->commitment(), ret->tree_ptr(),
-      const_cast<ProverDataVec&>(prover_data_vec).tree_vec());
+      lde_vec.lde_vec(), ret->commitment(), ret->tree_ptr());
   return ret;
 }
 

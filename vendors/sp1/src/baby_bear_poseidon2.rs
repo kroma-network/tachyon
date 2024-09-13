@@ -147,8 +147,9 @@ pub mod ffi {
 
         type ProverDataVec;
 
-        fn new_prover_data_vec() -> UniquePtr<ProverDataVec>;
+        fn new_prover_data_vec(rounds: usize) -> UniquePtr<ProverDataVec>;
         fn clone(&self) -> UniquePtr<ProverDataVec>;
+        fn set(self: Pin<&mut ProverDataVec>, round: usize, prover_data: &ProverData);
     }
 
     unsafe extern "C++" {
@@ -168,11 +169,7 @@ pub mod ffi {
             extended_values: &mut [TachyonBabyBear],
             shift: &TachyonBabyBear,
         );
-        fn commit(
-            &self,
-            lde_vec: Pin<&mut LDEVec>,
-            prover_data_vec: &ProverDataVec,
-        ) -> UniquePtr<ProverData>;
+        fn commit(&self, lde_vec: Pin<&mut LDEVec>) -> UniquePtr<ProverData>;
         fn do_open(
             &self,
             prover_data_vec: &ProverDataVec,
@@ -601,13 +598,16 @@ impl<Val> ProverDataVec<Val> {
             _marker: PhantomData,
         }
     }
+
+    pub fn set(&mut self, round: usize, prover_data: &ProverData<Val>) {
+        self.inner.pin_mut().set(round, &prover_data.inner);
+    }
 }
 
 pub struct TwoAdicFriPcs<Val, Dft, InputMmcs, FriMmcs> {
     log_n: usize,
     log_blowup: usize,
     inner: cxx::UniquePtr<ffi::TwoAdicFriPcs>,
-    prover_data_vec: ProverDataVec<Val>,
     _marker: PhantomData<(Val, Dft, InputMmcs, FriMmcs)>,
 }
 
@@ -633,7 +633,6 @@ where
                 fri_config.num_queries,
                 fri_config.proof_of_work_bits,
             ),
-            prover_data_vec: ProverDataVec::new(ffi::new_prover_data_vec()),
             _marker: PhantomData,
         }
     }
@@ -659,21 +658,19 @@ where
         for lde in ldes.iter() {
             lde_vec.add(lde.values.as_slice(), lde.width);
         }
-        let mut prover_data = ProverData::new(
-            self.inner
-                .commit(lde_vec.inner.pin_mut(), &self.prover_data_vec.inner),
-        );
+        let mut prover_data = ProverData::new(self.inner.commit(lde_vec.inner.pin_mut()));
         prover_data.ldes = ldes;
         prover_data
     }
 
     pub fn do_open<Challenge>(
         &self,
+        prover_data_vec: &ProverDataVec<Val>,
         opening_points: &OpeningPoints<Challenge>,
         challenger: Pin<&mut ffi::DuplexChallenger>,
     ) -> OpeningProof {
         OpeningProof::new(self.inner.do_open(
-            &self.prover_data_vec.inner,
+            &prover_data_vec.inner,
             &opening_points.inner,
             challenger,
         ))
@@ -775,8 +772,10 @@ where
         )>,
         challenger: &mut Challenger,
     ) -> (p3_commit::OpenedValues<Challenge>, Self::Proof) {
+        let mut prover_data_vec = ProverDataVec::new(ffi::new_prover_data_vec(rounds.len()));
         let mut opening_points = OpeningPoints::new(ffi::new_opening_points(rounds.len()));
-        for (round, (_, matrix)) in rounds.iter().enumerate() {
+        for (round, (prover_data, matrix)) in rounds.iter().enumerate() {
+            prover_data_vec.set(round, &prover_data);
             opening_points.allocate(round, matrix.len(), matrix[0].len());
             for (row, rows) in matrix.iter().enumerate() {
                 for (col, challenge) in rows.iter().enumerate() {
@@ -784,7 +783,11 @@ where
                 }
             }
         }
-        let mut opening_proof = self.do_open(&opening_points, challenger.get_inner_pin_mut());
+        let mut opening_proof = self.do_open(
+            &prover_data_vec,
+            &opening_points,
+            challenger.get_inner_pin_mut(),
+        );
         (
             opening_proof.serialize_to_opened_values(),
             opening_proof.take_fri_proof(),

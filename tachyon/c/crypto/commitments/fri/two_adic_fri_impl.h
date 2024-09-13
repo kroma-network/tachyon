@@ -5,6 +5,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/debugging/leak_check.h"
+
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/crypto/commitments/fri/two_adic_fri.h"
 
@@ -22,6 +24,9 @@ class TwoAdicFRIImpl
   using Commitment = typename Base::Commitment;
   using ProverData = typename Base::ProverData;
   using Domain = typename Base::Domain;
+  using FRIProof = typename Base::FRIProof;
+  using OpeningPoints = typename Base::OpeningPoints;
+  using OpenedValues = typename Base::OpenedValues;
 
   using Base::Base;
 
@@ -38,12 +43,30 @@ class TwoAdicFRIImpl
 
   void Commit(
       std::vector<Eigen::Map<const tachyon::math::RowMajorMatrix<F>>>&& ldes,
-      Commitment* commitment, ProverData** prover_data_out,
-      std::vector<std::unique_ptr<ProverData>>* prover_data_by_round) {
-    std::unique_ptr<ProverData> prover_data(new ProverData);
-    CHECK(this->mmcs_.Commit(std::move(ldes), commitment, prover_data.get()));
-    *prover_data_out = prover_data.get();
-    prover_data_by_round->push_back(std::move(prover_data));
+      Commitment* commitment, ProverData** prover_data_out) {
+    // NOTE(chokobole): The caller is responsible for deallocating the memory.
+    // |TwoAdicFri| in Plonky3 is stateless, allowing it to be used in
+    // multithreaded contexts. As a result, the newly created |ProverData|
+    // object cannot be owned by the |TwoAdicFri| instance itself.
+    *prover_data_out = absl::IgnoreLeak(new ProverData());
+    CHECK(this->mmcs_.Commit(std::move(ldes), commitment, *prover_data_out));
+  }
+
+  void CreateOpeningProof(
+      const std::vector<const ProverData*>& prover_data_by_round,
+      const OpeningPoints& points_by_round, Challenger& challenger,
+      OpenedValues* opened_values_out, FRIProof* proof) const {
+    std::vector<std::unique_ptr<ProverData>> prover_data_by_round_tmp =
+        tachyon::base::Map(prover_data_by_round, [](const ProverData* data) {
+          return std::unique_ptr<ProverData>(const_cast<ProverData*>(data));
+        });
+    CHECK(Base::CreateOpeningProof(prover_data_by_round_tmp, points_by_round,
+                                   challenger, opened_values_out, proof));
+    for (std::unique_ptr<ProverData>& prover_data : prover_data_by_round_tmp) {
+      // NOTE(chokobole): The caller is responsible for deallocating the memory.
+      // See the comment in |Commit()|.
+      absl::IgnoreLeak(prover_data.release());
+    }
   }
 };
 

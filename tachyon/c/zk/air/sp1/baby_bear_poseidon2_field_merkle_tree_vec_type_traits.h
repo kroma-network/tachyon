@@ -1,7 +1,6 @@
 #ifndef TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_FIELD_MERKLE_TREE_VEC_TYPE_TRAITS_H_
 #define TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_FIELD_MERKLE_TREE_VEC_TYPE_TRAITS_H_
 
-#include <memory>
 #include <vector>
 
 #include "tachyon/c/base/type_traits_forward.h"
@@ -22,15 +21,13 @@ using Tree =
 namespace base {
 
 template <>
-struct TypeTraits<
-    std::vector<std::unique_ptr<zk::air::plonky3::baby_bear::Tree>>> {
+struct TypeTraits<std::vector<const zk::air::plonky3::baby_bear::Tree*>> {
   using CType = tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec;
 };
 
 template <>
 struct TypeTraits<tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec> {
-  using NativeType =
-      std::vector<std::unique_ptr<zk::air::plonky3::baby_bear::Tree>>;
+  using NativeType = std::vector<const zk::air::plonky3::baby_bear::Tree*>;
 };
 
 }  // namespace base
