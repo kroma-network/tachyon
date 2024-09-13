@@ -171,7 +171,7 @@ class Radix2EvaluationDomain
     });
 
     if (added_bits == 0) {
-      out = mat;
+      out = std::move(mat);
     } else {
       ExpandWithZeroPad(mat, added_bits, out);
     }
