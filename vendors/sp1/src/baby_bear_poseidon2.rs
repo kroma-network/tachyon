@@ -606,7 +606,7 @@ impl<Val> ProverDataVec<Val> {
 
 pub struct TwoAdicFriPcs<Val, Dft, InputMmcs, FriMmcs> {
     log_n: usize,
-    log_blowup: usize,
+    fri: FriConfig<FriMmcs>,
     inner: cxx::UniquePtr<ffi::TwoAdicFriPcs>,
     _marker: PhantomData<(Val, Dft, InputMmcs, FriMmcs)>,
 }
@@ -623,18 +623,23 @@ where
 {
     pub fn new(
         log_n: usize,
-        fri_config: &FriConfig<FriMmcs>,
+        fri_config: FriConfig<FriMmcs>,
     ) -> TwoAdicFriPcs<Val, Dft, InputMmcs, FriMmcs> {
+        let inner = ffi::new_two_adic_fri_pcs(
+            fri_config.log_blowup,
+            fri_config.num_queries,
+            fri_config.proof_of_work_bits,
+        );
         Self {
             log_n,
-            log_blowup: fri_config.log_blowup,
-            inner: ffi::new_two_adic_fri_pcs(
-                fri_config.log_blowup,
-                fri_config.num_queries,
-                fri_config.proof_of_work_bits,
-            ),
+            fri: fri_config,
+            inner,
             _marker: PhantomData,
         }
+    }
+
+    pub fn fri_config(&self) -> &FriConfig<FriMmcs> {
+        &self.fri
     }
 
     pub fn coset_lde_batch(
@@ -737,7 +742,8 @@ where
         for (domain, mut evals) in evaluations.into_iter() {
             assert_eq!(domain.size(), evals.height());
             let shift = Val::generator() / domain.shift;
-            let mut lde = RowMajorMatrix::default(evals.width(), evals.height() << self.log_blowup);
+            let mut lde =
+                RowMajorMatrix::default(evals.width(), evals.height() << self.fri.log_blowup);
             self.coset_lde_batch(&mut evals, &mut lde, shift);
             ldes.push(lde);
         }
