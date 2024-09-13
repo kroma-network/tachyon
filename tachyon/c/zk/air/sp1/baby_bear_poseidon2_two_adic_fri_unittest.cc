@@ -27,12 +27,14 @@ using MMCS = c::zk::air::plonky3::baby_bear::MMCS;
 using Coset = c::zk::air::plonky3::baby_bear::Coset;
 using PCS = c::zk::air::plonky3::baby_bear::PCS;
 
+constexpr uint32_t kLogBlowup = 1;
 constexpr size_t kRounds = 1;
 
 class TwoAdicFRITest : public testing::Test {
  public:
   void SetUp() override {
-    pcs_ = tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(1, 10, 8);
+    pcs_ =
+        tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(kLogBlowup, 10, 8);
     prover_data_vec_ =
         tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_create();
     opening_points_ =
@@ -74,6 +76,7 @@ class TwoAdicFRITest : public testing::Test {
 TEST_F(TwoAdicFRITest, APIs) {
   constexpr size_t kRowsForInput = 32;
   constexpr size_t kColsForInput = 5;
+  constexpr size_t kExtendedRowsForInput = kRowsForInput << kLogBlowup;
   constexpr size_t kRowsForOpening = 2;
   constexpr size_t kColsForOpening = 2;
 
@@ -90,14 +93,15 @@ TEST_F(TwoAdicFRITest, APIs) {
                                                   []() { return F::Random(); });
   std::vector<F> matrix_data_clone = matrix_data;
 
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(pcs_, 1);
+  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(pcs_, kLogBlowup);
+  std::vector<F> extended_matrix_data(kExtendedRowsForInput * kColsForInput);
   F shift = F::FromMontgomery(F::Config::kSubgroupGenerator) *
             coset.domain()->offset_inv();
-  size_t new_rows;
-  tachyon_baby_bear* new_matrix_data =
-      tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
-          pcs_, c::base::c_cast(const_cast<F*>(matrix_data.data())),
-          kRowsForInput, kColsForInput, c::base::c_cast(shift), &new_rows);
+  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
+      pcs_, c::base::c_cast(const_cast<F*>(matrix_data.data())), kRowsForInput,
+      kColsForInput,
+      c::base::c_cast(const_cast<F*>(extended_matrix_data.data())),
+      c::base::c_cast(shift));
   tachyon_baby_bear commitment[TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_CHUNK];
   tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* prover_data = nullptr;
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
@@ -118,7 +122,7 @@ TEST_F(TwoAdicFRITest, APIs) {
   }
 
   math::RowMajorMatrix<F> leaf = Eigen::Map<math::RowMajorMatrix<F>>(
-      c::base::native_cast(new_matrix_data), new_rows, kColsForInput);
+      extended_matrix_data.data(), kExtendedRowsForInput, kColsForInput);
   EXPECT_EQ(leaf, native_prover_data.leaves()[0]);
 
   ExtF point = ExtF::Random();

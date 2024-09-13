@@ -47,7 +47,7 @@ class FRIRunner {
   ExtF Run(Vendor vendor, const math::RowMajorMatrix<F>& input) {
     size_t max_degree = static_cast<size_t>(input.rows());
     std::vector<Commitment> commits_by_round(config_.round_num());
-    std::vector<ProverData> data_by_round(config_.round_num());
+    std::vector<std::unique_ptr<ProverData>> data_by_round(config_.round_num());
     std::vector<std::vector<Domain>> domains_by_round(config_.round_num());
     std::vector<std::vector<math::RowMajorMatrix<F>>> inner_polys_by_round(
         config_.round_num());
@@ -72,8 +72,9 @@ class FRIRunner {
 
     base::TimeTicks start = base::TimeTicks::Now();
     for (size_t round = 0; round < config_.round_num(); round++) {
+      data_by_round[round].reset(new ProverData());
       CHECK(pcs_.Commit(domains_by_round[round], inner_polys_by_round[round],
-                        &commits_by_round[round], &data_by_round[round]));
+                        &commits_by_round[round], data_by_round[round].get()));
     }
     p_challenger.ObserveContainer2D(commits_by_round);
     ExtF zeta = p_challenger.template SampleExtElement<ExtF>();

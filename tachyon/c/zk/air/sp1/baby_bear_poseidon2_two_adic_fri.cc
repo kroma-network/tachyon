@@ -99,17 +99,20 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(
   c::base::native_cast(pcs)->AllocateLDEs(size);
 }
 
-tachyon_baby_bear* tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
+void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
     tachyon_baby_bear* values, size_t rows, size_t cols,
-    tachyon_baby_bear shift, size_t* new_rows) {
+    tachyon_baby_bear* extended_values, tachyon_baby_bear shift) {
+  PCS* native_pcs = c::base::native_cast(pcs);
   Eigen::Map<math::RowMajorMatrix<F>> matrix(c::base::native_cast(values),
                                              static_cast<Eigen::Index>(rows),
                                              static_cast<Eigen::Index>(cols));
-  absl::Span<F> ret = c::base::native_cast(pcs)->CosetLDEBatch(
-      matrix, c::base::native_cast(shift));
-  *new_rows = ret.size() / cols;
-  return c::base::c_cast(ret.data());
+  Eigen::Map<math::RowMajorMatrix<F>> extended_matrix(
+      c::base::native_cast(extended_values),
+      static_cast<Eigen::Index>(rows) << (native_pcs->config().log_blowup),
+      static_cast<Eigen::Index>(cols));
+  native_pcs->CosetLDEBatch(std::move(matrix), c::base::native_cast(shift),
+                            extended_matrix);
 }
 
 void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
@@ -131,7 +134,7 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
     tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger,
     tachyon_sp1_baby_bear_poseidon2_opened_values** opened_values,
     tachyon_sp1_baby_bear_poseidon2_fri_proof** proof) {
-  c::base::native_cast(pcs)->CreateOpeningProof(
+  CHECK(c::base::native_cast(pcs)->CreateOpeningProof(
       c::base::native_cast(*prover_data_by_round),
       c::base::native_cast(*points_by_round), c::base::native_cast(*challenger),
       c::base::native_cast(
@@ -139,7 +142,7 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
               *opened_values)),
       c::base::native_cast(
           reinterpret_cast<tachyon_sp1_baby_bear_poseidon2_fri_proof*>(
-              *proof)));
+              *proof))));
 }
 
 bool tachyon_sp1_baby_bear_poseidon2_two_adic_fri_verify(

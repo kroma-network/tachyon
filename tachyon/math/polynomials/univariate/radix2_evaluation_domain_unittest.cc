@@ -52,21 +52,22 @@ TYPED_TEST(Radix2EvaluationDomainTest, CosetLDEBatchDeath) {
       Radix2EvaluationDomain<F>::Create(1);
   RowMajorMatrix<F> matrix = RowMajorMatrix<F>::Random(1, 3);
   F shift = F::FromMontgomery(F::Config::kSubgroupGenerator);
-  EXPECT_DEATH(domain->CosetLDEBatch(matrix, 1, shift), "");
+  RowMajorMatrix<F> result(2, 3);
+  EXPECT_DEATH(domain->CosetLDEBatch(std::move(matrix), 1, shift, result), "");
 }
 
 TYPED_TEST(Radix2EvaluationDomainTest, CosetLDEBatch) {
   using F = TypeParam;
   for (uint32_t log_r = 1; log_r < 5; ++log_r) {
-    RowMajorMatrix<F> expected =
-        RowMajorMatrix<F>::Random(size_t{1} << log_r, 3);
-    RowMajorMatrix<F> result = expected;
+    RowMajorMatrix<F> input = RowMajorMatrix<F>::Random(size_t{1} << log_r, 3);
     NaiveBatchFFT<F> naive;
     F shift = F::FromMontgomery(F::Config::kSubgroupGenerator);
-    expected = naive.CosetLDEBatch(expected, 1, shift);
+    RowMajorMatrix<F> expected(size_t{1} << (log_r + 1), 3);
+    naive.CosetLDEBatch(input, 1, shift, expected);
     std::unique_ptr<Radix2EvaluationDomain<F>> domain =
         Radix2EvaluationDomain<F>::Create(size_t{1} << log_r);
-    result = domain->CosetLDEBatch(result, 1, shift);
+    RowMajorMatrix<F> result(size_t{1} << (log_r + 1), 3);
+    domain->CosetLDEBatch(std::move(input), 1, shift, result);
     EXPECT_EQ(expected, result);
   }
 }

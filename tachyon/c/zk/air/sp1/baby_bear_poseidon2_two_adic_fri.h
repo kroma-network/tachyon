@@ -68,16 +68,15 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(
  * @param values A pointer to the data of the baby bear row major matrix.
  * @param rows The number of rows.
  * @param cols The number of columns.
+ * @param extended_values A pointer to the data of the extended baby bear row
+ * major matrix.
  * @param shift The shift value.
- * @param new_rows The number of rows of the baby bear row major matrix.
- * @return A pointer to the data of the newly created baby bear row major
- * matrix.
  */
-TACHYON_C_EXPORT tachyon_baby_bear*
+TACHYON_C_EXPORT void
 tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
     tachyon_baby_bear* values, size_t rows, size_t cols,
-    tachyon_baby_bear shift, size_t* new_rows);
+    tachyon_baby_bear* extended_values, tachyon_baby_bear shift);
 
 /**
  * @brief Commits to the mixed matrix created by

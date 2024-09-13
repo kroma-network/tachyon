@@ -25,27 +25,63 @@ class MixedMatrixCommitmentScheme {
       typename MixedMatrixCommitmentSchemeTraits<Derived>::ProverData;
   using Proof = typename MixedMatrixCommitmentSchemeTraits<Derived>::Proof;
 
+  // NOTE: |Commit()| doesn't own the input data unlike |CommitOwned()|.
+  // This is created based on our usecase. |get_evaluations_on_domain()| returns
+  // a borrowed value with the same lifetime as the prover_data in |ProverData|.
+  // However, if the actual data is managed on the C++ side, then both Rust and
+  // C++ attempt to deallocate the memory once it goes out of scope. An
+  // alternative is using |std::mem::forget()| in Plonky3, but this needs
+  // additional modifications.
+  // See
+  // https://github.com/Plonky3/Plonky3/blob/2df15fd/fri/src/two_adic_pcs.rs#L177-L188.
   [[nodiscard]] bool Commit(const std::vector<Field>& vector,
                             Commitment* commitment, ProverData* prover_data) {
+    return Commit(
+        std::vector<Eigen::Map<const math::RowMajorMatrix<Field>>>{
+            Eigen::Map<const math::RowMajorMatrix<Field>>(vector.data(),
+                                                          vector.size(), 1)},
+        commitment, prover_data);
+  }
+
+  [[nodiscard]] bool Commit(
+      const Eigen::Map<const math::RowMajorMatrix<Field>>& matrix,
+      Commitment* commitment, ProverData* prover_data) const {
+    return Commit(
+        std::vector<Eigen::Map<const math::RowMajorMatrix<Field>>>{matrix},
+        commitment, prover_data);
+  }
+
+  [[nodiscard]] bool Commit(
+      std::vector<Eigen::Map<const math::RowMajorMatrix<Field>>>&& matrices,
+      Commitment* commitment, ProverData* prover_data) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCommit(std::move(matrices), commitment, prover_data);
+  }
+
+  // NOTE: |CommitOwned()| own the input data unlike |Commit()|.
+  [[nodiscard]] bool CommitOwned(const std::vector<Field>& vector,
+                                 Commitment* commitment,
+                                 ProverData* prover_data) {
     math::RowMajorMatrix<Field> matrix(vector.size(), 1);
     OMP_PARALLEL_FOR(size_t i = 0; i < vector.size(); ++i) {
       matrix(i, 0) = vector[i];
     }
-    return Commit(std::move(matrix), commitment, prover_data);
+    return CommitOwned(std::move(matrix), commitment, prover_data);
   }
 
-  [[nodiscard]] bool Commit(math::RowMajorMatrix<Field>&& matrix,
-                            Commitment* commitment,
-                            ProverData* prover_data) const {
-    return Commit(std::vector<math::RowMajorMatrix<Field>>{std::move(matrix)},
-                  commitment, prover_data);
+  [[nodiscard]] bool CommitOwned(math::RowMajorMatrix<Field>&& matrix,
+                                 Commitment* commitment,
+                                 ProverData* prover_data) const {
+    return CommitOwned(
+        std::vector<math::RowMajorMatrix<Field>>{std::move(matrix)}, commitment,
+        prover_data);
   }
 
-  [[nodiscard]] bool Commit(std::vector<math::RowMajorMatrix<Field>>&& matrices,
-                            Commitment* commitment,
-                            ProverData* prover_data) const {
+  [[nodiscard]] bool CommitOwned(
+      std::vector<math::RowMajorMatrix<Field>>&& matrices,
+      Commitment* commitment, ProverData* prover_data) const {
     const Derived* derived = static_cast<const Derived*>(this);
-    return derived->DoCommit(std::move(matrices), commitment, prover_data);
+    return derived->DoCommitOwned(std::move(matrices), commitment, prover_data);
   }
 
   [[nodiscard]] bool CreateOpeningProof(
@@ -55,28 +91,30 @@ class MixedMatrixCommitmentScheme {
     return derived->DoCreateOpeningProof(index, prover_data, openings, proof);
   }
 
-  const std::vector<math::RowMajorMatrix<Field>>& GetMatrices(
+  const std::vector<Eigen::Map<const math::RowMajorMatrix<Field>>>& GetMatrices(
       const ProverData& prover_data) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoGetMatrices(prover_data);
   }
 
   std::vector<size_t> GetRowSizes() const {
-    return base::Map(GetMatrices(),
-                     [](const math::RowMajorMatrix<Field>& matrix) {
-                       return matrix.rows();
-                     });
+    return base::Map(
+        GetMatrices(),
+        [](const Eigen::Map<const math::RowMajorMatrix<Field>>& matrix) {
+          return matrix.rows();
+        });
   }
 
   size_t GetMaxRowSize(const ProverData& prover_data) const {
-    const std::vector<math::RowMajorMatrix<Field>>& matrices =
+    const std::vector<Eigen::Map<const math::RowMajorMatrix<Field>>>& matrices =
         GetMatrices(prover_data);
     if (matrices.empty()) return 0;
-    return std::max_element(matrices.begin(), matrices.end(),
-                            [](const math::RowMajorMatrix<Field>& a,
-                               const math::RowMajorMatrix<Field>& b) {
-                              return a.rows() < b.rows();
-                            })
+    return std::max_element(
+               matrices.begin(), matrices.end(),
+               [](const Eigen::Map<const math::RowMajorMatrix<Field>>& a,
+                  const Eigen::Map<const math::RowMajorMatrix<Field>>& b) {
+                 return a.rows() < b.rows();
+               })
         ->rows();
   }
 

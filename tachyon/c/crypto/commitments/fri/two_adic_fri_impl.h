@@ -22,22 +22,20 @@ class TwoAdicFRIImpl
   using Commitment = typename Base::Commitment;
   using ProverData = typename Base::ProverData;
   using Domain = typename Base::Domain;
-  using OpeningPoints = typename Base::OpeningPoints;
-  using OpenedValues = typename Base::OpenedValues;
-  using FRIProof = typename Base::FRIProof;
 
   using Base::Base;
 
-  void AllocateLDEs(size_t size) { this->ldes_.reserve(size); }
+  void AllocateLDEs(size_t size) { ldes_.reserve(size); }
 
-  template <typename Derived>
-  absl::Span<F> CosetLDEBatch(Eigen::MatrixBase<Derived>& matrix, F shift) {
+  void CosetLDEBatch(Eigen::Map<tachyon::math::RowMajorMatrix<F>>&& matrix,
+                     F shift,
+                     Eigen::Map<tachyon::math::RowMajorMatrix<F>>& lde) {
     Domain coset = this->GetNaturalDomainForDegree(matrix.rows());
-    tachyon::math::RowMajorMatrix<F> mat = coset.domain()->CosetLDEBatch(
-        matrix, this->fri_.log_blowup, shift, /*reverse_at_last=*/false);
-    absl::Span<F> ret(mat.data(), mat.size());
-    this->ldes_.push_back(std::move(mat));
-    return ret;
+    coset.domain()->CosetLDEBatch(std::move(matrix), this->config_.log_blowup,
+                                  shift, lde,
+                                  /*reverse_at_last=*/false);
+    ldes_.push_back(Eigen::Map<const tachyon::math::RowMajorMatrix<F>>(
+        lde.data(), lde.rows(), lde.cols()));
   }
 
   using Base::Commit;
@@ -50,27 +48,8 @@ class TwoAdicFRIImpl
     prover_data_by_round->push_back(std::move(prover_data));
   }
 
-  void CreateOpeningProof(
-      const std::vector<std::unique_ptr<ProverData>>& prover_data_by_round_in,
-      const OpeningPoints& points_by_round, Challenger& challenger,
-      OpenedValues* opened_values_by_round, FRIProof* proof) const {
-    auto& prover_data_by_round =
-        const_cast<std::vector<std::unique_ptr<ProverData>>&>(
-            prover_data_by_round_in);
-    std::vector<ProverData> prover_data_by_round_tmp = tachyon::base::Map(
-        prover_data_by_round, [](std::unique_ptr<ProverData>& prover_data) {
-          return ProverData(std::move(*prover_data));
-        });
-    CHECK(Base::CreateOpeningProof(prover_data_by_round_tmp, points_by_round,
-                                   challenger, opened_values_by_round, proof));
-    prover_data_by_round = tachyon::base::Map(
-        prover_data_by_round_tmp, [](ProverData& prover_data) {
-          return std::make_unique<ProverData>(std::move(prover_data));
-        });
-  }
-
  protected:
-  std::vector<math::RowMajorMatrix<F>> ldes_;
+  std::vector<Eigen::Map<const tachyon::math::RowMajorMatrix<F>>> ldes_;
 };
 
 }  // namespace tachyon::c::crypto

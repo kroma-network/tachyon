@@ -67,12 +67,14 @@ class FieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
 
 TEST_F(FieldMerkleTreeMMCSTest, Commit) {
   std::vector<F> vector{F(2), F(1), F(2), F(2), F(0), F(0), F(1), F(0)};
-  math::RowMajorMatrix<F> matrix{
+  const math::RowMajorMatrix<F> owned_matrix{
       {F(2)}, {F(1)}, {F(2)}, {F(2)}, {F(0)}, {F(0)}, {F(1)}, {F(0)},
   };
-  std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
+  Eigen::Map<const math::RowMajorMatrix<F>> matrix = math::Map(owned_matrix);
+  std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> matrices = {matrix};
 
-  std::vector<math::RowMajorMatrix<F>> matrices_tmp = matrices;
+  std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> matrices_tmp =
+      matrices;
   Tree tree =
       Tree::Build(mmcs_.hasher(), mmcs_.packed_hasher(), mmcs_.compressor(),
                   mmcs_.packed_compressor(), std::move(matrices_tmp));
@@ -86,13 +88,47 @@ TEST_F(FieldMerkleTreeMMCSTest, Commit) {
   {
     std::array<F, kChunk> commitment;
     Tree prover_data;
-    ASSERT_TRUE(mmcs_.Commit(std::move(matrix), &commitment, &prover_data));
+    ASSERT_TRUE(mmcs_.Commit(matrix, &commitment, &prover_data));
     EXPECT_EQ(commitment, tree.GetRoot());
   }
   {
     std::array<F, kChunk> commitment;
     Tree prover_data;
     ASSERT_TRUE(mmcs_.Commit(std::move(matrices), &commitment, &prover_data));
+    EXPECT_EQ(commitment, tree.GetRoot());
+  }
+}
+
+TEST_F(FieldMerkleTreeMMCSTest, CommitOwned) {
+  std::vector<F> vector{F(2), F(1), F(2), F(2), F(0), F(0), F(1), F(0)};
+  math::RowMajorMatrix<F> matrix{
+      {F(2)}, {F(1)}, {F(2)}, {F(2)}, {F(0)}, {F(0)}, {F(1)}, {F(0)},
+  };
+  std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
+
+  std::vector<math::RowMajorMatrix<F>> matrices_tmp = matrices;
+  Tree tree = Tree::BuildOwned(mmcs_.hasher(), mmcs_.packed_hasher(),
+                               mmcs_.compressor(), mmcs_.packed_compressor(),
+                               std::move(matrices_tmp));
+
+  {
+    std::array<F, kChunk> commitment;
+    Tree prover_data;
+    ASSERT_TRUE(mmcs_.CommitOwned(vector, &commitment, &prover_data));
+    EXPECT_EQ(commitment, tree.GetRoot());
+  }
+  {
+    std::array<F, kChunk> commitment;
+    Tree prover_data;
+    ASSERT_TRUE(
+        mmcs_.CommitOwned(std::move(matrix), &commitment, &prover_data));
+    EXPECT_EQ(commitment, tree.GetRoot());
+  }
+  {
+    std::array<F, kChunk> commitment;
+    Tree prover_data;
+    ASSERT_TRUE(
+        mmcs_.CommitOwned(std::move(matrices), &commitment, &prover_data));
     EXPECT_EQ(commitment, tree.GetRoot());
   }
 }
@@ -135,7 +171,8 @@ TEST_F(FieldMerkleTreeMMCSTest, CommitAndVerify) {
 
     std::array<F, kChunk> commitment;
     Tree prover_data;
-    ASSERT_TRUE(mmcs_.Commit(std::move(matrices), &commitment, &prover_data));
+    ASSERT_TRUE(
+        mmcs_.CommitOwned(std::move(matrices), &commitment, &prover_data));
 
     std::vector<std::vector<F>> openings;
     std::vector<std::array<F, kChunk>> proof;

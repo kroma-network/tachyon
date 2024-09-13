@@ -119,9 +119,17 @@ class Radix2EvaluationDomain
   }
 
   template <typename Derived>
-  CONSTEXPR_IF_NOT_OPENMP RowMajorMatrix<F> CosetLDEBatch(
-      Eigen::MatrixBase<Derived>& mat, size_t added_bits, F shift,
-      bool reverse_at_last = true) const {
+  CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
+      const Eigen::MatrixBase<Derived>& mat, size_t added_bits, F shift,
+      Eigen::MatrixBase<Derived>& out, bool reverse_at_last = true) const {
+    Derived mat_tmp = mat;
+    CosetLDEBatch(std::move(mat_tmp), added_bits, shift, out);
+  }
+
+  template <typename Derived>
+  CONSTEXPR_IF_NOT_OPENMP void CosetLDEBatch(
+      Eigen::MatrixBase<Derived>&& mat, size_t added_bits, F shift,
+      Eigen::MatrixBase<Derived>& out, bool reverse_at_last = true) const {
     TRACE_EVENT("EvaluationDomain", "Radix2EvaluationDomain::CosetLDEBatch");
     if constexpr (F::Config::kModulusBits > 32) {
       NOTREACHED();
@@ -161,9 +169,14 @@ class Radix2EvaluationDomain
       mat.row(base::bits::ReverseBitsLen(start + len - 1,
                                          this->log_size_of_group_)) *= weight;
     });
-    RowMajorMatrix<F> ret = ExpandInPlaceWithZeroPad(mat, added_bits);
 
-    size_t rows = static_cast<size_t>(ret.rows());
+    if (added_bits == 0) {
+      out = std::move(mat);
+    } else {
+      ExpandWithZeroPad(mat, added_bits, out);
+    }
+
+    size_t rows = static_cast<size_t>(out.rows());
     uint32_t log_size_of_group = base::bits::CheckedLog2(rows);
     auto domain =
         absl::WrapUnique(new Radix2EvaluationDomain(rows, log_size_of_group));
@@ -171,17 +184,16 @@ class Radix2EvaluationDomain
         Radix2TwiddleCache<F>::GetItem(domain.get(), /*packed_vec_only=*/true);
 
     // The first half looks like a normal DIT.
-    domain->RunParallelRowChunks(ret, domain->cache_->roots_vec.back(),
+    domain->RunParallelRowChunks(out, domain->cache_->roots_vec.back(),
                                  domain->cache_->packed_roots_vec[0]);
 
     // For the second half, we flip the DIT, working in bit-reversed order.
-    ReverseMatrixIndexBits(ret);
-    domain->RunParallelRowChunksReversed(ret, domain->cache_->rev_roots_vec,
+    ReverseMatrixIndexBits(out);
+    domain->RunParallelRowChunksReversed(out, domain->cache_->rev_roots_vec,
                                          domain->cache_->packed_roots_vec[1]);
     if (reverse_at_last) {
-      ReverseMatrixIndexBits(ret);
+      ReverseMatrixIndexBits(out);
     }
-    return ret;
   }
 
  private:
@@ -437,6 +449,30 @@ class Radix2EvaluationDomain
       UnivariateEvaluationDomain<F, MaxDegree>::template ButterflyFnOutIn(
           *reinterpret_cast<F*>(&row_1_block.data()[i]),
           *reinterpret_cast<F*>(&row_2_block.data()[i]), twiddle);
+    }
+  }
+
+  // Expands a |Eigen::MatrixBase|'s rows from |rows| to |rows|^(|added_bits|),
+  // moving values from row |i| to row |i|^(|added_bits|). All new entries are
+  // set to |F::Zero()|.
+  // Note that it crashes if the |added_bits| is zero.
+  template <typename Derived>
+  CONSTEXPR_IF_NOT_OPENMP static void ExpandWithZeroPad(
+      Eigen::MatrixBase<Derived>& mat, size_t added_bits,
+      Eigen::MatrixBase<Derived>& out) {
+    CHECK_GT(added_bits, size_t{0});
+
+    Eigen::Index new_rows = mat.rows() << added_bits;
+    CHECK_EQ(out.rows(), new_rows);
+    CHECK_EQ(out.cols(), mat.cols());
+    Eigen::Index mask = (Eigen::Index{1} << added_bits) - 1;
+
+    OMP_PARALLEL_FOR(Eigen::Index row = 0; row < new_rows; ++row) {
+      if ((row & mask) == 0) {
+        out.row(row) = mat.row(row >> added_bits);
+      } else {
+        out.row(row).setZero();
+      }
     }
   }
 

@@ -5,11 +5,11 @@ mod test {
     use p3_challenger::FieldChallenger;
     use p3_commit::Pcs;
     use p3_commit::PolynomialSpace;
+    use p3_commit::TwoAdicMultiplicativeCoset;
     use p3_dft::TwoAdicSubgroupDft;
     use p3_field::AbstractField;
     use p3_fri::TwoAdicFriPcs;
     use p3_matrix::{bitrev::BitReversableMatrix, dense::RowMajorMatrix, Matrix};
-    use p3_util::log2_strict_usize;
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha20Rng;
     use sp1_core::utils::baby_bear_poseidon2::{
@@ -29,8 +29,6 @@ mod test {
 
     #[test]
     fn test_two_adic_fri_pcs() {
-        const ROWS: usize = 32;
-        const COLS: usize = 5;
         const LOG_N: usize = 20;
 
         let perm = my_perm();
@@ -95,6 +93,25 @@ mod test {
 
         assert_eq!(commits_by_round, tachyon_commits_by_round);
 
+        let domain = TwoAdicMultiplicativeCoset {
+            log_n: 2,
+            shift: Val::generator(),
+        };
+        let eval = <TwoAdicFriPcs<Val, Dft, ValMmcs, ChallengeMmcs> as Pcs<
+            Challenge,
+            Challenger,
+        >>::get_evaluations_on_domain(&pcs, &data_by_round[0], 1, domain)
+        .to_row_major_matrix();
+        let tachyon_eval = <TachyonTwoAdicFriPcs<Val, Dft, ValMmcs, ChallengeMmcs> as Pcs<
+            Challenge,
+            Challenger,
+        >>::get_evaluations_on_domain(
+            &tachyon_pcs, &tachyon_data_by_round[0], 1, domain
+        )
+        .to_row_major_matrix();
+
+        assert_eq!(eval, tachyon_eval);
+
         let ldes_vec = domains_and_polys_by_round
             .iter()
             .map(|domains_and_polys| {
@@ -102,7 +119,6 @@ mod test {
                     .into_iter()
                     .map(|(domain, evals)| {
                         assert_eq!(domain.size(), evals.height());
-                        let log_n = log2_strict_usize(domain.size());
                         let shift = Val::generator() / domain.shift;
                         // Commit to the bit-reversed LDE.
                         Dft {}
@@ -116,7 +132,7 @@ mod test {
 
         for (i, ldes) in ldes_vec.clone().into_iter().enumerate() {
             for (j, lde) in ldes.into_iter().enumerate() {
-                let v = assert_eq!(
+                assert_eq!(
                     lde.to_row_major_matrix(),
                     tachyon_data_by_round[i].ldes[j]
                         .clone()
@@ -138,7 +154,7 @@ mod test {
             .iter()
             .zip(points_by_round.clone())
             .collect::<Vec<_>>();
-        let (opening_by_round, proof) = pcs.open(data_and_points, &mut challenger);
+        let (opening_by_round, _proof) = pcs.open(data_and_points, &mut challenger);
 
         let tachyon_data_and_points = tachyon_data_by_round
             .iter()
@@ -167,8 +183,5 @@ mod test {
         assert!(tachyon_pcs
             .verify(rounds, &tachyon_proof, &mut tachyon_challenger_for_verify)
             .is_ok());
-
-        // TODO(chokobole): `std::mem::forget` was used to prevent it from double-free. We need to figure out a more elegant solution.
-        std::mem::forget(tachyon_data_by_round);
     }
 }

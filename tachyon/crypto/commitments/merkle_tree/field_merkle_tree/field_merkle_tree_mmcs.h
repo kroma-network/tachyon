@@ -86,9 +86,9 @@ class FieldMerkleTreeMMCS final
     }
   };
 
-  [[nodiscard]] bool DoCommit(std::vector<math::RowMajorMatrix<F>>&& matrices,
-                              Commitment* commitment,
-                              ProverData* prover_data) const {
+  [[nodiscard]] bool DoCommit(
+      std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& matrices,
+      Commitment* commitment, ProverData* prover_data) const {
     TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommit");
     *prover_data =
         FieldMerkleTree<F, N>::Build(hasher_, packed_hasher_, compressor_,
@@ -98,7 +98,19 @@ class FieldMerkleTreeMMCS final
     return true;
   }
 
-  const std::vector<math::RowMajorMatrix<F>>& DoGetMatrices(
+  [[nodiscard]] bool DoCommitOwned(
+      std::vector<math::RowMajorMatrix<F>>&& owned_matrices,
+      Commitment* commitment, ProverData* prover_data) const {
+    TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommitOwned");
+    *prover_data = FieldMerkleTree<F, N>::BuildOwned(
+        hasher_, packed_hasher_, compressor_, packed_compressor_,
+        std::move(owned_matrices));
+    *commitment = prover_data->GetRoot();
+
+    return true;
+  }
+
+  const std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>& DoGetMatrices(
       const ProverData& prover_data) const {
     return prover_data.leaves();
   }
@@ -114,7 +126,8 @@ class FieldMerkleTreeMMCS final
     // TODO(chokobole): Is it able to be parallelized?
     *openings = base::Map(
         prover_data.leaves(),
-        [log_max_row_size, index](const math::RowMajorMatrix<F>& matrix) {
+        [log_max_row_size,
+         index](const Eigen::Map<const math::RowMajorMatrix<F>>& matrix) {
           uint32_t log_row_size =
               base::bits::Log2Ceiling(static_cast<size_t>(matrix.rows()));
           uint32_t bits_reduced = log_max_row_size - log_row_size;

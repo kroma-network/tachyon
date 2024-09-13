@@ -7,6 +7,7 @@
 #define TACHYON_CRYPTO_COMMITMENTS_FRI_TWO_ADIC_FRI_H_
 
 #include <algorithm>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -62,8 +63,10 @@ class TwoAdicFRI {
   using OpenedValues = std::vector<OpenedValuesForRound>;
 
   TwoAdicFRI() = default;
-  TwoAdicFRI(InputMMCS&& mmcs, FRIConfig<ChallengeMMCS>&& fri)
-      : mmcs_(std::move(mmcs)), fri_(std::move(fri)) {}
+  TwoAdicFRI(InputMMCS&& mmcs, FRIConfig<ChallengeMMCS>&& config)
+      : mmcs_(std::move(mmcs)), config_(std::move(config)) {}
+
+  const FRIConfig<ChallengeMMCS>& config() const { return config_; }
 
   Domain GetNaturalDomainForDegree(size_t size) {
     uint32_t log_n = base::bits::CheckedLog2(size);
@@ -76,17 +79,22 @@ class TwoAdicFRI {
     TRACE_EVENT("ProofGeneration", "TwoAdicFRI::Commit");
     std::vector<math::RowMajorMatrix<F>> ldes =
         base::Map(cosets, [this, &matrices](size_t i, const Domain& coset) {
-          return coset.domain()->CosetLDEBatch(
-              matrices[i], fri_.log_blowup,
+          math::RowMajorMatrix<F>& mat = matrices[i];
+          CHECK_EQ(coset.domain()->size(), static_cast<size_t>(mat.rows()));
+          math::RowMajorMatrix<F> lde(mat.rows() << config_.log_blowup,
+                                      mat.cols());
+          coset.domain()->CosetLDEBatch(
+              std::move(mat), config_.log_blowup,
               F::FromMontgomery(F::Config::kSubgroupGenerator) *
                   coset.domain()->offset_inv(),
-              /*reverse_at_last=*/false);
+              lde, /*reverse_at_last=*/false);
+          return lde;
         });
-    return mmcs_.Commit(std::move(ldes), commitment, prover_data);
+    return mmcs_.CommitOwned(std::move(ldes), commitment, prover_data);
   }
 
   [[nodiscard]] bool CreateOpeningProof(
-      const std::vector<ProverData>& prover_data_by_round,
+      const std::vector<std::unique_ptr<ProverData>>& prover_data_by_round,
       const OpeningPoints& points_by_round, Challenger& challenger,
       OpenedValues* opened_values_out, FRIProof* proof,
       std::optional<F> pow_witness_for_testing = std::nullopt) const {
@@ -96,13 +104,15 @@ class TwoAdicFRI {
     size_t num_rounds = prover_data_by_round.size();
 
     size_t global_max_num_rows = 0;
-    std::vector<absl::Span<const math::RowMajorMatrix<F>>> matrices_by_round =
-        base::Map(prover_data_by_round,
-                  [this, &global_max_num_rows](const ProverData& prover_data) {
-                    global_max_num_rows = std::max(
-                        global_max_num_rows, mmcs_.GetMaxRowSize(prover_data));
-                    return absl::MakeConstSpan(mmcs_.GetMatrices(prover_data));
-                  });
+    std::vector<absl::Span<const Eigen::Map<const math::RowMajorMatrix<F>>>>
+        matrices_by_round = base::Map(
+            prover_data_by_round,
+            [this, &global_max_num_rows](
+                const std::unique_ptr<ProverData>& prover_data) {
+              global_max_num_rows = std::max(global_max_num_rows,
+                                             mmcs_.GetMaxRowSize(*prover_data));
+              return absl::MakeConstSpan(mmcs_.GetMatrices(*prover_data));
+            });
     uint32_t log_global_max_num_rows =
         base::bits::CheckedLog2(global_max_num_rows);
 
@@ -119,12 +129,13 @@ class TwoAdicFRI {
 
     OpenedValues opened_values(num_rounds);
     for (size_t round = 0; round < num_rounds; ++round) {
-      absl::Span<const math::RowMajorMatrix<F>> matrices =
+      absl::Span<const Eigen::Map<const math::RowMajorMatrix<F>>> matrices =
           matrices_by_round[round];
       const OpeningPointsForRound& points = points_by_round[round];
       OpenedValuesForRound opened_values_for_round(matrices.size());
       for (size_t matrix_idx = 0; matrix_idx < matrices.size(); ++matrix_idx) {
-        const math::RowMajorMatrix<F>& mat = matrices[matrix_idx];
+        const Eigen::Map<const math::RowMajorMatrix<F>>& mat =
+            matrices[matrix_idx];
         size_t num_rows = static_cast<size_t>(mat.rows());
         size_t num_cols = static_cast<size_t>(mat.cols());
         uint32_t log_num_rows = base::bits::CheckedLog2(num_rows);
@@ -138,7 +149,7 @@ class TwoAdicFRI {
         CHECK_EQ(reduced_opening_for_log_num_rows.size(), num_rows);
 
         math::RowMajorMatrix<F> block =
-            mat.topRows(num_rows >> fri_.log_blowup);
+            mat.topRows(num_rows >> config_.log_blowup);
         ReverseMatrixIndexBits(block);
         std::vector<ExtF> reduced_rows = DotExtPowers(mat, alpha);
 
@@ -183,7 +194,7 @@ class TwoAdicFRI {
 
     *opened_values_out = std::move(opened_values);
     *proof = fri::Prove<TwoAdicFRI>(
-        fri_, std::move(fri_input), challenger,
+        config_, std::move(fri_input), challenger,
         [this, log_global_max_num_rows, &prover_data_by_round](size_t index) {
           size_t num_rounds = prover_data_by_round.size();
           return base::CreateVector(
@@ -191,7 +202,7 @@ class TwoAdicFRI {
                            &prover_data_by_round](size_t round) {
                 Proof proof;
                 std::vector<std::vector<F>> openings;
-                const ProverData& prover_data = prover_data_by_round[round];
+                const ProverData& prover_data = *prover_data_by_round[round];
                 uint32_t log_max_num_rows =
                     base::bits::CheckedLog2(mmcs_.GetMaxRowSize(prover_data));
                 uint32_t bits_reduced =
@@ -218,9 +229,9 @@ class TwoAdicFRI {
     const ExtF alpha = challenger.template SampleExtElement<ExtF>();
     VLOG(2) << "FRI(alpha): " << alpha.ToHexString(true);
     uint32_t log_global_max_num_rows =
-        proof.commit_phase_commits.size() + fri_.log_blowup;
+        proof.commit_phase_commits.size() + config_.log_blowup;
     return fri::Verify(
-        fri_, proof, challenger,
+        config_, proof, challenger,
         [this, alpha, log_global_max_num_rows, &commits_by_round,
          &domains_by_round, &points_by_round, &opened_values_by_round](
             size_t index, const InputProof& input_proof,
@@ -250,7 +261,8 @@ class TwoAdicFRI {
                 vals_size,
                 [this, &batch_max_num_rows, &domains](size_t batch_idx) {
                   const Domain& domain = domains[batch_idx];
-                  size_t num_rows = domain.domain()->size() << fri_.log_blowup;
+                  size_t num_rows = domain.domain()->size()
+                                    << config_.log_blowup;
                   batch_max_num_rows = std::max(batch_max_num_rows, num_rows);
                   return math::Dimensions{0, num_rows};
                 });
@@ -272,7 +284,7 @@ class TwoAdicFRI {
               const std::vector<ExtF> cur_values_in = base::Map(
                   opened_values_in[batch_idx], [](F f) { return ExtF(f); });
               uint32_t log_num_rows =
-                  domain.domain()->log_size_of_group() + fri_.log_blowup;
+                  domain.domain()->log_size_of_group() + config_.log_blowup;
               uint32_t bits_reduced = log_global_max_num_rows - log_num_rows;
               uint32_t rev_reduced_index = base::bits::ReverseBitsLen(
                   index >> bits_reduced, log_num_rows);
@@ -313,8 +325,8 @@ class TwoAdicFRI {
 
   static absl::flat_hash_map<ExtF, std::vector<ExtF>>
   ComputeInverseDenominators(
-      const std::vector<absl::Span<const math::RowMajorMatrix<F>>>&
-          matrices_by_round,
+      const std::vector<absl::Span<
+          const Eigen::Map<const math::RowMajorMatrix<F>>>>& matrices_by_round,
       const OpeningPoints& points_by_round, F coset_shift) {
     TRACE_EVENT("Utils", "ComputeInverseDenominators");
     size_t num_rounds = matrices_by_round.size();
@@ -322,10 +334,10 @@ class TwoAdicFRI {
     absl::flat_hash_map<ExtF, uint32_t> max_log_num_rows_for_point;
     uint32_t max_log_num_rows = 0;
     for (size_t round = 0; round < num_rounds; ++round) {
-      absl::Span<const math::RowMajorMatrix<F>> matrices =
+      absl::Span<const Eigen::Map<const math::RowMajorMatrix<F>>> matrices =
           matrices_by_round[round];
       const OpeningPointsForRound& points = points_by_round[round];
-      for (const math::RowMajorMatrix<F>& matrix : matrices) {
+      for (const Eigen::Map<const math::RowMajorMatrix<F>>& matrix : matrices) {
         uint32_t log_num_rows =
             base::bits::CheckedLog2(static_cast<uint32_t>(matrix.rows()));
         max_log_num_rows = std::max(max_log_num_rows, log_num_rows);
@@ -424,7 +436,7 @@ class TwoAdicFRI {
   }
 
   InputMMCS mmcs_;
-  FRIConfig<ChallengeMMCS> fri_;
+  FRIConfig<ChallengeMMCS> config_;
 };
 
 }  // namespace crypto
