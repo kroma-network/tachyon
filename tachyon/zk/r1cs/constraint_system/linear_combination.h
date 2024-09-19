@@ -57,8 +57,7 @@ class LinearCombination {
     terms_.insert(terms_.end(), terms.begin(), terms.end());
   }
   void AppendTerms(std::vector<Term<F>>&& terms) {
-    terms_.insert(terms_.end(), std::make_move_iterator(terms.begin()),
-                  std::make_move_iterator(terms.end()));
+    base::Extend(terms_, std::move(terms));
   }
 
   std::vector<Term<F>>&& TakeTerms() && { return std::move(terms_); }

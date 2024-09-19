@@ -35,8 +35,7 @@ class CustomGateEvaluator {
                     [this](const std::unique_ptr<Expression<F>>& expression) {
                       return evaluator_.AddExpression(expression.get());
                     });
-      parts.insert(parts.end(), std::make_move_iterator(tmp.begin()),
-                   std::make_move_iterator(tmp.end()));
+      base::Extend(parts, std::move(tmp));
     }
     evaluator_.AddCalculation(Calculation::Horner(
         ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));

@@ -246,10 +246,7 @@ class ConstraintSystem {
         CHECK(result.new_witness_assignments.has_value());
         CHECK_EQ(result.new_witness_assignments->size(),
                  result.num_new_witness_variables_needed);
-        witness_assignments_.insert(
-            witness_assignments_.end(),
-            std::make_move_iterator(result.new_witness_assignments->begin()),
-            std::make_move_iterator(result.new_witness_assignments->end()));
+        base::Extend(witness_assignments_, std::move(*result.new_witness_assignments));
       }
     }
     lc_map_ = transformed_lc_map;
