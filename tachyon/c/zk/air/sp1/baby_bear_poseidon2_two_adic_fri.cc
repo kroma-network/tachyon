@@ -33,12 +33,13 @@ using MMCS = c::zk::air::plonky3::baby_bear::MMCS;
 using ExtMMCS = c::zk::air::plonky3::baby_bear::ExtMMCS;
 using ChallengeMMCS = c::zk::air::plonky3::baby_bear::ChallengeMMCS;
 using PCS = c::zk::air::plonky3::baby_bear::PCS;
-using Params = tachyon::crypto::Poseidon2Params<
-    F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
-    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
-using PackedParams = tachyon::crypto::Poseidon2Params<
-    PackedF, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
-    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
+using Params =
+    crypto::Poseidon2Params<F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+                            TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
+using PackedParams =
+    crypto::Poseidon2Params<PackedF,
+                            TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+                            TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
 
 tachyon_sp1_baby_bear_poseidon2_two_adic_fri*
 tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,
