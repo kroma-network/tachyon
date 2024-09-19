@@ -13,7 +13,11 @@
 #include "tachyon/crypto/challenger/challenger.h"
 #include "tachyon/crypto/hashes/sponge/sponge_state.h"
 
-namespace tachyon::crypto {
+namespace tachyon {
+
+class HintableTest_DuplexChallenger_Test;
+
+namespace crypto {
 
 template <typename Permutation, size_t R>
 class DuplexChallenger final
@@ -26,8 +30,17 @@ class DuplexChallenger final
   explicit DuplexChallenger(Permutation&& permutation)
       : permutation_(std::move(permutation)) {}
 
+  const SpongeState<Params>& state() const { return state_; }
+  const absl::InlinedVector<F, R>& input_buffer() const {
+    return input_buffer_;
+  }
+  const absl::InlinedVector<F, Params::kWidth>& output_buffer() const {
+    return output_buffer_;
+  }
+
  private:
   friend class Challenger<DuplexChallenger<Permutation, R>>;
+  friend class tachyon::HintableTest_DuplexChallenger_Test;
 
   // Challenger methods
   void DoObserve(const F& value) {
@@ -75,6 +88,7 @@ struct ChallengerTraits<DuplexChallenger<Permutation, R>> {
   using Field = typename Permutation::F;
 };
 
-}  // namespace tachyon::crypto
+}  // namespace crypto
+}  // namespace tachyon
 
 #endif  // TACHYON_CRYPTO_CHALLENGER_DUPLEX_CHALLENGER_H_
