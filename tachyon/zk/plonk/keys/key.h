@@ -106,9 +106,7 @@ class TACHYON_EXPORT Key {
         base::Map(std::make_move_iterator(selector_polys_tmp.begin()),
                   std::make_move_iterator(selector_polys_tmp.end()),
                   [](std::vector<F>&& vec) { return Evals(std::move(vec)); });
-    fixed_columns.insert(fixed_columns.end(),
-                         std::make_move_iterator(selector_polys.begin()),
-                         std::make_move_iterator(selector_polys.end()));
+    base::Extend(fixed_columns, std::move(selector_polys));
 
     return true;
   }
