@@ -47,6 +47,19 @@ tachyon_sp1_baby_bear_poseidon2_fri_proof_clone(
 TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_fri_proof_destroy(
     tachyon_sp1_baby_bear_poseidon2_fri_proof* fri_proof);
 
+/**
+ * @brief Writes a hint of the fri proof to the byte array.
+ * See
+ * https://github.com/succinctlabs/sp1/blob/6f67afd/crates/recursion/program/src/fri/hints.rs.
+ *
+ * @param fri_proof A const pointer to the set of fri proof.
+ * @param data A pointer to the byte array.
+ * @param data_len A pointer to store the length of the byte array.
+ */
+TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_fri_proof_write_hint(
+    const tachyon_sp1_baby_bear_poseidon2_fri_proof* fri_proof, uint8_t* data,
+    size_t* data_len);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
