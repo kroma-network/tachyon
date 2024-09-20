@@ -1,6 +1,8 @@
 #ifndef VENDORS_SP1_INCLUDE_BABY_BEAR_POSEIDON2_FRI_PROOF_H_
 #define VENDORS_SP1_INCLUDE_BABY_BEAR_POSEIDON2_FRI_PROOF_H_
 
+#include <stdint.h>
+
 #include <memory>
 
 #include "rust/cxx.h"
@@ -21,6 +23,7 @@ class FriProof {
     return proof_;
   }
 
+  rust::Vec<uint8_t> write_hint() const;
   std::unique_ptr<FriProof> clone() const;
 
  private:

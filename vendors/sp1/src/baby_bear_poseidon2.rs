@@ -1,10 +1,13 @@
 use std::{fmt::Debug, io::Cursor, marker::PhantomData, pin::Pin};
 
-use p3_baby_bear::BabyBear;
+use p3_baby_bear::{BabyBear, DiffusionMatrixBabyBear};
 use p3_challenger::{CanObserve, CanSample, CanSampleBits, FieldChallenger, GrindingChallenger};
 use p3_commit::{Mmcs, Pcs, PolynomialSpace, TwoAdicMultiplicativeCoset};
 use p3_dft::TwoAdicSubgroupDft;
-use p3_field::{ExtensionField, Field, PackedField, PackedValue, PrimeField64, TwoAdicField};
+use p3_field::{
+    extension::BinomialExtensionField, ExtensionField, Field, PackedField, PackedValue,
+    PrimeField64, TwoAdicField,
+};
 use p3_fri::{FriConfig, VerificationError};
 use p3_matrix::{
     bitrev::BitReversableMatrix,
@@ -12,9 +15,19 @@ use p3_matrix::{
     Matrix,
 };
 use p3_maybe_rayon::prelude::*;
+use p3_poseidon2::{Poseidon2, Poseidon2ExternalMatrixGeneral};
 use p3_symmetric::{CryptographicPermutation, Hash};
 use p3_util::log2_strict_usize;
 use serde::{Deserialize, Serialize};
+use sp1_core::utils::{InnerBatchOpening, InnerFriProof};
+use sp1_recursion_compiler::{
+    asm::AsmConfig,
+    ir::{Builder, Config},
+};
+use sp1_recursion_core::air::Block;
+use sp1_recursion_program::{
+    challenger::DuplexChallengerVariable, fri::types::TwoAdicPcsProofVariable, hints::Hintable,
+};
 use tachyon_rs::math::finite_fields::{baby_bear::BabyBear as TachyonBabyBearImpl, Fp4};
 use tracing::instrument;
 
@@ -63,6 +76,7 @@ pub mod ffi {
         fn new_duplex_challenger() -> UniquePtr<DuplexChallenger>;
         fn observe(self: Pin<&mut DuplexChallenger>, value: &TachyonBabyBear);
         fn sample(self: Pin<&mut DuplexChallenger>) -> Box<TachyonBabyBear>;
+        fn write_hint(&self) -> Vec<u8>;
         fn clone(&self) -> UniquePtr<DuplexChallenger>;
     }
 
@@ -71,6 +85,7 @@ pub mod ffi {
 
         type FriProof;
 
+        fn write_hint(&self) -> Vec<u8>;
         fn clone(&self) -> UniquePtr<FriProof>;
     }
 
@@ -275,6 +290,10 @@ impl<F, P, const WIDTH: usize, const RATE: usize> DuplexChallenger<F, P, WIDTH, 
             _marker: PhantomData,
         }
     }
+
+    pub fn write_hint(&self) -> Vec<u8> {
+        self.inner.write_hint()
+    }
 }
 
 impl<F, P, const WIDTH: usize, const RATE: usize> FieldChallenger<F>
@@ -400,6 +419,39 @@ impl<F, P, const WIDTH: usize, const RATE: usize> HasCXXDuplexChallenger
     }
 }
 
+type InnerVal = BabyBear;
+type InnerChallenge = BinomialExtensionField<InnerVal, 4>;
+type InnerPerm =
+    Poseidon2<InnerVal, Poseidon2ExternalMatrixGeneral, DiffusionMatrixBabyBear, 16, 7>;
+type InnerConfig = AsmConfig<InnerVal, InnerChallenge>;
+type C = InnerConfig;
+
+impl Hintable<C> for DuplexChallenger<BabyBear, InnerPerm, 16, 8> {
+    type HintVariable = DuplexChallengerVariable<C>;
+
+    fn read(builder: &mut Builder<C>) -> Self::HintVariable {
+        let sponge_state = builder.hint_felts();
+        let nb_inputs = builder.hint_var();
+        let input_buffer = builder.hint_felts();
+        let nb_outputs = builder.hint_var();
+        let output_buffer = builder.hint_felts();
+        DuplexChallengerVariable {
+            sponge_state,
+            nb_inputs,
+            input_buffer,
+            nb_outputs,
+            output_buffer,
+        }
+    }
+
+    fn write(&self) -> Vec<Vec<Block<<C as Config>::F>>> {
+        let buffer = self.write_hint();
+        let mut reader = Cursor::new(buffer);
+        let values = Vec::<Vec<[u32; 4]>>::read_from(&mut reader).unwrap();
+        unsafe { std::mem::transmute(values) }
+    }
+}
+
 pub struct FriProof {
     inner: cxx::UniquePtr<ffi::FriProof>,
 }
@@ -430,12 +482,35 @@ impl Clone for FriProof {
     }
 }
 
+impl Hintable<C> for FriProof {
+    type HintVariable = TwoAdicPcsProofVariable<C>;
+
+    fn read(builder: &mut Builder<C>) -> Self::HintVariable {
+        let fri_proof = InnerFriProof::read(builder);
+        let query_openings = Vec::<Vec<InnerBatchOpening>>::read(builder);
+        Self::HintVariable {
+            fri_proof,
+            query_openings,
+        }
+    }
+
+    fn write(&self) -> Vec<Vec<Block<<C as Config>::F>>> {
+        let buffer = self.write_hint();
+        let mut reader = Cursor::new(buffer);
+        let values = Vec::<Vec<[u32; 4]>>::read_from(&mut reader).unwrap();
+        unsafe { std::mem::transmute(values) }
+    }
+}
+
 impl FriProof {
     pub fn new(inner: cxx::UniquePtr<ffi::FriProof>) -> Self {
         Self { inner }
     }
-}
 
+    pub fn write_hint(&self) -> Vec<u8> {
+        self.inner.write_hint()
+    }
+}
 pub struct LDEVec<Val> {
     inner: cxx::UniquePtr<ffi::LDEVec>,
     _marker: PhantomData<Val>,

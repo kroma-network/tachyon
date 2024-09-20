@@ -5,6 +5,7 @@ mod test {
     use p3_challenger::{CanObserve, CanSample, DuplexChallenger};
     use p3_field::{extension::BinomialExtensionField, AbstractField};
     use sp1_core::utils::baby_bear_poseidon2::{my_perm, Perm};
+    use sp1_recursion_program::hints::Hintable;
 
     type F = BabyBear;
     type EF = BinomialExtensionField<F, 4>;
@@ -49,5 +50,9 @@ mod test {
                 )
             );
         }
+
+        let result = duplex_challenger.write();
+        let tachyon_result = tachyon_duplex_challenger.write();
+        assert_eq!(result, tachyon_result);
     }
 }
