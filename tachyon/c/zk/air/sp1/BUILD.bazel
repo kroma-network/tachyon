@@ -224,6 +224,7 @@ tachyon_cc_library(
     name = "block",
     hdrs = ["block.h"],
     deps = [
+        "//tachyon/base/buffer:copyable",
         "//tachyon/base/strings:string_util",
         "//tachyon/base/types:always_false",
         "//tachyon/math/finite_fields:finite_field_traits",
@@ -242,10 +243,12 @@ tachyon_cc_unittest(
         "baby_bear_poseidon2_hintable_unittest.cc",
         "baby_bear_poseidon2_opened_values_unittest.cc",
         "baby_bear_poseidon2_two_adic_fri_unittest.cc",
+        "block_unittest.cc",
     ],
     deps = [
         ":baby_bear_poseidon2_hintable",
         ":sp1",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )
