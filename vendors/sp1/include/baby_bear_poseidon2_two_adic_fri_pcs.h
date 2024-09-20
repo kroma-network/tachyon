@@ -17,6 +17,7 @@ class CommitResult;
 class Domains;
 class DuplexChallenger;
 class FriProof;
+class LDEVec;
 class OpeningPoints;
 class OpeningProof;
 class ProverData;
@@ -33,12 +34,10 @@ class TwoAdicFriPcs {
   TwoAdicFriPcs& operator=(const TwoAdicFriPcs& other) = delete;
   ~TwoAdicFriPcs();
 
-  void allocate_ldes(size_t size) const;
   void coset_lde_batch(rust::Slice<TachyonBabyBear> values, size_t cols,
                        rust::Slice<TachyonBabyBear> extended_values,
                        const TachyonBabyBear& shift) const;
-  std::unique_ptr<ProverData> commit(
-      const ProverDataVec& prover_data_vec) const;
+  std::unique_ptr<ProverData> commit(LDEVec& lde_vec) const;
   std::unique_ptr<OpeningProof> do_open(const ProverDataVec& prover_data_vec,
                                         const OpeningPoints& opening_points,
                                         DuplexChallenger& challenger) const;

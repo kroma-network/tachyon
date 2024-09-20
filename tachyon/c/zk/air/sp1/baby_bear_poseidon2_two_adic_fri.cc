@@ -11,6 +11,7 @@
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_vec_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_fri_proof_type_traits.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_lde_vec_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_opened_values_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_opening_points_type_traits.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri_type_traits.h"
@@ -94,11 +95,6 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_destroy(
   delete c::base::native_cast(pcs);
 }
 
-void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(
-    tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs, size_t size) {
-  c::base::native_cast(pcs)->AllocateLDEs(size);
-}
-
 void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
     tachyon_baby_bear* values, size_t rows, size_t cols,
@@ -117,13 +113,13 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_coset_lde_batch(
 
 void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs,
+    tachyon_sp1_baby_bear_poseidon2_lde_vec* lde_vec,
     tachyon_baby_bear* commitment,
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data,
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* prover_data_vec) {
+    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree** prover_data) {
   using Commitment = MMCS::Commitment;
-  c::base::native_cast(pcs)->Commit(reinterpret_cast<Commitment*>(commitment),
-                                    reinterpret_cast<Tree**>(prover_data),
-                                    c::base::native_cast(prover_data_vec));
+  c::base::native_cast(pcs)->Commit(std::move(c::base::native_cast(*lde_vec)),
+                                    reinterpret_cast<Commitment*>(commitment),
+                                    reinterpret_cast<Tree**>(prover_data));
 }
 
 void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
@@ -134,7 +130,7 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
     tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger,
     tachyon_sp1_baby_bear_poseidon2_opened_values** opened_values,
     tachyon_sp1_baby_bear_poseidon2_fri_proof** proof) {
-  CHECK(c::base::native_cast(pcs)->CreateOpeningProof(
+  c::base::native_cast(pcs)->CreateOpeningProof(
       c::base::native_cast(*prover_data_by_round),
       c::base::native_cast(*points_by_round), c::base::native_cast(*challenger),
       c::base::native_cast(
@@ -142,7 +138,7 @@ void tachyon_sp1_baby_bear_poseidon2_two_adic_fri_open(
               *opened_values)),
       c::base::native_cast(
           reinterpret_cast<tachyon_sp1_baby_bear_poseidon2_fri_proof*>(
-              *proof))));
+              *proof)));
 }
 
 bool tachyon_sp1_baby_bear_poseidon2_two_adic_fri_verify(

@@ -14,11 +14,6 @@ TwoAdicFriPcs::~TwoAdicFriPcs() {
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri_destroy(pcs_);
 }
 
-void TwoAdicFriPcs::allocate_ldes(size_t size) const {
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(
-      const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri*>(pcs_), size);
-}
-
 void TwoAdicFriPcs::coset_lde_batch(
     rust::Slice<TachyonBabyBear> values, size_t cols,
     rust::Slice<TachyonBabyBear> extended_values,
@@ -30,13 +25,11 @@ void TwoAdicFriPcs::coset_lde_batch(
       reinterpret_cast<const tachyon_baby_bear&>(shift));
 }
 
-std::unique_ptr<ProverData> TwoAdicFriPcs::commit(
-    const ProverDataVec& prover_data_vec) const {
+std::unique_ptr<ProverData> TwoAdicFriPcs::commit(LDEVec& lde_vec) const {
   std::unique_ptr<ProverData> ret(new ProverData);
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
       const_cast<tachyon_sp1_baby_bear_poseidon2_two_adic_fri*>(pcs_),
-      ret->commitment(), ret->tree_ptr(),
-      const_cast<ProverDataVec&>(prover_data_vec).tree_vec());
+      lde_vec.lde_vec(), ret->commitment(), ret->tree_ptr());
   return ret;
 }
 

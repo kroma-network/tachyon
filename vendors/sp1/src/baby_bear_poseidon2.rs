@@ -75,6 +75,15 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("vendors/sp1/include/baby_bear_poseidon2_lde_vec.h");
+
+        type LDEVec;
+
+        fn new_lde_vec() -> UniquePtr<LDEVec>;
+        fn add(self: Pin<&mut LDEVec>, values: &[TachyonBabyBear], cols: usize);
+    }
+
+    unsafe extern "C++" {
         include!("vendors/sp1/include/baby_bear_poseidon2_opened_values.h");
 
         type OpenedValues;
@@ -138,8 +147,9 @@ pub mod ffi {
 
         type ProverDataVec;
 
-        fn new_prover_data_vec() -> UniquePtr<ProverDataVec>;
+        fn new_prover_data_vec(rounds: usize) -> UniquePtr<ProverDataVec>;
         fn clone(&self) -> UniquePtr<ProverDataVec>;
+        fn set(self: Pin<&mut ProverDataVec>, round: usize, prover_data: &ProverData);
     }
 
     unsafe extern "C++" {
@@ -152,7 +162,6 @@ pub mod ffi {
             num_queries: usize,
             proof_of_work_bits: usize,
         ) -> UniquePtr<TwoAdicFriPcs>;
-        fn allocate_ldes(&self, size: usize);
         fn coset_lde_batch(
             &self,
             values: &mut [TachyonBabyBear],
@@ -160,7 +169,7 @@ pub mod ffi {
             extended_values: &mut [TachyonBabyBear],
             shift: &TachyonBabyBear,
         );
-        fn commit(&self, prover_data_vec: &ProverDataVec) -> UniquePtr<ProverData>;
+        fn commit(&self, lde_vec: Pin<&mut LDEVec>) -> UniquePtr<ProverData>;
         fn do_open(
             &self,
             prover_data_vec: &ProverDataVec,
@@ -427,6 +436,26 @@ impl FriProof {
     }
 }
 
+pub struct LDEVec<Val> {
+    inner: cxx::UniquePtr<ffi::LDEVec>,
+    _marker: PhantomData<Val>,
+}
+
+impl<Val> LDEVec<Val> {
+    pub fn new(inner: cxx::UniquePtr<ffi::LDEVec>) -> Self {
+        Self {
+            inner,
+            _marker: PhantomData,
+        }
+    }
+
+    pub fn add(&mut self, values: &[Val], cols: usize) {
+        self.inner
+            .pin_mut()
+            .add(unsafe { std::mem::transmute(values) }, cols)
+    }
+}
+
 pub struct OpenedValues<Val> {
     inner: cxx::UniquePtr<ffi::OpenedValues>,
     _marker: PhantomData<Val>,
@@ -569,13 +598,16 @@ impl<Val> ProverDataVec<Val> {
             _marker: PhantomData,
         }
     }
+
+    pub fn set(&mut self, round: usize, prover_data: &ProverData<Val>) {
+        self.inner.pin_mut().set(round, &prover_data.inner);
+    }
 }
 
 pub struct TwoAdicFriPcs<Val, Dft, InputMmcs, FriMmcs> {
     log_n: usize,
-    log_blowup: usize,
+    fri: FriConfig<FriMmcs>,
     inner: cxx::UniquePtr<ffi::TwoAdicFriPcs>,
-    prover_data_vec: ProverDataVec<Val>,
     _marker: PhantomData<(Val, Dft, InputMmcs, FriMmcs)>,
 }
 
@@ -591,23 +623,23 @@ where
 {
     pub fn new(
         log_n: usize,
-        fri_config: &FriConfig<FriMmcs>,
+        fri_config: FriConfig<FriMmcs>,
     ) -> TwoAdicFriPcs<Val, Dft, InputMmcs, FriMmcs> {
+        let inner = ffi::new_two_adic_fri_pcs(
+            fri_config.log_blowup,
+            fri_config.num_queries,
+            fri_config.proof_of_work_bits,
+        );
         Self {
             log_n,
-            log_blowup: fri_config.log_blowup,
-            inner: ffi::new_two_adic_fri_pcs(
-                fri_config.log_blowup,
-                fri_config.num_queries,
-                fri_config.proof_of_work_bits,
-            ),
-            prover_data_vec: ProverDataVec::new(ffi::new_prover_data_vec()),
+            fri: fri_config,
+            inner,
             _marker: PhantomData,
         }
     }
 
-    pub fn allocate_ldes(&self, size: usize) {
-        self.inner.allocate_ldes(size)
+    pub fn fri_config(&self) -> &FriConfig<FriMmcs> {
+        &self.fri
     }
 
     pub fn coset_lde_batch(
@@ -626,17 +658,24 @@ where
         }
     }
 
-    pub fn do_commit(&self) -> ProverData<Val> {
-        ProverData::new(self.inner.commit(&self.prover_data_vec.inner))
+    pub fn do_commit(&self, ldes: Vec<DenseMatrix<Val>>) -> ProverData<Val> {
+        let mut lde_vec = LDEVec::new(ffi::new_lde_vec());
+        for lde in ldes.iter() {
+            lde_vec.add(lde.values.as_slice(), lde.width);
+        }
+        let mut prover_data = ProverData::new(self.inner.commit(lde_vec.inner.pin_mut()));
+        prover_data.ldes = ldes;
+        prover_data
     }
 
     pub fn do_open<Challenge>(
         &self,
+        prover_data_vec: &ProverDataVec<Val>,
         opening_points: &OpeningPoints<Challenge>,
         challenger: Pin<&mut ffi::DuplexChallenger>,
     ) -> OpeningProof {
         OpeningProof::new(self.inner.do_open(
-            &self.prover_data_vec.inner,
+            &prover_data_vec.inner,
             &opening_points.inner,
             challenger,
         ))
@@ -699,17 +738,16 @@ where
         &self,
         evaluations: Vec<(Self::Domain, RowMajorMatrix<Val>)>,
     ) -> (Self::Commitment, Self::ProverData) {
-        self.allocate_ldes(evaluations.len());
         let mut ldes = vec![];
         for (domain, mut evals) in evaluations.into_iter() {
             assert_eq!(domain.size(), evals.height());
             let shift = Val::generator() / domain.shift;
-            let mut lde = RowMajorMatrix::default(evals.width(), evals.height() << self.log_blowup);
+            let mut lde =
+                RowMajorMatrix::default(evals.width(), evals.height() << self.fri.log_blowup);
             self.coset_lde_batch(&mut evals, &mut lde, shift);
             ldes.push(lde);
         }
-        let mut prover_data = self.do_commit();
-        prover_data.ldes = ldes;
+        let prover_data = self.do_commit(ldes);
         let mut value = [<<Val as Field>::Packing as PackedValue>::Value::default(); 8];
         prover_data.write_commit(unsafe { std::mem::transmute(value.as_mut_slice()) });
         (Self::Commitment::from(value), prover_data)
@@ -740,8 +778,10 @@ where
         )>,
         challenger: &mut Challenger,
     ) -> (p3_commit::OpenedValues<Challenge>, Self::Proof) {
+        let mut prover_data_vec = ProverDataVec::new(ffi::new_prover_data_vec(rounds.len()));
         let mut opening_points = OpeningPoints::new(ffi::new_opening_points(rounds.len()));
-        for (round, (_, matrix)) in rounds.iter().enumerate() {
+        for (round, (prover_data, matrix)) in rounds.iter().enumerate() {
+            prover_data_vec.set(round, &prover_data);
             opening_points.allocate(round, matrix.len(), matrix[0].len());
             for (row, rows) in matrix.iter().enumerate() {
                 for (col, challenge) in rows.iter().enumerate() {
@@ -749,7 +789,11 @@ where
                 }
             }
         }
-        let mut opening_proof = self.do_open(&opening_points, challenger.get_inner_pin_mut());
+        let mut opening_proof = self.do_open(
+            &prover_data_vec,
+            &opening_points,
+            challenger.get_inner_pin_mut(),
+        );
         (
             opening_proof.serialize_to_opened_values(),
             opening_proof.take_fri_proof(),

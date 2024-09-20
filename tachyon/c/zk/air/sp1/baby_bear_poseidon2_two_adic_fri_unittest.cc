@@ -35,8 +35,9 @@ class TwoAdicFRITest : public testing::Test {
   void SetUp() override {
     pcs_ =
         tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(kLogBlowup, 10, 8);
+    lde_vec_ = tachyon_sp1_baby_bear_poseidon2_lde_vec_create();
     prover_data_vec_ =
-        tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_create();
+        tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_create(kRounds);
     opening_points_ =
         tachyon_sp1_baby_bear_poseidon2_opening_points_create(kRounds);
     challenger_ = tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create();
@@ -49,6 +50,7 @@ class TwoAdicFRITest : public testing::Test {
 
   void TearDown() override {
     tachyon_sp1_baby_bear_poseidon2_two_adic_fri_destroy(pcs_);
+    tachyon_sp1_baby_bear_poseidon2_lde_vec_destroy(lde_vec_);
     tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_destroy(
         prover_data_vec_);
     tachyon_sp1_baby_bear_poseidon2_opening_points_destroy(opening_points_);
@@ -61,6 +63,7 @@ class TwoAdicFRITest : public testing::Test {
 
  protected:
   tachyon_sp1_baby_bear_poseidon2_two_adic_fri* pcs_ = nullptr;
+  tachyon_sp1_baby_bear_poseidon2_lde_vec* lde_vec_ = nullptr;
   tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* prover_data_vec_ =
       nullptr;
   tachyon_sp1_baby_bear_poseidon2_opening_points* opening_points_ = nullptr;
@@ -93,7 +96,6 @@ TEST_F(TwoAdicFRITest, APIs) {
                                                   []() { return F::Random(); });
   std::vector<F> matrix_data_clone = matrix_data;
 
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_allocate_ldes(pcs_, kLogBlowup);
   std::vector<F> extended_matrix_data(kExtendedRowsForInput * kColsForInput);
   F shift = F::FromMontgomery(F::Config::kSubgroupGenerator) *
             coset.domain()->offset_inv();
@@ -102,10 +104,15 @@ TEST_F(TwoAdicFRITest, APIs) {
       kColsForInput,
       c::base::c_cast(const_cast<F*>(extended_matrix_data.data())),
       c::base::c_cast(shift));
+  tachyon_sp1_baby_bear_poseidon2_lde_vec_add(
+      lde_vec_, c::base::c_cast(const_cast<F*>(extended_matrix_data.data())),
+      kExtendedRowsForInput, kColsForInput);
   tachyon_baby_bear commitment[TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_CHUNK];
   tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* prover_data = nullptr;
-  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(
-      pcs_, commitment, &prover_data, prover_data_vec_);
+  tachyon_sp1_baby_bear_poseidon2_two_adic_fri_commit(pcs_, lde_vec_,
+                                                      commitment, &prover_data);
+  tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_set(prover_data_vec_, 0,
+                                                            prover_data);
 
   Commitment native_commitment;
   ProverData native_prover_data;

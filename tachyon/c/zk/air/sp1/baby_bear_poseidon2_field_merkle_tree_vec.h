@@ -7,7 +7,10 @@
 #ifndef TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_FIELD_MERKLE_TREE_VEC_H_
 #define TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_FIELD_MERKLE_TREE_VEC_H_
 
+#include <stddef.h>
+
 #include "tachyon/c/export.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree.h"
 
 struct tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec {};
 
@@ -18,10 +21,11 @@ extern "C" {
 /**
  * @brief Creates a new field merkle tree vector.
  *
+ * @param rounds The number of rounds.
  * @return A pointer to the newly created field merkle tree vector.
  */
 TACHYON_C_EXPORT tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec*
-tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_create();
+tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_create(size_t rounds);
 
 /**
  * @brief Clones an existing field merkle tree vector structure.
@@ -44,6 +48,18 @@ tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_clone(
 TACHYON_C_EXPORT void
 tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_destroy(
     tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* tree_vec);
+
+/**
+ * @brief Sets field merkle tree.
+ *
+ * @param tree_vec A pointer to the field merkle tree vector.
+ * @param round The round index of the point.
+ * @param tree The const pointer to the field merkle tree.
+ */
+TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec_set(
+    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec* tree_vec,
+    size_t round,
+    const tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* tree);
 
 #ifdef __cplusplus
 }  // extern "C"

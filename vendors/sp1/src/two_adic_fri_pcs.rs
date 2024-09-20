@@ -43,8 +43,9 @@ mod test {
         );
 
         let fri_config = default_fri_config();
+        let log_blowup = fri_config.log_blowup;
         let tachyon_pcs =
-            TachyonTwoAdicFriPcs::<Val, Dft, ValMmcs, ChallengeMmcs>::new(LOG_N, &fri_config);
+            TachyonTwoAdicFriPcs::<Val, Dft, ValMmcs, ChallengeMmcs>::new(LOG_N, fri_config);
 
         let mut rng = seeded_rng();
         let log_degrees_by_round = [[3, 4], [3, 4]];
@@ -122,7 +123,7 @@ mod test {
                         let shift = Val::generator() / domain.shift;
                         // Commit to the bit-reversed LDE.
                         Dft {}
-                            .coset_lde_batch(evals.clone(), fri_config.log_blowup, shift)
+                            .coset_lde_batch(evals.clone(), log_blowup, shift)
                             .bit_reverse_rows()
                             .to_row_major_matrix()
                     })

@@ -8,5 +8,6 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/commitments/fri:two_adic_fri",
+        "@com_google_absl//absl/debugging:leak_check",
     ],
 )

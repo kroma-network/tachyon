@@ -8,9 +8,7 @@
 namespace tachyon::sp1_api::baby_bear_poseidon2 {
 
 ProverData::~ProverData() {
-  if (owned_tree_) {
-    tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_destroy(tree_);
-  }
+  tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_destroy(tree_);
 }
 
 void ProverData::write_commit(rust::Slice<TachyonBabyBear> values) const {
@@ -22,7 +20,7 @@ void ProverData::write_commit(rust::Slice<TachyonBabyBear> values) const {
 
 std::unique_ptr<ProverData> ProverData::clone() const {
   return std::make_unique<ProverData>(
-      tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_clone(tree_), true);
+      tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_clone(tree_));
 }
 
 }  // namespace tachyon::sp1_api::baby_bear_poseidon2
