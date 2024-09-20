@@ -1,6 +1,8 @@
 #ifndef VENDORS_SP1_INCLUDE_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_
 #define VENDORS_SP1_INCLUDE_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_
 
+#include <stdint.h>
+
 #include <memory>
 
 #include "rust/cxx.h"
@@ -27,6 +29,7 @@ class DuplexChallenger {
 
   void observe(const TachyonBabyBear& value);
   rust::Box<TachyonBabyBear> sample();
+  rust::Vec<uint8_t> write_hint() const;
   std::unique_ptr<DuplexChallenger> clone() const;
 
  private:
