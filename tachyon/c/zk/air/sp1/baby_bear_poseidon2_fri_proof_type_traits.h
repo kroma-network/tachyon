@@ -10,14 +10,14 @@ namespace tachyon::c::base {
 
 template <>
 struct TypeTraits<
-    tachyon::crypto::FRIProof<zk::air::plonky3::baby_bear::PCS::Base>> {
+    tachyon::crypto::FRIProof<zk::air::sp1::baby_bear::PCS::Base>> {
   using CType = tachyon_sp1_baby_bear_poseidon2_fri_proof;
 };
 
 template <>
 struct TypeTraits<tachyon_sp1_baby_bear_poseidon2_fri_proof> {
   using NativeType =
-      tachyon::crypto::FRIProof<zk::air::plonky3::baby_bear::PCS::Base>;
+      tachyon::crypto::FRIProof<zk::air::sp1::baby_bear::PCS::Base>;
 };
 
 }  // namespace tachyon::c::base

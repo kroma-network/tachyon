@@ -4,7 +4,7 @@
 
 using namespace tachyon;
 
-using Proof = crypto::FRIProof<c::zk::air::plonky3::baby_bear::PCS::Base>;
+using Proof = crypto::FRIProof<c::zk::air::sp1::baby_bear::PCS::Base>;
 
 tachyon_sp1_baby_bear_poseidon2_fri_proof*
 tachyon_sp1_baby_bear_poseidon2_fri_proof_create() {

@@ -23,9 +23,9 @@ namespace {
 
 using F = math::BabyBear;
 using ExtF = math::BabyBear4;
-using MMCS = c::zk::air::plonky3::baby_bear::MMCS;
-using Coset = c::zk::air::plonky3::baby_bear::Coset;
-using PCS = c::zk::air::plonky3::baby_bear::PCS;
+using MMCS = c::zk::air::sp1::baby_bear::MMCS;
+using Coset = c::zk::air::sp1::baby_bear::Coset;
+using PCS = c::zk::air::sp1::baby_bear::PCS;
 
 constexpr uint32_t kLogBlowup = 1;
 constexpr size_t kRounds = 1;
