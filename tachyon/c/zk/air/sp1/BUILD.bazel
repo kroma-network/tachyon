@@ -126,6 +126,7 @@ tachyon_cc_library(
         ":block",
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/challenger:duplex_challenger",
+        "//tachyon/crypto/commitments/fri:fri_proof",
         "//tachyon/math/finite_fields/baby_bear",
         "//tachyon/math/matrix:matrix_types",
     ],
