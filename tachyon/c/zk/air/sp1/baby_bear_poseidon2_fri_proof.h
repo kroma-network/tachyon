@@ -42,10 +42,10 @@ tachyon_sp1_baby_bear_poseidon2_fri_proof_clone(
 /**
  * @brief Destroys a fri proof, freeing its resources.
  *
- * @param proof A pointer to the fri proof to destroy.
+ * @param fri_proof A pointer to the fri proof to destroy.
  */
 TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_fri_proof_destroy(
-    tachyon_sp1_baby_bear_poseidon2_fri_proof* proof);
+    tachyon_sp1_baby_bear_poseidon2_fri_proof* fri_proof);
 
 #ifdef __cplusplus
 }  // extern "C"
