@@ -10,9 +10,11 @@
 #include "absl/container/inlined_vector.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_fields.h"
 #include "tachyon/c/zk/air/sp1/block.h"
 #include "tachyon/crypto/challenger/duplex_challenger.h"
+#include "tachyon/crypto/commitments/fri/fri_proof.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 #include "tachyon/math/matrix/matrix_types.h"
 
@@ -51,6 +53,34 @@ class Hintable<Eigen::Index> {
   constexpr static size_t EstimateSize(size_t) { return 1; }
 };
 
+template <size_t N>
+class Hintable<std::array<F, N>> {
+ public:
+  static std::vector<std::vector<Block<F>>> Write(
+      const std::array<F, N>& values) {
+    return {tachyon::base::Map(values,
+                               [](F value) { return Block<F>::From(value); })};
+  }
+
+  constexpr static size_t EstimateSize(const std::array<F, N>& values) {
+    return 1;
+  }
+};
+
+template <>
+class Hintable<std::vector<F>> {
+ public:
+  static std::vector<std::vector<Block<F>>> Write(
+      const std::vector<F>& values) {
+    return {tachyon::base::Map(values,
+                               [](F value) { return Block<F>::From(value); })};
+  }
+
+  constexpr static size_t EstimateSize(const std::vector<F>& values) {
+    return 1;
+  }
+};
+
 template <>
 class Hintable<math::Vector<F>> {
  public:
@@ -77,6 +107,28 @@ class Hintable<absl::InlinedVector<F, N>> {
   constexpr static size_t EstimateSize(
       const absl::InlinedVector<F, N>& values) {
     return 1;
+  }
+};
+
+template <typename T>
+class Hintable<std::vector<T>> {
+ public:
+  static std::vector<std::vector<Block<F>>> Write(
+      const std::vector<T>& values) {
+    std::vector<std::vector<Block<F>>> ret;
+    ret.reserve(EstimateSize(values));
+    ret.push_back({Block<F>::From(F(values.size()))});
+    for (size_t i = 0; i < values.size(); ++i) {
+      tachyon::base::Extend(ret, WriteHint(values[i]));
+    }
+    return ret;
+  }
+
+  constexpr static size_t EstimateSize(const std::vector<T>& values) {
+    return std::accumulate(values.begin(), values.end(), 1,
+                           [](size_t total, const T& value) {
+                             return total + baby_bear::EstimateSize(value);
+                           });
   }
 };
 
@@ -121,6 +173,108 @@ class Hintable<tachyon::crypto::DuplexChallenger<Permutation, R>> {
     return baby_bear::EstimateSize(
         value.state(), value.input_buffer().size(), value.input_buffer(),
         value.output_buffer().size(), value.output_buffer());
+  }
+};
+
+template <typename PCS>
+class Hintable<tachyon::crypto::BatchOpening<PCS>> {
+ public:
+  static std::vector<std::vector<Block<F>>> Write(
+      const tachyon::crypto::BatchOpening<PCS>& value) {
+    std::vector<std::vector<Block<F>>> ret;
+    ret.reserve(EstimateSize(value));
+    tachyon::base::Extend(ret, WriteHint(value.opened_values));
+    tachyon::base::Extend(ret, WriteHint(value.opening_proof));
+    return ret;
+  }
+
+  constexpr static size_t EstimateSize(
+      const tachyon::crypto::BatchOpening<PCS>& value) {
+    return baby_bear::EstimateSize(value.opened_values, value.opening_proof);
+  }
+};
+
+template <typename PCS>
+class Hintable<tachyon::crypto::CommitPhaseProofStep<PCS>> {
+ public:
+  static std::vector<std::vector<Block<F>>> Write(
+      const tachyon::crypto::CommitPhaseProofStep<PCS>& value) {
+    std::vector<std::vector<Block<F>>> ret;
+    ret.reserve(EstimateSize(value));
+    ret.push_back({Block<F>::From(value.sibling_value)});
+    tachyon::base::Extend(ret, WriteHint(value.opening_proof));
+    return ret;
+  }
+
+  constexpr static size_t EstimateSize(
+      const tachyon::crypto::CommitPhaseProofStep<PCS>& value) {
+    return 1 + baby_bear::EstimateSize(value.opening_proof);
+  }
+};
+
+template <typename PCS>
+class Hintable<tachyon::crypto::QueryProof<PCS>> {
+ public:
+  static std::vector<std::vector<Block<F>>> Write(
+      const tachyon::crypto::QueryProof<PCS>& value) {
+    std::vector<std::vector<Block<F>>> ret;
+    ret.reserve(EstimateSize(value));
+    // NOTE(chokobole): |input_proof| shouldn't be included here.
+    // See
+    // https://github.com/succinctlabs/sp1/blob/6f67afd/crates/recursion/program/src/fri/hints.rs#L123-L129.
+    tachyon::base::Extend(ret, WriteHint(value.commit_phase_openings));
+    return ret;
+  }
+
+  constexpr static size_t EstimateSize(
+      const tachyon::crypto::QueryProof<PCS>& value) {
+    return baby_bear::EstimateSize(value.commit_phase_openings);
+  }
+};
+
+template <typename PCS>
+class Hintable<tachyon::crypto::FRIProof<PCS>> {
+ public:
+  static std::vector<std::vector<Block<F>>> Write(
+      const tachyon::crypto::FRIProof<PCS>& value) {
+    std::vector<std::vector<Block<F>>> ret;
+    size_t ret_size = EstimateSize(value);
+    ret.reserve(ret_size);
+    tachyon::base::Extend(ret, WriteHint(value.commit_phase_commits));
+    tachyon::base::Extend(ret, WriteHint(value.query_proofs));
+    ret.push_back({Block<F>::From(value.final_eval)});
+    ret.push_back({Block<F>::From(value.pow_witness)});
+    // NOTE(chokobole): |query_proofs[i].input_proof| should be included here.
+    // See
+    // https://github.com/succinctlabs/sp1/blob/6f67afd/crates/recursion/program/src/fri/hints.rs#L279.
+    std::vector<std::vector<Block<F>>> query_openings;
+    size_t query_openings_size = std::accumulate(
+        value.query_proofs.begin(), value.query_proofs.end(), 1,
+        [](size_t total, const tachyon::crypto::QueryProof<PCS>& proof) {
+          return total + baby_bear::EstimateSize(proof.input_proof);
+        });
+    query_openings.reserve(query_openings_size);
+    query_openings.push_back({Block<F>::From(F(value.query_proofs.size()))});
+    for (size_t i = 0; i < value.query_proofs.size(); ++i) {
+      tachyon::base::Extend(query_openings,
+                            WriteHint(value.query_proofs[i].input_proof));
+    }
+    CHECK_EQ(query_openings.size(), query_openings_size);
+    tachyon::base::Extend(ret, std::move(query_openings));
+    CHECK_EQ(ret.size(), ret_size);
+    return ret;
+  }
+
+  constexpr static size_t EstimateSize(
+      const tachyon::crypto::FRIProof<PCS>& value) {
+    size_t query_openings_size = std::accumulate(
+        value.query_proofs.begin(), value.query_proofs.end(), 1,
+        [](size_t total, const tachyon::crypto::QueryProof<PCS>& proof) {
+          return total + baby_bear::EstimateSize(proof.input_proof);
+        });
+    return baby_bear::EstimateSize(value.commit_phase_commits,
+                                   value.query_proofs) +
+           2 + query_openings_size;
   }
 };
 
