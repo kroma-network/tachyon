@@ -98,7 +98,7 @@ Symbol Definitions:
 
 - [x] 2024Q1 - Enable producing the [zkEVM](https://github.com/kroma-network/zkevm-circuits) proof.
 - [x] 2024Q2 - Replace Halo2 with Tachyon in [Kroma](https://kroma.network/) mainnet.
-- [ ] 2024Q3a - Implement and optimize Plonky3 in Tachyon.
+- [ ] 2024Q3a - Implement and optimize [Plonky3](https://github.com/Plonky3/Plonky3) in Tachyon.
 - [ ] 2024Q3b - Replace zkEVM with [SP1](https://github.com/succinctlabs/sp1) zkVM in [Kroma](https://kroma.network/) mainnet.
 
 ## Prerequisites
