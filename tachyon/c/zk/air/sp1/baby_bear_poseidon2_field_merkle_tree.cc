@@ -4,7 +4,7 @@
 
 using namespace tachyon;
 
-using Tree = c::zk::air::plonky3::baby_bear::Tree;
+using Tree = c::zk::air::sp1::baby_bear::Tree;
 
 tachyon_sp1_baby_bear_poseidon2_field_merkle_tree*
 tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_clone(

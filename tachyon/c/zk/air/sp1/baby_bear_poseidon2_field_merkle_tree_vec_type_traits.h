@@ -10,24 +10,24 @@
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
 
 namespace tachyon::c {
-namespace zk::air::plonky3::baby_bear {
+namespace zk::air::sp1::baby_bear {
 
 using Tree =
     tachyon::crypto::FieldMerkleTree<tachyon::math::BabyBear,
                                      TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_CHUNK>;
 
-}  // namespace zk::air::plonky3::baby_bear
+}  // namespace zk::air::sp1::baby_bear
 
 namespace base {
 
 template <>
-struct TypeTraits<std::vector<const zk::air::plonky3::baby_bear::Tree*>> {
+struct TypeTraits<std::vector<const zk::air::sp1::baby_bear::Tree*>> {
   using CType = tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec;
 };
 
 template <>
 struct TypeTraits<tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_vec> {
-  using NativeType = std::vector<const zk::air::plonky3::baby_bear::Tree*>;
+  using NativeType = std::vector<const zk::air::sp1::baby_bear::Tree*>;
 };
 
 }  // namespace base

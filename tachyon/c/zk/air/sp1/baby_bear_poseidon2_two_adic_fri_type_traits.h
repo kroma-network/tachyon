@@ -18,7 +18,7 @@
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
 
 namespace tachyon::c {
-namespace zk::air::plonky3::baby_bear {
+namespace zk::air::sp1::baby_bear {
 
 using Params = tachyon::crypto::Poseidon2Params<
     tachyon::math::BabyBear, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
@@ -86,18 +86,18 @@ using Coset =
 using PCS = crypto::TwoAdicFRIImpl<tachyon::math::BabyBear4, MMCS,
                                    ChallengeMMCS, Challenger>;
 
-}  // namespace zk::air::plonky3::baby_bear
+}  // namespace zk::air::sp1::baby_bear
 
 namespace base {
 
 template <>
-struct TypeTraits<zk::air::plonky3::baby_bear::PCS> {
+struct TypeTraits<zk::air::sp1::baby_bear::PCS> {
   using CType = tachyon_sp1_baby_bear_poseidon2_two_adic_fri;
 };
 
 template <>
 struct TypeTraits<tachyon_sp1_baby_bear_poseidon2_two_adic_fri> {
-  using NativeType = zk::air::plonky3::baby_bear::PCS;
+  using NativeType = zk::air::sp1::baby_bear::PCS;
 };
 
 }  // namespace base
