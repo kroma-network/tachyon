@@ -75,6 +75,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "baby_bear_poseidon2_fields",
+    hdrs = ["baby_bear_poseidon2_fields.h"],
+    deps = [
+        "//tachyon/math/finite_fields/baby_bear:baby_bear4",
+        "//tachyon/math/finite_fields/baby_bear:packed_baby_bear4",
+    ],
+)
+
+tachyon_cc_library(
     name = "baby_bear_poseidon2_field_merkle_tree",
     srcs = ["baby_bear_poseidon2_field_merkle_tree.cc"],
     hdrs = [
@@ -173,6 +182,7 @@ tachyon_cc_library(
         ":baby_bear_poseidon2_duplex_challenger",
         ":baby_bear_poseidon2_field_merkle_tree",
         ":baby_bear_poseidon2_field_merkle_tree_vec",
+        ":baby_bear_poseidon2_fields",
         ":baby_bear_poseidon2_lde_vec",
         ":baby_bear_poseidon2_opened_values",
         ":baby_bear_poseidon2_opening_points",
