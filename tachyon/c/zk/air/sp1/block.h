@@ -6,11 +6,13 @@
 #include <type_traits>
 #include <utility>
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 
-namespace tachyon::c::zk::air::sp1 {
+namespace tachyon {
+namespace c::zk::air::sp1 {
 
 template <typename T>
 class Block {
@@ -19,6 +21,8 @@ class Block {
   constexpr explicit Block(const std::array<T, 4>& value) : value_(value) {}
   constexpr explicit Block(std::array<T, 4>&& value)
       : value_(std::move(value)) {}
+
+  const std::array<T, 4>& value() const { return value_; }
 
   template <typename F = T, std::enable_if_t<tachyon::math::FiniteFieldTraits<
                                 F>::kIsFiniteField>* = nullptr>
@@ -52,6 +56,31 @@ class Block {
   std::array<T, 4> value_;
 };
 
-}  // namespace tachyon::c::zk::air::sp1
+}  // namespace c::zk::air::sp1
+
+namespace base {
+
+template <typename T>
+class Copyable<c::zk::air::sp1::Block<T>> {
+ public:
+  static bool WriteTo(const c::zk::air::sp1::Block<T>& block, Buffer* buffer) {
+    return buffer->Write(block.value());
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       c::zk::air::sp1::Block<T>* block) {
+    std::array<T, 4> value;
+    if (!buffer.Read(&value)) return false;
+    *block = c::zk::air::sp1::Block<T>(std::move(value));
+    return true;
+  }
+
+  static size_t EstimateSize(const c::zk::air::sp1::Block<T>& block) {
+    return base::EstimateSize(block.value());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_C_ZK_AIR_SP1_BLOCK_H_
