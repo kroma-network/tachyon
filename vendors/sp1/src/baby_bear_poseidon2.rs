@@ -85,6 +85,7 @@ pub mod ffi {
 
         type FriProof;
 
+        fn eq(&self, other: &FriProof) -> bool;
         fn write_hint(&self) -> Vec<u8>;
         fn clone(&self) -> UniquePtr<FriProof>;
     }
@@ -481,6 +482,14 @@ impl Clone for FriProof {
         }
     }
 }
+
+impl PartialEq for FriProof {
+    fn eq(&self, other: &Self) -> bool {
+        self.inner.eq(&other.inner)
+    }
+}
+
+impl Eq for FriProof {}
 
 impl Hintable<C> for FriProof {
     type HintVariable = TwoAdicPcsProofVariable<C>;

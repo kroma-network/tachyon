@@ -23,6 +23,7 @@ class FriProof {
     return proof_;
   }
 
+  bool eq(const FriProof& other) const;
   rust::Vec<uint8_t> write_hint() const;
   std::unique_ptr<FriProof> clone() const;
 
