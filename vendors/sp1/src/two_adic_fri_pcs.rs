@@ -17,6 +17,7 @@ mod test {
         ValMmcs,
     };
 
+    use crate::baby_bear_poseidon2::FriProof;
     use crate::baby_bear_poseidon2::{
         DuplexChallenger as TachyonDuplexChallenger, TwoAdicFriPcs as TachyonTwoAdicFriPcs,
     };
@@ -184,5 +185,9 @@ mod test {
         assert!(tachyon_pcs
             .verify(rounds, &tachyon_proof, &mut tachyon_challenger_for_verify)
             .is_ok());
+
+        let encoded: Vec<u8> = bincode::serialize(&tachyon_proof).unwrap();
+        let decoded: FriProof = bincode::deserialize(&encoded[..]).unwrap();
+        assert!(tachyon_proof == decoded);
     }
 }

@@ -2638,6 +2638,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_bytes"
+version = "0.11.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "387cc504cb06bb40a96c8e04e951fe01854cf6bc921053c954e4a606d9675c6a"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "serde_derive"
 version = "1.0.204"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3085,6 +3094,7 @@ name = "tachyon_sp1"
 version = "0.0.1"
 dependencies = [
  "anyhow",
+ "bincode",
  "cxx",
  "itertools 0.13.0",
  "p3-baby-bear",
@@ -3101,6 +3111,7 @@ dependencies = [
  "rand 0.8.5",
  "rand_chacha",
  "serde",
+ "serde_bytes",
  "sp1-core",
  "sp1-recursion-compiler",
  "sp1-recursion-core",
