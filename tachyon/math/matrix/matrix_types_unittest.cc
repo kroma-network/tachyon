@@ -56,8 +56,6 @@ TEST_F(MatrixTypesTest, Copyable3x3Matrix) {
   ASSERT_TRUE(write_buf.Write(expected));
   ASSERT_TRUE(write_buf.Done());
 
-  write_buf.set_buffer_offset(0);
-
   {
     write_buf.set_buffer_offset(0);
     Matrix<GF7, 2, 3> value;
