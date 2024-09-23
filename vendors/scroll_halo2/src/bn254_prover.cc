@@ -3,6 +3,7 @@
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 #include "tachyon/c/zk/plonk/halo2/constants.h"
+#include "tachyon/rs/base/container_util.h"
 #include "tachyon/rs/base/rust_vec.h"
 #include "vendors/scroll_halo2/src/bn254.rs.h"
 
@@ -197,12 +198,7 @@ void Prover::create_proof(ProvingKey& key,
 rust::Vec<uint8_t> Prover::get_proof() const {
   size_t proof_len;
   tachyon_halo2_bn254_prover_get_proof(prover_, nullptr, &proof_len);
-  rust::Vec<uint8_t> proof;
-  // NOTE(chokobole): |rust::Vec<uint8_t>| doesn't have |resize()|.
-  proof.reserve(proof_len);
-  for (size_t i = 0; i < proof_len; ++i) {
-    proof.push_back(0);
-  }
+  rust::Vec<uint8_t> proof = rs::CreateDefaultVector<uint8_t>(proof_len);
   tachyon_halo2_bn254_prover_get_proof(prover_, proof.data(), &proof_len);
   return proof;
 }

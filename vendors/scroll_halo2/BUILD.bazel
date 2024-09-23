@@ -121,6 +121,7 @@ tachyon_cc_library(
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
         "//tachyon/base:logging",
+        "//tachyon/rs/base:container_util",
     ],
 )
 
@@ -168,6 +169,7 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+        "//tachyon/rs/base:container_util",
     ],
 )
 
@@ -181,6 +183,7 @@ tachyon_cc_library(
         ":bn254_poly",
         ":bn254_rational_evals",
         "//tachyon/base/buffer",
+        "//tachyon/rs/base:container_util",
         "//tachyon/rs/base:rust_vec",
     ],
 )
@@ -220,6 +223,7 @@ tachyon_cc_library(
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
         "//tachyon/base:logging",
+        "//tachyon/rs/base:container_util",
     ],
 )
 
@@ -229,6 +233,7 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+        "//tachyon/rs/base:container_util",
     ],
 )
 
@@ -248,6 +253,7 @@ tachyon_cc_library(
         ":cha_cha20_rng_api_hdrs",
         ":cha_cha20_rng_cxx_bridge/include",
         "//tachyon/base:logging",
+        "//tachyon/rs/base:container_util",
     ],
 )
 
@@ -267,5 +273,6 @@ tachyon_cc_library(
         ":xor_shift_rng_api_hdrs",
         ":xor_shift_rng_cxx_bridge/include",
         "//tachyon/base:logging",
+        "//tachyon/rs/base:container_util",
     ],
 )
