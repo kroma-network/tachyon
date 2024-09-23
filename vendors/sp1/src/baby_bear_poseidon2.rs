@@ -156,6 +156,7 @@ pub mod ffi {
 
         type ProverData;
 
+        fn eq(&self, other: &ProverData) -> bool;
         fn write_commit(&self, values: &mut [TachyonBabyBear]);
         fn clone(&self) -> UniquePtr<ProverData>;
     }
@@ -643,6 +644,14 @@ impl<Val> Debug for ProverData<Val> {
         f.debug_struct("ProverData").finish()
     }
 }
+
+impl<Val> PartialEq for ProverData<Val> {
+    fn eq(&self, other: &Self) -> bool {
+        self.inner.eq(&other.inner)
+    }
+}
+
+impl<Val> Eq for ProverData<Val> {}
 
 impl<Val> ProverData<Val> {
     pub fn new(inner: cxx::UniquePtr<ffi::ProverData>) -> Self {
