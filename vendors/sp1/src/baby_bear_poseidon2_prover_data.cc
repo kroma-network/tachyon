@@ -3,12 +3,17 @@
 #include <string.h>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_field_merkle_tree_type_traits.h"
 #include "vendors/sp1/src/baby_bear_poseidon2.rs.h"
 
 namespace tachyon::sp1_api::baby_bear_poseidon2 {
 
 ProverData::~ProverData() {
   tachyon_sp1_baby_bear_poseidon2_field_merkle_tree_destroy(tree_);
+}
+
+bool ProverData::eq(const ProverData& other) const {
+  return c::base::native_cast(*tree_) == c::base::native_cast(*other.tree_);
 }
 
 void ProverData::write_commit(rust::Slice<TachyonBabyBear> values) const {

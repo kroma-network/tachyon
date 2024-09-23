@@ -30,6 +30,7 @@ class ProverData {
     return tree_;
   }
 
+  bool eq(const ProverData& other) const;
   void write_commit(rust::Slice<TachyonBabyBear> values) const;
   std::unique_ptr<ProverData> clone() const;
 
