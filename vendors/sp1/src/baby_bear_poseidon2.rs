@@ -85,8 +85,10 @@ pub mod ffi {
 
         type FriProof;
 
+        fn deserialize_fri_proof(data: &[u8]) -> UniquePtr<FriProof>;
         fn eq(&self, other: &FriProof) -> bool;
         fn write_hint(&self) -> Vec<u8>;
+        fn serialize(&self) -> Vec<u8>;
         fn clone(&self) -> UniquePtr<FriProof>;
     }
 
@@ -458,20 +460,21 @@ pub struct FriProof {
 }
 
 impl Serialize for FriProof {
-    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        todo!("Not implemented yet")
+        serializer.serialize_bytes(self.inner.serialize().as_slice())
     }
 }
 
 impl<'de> Deserialize<'de> for FriProof {
-    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        todo!("Not implemented yet")
+        serde_bytes::deserialize::<serde_bytes::ByteBuf, _>(deserializer)
+            .map(|byte_buf| Self::new(ffi::deserialize_fri_proof(byte_buf.as_slice())))
     }
 }
 
