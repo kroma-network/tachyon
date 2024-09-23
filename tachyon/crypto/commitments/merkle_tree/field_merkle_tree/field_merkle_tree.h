@@ -140,6 +140,13 @@ class FieldMerkleTree {
     return digest_layers_;
   }
 
+  bool operator==(const FieldMerkleTree& other) const {
+    return leaves_ == other.leaves_ && digest_layers_ == other.digest_layers_;
+  }
+  bool operator!=(const FieldMerkleTree& other) const {
+    return !operator==(other);
+  }
+
   const Digest& GetRoot() const { return digest_layers_.back()[0]; }
 
  private:
