@@ -35,6 +35,7 @@ tachyon_cc_library(
     hdrs = ["matrix_types.h"],
     deps = [
         ":prime_field_num_traits",
+        "//tachyon/base:logging",
         "//tachyon/base/buffer:copyable",
         "//tachyon/math/finite_fields:finite_field_traits",
         "@eigen_archive//:eigen3",

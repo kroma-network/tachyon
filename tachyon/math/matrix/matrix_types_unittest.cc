@@ -1,5 +1,7 @@
 #include "tachyon/math/matrix/matrix_types.h"
 
+#include <vector>
+
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
@@ -50,6 +52,79 @@ TEST_F(MatrixTypesTest, Copyable3x3Matrix) {
       {GF7(3), GF7(4), GF7(5)},
       {GF7(6), GF7(0), GF7(1)},
   };
+
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
+  ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Done());
+
+  {
+    write_buf.set_buffer_offset(0);
+    Matrix<GF7, 2, 3> value;
+    ASSERT_FALSE(write_buf.Read(&value));
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    Matrix<GF7, 3, 2> value;
+    ASSERT_FALSE(write_buf.Read(&value));
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    Matrix<GF7, 3, 3> value;
+    ASSERT_TRUE(write_buf.Read(&value));
+    EXPECT_EQ(value, expected);
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    Matrix<GF7> value;
+    ASSERT_TRUE(write_buf.Read(&value));
+    EXPECT_EQ(value, expected);
+  }
+}
+
+TEST_F(MatrixTypesTest, CopyableDynamicMap) {
+  std::vector<GF7> data = {
+      GF7(0), GF7(1), GF7(2), GF7(3), GF7(4), GF7(5), GF7(6), GF7(0), GF7(1),
+  };
+
+  Eigen::Map<Matrix<GF7>> expected = Eigen::Map<Matrix<GF7>>(data.data(), 3, 3);
+
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
+  ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Done());
+
+  {
+    write_buf.set_buffer_offset(0);
+    Matrix<GF7, 2, 3> value;
+    ASSERT_FALSE(write_buf.Read(&value));
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    Matrix<GF7, 3, 2> value;
+    ASSERT_FALSE(write_buf.Read(&value));
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    Matrix<GF7, 3, 3> value;
+    ASSERT_TRUE(write_buf.Read(&value));
+    EXPECT_EQ(value, expected);
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    Matrix<GF7> value;
+    ASSERT_TRUE(write_buf.Read(&value));
+    EXPECT_EQ(value, expected);
+  }
+}
+
+TEST_F(MatrixTypesTest, Copyable3x3Map) {
+  std::vector<GF7> data = {
+      GF7(0), GF7(1), GF7(2), GF7(3), GF7(4), GF7(5), GF7(6), GF7(0), GF7(1),
+  };
+
+  Eigen::Map<Matrix<GF7, 3, 3>> expected =
+      Eigen::Map<Matrix<GF7, 3, 3>>(data.data());
 
   base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
