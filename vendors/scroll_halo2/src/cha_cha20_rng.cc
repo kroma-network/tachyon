@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/rs/base/container_util.h"
 
 namespace tachyon::halo2_api {
 
@@ -28,12 +29,7 @@ std::unique_ptr<ChaCha20Rng> ChaCha20Rng::clone() const {
 }
 
 rust::Vec<uint8_t> ChaCha20Rng::state() const {
-  rust::Vec<uint8_t> ret;
-  // NOTE(chokobole): |rust::Vec<uint8_t>| doesn't have |resize()|.
-  ret.reserve(kStateSize);
-  for (size_t i = 0; i < kStateSize; ++i) {
-    ret.push_back(0);
-  }
+  rust::Vec<uint8_t> ret = rs::CreateEmptyVector<uint8_t>(kStateSize);
   size_t state_len;
   tachyon_rng_get_state(rng_, ret.data(), &state_len);
   CHECK_EQ(state_len, kStateSize);

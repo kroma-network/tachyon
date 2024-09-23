@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/rs/base/container_util.h"
 
 namespace tachyon::halo2_api::bn254 {
 
@@ -29,12 +30,7 @@ void Sha256Writer::finalize(std::array<uint8_t, SHA256_DIGEST_LENGTH>& result) {
 
 rust::Vec<uint8_t> Sha256Writer::state() const {
   constexpr size_t kStateSize = sizeof(sha256_state_st);
-  rust::Vec<uint8_t> ret;
-  // NOTE(chokobole): |rust::Vec<uint8_t>| doesn't have |resize()|.
-  ret.reserve(kStateSize);
-  for (size_t i = 0; i < kStateSize; ++i) {
-    ret.push_back(0);
-  }
+  rust::Vec<uint8_t> ret = rs::CreateEmptyVector<uint8_t>(kStateSize);
   size_t state_size;
   tachyon_halo2_bn254_transcript_writer_get_state(writer_, ret.data(),
                                                   &state_size);

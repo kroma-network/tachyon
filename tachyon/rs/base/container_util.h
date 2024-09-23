@@ -45,6 +45,17 @@ absl::Span<R> ConvertRustSliceToCppSpan(rust::Slice<T> slice) {
   return {reinterpret_cast<R*>(slice.data()), slice.size()};
 }
 
+template <typename T>
+rust::Vec<T> CreateEmptyVector(size_t size) {
+  rust::Vec<T> ret;
+  // NOTE(chokobole): |rust::Vec<T>| doesn't have |resize()|.
+  ret.reserve(size);
+  for (size_t i = 0; i < size; ++i) {
+    ret.push_back(T{});
+  }
+  return ret;
+}
+
 }  // namespace tachyon::rs
 
 #endif  // TACHYON_RS_BASE_CONTAINER_UTIL_H_
