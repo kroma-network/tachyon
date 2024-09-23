@@ -18,6 +18,7 @@ mod test {
     };
 
     use crate::baby_bear_poseidon2::FriProof;
+    use crate::baby_bear_poseidon2::ProverData;
     use crate::baby_bear_poseidon2::{
         DuplexChallenger as TachyonDuplexChallenger, TwoAdicFriPcs as TachyonTwoAdicFriPcs,
     };
@@ -113,6 +114,10 @@ mod test {
         .to_row_major_matrix();
 
         assert_eq!(eval, tachyon_eval);
+
+        let encoded: Vec<u8> = bincode::serialize(&tachyon_data_by_round[0]).unwrap();
+        let decoded: ProverData<Val> = bincode::deserialize(&encoded[..]).unwrap();
+        assert!(tachyon_data_by_round[0] == decoded);
 
         let ldes_vec = domains_and_polys_by_round
             .iter()

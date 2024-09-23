@@ -168,6 +168,7 @@ tachyon_cc_library(
     deps = [
         ":baby_bear_poseidon2_api_hdrs",
         ":baby_bear_poseidon2_cxx_bridge/include",
+        "//tachyon/rs/base:container_util",
     ],
 )
 

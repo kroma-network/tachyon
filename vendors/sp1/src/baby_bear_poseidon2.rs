@@ -156,8 +156,10 @@ pub mod ffi {
 
         type ProverData;
 
+        fn deserialize_prover_data(data: &[u8]) -> UniquePtr<ProverData>;
         fn eq(&self, other: &ProverData) -> bool;
         fn write_commit(&self, values: &mut [TachyonBabyBear]);
+        fn serialize(&self) -> Vec<u8>;
         fn clone(&self) -> UniquePtr<ProverData>;
     }
 
@@ -652,6 +654,25 @@ impl<Val> PartialEq for ProverData<Val> {
 }
 
 impl<Val> Eq for ProverData<Val> {}
+
+impl<Val> Serialize for ProverData<Val> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_bytes(self.inner.serialize().as_slice())
+    }
+}
+
+impl<'de, Val> Deserialize<'de> for ProverData<Val> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        serde_bytes::deserialize::<serde_bytes::ByteBuf, _>(deserializer)
+            .map(|byte_buf| Self::new(ffi::deserialize_prover_data(byte_buf.as_slice())))
+    }
+}
 
 impl<Val> ProverData<Val> {
     pub fn new(inner: cxx::UniquePtr<ffi::ProverData>) -> Self {
