@@ -7,14 +7,17 @@
 #define TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_PROOF_H_
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/crypto/commitments/mixed_matrix_commitment_scheme_traits_forward.h"
 
-namespace tachyon::crypto {
+namespace tachyon {
+namespace crypto {
 
 template <typename PCS>
 struct BatchOpening {
@@ -144,6 +147,181 @@ struct FRIProof {
   }
 };
 
-}  // namespace tachyon::crypto
+}  // namespace crypto
+
+namespace base {
+
+template <typename PCS>
+class Copyable<crypto::BatchOpening<PCS>> {
+  using InputMMCS = typename PCS::InputMMCS;
+  using Field = typename InputMMCS::Field;
+  using Proof = typename InputMMCS::Proof;
+
+ public:
+  static bool WriteTo(const crypto::BatchOpening<PCS>& batch_opening,
+                      Buffer* buffer) {
+    return buffer->WriteMany(batch_opening.opened_values,
+                             batch_opening.opening_proof);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       crypto::BatchOpening<PCS>* batch_opening) {
+    std::vector<std::vector<Field>> opened_values;
+    Proof opening_proof;
+    if (!buffer.ReadMany(&opened_values, &opening_proof)) {
+      return false;
+    }
+
+    *batch_opening = {std::move(opened_values), std::move(opening_proof)};
+    return true;
+  }
+
+  static size_t EstimateSize(const crypto::BatchOpening<PCS>& batch_opening) {
+    return base::EstimateSize(batch_opening.opened_values,
+                              batch_opening.opening_proof);
+  }
+};
+
+template <typename PCS>
+class Copyable<crypto::CommitPhaseResult<PCS>> {
+  using ChallengeMMCS = typename PCS::ChallengeMMCS;
+  using Commitment = typename ChallengeMMCS::Commitment;
+  using ProverData = typename ChallengeMMCS::ProverData;
+  using Field = typename ChallengeMMCS::Field;
+
+ public:
+  static bool WriteTo(const crypto::CommitPhaseResult<PCS>& commit_phase_result,
+                      Buffer* buffer) {
+    return buffer->WriteMany(commit_phase_result.commits,
+                             commit_phase_result.data,
+                             commit_phase_result.final_eval);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       crypto::CommitPhaseResult<PCS>* commit_phase_result) {
+    std::vector<Commitment> commits;
+    std::vector<ProverData> data;
+    Field final_eval;
+    if (!buffer.ReadMany(&commits, &data, &final_eval)) {
+      return false;
+    }
+
+    *commit_phase_result = {std::move(commits), std::move(data),
+                            std::move(final_eval)};
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const crypto::CommitPhaseResult<PCS>& commit_phase_result) {
+    return base::EstimateSize(commit_phase_result.commits,
+                              commit_phase_result.data,
+                              commit_phase_result.final_eval);
+  }
+};
+
+template <typename PCS>
+class Copyable<crypto::CommitPhaseProofStep<PCS>> {
+  using ChallengeMMCS = typename PCS::ChallengeMMCS;
+  using Field = typename ChallengeMMCS::Field;
+  using Proof = typename ChallengeMMCS::Proof;
+
+ public:
+  static bool WriteTo(
+      const crypto::CommitPhaseProofStep<PCS>& commit_phase_proof_step,
+      Buffer* buffer) {
+    return buffer->WriteMany(commit_phase_proof_step.sibling_value,
+                             commit_phase_proof_step.opening_proof);
+  }
+
+  static bool ReadFrom(
+      const ReadOnlyBuffer& buffer,
+      crypto::CommitPhaseProofStep<PCS>* commit_phase_proof_step) {
+    Field sibling_value;
+    Proof opening_proof;
+    if (!buffer.ReadMany(&sibling_value, &opening_proof)) {
+      return false;
+    }
+
+    *commit_phase_proof_step = {std::move(sibling_value),
+                                std::move(opening_proof)};
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const crypto::CommitPhaseProofStep<PCS>& commit_phase_proof_step) {
+    return base::EstimateSize(commit_phase_proof_step.sibling_value,
+                              commit_phase_proof_step.opening_proof);
+  }
+};
+
+template <typename PCS>
+class Copyable<crypto::QueryProof<PCS>> {
+  using InputProof = typename PCS::InputProof;
+
+ public:
+  static bool WriteTo(const crypto::QueryProof<PCS>& query_proof,
+                      Buffer* buffer) {
+    return buffer->WriteMany(query_proof.input_proof,
+                             query_proof.commit_phase_openings);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       crypto::QueryProof<PCS>* query_proof) {
+    InputProof input_proof;
+    std::vector<crypto::CommitPhaseProofStep<PCS>> commit_phase_openings;
+    if (!buffer.ReadMany(&input_proof, &commit_phase_openings)) {
+      return false;
+    }
+
+    *query_proof = {std::move(input_proof), std::move(commit_phase_openings)};
+    return true;
+  }
+
+  static size_t EstimateSize(const crypto::QueryProof<PCS>& query_proof) {
+    return base::EstimateSize(query_proof.input_proof,
+                              query_proof.commit_phase_openings);
+  }
+};
+
+template <typename PCS>
+class Copyable<crypto::FRIProof<PCS>> {
+  using ChallengeMMCS = typename PCS::ChallengeMMCS;
+  using Commitment = typename ChallengeMMCS::Commitment;
+  using ExtField = typename ChallengeMMCS::Field;
+  using InputMMCS = typename PCS::InputMMCS;
+  using Field = typename InputMMCS::Field;
+
+ public:
+  static bool WriteTo(const crypto::FRIProof<PCS>& fri_proof, Buffer* buffer) {
+    return buffer->WriteMany(fri_proof.commit_phase_commits,
+                             fri_proof.query_proofs, fri_proof.final_eval,
+                             fri_proof.pow_witness);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       crypto::FRIProof<PCS>* fri_proof) {
+    std::vector<Commitment> commit_phase_commits;
+    std::vector<crypto::QueryProof<PCS>> query_proofs;
+    ExtField final_eval;
+    Field pow_witness;
+    if (!buffer.ReadMany(&commit_phase_commits, &query_proofs, &final_eval,
+                         &pow_witness)) {
+      return false;
+    }
+
+    *fri_proof = {std::move(commit_phase_commits), std::move(query_proofs),
+                  std::move(final_eval), std::move(pow_witness)};
+    return true;
+  }
+
+  static size_t EstimateSize(const crypto::FRIProof<PCS>& fri_proof) {
+    return base::EstimateSize(fri_proof.commit_phase_commits,
+                              fri_proof.query_proofs, fri_proof.final_eval,
+                              fri_proof.pow_witness);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_PROOF_H_
