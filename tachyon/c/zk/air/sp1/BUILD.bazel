@@ -95,6 +95,8 @@ tachyon_cc_library(
     ],
     deps = [
         ":baby_bear_poseidon2_constants",
+        "//tachyon/base:auto_reset",
+        "//tachyon/base/buffer",
         "//tachyon/c:export",
         "//tachyon/c/base:type_traits_forward",
         "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree",
