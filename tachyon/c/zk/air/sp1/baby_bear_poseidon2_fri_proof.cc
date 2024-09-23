@@ -42,3 +42,27 @@ void tachyon_sp1_baby_bear_poseidon2_fri_proof_write_hint(
   CHECK(buffer.Write(hints));
   CHECK(buffer.Done());
 }
+
+void tachyon_sp1_baby_bear_poseidon2_fri_proof_serialize(
+    const tachyon_sp1_baby_bear_poseidon2_fri_proof* fri_proof, uint8_t* data,
+    size_t* data_len) {
+  *data_len = base::EstimateSize(c::base::native_cast(*fri_proof));
+  if (data == nullptr) return;
+
+  base::AutoReset<bool> auto_reset(&base::Copyable<F>::s_is_in_montgomery,
+                                   true);
+  base::Buffer buffer(data, *data_len);
+  CHECK(buffer.Write(c::base::native_cast(*fri_proof)));
+  CHECK(buffer.Done());
+}
+
+tachyon_sp1_baby_bear_poseidon2_fri_proof*
+tachyon_sp1_baby_bear_poseidon2_fri_proof_deserialize(const uint8_t* data,
+                                                      size_t data_len) {
+  base::AutoReset<bool> auto_reset(&base::Copyable<F>::s_is_in_montgomery,
+                                   true);
+  Proof* fri_proof = new Proof();
+  base::ReadOnlyBuffer buffer(data, data_len);
+  CHECK(buffer.Read(fri_proof));
+  return c::base::c_cast(fri_proof);
+}
