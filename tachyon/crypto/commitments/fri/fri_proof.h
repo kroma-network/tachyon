@@ -28,6 +28,14 @@ struct BatchOpening {
   std::vector<std::vector<Field>> opened_values;
   Proof opening_proof;
 
+  bool operator==(const BatchOpening& other) const {
+    return opened_values == other.opened_values &&
+           opening_proof == other.opening_proof;
+  }
+  bool operator!=(const BatchOpening& other) const {
+    return !operator==(other);
+  }
+
   std::string ToString() const {
     return absl::Substitute("{opened_values: $0, opening_proof: $1}",
                             base::Container2DToString(opened_values),
@@ -52,6 +60,14 @@ struct CommitPhaseResult {
   std::vector<Commitment> commits;
   std::vector<ProverData> data;
   Field final_eval;
+
+  bool operator==(const CommitPhaseResult& other) const {
+    return commits == other.commits && data == other.data &&
+           final_eval == other.final_eval;
+  }
+  bool operator!=(const CommitPhaseResult& other) const {
+    return !operator==(other);
+  }
 
   std::string ToString() const {
     return absl::Substitute("{commits: $0, data: $1, final_eval: $2},",
@@ -78,6 +94,14 @@ struct CommitPhaseProofStep {
   Field sibling_value;
   Proof opening_proof;
 
+  bool operator==(const CommitPhaseProofStep& other) const {
+    return sibling_value == other.sibling_value &&
+           opening_proof == other.opening_proof;
+  }
+  bool operator!=(const CommitPhaseProofStep& other) const {
+    return !operator==(other);
+  }
+
   std::string ToString() const {
     return absl::Substitute("{sibling_value: $0, opening_proof: $1}",
                             sibling_value.ToString(),
@@ -101,6 +125,12 @@ struct QueryProof {
   // For each commit phase commitment, this contains openings of a commit phase
   // codeword at the queried location, along with an opening proof.
   std::vector<CommitPhaseProofStep<PCS>> commit_phase_openings;
+
+  bool operator==(const QueryProof& other) const {
+    return input_proof == other.input_proof &&
+           commit_phase_openings == other.commit_phase_openings;
+  }
+  bool operator!=(const QueryProof& other) const { return !operator==(other); }
 
   std::string ToString() const {
     return absl::Substitute("{input_proof: $0, commit_phase_openings: $1}",
@@ -127,6 +157,13 @@ struct FRIProof {
   std::vector<QueryProof<PCS>> query_proofs;
   ExtField final_eval;
   Field pow_witness;
+
+  bool operator==(const FRIProof& other) const {
+    return commit_phase_commits == other.commit_phase_commits &&
+           query_proofs == other.query_proofs &&
+           final_eval == other.final_eval && pow_witness == other.pow_witness;
+  }
+  bool operator!=(const FRIProof& other) const { return !operator==(other); }
 
   std::string ToString() const {
     return absl::Substitute(
