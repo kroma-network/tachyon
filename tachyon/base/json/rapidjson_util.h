@@ -1,6 +1,7 @@
 #ifndef TACHYON_BASE_JSON_RAPIDJSON_UTIL_H_
 #define TACHYON_BASE_JSON_RAPIDJSON_UTIL_H_
 
+#include <array>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -233,6 +234,43 @@ class RapidJsonValueConverter<T, std::enable_if_t<std::is_enum<T>::value>> {
     if (!RapidJsonValueConverter<U>::To(json_value, key, &value_tmp, error))
       return false;
     *value = static_cast<T>(value_tmp);
+    return true;
+  }
+};
+
+template <typename T, size_t N>
+class RapidJsonValueConverter<std::array<T, N>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(const std::array<T, N>& value,
+                               Allocator& allocator) {
+    rapidjson::Value array(rapidjson::kArrayType);
+    for (size_t i = 0; i < N; ++i) {
+      array.PushBack(RapidJsonValueConverter<T>::From(value[i], allocator),
+                     allocator);
+    }
+    return array;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 std::array<T, N>* value, std::string* error) {
+    if (!json_value.IsArray()) {
+      *error = RapidJsonMismatchedTypeError(key, "array", json_value);
+      return false;
+    }
+    if (N != json_value.Size()) {
+      *error = absl::Substitute("The length of json($0) is not $1",
+                                json_value.Size(), N);
+      return false;
+    }
+    std::array<T, N> value_tmp;
+    for (size_t i = 0; i < N; ++i) {
+      T v;
+      if (!RapidJsonValueConverter<T>::To(json_value[i], key, &v, error))
+        return false;
+      value_tmp[i] = std::move(v);
+    }
+    *value = std::move(value_tmp);
     return true;
   }
 };
