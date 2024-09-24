@@ -82,6 +82,10 @@ TACHYON_C_EXPORT tachyon_sp1_baby_bear_poseidon2_fri_proof*
 tachyon_sp1_baby_bear_poseidon2_fri_proof_deserialize(const uint8_t* data,
                                                       size_t data_len);
 
+TACHYON_C_EXPORT tachyon_sp1_baby_bear_poseidon2_fri_proof*
+tachyon_sp1_baby_bear_poseidon2_fri_proof_deserialize_json(const uint8_t* data,
+                                                           size_t data_len);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

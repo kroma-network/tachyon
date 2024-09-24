@@ -43,4 +43,11 @@ std::unique_ptr<FriProof> deserialize_fri_proof(
                                                             data.size()));
 }
 
+std::unique_ptr<FriProof> deserialize_json_fri_proof(
+    rust::Slice<const uint8_t> data) {
+  return std::make_unique<FriProof>(
+      tachyon_sp1_baby_bear_poseidon2_fri_proof_deserialize_json(data.data(),
+                                                                 data.size()));
+}
+
 }  // namespace tachyon::sp1_api::baby_bear_poseidon2

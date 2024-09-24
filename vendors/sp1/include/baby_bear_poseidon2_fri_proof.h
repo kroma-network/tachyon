@@ -35,6 +35,9 @@ class FriProof {
 std::unique_ptr<FriProof> deserialize_fri_proof(
     rust::Slice<const uint8_t> data);
 
+std::unique_ptr<FriProof> deserialize_json_fri_proof(
+    rust::Slice<const uint8_t> data);
+
 }  // namespace tachyon::sp1_api::baby_bear_poseidon2
 
 #endif  // VENDORS_SP1_INCLUDE_BABY_BEAR_POSEIDON2_FRI_PROOF_H_

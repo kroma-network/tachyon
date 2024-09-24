@@ -86,6 +86,7 @@ pub mod ffi {
         type FriProof;
 
         fn deserialize_fri_proof(data: &[u8]) -> UniquePtr<FriProof>;
+        fn deserialize_json_fri_proof(data: &[u8]) -> UniquePtr<FriProof>;
         fn eq(&self, other: &FriProof) -> bool;
         fn write_hint(&self) -> Vec<u8>;
         fn serialize(&self) -> Vec<u8>;

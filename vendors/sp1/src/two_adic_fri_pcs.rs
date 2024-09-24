@@ -16,7 +16,9 @@ mod test {
         default_fri_config, my_perm, Challenge, ChallengeMmcs, Dft, MyCompress, MyHash, Perm, Val,
         ValMmcs,
     };
+    use sp1_recursion_program::hints::Hintable;
 
+    use crate::baby_bear_poseidon2::ffi;
     use crate::baby_bear_poseidon2::FriProof;
     use crate::baby_bear_poseidon2::ProverData;
     use crate::baby_bear_poseidon2::{
@@ -161,7 +163,7 @@ mod test {
             .iter()
             .zip(points_by_round.clone())
             .collect::<Vec<_>>();
-        let (opening_by_round, _proof) = pcs.open(data_and_points, &mut challenger);
+        let (opening_by_round, proof) = pcs.open(data_and_points, &mut challenger);
 
         let tachyon_data_and_points = tachyon_data_by_round
             .iter()
@@ -171,6 +173,12 @@ mod test {
             tachyon_pcs.open(tachyon_data_and_points, &mut tachyon_challenger);
 
         assert_eq!(opening_by_round, tachyon_opening_by_round);
+
+        let json = serde_json::to_string_pretty(&proof).unwrap();
+        let proof2 = FriProof::new(ffi::deserialize_json_fri_proof(json.as_bytes()));
+        let result = proof.write();
+        let tachyon_result = proof2.write();
+        assert_eq!(result, tachyon_result);
 
         let rounds = izip!(
             commits_by_round,

@@ -10,6 +10,7 @@
 using namespace tachyon;
 
 using F = math::BabyBear;
+using PCS = c::zk::air::sp1::baby_bear::PCS::Base;
 using Proof = crypto::FRIProof<c::zk::air::sp1::baby_bear::PCS::Base>;
 
 tachyon_sp1_baby_bear_poseidon2_fri_proof*
@@ -65,4 +66,18 @@ tachyon_sp1_baby_bear_poseidon2_fri_proof_deserialize(const uint8_t* data,
   base::ReadOnlyBuffer buffer(data, data_len);
   CHECK(buffer.Read(fri_proof));
   return c::base::c_cast(fri_proof);
+}
+
+tachyon_sp1_baby_bear_poseidon2_fri_proof*
+tachyon_sp1_baby_bear_poseidon2_fri_proof_deserialize_json(const uint8_t* data,
+                                                           size_t data_len) {
+  crypto::SP1FRIProof<PCS> sp1_proof;
+  std::string error;
+  CHECK(base::ParseJson(
+      std::string_view(reinterpret_cast<const char*>(data), data_len),
+      &sp1_proof, &error));
+  CHECK(error.empty());
+  Proof* proof = new Proof();
+  *proof = std::move(sp1_proof.fri_proof);
+  return c::base::c_cast(proof);
 }

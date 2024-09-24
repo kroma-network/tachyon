@@ -4,6 +4,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/base/json/json.h"
 #include "tachyon/crypto/challenger/duplex_challenger.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/extension_field_merkle_tree_mmcs.h"
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree_mmcs.h"

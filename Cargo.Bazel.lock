@@ -1,5 +1,5 @@
 {
-  "checksum": "965cbb93821f1146ed272b072ce59c834bbffedb12728125ba2f96c211ed28ac",
+  "checksum": "c15a4f4c9d748c7a8c4277f9f5abf90fd068748d5fabab9e1b1e496d667c3d1d",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -13707,13 +13707,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "serde_json 1.0.121": {
+    "serde_json 1.0.128": {
       "name": "serde_json",
-      "version": "1.0.121",
+      "version": "1.0.128",
       "repository": {
         "Http": {
-          "url": "https://static.crates.io/crates/serde_json/1.0.121/download",
-          "sha256": "4ab380d7d9f22ef3f21ad3e6c1ebe8e4fc7a2000ccba2e4d71fc96f15b2cb609"
+          "url": "https://static.crates.io/crates/serde_json/1.0.128/download",
+          "sha256": "6ff5456707a1de34e7e37f2a6fd3d3f808c318259cbd01ab6377795054b483d8"
         }
       },
       "targets": [
@@ -13741,6 +13741,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -13760,14 +13767,14 @@
               "target": "serde"
             },
             {
-              "id": "serde_json 1.0.121",
+              "id": "serde_json 1.0.128",
               "target": "build_script_build"
             }
           ],
           "selects": {}
         },
         "edition": "2021",
-        "version": "1.0.121"
+        "version": "1.0.128"
       },
       "build_script_attrs": {
         "data_glob": [
@@ -15943,6 +15950,10 @@
             {
               "id": "serde_bytes 0.11.15",
               "target": "serde_bytes"
+            },
+            {
+              "id": "serde_json 1.0.128",
+              "target": "serde_json"
             },
             {
               "id": "sp1-core 1.0.1",
