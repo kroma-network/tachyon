@@ -182,7 +182,7 @@ http_archive(
 
 ## Debian packaging
 
-There are two ways to install the Tachyon package. While it is recommended to install the package from the prebuilt binaries, building the package from source is also viable if needed.
+There are two ways to install the Tachyon package. While it is recommended to install the package from the prebuilt binaries, building the package from the source is also viable if needed.
 
 ### Install package from pre-built binaries
 
