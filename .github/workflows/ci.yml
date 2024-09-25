@@ -150,6 +150,6 @@ jobs:
 
       - name: Run Buildifier
         run: |
-          find . -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --lint=fix
-          find . -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --mode=check
+          find . -iname "*.bazel" -o -iname "*.bzl" -o -name "WORKSPACE" -o -iname "*.BUILD" | xargs buildifier --lint=fix
+          find . -iname "*.bazel" -o -iname "*.bzl" -o -name "WORKSPACE" -o -iname "*.BUILD" | xargs buildifier --mode=check
           git diff --exit-code

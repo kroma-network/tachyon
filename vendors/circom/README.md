@@ -81,3 +81,19 @@ Optional arguments:
 --disable_fast_twiddles_mode
                     Disables fast twiddle mode on Icicle NTT domain initialization.
 ```
+
+## How to compile witness generator
+
+This creates a witness_generator binary similar to when circom is used, but compiles much faster in comparison.
+
+```shell
+bazel build -c opt //circomlib/build:compile_witness_generator
+
+bazel-bin/circomlib/build/compile_witness_generator --help
+Usage:
+bazel-bin/circomlib/build/compile_witness_generator [OPTION]...
+
+-h, --help  help
+--cpp,      A path to circuit .cpp file
+-f, --field A field to use. default: bn128, supported: bls12381 bn128 goldilocks grumpkin pallas secq256r1 vesta
+```

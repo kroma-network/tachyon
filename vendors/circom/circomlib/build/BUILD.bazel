@@ -1,0 +1,28 @@
+load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_binary(
+    name = "split_tool",
+    srcs = ["split_tool.cc"],
+    deps = [
+        "@kroma_network_tachyon//tachyon/base/files:file",
+        "@kroma_network_tachyon//tachyon/base/strings:string_number_conversions",
+        "@llvm-project//clang:ast",
+        "@llvm-project//clang:frontend",
+        "@llvm-project//clang:lex",
+        "@llvm-project//clang:rewrite",
+        "@llvm-project//clang:tooling",
+        "@llvm-project//llvm:Support",
+    ],
+)
+
+sh_binary(
+    name = "compile_witness_generator",
+    srcs = ["compile_witness_generator.sh"],
+    data = [
+        "Makefile",
+        ":split_tool",
+        "@iden3_circom//:generated_files",
+    ],
+)

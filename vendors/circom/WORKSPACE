@@ -3,6 +3,31 @@ workspace(name = "kroma_network_circom")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
+    name = "iden3_circom",
+    build_file = "@kroma_network_circom//:circom.BUILD",
+    sha256 = "ba2c82edabdca7190f4f152e3c4ebcdf3656805dc4c1c7e1d37a991d5a79e1cd",
+    strip_prefix = "circom-2.1.9",
+    urls = ["https://github.com/iden3/circom/archive/v2.1.9.tar.gz"],
+)
+
+http_archive(
+    name = "llvm-raw",
+    build_file_content = "# empty",
+    sha256 = "50b3ef31b228ea0c96ae074005bfac087c56e6a4b1c147592dd33f41cad0706b",
+    strip_prefix = "llvm-project-81d5412439efd0860c0a8dd51b831204f118d485",
+    urls = ["https://github.com/llvm/llvm-project/archive/81d5412439efd0860c0a8dd51b831204f118d485.tar.gz"],
+)
+
+load("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure", "llvm_disable_optional_support_deps")
+
+llvm_configure(name = "llvm-project")
+
+# Disables optional dependencies for support like zlib and terminfo. You may
+# instead want to configure them using the macros in the corresponding bzl
+# files.
+llvm_disable_optional_support_deps()
+
+http_archive(
     name = "kroma_network_rules_circom",
     sha256 = "184998343fae865126fe5a31e126b1f8259259fd2a80315ab21251c01625aaf6",
     strip_prefix = "rules_circom-e1f9be5c03fa91f28f92a042f483c608ab4261c6",

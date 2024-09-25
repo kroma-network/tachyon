@@ -1,6 +1,7 @@
+load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
+
 # hwloc: Portable Hardware Locality Library
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
-load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 
 package(
     default_visibility = ["//visibility:public"],
