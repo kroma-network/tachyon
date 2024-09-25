@@ -21,10 +21,10 @@ cc_library(
         ["-mavx512f"],
         ["-mavx2"],
     ) + tachyon_openmp_copts(),
-    linkopts = tachyon_openmp_linkopts(),
     defines = if_has_avx512(["__AVX512__"]),
     include_prefix = "third_party/goldilocks/include",
     includes = ["src"],
+    linkopts = tachyon_openmp_linkopts(),
     strip_include_prefix = "src",
     deps = ["@local_config_gmp//:gmp"],
 )
