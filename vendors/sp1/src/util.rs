@@ -32,10 +32,9 @@ impl<const D: usize> Readable for [u32; D] {
     fn read_from<R: Read>(reader: &mut R) -> Result<Self> {
         let data = [0u32; D];
         Ok(unsafe {
-            let mut slice =
-                std::slice::from_raw_parts_mut(data.as_ptr() as *mut u8, data.len() * 4);
-            reader.read_exact(&mut slice)?;
-            std::mem::transmute(data)
+            let slice = std::slice::from_raw_parts_mut(data.as_ptr() as *mut u8, data.len() * 4);
+            reader.read_exact(slice)?;
+            data
         })
     }
 }
