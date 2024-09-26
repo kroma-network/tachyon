@@ -52,6 +52,7 @@ tachyon_cc_shared_library(
     tags = ["manual"],
     deps = if_c_shared_object([
         ":version",
+        "//tachyon/c/base",
         "//tachyon/c/crypto",
         "//tachyon/c/math",
         "//tachyon/c/zk",
@@ -69,6 +70,7 @@ collect_hdrs(
         ":version_generated",
     ],
     deps = [
+        "//tachyon/c/base:base_hdrs",
         "//tachyon/c/crypto:crypto_hdrs",
         "//tachyon/c/math:math_hdrs",
         "//tachyon/c/zk:zk_hdrs",
