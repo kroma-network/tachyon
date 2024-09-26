@@ -17,6 +17,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/range.h"
 #include "tachyon/crypto/challenger/challenger_traits_forward.h"
 
@@ -91,6 +92,7 @@ class Challenger {
 
   Field Grind(uint32_t bits, base::Range<uint32_t> range,
               std::optional<Field> pow_witness = std::nullopt) {
+    TRACE_EVENT("ProofGeneration", "Challenger::Grind");
     std::vector<uint32_t> ret = base::ParallelizeMap(
         range.GetSize(),
         [this, bits, range](uint32_t len, uint32_t chunk_offset,
