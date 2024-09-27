@@ -41,8 +41,6 @@ namespace {
 
 class FieldMerkleTreeTest : public math::FiniteFieldTest<PackedF> {
  public:
-  using Params = Poseidon2Params<F, 15, 7>;
-  using PackedParams = Poseidon2Params<PackedF, 15, 7>;
   void SetUp() override {
     auto config = Poseidon2Config<Params>::Create(
         GetPoseidon2InternalShiftArray<Params>());
