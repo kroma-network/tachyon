@@ -30,8 +30,7 @@ namespace {
 class HashChallengerTest : public math::FiniteFieldTest<F> {
  public:
   void SetUp() override {
-    auto config = Poseidon2Config<Params>::Create(
-        GetPoseidon2InternalShiftArray<Params>());
+    auto config = Poseidon2Config<Params>::CreateDefault();
     Poseidon2 sponge(std::move(config));
     MyHasher hasher(std::move(sponge));
 

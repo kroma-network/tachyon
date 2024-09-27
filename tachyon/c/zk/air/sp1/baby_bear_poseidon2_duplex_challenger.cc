@@ -32,8 +32,7 @@ tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create() {
     }
   }
 
-  auto config = crypto::Poseidon2Config<Params>::Create(
-      crypto::GetPoseidon2InternalShiftArray<Params>(), std::move(ark));
+  auto config = crypto::Poseidon2Config<Params>::CreateDefault(std::move(ark));
   Poseidon2 sponge(std::move(config));
   return c::base::c_cast(
       new crypto::DuplexChallenger<Poseidon2,

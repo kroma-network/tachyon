@@ -16,6 +16,7 @@
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config_base.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config_entry.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 #include "tachyon/math/matrix/matrix_utils.h"
 
@@ -62,6 +63,26 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
                   math::Vector<F>&& internal_diagonal_minus_one)
       : PoseidonConfigBase<Params>(std::move(base)),
         internal_diagonal_minus_one(std::move(internal_diagonal_minus_one)) {}
+
+  constexpr static Poseidon2Config CreateDefault() {
+    // TODO(chokobole): Only |BabyBear| has both shift and diagonal arrays.
+    // We assume the Plonky3 team developed the concept of the shift array,
+    // and will use it in most cases, so we set it as the default.
+    // Other small prime fields have only a shift array, while larger prime
+    // fields have only a diagonal array. For more details, refer to
+    // tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_xxx.h.
+    if constexpr (Params::kInternalMatrixVendor == Poseidon2Vendor::kPlonky3 &&
+                  PrimeField::Config::kModulusBits <= 32) {
+      return Create(GetPoseidon2InternalShiftArray<Params>());
+    } else {
+      return Create(GetPoseidon2InternalDiagonalArray<Params>());
+    }
+  }
+
+  constexpr static Poseidon2Config CreateDefault(math::Matrix<F>&& ark) {
+    static_assert(Params::kInternalMatrixVendor == Poseidon2Vendor::kPlonky3);
+    return Create(GetPoseidon2InternalShiftArray<Params>(), std::move(ark));
+  }
 
   constexpr static Poseidon2Config Create(
       const std::array<PrimeField, Params::kWidth>&

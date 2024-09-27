@@ -27,8 +27,7 @@ TEST_F(PaddingFreeSpongeTest, Hash) {
   constexpr size_t kRate = 8;
   constexpr size_t kOut = 8;
 
-  auto config =
-      Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
+  auto config = Poseidon2Config<Params>::CreateDefault();
   Poseidon2 sponge(std::move(config));
   PaddingFreeSponge<Poseidon2, kRate, kOut> hasher(std::move(sponge));
   std::vector<F> inputs =

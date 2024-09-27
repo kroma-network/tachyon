@@ -42,14 +42,12 @@ namespace {
 class FieldMerkleTreeTest : public math::FiniteFieldTest<PackedF> {
  public:
   void SetUp() override {
-    auto config = Poseidon2Config<Params>::Create(
-        GetPoseidon2InternalShiftArray<Params>());
+    auto config = Poseidon2Config<Params>::CreateDefault();
     Poseidon2 sponge(std::move(config));
     hasher_ = MyHasher(sponge);
     compressor_ = MyCompressor(std::move(sponge));
 
-    auto packed_config = Poseidon2Config<PackedParams>::Create(
-        GetPoseidon2InternalShiftArray<PackedParams>());
+    auto packed_config = Poseidon2Config<PackedParams>::CreateDefault();
     PackedPoseidon2 packed_sponge(std::move(packed_config));
     packed_hasher_ = MyPackedHasher(packed_sponge);
     packed_compressor_ = MyPackedCompressor(std::move(packed_sponge));
