@@ -94,6 +94,15 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "poseidon2_vendor",
+    hdrs = ["poseidon2_vendor.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "poseidon2_unittests",
     srcs = [
