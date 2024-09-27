@@ -8,7 +8,7 @@
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/math/polynomials/univariate/icicle/icicle_ntt.h"
 
-cudaError_t tachyon_bls12_381_initialize_domain(
+cudaError_t tachyon_bls12_381_initialize_domain_cuda(
     const ::bls12_381::scalar_t& primitive_root,
     ::device_context::DeviceContext& ctx, bool fast_twiddles_mode) {
   return ::ntt::init_domain(primitive_root, ctx, fast_twiddles_mode);
@@ -21,7 +21,7 @@ cudaError_t tachyon_bls12_381_ntt_cuda(
   return ::ntt::ntt(input, size, dir, config, output);
 }
 
-cudaError_t tachyon_bls12_381_release_domain(
+cudaError_t tachyon_bls12_381_release_domain_cuda(
     ::device_context::DeviceContext& ctx) {
   return ::ntt::release_domain<::bls12_381::scalar_t>(ctx);
 }
@@ -42,11 +42,12 @@ bool IcicleNTT<bls12_381::Fr>::Init(const bls12_381::Fr& group_gen,
   // 2. |fast_twiddles_mode| consumes a lot of memory, so we need to disable it
   //    if the ram of the GPU is not enough. See
   //    https://github.com/ingonyama-zk/icicle/blob/4fef542/icicle/include/ntt/ntt.cuh#L26-L40.
-  gpuError_t error = tachyon_bls12_381_initialize_domain(
+  gpuError_t error = tachyon_bls12_381_initialize_domain_cuda(
       reinterpret_cast<const ::bls12_381::scalar_t&>(group_gen_big_int), ctx,
       options.fast_twiddles_mode);
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed tachyon_bls12_381_initialize_domain()";
+    GPU_LOG(ERROR, error)
+        << "Failed tachyon_bls12_381_initialize_domain_cuda()";
     return false;
   }
   VLOG(1) << "IcicleNTT is initialized";
@@ -106,9 +107,9 @@ bool IcicleNTT<bls12_381::Fr>::Release() {
 #endif
 
   ::device_context::DeviceContext ctx{stream_, /*device_id=*/0, mem_pool_};
-  gpuError_t error = tachyon_bls12_381_release_domain(ctx);
+  gpuError_t error = tachyon_bls12_381_release_domain_cuda(ctx);
   if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed tachyon_bls12_381_release_domain()";
+    GPU_LOG(ERROR, error) << "Failed tachyon_bls12_381_release_domain_cuda()";
     return false;
   }
   return true;
