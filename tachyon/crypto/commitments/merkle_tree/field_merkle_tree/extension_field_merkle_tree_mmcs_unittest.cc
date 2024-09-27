@@ -5,7 +5,8 @@
 
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/extension_field_merkle_tree_mmcs.h"
 
-#include <memory>
+#include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -54,21 +55,8 @@ class ExtensionFieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
     ExtF::Init();
   }
 
-  void SetUp() override {
-    Poseidon2 sponge;
-    MyHasher hasher(sponge);
-    MyCompressor compressor(std::move(sponge));
-
-    PackedPoseidon2 packed_sponge;
-    MyPackedHasher packed_hasher(packed_sponge);
-    MyPackedCompressor packed_compressor(std::move(packed_sponge));
-    ext_mmcs_.reset(new ExtMMCS(
-        InnerMMCS(std::move(hasher), std::move(packed_hasher),
-                  std::move(compressor), std::move(packed_compressor))));
-  }
-
  protected:
-  std::unique_ptr<ExtMMCS> ext_mmcs_;
+  ExtMMCS ext_mmcs_;
 };
 
 }  // namespace
@@ -93,10 +81,10 @@ TEST_F(ExtensionFieldMerkleTreeMMCSTest, CommitAndVerify) {
       std::move(ext_matrix)};
   std::array<F, kChunk> ext_commitment;
   ExtTree ext_prover_data;
-  ASSERT_TRUE(ext_mmcs_->CommitOwned(std::move(ext_matrices), &ext_commitment,
-                                     &ext_prover_data));
+  ASSERT_TRUE(ext_mmcs_.CommitOwned(std::move(ext_matrices), &ext_commitment,
+                                    &ext_prover_data));
 
-  const InnerMMCS& inner_mmcs = ext_mmcs_->inner();
+  const InnerMMCS& inner_mmcs = ext_mmcs_.inner();
   MMCS mmcs(inner_mmcs.hasher(), inner_mmcs.packed_hasher(),
             inner_mmcs.compressor(), inner_mmcs.packed_compressor());
   std::vector<math::RowMajorMatrix<F>> matrices = {std::move(matrix)};
@@ -110,11 +98,11 @@ TEST_F(ExtensionFieldMerkleTreeMMCSTest, CommitAndVerify) {
   std::vector<std::vector<ExtF>> openings;
   std::vector<std::array<F, kChunk>> proof;
   ASSERT_TRUE(
-      ext_mmcs_->CreateOpeningProof(index, ext_prover_data, &openings, &proof));
+      ext_mmcs_.CreateOpeningProof(index, ext_prover_data, &openings, &proof));
   std::vector<math::Dimensions> dimensions_vec;
   dimensions_vec.push_back({kCols, kRows});
-  ASSERT_TRUE(ext_mmcs_->VerifyOpeningProof(ext_commitment, dimensions_vec,
-                                            index, openings, proof));
+  ASSERT_TRUE(ext_mmcs_.VerifyOpeningProof(ext_commitment, dimensions_vec,
+                                           index, openings, proof));
 }
 
 }  // namespace tachyon::crypto

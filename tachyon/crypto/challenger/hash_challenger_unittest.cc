@@ -30,8 +30,7 @@ namespace {
 class HashChallengerTest : public math::FiniteFieldTest<F> {
  public:
   void SetUp() override {
-    Poseidon2 sponge;
-    MyHasher hasher(std::move(sponge));
+    MyHasher hasher;
 
     std::vector<F> initial_state =
         base::CreateVector(10, [](size_t i) { return F(i + 1); });

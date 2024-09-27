@@ -80,23 +80,12 @@ void Run(const FRIConfig& config) {
   ExtF::Init();
   ExtPackedF::Init();
 
-  Poseidon2 sponge;
-  MyHasher hasher(sponge);
-  MyCompressor compressor(sponge);
-
-  PackedPoseidon2 packed_sponge;
-  MyPackedHasher packed_hasher(packed_sponge);
-  MyPackedCompressor packed_compressor(std::move(packed_sponge));
-  MMCS mmcs(hasher, packed_hasher, compressor, packed_compressor);
-
-  ChallengeMMCS challenge_mmcs(
-      ExtMMCS(std::move(hasher), std::move(packed_hasher),
-              std::move(compressor), std::move(packed_compressor)));
-
+  MMCS mmcs;
+  ChallengeMMCS challenge_mmcs;
   crypto::FRIConfig<ChallengeMMCS> fri_config{config.log_blowup(), 10, 8,
                                               challenge_mmcs};
   MyPCS pcs = MyPCS(std::move(mmcs), std::move(fri_config));
-  Challenger challenger = Challenger(std::move(sponge));
+  Challenger challenger;
 
   SimpleReporter reporter;
   std::string name;

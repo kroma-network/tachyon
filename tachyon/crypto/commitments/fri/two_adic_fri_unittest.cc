@@ -59,24 +59,13 @@ class TwoAdicFRITest : public testing::Test {
   }
 
   void SetUp() override {
-    Poseidon2 sponge;
-    MyHasher hasher(sponge);
-    MyCompressor compressor(sponge);
-
-    PackedPoseidon2 packed_sponge;
-    MyPackedHasher packed_hasher(packed_sponge);
-    MyPackedCompressor packed_compressor(std::move(packed_sponge));
-    MMCS mmcs(hasher, packed_hasher, compressor, packed_compressor);
-
-    ChallengeMMCS challenge_mmcs(
-        ExtMMCS(std::move(hasher), std::move(packed_hasher),
-                std::move(compressor), std::move(packed_compressor)));
+    MMCS mmcs;
+    ChallengeMMCS challenge_mmcs;
 
     // TODO(ashjeong): Include separate test for |log_blowup| = 2
     FRIConfig<ChallengeMMCS> fri_config{1, 10, 8, std::move(challenge_mmcs)};
 
     pcs_ = MyPCS(std::move(mmcs), std::move(fri_config));
-    challenger_ = Challenger(std::move(sponge));
   }
 
   void TestProtocol(std::vector<std::vector<uint32_t>> log_degrees_by_round) {

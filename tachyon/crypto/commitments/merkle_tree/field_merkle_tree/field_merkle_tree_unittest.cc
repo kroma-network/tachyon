@@ -40,17 +40,6 @@ using Tree = FieldMerkleTree<F, kChunk>;
 namespace {
 
 class FieldMerkleTreeTest : public math::FiniteFieldTest<PackedF> {
- public:
-  void SetUp() override {
-    Poseidon2 sponge;
-    hasher_ = MyHasher(sponge);
-    compressor_ = MyCompressor(std::move(sponge));
-
-    PackedPoseidon2 packed_sponge;
-    packed_hasher_ = MyPackedHasher(packed_sponge);
-    packed_compressor_ = MyPackedCompressor(std::move(packed_sponge));
-  }
-
  protected:
   MyHasher hasher_;
   MyCompressor compressor_;

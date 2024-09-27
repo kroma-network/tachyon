@@ -18,8 +18,7 @@ constexpr size_t kRate = 4;
 class HintableTest : public math::FiniteFieldTest<F> {};
 
 TEST_F(HintableTest, DuplexChallenger) {
-  Poseidon2 sponge;
-  crypto::DuplexChallenger<Poseidon2, kRate> challenger(std::move(sponge));
+  crypto::DuplexChallenger<Poseidon2, kRate> challenger;
   for (size_t i = 0; i < Params::kWidth; ++i) {
     challenger.state_[i] = F(i);
   }

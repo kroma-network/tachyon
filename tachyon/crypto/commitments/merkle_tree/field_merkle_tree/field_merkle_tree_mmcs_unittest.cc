@@ -42,19 +42,6 @@ using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
 namespace {
 
 class FieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
- public:
-  void SetUp() override {
-    Poseidon2 sponge;
-    MyHasher hasher(sponge);
-    MyCompressor compressor(std::move(sponge));
-
-    PackedPoseidon2 packed_sponge;
-    MyPackedHasher packed_hasher(packed_sponge);
-    MyPackedCompressor packed_compressor(std::move(packed_sponge));
-    mmcs_ = MMCS(std::move(hasher), std::move(packed_hasher),
-                 std::move(compressor), std::move(packed_compressor));
-  }
-
  protected:
   MMCS mmcs_;
 };
