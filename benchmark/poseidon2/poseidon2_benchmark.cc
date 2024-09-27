@@ -43,21 +43,18 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
       using Params =
           Poseidon2Params<Poseidon2Vendor::kHorizen, Poseidon2Vendor::kPlonky3,
                           math::BabyBear, 15, 7>;
-      auto poseidon2_config = crypto::Poseidon2Config<Params>::CreateDefault();
-      result = runner.Run(poseidon2_config);
+      result = runner.template Run<Params>();
     } else {
       using Params =
           Poseidon2Params<Poseidon2Vendor::kHorizen, Poseidon2Vendor::kHorizen,
                           math::BabyBear, 15, 7>;
-      auto poseidon2_config = crypto::Poseidon2Config<Params>::CreateDefault();
-      result = runner.Run(poseidon2_config);
+      result = runner.template Run<Params>();
     }
   } else {
     using Params =
         Poseidon2Params<Poseidon2Vendor::kHorizen, Poseidon2Vendor::kHorizen,
                         math::bn254::Fr, 2, 5>;
-    auto poseidon2_config = crypto::Poseidon2Config<Params>::CreateDefault();
-    result = runner.Run(poseidon2_config);
+    result = runner.template Run<Params>();
   }
   for (const Vendor vendor : config.vendors()) {
     Field result_vendor;

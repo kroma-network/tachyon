@@ -44,13 +44,11 @@ namespace {
 class FieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
  public:
   void SetUp() override {
-    auto config = Poseidon2Config<Params>::CreateDefault();
-    Poseidon2 sponge(std::move(config));
+    Poseidon2 sponge;
     MyHasher hasher(sponge);
     MyCompressor compressor(std::move(sponge));
 
-    auto packed_config = Poseidon2Config<PackedParams>::CreateDefault();
-    PackedPoseidon2 packed_sponge(std::move(packed_config));
+    PackedPoseidon2 packed_sponge;
     MyPackedHasher packed_hasher(packed_sponge);
     MyPackedCompressor packed_compressor(std::move(packed_sponge));
     mmcs_ = MMCS(std::move(hasher), std::move(packed_hasher),

@@ -39,7 +39,7 @@ struct Poseidon2Sponge final
   // Sponge Config
   Poseidon2Config<Params> config;
 
-  Poseidon2Sponge() = default;
+  Poseidon2Sponge() : config(Poseidon2Config<Params>::CreateDefault()) {}
   explicit Poseidon2Sponge(const Poseidon2Config<Params>& config)
       : config(config) {}
   explicit Poseidon2Sponge(Poseidon2Config<Params>&& config)

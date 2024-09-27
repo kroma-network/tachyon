@@ -51,8 +51,7 @@ TEST_F(Poseidon2GoldilocksTest, Copyable) {
   using Params = Poseidon2Params<Poseidon2Vendor::kHorizen,
                                  Poseidon2Vendor::kPlonky3, F, 7, 7>;
 
-  auto config = Poseidon2Config<Params>::CreateDefault();
-  Poseidon2Sponge<Params> expected(std::move(config));
+  Poseidon2Sponge<Params> expected;
 
   base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
@@ -79,8 +78,7 @@ TEST_F(Poseidon2BabyBearTest, Permute) {
   using Params = Poseidon2Params<Poseidon2Vendor::kHorizen,
                                  Poseidon2Vendor::kPlonky3, F, 15, 7>;
 
-  auto config = Poseidon2Config<Params>::CreateDefault();
-  Poseidon2Sponge<Params> sponge(std::move(config));
+  Poseidon2Sponge<Params> sponge;
   SpongeState<Params> state;
   for (size_t i = 0; i < 16; ++i) {
     state.elements[i] = F(i);
@@ -104,16 +102,14 @@ TEST_F(Poseidon2BabyBearTest, PermutePacked) {
       Poseidon2Params<Poseidon2Vendor::kHorizen, Poseidon2Vendor::kPlonky3,
                       PackedF, 15, 7>;
 
-  auto packed_config = Poseidon2Config<PackedParams>::CreateDefault();
-  Poseidon2Sponge<PackedParams> packed_sponge(std::move(packed_config));
+  Poseidon2Sponge<PackedParams> packed_sponge;
   SpongeState<PackedParams> packed_state;
   for (size_t i = 0; i < 16; ++i) {
     packed_state.elements[i] = PackedF(i);
   }
   packed_sponge.Permute(packed_state);
 
-  auto config = Poseidon2Config<Params>::CreateDefault();
-  Poseidon2Sponge<Params> sponge(std::move(config));
+  Poseidon2Sponge<Params> sponge;
   SpongeState<Params> state;
   for (size_t i = 0; i < 16; ++i) {
     state.elements[i] = F(i);

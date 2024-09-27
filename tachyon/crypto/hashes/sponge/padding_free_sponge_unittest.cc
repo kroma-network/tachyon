@@ -27,8 +27,7 @@ TEST_F(PaddingFreeSpongeTest, Hash) {
   constexpr size_t kRate = 8;
   constexpr size_t kOut = 8;
 
-  auto config = Poseidon2Config<Params>::CreateDefault();
-  Poseidon2 sponge(std::move(config));
+  Poseidon2 sponge;
   PaddingFreeSponge<Poseidon2, kRate, kOut> hasher(std::move(sponge));
   std::vector<F> inputs =
       base::CreateVector(100, [](uint32_t i) { return F(i); });
