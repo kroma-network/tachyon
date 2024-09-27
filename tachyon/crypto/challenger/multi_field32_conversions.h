@@ -26,7 +26,7 @@ BigF Reduce(absl::Span<const SmallF> values) {
   using BigInt = typename BigF::BigIntTy;
   CHECK_LT(values.size(), BigInt::kLimbNums * 2);
 
-  BigInt ret;
+  BigInt ret(0);
   for (size_t i = 0; i < values.size(); i += 2) {
     uint32_t value = values[i].value();
     if constexpr (SmallF::Config::kUseMontgomery) {

@@ -112,7 +112,7 @@ class PrimeFieldGpuDebug final
   }
 
   static PrimeFieldGpuDebug FromMpzClass(const mpz_class& value) {
-    BigInt<N> big_int;
+    BigInt<N> big_int(0);
     gmp::CopyLimbs(value, big_int.limbs);
     return FromBigInt(big_int);
   }
@@ -440,7 +440,7 @@ class PrimeFieldGpuDebug final
     return true;
   }
 
-  BigInt<N> value_;
+  BigInt<N> value_ = BigInt<N>::Zero();
 };
 
 }  // namespace tachyon::math

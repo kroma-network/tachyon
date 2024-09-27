@@ -81,7 +81,7 @@ class Fp3 final : public CubicExtensionField<Fp3<Config>> {
     // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 3) = 1
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
 #define SET_FROBENIUS_COEFF(d)                \
-  BigInt<d * N> exp##d;                       \
+  BigInt<d * N> exp##d(0);                    \
   gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
   Config::kFrobeniusCoeffs[d] = Config::kNonResidue.Pow(exp##d)
 

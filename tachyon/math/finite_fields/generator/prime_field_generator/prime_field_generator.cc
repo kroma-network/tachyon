@@ -50,7 +50,7 @@ struct ModulusInfo {
 
   template <size_t N>
   static ModulusInfo From(const mpz_class& m_in) {
-    math::BigInt<N> m;
+    math::BigInt<N> m(0);
     math::gmp::CopyLimbs(m_in, m.limbs);
 
     ModulusInfo ret;

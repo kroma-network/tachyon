@@ -89,7 +89,7 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 4) = 1
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
 #define SET_FROBENIUS_COEFF(d)                \
-  BigInt<d * N> exp##d;                       \
+  BigInt<d * N> exp##d(0);                    \
   gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
   Config::kFrobeniusCoeffs[d] = BaseFieldConfig::kNonResidue.Pow(exp##d)
 
@@ -176,7 +176,7 @@ class Fp4<Config, std::enable_if_t<Config::kDegreeOverBaseField == 4>> final
     // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 4) = 1
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
 #define SET_FROBENIUS_COEFF(d)                \
-  BigInt<d * N> exp##d;                       \
+  BigInt<d * N> exp##d(0);                    \
   gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
   Config::kFrobeniusCoeffs[d] = Config::kNonResidue.Pow(exp##d)
 

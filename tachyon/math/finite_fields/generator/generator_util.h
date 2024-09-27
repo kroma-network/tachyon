@@ -18,7 +18,7 @@ std::string MpzClassToString(const mpz_class& m);
 
 template <size_t N>
 std::string MpzClassToMontString(const mpz_class& v_in, const mpz_class& m_in) {
-  BigInt<N> m;
+  BigInt<N> m(0);
 
   if constexpr (N == 1) {
     // NOLINTNEXTLINE(runtime/int)
@@ -31,7 +31,7 @@ std::string MpzClassToMontString(const mpz_class& v_in, const mpz_class& m_in) {
   BigInt<N> r2 = Modulus<N>::MontgomeryR2(m);
   uint64_t inv = Modulus<N>::template Inverse<uint64_t>(m);
 
-  BigInt<N> v;
+  BigInt<N> v(0);
   if (gmp::IsNegative(v_in)) {
     gmp::CopyLimbs(m_in + v_in, v.limbs);
   } else {
