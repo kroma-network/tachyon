@@ -6,6 +6,8 @@
 #include "tachyon/crypto/challenger/hash_challenger.h"
 
 #include <memory>
+#include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -19,7 +21,8 @@
 namespace tachyon::crypto {
 
 using F = math::BabyBear;
-using Params = Poseidon2Params<F, 15, 7>;
+using Params = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                               Poseidon2Vendor::kPlonky3, F, 15, 7>;
 using Poseidon2 =
     Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
                     Params>;

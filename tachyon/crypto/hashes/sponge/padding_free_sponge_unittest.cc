@@ -22,7 +22,8 @@ class PaddingFreeSpongeTest : public math::FiniteFieldTest<F> {};
 }  // namespace
 
 TEST_F(PaddingFreeSpongeTest, Hash) {
-  using Params = Poseidon2Params<F, 15, 7>;
+  using Params = Poseidon2Params<Poseidon2Vendor::kHorizen,
+                                 Poseidon2Vendor::kPlonky3, F, 15, 7>;
   using Poseidon2 = Poseidon2Sponge<
       Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>, Params>;
   constexpr size_t kRate = 8;

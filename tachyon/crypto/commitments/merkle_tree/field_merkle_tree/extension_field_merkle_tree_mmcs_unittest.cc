@@ -28,8 +28,10 @@ constexpr size_t kN = 2;
 using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 using PackedF = math::PackedBabyBear;
-using Params = Poseidon2Params<F, 15, 7>;
-using PackedParams = Poseidon2Params<PackedF, 15, 7>;
+using Params = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                               Poseidon2Vendor::kPlonky3, F, 15, 7>;
+using PackedParams = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                                     Poseidon2Vendor::kPlonky3, PackedF, 15, 7>;
 using Poseidon2 =
     Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
                     Params>;

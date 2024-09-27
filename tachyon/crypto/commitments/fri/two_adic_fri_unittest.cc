@@ -1,6 +1,8 @@
 #include "tachyon/crypto/commitments/fri/two_adic_fri.h"
 
 #include <tuple>
+#include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -28,8 +30,10 @@ using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 using PackedF = math::PackedBabyBear;
 using ExtPackedF = math::PackedBabyBear4;
-using Params = Poseidon2Params<F, 15, 7>;
-using PackedParams = Poseidon2Params<PackedF, 15, 7>;
+using Params = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                               Poseidon2Vendor::kPlonky3, F, 15, 7>;
+using PackedParams = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                                     Poseidon2Vendor::kPlonky3, PackedF, 15, 7>;
 using Domain = TwoAdicMultiplicativeCoset<F>;
 using Poseidon2 =
     Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,

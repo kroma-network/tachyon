@@ -21,11 +21,17 @@ namespace tachyon::c {
 namespace zk::air::sp1::baby_bear {
 
 using Params = tachyon::crypto::Poseidon2Params<
-    F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+    tachyon::crypto::Poseidon2Vendor::kPlonky3,
+    tachyon::crypto::Poseidon2Vendor::kPlonky3, F,
+    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
     TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
+
 using PackedParams = tachyon::crypto::Poseidon2Params<
-    PackedF, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+    tachyon::crypto::Poseidon2Vendor::kPlonky3,
+    tachyon::crypto::Poseidon2Vendor::kPlonky3, PackedF,
+    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
     TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
+
 using Poseidon2 = tachyon::crypto::Poseidon2Sponge<
     tachyon::crypto::Poseidon2ExternalMatrix<
         tachyon::crypto::Poseidon2Plonky3ExternalMatrix<F>>,

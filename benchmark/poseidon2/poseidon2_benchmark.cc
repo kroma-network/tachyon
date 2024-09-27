@@ -40,18 +40,24 @@ void Run(SimpleReporter& reporter, const Poseidon2Config& config, Fn horizen_fn,
   Field result;
   if constexpr (std::is_same_v<Field, math::BabyBear>) {
     if (base::Contains(config.vendors(), Vendor::Plonky3())) {
-      using Params = Poseidon2Params<math::BabyBear, 15, 7>;
+      using Params =
+          Poseidon2Params<Poseidon2Vendor::kHorizen, Poseidon2Vendor::kPlonky3,
+                          math::BabyBear, 15, 7>;
       auto poseidon2_config = crypto::Poseidon2Config<Params>::Create(
           GetPoseidon2InternalShiftArray<Params>());
       result = runner.Run(poseidon2_config);
     } else {
-      using Params = Poseidon2Params<math::BabyBear, 15, 7>;
+      using Params =
+          Poseidon2Params<Poseidon2Vendor::kHorizen, Poseidon2Vendor::kHorizen,
+                          math::BabyBear, 15, 7>;
       auto poseidon2_config = crypto::Poseidon2Config<Params>::Create(
           GetPoseidon2InternalDiagonalArray<Params>());
       result = runner.Run(poseidon2_config);
     }
   } else {
-    using Params = Poseidon2Params<math::bn254::Fr, 2, 5>;
+    using Params =
+        Poseidon2Params<Poseidon2Vendor::kHorizen, Poseidon2Vendor::kHorizen,
+                        math::bn254::Fr, 2, 5>;
     auto poseidon2_config = crypto::Poseidon2Config<Params>::Create(
         GetPoseidon2InternalDiagonalArray<Params>());
     result = runner.Run(poseidon2_config);

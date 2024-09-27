@@ -5,6 +5,7 @@
 
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 
+#include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -27,7 +28,8 @@ class Poseidon2GoldilocksTest : public math::FiniteFieldTest<math::Goldilocks> {
 
 TEST_F(Poseidon2GoldilocksTest, Permute) {
   using F = math::Goldilocks;
-  using Params = Poseidon2Params<F, 7, 7>;
+  using Params = Poseidon2Params<Poseidon2Vendor::kHorizen,
+                                 Poseidon2Vendor::kPlonky3, F, 7, 7>;
 
   auto config = Poseidon2Config<Params>::Create(
       crypto::GetPoseidon2InternalDiagonalArray<Params>());
@@ -50,7 +52,8 @@ TEST_F(Poseidon2GoldilocksTest, Permute) {
 
 TEST_F(Poseidon2GoldilocksTest, Copyable) {
   using F = math::Goldilocks;
-  using Params = Poseidon2Params<F, 7, 7>;
+  using Params = Poseidon2Params<Poseidon2Vendor::kHorizen,
+                                 Poseidon2Vendor::kPlonky3, F, 7, 7>;
 
   auto config = Poseidon2Config<Params>::Create(
       crypto::GetPoseidon2InternalDiagonalArray<Params>());
@@ -82,7 +85,8 @@ class Poseidon2BabyBearTest
 
 TEST_F(Poseidon2BabyBearTest, Permute) {
   using F = math::BabyBear;
-  using Params = Poseidon2Params<F, 15, 7>;
+  using Params = Poseidon2Params<Poseidon2Vendor::kHorizen,
+                                 Poseidon2Vendor::kPlonky3, F, 15, 7>;
 
   auto config =
       Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
@@ -106,8 +110,11 @@ TEST_F(Poseidon2BabyBearTest, Permute) {
 TEST_F(Poseidon2BabyBearTest, PermutePacked) {
   using F = math::BabyBear;
   using PackedF = math::PackedBabyBear;
-  using Params = Poseidon2Params<F, 15, 7>;
-  using PackedParams = Poseidon2Params<PackedF, 15, 7>;
+  using Params = Poseidon2Params<Poseidon2Vendor::kHorizen,
+                                 Poseidon2Vendor::kPlonky3, F, 15, 7>;
+  using PackedParams =
+      Poseidon2Params<Poseidon2Vendor::kHorizen, Poseidon2Vendor::kPlonky3,
+                      PackedF, 15, 7>;
 
   auto packed_config = Poseidon2Config<PackedParams>::Create(
       GetPoseidon2InternalShiftArray<PackedParams>());

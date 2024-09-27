@@ -1,5 +1,6 @@
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 
+#include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -14,7 +15,8 @@
 namespace tachyon::crypto {
 
 using F = math::BabyBear;
-using Params = Poseidon2Params<F, 15, 7>;
+using Params = Poseidon2Params<Poseidon2Vendor::kHorizen,
+                               Poseidon2Vendor::kPlonky3, F, 15, 7>;
 using Poseidon2 =
     Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
                     Params>;

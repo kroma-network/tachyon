@@ -1,4 +1,7 @@
 #include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "absl/strings/substitute.h"
 
@@ -50,8 +53,13 @@ void Run(const FRIConfig& config) {
   using ExtF = math::BabyBear4;
   using PackedF = math::PackedBabyBear;
   using ExtPackedF = math::PackedBabyBear4;
-  using Params = crypto::Poseidon2Params<F, 15, 7>;
-  using PackedParams = crypto::Poseidon2Params<PackedF, 15, 7>;
+  using Params =
+      crypto::Poseidon2Params<crypto::Poseidon2Vendor::kHorizen,
+                              crypto::Poseidon2Vendor::kPlonky3, F, 15, 7>;
+  using PackedParams =
+      crypto::Poseidon2Params<crypto::Poseidon2Vendor::kHorizen,
+                              crypto::Poseidon2Vendor::kPlonky3, PackedF, 15,
+                              7>;
   using Poseidon2 =
       crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
                                   crypto::Poseidon2HorizenExternalMatrix<F>>,

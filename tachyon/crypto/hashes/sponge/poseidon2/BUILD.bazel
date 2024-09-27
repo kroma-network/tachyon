@@ -71,6 +71,7 @@ tachyon_cc_library(
     name = "poseidon2_params",
     hdrs = ["poseidon2_params.h"],
     deps = [
+        ":poseidon2_vendor",
         "//tachyon/base/types:always_false",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields:finite_field_traits",

@@ -15,7 +15,9 @@ namespace tachyon::c::base {
 namespace {
 
 using Params = tachyon::crypto::Poseidon2Params<
-    tachyon::math::BabyBear, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+    tachyon::crypto::Poseidon2Vendor::kPlonky3,
+    tachyon::crypto::Poseidon2Vendor::kPlonky3, tachyon::math::BabyBear,
+    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
     TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
 
 }  // namespace

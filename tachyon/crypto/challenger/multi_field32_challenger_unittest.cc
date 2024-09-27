@@ -6,6 +6,7 @@
 #include "tachyon/crypto/challenger/multi_field32_challenger.h"
 
 #include <memory>
+#include <utility>
 
 #include "gtest/gtest.h"
 
@@ -17,7 +18,9 @@
 
 namespace tachyon::crypto {
 
-using Params = Poseidon2Params<math::bn254::Fr, 2, 5>;
+using Params =
+    Poseidon2Params<Poseidon2Vendor::kPlonky3, Poseidon2Vendor::kPlonky3,
+                    math::bn254::Fr, 2, 5>;
 using Poseidon2 = Poseidon2Sponge<
     Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<math::bn254::Fr>>,
     Params>;

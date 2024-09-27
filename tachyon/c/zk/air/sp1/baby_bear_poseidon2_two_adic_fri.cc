@@ -34,10 +34,13 @@ using ExtMMCS = c::zk::air::sp1::baby_bear::ExtMMCS;
 using ChallengeMMCS = c::zk::air::sp1::baby_bear::ChallengeMMCS;
 using PCS = c::zk::air::sp1::baby_bear::PCS;
 using Params =
-    crypto::Poseidon2Params<F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+    crypto::Poseidon2Params<crypto::Poseidon2Vendor::kPlonky3,
+                            crypto::Poseidon2Vendor::kPlonky3, F,
+                            TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
                             TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
 using PackedParams =
-    crypto::Poseidon2Params<PackedF,
+    crypto::Poseidon2Params<crypto::Poseidon2Vendor::kPlonky3,
+                            crypto::Poseidon2Vendor::kPlonky3, PackedF,
                             TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
                             TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
 
