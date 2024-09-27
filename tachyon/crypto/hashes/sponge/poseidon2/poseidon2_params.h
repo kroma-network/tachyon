@@ -6,10 +6,8 @@
 
 #include <type_traits>
 
-#include "tachyon/base/bits.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_vendor.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::crypto {
