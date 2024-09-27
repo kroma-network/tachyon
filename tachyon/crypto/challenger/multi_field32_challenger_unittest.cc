@@ -65,9 +65,11 @@ TEST_F(MultiField32ChallengerTest, Sample) {
 
 TEST_F(MultiField32ChallengerTest, Grind) {
   const uint32_t kBits = 3;
+  MultiField32Challenger<math::BabyBear, Poseidon2> challenger_clone =
+      *challenger_;
   math::BabyBear witness =
       challenger_->Grind(kBits, base::Range<uint32_t>(0, 100));
-  EXPECT_TRUE(challenger_->CheckWitness(kBits, witness));
+  EXPECT_TRUE(challenger_clone.CheckWitness(kBits, witness));
 }
 
 }  // namespace tachyon::crypto

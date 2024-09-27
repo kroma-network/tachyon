@@ -16,7 +16,12 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "fri_proof",
     hdrs = ["fri_proof.h"],
-    deps = ["//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme_traits_forward",
+        "@com_google_absl//absl/strings",
+    ],
 )
 
 tachyon_cc_library(

@@ -29,9 +29,8 @@ class Poseidon2HorizenInternalMatrix {
     // |v[i]| = v₀ + v₁ + ... + μᵢvᵢ + ... + vₙ₋₂ + vₙ₋₁
     //        = (μᵢ - 1)vᵢ + v₀ + v₁ + ... + vₙ₋₂ + vₙ₋₁
     //        = (μᵢ - 1)vᵢ + |sum|
-    F sum =
-        std::accumulate(v.begin(), v.end(), F::Zero(),
-                        [](F& acc, const F& value) { return acc += value; });
+    F sum = std::accumulate(v.begin(), v.end(), F::Zero(),
+                            [](F acc, F value) { return acc += value; });
     for (Eigen::Index i = 0; i < v.size(); ++i) {
       v[i] *= diagonal_minus_one[i];
       v[i] += sum;

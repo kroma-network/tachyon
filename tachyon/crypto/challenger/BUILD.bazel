@@ -9,6 +9,7 @@ tachyon_cc_library(
         ":challenger_traits_forward",
         "//tachyon/base:logging",
         "//tachyon/base:parallelize",
+        "//tachyon/base:profiler",
         "//tachyon/base:range",
         "//tachyon/base/containers:container_util",
     ],

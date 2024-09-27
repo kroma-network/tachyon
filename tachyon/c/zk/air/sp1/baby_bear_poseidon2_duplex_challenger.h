@@ -7,6 +7,9 @@
 #ifndef TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_
 #define TACHYON_C_ZK_AIR_SP1_BABY_BEAR_POSEIDON2_DUPLEX_CHALLENGER_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include "tachyon/c/export.h"
 #include "tachyon/c/math/finite_fields/baby_bear/baby_bear.h"
 
@@ -63,6 +66,20 @@ TACHYON_C_EXPORT void tachyon_sp1_baby_bear_poseidon2_duplex_challenger_observe(
 TACHYON_C_EXPORT tachyon_baby_bear
 tachyon_sp1_baby_bear_poseidon2_duplex_challenger_sample(
     tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger);
+
+/**
+ * @brief Write a hint of the duplex challenger to the byte array.
+ * See
+ * https://github.com/succinctlabs/sp1/blob/6f67afd/crates/recursion/program/src/hints.rs#L371-L402.
+ *
+ * @param challenger A const pointer to the duplex challenger.
+ * @param data A pointer to the byte array.
+ * @param data_len A pointer to store the length of the byte array.
+ */
+TACHYON_C_EXPORT void
+tachyon_sp1_baby_bear_poseidon2_duplex_challenger_write_hint(
+    const tachyon_sp1_baby_bear_poseidon2_duplex_challenger* challenger,
+    uint8_t* data, size_t* data_len);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -2,7 +2,31 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
+filegroup(
+    name = "base_hdrs",
+    srcs = ["profiler.h"],
+)
+
+tachyon_cc_library(
+    name = "base",
+    deps = [":profiler"],
+)
+
 tachyon_cc_library(
     name = "type_traits_forward",
     hdrs = ["type_traits_forward.h"],
+)
+
+tachyon_cc_library(
+    name = "profiler",
+    srcs = ["profiler.cc"],
+    hdrs = [
+        "profiler.h",
+        "profiler_type_traits.h",
+    ],
+    deps = [
+        ":type_traits_forward",
+        "//tachyon/base:profiler",
+        "//tachyon/c:export",
+    ],
 )

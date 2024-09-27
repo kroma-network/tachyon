@@ -31,6 +31,8 @@ CommitPhaseResult<PCS> CommitPhase(const FRIConfig<ChallengeMMCS>& config,
   using Commitment = typename ChallengeMMCS::Commitment;
   using ProverData = typename ChallengeMMCS::ProverData;
 
+  TRACE_EVENT("ProofGeneration", "fri::CommitPhase");
+
   // NOTE(ashjeong): Refer to the note below as to why this is safe.
   std::vector<ExtF> folded = std::move(inputs[0]);
   size_t total_folds = base::bits::CheckedLog2(folded.size()) -
@@ -97,6 +99,7 @@ std::vector<CommitPhaseProofStep<PCS>> AnswerQuery(
     size_t index, const FRIConfig<ChallengeMMCS>& config,
     const std::vector<typename ChallengeMMCS::ProverData>&
         commit_phase_commits) {
+  TRACE_EVENT("ProofGeneration", "fri::AnswerQuery");
   return base::CreateVector(
       commit_phase_commits.size(),
       [index, &config, &commit_phase_commits](size_t i) {
@@ -126,6 +129,7 @@ FRIProof<PCS> Prove(const FRIConfig<ChallengeMMCS>& config,
                     Challenger& challenger, OpenInputCallback open_input,
                     std::optional<F> pow_witness_for_testing = std::nullopt) {
   using QueryProof = QueryProof<PCS>;
+  TRACE_EVENT("ProofGeneration", "fri::Prove");
 
 #if DCHECK_IS_ON()
   // Ensure |inputs| is in order from largest to smallest

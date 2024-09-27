@@ -349,6 +349,18 @@ std::array<ReturnType, N> CreateArray(Generator&& generator) {
   return ret;
 }
 
+template <typename Container, typename Container2>
+void Extend(Container& container, Container2&& container2) {
+  container.insert(container.end(), std::make_move_iterator(container2.begin()),
+                   std::make_move_iterator(container2.end()));
+  container2.clear();
+}
+
+template <typename Container, typename Container2>
+void Extend(Container& container, const Container2& container2) {
+  container.insert(container.end(), container2.begin(), container2.end());
+}
+
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_CONTAINER_UTIL_H_

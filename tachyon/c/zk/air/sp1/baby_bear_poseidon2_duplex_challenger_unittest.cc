@@ -11,9 +11,8 @@
 namespace tachyon::crypto {
 
 using F = math::BabyBear;
-using Params = tachyon::crypto::Poseidon2Params<
-    F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
-    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
+using Params = Poseidon2Params<F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+                               TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
 using Poseidon2 =
     Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
                     Params>;

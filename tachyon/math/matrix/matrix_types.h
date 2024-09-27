@@ -7,6 +7,7 @@
 #include "third_party/eigen3/Eigen/Core"
 
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon {
@@ -90,6 +91,25 @@ class Copyable<Eigen::Matrix<Field, Rows, Cols, Options, MaxRows, MaxCols>> {
 
   static size_t EstimateSize(const Matrix& matrix) {
     return matrix.size() * sizeof(Field) + sizeof(Eigen::Index) * 2;
+  }
+};
+
+template <typename Derived>
+class Copyable<Eigen::Map<Derived>> {
+ public:
+  using Matrix = Eigen::Map<Derived>;
+
+  static bool WriteTo(const Matrix& matrix, Buffer* buffer) {
+    return Copyable<std::decay_t<Derived>>::WriteTo(matrix, buffer);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, Matrix* matrix) {
+    NOTREACHED();
+    return false;
+  }
+
+  static size_t EstimateSize(const Matrix& matrix) {
+    return Copyable<std::decay_t<Derived>>::EstimateSize(matrix);
   }
 };
 

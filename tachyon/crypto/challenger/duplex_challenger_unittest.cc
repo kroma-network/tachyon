@@ -57,8 +57,9 @@ TEST_F(DuplexChallengerTest, Sample) {
 
 TEST_F(DuplexChallengerTest, Grind) {
   const uint32_t kBits = 3;
+  DuplexChallenger<Poseidon2, kRate> challenger_clone = challenger_;
   F witness = challenger_.Grind(kBits, base::Range<uint32_t>(0, 100));
-  EXPECT_TRUE(challenger_.CheckWitness(kBits, witness));
+  EXPECT_TRUE(challenger_clone.CheckWitness(kBits, witness));
 }
 
 }  // namespace tachyon::crypto

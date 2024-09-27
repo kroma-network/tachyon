@@ -30,13 +30,18 @@ class ProverData {
     return tree_;
   }
 
+  bool eq(const ProverData& other) const;
   void write_commit(rust::Slice<TachyonBabyBear> values) const;
+  rust::Vec<uint8_t> serialize() const;
   std::unique_ptr<ProverData> clone() const;
 
  private:
   tachyon_baby_bear commitment_[TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_CHUNK];
   tachyon_sp1_baby_bear_poseidon2_field_merkle_tree* tree_ = nullptr;
 };
+
+std::unique_ptr<ProverData> deserialize_prover_data(
+    rust::Slice<const uint8_t> data);
 
 }  // namespace tachyon::sp1_api::baby_bear_poseidon2
 

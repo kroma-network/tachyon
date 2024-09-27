@@ -16,6 +16,7 @@
 #include "absl/numeric/bits.h"
 #include "absl/types/span.h"
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/parallelize.h"
@@ -27,7 +28,8 @@
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
 
-namespace tachyon::crypto {
+namespace tachyon {
+namespace crypto {
 
 template <typename F, size_t N>
 class FieldMerkleTree {
@@ -138,9 +140,18 @@ class FieldMerkleTree {
     return digest_layers_;
   }
 
+  bool operator==(const FieldMerkleTree& other) const {
+    return leaves_ == other.leaves_ && digest_layers_ == other.digest_layers_;
+  }
+  bool operator!=(const FieldMerkleTree& other) const {
+    return !operator==(other);
+  }
+
   const Digest& GetRoot() const { return digest_layers_.back()[0]; }
 
  private:
+  friend class base::Copyable<FieldMerkleTree<F, N>>;
+
   class RowMajorMatrixView {
    public:
     RowMajorMatrixView() = default;
@@ -372,6 +383,44 @@ class FieldMerkleTree {
   std::vector<std::vector<Digest>> digest_layers_;
 };
 
-}  // namespace tachyon::crypto
+}  // namespace crypto
+
+namespace base {
+
+template <typename F, size_t N>
+class Copyable<crypto::FieldMerkleTree<F, N>> {
+  using Digest = typename crypto::FieldMerkleTree<F, N>::Digest;
+
+ public:
+  static bool WriteTo(const crypto::FieldMerkleTree<F, N>& tree,
+                      Buffer* buffer) {
+    return buffer->WriteMany(tree.leaves_, tree.digest_layers_);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       crypto::FieldMerkleTree<F, N>* tree) {
+    std::vector<math::RowMajorMatrix<F>> owned_leaves;
+    std::vector<std::vector<Digest>> digest_layers;
+    if (!buffer.ReadMany(&owned_leaves, &digest_layers)) {
+      return false;
+    }
+
+    std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> leaves =
+        base::Map(owned_leaves, [](const math::RowMajorMatrix<F>& owned_leaf) {
+          return math::Map(owned_leaf);
+        });
+
+    *tree = {std::move(leaves), std::move(digest_layers)};
+    tree->owned_leaves_ = std::move(owned_leaves);
+    return true;
+  }
+
+  static size_t EstimateSize(const crypto::FieldMerkleTree<F, N>& tree) {
+    return base::EstimateSize(tree.leaves_, tree.digest_layers_);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_MERKLE_TREE_FIELD_MERKLE_TREE_FIELD_MERKLE_TREE_H_

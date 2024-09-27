@@ -22,23 +22,24 @@ using F = math::BabyBear;
 using PackedF = math::PackedBabyBear;
 using ExtF = math::BabyBear4;
 using ExtPackedF = math::PackedBabyBear4;
-using Poseidon2 = c::zk::air::plonky3::baby_bear::Poseidon2;
-using PackedPoseidon2 = c::zk::air::plonky3::baby_bear::PackedPoseidon2;
-using Hasher = c::zk::air::plonky3::baby_bear::Hasher;
-using PackedHasher = c::zk::air::plonky3::baby_bear::PackedHasher;
-using Compressor = c::zk::air::plonky3::baby_bear::Compressor;
-using PackedCompressor = c::zk::air::plonky3::baby_bear::PackedCompressor;
-using Tree = c::zk::air::plonky3::baby_bear::Tree;
-using MMCS = c::zk::air::plonky3::baby_bear::MMCS;
-using ExtMMCS = c::zk::air::plonky3::baby_bear::ExtMMCS;
-using ChallengeMMCS = c::zk::air::plonky3::baby_bear::ChallengeMMCS;
-using PCS = c::zk::air::plonky3::baby_bear::PCS;
-using Params = tachyon::crypto::Poseidon2Params<
-    F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
-    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
-using PackedParams = tachyon::crypto::Poseidon2Params<
-    PackedF, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
-    TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
+using Poseidon2 = c::zk::air::sp1::baby_bear::Poseidon2;
+using PackedPoseidon2 = c::zk::air::sp1::baby_bear::PackedPoseidon2;
+using Hasher = c::zk::air::sp1::baby_bear::Hasher;
+using PackedHasher = c::zk::air::sp1::baby_bear::PackedHasher;
+using Compressor = c::zk::air::sp1::baby_bear::Compressor;
+using PackedCompressor = c::zk::air::sp1::baby_bear::PackedCompressor;
+using Tree = c::zk::air::sp1::baby_bear::Tree;
+using MMCS = c::zk::air::sp1::baby_bear::MMCS;
+using ExtMMCS = c::zk::air::sp1::baby_bear::ExtMMCS;
+using ChallengeMMCS = c::zk::air::sp1::baby_bear::ChallengeMMCS;
+using PCS = c::zk::air::sp1::baby_bear::PCS;
+using Params =
+    crypto::Poseidon2Params<F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+                            TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
+using PackedParams =
+    crypto::Poseidon2Params<PackedF,
+                            TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+                            TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
 
 tachyon_sp1_baby_bear_poseidon2_two_adic_fri*
 tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,

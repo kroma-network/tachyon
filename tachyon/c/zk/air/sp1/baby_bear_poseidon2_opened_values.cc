@@ -32,10 +32,8 @@ void tachyon_sp1_baby_bear_poseidon2_opened_values_destroy(
 void tachyon_sp1_baby_bear_poseidon2_opened_values_serialize(
     const tachyon_sp1_baby_bear_poseidon2_opened_values* opened_values,
     uint8_t* data, size_t* data_len) {
-  if (data == nullptr) {
-    *data_len = base::EstimateSize(c::base::native_cast(*opened_values));
-    return;
-  }
+  *data_len = base::EstimateSize(c::base::native_cast(*opened_values));
+  if (data == nullptr) return;
   base::AutoReset<bool> auto_reset(
       &base::Copyable<math::BabyBear>::s_is_in_montgomery, true);
   base::Buffer buffer(data, *data_len);

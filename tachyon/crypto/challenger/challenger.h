@@ -11,12 +11,14 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <limits>
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/profiler.h"
 #include "tachyon/base/range.h"
 #include "tachyon/crypto/challenger/challenger_traits_forward.h"
 
@@ -91,17 +93,21 @@ class Challenger {
 
   Field Grind(uint32_t bits, base::Range<uint32_t> range,
               std::optional<Field> pow_witness = std::nullopt) {
+    TRACE_EVENT("ProofGeneration", "Challenger::Grind");
+    std::atomic<bool> found(false);
     std::vector<uint32_t> ret = base::ParallelizeMap(
         range.GetSize(),
-        [this, bits, range](uint32_t len, uint32_t chunk_offset,
-                            uint32_t chunk_size) {
+        [this, bits, range, &found](uint32_t len, uint32_t chunk_offset,
+                                    uint32_t chunk_size) {
           uint32_t ret = std::numeric_limits<uint32_t>::max();
           uint32_t start = range.from + chunk_offset * chunk_size;
           uint32_t end = start + std::min(range.to - start, chunk_size);
           Field f(start);
           for (uint32_t i = start; i < end; ++i) {
+            if (found.load(std::memory_order_acquire)) break;
             Derived derived = *static_cast<Derived*>(this);
             if (derived.CheckWitness(bits, f)) {
+              found.store(true, std::memory_order_release);
               ret = i;
               break;
             }

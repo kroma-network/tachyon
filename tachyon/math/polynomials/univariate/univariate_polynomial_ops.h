@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
 #include "tachyon/base/sort.h"
@@ -115,9 +116,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
         upper_coeffs[r_term.degree - degree - 1] = r_term.coefficient;
       }
     }
-    l_coefficients.insert(l_coefficients.end(),
-                          std::make_move_iterator(upper_coeffs.begin()),
-                          std::make_move_iterator(upper_coeffs.end()));
+    base::Extend(l_coefficients, std::move(upper_coeffs));
 
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
@@ -210,9 +209,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
         upper_coeffs[r_term.degree - degree - 1] = -r_term.coefficient;
       }
     }
-    l_coefficients.insert(l_coefficients.end(),
-                          std::make_move_iterator(upper_coeffs.begin()),
-                          std::make_move_iterator(upper_coeffs.end()));
+    base::Extend(l_coefficients, std::move(upper_coeffs));
 
     self.coefficients_.RemoveHighDegreeZeros();
     return self;

@@ -28,7 +28,7 @@ tachyon_sp1_baby_bear_poseidon2_lde_vec*
 tachyon_sp1_baby_bear_poseidon2_lde_vec_create();
 
 /**
- * @brief Destroys a lde vector, freeing its resources.
+ * @brief Destroys an lde vector, freeing its resources.
  *
  * @param lde_vec A pointer to the lde vector to destroy.
  */
