@@ -52,7 +52,6 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
 
   math::Vector<F> internal_diagonal_minus_one;
   math::Vector<uint8_t> internal_shifts;
-  bool use_plonky3_internal_matrix = false;
 
   Poseidon2Config() = default;
   Poseidon2Config(const PoseidonConfigBase<Params>& base,
@@ -109,7 +108,6 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
       const std::array<uint8_t, Params::kRate>& internal_shifts,
       math::Matrix<F>&& ark) {
     Poseidon2Config ret = config_entry.ToPoseidon2Config<Params>();
-    ret.use_plonky3_internal_matrix = true;
     if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
       ret.internal_diagonal_minus_one = math::Vector<F>(Params::kWidth);
       ret.internal_diagonal_minus_one[0] = F(PrimeField::Config::kModulus - 2);

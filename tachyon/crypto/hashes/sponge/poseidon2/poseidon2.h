@@ -14,6 +14,7 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_internal_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_internal_matrix.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_vendor.h"
 #include "tachyon/crypto/hashes/sponge/sponge_state.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 
@@ -81,17 +82,16 @@ struct Poseidon2Sponge final
   void ApplyMixPartial(SpongeState<Params>& state) const {
     using PrimeField = math::MaybeUnpack<F>;
 
-    if constexpr (PrimeField::Config::kModulusBits <= 32) {
-      if (config.use_plonky3_internal_matrix) {
-        if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
-          Poseidon2Plonky3InternalMatrix<F>::Apply(
-              state.elements, config.internal_diagonal_minus_one);
-        } else {
-          Poseidon2Plonky3InternalMatrix<F>::Apply(state.elements,
-                                                   config.internal_shifts);
-        }
-        return;
+    if constexpr (PrimeField::Config::kModulusBits <= 32 &&
+                  Params::kInternalMatrixVendor == Poseidon2Vendor::kPlonky3) {
+      if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
+        Poseidon2Plonky3InternalMatrix<F>::Apply(
+            state.elements, config.internal_diagonal_minus_one);
+      } else {
+        Poseidon2Plonky3InternalMatrix<F>::Apply(state.elements,
+                                                 config.internal_shifts);
       }
+      return;
     }
     Poseidon2HorizenInternalMatrix<F>::Apply(
         state.elements, config.internal_diagonal_minus_one);

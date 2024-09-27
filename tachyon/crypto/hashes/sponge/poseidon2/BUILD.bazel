@@ -9,6 +9,7 @@ tachyon_cc_library(
         ":poseidon2_config",
         ":poseidon2_horizen_internal_matrix",
         ":poseidon2_plonky3_internal_matrix",
+        ":poseidon2_vendor",
         "//tachyon/base/buffer:copyable",
         "//tachyon/crypto/hashes/sponge:sponge_state",
         "//tachyon/crypto/hashes/sponge/poseidon:poseidon_sponge_base",
