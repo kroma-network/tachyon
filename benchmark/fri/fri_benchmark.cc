@@ -21,7 +21,6 @@
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
@@ -60,14 +59,8 @@ void Run(const FRIConfig& config) {
       crypto::Poseidon2Params<crypto::Poseidon2Vendor::kHorizen,
                               crypto::Poseidon2Vendor::kPlonky3, PackedF, 15,
                               7>;
-  using Poseidon2 =
-      crypto::Poseidon2Sponge<crypto::Poseidon2ExternalMatrix<
-                                  crypto::Poseidon2HorizenExternalMatrix<F>>,
-                              Params>;
-  using PackedPoseidon2 = crypto::Poseidon2Sponge<
-      crypto::Poseidon2ExternalMatrix<
-          crypto::Poseidon2HorizenExternalMatrix<PackedF>>,
-      PackedParams>;
+  using Poseidon2 = crypto::Poseidon2Sponge<Params>;
+  using PackedPoseidon2 = crypto::Poseidon2Sponge<PackedParams>;
   using MyHasher = crypto::PaddingFreeSponge<Poseidon2, kRate, kChunk>;
   using MyPackedHasher =
       crypto::PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;

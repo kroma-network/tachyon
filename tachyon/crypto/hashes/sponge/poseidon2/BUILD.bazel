@@ -7,7 +7,9 @@ tachyon_cc_library(
     hdrs = ["poseidon2.h"],
     deps = [
         ":poseidon2_config",
+        ":poseidon2_horizen_external_matrix",
         ":poseidon2_horizen_internal_matrix",
+        ":poseidon2_plonky3_external_matrix",
         ":poseidon2_plonky3_internal_matrix",
         ":poseidon2_vendor",
         "//tachyon/base/buffer:copyable",
@@ -114,10 +116,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":poseidon2",
-        ":poseidon2_horizen_external_matrix",
         ":poseidon2_params",
-        ":poseidon2_plonky3_external_matrix",
-        ":poseidon2_plonky3_internal_matrix",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_baby_bear",
         "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_goldilocks",

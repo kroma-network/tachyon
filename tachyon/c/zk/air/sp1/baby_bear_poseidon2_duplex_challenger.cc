@@ -19,9 +19,7 @@ using Params =
                             crypto::Poseidon2Vendor::kPlonky3, F,
                             TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
                             TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
-using Poseidon2 = crypto::Poseidon2Sponge<
-    crypto::Poseidon2ExternalMatrix<crypto::Poseidon2Plonky3ExternalMatrix<F>>,
-    Params>;
+using Poseidon2 = crypto::Poseidon2Sponge<Params>;
 
 tachyon_sp1_baby_bear_poseidon2_duplex_challenger*
 tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create() {

@@ -13,7 +13,6 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -35,12 +34,8 @@ using Params = Poseidon2Params<Poseidon2Vendor::kPlonky3,
 using PackedParams = Poseidon2Params<Poseidon2Vendor::kPlonky3,
                                      Poseidon2Vendor::kPlonky3, PackedF, 15, 7>;
 using Domain = TwoAdicMultiplicativeCoset<F>;
-using Poseidon2 =
-    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
-                    Params>;
-using PackedPoseidon2 = Poseidon2Sponge<
-    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<PackedF>>,
-    PackedParams>;
+using Poseidon2 = Poseidon2Sponge<Params>;
+using PackedPoseidon2 = Poseidon2Sponge<PackedParams>;
 using MyHasher = PaddingFreeSponge<Poseidon2, kRate, kChunk>;
 using MyPackedHasher = PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
 using MyCompressor = TruncatedPermutation<Poseidon2, kChunk, kN>;

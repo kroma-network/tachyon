@@ -29,7 +29,6 @@ tachyon_cc_library(
         "//tachyon/base/time",
         "//tachyon/c/base:type_traits_forward",
         "//tachyon/crypto/hashes/sponge/poseidon2",
-        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_horizen_external_matrix",
     ],
 )
 

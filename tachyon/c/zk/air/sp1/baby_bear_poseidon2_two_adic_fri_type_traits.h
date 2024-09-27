@@ -14,7 +14,6 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 
 namespace tachyon::c {
@@ -32,15 +31,9 @@ using PackedParams = tachyon::crypto::Poseidon2Params<
     TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
     TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
 
-using Poseidon2 = tachyon::crypto::Poseidon2Sponge<
-    tachyon::crypto::Poseidon2ExternalMatrix<
-        tachyon::crypto::Poseidon2Plonky3ExternalMatrix<F>>,
-    Params>;
+using Poseidon2 = tachyon::crypto::Poseidon2Sponge<Params>;
 
-using PackedPoseidon2 = tachyon::crypto::Poseidon2Sponge<
-    tachyon::crypto::Poseidon2ExternalMatrix<
-        tachyon::crypto::Poseidon2Plonky3ExternalMatrix<PackedF>>,
-    PackedParams>;
+using PackedPoseidon2 = tachyon::crypto::Poseidon2Sponge<PackedParams>;
 
 using Hasher = tachyon::crypto::PaddingFreeSponge<
     Poseidon2, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_RATE,

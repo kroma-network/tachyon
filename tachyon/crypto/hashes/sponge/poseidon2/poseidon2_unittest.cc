@@ -13,7 +13,6 @@
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_goldilocks.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
@@ -33,9 +32,7 @@ TEST_F(Poseidon2GoldilocksTest, Permute) {
 
   auto config = Poseidon2Config<Params>::Create(
       crypto::GetPoseidon2InternalDiagonalArray<Params>());
-  Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
-                  Params>
-      sponge(std::move(config));
+  Poseidon2Sponge<Params> sponge(std::move(config));
   SpongeState<Params> state;
   for (size_t i = 0; i < 8; ++i) {
     state.elements[i] = F(i);
@@ -57,9 +54,7 @@ TEST_F(Poseidon2GoldilocksTest, Copyable) {
 
   auto config = Poseidon2Config<Params>::Create(
       crypto::GetPoseidon2InternalDiagonalArray<Params>());
-  Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
-                  Params>
-      expected(std::move(config));
+  Poseidon2Sponge<Params> expected(std::move(config));
 
   base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
@@ -68,9 +63,7 @@ TEST_F(Poseidon2GoldilocksTest, Copyable) {
 
   write_buf.set_buffer_offset(0);
 
-  Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
-                  Params>
-      value;
+  Poseidon2Sponge<Params> value;
   ASSERT_TRUE(write_buf.Read(&value));
 
   EXPECT_EQ(value, expected);
@@ -90,9 +83,7 @@ TEST_F(Poseidon2BabyBearTest, Permute) {
 
   auto config =
       Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
-  Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
-                  Params>
-      sponge(std::move(config));
+  Poseidon2Sponge<Params> sponge(std::move(config));
   SpongeState<Params> state;
   for (size_t i = 0; i < 16; ++i) {
     state.elements[i] = F(i);
@@ -118,10 +109,7 @@ TEST_F(Poseidon2BabyBearTest, PermutePacked) {
 
   auto packed_config = Poseidon2Config<PackedParams>::Create(
       GetPoseidon2InternalShiftArray<PackedParams>());
-  Poseidon2Sponge<
-      Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<PackedF>>,
-      PackedParams>
-      packed_sponge(std::move(packed_config));
+  Poseidon2Sponge<PackedParams> packed_sponge(std::move(packed_config));
   SpongeState<PackedParams> packed_state;
   for (size_t i = 0; i < 16; ++i) {
     packed_state.elements[i] = PackedF(i);
@@ -130,9 +118,7 @@ TEST_F(Poseidon2BabyBearTest, PermutePacked) {
 
   auto config =
       Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
-  Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>,
-                  Params>
-      sponge(std::move(config));
+  Poseidon2Sponge<Params> sponge(std::move(config));
   SpongeState<Params> state;
   for (size_t i = 0; i < 16; ++i) {
     state.elements[i] = F(i);

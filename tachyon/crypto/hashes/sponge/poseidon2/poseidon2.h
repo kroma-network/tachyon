@@ -12,7 +12,9 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_sponge_base.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_internal_matrix.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_internal_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_vendor.h"
 #include "tachyon/crypto/hashes/sponge/sponge_state.h"
@@ -28,9 +30,9 @@ namespace crypto {
 //   2. Apply S-Box (xᵅ) to |state|.
 //   3. Apply external and internal matrices to |state|.
 // Squeeze: Squeeze elements out of the sponge.
-template <typename ExternalMatrix, typename _Params>
+template <typename _Params>
 struct Poseidon2Sponge final
-    : public PoseidonSpongeBase<Poseidon2Sponge<ExternalMatrix, _Params>> {
+    : public PoseidonSpongeBase<Poseidon2Sponge<_Params>> {
   using Params = _Params;
   using F = typename Params::Field;
 
@@ -76,7 +78,13 @@ struct Poseidon2Sponge final
 
  private:
   void ApplyMixFull(SpongeState<Params>& state) const {
-    ExternalMatrix::template Apply<Params::kWidth>(state.elements);
+    if constexpr (Params::kExternalMatrixVendor == Poseidon2Vendor::kHorizen) {
+      Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>::
+          template Apply<Params::kWidth>(state.elements);
+    } else {
+      Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>::
+          template Apply<Params::kWidth>(state.elements);
+    }
   }
 
   void ApplyMixPartial(SpongeState<Params>& state) const {
@@ -98,8 +106,8 @@ struct Poseidon2Sponge final
   }
 };
 
-template <typename ExternalMatrix, typename _Params>
-struct CryptographicSpongeTraits<Poseidon2Sponge<ExternalMatrix, _Params>> {
+template <typename _Params>
+struct CryptographicSpongeTraits<Poseidon2Sponge<_Params>> {
   using Params = _Params;
   using F = typename Params::Field;
 };
@@ -107,32 +115,28 @@ struct CryptographicSpongeTraits<Poseidon2Sponge<ExternalMatrix, _Params>> {
 }  // namespace crypto
 
 namespace base {
-template <typename ExternalMatrix, typename Params>
-class Copyable<crypto::Poseidon2Sponge<ExternalMatrix, Params>> {
+template <typename Params>
+class Copyable<crypto::Poseidon2Sponge<Params>> {
  public:
-  using F = typename ExternalMatrix::Field;
+  using F = typename Params::Field;
 
-  static bool WriteTo(
-      const crypto::Poseidon2Sponge<ExternalMatrix, Params>& poseidon,
-      Buffer* buffer) {
+  static bool WriteTo(const crypto::Poseidon2Sponge<Params>& poseidon,
+                      Buffer* buffer) {
     return buffer->WriteMany(poseidon.config);
   }
 
-  static bool ReadFrom(
-      const ReadOnlyBuffer& buffer,
-      crypto::Poseidon2Sponge<ExternalMatrix, Params>* poseidon) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       crypto::Poseidon2Sponge<Params>* poseidon) {
     crypto::Poseidon2Config<Params> config;
     if (!buffer.ReadMany(&config)) {
       return false;
     }
 
-    *poseidon =
-        crypto::Poseidon2Sponge<ExternalMatrix, Params>(std::move(config));
+    *poseidon = crypto::Poseidon2Sponge<Params>(std::move(config));
     return true;
   }
 
-  static size_t EstimateSize(
-      const crypto::Poseidon2Sponge<ExternalMatrix, Params>& poseidon) {
+  static size_t EstimateSize(const crypto::Poseidon2Sponge<Params>& poseidon) {
     return base::EstimateSize(poseidon.config);
   }
 };
