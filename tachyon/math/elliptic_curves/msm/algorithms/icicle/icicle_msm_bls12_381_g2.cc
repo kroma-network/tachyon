@@ -9,10 +9,10 @@
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_utils.h"
 
-cudaError_t tachyon_bls12_381_g2_msm_cuda(
-    const ::bls12_381::scalar_t* scalars,
-    const ::bls12_381::g2_affine_t* points, int msm_size,
-    ::msm::MSMConfig& config, ::bls12_381::g2_projective_t* out) {
+gpuError_t tachyon_bls12_381_g2_msm_cuda(const ::bls12_381::scalar_t* scalars,
+                                         const ::bls12_381::g2_affine_t* points,
+                                         int msm_size, ::msm::MSMConfig& config,
+                                         ::bls12_381::g2_projective_t* out) {
   return ::msm::msm(scalars, points, msm_size, config, out);
 }
 

@@ -4,7 +4,9 @@
 #include "third_party/icicle/include/curves/params/bn254.cu.h"
 #include "third_party/icicle/include/msm/msm.cu.h"
 
-extern "C" cudaError_t tachyon_bn254_g2_msm_cuda(
+#include "tachyon/device/gpu/gpu_device_functions.h"
+
+extern "C" gpuError_t tachyon_bn254_g2_msm_cuda(
     const ::bn254::scalar_t* scalars, const ::bn254::g2_affine_t* points,
     int msm_size, ::msm::MSMConfig& config, ::bn254::g2_projective_t* out);
 

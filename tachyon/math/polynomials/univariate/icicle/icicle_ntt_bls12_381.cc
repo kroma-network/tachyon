@@ -8,20 +8,20 @@
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/math/polynomials/univariate/icicle/icicle_ntt.h"
 
-cudaError_t tachyon_bls12_381_initialize_domain_cuda(
+gpuError_t tachyon_bls12_381_initialize_domain_cuda(
     const ::bls12_381::scalar_t& primitive_root,
     ::device_context::DeviceContext& ctx, bool fast_twiddles_mode) {
   return ::ntt::init_domain(primitive_root, ctx, fast_twiddles_mode);
 }
 
-cudaError_t tachyon_bls12_381_ntt_cuda(
+gpuError_t tachyon_bls12_381_ntt_cuda(
     const ::bls12_381::scalar_t* input, int size, ::ntt::NTTDir dir,
     ::ntt::NTTConfig<::bls12_381::scalar_t>& config,
     ::bls12_381::scalar_t* output) {
   return ::ntt::ntt(input, size, dir, config, output);
 }
 
-cudaError_t tachyon_bls12_381_release_domain_cuda(
+gpuError_t tachyon_bls12_381_release_domain_cuda(
     ::device_context::DeviceContext& ctx) {
   return ::ntt::release_domain<::bls12_381::scalar_t>(ctx);
 }
