@@ -31,6 +31,8 @@ class TruncatedPermutation final
   explicit TruncatedPermutation(Derived&& derived)
       : derived_(std::move(derived)) {}
 
+  const Derived& derived() const { return derived_; }
+
  private:
   friend class Compressor<TruncatedPermutation<Derived, Chunk, N>>;
 

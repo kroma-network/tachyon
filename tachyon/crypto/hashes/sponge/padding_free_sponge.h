@@ -31,6 +31,8 @@ class PaddingFreeSponge final
   explicit PaddingFreeSponge(Derived&& derived)
       : derived_(std::move(derived)) {}
 
+  const Derived& derived() const { return derived_; }
+
  private:
   friend class Hasher<PaddingFreeSponge<Derived, Rate, Out>>;
 
