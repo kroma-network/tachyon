@@ -8,9 +8,11 @@
 
 namespace tachyon::crypto {
 
-template <typename Derived>
+template <typename _Derived>
 class Hasher {
  public:
+  using Derived = _Derived;
+
   // TODO(chokobole): Make this accept iterator as an argument.
   template <typename T>
   auto Hash(const T& input) const {
