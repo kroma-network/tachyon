@@ -59,8 +59,8 @@ TEST_F(FieldMerkleTreeMMCSTest, Commit) {
   std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> matrices_tmp =
       matrices;
   Tree tree =
-      Tree::Build(mmcs_.hasher(), mmcs_.packed_hasher(), mmcs_.compressor(),
-                  mmcs_.packed_compressor(), std::move(matrices_tmp));
+      Tree::BuildCpu(mmcs_.hasher(), mmcs_.packed_hasher(), mmcs_.compressor(),
+                     mmcs_.packed_compressor(), std::move(matrices_tmp));
 
   {
     std::array<F, kChunk> commitment;
@@ -90,9 +90,9 @@ TEST_F(FieldMerkleTreeMMCSTest, CommitOwned) {
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
   std::vector<math::RowMajorMatrix<F>> matrices_tmp = matrices;
-  Tree tree = Tree::BuildOwned(mmcs_.hasher(), mmcs_.packed_hasher(),
-                               mmcs_.compressor(), mmcs_.packed_compressor(),
-                               std::move(matrices_tmp));
+  Tree tree = Tree::BuildOwnedCpu(mmcs_.hasher(), mmcs_.packed_hasher(),
+                                  mmcs_.compressor(), mmcs_.packed_compressor(),
+                                  std::move(matrices_tmp));
 
   {
     std::array<F, kChunk> commitment;

@@ -28,6 +28,10 @@
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
 
+#if TACHYON_CUDA
+#include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/icicle/icicle_mmcs_holder.h"
+#endif
+
 namespace tachyon {
 namespace crypto {
 
@@ -47,12 +51,152 @@ class FieldMerkleTree {
 
   template <typename Hasher, typename PackedHasher, typename Compressor,
             typename PackedCompressor>
-  static FieldMerkleTree Build(
+  static FieldMerkleTree BuildCpu(
       const Hasher& hasher, const PackedHasher& packed_hasher,
       const Compressor& compressor, const PackedCompressor& packed_compressor,
       std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& leaves) {
-    TRACE_EVENT("Utils", "FieldMerkleTree::Build");
     CHECK(!leaves.empty());
+    return DoBuildCpu(hasher, packed_hasher, compressor, packed_compressor,
+                      std::move(leaves));
+  }
+
+  template <typename Hasher, typename PackedHasher, typename Compressor,
+            typename PackedCompressor>
+  static FieldMerkleTree BuildOwnedCpu(
+      const Hasher& hasher, const PackedHasher& packed_hasher,
+      const Compressor& compressor, const PackedCompressor& packed_compressor,
+      std::vector<math::RowMajorMatrix<F>>&& owned_leaves) {
+    std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> leaves =
+        base::Map(owned_leaves, [](const math::RowMajorMatrix<F>& owned_leaf) {
+          return math::Map(owned_leaf);
+        });
+    FieldMerkleTree ret = BuildCpu(hasher, packed_hasher, compressor,
+                                   packed_compressor, std::move(leaves));
+    ret.owned_leaves_ = std::move(owned_leaves);
+    return ret;
+  }
+
+#if TACHYON_CUDA
+  template <typename Hasher, typename PackedHasher, typename Compressor,
+            typename PackedCompressor>
+  static FieldMerkleTree MaybeBuildGpu(
+      const Hasher& hasher, const PackedHasher& packed_hasher,
+      const Compressor& compressor, const PackedCompressor& packed_compressor,
+      std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& leaves,
+      IcicleMMCSHolder<F>* icicle) {
+    CHECK(!leaves.empty());
+
+#if TACHYON_CUDA
+    if constexpr (IsIcicleMMCSSupported<F>) {
+      if (icicle) {
+        TRACE_EVENT("Utils", "DoBuildGpu");
+        std::vector<std::vector<std::vector<F>>> digest_layers_icicle;
+        CHECK((*icicle)->Commit(std::move(leaves), &digest_layers_icicle));
+        // TODO(GideokKim): Optimize this.
+        std::vector<std::vector<Digest>> digest_layers;
+        digest_layers.resize(digest_layers_icicle.size());
+        for (size_t i = 0; i < digest_layers_icicle.size(); ++i) {
+          digest_layers[i].resize(digest_layers_icicle[i].size());
+          for (size_t j = 0; j < digest_layers_icicle[i].size(); ++j) {
+            if (digest_layers_icicle[i][j].size() == N) {
+              std::array<PrimeField, N> arr;
+
+              std::move(digest_layers_icicle[i][j].begin(),
+                        digest_layers_icicle[i][j].end(), arr.begin());
+
+              digest_layers[i][j] = std::move(arr);
+            }
+          }
+        }
+        return {std::move(leaves), std::move(digest_layers)};
+      }
+    }
+#endif
+    return DoBuildCpu(hasher, packed_hasher, compressor, packed_compressor,
+                      std::move(leaves));
+  }
+
+  template <typename Hasher, typename PackedHasher, typename Compressor,
+            typename PackedCompressor>
+  static FieldMerkleTree MaybeBuildOwnedGpu(
+      const Hasher& hasher, const PackedHasher& packed_hasher,
+      const Compressor& compressor, const PackedCompressor& packed_compressor,
+      std::vector<math::RowMajorMatrix<F>>&& owned_leaves,
+      IcicleMMCSHolder<F>* icicle) {
+    std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> leaves =
+        base::Map(owned_leaves, [](const math::RowMajorMatrix<F>& owned_leaf) {
+          return math::Map(owned_leaf);
+        });
+    FieldMerkleTree ret =
+        MaybeBuildGpu(hasher, packed_hasher, compressor, packed_compressor,
+                      std::move(leaves), icicle);
+    ret.owned_leaves_ = std::move(owned_leaves);
+    return ret;
+  }
+
+#endif
+
+  const std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>& leaves() const {
+    return leaves_;
+  }
+  const std::vector<std::vector<Digest>>& digest_layers() const {
+    return digest_layers_;
+  }
+
+  bool operator==(const FieldMerkleTree& other) const {
+    return leaves_ == other.leaves_ && digest_layers_ == other.digest_layers_;
+  }
+  bool operator!=(const FieldMerkleTree& other) const {
+    return !operator==(other);
+  }
+
+  const Digest& GetRoot() const { return digest_layers_.back()[0]; }
+
+ private:
+  friend class base::Copyable<FieldMerkleTree<F, N>>;
+
+  class RowMajorMatrixView {
+   public:
+    RowMajorMatrixView() = default;
+    explicit RowMajorMatrixView(Eigen::Map<const math::RowMajorMatrix<F>>* ptr)
+        : ptr_(ptr) {}
+
+    // TODO(chokobole): This comparison is intentionally reversed to sort in
+    // descending order, as powersort doesn't accept custom callbacks.
+    bool operator<(const RowMajorMatrixView& other) const {
+      return ptr_->rows() > other.ptr_->rows();
+    }
+    bool operator<=(const RowMajorMatrixView& other) const {
+      return ptr_->rows() >= other.ptr_->rows();
+    }
+    bool operator>(const RowMajorMatrixView& other) const {
+      return ptr_->rows() < other.ptr_->rows();
+    }
+
+    Eigen::Map<const math::RowMajorMatrix<F>>* operator->() const {
+      return ptr_;
+    }
+
+    Eigen::Map<const math::RowMajorMatrix<F>>& operator*() const {
+      return *ptr_;
+    }
+
+   private:
+    Eigen::Map<const math::RowMajorMatrix<F>>* ptr_ = nullptr;
+  };
+
+  FieldMerkleTree(
+      std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& leaves,
+      std::vector<std::vector<Digest>>&& digest_layers)
+      : leaves_(std::move(leaves)), digest_layers_(std::move(digest_layers)) {}
+
+  template <typename Hasher, typename PackedHasher, typename Compressor,
+            typename PackedCompressor>
+  static FieldMerkleTree DoBuildCpu(
+      const Hasher& hasher, const PackedHasher& packed_hasher,
+      const Compressor& compressor, const PackedCompressor& packed_compressor,
+      std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& leaves) {
+    TRACE_EVENT("Utils", "DoBuildCpu");
 
     std::vector<RowMajorMatrixView> sorted_leaves = base::Map(
         leaves, [](Eigen::Map<const math::RowMajorMatrix<F>>& matrix) {
@@ -116,76 +260,6 @@ class FieldMerkleTree {
     }
     return {std::move(leaves), std::move(digest_layers)};
   }
-
-  template <typename Hasher, typename PackedHasher, typename Compressor,
-            typename PackedCompressor>
-  static FieldMerkleTree BuildOwned(
-      const Hasher& hasher, const PackedHasher& packed_hasher,
-      const Compressor& compressor, const PackedCompressor& packed_compressor,
-      std::vector<math::RowMajorMatrix<F>>&& owned_leaves) {
-    std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> leaves =
-        base::Map(owned_leaves, [](const math::RowMajorMatrix<F>& owned_leaf) {
-          return math::Map(owned_leaf);
-        });
-    FieldMerkleTree ret = Build(hasher, packed_hasher, compressor,
-                                packed_compressor, std::move(leaves));
-    ret.owned_leaves_ = std::move(owned_leaves);
-    return ret;
-  }
-
-  const std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>& leaves() const {
-    return leaves_;
-  }
-  const std::vector<std::vector<Digest>>& digest_layers() const {
-    return digest_layers_;
-  }
-
-  bool operator==(const FieldMerkleTree& other) const {
-    return leaves_ == other.leaves_ && digest_layers_ == other.digest_layers_;
-  }
-  bool operator!=(const FieldMerkleTree& other) const {
-    return !operator==(other);
-  }
-
-  const Digest& GetRoot() const { return digest_layers_.back()[0]; }
-
- private:
-  friend class base::Copyable<FieldMerkleTree<F, N>>;
-
-  class RowMajorMatrixView {
-   public:
-    RowMajorMatrixView() = default;
-    explicit RowMajorMatrixView(Eigen::Map<const math::RowMajorMatrix<F>>* ptr)
-        : ptr_(ptr) {}
-
-    // TODO(chokobole): This comparison is intentionally reversed to sort in
-    // descending order, as powersort doesn't accept custom callbacks.
-    bool operator<(const RowMajorMatrixView& other) const {
-      return ptr_->rows() > other.ptr_->rows();
-    }
-    bool operator<=(const RowMajorMatrixView& other) const {
-      return ptr_->rows() >= other.ptr_->rows();
-    }
-    bool operator>(const RowMajorMatrixView& other) const {
-      return ptr_->rows() < other.ptr_->rows();
-    }
-
-    Eigen::Map<const math::RowMajorMatrix<F>>* operator->() const {
-      return ptr_;
-    }
-
-    Eigen::Map<const math::RowMajorMatrix<F>>& operator*() const {
-      return *ptr_;
-    }
-
-   private:
-    Eigen::Map<const math::RowMajorMatrix<F>>* ptr_ = nullptr;
-  };
-
-  FieldMerkleTree(
-      std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& leaves,
-      std::vector<std::vector<Digest>>&& digest_layers)
-      : leaves_(std::move(leaves)), digest_layers_(std::move(digest_layers)) {}
 
   template <typename Hasher, typename PackedHasher>
   static std::vector<Digest> CreateFirstDigestLayer(

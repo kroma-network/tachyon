@@ -55,8 +55,8 @@ TEST_F(FieldMerkleTreeTest, CommitSingle1x8) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
 
   auto h0_1 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(0, 0)}),
@@ -86,8 +86,8 @@ TEST_F(FieldMerkleTreeTest, CommitSingle2x2) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
 
   auto expected = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(0, 0), matrix(0, 1)}),
@@ -103,8 +103,8 @@ TEST_F(FieldMerkleTreeTest, CommitSingle2x3) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
   std::array<F, kChunk> default_digest =
       base::CreateArray<kChunk>([]() { return F::Zero(); });
   auto h0_3 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
@@ -130,8 +130,8 @@ TEST_F(FieldMerkleTreeTest, CommitMixed) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix, matrix2};
 
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
   std::array<F, kChunk> default_digest =
       base::CreateArray<kChunk>([]() { return F::Zero(); });
   auto h0_3 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
@@ -158,12 +158,12 @@ TEST_F(FieldMerkleTreeTest, CommitEitherOrder) {
   math::RowMajorMatrix<F> matrix2 = math::RowMajorMatrix<F>::Random(2, 3);
 
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix, matrix2};
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
 
   std::vector<math::RowMajorMatrix<F>> matrices2 = {matrix2, matrix};
-  Tree tree2 = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                                packed_compressor_, std::move(matrices2));
+  Tree tree2 = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                   packed_compressor_, std::move(matrices2));
   EXPECT_EQ(tree.GetRoot(), tree2.GetRoot());
 }
 

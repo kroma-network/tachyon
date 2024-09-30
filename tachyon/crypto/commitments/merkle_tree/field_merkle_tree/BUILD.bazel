@@ -18,6 +18,7 @@ tachyon_cc_library(
         "//tachyon/base:sort",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
+        "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree/icicle:icicle_mmcs_holder",
         "//tachyon/math/finite_fields:extension_field_traits_forward",
         "//tachyon/math/finite_fields:finite_field_traits",
         "//tachyon/math/finite_fields:packed_field_traits_forward",

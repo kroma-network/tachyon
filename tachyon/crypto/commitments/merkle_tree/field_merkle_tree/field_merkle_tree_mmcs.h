@@ -61,6 +61,10 @@ class FieldMerkleTreeMMCS final
     return packed_compressor_;
   }
 
+#if TACHYON_CUDA
+  void set_icicle(IcicleMMCSHolder<F>* icicle) { icicle_ = icicle; }
+#endif
+
  private:
   friend class MixedMatrixCommitmentScheme<FieldMerkleTreeMMCS<
       F, Hasher, PackedHasher, Compressor, PackedCompressor, N>>;
@@ -90,9 +94,15 @@ class FieldMerkleTreeMMCS final
       std::vector<Eigen::Map<const math::RowMajorMatrix<F>>>&& matrices,
       Commitment* commitment, ProverData* prover_data) const {
     TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommit");
-    *prover_data =
-        FieldMerkleTree<F, N>::Build(hasher_, packed_hasher_, compressor_,
-                                     packed_compressor_, std::move(matrices));
+#if TACHYON_CUDA
+    *prover_data = FieldMerkleTree<F, N>::MaybeBuildGpu(
+        hasher_, packed_hasher_, compressor_, packed_compressor_,
+        std::move(matrices), icicle_);
+#else
+    *prover_data = FieldMerkleTree<F, N>::BuildCpu(
+        hasher_, packed_hasher_, compressor_, packed_compressor_,
+        std::move(matrices));
+#endif
     *commitment = prover_data->GetRoot();
 
     return true;
@@ -102,9 +112,15 @@ class FieldMerkleTreeMMCS final
       std::vector<math::RowMajorMatrix<F>>&& owned_matrices,
       Commitment* commitment, ProverData* prover_data) const {
     TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommitOwned");
-    *prover_data = FieldMerkleTree<F, N>::BuildOwned(
+#if TACHYON_CUDA
+    *prover_data = FieldMerkleTree<F, N>::MaybeBuildOwnedGpu(
+        hasher_, packed_hasher_, compressor_, packed_compressor_,
+        std::move(owned_matrices), icicle_);
+#else
+    *prover_data = FieldMerkleTree<F, N>::BuildOwnedCpu(
         hasher_, packed_hasher_, compressor_, packed_compressor_,
         std::move(owned_matrices));
+#endif
     *commitment = prover_data->GetRoot();
 
     return true;
@@ -255,6 +271,10 @@ class FieldMerkleTreeMMCS final
   PackedHasher packed_hasher_;
   Compressor compressor_;
   PackedCompressor packed_compressor_;
+#if TACHYON_CUDA
+  // not owned
+  IcicleMMCSHolder<F>* icicle_ = nullptr;
+#endif
 };
 
 template <typename F, typename Hasher, typename PackedHasher,
