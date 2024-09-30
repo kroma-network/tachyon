@@ -114,6 +114,8 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
     return Create(config_entry, internal_shifts, std::move(ark));
   }
 
+  // NOTE(chokobole): If another variant method that accepts ark is added,
+  // remember to update the code in icicle_poseidon2_holder.h as well.
   constexpr static Poseidon2Config Create(
       const std::array<uint8_t, Params::kRate>& internal_shifts,
       math::Matrix<F>&& ark) {

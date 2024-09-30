@@ -53,3 +53,16 @@ tachyon_cc_library(
         "@icicle//:hdrs",
     ],
 )
+
+tachyon_cc_library(
+    name = "icicle_poseidon2_holder",
+    hdrs = ["icicle_poseidon2_holder.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":icicle_poseidon2_baby_bear",
+        ":icicle_poseidon2_bn254",
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_config",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_stream",
+    ],
+)
