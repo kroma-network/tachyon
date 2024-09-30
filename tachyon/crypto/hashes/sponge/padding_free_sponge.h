@@ -20,6 +20,9 @@ template <typename Derived, size_t Rate, size_t Out>
 class PaddingFreeSponge final
     : public Hasher<PaddingFreeSponge<Derived, Rate, Out>> {
  public:
+  constexpr static size_t kRate = Rate;
+  constexpr static size_t kOut = Out;
+
   using Params = typename Derived::Params;
   using F = typename CryptographicSpongeTraits<Derived>::F;
 

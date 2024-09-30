@@ -20,6 +20,9 @@ template <typename Derived, size_t Chunk, size_t N>
 class TruncatedPermutation final
     : public Compressor<TruncatedPermutation<Derived, Chunk, N>> {
  public:
+  constexpr static size_t kChunk = Chunk;
+  constexpr static size_t kN = N;
+
   using Params = typename Derived::Params;
   using F = typename CryptographicSpongeTraits<Derived>::F;
 
