@@ -1,3 +1,4 @@
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
@@ -120,6 +121,19 @@ tachyon_cc_unittest(
         "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_baby_bear",
         "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_goldilocks",
         "//tachyon/math/finite_fields/mersenne31",
+        "//tachyon/math/finite_fields/test:finite_field_test",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "poseidon2_gpu_unittests",
+    srcs = if_gpu_is_configured(["poseidon2_gpu_unittest.cc"]),
+    deps = [
+        ":poseidon2",
+        ":poseidon2_params",
+        "//tachyon/crypto/hashes/sponge/poseidon2/icicle:icicle_poseidon2_holder",
+        "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_baby_bear",
+        "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_bn254",
         "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )
