@@ -55,3 +55,15 @@ tachyon_cc_library(
         "@icicle//:hdrs",
     ],
 )
+
+tachyon_cc_library(
+    name = "icicle_mmcs_holder",
+    hdrs = ["icicle_mmcs_holder.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":icicle_mmcs_baby_bear",
+        ":icicle_mmcs_bn254",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_stream",
+    ],
+)
