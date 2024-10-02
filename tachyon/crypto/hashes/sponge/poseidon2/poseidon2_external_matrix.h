@@ -55,7 +55,7 @@ class Poseidon2ExternalMatrix {
   }
 
   template <size_t kWidth>
-  static math::Matrix<Field> Construct(size_t size) {
+  static math::Matrix<Field> Construct() {
     if constexpr (kWidth <= 1 || kWidth > 24) {
       NOTREACHED() << "Out of range";
     } else if constexpr (kWidth == 2) {

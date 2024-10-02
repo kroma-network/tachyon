@@ -52,35 +52,35 @@ TYPED_TEST(Poseidon2ExternalMatrixTest, Apply) {
     switch (size) {
       case 2:
         Poseidon2ExternalMatrix<Matrix>::template Apply<2>(vector2);
-        EXPECT_EQ(Matrix::template Construct<2>(size) * vector, vector2);
+        EXPECT_EQ(Matrix::template Construct<2>() * vector, vector2);
         break;
       case 3:
         Poseidon2ExternalMatrix<Matrix>::template Apply<3>(vector2);
-        EXPECT_EQ(Matrix::template Construct<3>(size) * vector, vector2);
+        EXPECT_EQ(Matrix::template Construct<3>() * vector, vector2);
         break;
       case 4:
         Poseidon2ExternalMatrix<Matrix>::template Apply<4>(vector2);
-        EXPECT_EQ(Matrix::template Construct<4>(size) * vector, vector2);
+        EXPECT_EQ(Matrix::template Construct<4>() * vector, vector2);
         break;
       case 8:
         Poseidon2ExternalMatrix<Matrix>::template Apply<8>(vector2);
-        EXPECT_EQ(Matrix::template Construct<8>(size) * vector, vector2);
+        EXPECT_EQ(Matrix::template Construct<8>() * vector, vector2);
         break;
       case 12:
         Poseidon2ExternalMatrix<Matrix>::template Apply<12>(vector2);
-        EXPECT_EQ(Matrix::template Construct<12>(size) * vector, vector2);
+        EXPECT_EQ(Matrix::template Construct<12>() * vector, vector2);
         break;
       case 16:
         Poseidon2ExternalMatrix<Matrix>::template Apply<16>(vector2);
-        EXPECT_EQ(Matrix::template Construct<16>(size) * vector, vector2);
+        EXPECT_EQ(Matrix::template Construct<16>() * vector, vector2);
         break;
       case 20:
         Poseidon2ExternalMatrix<Matrix>::template Apply<20>(vector2);
-        EXPECT_EQ(Matrix::template Construct<20>(size) * vector, vector2);
+        EXPECT_EQ(Matrix::template Construct<20>() * vector, vector2);
         break;
       case 24:
         Poseidon2ExternalMatrix<Matrix>::template Apply<24>(vector2);
-        EXPECT_EQ(Matrix::template Construct<24>(size) * vector, vector2);
+        EXPECT_EQ(Matrix::template Construct<24>() * vector, vector2);
         break;
       default:
         FAIL();
@@ -94,22 +94,22 @@ TYPED_TEST(Poseidon2ExternalMatrixTest, Apply) {
       case 0:
         EXPECT_DEATH(Poseidon2ExternalMatrix<Matrix>::template Apply<0>(vector),
                      "");
-        EXPECT_DEATH(Matrix::template Construct<0>(size), "");
+        EXPECT_DEATH(Matrix::template Construct<0>(), "");
         break;
       case 1:
         EXPECT_DEATH(Poseidon2ExternalMatrix<Matrix>::template Apply<1>(vector),
                      "");
-        EXPECT_DEATH(Matrix::template Construct<1>(size), "");
+        EXPECT_DEATH(Matrix::template Construct<1>(), "");
         break;
       case 5:
         EXPECT_DEATH(Poseidon2ExternalMatrix<Matrix>::template Apply<5>(vector),
                      "");
-        EXPECT_DEATH(Matrix::template Construct<5>(size), "");
+        EXPECT_DEATH(Matrix::template Construct<5>(), "");
         break;
       case 28:
         EXPECT_DEATH(
             Poseidon2ExternalMatrix<Matrix>::template Apply<28>(vector), "");
-        EXPECT_DEATH(Matrix::template Construct<28>(size), "");
+        EXPECT_DEATH(Matrix::template Construct<28>(), "");
         break;
       default:
         FAIL();
