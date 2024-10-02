@@ -2,16 +2,22 @@
 
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
+#include "tachyon/math/matrix/matrix_utils.h"
 
 namespace tachyon::math {
 
 class MatrixOperationsTest : public FiniteFieldTest<GF7> {};
 
-TEST_F(MatrixOperationsTest, MulMatVecSerialWithVector) {
-  Matrix<GF7> matrix = Matrix<GF7>::Random(2, 2);
-  Vector<GF7> vector = Vector<GF7>::Random(2);
+TEST_F(MatrixOperationsTest, MulMatVecSerial) {
+  constexpr size_t kRows = 3;
+  constexpr size_t kCols = 2;
 
-  EXPECT_EQ(matrix * vector, MulMatVecSerial(matrix, vector));
+  Matrix<GF7, kRows, kCols> matrix = Matrix<GF7, kRows, kCols>::Random();
+  Vector<GF7, kCols> vector = Vector<GF7, kCols>::Random();
+  Vector<GF7, kRows> answer = matrix * vector;
+
+  EXPECT_EQ(ToArray(answer),
+            MulMatVecSerial(To2DArray(matrix), ToArray(vector)));
 }
 
 TEST_F(MatrixOperationsTest, MulMatVecSerialWithRowVector) {
@@ -31,10 +37,16 @@ TEST_F(MatrixOperationsTest, MulMatVecSerialWithCoefficients) {
 }
 
 TEST_F(MatrixOperationsTest, MulMatMatSerial) {
-  Matrix<GF7> matrix = Matrix<GF7>::Random(3, 2);
-  Matrix<GF7> matrix2 = Matrix<GF7>::Random(2, 5);
+  constexpr size_t kRows = 3;
+  constexpr size_t kCols = 2;
+  constexpr size_t kCols2 = 5;
 
-  EXPECT_EQ(matrix * matrix2, MulMatMatSerial(matrix, matrix2));
+  Matrix<GF7, kRows, kCols> matrix = Matrix<GF7, kRows, kCols>::Random();
+  Matrix<GF7, kCols, kCols2> matrix2 = Matrix<GF7, kCols, kCols2>::Random();
+  Matrix<GF7, kRows, kCols2> answer = matrix * matrix2;
+
+  EXPECT_EQ(To2DArray(answer),
+            MulMatMat(To2DArray(matrix), To2DArray(matrix2)));
 }
 
 #if defined(TACHYON_HAS_OPENMP)
@@ -43,6 +55,17 @@ TEST_F(MatrixOperationsTest, MulMatVecWithVector) {
   Vector<GF7> vector = Vector<GF7>::Random(100);
 
   EXPECT_EQ(matrix * vector, MulMatVec(matrix, vector));
+}
+
+TEST_F(MatrixOperationsTest, MulMatVec) {
+  constexpr size_t kRows = 60;
+  constexpr size_t kCols = 40;
+
+  Matrix<GF7, kRows, kCols> matrix = Matrix<GF7, kRows, kCols>::Random();
+  Vector<GF7, kCols> vector = Vector<GF7, kCols>::Random();
+  Vector<GF7, kRows> answer = matrix * vector;
+
+  EXPECT_EQ(ToArray(answer), MulMatVec(To2DArray(matrix), ToArray(vector)));
 }
 
 TEST_F(MatrixOperationsTest, MulMatVecWithRowVector) {
@@ -62,10 +85,16 @@ TEST_F(MatrixOperationsTest, MulMatVecWithCoefficients) {
 }
 
 TEST_F(MatrixOperationsTest, MulMatMat) {
-  Matrix<GF7> matrix = Matrix<GF7>::Random(3, 2);
-  Matrix<GF7> matrix2 = Matrix<GF7>::Random(2, 5);
+  constexpr size_t kRows = 60;
+  constexpr size_t kCols = 40;
+  constexpr size_t kCols2 = 50;
 
-  EXPECT_EQ(matrix * matrix2, MulMatMat(matrix, matrix2));
+  Matrix<GF7, kRows, kCols> matrix = Matrix<GF7, kRows, kCols>::Random();
+  Matrix<GF7, kCols, kCols2> matrix2 = Matrix<GF7, kCols, kCols2>::Random();
+  Matrix<GF7, kRows, kCols2> answer = matrix * matrix2;
+
+  EXPECT_EQ(To2DArray(answer),
+            MulMatMat(To2DArray(matrix), To2DArray(matrix2)));
 }
 #endif
 

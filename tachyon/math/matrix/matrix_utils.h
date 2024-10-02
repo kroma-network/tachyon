@@ -197,6 +197,32 @@ Eigen::Map<const Derived> Map(const Eigen::PlainObjectBase<Derived>& mat) {
   return Eigen::Map<const Derived>(mat.data(), mat.rows(), mat.cols());
 }
 
+template <typename Derived, typename Scalar = typename Derived::Scalar,
+          Eigen::Index Rows = Derived::RowsAtCompileTime,
+          Eigen::Index Cols = Derived::ColsAtCompileTime>
+std::array<std::array<Scalar, Cols>, Rows> To2DArray(
+    const Eigen::MatrixBase<Derived>& matrix) {
+  std::array<std::array<Scalar, Cols>, Rows> ret;
+  for (Eigen::Index r = 0; r < Rows; ++r) {
+    for (Eigen::Index c = 0; c < Cols; ++c) {
+      ret[r][c] = matrix(r, c);
+    }
+  }
+  return ret;
+}
+
+template <typename Derived, typename Scalar = typename Derived::Scalar,
+          Eigen::Index N = Derived::RowsAtCompileTime == 1
+                               ? Derived::ColsAtCompileTime
+                               : Derived::RowsAtCompileTime>
+std::array<Scalar, N> ToArray(const Eigen::MatrixBase<Derived>& vector) {
+  std::array<Scalar, N> ret;
+  for (Eigen::Index i = 0; i < N; ++i) {
+    ret[i] = vector[i];
+  }
+  return ret;
+}
+
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_MATRIX_MATRIX_UTILS_H_
