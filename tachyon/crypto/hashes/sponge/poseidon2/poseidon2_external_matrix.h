@@ -57,6 +57,7 @@ class Poseidon2ExternalMatrix {
   static math::Matrix<Field> Construct() {
     if constexpr (N <= 1 || N > 24) {
       NOTREACHED() << "Out of range";
+      return {};
     } else if constexpr (N == 2) {
       return math::MakeCirculant(math::Vector<Field>{{Field(2), Field(1)}});
     } else if constexpr (N == 3) {
@@ -77,6 +78,7 @@ class Poseidon2ExternalMatrix {
       return ret;
     } else {
       NOTREACHED() << "Not a multiple of 4";
+      return {};
     }
   }
 };
