@@ -6,6 +6,8 @@
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON2_POSEIDON2_EXTERNAL_MATRIX_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON2_POSEIDON2_EXTERNAL_MATRIX_H_
 
+#include "absl/types/span.h"
+
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_external_matrix_traits_forward.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/matrix_utils.h"
@@ -18,7 +20,7 @@ class Poseidon2ExternalMatrix {
   using Field = typename Poseidon2ExternalMatrixTraits<Derived>::Field;
 
   template <size_t N>
-  static void Apply(math::Vector<Field>& v) {
+  static void Apply(std::array<Field, N>& v) {
     if constexpr (N <= 1 || N > 24) {
       NOTREACHED() << "Out of range";
     } else if constexpr (N == 2) {
@@ -31,11 +33,11 @@ class Poseidon2ExternalMatrix {
       v[1] += sum;
       v[2] += sum;
     } else if constexpr (N == 4) {
-      Derived::DoApply(v);
+      Derived::DoApply(absl::MakeSpan(v));
     } else if constexpr (N % 4 == 0) {
+      absl::Span<Field> span = absl::MakeSpan(v);
       for (size_t i = 0; i < N; i += 4) {
-        Eigen::Block<math::Vector<Field>> block = v.block(i, 0, 4, 1);
-        Derived::DoApply(block);
+        Derived::DoApply(span.subspan(i, 4));
       }
 
       std::array<Field, 4> v_tmp = {Field::Zero()};

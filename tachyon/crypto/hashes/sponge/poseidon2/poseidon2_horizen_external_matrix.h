@@ -14,16 +14,15 @@ template <typename F>
 class Poseidon2HorizenExternalMatrix final
     : public Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>> {
  public:
-  template <typename Derived>
-  static void DoApply(Eigen::MatrixBase<Derived>& v) {
-    F t0 = v(0, 0) + v(1, 0);
-    F t1 = v(2, 0) + v(3, 0);
-    F t2 = v(1, 0) + v(1, 0) + t1;
-    F t3 = v(3, 0) + v(3, 0) + t0;
-    v(3, 0) = t1.Double().Double() + t3;
-    v(1, 0) = t0.Double().Double() + t2;
-    v(0, 0) = t3 + v(1, 0);
-    v(2, 0) = t2 + v(3, 0);
+  static void DoApply(absl::Span<F> v) {
+    F t0 = v[0] + v[1];
+    F t1 = v[2] + v[3];
+    F t2 = v[1] + v[1] + t1;
+    F t3 = v[3] + v[3] + t0;
+    v[3] = t1.Double().Double() + t3;
+    v[1] = t0.Double().Double() + t2;
+    v[0] = t3 + v[1];
+    v[2] = t2 + v[3];
   }
 
   static math::Matrix<F, 4, 4> DoConstruct() {

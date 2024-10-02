@@ -6,13 +6,13 @@
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_SPONGE_STATE_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_SPONGE_STATE_H_
 
+#include <array>
 #include <sstream>
 #include <string>
 #include <utility>
 
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/crypto/hashes/sponge/duplex_sponge_mode.h"
-#include "tachyon/math/matrix/matrix_types.h"
 
 namespace tachyon {
 namespace crypto {
@@ -21,12 +21,10 @@ template <typename Params>
 struct SpongeState {
   using F = typename Params::Field;
   // Current sponge's state (current elements in the permutation block)
-  math::Vector<F> elements;
+  std::array<F, Params::kWidth> elements = {F::Zero()};
 
   // Current mode (whether its absorbing or squeezing)
   DuplexSpongeMode mode = DuplexSpongeMode::Absorbing();
-
-  SpongeState() : elements(math::Vector<F>::Zero(Params::kWidth)) {}
 
   size_t size() const { return elements.size(); }
 
@@ -60,7 +58,7 @@ class Copyable<crypto::SpongeState<Params>> {
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        crypto::SpongeState<Params>* state) {
-    math::Vector<F> elements;
+    std::array<F, Params::kWidth> elements;
     crypto::DuplexSpongeMode mode;
     if (!buffer.ReadMany(&elements, &mode)) {
       return false;

@@ -86,18 +86,32 @@ struct PoseidonSponge final
 
  private:
   void ApplyMixFull(SpongeState<Params>& state) const {
-    state.elements = math::MulMatVecSerial(config.mds, state.elements);
+    state.elements = MulMatVecSerial(config.mds, state.elements);
   }
 
   void ApplyMixEfficientFull(SpongeState<Params>& state,
                              Eigen::Index index) const {
-    state.elements =
-        math::MulMatVecSerial(config.pre_sparse_mds, state.elements);
+    state.elements = MulMatVecSerial(config.pre_sparse_mds, state.elements);
   }
 
   void ApplyMixEfficientPartial(SpongeState<Params>& state,
                                 Eigen::Index index) const {
     config.sparse_mds_matrices[index].Apply(state.elements);
+  }
+
+  // TODO(chokobole): This will be removed in the next commit.
+  template <typename Derived, typename F, size_t N>
+  static std::array<F, N> MulMatVecSerial(
+      const Eigen::MatrixBase<Derived>& matrix,
+      const std::array<F, N>& vector) {
+    std::array<F, N> ret = {F::Zero()};
+    for (size_t i = 0; i < N; ++i) {
+      const auto& row = matrix.row(i);
+      for (size_t j = 0; j < N; ++j) {
+        ret[i] += row[j] * vector[j];
+      }
+    }
+    return ret;
   }
 };
 

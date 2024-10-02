@@ -3,6 +3,7 @@
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/matrix/matrix_utils.h"
 
 namespace tachyon::crypto {
 
@@ -26,11 +27,11 @@ TEST_F(SparseMDSMatrixTest, FromMDSMatrix) {
 TEST_F(SparseMDSMatrixTest, Apply) {
   SparseMDSMatrix<F> sparse_mds_matrix(math::Vector<F>::Random(5),
                                        math::Vector<F>::Random(4));
-  math::Matrix<F> matrix = sparse_mds_matrix.Construct();
-  math::Vector<F> state = math::Vector<F>::Random(5);
-  math::Vector<F> state2 = state;
+  math::Matrix<F, 5, 5> matrix = sparse_mds_matrix.Construct();
+  math::Vector<F, 5> state = math::Vector<F, 5>::Random();
+  std::array<F, 5> state2 = math::ToArray(state);
   sparse_mds_matrix.Apply(state2);
-  EXPECT_EQ(matrix * state, state2);
+  EXPECT_EQ(math::ToArray(matrix * state), state2);
 }
 
 TEST_F(SparseMDSMatrixTest, Copyable) {

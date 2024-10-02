@@ -19,9 +19,10 @@ namespace tachyon::crypto {
 template <typename F>
 class Poseidon2Plonky3InternalMatrix {
  public:
-  template <typename F2 = F, std::enable_if_t<math::FiniteFieldTraits<
-                                 F2>::kIsPackedPrimeField>* = nullptr>
-  static void Apply(math::Vector<F>& v,
+  template <size_t N, typename F2 = F,
+            std::enable_if_t<
+                math::FiniteFieldTraits<F2>::kIsPackedPrimeField>* = nullptr>
+  static void Apply(std::array<F, N>& v,
                     const math::Vector<F>& diagonal_minus_one) {
     using PrimeField = typename math::FiniteFieldTraits<F>::PrimeField;
 
@@ -34,11 +35,11 @@ class Poseidon2Plonky3InternalMatrix {
     }
   }
 
-  template <typename F2 = F,
+  template <size_t N, typename F2 = F,
             std::enable_if_t<
                 math::FiniteFieldTraits<F2>::kIsPrimeField &&
                 !math::FiniteFieldTraits<F2>::kIsPackedPrimeField>* = nullptr>
-  static void Apply(math::Vector<F>& v, const math::Vector<uint8_t>& shifts) {
+  static void Apply(std::array<F, N>& v, const math::Vector<uint8_t>& shifts) {
     // |partial_sum| =       v₁ + v₂ + ... + vₙ₋₂ + vₙ₋₁
     // |full_sum|    =  v₀ + v₁ + v₂ + ... + vₙ₋₂ + vₙ₋₁
     //       s₀      = -v₀ + v₁ + v₂ + ... + vₙ₋₂ + vₙ₋₁
@@ -55,7 +56,7 @@ class Poseidon2Plonky3InternalMatrix {
     } else {
       v[0] = FromU62(s0);
     }
-    for (Eigen::Index i = 1; i < v.size(); ++i) {
+    for (size_t i = 1; i < N; ++i) {
       uint64_t si = full_sum + (uint64_t{v[i].value()} << shifts[i - 1]);
       if constexpr (F::Config::kUseMontgomery) {
         v[i] = F::FromMontgomery(F::Config::FromMontgomery(si));
