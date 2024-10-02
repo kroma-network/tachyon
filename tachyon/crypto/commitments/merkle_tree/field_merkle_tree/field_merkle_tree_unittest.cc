@@ -105,8 +105,7 @@ TEST_F(FieldMerkleTreeTest, CommitSingle2x3) {
 
   Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
                                   packed_compressor_, std::move(matrices));
-  std::array<F, kChunk> default_digest =
-      base::CreateArray<kChunk>([]() { return F::Zero(); });
+  std::array<F, kChunk> default_digest = {F::Zero()};
   auto h0_3 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(0, 0), matrix(0, 1)}),
       hasher_.Hash(std::vector<F>{matrix(1, 0), matrix(1, 1)})});
@@ -132,8 +131,7 @@ TEST_F(FieldMerkleTreeTest, CommitMixed) {
 
   Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
                                   packed_compressor_, std::move(matrices));
-  std::array<F, kChunk> default_digest =
-      base::CreateArray<kChunk>([]() { return F::Zero(); });
+  std::array<F, kChunk> default_digest = {F::Zero()};
   auto h0_3 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(0, 0), matrix(0, 1)}),
       hasher_.Hash(std::vector<F>{matrix(1, 0), matrix(1, 1)})});
