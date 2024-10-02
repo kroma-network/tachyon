@@ -51,6 +51,20 @@ math::Vector<F> MulMatVec(const Eigen::MatrixBase<Derived>& matrix,
   return ret;
 }
 
+template <typename F, size_t Rows, size_t Cols>
+std::array<F, Rows> MulMatVec(const std::array<std::array<F, Cols>, Rows>& matrix,
+                          const std::array<F, Cols>& vector) {
+  static_assert(std::is_same_v<F, typename Derived2::Scalar>);
+
+  std::array<F, Rows> ret = base::CreateARray<Rows>(vector.size(), F::Zero());
+  OMP_PARALLEL_FOR(Eigen::Index i = 0; i < matrix.rows(); ++i) {
+    for (Eigen::Index j = 0; j < matrix.cols(); ++j) {
+      ret[i] += matrix(i, j) * vector[j];
+    }
+  }
+  return ret;
+}
+
 template <typename Derived, typename Derived2,
           typename F = typename Derived::Scalar>
 math::Vector<F> MulMatVecSerial(const Eigen::MatrixBase<Derived>& matrix,

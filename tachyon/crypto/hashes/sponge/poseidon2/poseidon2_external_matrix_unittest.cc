@@ -37,6 +37,16 @@ TYPED_TEST(Poseidon2ExternalMatrixTest, DoApply) {
   EXPECT_EQ(Matrix::DoConstruct() * vector, vector2);
 }
 
+template <size_t N>
+void TestApply() {
+  std::array<F, N> array = base::CreateArray<N>([]() {
+    return F::Random();
+  });
+  std::array<F, N> array2 = array;
+  Poseidon2ExternalMatrix<Matrix>::Apply(array2);
+  EXPECT_EQ(Matrix::Construct<2>() * array, array2);
+}
+
 TYPED_TEST(Poseidon2ExternalMatrixTest, Apply) {
   using Matrix = TypeParam;
   using F = typename Matrix::Field;
@@ -89,26 +99,26 @@ TYPED_TEST(Poseidon2ExternalMatrixTest, Apply) {
 
   size_t invalid_sizes[] = {0, 1, 5, 28};
   for (size_t size : invalid_sizes) {
-    math::Vector<F> vector(size);
     switch (size) {
       case 0:
-        EXPECT_DEATH(Poseidon2ExternalMatrix<Matrix>::template Apply<0>(vector),
+        std::array<F> vector(size);
+        EXPECT_DEATH(Poseidon2ExternalMatrix<Matrix>::Apply(vector),
                      "");
         EXPECT_DEATH(Matrix::template Construct<0>(), "");
         break;
       case 1:
-        EXPECT_DEATH(Poseidon2ExternalMatrix<Matrix>::template Apply<1>(vector),
+        EXPECT_DEATH(Poseidon2ExternalMatrix<Matrix>::Apply(vector),
                      "");
         EXPECT_DEATH(Matrix::template Construct<1>(), "");
         break;
       case 5:
-        EXPECT_DEATH(Poseidon2ExternalMatrix<Matrix>::template Apply<5>(vector),
+        EXPECT_DEATH(Poseidon2ExternalMatrix<Matrix>::Apply(vector),
                      "");
         EXPECT_DEATH(Matrix::template Construct<5>(), "");
         break;
       case 28:
         EXPECT_DEATH(
-            Poseidon2ExternalMatrix<Matrix>::template Apply<28>(vector), "");
+            Poseidon2ExternalMatrix<Matrix>::Apply(vector), "");
         EXPECT_DEATH(Matrix::template Construct<28>(), "");
         break;
       default:

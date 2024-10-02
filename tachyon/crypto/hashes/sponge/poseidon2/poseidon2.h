@@ -75,7 +75,7 @@ struct Poseidon2Sponge final
 
  private:
   void ApplyMixFull(SpongeState<Params>& state) const {
-    ExternalMatrix::template Apply<Params::kWidth>(state.elements);
+    ExternalMatrix::Apply(state.elements);
   }
 
   void ApplyMixPartial(SpongeState<Params>& state) const {

@@ -147,7 +147,11 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
                     Eigen::Index round_number) const {
     const Derived& derived = static_cast<const Derived&>(*this);
     auto& config = derived.config;
-    state.elements += config.ark.row(round_number);
+    // TODO(chokobole): Change this with a |std::vector| in the next commit.
+    const auto& row = ark.row(round_number);
+    for (size_t i = 0; i < state.elements.size(); ++i) {
+      state.elements += row[i];
+    }
   }
 
   void ApplyARKPartial(SpongeState<Params>& state,
@@ -155,6 +159,9 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
     const Derived& derived = static_cast<const Derived&>(*this);
     auto& config = derived.config;
     state.elements[0] += config.ark.row(round_number)[0];
+    // TODO(chokobole): Change this with a |std::vector| in the next commit.
+    const auto& row = ark.row(round_number);
+    state.elements[0] += row[0];
   }
 
   void ApplySBoxFull(SpongeState<Params>& state) const {

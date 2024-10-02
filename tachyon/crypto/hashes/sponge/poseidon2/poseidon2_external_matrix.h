@@ -18,7 +18,7 @@ class Poseidon2ExternalMatrix {
   using Field = typename Poseidon2ExternalMatrixTraits<Derived>::Field;
 
   template <size_t kWidth>
-  static void Apply(math::Vector<Field>& v) {
+  static void Apply(std::array<Field, kWidth>& v) {
     if constexpr (kWidth <= 1 || kWidth > 24) {
       NOTREACHED() << "Out of range";
     } else if constexpr (kWidth == 2) {
