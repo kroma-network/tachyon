@@ -27,8 +27,8 @@ class Poseidon2Plonky3ExternalMatrix final
     v(2, 0) = t4 + t1;
   }
 
-  static math::Matrix<F> DoConstruct() {
-    return math::Matrix<F>{
+  static math::Matrix<F, 4, 4> DoConstruct() {
+    return math::Matrix<F, 4, 4>{
         {F(2), F(3), F(1), F(1)},
         {F(1), F(2), F(3), F(1)},
         {F(1), F(1), F(2), F(3)},

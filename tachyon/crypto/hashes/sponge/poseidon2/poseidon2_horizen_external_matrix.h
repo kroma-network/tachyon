@@ -26,8 +26,8 @@ class Poseidon2HorizenExternalMatrix final
     v(2, 0) = t2 + v(3, 0);
   }
 
-  static math::Matrix<F> DoConstruct() {
-    return math::Matrix<F>{
+  static math::Matrix<F, 4, 4> DoConstruct() {
+    return math::Matrix<F, 4, 4>{
         {F(5), F(7), F(1), F(3)},
         {F(4), F(6), F(1), F(1)},
         {F(1), F(3), F(5), F(7)},

@@ -54,7 +54,7 @@ class Poseidon2ExternalMatrix {
   }
 
   template <size_t N>
-  static math::Matrix<Field> Construct() {
+  static math::Matrix<Field, N, N> Construct() {
     if constexpr (N <= 1 || N > 24) {
       NOTREACHED() << "Out of range";
       return {};
@@ -66,9 +66,9 @@ class Poseidon2ExternalMatrix {
     } else if constexpr (N == 4) {
       return Derived::DoConstruct();
     } else if constexpr (N % 4 == 0) {
-      math::Matrix<Field> small_matrix = Derived::DoConstruct();
+      math::Matrix<Field, 4, 4> small_matrix = Derived::DoConstruct();
 
-      math::Matrix<Field> ret(N, N);
+      math::Matrix<Field, N, N> ret;
       for (size_t i = 0; i < N / 4; ++i) {
         for (size_t j = 0; j < N / 4; ++j) {
           ret.block(i * 4, j * 4, 4, 4) =
