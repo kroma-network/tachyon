@@ -22,7 +22,6 @@ namespace zk::plonk::halo2 {
 template <typename F>
 class PinnedEvaluationDomain {
  public:
-  PinnedEvaluationDomain() = default;
   PinnedEvaluationDomain(uint32_t k, uint32_t extended_k, const F& omega)
       : k_(k), extended_k_(extended_k), omega_(omega) {}
   PinnedEvaluationDomain(uint32_t k, uint32_t extended_k, F&& omega)
@@ -38,8 +37,8 @@ class PinnedEvaluationDomain {
   const F& omega() const { return omega_; }
 
  private:
-  uint32_t k_ = 0;
-  uint32_t extended_k_ = 0;
+  uint32_t k_;
+  uint32_t extended_k_;
   F omega_;
 };
 
