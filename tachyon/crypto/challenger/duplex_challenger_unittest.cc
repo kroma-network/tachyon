@@ -5,22 +5,22 @@
 
 #include "tachyon/crypto/challenger/duplex_challenger.h"
 
+#include <utility>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/base/bits.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {
 
 using F = math::BabyBear;
-using Params = Poseidon2Params<F, 15, 7>;
-using Poseidon2 =
-    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
-                    Params>;
+using Params = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                               Poseidon2Vendor::kPlonky3, F, 15, 7>;
+using Poseidon2 = Poseidon2Sponge<Params>;
 
 namespace {
 
@@ -29,9 +29,7 @@ class DuplexChallengerTest : public math::FiniteFieldTest<F> {
   constexpr static size_t kRate = 4;
 
   void SetUp() override {
-    auto config = Poseidon2Config<Params>::Create(
-        GetPoseidon2InternalShiftArray<Params>());
-    Poseidon2 sponge(std::move(config));
+    Poseidon2 sponge;
     challenger_ = DuplexChallenger<Poseidon2, kRate>(std::move(sponge));
   }
 

@@ -7,7 +7,6 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
@@ -22,16 +21,13 @@ class PaddingFreeSpongeTest : public math::FiniteFieldTest<F> {};
 }  // namespace
 
 TEST_F(PaddingFreeSpongeTest, Hash) {
-  using Params = Poseidon2Params<F, 15, 7>;
-  using Poseidon2 = Poseidon2Sponge<
-      Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>, Params>;
+  using Params = Poseidon2Params<Poseidon2Vendor::kHorizen,
+                                 Poseidon2Vendor::kPlonky3, F, 15, 7>;
+  using Poseidon2 = Poseidon2Sponge<Params>;
   constexpr size_t kRate = 8;
   constexpr size_t kOut = 8;
 
-  auto config =
-      Poseidon2Config<Params>::Create(GetPoseidon2InternalShiftArray<Params>());
-  Poseidon2 sponge(std::move(config));
-  PaddingFreeSponge<Poseidon2, kRate, kOut> hasher(std::move(sponge));
+  PaddingFreeSponge<Poseidon2, kRate, kOut> hasher;
   std::vector<F> inputs =
       base::CreateVector(100, [](uint32_t i) { return F(i); });
   std::array<F, kOut> hash = hasher.Hash(inputs);

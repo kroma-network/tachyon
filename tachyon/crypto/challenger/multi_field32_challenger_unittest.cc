@@ -6,6 +6,7 @@
 #include "tachyon/crypto/challenger/multi_field32_challenger.h"
 
 #include <memory>
+#include <utility>
 
 #include "gtest/gtest.h"
 
@@ -13,14 +14,13 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_bn254.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 
 namespace tachyon::crypto {
 
-using Params = Poseidon2Params<math::bn254::Fr, 2, 5>;
-using Poseidon2 = Poseidon2Sponge<
-    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<math::bn254::Fr>>,
-    Params>;
+using Params =
+    Poseidon2Params<Poseidon2Vendor::kPlonky3, Poseidon2Vendor::kPlonky3,
+                    math::bn254::Fr, 2, 5>;
+using Poseidon2 = Poseidon2Sponge<Params>;
 
 namespace {
 

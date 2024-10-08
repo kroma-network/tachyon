@@ -1,3 +1,4 @@
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
@@ -7,8 +8,11 @@ tachyon_cc_library(
     hdrs = ["poseidon2.h"],
     deps = [
         ":poseidon2_config",
+        ":poseidon2_horizen_external_matrix",
         ":poseidon2_horizen_internal_matrix",
+        ":poseidon2_plonky3_external_matrix",
         ":poseidon2_plonky3_internal_matrix",
+        ":poseidon2_vendor",
         "//tachyon/base/buffer:copyable",
         "//tachyon/crypto/hashes/sponge:sponge_state",
         "//tachyon/crypto/hashes/sponge/poseidon:poseidon_sponge_base",
@@ -71,8 +75,8 @@ tachyon_cc_library(
     name = "poseidon2_params",
     hdrs = ["poseidon2_params.h"],
     deps = [
+        ":poseidon2_vendor",
         "//tachyon/base/types:always_false",
-        "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields:finite_field_traits",
     ],
 )
@@ -94,6 +98,15 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "poseidon2_vendor",
+    hdrs = ["poseidon2_vendor.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "poseidon2_unittests",
     srcs = [
@@ -103,14 +116,24 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":poseidon2",
-        ":poseidon2_horizen_external_matrix",
         ":poseidon2_params",
-        ":poseidon2_plonky3_external_matrix",
-        ":poseidon2_plonky3_internal_matrix",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_baby_bear",
         "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_goldilocks",
         "//tachyon/math/finite_fields/mersenne31",
+        "//tachyon/math/finite_fields/test:finite_field_test",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "poseidon2_gpu_unittests",
+    srcs = if_gpu_is_configured(["poseidon2_gpu_unittest.cc"]),
+    deps = [
+        ":poseidon2",
+        ":poseidon2_params",
+        "//tachyon/crypto/hashes/sponge/poseidon2/icicle:icicle_poseidon2_holder",
+        "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_baby_bear",
+        "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_bn254",
         "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )

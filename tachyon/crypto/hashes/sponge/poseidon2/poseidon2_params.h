@@ -6,9 +6,8 @@
 
 #include <type_traits>
 
-#include "tachyon/base/bits.h"
 #include "tachyon/base/types/always_false.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_vendor.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::crypto {
@@ -58,12 +57,16 @@ constexpr size_t GetPoseidon2PartialRounds() {
   return size_t{56};
 }
 
-template <typename _Field, size_t Rate, uint32_t Alpha, size_t Capacity = 1,
-          size_t FullRounds = 8,
+template <Poseidon2Vendor ExternalMatrixVendor,
+          Poseidon2Vendor InternalMatrixVendor, typename _Field, size_t Rate,
+          uint32_t Alpha, size_t Capacity = 1, size_t FullRounds = 8,
           size_t PartialRounds =
               (GetPoseidon2PartialRounds<_Field, Rate + Capacity, Alpha>())>
 struct Poseidon2Params {
   using Field = _Field;
+
+  constexpr static Poseidon2Vendor kExternalMatrixVendor = ExternalMatrixVendor;
+  constexpr static Poseidon2Vendor kInternalMatrixVendor = InternalMatrixVendor;
 
   // The rate (in terms of number of field elements).
   // See https://iacr.org/archive/eurocrypt2008/49650180/49650180.pdf

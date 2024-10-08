@@ -1,0 +1,13 @@
+diff --git a/icicle/src/merkle-tree/mmcs.cu.cc b/icicle/src/merkle-tree/mmcs.cu.cc
+index 1d695483..1c123caa 100644
+--- a/icicle/src/merkle-tree/mmcs.cu.cc
++++ b/icicle/src/merkle-tree/mmcs.cu.cc
+@@ -165,7 +165,7 @@ namespace merkle_tree {
+       d_leaves_info, params.number_of_leaves_to_inject, params.number_of_rows, states, params.digest_elements,
+       *params.hasher, *params.ctx));
+ 
+-    CHK_IF_RETURN(maybe_copy_digests(digests, big_tree_digests, params));
++    CHK_IF_RETURN(maybe_copy_digests(states, big_tree_digests, params));
+ 
+     params.number_of_rows_padded /= params.arity;
+     params.segment_size /= params.arity;

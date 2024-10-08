@@ -34,10 +34,13 @@ using ExtMMCS = c::zk::air::sp1::baby_bear::ExtMMCS;
 using ChallengeMMCS = c::zk::air::sp1::baby_bear::ChallengeMMCS;
 using PCS = c::zk::air::sp1::baby_bear::PCS;
 using Params =
-    crypto::Poseidon2Params<F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+    crypto::Poseidon2Params<crypto::Poseidon2Vendor::kPlonky3,
+                            crypto::Poseidon2Vendor::kPlonky3, F,
+                            TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
                             TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
 using PackedParams =
-    crypto::Poseidon2Params<PackedF,
+    crypto::Poseidon2Params<crypto::Poseidon2Vendor::kPlonky3,
+                            crypto::Poseidon2Vendor::kPlonky3, PackedF,
                             TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
                             TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
 
@@ -67,14 +70,12 @@ tachyon_sp1_baby_bear_poseidon2_two_adic_fri_create(uint32_t log_blowup,
     }
   }
 
-  auto config = crypto::Poseidon2Config<Params>::Create(
-      crypto::GetPoseidon2InternalShiftArray<Params>(), std::move(ark));
+  auto config = crypto::Poseidon2Config<Params>::CreateDefault(std::move(ark));
   Poseidon2 sponge(std::move(config));
   Hasher hasher(sponge);
   Compressor compressor(std::move(sponge));
 
-  auto packed_config = crypto::Poseidon2Config<PackedParams>::Create(
-      crypto::GetPoseidon2InternalShiftArray<PackedParams>(),
+  auto packed_config = crypto::Poseidon2Config<PackedParams>::CreateDefault(
       std::move(packed_ark));
   PackedPoseidon2 packed_sponge(std::move(packed_config));
   PackedHasher packed_hasher(packed_sponge);

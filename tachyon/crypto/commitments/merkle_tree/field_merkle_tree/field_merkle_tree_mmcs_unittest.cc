@@ -5,13 +5,15 @@
 
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree_mmcs.h"
 
+#include <utility>
+#include <vector>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
@@ -23,14 +25,12 @@ constexpr size_t kN = 2;
 
 using F = math::BabyBear;
 using PackedF = math::PackedBabyBear;
-using Params = Poseidon2Params<F, 15, 7>;
-using PackedParams = Poseidon2Params<PackedF, 15, 7>;
-using Poseidon2 =
-    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
-                    Params>;
-using PackedPoseidon2 = Poseidon2Sponge<
-    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<PackedF>>,
-    PackedParams>;
+using Params = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                               Poseidon2Vendor::kPlonky3, F, 15, 7>;
+using PackedParams = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                                     Poseidon2Vendor::kPlonky3, PackedF, 15, 7>;
+using Poseidon2 = Poseidon2Sponge<Params>;
+using PackedPoseidon2 = Poseidon2Sponge<PackedParams>;
 using MyHasher = PaddingFreeSponge<Poseidon2, kRate, kChunk>;
 using MyPackedHasher = PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
 using MyCompressor = TruncatedPermutation<Poseidon2, kChunk, kN>;
@@ -42,23 +42,6 @@ using MMCS = FieldMerkleTreeMMCS<F, MyHasher, MyPackedHasher, MyCompressor,
 namespace {
 
 class FieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
- public:
-  void SetUp() override {
-    auto config = Poseidon2Config<Params>::Create(
-        GetPoseidon2InternalShiftArray<Params>());
-    Poseidon2 sponge(std::move(config));
-    MyHasher hasher(sponge);
-    MyCompressor compressor(std::move(sponge));
-
-    auto packed_config = Poseidon2Config<PackedParams>::Create(
-        GetPoseidon2InternalShiftArray<PackedParams>());
-    PackedPoseidon2 packed_sponge(std::move(packed_config));
-    MyPackedHasher packed_hasher(packed_sponge);
-    MyPackedCompressor packed_compressor(std::move(packed_sponge));
-    mmcs_ = MMCS(std::move(hasher), std::move(packed_hasher),
-                 std::move(compressor), std::move(packed_compressor));
-  }
-
  protected:
   MMCS mmcs_;
 };
@@ -76,8 +59,8 @@ TEST_F(FieldMerkleTreeMMCSTest, Commit) {
   std::vector<Eigen::Map<const math::RowMajorMatrix<F>>> matrices_tmp =
       matrices;
   Tree tree =
-      Tree::Build(mmcs_.hasher(), mmcs_.packed_hasher(), mmcs_.compressor(),
-                  mmcs_.packed_compressor(), std::move(matrices_tmp));
+      Tree::BuildCpu(mmcs_.hasher(), mmcs_.packed_hasher(), mmcs_.compressor(),
+                     mmcs_.packed_compressor(), std::move(matrices_tmp));
 
   {
     std::array<F, kChunk> commitment;
@@ -107,9 +90,9 @@ TEST_F(FieldMerkleTreeMMCSTest, CommitOwned) {
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
   std::vector<math::RowMajorMatrix<F>> matrices_tmp = matrices;
-  Tree tree = Tree::BuildOwned(mmcs_.hasher(), mmcs_.packed_hasher(),
-                               mmcs_.compressor(), mmcs_.packed_compressor(),
-                               std::move(matrices_tmp));
+  Tree tree = Tree::BuildOwnedCpu(mmcs_.hasher(), mmcs_.packed_hasher(),
+                                  mmcs_.compressor(), mmcs_.packed_compressor(),
+                                  std::move(matrices_tmp));
 
   {
     std::array<F, kChunk> commitment;

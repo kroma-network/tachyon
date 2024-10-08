@@ -16,7 +16,6 @@
 #include "tachyon/base/time/time.h"
 #include "tachyon/c/base/type_traits_forward.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
 
 namespace tachyon::benchmark {
 
@@ -32,15 +31,11 @@ class Poseidon2BenchmarkRunner {
       : reporter_(reporter), config_(config) {}
 
   template <typename Params>
-  Field Run(const crypto::Poseidon2Config<Params>& config) {
+  Field Run() {
     reporter_.AddVendor(Vendor::Tachyon());
     Field ret = Field::Zero();
     for (size_t i = 0; i < config_.repeating_num(); ++i) {
-      crypto::Poseidon2Sponge<
-          crypto::Poseidon2ExternalMatrix<
-              crypto::Poseidon2HorizenExternalMatrix<Field>>,
-          Params>
-          sponge(config);
+      crypto::Poseidon2Sponge<Params> sponge;
       crypto::SpongeState<Params> state;
       base::TimeTicks start = base::TimeTicks::Now();
       for (size_t j = 0; j < 10000; ++j) {

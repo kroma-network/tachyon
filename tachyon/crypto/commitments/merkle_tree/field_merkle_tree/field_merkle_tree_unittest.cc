@@ -5,13 +5,15 @@
 
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/field_merkle_tree.h"
 
+#include <utility>
+#include <vector>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/crypto/hashes/sponge/padding_free_sponge.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
@@ -23,14 +25,12 @@ constexpr size_t kN = 2;
 
 using F = math::BabyBear;
 using PackedF = math::PackedBabyBear;
-using Params = Poseidon2Params<F, 15, 7>;
-using PackedParams = Poseidon2Params<PackedF, 15, 7>;
-using Poseidon2 =
-    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
-                    Params>;
-using PackedPoseidon2 = Poseidon2Sponge<
-    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<PackedF>>,
-    PackedParams>;
+using Params = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                               Poseidon2Vendor::kPlonky3, F, 15, 7>;
+using PackedParams = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                                     Poseidon2Vendor::kPlonky3, PackedF, 15, 7>;
+using Poseidon2 = Poseidon2Sponge<Params>;
+using PackedPoseidon2 = Poseidon2Sponge<PackedParams>;
 using MyHasher = PaddingFreeSponge<Poseidon2, kRate, kChunk>;
 using MyPackedHasher = PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
 using MyCompressor = TruncatedPermutation<Poseidon2, kChunk, kN>;
@@ -40,23 +40,6 @@ using Tree = FieldMerkleTree<F, kChunk>;
 namespace {
 
 class FieldMerkleTreeTest : public math::FiniteFieldTest<PackedF> {
- public:
-  using Params = Poseidon2Params<F, 15, 7>;
-  using PackedParams = Poseidon2Params<PackedF, 15, 7>;
-  void SetUp() override {
-    auto config = Poseidon2Config<Params>::Create(
-        GetPoseidon2InternalShiftArray<Params>());
-    Poseidon2 sponge(std::move(config));
-    hasher_ = MyHasher(sponge);
-    compressor_ = MyCompressor(std::move(sponge));
-
-    auto packed_config = Poseidon2Config<PackedParams>::Create(
-        GetPoseidon2InternalShiftArray<PackedParams>());
-    PackedPoseidon2 packed_sponge(std::move(packed_config));
-    packed_hasher_ = MyPackedHasher(packed_sponge);
-    packed_compressor_ = MyPackedCompressor(std::move(packed_sponge));
-  }
-
  protected:
   MyHasher hasher_;
   MyCompressor compressor_;
@@ -72,8 +55,8 @@ TEST_F(FieldMerkleTreeTest, CommitSingle1x8) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
 
   auto h0_1 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(0, 0)}),
@@ -103,8 +86,8 @@ TEST_F(FieldMerkleTreeTest, CommitSingle2x2) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
 
   auto expected = compressor_.Compress(std::vector<std::array<F, kChunk>>{
       hasher_.Hash(std::vector<F>{matrix(0, 0), matrix(0, 1)}),
@@ -120,8 +103,8 @@ TEST_F(FieldMerkleTreeTest, CommitSingle2x3) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
   std::array<F, kChunk> default_digest =
       base::CreateArray<kChunk>([]() { return F::Zero(); });
   auto h0_3 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
@@ -147,8 +130,8 @@ TEST_F(FieldMerkleTreeTest, CommitMixed) {
   };
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix, matrix2};
 
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
   std::array<F, kChunk> default_digest =
       base::CreateArray<kChunk>([]() { return F::Zero(); });
   auto h0_3 = compressor_.Compress(std::vector<std::array<F, kChunk>>{
@@ -175,12 +158,12 @@ TEST_F(FieldMerkleTreeTest, CommitEitherOrder) {
   math::RowMajorMatrix<F> matrix2 = math::RowMajorMatrix<F>::Random(2, 3);
 
   std::vector<math::RowMajorMatrix<F>> matrices = {matrix, matrix2};
-  Tree tree = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                               packed_compressor_, std::move(matrices));
+  Tree tree = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                  packed_compressor_, std::move(matrices));
 
   std::vector<math::RowMajorMatrix<F>> matrices2 = {matrix2, matrix};
-  Tree tree2 = Tree::BuildOwned(hasher_, packed_hasher_, compressor_,
-                                packed_compressor_, std::move(matrices2));
+  Tree tree2 = Tree::BuildOwnedCpu(hasher_, packed_hasher_, compressor_,
+                                   packed_compressor_, std::move(matrices2));
   EXPECT_EQ(tree.GetRoot(), tree2.GetRoot());
 }
 

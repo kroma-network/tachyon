@@ -6,6 +6,8 @@
 #include "tachyon/crypto/challenger/hash_challenger.h"
 
 #include <memory>
+#include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -13,16 +15,14 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {
 
 using F = math::BabyBear;
-using Params = Poseidon2Params<F, 15, 7>;
-using Poseidon2 =
-    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
-                    Params>;
+using Params = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                               Poseidon2Vendor::kPlonky3, F, 15, 7>;
+using Poseidon2 = Poseidon2Sponge<Params>;
 using MyHasher = PaddingFreeSponge<Poseidon2, 8, 8>;
 
 namespace {
@@ -30,10 +30,7 @@ namespace {
 class HashChallengerTest : public math::FiniteFieldTest<F> {
  public:
   void SetUp() override {
-    auto config = Poseidon2Config<Params>::Create(
-        GetPoseidon2InternalShiftArray<Params>());
-    Poseidon2 sponge(std::move(config));
-    MyHasher hasher(std::move(sponge));
+    MyHasher hasher;
 
     std::vector<F> initial_state =
         base::CreateVector(10, [](size_t i) { return F(i + 1); });

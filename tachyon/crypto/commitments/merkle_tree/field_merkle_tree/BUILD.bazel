@@ -1,3 +1,4 @@
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
@@ -18,6 +19,7 @@ tachyon_cc_library(
         "//tachyon/base:sort",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
+        "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree/icicle:icicle_mmcs_holder",
         "//tachyon/math/finite_fields:extension_field_traits_forward",
         "//tachyon/math/finite_fields:finite_field_traits",
         "//tachyon/math/finite_fields:packed_field_traits_forward",
@@ -54,9 +56,23 @@ tachyon_cc_unittest(
         "//tachyon/crypto/hashes/sponge:truncated_permutation",
         "//tachyon/crypto/hashes/sponge/poseidon2",
         "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_params",
-        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_plonky3_external_matrix",
         "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_baby_bear",
         "//tachyon/math/finite_fields/baby_bear:baby_bear4",
+        "//tachyon/math/finite_fields/test:finite_field_test",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "field_merkle_tree_gpu_unittests",
+    srcs = if_gpu_is_configured(["field_merkle_tree_gpu_unittest.cc"]),
+    deps = [
+        ":field_merkle_tree_mmcs",
+        "//tachyon/crypto/hashes/sponge:padding_free_sponge",
+        "//tachyon/crypto/hashes/sponge:truncated_permutation",
+        "//tachyon/crypto/hashes/sponge/poseidon2",
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_params",
+        "//tachyon/crypto/hashes/sponge/poseidon2/icicle:icicle_poseidon2_holder",
+        "//tachyon/crypto/hashes/sponge/poseidon2/param_traits:poseidon2_baby_bear",
         "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )

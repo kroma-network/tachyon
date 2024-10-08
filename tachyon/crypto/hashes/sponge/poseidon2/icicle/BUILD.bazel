@@ -1,0 +1,68 @@
+load("@icicle//:build_defs.bzl", "BABY_BEAR", "BN254", "icicle_defines")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
+
+tachyon_cuda_library(
+    name = "icicle_poseidon2_baby_bear",
+    srcs = if_cuda(["icicle_poseidon2_baby_bear.cc"]),
+    hdrs = ["icicle_poseidon2_baby_bear.h"],
+    force_exceptions = True,
+    local_defines = icicle_defines(BABY_BEAR),
+    deps = [
+        ":icicle_poseidon2",
+        "//tachyon/base:openmp_util",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_vendor",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@icicle//:poseidon2_baby_bear",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
+
+tachyon_cuda_library(
+    name = "icicle_poseidon2_bn254",
+    srcs = if_cuda(["icicle_poseidon2_bn254.cc"]),
+    hdrs = ["icicle_poseidon2_bn254.h"],
+    force_exceptions = True,
+    local_defines = icicle_defines(BN254),
+    deps = [
+        ":icicle_poseidon2",
+        "//tachyon/base:openmp_util",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_vendor",
+        "//tachyon/device/gpu:gpu_enums",
+        "//tachyon/device/gpu:gpu_logging",
+        "@icicle//:poseidon2_bn254",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "icicle_poseidon2",
+    hdrs = ["icicle_poseidon2.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "//tachyon/device/gpu:gpu_device_functions",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/finite_fields/baby_bear",
+        "@com_google_absl//absl/types:span",
+        "@icicle//:hdrs",
+    ],
+)
+
+tachyon_cc_library(
+    name = "icicle_poseidon2_holder",
+    hdrs = ["icicle_poseidon2_holder.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":icicle_poseidon2_baby_bear",
+        ":icicle_poseidon2_bn254",
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_config",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_stream",
+    ],
+)

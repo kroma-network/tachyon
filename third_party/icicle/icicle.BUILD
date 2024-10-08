@@ -2,6 +2,7 @@ load(
     "@icicle//:build_defs.bzl",
     "CURVES",
     "FIELDS",
+    "FIELDS_WITH_MERKLE_TREE",
     "FIELDS_WITH_NTT",
     "FIELDS_WITH_POSEIDON",
     "FIELDS_WITH_POSEIDON2",
@@ -34,6 +35,19 @@ tachyon_cuda_library(
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
 )
+
+[tachyon_cuda_library(
+    name = "merkle_tree_{}".format(field),
+    hdrs = [
+        "icicle/src/merkle-tree/merkle.cu.cc",
+        "icicle/src/merkle-tree/mmcs.cu.cc",
+    ],
+    include_prefix = "third_party/icicle/src",
+    includes = ["icicle/src/merkle-tree"],
+    local_defines = icicle_defines(field),
+    strip_include_prefix = "icicle/src",
+    deps = [":hdrs"],
+) for field in FIELDS_WITH_MERKLE_TREE]
 
 [tachyon_cuda_library(
     name = "msm_{}".format(field),
@@ -70,7 +84,7 @@ tachyon_cuda_library(
     ]),
     hdrs = ["icicle/src/polynomials/cuda_backend/kernels.cu.h"],
     include_prefix = "third_party/icicle/src",
-    includes = ["includes/src/polynomials"],
+    includes = ["icicle/src/polynomials"],
     local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [
@@ -81,16 +95,11 @@ tachyon_cuda_library(
 
 [tachyon_cuda_library(
     name = "poseidon_{}".format(field),
-    srcs = if_gpu_is_configured([
-        "icicle/src/poseidon/tree/merkle.cu.cc",
-    ]),
     hdrs = [
         "icicle/src/poseidon/constants.cu.cc",
-        "icicle/src/poseidon/kernels.cu.cc",
-        "icicle/src/poseidon/poseidon.cu.cc",
     ],
     include_prefix = "third_party/icicle/src",
-    includes = ["includes/src/poseidon"],
+    includes = ["icicle/src/poseidon"],
     local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],
@@ -100,11 +109,9 @@ tachyon_cuda_library(
     name = "poseidon2_{}".format(field),
     hdrs = [
         "icicle/src/poseidon2/constants.cu.cc",
-        "icicle/src/poseidon2/kernels.cu.cc",
-        "icicle/src/poseidon2/poseidon.cu.cc",
     ],
     include_prefix = "third_party/icicle/src",
-    includes = ["includes/src/poseidon2"],
+    includes = ["icicle/src/poseidon2"],
     local_defines = icicle_defines(field),
     strip_include_prefix = "icicle/src",
     deps = [":hdrs"],

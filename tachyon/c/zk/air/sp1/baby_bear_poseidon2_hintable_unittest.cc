@@ -1,6 +1,7 @@
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_hintable.h"
 
 #include <utility>
+#include <vector>
 
 #include "tachyon/c/zk/air/sp1/baby_bear_poseidon2_two_adic_fri_type_traits.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -17,10 +18,7 @@ constexpr size_t kRate = 4;
 class HintableTest : public math::FiniteFieldTest<F> {};
 
 TEST_F(HintableTest, DuplexChallenger) {
-  auto config = crypto::Poseidon2Config<Params>::Create(
-      crypto::GetPoseidon2InternalShiftArray<Params>());
-  Poseidon2 sponge(std::move(config));
-  crypto::DuplexChallenger<Poseidon2, kRate> challenger(std::move(sponge));
+  crypto::DuplexChallenger<Poseidon2, kRate> challenger;
   for (size_t i = 0; i < Params::kWidth; ++i) {
     challenger.state_[i] = F(i);
   }

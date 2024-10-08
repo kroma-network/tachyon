@@ -1,0 +1,76 @@
+diff --git a/icicle/include/merkle-tree/merkle.cu.h b/icicle/include/merkle-tree/merkle.cu.h
+index d0a020db..2be4e4d0 100644
+--- a/icicle/include/merkle-tree/merkle.cu.h
++++ b/icicle/include/merkle-tree/merkle.cu.h
+@@ -2,7 +2,7 @@
+ #ifndef MERKLE_H
+ #define MERKLE_H
+
+-#include "gpu-utils/device_context.cu.h"
++#include "merkle-tree/merkle_tree_config.h"
+ #include "gpu-utils/error_handler.cu.h"
+ #include "utils/utils.h"
+ #include "hash/hash.cu.h"
+@@ -57,27 +57,6 @@ namespace merkle_tree {
+     return height;
+   }
+
+-  /**
+-   * @struct TreeBuilderConfig
+-   * Struct that encodes various Tree builder parameters.
+-   */
+-  struct TreeBuilderConfig {
+-    device_context::DeviceContext ctx; /**< Details related to the device such as its id and stream id. */
+-    unsigned int arity;
+-    unsigned int
+-      keep_rows; /**< How many rows of the Merkle tree rows should be written to output. '0' means all of them */
+-    unsigned int
+-      digest_elements;         /** @param digest_elements the size of output for each bottom layer hash and compression.
+-                                *  Will also be equal to the size of the root of the tree. Default value 1 */
+-    bool are_inputs_on_device; /**< True if inputs are on device and false if they're on host. Default value: false. */
+-    bool
+-      are_outputs_on_device; /**< True if outputs are on device and false if they're on host. Default value: false. */
+-    bool is_async; /**< Whether to run the tree builder asynchronously. If set to `true`, the build_merkle_tree
+-                    *   function will be non-blocking and you'd need to synchronize it explicitly by running
+-                    *   `cudaStreamSynchronize` or `cudaDeviceSynchronize`. If set to false, the
+-                    *   function will block the current CPU thread. */
+-  };
+-
+   static TreeBuilderConfig
+   default_merkle_config(const device_context::DeviceContext& ctx = device_context::get_default_device_context())
+   {
+diff --git a/icicle/include/merkle-tree/merkle_tree_config.h b/icicle/include/merkle-tree/merkle_tree_config.h
+new file mode 100644
+index 00000000..bdccb892
+--- /dev/null
++++ b/icicle/include/merkle-tree/merkle_tree_config.h
+@@ -0,0 +1,29 @@
++#ifndef MERKLE_TREE_CONFIG_H
++#define MERKLE_TREE_CONFIG_H
++
++#include "gpu-utils/device_context.cu.h"
++
++namespace merkle_tree {
++  /**
++   * @struct TreeBuilderConfig
++   * Struct that encodes various Tree builder parameters.
++   */
++  struct TreeBuilderConfig {
++    device_context::DeviceContext ctx; /**< Details related to the device such as its id and stream id. */
++    unsigned int arity;
++    unsigned int
++      keep_rows; /**< How many rows of the Merkle tree rows should be written to output. '0' means all of them */
++    unsigned int
++      digest_elements;         /** @param digest_elements the size of output for each bottom layer hash and compression.
++                                *  Will also be equal to the size of the root of the tree. Default value 1 */
++    bool are_inputs_on_device; /**< True if inputs are on device and false if they're on host. Default value: false. */
++    bool
++      are_outputs_on_device; /**< True if outputs are on device and false if they're on host. Default value: false. */
++    bool is_async; /**< Whether to run the tree builder asynchronously. If set to `true`, the build_merkle_tree
++                    *   function will be non-blocking and you'd need to synchronize it explicitly by running
++                    *   `cudaStreamSynchronize` or `cudaDeviceSynchronize`. If set to false, the
++                    *   function will block the current CPU thread. */
++  };
++} // namespace merkle_tree
++
++#endif // MERKLE_TREE_CONFIG_H

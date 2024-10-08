@@ -15,11 +15,11 @@ using namespace tachyon;
 
 using F = math::BabyBear;
 using Params =
-    crypto::Poseidon2Params<F, TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
+    crypto::Poseidon2Params<crypto::Poseidon2Vendor::kPlonky3,
+                            crypto::Poseidon2Vendor::kPlonky3, F,
+                            TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_WIDTH - 1,
                             TACHYON_PLONKY3_BABY_BEAR_POSEIDON2_ALPHA>;
-using Poseidon2 = crypto::Poseidon2Sponge<
-    crypto::Poseidon2ExternalMatrix<crypto::Poseidon2Plonky3ExternalMatrix<F>>,
-    Params>;
+using Poseidon2 = crypto::Poseidon2Sponge<Params>;
 
 tachyon_sp1_baby_bear_poseidon2_duplex_challenger*
 tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create() {
@@ -32,8 +32,7 @@ tachyon_sp1_baby_bear_poseidon2_duplex_challenger_create() {
     }
   }
 
-  auto config = crypto::Poseidon2Config<Params>::Create(
-      crypto::GetPoseidon2InternalShiftArray<Params>(), std::move(ark));
+  auto config = crypto::Poseidon2Config<Params>::CreateDefault(std::move(ark));
   Poseidon2 sponge(std::move(config));
   return c::base::c_cast(
       new crypto::DuplexChallenger<Poseidon2,

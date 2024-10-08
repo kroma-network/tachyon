@@ -1,6 +1,8 @@
 #include "tachyon/crypto/commitments/fri/two_adic_fri.h"
 
 #include <tuple>
+#include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -11,7 +13,6 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_baby_bear.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_external_matrix.h"
 #include "tachyon/crypto/hashes/sponge/truncated_permutation.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear4.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -28,15 +29,13 @@ using F = math::BabyBear;
 using ExtF = math::BabyBear4;
 using PackedF = math::PackedBabyBear;
 using ExtPackedF = math::PackedBabyBear4;
-using Params = Poseidon2Params<F, 15, 7>;
-using PackedParams = Poseidon2Params<PackedF, 15, 7>;
+using Params = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                               Poseidon2Vendor::kPlonky3, F, 15, 7>;
+using PackedParams = Poseidon2Params<Poseidon2Vendor::kPlonky3,
+                                     Poseidon2Vendor::kPlonky3, PackedF, 15, 7>;
 using Domain = TwoAdicMultiplicativeCoset<F>;
-using Poseidon2 =
-    Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<F>>,
-                    Params>;
-using PackedPoseidon2 = Poseidon2Sponge<
-    Poseidon2ExternalMatrix<Poseidon2Plonky3ExternalMatrix<PackedF>>,
-    PackedParams>;
+using Poseidon2 = Poseidon2Sponge<Params>;
+using PackedPoseidon2 = Poseidon2Sponge<PackedParams>;
 using MyHasher = PaddingFreeSponge<Poseidon2, kRate, kChunk>;
 using MyPackedHasher = PaddingFreeSponge<PackedPoseidon2, kRate, kChunk>;
 using MyCompressor = TruncatedPermutation<Poseidon2, kChunk, kN>;
@@ -60,28 +59,13 @@ class TwoAdicFRITest : public testing::Test {
   }
 
   void SetUp() override {
-    auto config = Poseidon2Config<Params>::Create(
-        GetPoseidon2InternalShiftArray<Params>());
-    Poseidon2 sponge(std::move(config));
-    MyHasher hasher(sponge);
-    MyCompressor compressor(sponge);
-
-    auto packed_config = Poseidon2Config<PackedParams>::Create(
-        GetPoseidon2InternalShiftArray<PackedParams>());
-    PackedPoseidon2 packed_sponge(std::move(packed_config));
-    MyPackedHasher packed_hasher(packed_sponge);
-    MyPackedCompressor packed_compressor(std::move(packed_sponge));
-    MMCS mmcs(hasher, packed_hasher, compressor, packed_compressor);
-
-    ChallengeMMCS challenge_mmcs(
-        ExtMMCS(std::move(hasher), std::move(packed_hasher),
-                std::move(compressor), std::move(packed_compressor)));
+    MMCS mmcs;
+    ChallengeMMCS challenge_mmcs;
 
     // TODO(ashjeong): Include separate test for |log_blowup| = 2
     FRIConfig<ChallengeMMCS> fri_config{1, 10, 8, std::move(challenge_mmcs)};
 
     pcs_ = MyPCS(std::move(mmcs), std::move(fri_config));
-    challenger_ = Challenger(std::move(sponge));
   }
 
   void TestProtocol(std::vector<std::vector<uint32_t>> log_degrees_by_round) {

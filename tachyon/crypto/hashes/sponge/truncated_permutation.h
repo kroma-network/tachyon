@@ -20,6 +20,9 @@ template <typename Derived, size_t Chunk, size_t N>
 class TruncatedPermutation final
     : public Compressor<TruncatedPermutation<Derived, Chunk, N>> {
  public:
+  constexpr static size_t kChunk = Chunk;
+  constexpr static size_t kN = N;
+
   using Params = typename Derived::Params;
   using F = typename CryptographicSpongeTraits<Derived>::F;
 
@@ -27,6 +30,8 @@ class TruncatedPermutation final
   explicit TruncatedPermutation(const Derived& derived) : derived_(derived) {}
   explicit TruncatedPermutation(Derived&& derived)
       : derived_(std::move(derived)) {}
+
+  const Derived& derived() const { return derived_; }
 
  private:
   friend class Compressor<TruncatedPermutation<Derived, Chunk, N>>;

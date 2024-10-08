@@ -16,6 +16,7 @@
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config_base.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config_entry.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 #include "tachyon/math/matrix/matrix_utils.h"
 
@@ -52,7 +53,6 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
 
   math::Vector<F> internal_diagonal_minus_one;
   math::Vector<uint8_t> internal_shifts;
-  bool use_plonky3_internal_matrix = false;
 
   Poseidon2Config() = default;
   Poseidon2Config(const PoseidonConfigBase<Params>& base,
@@ -63,6 +63,26 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
                   math::Vector<F>&& internal_diagonal_minus_one)
       : PoseidonConfigBase<Params>(std::move(base)),
         internal_diagonal_minus_one(std::move(internal_diagonal_minus_one)) {}
+
+  constexpr static Poseidon2Config CreateDefault() {
+    // TODO(chokobole): Only |BabyBear| has both shift and diagonal arrays.
+    // We assume the Plonky3 team developed the concept of the shift array,
+    // and will use it in most cases, so we set it as the default.
+    // Other small prime fields have only a shift array, while larger prime
+    // fields have only a diagonal array. For more details, refer to
+    // tachyon/crypto/hashes/sponge/poseidon2/param_traits/poseidon2_xxx.h.
+    if constexpr (Params::kInternalMatrixVendor == Poseidon2Vendor::kPlonky3 &&
+                  PrimeField::Config::kModulusBits <= 32) {
+      return Create(GetPoseidon2InternalShiftArray<Params>());
+    } else {
+      return Create(GetPoseidon2InternalDiagonalArray<Params>());
+    }
+  }
+
+  constexpr static Poseidon2Config CreateDefault(math::Matrix<F>&& ark) {
+    static_assert(Params::kInternalMatrixVendor == Poseidon2Vendor::kPlonky3);
+    return Create(GetPoseidon2InternalShiftArray<Params>(), std::move(ark));
+  }
 
   constexpr static Poseidon2Config Create(
       const std::array<PrimeField, Params::kWidth>&
@@ -94,6 +114,8 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
     return Create(config_entry, internal_shifts, std::move(ark));
   }
 
+  // NOTE(chokobole): If another variant method that accepts ark is added,
+  // remember to update the code in icicle_poseidon2_holder.h as well.
   constexpr static Poseidon2Config Create(
       const std::array<uint8_t, Params::kRate>& internal_shifts,
       math::Matrix<F>&& ark) {
@@ -109,7 +131,6 @@ struct Poseidon2Config : public PoseidonConfigBase<Params> {
       const std::array<uint8_t, Params::kRate>& internal_shifts,
       math::Matrix<F>&& ark) {
     Poseidon2Config ret = config_entry.ToPoseidon2Config<Params>();
-    ret.use_plonky3_internal_matrix = true;
     if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
       ret.internal_diagonal_minus_one = math::Vector<F>(Params::kWidth);
       ret.internal_diagonal_minus_one[0] = F(PrimeField::Config::kModulus - 2);
