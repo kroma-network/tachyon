@@ -56,7 +56,9 @@ class ProofReader {
     proof_.advices_commitments_vec.resize(num_circuits_);
     size_t num_advice_columns = constraint_system.num_advice_columns();
     for (size_t i = 0; i < num_circuits_; ++i) {
-      proof_.advices_commitments_vec[i].resize(num_advice_columns);
+      base::ParallelizeResize(proof_.advices_commitments_vec[i],
+                              num_advice_columns, C::Zero(),
+                              math::ParallelizeThreshold::kFieldInit);
     }
     proof_.challenges.reserve(constraint_system.challenge_phases().size());
     for (Phase current_phase : constraint_system.GetPhases()) {

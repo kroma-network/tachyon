@@ -30,7 +30,7 @@ class RationalField : public Field<RationalField<F>> {
       : numerator_(std::move(numerator)),
         denominator_(std::move(denominator)) {}
 
-  constexpr static RationalField Zero() { return RationalField(); }
+  constexpr static RationalField Zero() { return RationalField(F::Zero()); }
 
   constexpr static RationalField One() { return RationalField(F::One()); }
 

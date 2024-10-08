@@ -112,6 +112,8 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
   base::StableSort(storage.sorted_table_with_indices.begin(),
                    storage.sorted_table_with_indices.end());
 
+  // NOTE(batzor): This vector is initialized below in the parallel loop so
+  // it is safe to keep it uninitialized here.
   std::vector<F> m_values(prover->pcs().N());
   OMP_PARALLEL {
     OMP_NESTED_FOR(size_t i = 0; i < compressed_inputs.size(); ++i) {
@@ -128,9 +130,10 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
     }
 
     // Convert atomic |m_values| to |Evals|.
-    OMP_FOR(RowIndex i = 0; i < usable_rows; ++i) {
-      m_values[i] =
-          F(storage.m_values_atomic[i].exchange(0, std::memory_order_relaxed));
+    OMP_FOR(RowIndex i = 0; i < m_values.size(); ++i) {
+      m_values[i] = i < usable_rows ? F(storage.m_values_atomic[i].exchange(
+                                          0, std::memory_order_relaxed))
+                                    : F::Zero();
     }
   }
 
@@ -232,6 +235,8 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
   // 1 / τ(X)
   ComputeLogDerivatives(compressed_table, beta, storage.table_log_derivatives);
 
+  // NOTE(batzor): This vector is initialized below in the parallel loop so
+  // it is safe to keep it uninitialized here.
   std::vector<F> grand_sum(n);
   grand_sum[0] = F::Zero();
 
@@ -240,10 +245,14 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
   // |storage.inputs_log_derivatives| since the current values of
   // |storage.inputs_log_derivatives| are not needed anymore.
   std::vector<F>& log_derivatives_diff = storage.inputs_log_derivatives;
-  OMP_PARALLEL_FOR(size_t i = 0; i < usable_rows; ++i) {
-    log_derivatives_diff[i] -= m_values[i] * storage.table_log_derivatives[i];
-    if (i != usable_rows - 1) {
-      grand_sum[i + 1] = log_derivatives_diff[i];
+  OMP_PARALLEL_FOR(size_t i = 0; i < n; ++i) {
+    if (i < usable_rows) {
+      log_derivatives_diff[i] -= m_values[i] * storage.table_log_derivatives[i];
+      if (i != usable_rows - 1) {
+        grand_sum[i + 1] = log_derivatives_diff[i];
+      }
+    } else {
+      grand_sum[i] = F::Zero();
     }
   }
 

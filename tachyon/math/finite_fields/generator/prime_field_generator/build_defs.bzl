@@ -200,6 +200,7 @@ def _do_generate_prime_fields(
         "//tachyon:export",
         "//tachyon/build:build_config",
         "//tachyon/math/base:big_int",
+        "//tachyon/math/base:const_init",
         "@com_google_absl//absl/base",
     ]
 

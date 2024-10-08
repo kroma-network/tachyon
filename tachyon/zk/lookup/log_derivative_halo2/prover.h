@@ -58,6 +58,8 @@ struct GrandSumPolysTempStorage {
   std::vector<F> inputs_log_derivatives;
   std::vector<F> table_log_derivatives;
 
+  // NOTE(batzor): Constructing these vectors without initialization is safe
+  // since |CreateGrandSumPoly| will overwrite them.
   explicit GrandSumPolysTempStorage(size_t usable_rows)
       : inputs_log_derivatives(usable_rows),
         table_log_derivatives(usable_rows) {}

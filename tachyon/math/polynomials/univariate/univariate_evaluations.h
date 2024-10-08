@@ -18,7 +18,9 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/math/base/parallelize_threshold.h"
 #include "tachyon/math/polynomials/polynomial.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 
@@ -250,7 +252,9 @@ class UnivariateEvaluations final
   // |degree| + 1.
   constexpr static UnivariateEvaluations Zero(size_t degree) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = std::vector<F>(degree + 1);
+    ret.evaluations_.resize(degree + 1);
+    base::ParallelizeFill(ret.evaluations_, F::Zero(),
+                          /*threshold=*/ParallelizeThreshold::kFieldInit);
     return ret;
   }
 

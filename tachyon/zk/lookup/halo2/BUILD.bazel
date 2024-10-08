@@ -22,7 +22,9 @@ tachyon_cc_library(
     name = "permute_expression_pair",
     hdrs = ["permute_expression_pair.h"],
     deps = [
+        "//tachyon/base:parallelize",
         "//tachyon/base:sort",
+        "//tachyon/math/base:parallelize_threshold",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/lookup:pair",
         "@com_google_absl//absl/container:btree",

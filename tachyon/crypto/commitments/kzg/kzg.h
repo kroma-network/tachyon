@@ -114,6 +114,8 @@ class KZG {
 #endif
 
   void ResizeBatchCommitments(size_t size) {
+    // WARN(batzor): When resizing to a larger size, the last values will be
+    // garbage and should be filled with commitment results.
 #if TACHYON_CUDA
     if (msm_gpu_) {
       gpu_batch_commitments_.resize(size);
@@ -124,6 +126,8 @@ class KZG {
   }
 
   std::vector<Commitment> GetBatchCommitments(BatchCommitmentState& state) {
+    // NOTE(batzor): Resizing this vector without initialization is safe since
+    // |BatchNormalize| will overwrite them.
     std::vector<Commitment> batch_commitments;
 #if TACHYON_CUDA
     if (msm_gpu_) {

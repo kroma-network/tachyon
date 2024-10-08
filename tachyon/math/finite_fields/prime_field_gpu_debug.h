@@ -440,7 +440,7 @@ class PrimeFieldGpuDebug final
     return true;
   }
 
-  BigInt<N> value_ = BigInt<N>::Zero();
+  BigInt<N> value_;
 };
 
 }  // namespace tachyon::math

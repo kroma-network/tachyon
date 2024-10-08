@@ -85,6 +85,8 @@ class Pedersen final
 #endif
 
   void ResizeBatchCommitments() {
+    // WARN(batzor): When resizing to a larger size, the last values will be
+    // garbage and should be filled with commitment results.
     size_t size = this->batch_commitment_state_.batch_count;
 #if TACHYON_CUDA
     if (msm_gpu_) {
@@ -96,6 +98,8 @@ class Pedersen final
   }
 
   std::vector<Commitment> GetBatchCommitments() {
+    // NOTE(batzor): Resizing this vector without initialization is safe since
+    // |BatchNormalize| will overwrite them.
     std::vector<Commitment> batch_commitments;
 #if TACHYON_CUDA
     if (msm_gpu_) {

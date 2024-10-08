@@ -10,7 +10,9 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/profiler.h"
+#include "tachyon/math/base/parallelize_threshold.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_prover.h"
 
@@ -179,6 +181,8 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::BatchEvaluate(
       base::Map(h_chunks.begin(), h_chunks.end(),
                 [](absl::Span<F> h_piece) { return h_piece; });
   std::vector<F> coeffs(n);
+  base::ParallelizeFill(coeffs, F::Zero(),
+                        /*threshold=*/math::ParallelizeThreshold::kFieldInit);
   for (size_t i = h_pieces.size() - 1; i != SIZE_MAX; --i) {
     OMP_PARALLEL_FOR(size_t j = 0; j < n; ++j) {
       coeffs[j] *= x_n;

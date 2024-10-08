@@ -109,8 +109,10 @@ tachyon_cc_library(
     deps = [
         ":vanishing_argument",
         ":vanishing_utils",
+        "//tachyon/base:parallelize",
         "//tachyon/base:profiler",
         "//tachyon/crypto/commitments:polynomial_openings",
+        "//tachyon/math/base:parallelize_threshold",
         "//tachyon/zk/lookup:prover",
         "//tachyon/zk/plonk/base:multi_phase_ref_table",
         "//tachyon/zk/plonk/keys:proving_key",

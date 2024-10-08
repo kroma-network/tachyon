@@ -18,7 +18,9 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/math/base/parallelize_threshold.h"
 #include "tachyon/math/polynomials/multivariate/support_poly_operators.h"
 
 namespace tachyon {
@@ -149,8 +151,10 @@ class MultilinearDenseEvaluations {
   // NOTE(chokobole): This creates a polynomial that contains |F::Zero()| up to
   // |degree| + 1.
   constexpr static MultilinearDenseEvaluations Zero(size_t degree) {
-    MultilinearDenseEvaluations ret{};
-    ret.evaluations_ = std::vector<F>(size_t{1} << degree);
+    MultilinearDenseEvaluations ret;
+    ret.evaluations_.resize(size_t{1} << degree);
+    base::ParallelizeFill(ret.evaluations_, F::Zero(),
+                          /*threshold=*/ParallelizeThreshold::kFieldInit);
     return ret;
   }
 

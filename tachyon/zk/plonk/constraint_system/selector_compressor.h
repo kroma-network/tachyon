@@ -20,6 +20,8 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/base/parallelize.h"
+#include "tachyon/math/base/parallelize_threshold.h"
 #include "tachyon/zk/expressions/expression_factory.h"
 #include "tachyon/zk/plonk/constraint_system/exclusion_matrix.h"
 #include "tachyon/zk/plonk/constraint_system/selector_assignment.h"
@@ -238,6 +240,8 @@ class SelectorCompressor {
       size_t n, const std::vector<SelectorDescription>& combination) {
     // Now, compute the selector and combination assignments.
     std::vector<F> combination_assignment(n);
+    base::ParallelizeFill(combination_assignment, F::Zero(),
+                          /*threshold=*/math::ParallelizeThreshold::kFieldInit);
     size_t combination_len = combination.size();
     size_t combination_index = combination_assignments_.size();
     std::unique_ptr<Expression<F>> query = callback_.Run();

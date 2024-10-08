@@ -393,7 +393,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
         r, Config::kModulus, Config::kInverse64, &b.value_);
   }
 
-  BigInt<N> value_ = BigInt<N>::Zero();
+  BigInt<N> value_;
 };
 
 }  // namespace tachyon::math

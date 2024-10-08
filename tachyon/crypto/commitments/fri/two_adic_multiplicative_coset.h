@@ -114,6 +114,8 @@ class TwoAdicMultiplicativeCoset {
                 domain_->group_gen_inv();
 
     size_t sz = coset.domain()->size();
+    // NOTE(batzor): These vectors are initialized below in the parallel loop so
+    // it is safe to keep it uninitialized here.
     std::vector<F> first_row(sz);
     std::vector<F> last_row(sz);
     std::vector<F> transition(sz);
