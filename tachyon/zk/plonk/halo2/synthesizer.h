@@ -25,15 +25,13 @@ class Synthesizer {
   Synthesizer() = default;
   Synthesizer(size_t num_circuits, const ConstraintSystem<F>* constraint_system)
       : num_circuits_(num_circuits), constraint_system_(constraint_system) {
-    advice_columns_vec_.resize(num_circuits_);
-    advice_blinds_vec_.resize(num_circuits_);
-    for (size_t i = 0; i < num_circuits_; ++i) {
-      // And these may be assigned with random order.
-      advice_columns_vec_[i] =
-          std::vector<Evals>(constraint_system->num_advice_columns());
-      advice_blinds_vec_[i] =
-          std::vector<F>(constraint_system->num_advice_columns());
-    }
+    // NOTE(batzor): These vectors are initialized below in |SetAdviceColumn| so
+    // it is safe to keep it uninitialized here.
+    advice_columns_vec_.resize(
+        num_circuits_,
+        std::vector<Evals>(constraint_system->num_advice_columns()));
+    advice_blinds_vec_.resize(
+        num_circuits_, std::vector<F>(constraint_system->num_advice_columns()));
   }
 
   // Synthesize circuit and store advice columns.

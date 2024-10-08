@@ -93,6 +93,8 @@ class TACHYON_EXPORT Key {
 
     result->fixed_columns =
         base::Map(assembly.fixed_columns(), [](const RationalEvals& evals) {
+          // NOTE(batzor): This vector is initialized below in |BatchEvaluate|
+          // so it is safe to keep it uninitialized here.
           std::vector<F> result(evals.evaluations().size());
           CHECK(math::RationalField<F>::BatchEvaluate(evals.evaluations(),
                                                       &result));

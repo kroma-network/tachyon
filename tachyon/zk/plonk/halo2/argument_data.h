@@ -11,6 +11,8 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/parallelize.h"
+#include "tachyon/math/base/parallelize_threshold.h"
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 #include "tachyon/zk/plonk/halo2/argument_data.h"
 #include "tachyon/zk/plonk/halo2/synthesizer.h"
@@ -63,7 +65,8 @@ class ArgumentData {
     size_t n = prover->pcs().N();
     for (size_t i = 0; i < num_circuits; ++i) {
       for (Evals& instance_column : instance_columns_vec[i]) {
-        instance_column.evaluations().resize(n);
+        base::ParallelizeResize(instance_column.evaluations(), n, F::Zero(),
+                                math::ParallelizeThreshold::kFieldInit);
       }
     }
 

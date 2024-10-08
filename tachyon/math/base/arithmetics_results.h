@@ -9,8 +9,8 @@ namespace tachyon::math {
 
 template <typename T>
 struct AddResult {
-  T result{};
-  T carry{};
+  T result;
+  T carry{0};
 
   constexpr bool operator==(const AddResult& other) const {
     return result == other.result && carry == other.carry;
@@ -26,8 +26,8 @@ struct AddResult {
 
 template <typename T>
 struct SubResult {
-  T result{};
-  T borrow{};
+  T result;
+  T borrow{0};
 
   constexpr bool operator==(const SubResult& other) const {
     return result == other.result && borrow == other.borrow;
@@ -43,8 +43,8 @@ struct SubResult {
 
 template <typename T>
 struct MulResult {
-  T hi{};
-  T lo{};
+  T hi{0};
+  T lo{0};
 
   constexpr bool operator==(const MulResult& other) const {
     return hi == other.hi && lo == other.lo;
@@ -60,8 +60,8 @@ struct MulResult {
 
 template <typename T>
 struct DivResult {
-  T quotient{};
-  T remainder{};
+  T quotient;
+  T remainder = T::Zero();
 
   constexpr bool operator==(const DivResult& other) const {
     return quotient == other.quotient && remainder == other.remainder;

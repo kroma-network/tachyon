@@ -13,7 +13,9 @@
 
 #include "absl/container/btree_map.h"
 
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/sort.h"
+#include "tachyon/math/base/parallelize_threshold.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/lookup/pair.h"
 
@@ -53,6 +55,11 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
   }
 
   std::vector<F> permuted_table_expressions(domain_size);
+  // NOTE(batzor): First |usable_rows| elements will be initialized afterwards.
+  auto init_span = absl::MakeSpan(permuted_table_expressions)
+                       .last(domain_size - usable_rows);
+  base::ParallelizeFill(init_span, F::Zero(),
+                        /*threshold=*/math::ParallelizeThreshold::kFieldInit);
 
   std::vector<RowIndex> repeated_input_rows;
   repeated_input_rows.reserve(usable_rows - 1);

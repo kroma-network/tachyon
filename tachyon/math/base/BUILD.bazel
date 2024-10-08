@@ -67,6 +67,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "const_init",
+    hdrs = ["const_init.h"],
+)
+
+tachyon_cc_library(
     name = "egcd",
     hdrs = ["egcd.h"],
 )
@@ -86,6 +91,11 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/types:always_false",
     ],
+)
+
+tachyon_cc_library(
+    name = "parallelize_threshold",
+    hdrs = ["parallelize_threshold.h"],
 )
 
 tachyon_cc_library(

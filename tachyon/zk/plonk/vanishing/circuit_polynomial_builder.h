@@ -213,6 +213,8 @@ class CircuitPolynomialBuilder {
       UpdateLPolyCosets();
 
       std::vector<F> value_part(static_cast<size_t>(n_));
+      base::ParallelizeFill(value_part, F::Zero(),
+                            math::ParallelizeThreshold::kFieldInit);
       size_t circuit_num = poly_tables_.size();
       for (size_t j = 0; j < circuit_num; ++j) {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("

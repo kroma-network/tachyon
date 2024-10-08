@@ -35,9 +35,11 @@ tachyon_cc_library(
         "//tachyon/base:bits",
         "//tachyon/base:logging",
         "//tachyon/base:openmp_util",
+        "//tachyon/base:parallelize",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/strings:string_util",
+        "//tachyon/math/base:parallelize_threshold",
         "//tachyon/math/polynomials:polynomial",
     ],
 )

@@ -182,8 +182,19 @@ class Verifier : public VerifierBase<typename _PS::PCS> {
 
   std::vector<Commitment> CommitColumns(const std::vector<Evals>& columns) {
     return base::Map(columns, [this](const Evals& column) {
-      std::vector<F> expanded_evals = column.evaluations();
-      expanded_evals.resize(this->pcs_.N());
+      std::vector<F> expanded_evals(this->pcs_.N());
+      const std::vector<F>& evals = column.evaluations();
+      base::Parallelize(
+          expanded_evals,
+          [&evals](absl::Span<F> chunk, size_t chunk_offset,
+                   size_t chunk_size) {
+            size_t i = chunk_offset * chunk_size;
+            for (F& eval : chunk) {
+              eval = i < evals.size() ? evals[i] : F::Zero();
+              ++i;
+            }
+          },
+          /*threshold=*/math::ParallelizeThreshold::kFieldInit);
       return this->Commit(Evals(expanded_evals));
     });
   }

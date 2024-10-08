@@ -22,6 +22,10 @@ class GrandProductArgument {
 
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
+
+    // NOTE(batzor): This vector is initialized below in |denominator_callback|
+    // so it is safe to keep it uninitialized here. First element is set to
+    // |last_z| in |DoCreatePoly|.
     std::vector<F> z(size + 1);
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
@@ -44,6 +48,10 @@ class GrandProductArgument {
 
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
+
+    // NOTE(batzor): This vector is initialized below in |denominator_callback|
+    // so it is safe to keep it uninitialized here. First element is set to
+    // |last_z| in |DoCreatePoly|.
     std::vector<F> z(size + 1);
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 

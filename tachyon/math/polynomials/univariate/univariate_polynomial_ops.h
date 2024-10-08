@@ -15,8 +15,10 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/sort.h"
 #include "tachyon/math/base/arithmetics_results.h"
+#include "tachyon/math/base/parallelize_threshold.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
@@ -61,8 +63,11 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
     const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
-    l_coefficients.resize(
-        std::max(l_coefficients.size(), r_coefficients.size()));
+    base::ParallelizeResize(
+        l_coefficients, std::max(l_coefficients.size(), r_coefficients.size()),
+        F::Zero(),
+        /*threshold=*/ParallelizeThreshold::kFieldInit);
+
     OMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
       l_coefficients[i] += r_coefficients[i];
     }
@@ -104,7 +109,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     size_t other_degree = other.Degree();
     std::vector<F> upper_coeffs;
     if (degree < other_degree) {
-      upper_coeffs = std::vector<F>(other_degree - degree);
+      base::ParallelizeResize(upper_coeffs, other_degree - degree, F::Zero(),
+                              /*threshold=*/ParallelizeThreshold::kFieldInit);
     }
 
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
@@ -154,8 +160,10 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
     const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
-    l_coefficients.resize(
-        std::max(l_coefficients.size(), r_coefficients.size()));
+    base::ParallelizeResize(
+        l_coefficients, std::max(l_coefficients.size(), r_coefficients.size()),
+        F::Zero(),
+        /*threshold=*/ParallelizeThreshold::kFieldInit);
     OMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
       l_coefficients[i] -= r_coefficients[i];
     }
@@ -439,7 +447,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   static UnivariatePolynomial<D>& Copy(UnivariatePolynomial<D>& self,
                                        const UnivariatePolynomial<S>& other) {
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
-    l_coefficients = std::vector<F>(other.Degree() + 1);
+    l_coefficients.resize(other.Degree() + 1);
+    base::ParallelizeFill(l_coefficients, F::Zero(),
+                          /*threshold=*/ParallelizeThreshold::kFieldInit);
 
     const std::vector<Term>& r_terms = other.coefficients().terms_;
     OMP_PARALLEL_FOR(const Term& r_term : r_terms) {
@@ -462,6 +472,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     const std::vector<F>& a_coefficients = a.coefficients_.coefficients_;
     const std::vector<F>& b_coefficients = b.coefficients_.coefficients_;
     std::vector<F> c_coefficients(a_degree + b_degree + 1);
+    base::ParallelizeFill(c_coefficients, F::Zero(),
+                          /*threshold=*/ParallelizeThreshold::kFieldInit);
     for (size_t i = 0; i < b_coefficients.size(); ++i) {
       const F& b = b_coefficients[i];
       if (b.IsZero()) {
@@ -486,6 +498,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     const std::vector<F>& a_coefficients = a.coefficients_.coefficients_;
     const std::vector<Term>& b_terms = b.coefficients().terms_;
     std::vector<F> c_coefficients(a_degree + b_degree + 1);
+    base::ParallelizeFill(c_coefficients, F::Zero(),
+                          /*threshold=*/ParallelizeThreshold::kFieldInit);
     for (size_t i = 0; i < b_terms.size(); ++i) {
       const F& b = b_terms[i].coefficient;
       if (b.IsZero()) {
@@ -520,6 +534,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
       return true;
     }
     std::vector<F> quotient(self.Degree() - other.Degree() + 1);
+    base::ParallelizeFill(quotient, F::Zero(),
+                          /*threshold=*/ParallelizeThreshold::kFieldInit);
     UnivariatePolynomial<D> remainder = self.ToDense();
     std::vector<F>& r_coefficients = remainder.coefficients_.coefficients_;
     F divisor_leading_inv = *other.GetLeadingCoefficient().Inverse();

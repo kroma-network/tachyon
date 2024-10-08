@@ -23,18 +23,18 @@ template <typename F, typename C>
 struct ProofBase {
   std::vector<std::vector<C>> advices_commitments_vec;
   std::vector<F> challenges;
-  F theta;
-  F beta;
-  F gamma;
+  F theta = F::Zero();
+  F beta = F::Zero();
+  F gamma = F::Zero();
   std::vector<std::vector<C>> permutation_product_commitments_vec;
   C vanishing_random_poly_commitment;
-  F y;
+  F y = F::Zero();
   std::vector<C> vanishing_h_poly_commitments;
-  F x;
+  F x = F::Zero();
   std::vector<std::vector<F>> instance_evals_vec;
   std::vector<std::vector<F>> advice_evals_vec;
   std::vector<F> fixed_evals;
-  F vanishing_random_eval;
+  F vanishing_random_eval = F::Zero();
   std::vector<F> common_permutation_evals;
   std::vector<std::vector<F>> permutation_product_evals_vec;
   std::vector<std::vector<F>> permutation_product_next_evals_vec;
@@ -44,13 +44,13 @@ struct ProofBase {
   std::vector<std::vector<F>> shuffle_product_next_evals_vec;
 
   // auxiliary values
-  F l_first;
-  F l_blind;
-  F l_last;
-  F x_next;
-  F x_prev;
-  F x_last;
-  F x_n;
+  F l_first = F::Zero();
+  F l_blind = F::Zero();
+  F l_last = F::Zero();
+  F x_next = F::Zero();
+  F x_prev = F::Zero();
+  F x_last = F::Zero();
+  F x_n = F::Zero();
 
   bool operator==(const ProofBase& other) const {
     return advices_commitments_vec == other.advices_commitments_vec &&

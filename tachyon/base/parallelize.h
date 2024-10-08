@@ -233,6 +233,73 @@ auto ParallelizeMap(size_t size, Callable callback,
                                    std::move(callback));
 }
 
+template <typename Container>
+void ParallelizeFill(Container& container, typename Container::value_type value,
+                     std::optional<size_t> threshold = std::nullopt) {
+  Parallelize(
+      container,
+      [&value](absl::Span<typename Container::value_type> chunk) {
+        for (auto& v : chunk) {
+          v = value;
+        }
+      },
+      threshold);
+}
+
+template <typename Container>
+void ParallelizeResize(Container& container, size_t size,
+                       std::optional<size_t> threshold = std::nullopt) {
+  if (container.capacity() > size) {
+    container.resize(size);
+  } else {
+    std::vector<typename Container::value_type> new_container(size);
+    auto copy_span = absl::MakeSpan(new_container).first(container.size());
+    Parallelize(
+        copy_span,
+        [&container](absl::Span<typename Container::value_type> chunk,
+                     size_t chunk_offset, size_t chunk_size) {
+          size_t start = chunk_offset * chunk_size;
+          for (size_t i = 0; i < chunk.size(); ++i) {
+            chunk[i] = std::move(container[start + i]);
+          }
+        },
+        threshold);
+    container = std::move(new_container);
+  }
+}
+
+template <typename Container>
+void ParallelizeResize(Container& container, size_t size,
+                       typename Container::value_type value,
+                       std::optional<size_t> threshold = std::nullopt) {
+  if (container.capacity() > size) {
+    size_t old_size = container.size();
+    container.resize(size);
+    auto init_span = absl::MakeSpan(container).last(size - old_size);
+    Parallelize(
+        init_span,
+        [&value](absl::Span<typename Container::value_type> chunk) {
+          std::fill(chunk.begin(), chunk.end(), value);
+        },
+        threshold);
+  } else {
+    std::vector<typename Container::value_type> new_container(size);
+    Parallelize(
+        new_container,
+        [&container, &value](absl::Span<typename Container::value_type> chunk,
+                             size_t chunk_offset, size_t chunk_size) {
+          size_t start = chunk_offset * chunk_size;
+          for (size_t i = 0; i < chunk.size(); ++i) {
+            chunk[i] = (start + i) < container.size()
+                           ? std::move(container[start + i])
+                           : value;
+          }
+        },
+        threshold);
+    container = std::move(new_container);
+  }
+}
+
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_PARALLELIZE_H_

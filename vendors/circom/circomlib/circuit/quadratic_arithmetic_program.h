@@ -32,7 +32,12 @@ class QuadraticArithmeticProgram {
     TRACE_EVENT_BEGIN("Subtask", "ABC Initialization");
     std::vector<F> a(domain->size());
     std::vector<F> b(domain->size());
+    // NOTE: |c| is initialized later with |c[i]| = |a[i]| * |b[i]|.
     std::vector<F> c(domain->size());
+    OMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
+      a[i] = F::Zero();
+      b[i] = F::Zero();
+    }
     TRACE_EVENT_END("Subtask");
 
     TRACE_EVENT_BEGIN("Subtask", "AB Calculation");

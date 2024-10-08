@@ -205,8 +205,10 @@ class ShuffleCircuit : public Circuit<ShuffleCircuitConfig<F, W>> {
 
   std::unique_ptr<Circuit<ShuffleCircuitConfig<F, W>>> WithoutWitness()
       const override {
-    std::vector<std::vector<F>> dummy_original_table(W, std::vector<F>(H));
-    std::vector<std::vector<F>> dummy_shuffled_table(W, std::vector<F>(H));
+    std::vector<std::vector<F>> dummy_original_table(
+        W, std::vector<F>(H, F::Zero()));
+    std::vector<std::vector<F>> dummy_shuffled_table(
+        W, std::vector<F>(H, F::Zero()));
     ShuffleCircuit dummy_circuit(std::move(dummy_original_table),
                                  std::move(dummy_shuffled_table));
     return std::make_unique<ShuffleCircuit>(std::move(dummy_circuit));

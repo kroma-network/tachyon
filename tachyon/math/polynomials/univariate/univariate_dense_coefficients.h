@@ -22,6 +22,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/math/base/parallelize_threshold.h"
 #include "tachyon/math/polynomials/univariate/support_poly_operators.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 
@@ -108,6 +109,8 @@ class UnivariateDenseCoefficients {
     // clang-format on
 
     std::vector<F> coefficients(std::size(roots) + 1);
+    base::ParallelizeFill(coefficients, F::Zero(),
+                          /*threshold=*/ParallelizeThreshold::kFieldInit);
     coefficients[0] = F::One();
     for (size_t i = 0; i < std::size(roots); ++i) {
       for (size_t j = i + 1; j > 0; --j) {
@@ -179,6 +182,8 @@ class UnivariateDenseCoefficients {
   Fold(const Field& r) const {
     size_t size = coefficients_.size();
     std::vector<F> coefficients((size + 1) >> 1);
+    base::ParallelizeFill(coefficients, F::Zero(),
+                          /*threshold=*/ParallelizeThreshold::kFieldInit);
     OMP_PARALLEL_FOR(size_t i = 0; i < size; i += 2) {
       coefficients[i >> 1] = coefficients_[i + 1] * r;
       coefficients[i >> 1] += coefficients_[i];
@@ -242,7 +247,9 @@ class UnivariateDenseCoefficients {
   // with |IsZero()|, it returns false. So please use it carefully!
   constexpr static UnivariateDenseCoefficients Zero(size_t degree) {
     UnivariateDenseCoefficients ret;
-    ret.coefficients_ = std::vector<F>(degree + 1);
+    ret.coefficients_.resize(degree + 1);
+    base::ParallelizeFill(ret.coefficients_, F::Zero(),
+                          /*threshold=*/ParallelizeThreshold::kFieldInit);
     return ret;
   }
 

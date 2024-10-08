@@ -341,7 +341,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     // |kFrobeniusCoeffs[0]| = q^((P⁰ - 1) / 6)
     Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
 #define SET_FROBENIUS_COEFF(d)                \
-  BigInt<d * N> exp##d;                       \
+  BigInt<d * N> exp##d(0);                    \
   gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
   Config::kFrobeniusCoeffs[d] = BaseFieldConfig::kNonResidue.Pow(exp##d)
     // |kFrobeniusCoeffs[1]| = q^(exp₁) = q^((P¹ - 1) / 6)

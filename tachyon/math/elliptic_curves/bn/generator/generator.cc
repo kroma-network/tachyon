@@ -13,7 +13,7 @@ namespace tachyon {
 
 template <size_t N>
 std::vector<int8_t> ComputeAteLoopCount(const mpz_class& six_x_plus_2) {
-  math::BigInt<N> x;
+  math::BigInt<N> x(0);
   math::gmp::CopyLimbs(six_x_plus_2, x.limbs);
   return x.ToNAF();
 }

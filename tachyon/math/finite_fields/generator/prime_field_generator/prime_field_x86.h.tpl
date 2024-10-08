@@ -9,6 +9,7 @@
 #include "absl/base/call_once.h"
 
 #include "tachyon/math/base/big_int.h"
+#include "tachyon/math/base/const_init.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 #include "tachyon/math/base/byinverter.h"
@@ -42,11 +43,11 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
 
   using CpuField = PrimeField<Config>;
   using GpuField = PrimeFieldGpu<Config>;
-  
+
   constexpr static BYInverter<N> inverter =
       BYInverter<N>(Config::kModulus, Config::kMontgomeryR2);
 
-  constexpr PrimeField() = default;
+  PrimeField() {}
   template <typename T,
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
   constexpr explicit PrimeField(T value) : PrimeField(BigInt<N>(value)) {}
@@ -54,30 +55,23 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
     DCHECK_LT(value, Config::kModulus);
     %{prefix}_rawToMontgomery(value_.limbs, value.limbs);
   }
+  constexpr explicit PrimeField(ZeroInitType zero_init) : value_(0) {}
+  constexpr explicit PrimeField(OneInitType one_init) : value_(Config::kOne) {}
+  constexpr explicit PrimeField(MinusOneInitType minus_one_init) : value_(Config::kMinusOne) {}
+  constexpr explicit PrimeField(TwoInvInitType two_inv_init) : value_(Config::kTwoInv) {}
+
   constexpr PrimeField(const PrimeField& other) = default;
   constexpr PrimeField& operator=(const PrimeField& other) = default;
   constexpr PrimeField(PrimeField&& other) = default;
   constexpr PrimeField& operator=(PrimeField&& other) = default;
 
-  constexpr static PrimeField Zero() { return PrimeField(); }
+  constexpr static PrimeField Zero() { return PrimeField(kZeroInit); }
 
-  constexpr static PrimeField One() {
-    PrimeField ret{};
-    ret.value_ = Config::kOne;
-    return ret;
-  }
+  constexpr static PrimeField One() { return PrimeField(kOneInit); }
 
-  constexpr static PrimeField MinusOne() {
-    PrimeField ret{};
-    ret.value_ = Config::kMinusOne;
-    return ret;
-  }
+  constexpr static PrimeField MinusOne() { return PrimeField(kMinusOneInit); }
 
-  constexpr static PrimeField TwoInv() {
-    PrimeField ret{};
-    ret.value_ = Config::kTwoInv;
-    return ret;
-  }
+  constexpr static PrimeField TwoInv() { return PrimeField(kTwoInvInit); }
 
   static PrimeField Random() {
     return PrimeField(BigInt<N>::Random(Config::kModulus));
@@ -113,7 +107,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   }
 
   static PrimeField FromMpzClass(const mpz_class& value) {
-    BigInt<N> big_int;
+    BigInt<N> big_int(0);
     gmp::CopyLimbs(value, big_int.limbs);
     return FromBigInt(big_int);
   }

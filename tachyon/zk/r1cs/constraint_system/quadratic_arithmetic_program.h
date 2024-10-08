@@ -28,7 +28,7 @@ template <typename F>
 F EvaluateConstraint(const std::vector<Cell<F>>& cells,
                      absl::Span<const F> assignments) {
   TRACE_EVENT("ProofGeneration", "QAP::EvaluateConstraint");
-  F sum;
+  F sum = F::Zero();
   for (const Cell<F>& cell : cells) {
     if (cell.coefficient.IsOne()) {
       sum += assignments[cell.index];
@@ -71,6 +71,11 @@ class QuadraticArithmeticProgram {
     std::vector<F> a(num_qap_variables + 1);
     std::vector<F> b(num_qap_variables + 1);
     std::vector<F> c(num_qap_variables + 1);
+    OMP_PARALLEL_FOR(size_t i = 0; i <= num_qap_variables; ++i) {
+      a[i] = F::Zero();
+      b[i] = F::Zero();
+      c[i] = F::Zero();
+    }
 
     // clang-format off
     // |a[i]| = lₙ₊ᵢ(x) +  Σⱼ₌₀..ₙ₋₁ (lⱼ(x) * Aⱼ,ᵢ) (if i < |num_instance_variables|)
@@ -133,6 +138,12 @@ class QuadraticArithmeticProgram {
     std::vector<F> a(domain->size());
     std::vector<F> b(domain->size());
     std::vector<F> c(domain->size());
+    OMP_PARALLEL_FOR(size_t i = matrices.num_constraints; i < domain->size();
+                     ++i) {
+      a[i] = F::Zero();
+      b[i] = F::Zero();
+      c[i] = F::Zero();
+    }
 
     // clang-format off
     // |a[i]| = Σⱼ₌₀..ₘ (xⱼ * Aᵢ,ⱼ)    (if i < |num_constraints|)

@@ -119,7 +119,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   }
 
   static PrimeField FromMpzClass(const mpz_class& value) {
-    BigInt<N> big_int;
+    BigInt<N> big_int(0);
     gmp::CopyLimbs(value, big_int.limbs);
     return FromBigInt(big_int);
   }
@@ -330,7 +330,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
 
   constexpr static void DoFastMul(const PrimeField& a, const PrimeField& b,
                                   PrimeField& c) {
-    BigInt<N> r;
+    BigInt<N> r(0);
     for (size_t i = 0; i < N; ++i) {
       MulResult<uint64_t> result;
       result = internal::u64::MulAddWithCarry(r[0], a[0], b[i]);
@@ -362,7 +362,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   }
 
   constexpr static void DoSquareImpl(const PrimeField& a, PrimeField& b) {
-    BigInt<2 * N> r;
+    BigInt<2 * N> r(0);
     MulResult<uint64_t> mul_result;
     for (size_t i = 0; i < N - 1; ++i) {
       for (size_t j = i + 1; j < N; ++j) {

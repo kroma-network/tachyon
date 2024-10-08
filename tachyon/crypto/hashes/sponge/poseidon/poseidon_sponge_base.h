@@ -70,7 +70,7 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
       bytes.insert(bytes.end(), elem_bytes.begin(), elem_bytes.end());
     }
 
-    bytes.resize(num_bytes);
+    bytes.resize(num_bytes, F::Zero());
     return bytes;
   }
 
@@ -121,6 +121,8 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
                                             size_t num_elements) const {
     const Derived& derived = static_cast<const Derived&>(*this);
 
+    // NOTE(batzor): |SqueezeInternal| will fill all the garbage values, so it
+    // is safe to have it uninitialized.
     std::vector<F> ret(num_elements);
     switch (state.mode.type) {
       case DuplexSpongeMode::Type::kAbsorbing: {

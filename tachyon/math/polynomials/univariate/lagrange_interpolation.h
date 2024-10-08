@@ -63,7 +63,10 @@ bool LagrangeInterpolate(
         // clang-format on
 
         std::vector<F> coeffs(points.size());
-        std::vector<F> coeffs_sum(points.size());
+
+        // NOTE(batzor): We initialize |coeffs_sum| serially since it is already
+        // inside a parallel loop.
+        std::vector<F> coeffs_sum(points.size(), F::Zero());
 
         size_t start = chunk_offset * chunk_size;
         for (size_t chunk_idx = 0; chunk_idx < chunk.size(); ++chunk_idx) {
