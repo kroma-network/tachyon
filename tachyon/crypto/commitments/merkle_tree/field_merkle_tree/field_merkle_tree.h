@@ -271,30 +271,24 @@ class FieldMerkleTree {
 
     std::vector<Digest> ret(max_rows_padded);
     absl::Span<Digest> sub_ret = absl::MakeSpan(ret).subspan(0, max_rows);
-    base::ParallelizeByChunkSize(
-        sub_ret, PackedPrimeField::N,
-        [&hasher, &packed_hasher, tallest_matrices](
-            absl::Span<Digest> chunk, size_t chunk_offset, size_t chunk_size) {
-          size_t start = chunk_offset * chunk_size;
-          if (chunk.size() == chunk_size) {
-            std::vector<PackedPrimeField> packed_prime_fields =
-                base::FlatMap(tallest_matrices, [start](RowMajorMatrixView m) {
-                  return math::PackRowVertically<PackedPrimeField>(*m, start);
-                });
-            PackedDigest packed_digest =
-                packed_hasher.Hash(packed_prime_fields);
-            for (size_t i = 0; i < chunk.size(); ++i) {
-              for (size_t j = 0; j < N; ++j) {
-                chunk[i][j] = std::move(packed_digest[j][i]);
-              }
-            }
-          } else {
-            for (size_t i = 0; i < chunk.size(); ++i) {
-              chunk[i] = hasher.Hash(
-                  GetRowAsPrimeFieldVector(tallest_matrices, start + i));
-            }
-          }
-        });
+    size_t end = (sub_ret.size() / PackedPrimeField::N) * PackedPrimeField::N;
+    OMP_PARALLEL_DYNAMIC_FOR(size_t start = 0; start < end;
+                             start += PackedPrimeField::N) {
+      std::vector<PackedPrimeField> packed_prime_fields =
+          base::FlatMap(tallest_matrices, [start](RowMajorMatrixView m) {
+            return math::PackRowVertically<PackedPrimeField>(*m, start);
+          });
+      PackedDigest packed_digest = packed_hasher.Hash(packed_prime_fields);
+      for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+        for (size_t j = 0; j < N; ++j) {
+          sub_ret[start + i][j] = std::move(packed_digest[j][i]);
+        }
+      }
+    }
+    for (size_t start = end; start < sub_ret.size(); ++start) {
+      sub_ret[start] =
+          hasher.Hash(GetRowAsPrimeFieldVector(tallest_matrices, start));
+    }
     return ret;
   }
 
@@ -314,55 +308,46 @@ class FieldMerkleTree {
 
     std::vector<Digest> ret(next_rows_padded);
     absl::Span<Digest> sub_ret = absl::MakeSpan(ret).subspan(0, next_rows);
-    base::ParallelizeByChunkSize(
-        sub_ret, PackedPrimeField::N,
-        [&hasher, &packed_hasher, &compressor, &packed_compressor, &prev_layer,
-         matrices_to_inject](absl::Span<Digest> chunk, size_t chunk_offset,
-                             size_t chunk_size) {
-          size_t start = chunk_offset * chunk_size;
-          if (chunk.size() == chunk_size) {
-            PackedDigest inputs[] = {
-                base::CreateArray<N>([&prev_layer, start](size_t i) {
-                  return PackedPrimeField::From(
-                      [&prev_layer, start, i](size_t j) {
-                        return prev_layer[2 * (start + j)][i];
-                      });
-                }),
-                base::CreateArray<N>([&prev_layer, start](size_t i) {
-                  return PackedPrimeField::From(
-                      [&prev_layer, start, i](size_t j) {
-                        return prev_layer[2 * (start + j) + 1][i];
-                      });
-                }),
-            };
-            inputs[0] = packed_compressor.Compress(inputs);
-            std::vector<PackedPrimeField> packed_prime_fields = base::FlatMap(
-                matrices_to_inject, [start](RowMajorMatrixView m) {
-                  return math::PackRowVertically<PackedPrimeField>(*m, start);
-                });
-            inputs[1] = packed_hasher.Hash(packed_prime_fields);
-            PackedDigest packed_digest = packed_compressor.Compress(inputs);
-            for (size_t i = 0; i < chunk.size(); ++i) {
-              for (size_t j = 0; j < N; ++j) {
-                chunk[i][j] = std::move(packed_digest[j][i]);
-              }
-            }
-          } else {
-            for (size_t i = 0; i < chunk.size(); ++i) {
-              Digest inputs[] = {
-                  prev_layer[2 * (start + i)],
-                  prev_layer[2 * (start + i) + 1],
-              };
-              inputs[0] = compressor.Compress(inputs);
-              inputs[1] = hasher.Hash(
-                  GetRowAsPrimeFieldVector(matrices_to_inject, start + i));
-              chunk[i] = compressor.Compress(inputs);
-            }
-          }
-        });
+    size_t end = (sub_ret.size() / PackedPrimeField::N) * PackedPrimeField::N;
+    OMP_PARALLEL_DYNAMIC_FOR(size_t start = 0; start < end;
+                             start += PackedPrimeField::N) {
+      PackedDigest inputs[] = {
+          base::CreateArray<N>([&prev_layer, start](size_t i) {
+            return PackedPrimeField::From([&prev_layer, start, i](size_t j) {
+              return prev_layer[2 * (start + j)][i];
+            });
+          }),
+          base::CreateArray<N>([&prev_layer, start](size_t i) {
+            return PackedPrimeField::From([&prev_layer, start, i](size_t j) {
+              return prev_layer[2 * (start + j) + 1][i];
+            });
+          }),
+      };
+      inputs[0] = packed_compressor.Compress(inputs);
+      std::vector<PackedPrimeField> packed_prime_fields =
+          base::FlatMap(matrices_to_inject, [start](RowMajorMatrixView m) {
+            return math::PackRowVertically<PackedPrimeField>(*m, start);
+          });
+      inputs[1] = packed_hasher.Hash(packed_prime_fields);
+      PackedDigest packed_digest = packed_compressor.Compress(inputs);
+      for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+        for (size_t j = 0; j < N; ++j) {
+          sub_ret[start + i][j] = std::move(packed_digest[j][i]);
+        }
+      }
+    }
+    for (size_t start = end; start < sub_ret.size(); ++start) {
+      Digest inputs[] = {
+          prev_layer[2 * start],
+          prev_layer[2 * start + 1],
+      };
+      inputs[0] = compressor.Compress(inputs);
+      inputs[1] =
+          hasher.Hash(GetRowAsPrimeFieldVector(matrices_to_inject, start));
+      sub_ret[start] = compressor.Compress(inputs);
+    }
 
-    Digest default_digest =
-        base::CreateArray<N>([]() { return PrimeField::Zero(); });
+    Digest default_digest = {PrimeField::Zero()};
     Digest inputs_with_default_digest[] = {
         default_digest,
         default_digest,
@@ -386,42 +371,36 @@ class FieldMerkleTree {
     size_t next_rows = prev_layer.size() / 2;
 
     std::vector<Digest> ret(next_rows);
-    base::ParallelizeByChunkSize(
-        ret, PackedPrimeField::N,
-        [&compressor, &packed_compressor, &prev_layer](
-            absl::Span<Digest> chunk, size_t chunk_offset, size_t chunk_size) {
-          size_t start = chunk_offset * chunk_size;
-          if (chunk.size() == chunk_size) {
-            PackedDigest inputs[] = {
-                base::CreateArray<N>([&prev_layer, start](size_t i) {
-                  return PackedPrimeField::From(
-                      [&prev_layer, start, i](size_t j) {
-                        return prev_layer[2 * (start + j)][i];
-                      });
-                }),
-                base::CreateArray<N>([&prev_layer, start](size_t i) {
-                  return PackedPrimeField::From(
-                      [&prev_layer, start, i](size_t j) {
-                        return prev_layer[2 * (start + j) + 1][i];
-                      });
-                }),
-            };
-            PackedDigest packed_digest = packed_compressor.Compress(inputs);
-            for (size_t i = 0; i < chunk.size(); ++i) {
-              for (size_t j = 0; j < N; ++j) {
-                chunk[i][j] = std::move(packed_digest[j][i]);
-              }
-            }
-          } else {
-            for (size_t i = 0; i < chunk.size(); ++i) {
-              Digest inputs[] = {
-                  prev_layer[2 * (start + i)],
-                  prev_layer[2 * (start + i) + 1],
-              };
-              chunk[i] = compressor.Compress(inputs);
-            }
-          }
-        });
+    size_t end = (ret.size() / PackedPrimeField::N) * PackedPrimeField::N;
+    OMP_PARALLEL_DYNAMIC_FOR(size_t start = 0; start < end;
+                             start += PackedPrimeField::N) {
+      PackedDigest inputs[] = {
+          base::CreateArray<N>([&prev_layer, start](size_t i) {
+            return PackedPrimeField::From([&prev_layer, start, i](size_t j) {
+              return prev_layer[2 * (start + j)][i];
+            });
+          }),
+          base::CreateArray<N>([&prev_layer, start](size_t i) {
+            return PackedPrimeField::From([&prev_layer, start, i](size_t j) {
+              return prev_layer[2 * (start + j) + 1][i];
+            });
+          }),
+      };
+      PackedDigest packed_digest = packed_compressor.Compress(inputs);
+      for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+        for (size_t j = 0; j < N; ++j) {
+          ret[start + i][j] = std::move(packed_digest[j][i]);
+        }
+      }
+    }
+    for (size_t start = end; start < ret.size(); ++start) {
+      Digest inputs[] = {
+          prev_layer[2 * start],
+          prev_layer[2 * start + 1],
+      };
+      ret[start] = compressor.Compress(inputs);
+    }
+
     return ret;
   }
 
