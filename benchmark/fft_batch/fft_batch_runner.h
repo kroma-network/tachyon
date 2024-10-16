@@ -35,16 +35,18 @@ class FFTBatchRunner {
     math::RowMajorMatrix<F> result;
     std::unique_ptr<Domain> domain =
         Domain::Create(static_cast<size_t>(input.rows()));
-    base::TimeTicks start = base::TimeTicks::Now();
+    base::TimeTicks start;
     if (run_coset_lde) {
       const size_t kAddedBits = 1;
       result =
           math::RowMajorMatrix<F>(input.rows() << kAddedBits, input.cols());
+      start = base::TimeTicks::Now();
       domain->CosetLDEBatch(input, kAddedBits,
                             F::FromMontgomery(F::Config::kSubgroupGenerator),
                             result);
     } else {
       result = input;
+      start = base::TimeTicks::Now();
       domain->FFTBatch(result);
     }
     reporter_.AddTime(vendor, base::TimeTicks::Now() - start);
