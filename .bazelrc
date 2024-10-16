@@ -79,10 +79,13 @@ build:windows --host_cxxopt=/std:c++17
 build:avx_linux --copt=-mavx
 build:avx2_linux --copt=-mavx2
 build:avx512_linux --copt=-mavx512f
-build:native_arch_linux --copt=-march=native
 build:avx_windows --copt=/arch=AVX
 build:avx2_windows --copt=/arch=AVX2
 build:avx512_windows --copt=/arch=AVX512
+
+# Compile for the native architecture
+# WARN(batzor): this will make the build non-portable
+build:native --copt=-march=native
 
 # Enable googletest build with absl.
 # See https://github.com/google/googletest/blob/v1.13.0/BUILD.bazel#L67C1-L70
