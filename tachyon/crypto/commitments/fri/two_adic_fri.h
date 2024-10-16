@@ -337,17 +337,17 @@ class TwoAdicFRI {
       absl::Span<const Eigen::Map<const math::RowMajorMatrix<F>>> matrices =
           matrices_by_round[round];
       const OpeningPointsForRound& points = points_by_round[round];
-      for (const Eigen::Map<const math::RowMajorMatrix<F>>& matrix : matrices) {
+      for (size_t i = 0; i < matrices.size(); ++i) {
+        const Eigen::Map<const math::RowMajorMatrix<F>>& matrix = matrices[i];
+        const std::vector<ExtF>& point_list = points[i];
         uint32_t log_num_rows =
             base::bits::CheckedLog2(static_cast<uint32_t>(matrix.rows()));
         max_log_num_rows = std::max(max_log_num_rows, log_num_rows);
-        for (const std::vector<ExtF>& point_list : points) {
-          for (const ExtF& point : point_list) {
-            const auto [it, inserted] =
-                max_log_num_rows_for_point.try_emplace(point, log_num_rows);
-            if (!inserted) {
-              it->second = std::max(it->second, log_num_rows);
-            }
+        for (const ExtF& point : point_list) {
+          const auto [it, inserted] =
+              max_log_num_rows_for_point.try_emplace(point, log_num_rows);
+          if (!inserted) {
+            it->second = std::max(it->second, log_num_rows);
           }
         }
       }
