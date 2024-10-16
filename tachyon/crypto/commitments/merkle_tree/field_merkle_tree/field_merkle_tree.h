@@ -271,7 +271,7 @@ class FieldMerkleTree {
 
     std::vector<Digest> ret(max_rows_padded);
     absl::Span<Digest> sub_ret = absl::MakeSpan(ret).subspan(0, max_rows);
-    base::ParallelizeByChunkSize(
+    base::DynamicParallelizeByChunkSize(
         sub_ret, PackedPrimeField::N,
         [&hasher, &packed_hasher, tallest_matrices](
             absl::Span<Digest> chunk, size_t chunk_offset, size_t chunk_size) {
@@ -314,7 +314,7 @@ class FieldMerkleTree {
 
     std::vector<Digest> ret(next_rows_padded);
     absl::Span<Digest> sub_ret = absl::MakeSpan(ret).subspan(0, next_rows);
-    base::ParallelizeByChunkSize(
+    base::DynamicParallelizeByChunkSize(
         sub_ret, PackedPrimeField::N,
         [&hasher, &packed_hasher, &compressor, &packed_compressor, &prev_layer,
          matrices_to_inject](absl::Span<Digest> chunk, size_t chunk_offset,
@@ -385,7 +385,7 @@ class FieldMerkleTree {
     size_t next_rows = prev_layer.size() / 2;
 
     std::vector<Digest> ret(next_rows);
-    base::ParallelizeByChunkSize(
+    base::DynamicParallelizeByChunkSize(
         ret, PackedPrimeField::N,
         [&compressor, &packed_compressor, &prev_layer](
             absl::Span<Digest> chunk, size_t chunk_offset, size_t chunk_size) {

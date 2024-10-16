@@ -139,6 +139,42 @@ void ParallelizeByChunkSize(size_t size, size_t chunk_size, Callable callback) {
   }
 }
 
+// Splits the |container| by |chunk_size| and executes |callback| in parallel.
+// Dynamically schedules tasks to ensure most efficient use of threads.
+template <typename Container, typename Callable>
+void DynamicParallelizeByChunkSize(Container& container, size_t chunk_size,
+                                   Callable callback) {
+  if (chunk_size == 0) return;
+  size_t num_chunks = (std::size(container) + chunk_size - 1) / chunk_size;
+  if (num_chunks == 1) {
+    internal::InvokeParallelizeCallback(container, 0, num_chunks, chunk_size,
+                                        callback);
+    return;
+  }
+  OMP_PARALLEL_DYNAMIC_FOR(size_t i = 0; i < num_chunks; ++i) {
+    internal::InvokeParallelizeCallback(container, i, num_chunks, chunk_size,
+                                        callback);
+  }
+}
+
+// Splits the |size| by |chunk_size| and executes |callback| in parallel.
+// Dynamically schedules tasks to ensure most efficient use of threads.
+template <typename Callable>
+void DynamicParallelizeByChunkSize(size_t size, size_t chunk_size,
+                                   Callable callback) {
+  if (chunk_size == 0) return;
+  size_t num_chunks = (size + chunk_size - 1) / chunk_size;
+  if (num_chunks == 1) {
+    internal::InvokeParallelizeCallback(size, 0, num_chunks, chunk_size,
+                                        callback);
+    return;
+  }
+  OMP_PARALLEL_DYNAMIC_FOR(size_t i = 0; i < num_chunks; ++i) {
+    internal::InvokeParallelizeCallback(size, i, num_chunks, chunk_size,
+                                        callback);
+  }
+}
+
 // Splits the |container| into threads and executes |callback| in parallel.
 // See parallelize_unittest.cc for more details.
 template <typename Container, typename Callable>
