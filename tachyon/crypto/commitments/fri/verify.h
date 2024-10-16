@@ -97,10 +97,11 @@ template <typename PCS, typename ChallengeMMCS, typename Challenger,
 
   for (size_t i = 0; i < proof.query_proofs.size(); ++i) {
     std::vector<size_t> ro_num_rows;
-    std::vector<ExtF> ro_value;
+    std::vector<ExtF> ro_values;
     size_t index = challenger.SampleBits(log_max_num_rows);
     VLOG(2) << "FRI(index[" << i << "]): " << index;
-    open_input(index, proof.query_proofs[i].input_proof, ro_num_rows, ro_value);
+    open_input(index, proof.query_proofs[i].input_proof, ro_num_rows,
+               ro_values);
 
 #if DCHECK_IS_ON()
     // Check reduced openings sorted by |num_rows| descending
@@ -114,7 +115,7 @@ template <typename PCS, typename ChallengeMMCS, typename Challenger,
               proof.query_proofs[i].commit_phase_openings[j]};
         });
     ExtF folded_eval = VerifyQuery(index, log_max_num_rows, config, steps,
-                                   ro_num_rows, ro_value);
+                                   ro_num_rows, ro_values);
     if (folded_eval != proof.final_eval) {
       LOG(ERROR) << "final_eval is not matched: "
                  << folded_eval.ToHexString(true);
