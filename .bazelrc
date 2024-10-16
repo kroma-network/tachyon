@@ -75,6 +75,9 @@ build:avx_windows --copt=/arch=AVX
 build:avx2_windows --copt=/arch=AVX2
 build:avx512_windows --copt=/arch=AVX512
 
+build:lto --copt=-flto
+build:lto --linkopt=-flto
+
 # Enable googletest build with absl.
 # See https://github.com/google/googletest/blob/v1.13.0/BUILD.bazel#L67C1-L70
 build --define absl=1
