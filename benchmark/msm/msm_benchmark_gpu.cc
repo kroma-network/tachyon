@@ -66,7 +66,7 @@ int RealMain(int argc, char** argv) {
   tachyon_bn254_g1_destroy_msm_gpu(msm_gpu);
 
   if (config.check_results()) {
-    CHECK(results_cpu == results_gpu) << "Result not matched";
+    CHECK(results_cpu == results_gpu) << "Results do not match";
   }
 
   reporter.Show();

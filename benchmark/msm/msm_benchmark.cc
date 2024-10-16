@@ -89,7 +89,7 @@ int RealMain(int argc, char** argv) {
     }
 
     if (config.check_results()) {
-      CHECK(results == results_vendor) << "Result not matched";
+      CHECK(results == results_vendor) << "Results do not match";
     }
   }
 

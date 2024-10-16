@@ -59,7 +59,7 @@ template <typename PolyOrEvals>
 void CheckResult(bool check_result, const PolyOrEvals& tachyon_result,
                  const PolyOrEvals& vendor_result) {
   if (check_result) {
-    CHECK_EQ(tachyon_result, vendor_result) << "Results not matched";
+    CHECK_EQ(tachyon_result, vendor_result) << "Results do not match";
   }
 }
 

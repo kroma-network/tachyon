@@ -79,7 +79,7 @@ void Run(const FFTConfig& config) {
                  domain.get(), input, kShouldRecord, gpu_result);
     }
     if (config.check_results()) {
-      CHECK_EQ(cpu_result, gpu_result) << "Results not matched";
+      CHECK_EQ(cpu_result, gpu_result) << "Results do not match";
     }
   }
 

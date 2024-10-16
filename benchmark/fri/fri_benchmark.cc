@@ -39,7 +39,7 @@ template <typename Result>
 void CheckResult(bool check_results, const Result& tachyon_result,
                  const Result& vendor_result) {
   if (check_results) {
-    CHECK_EQ(tachyon_result, vendor_result) << "Results not matched";
+    CHECK_EQ(tachyon_result, vendor_result) << "Results do not match";
   }
 }
 
