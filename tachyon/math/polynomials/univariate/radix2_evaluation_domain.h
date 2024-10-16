@@ -160,7 +160,7 @@ class Radix2EvaluationDomain
       // Reverse bits because |mat| is encoded in bit-reversed order
       size_t start = chunk_offset * chunk_size;
       F weight = this->size_inv_ * shift.Pow(start);
-      // NOTE: It is not possible to have empty chunk so this is safe
+      // NOTE: It is not possible to have an empty chunk so this is safe
       for (size_t row = start; row < start + len - 1; ++row) {
         mat.row(base::bits::ReverseBitsLen(row, this->log_size_of_group_)) *=
             weight;
