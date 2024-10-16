@@ -24,6 +24,9 @@ build --announce_rc
 # TODO(chokobole): Remove when `cc_shared_library` is enabled by default
 build --experimental_cc_shared_library
 
+# Enable platform specific configurations by default depending on host machine.
+common --enable_platform_specific_config
+
 build:macos_x86_64 --config=macos
 build:macos_x86_64 --cpu=darwin_x86_64
 build:macos_x86_64 --host_cpu=darwin_x86_64

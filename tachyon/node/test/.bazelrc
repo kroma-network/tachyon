@@ -1,6 +1,9 @@
 # TODO(chokobole): Remove when `cc_shared_library` is enabled by default
 build --experimental_cc_shared_library
 
+# Enable platform specific configurations by default depending on host machine.
+common --enable_platform_specific_config
+
 build:linux --cxxopt=-std=c++17
 build:linux --host_cxxopt=-std=c++17
 build:macos --cxxopt=-std=c++17

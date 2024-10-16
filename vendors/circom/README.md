@@ -31,28 +31,16 @@
 
 Go to [prerequisites](../../docs/how_to_use/how_to_build.md#Prerequisites) and follow the instructions.
 
-### Linux with CUDA
+### With CUDA
 
 ```shell
-bazel build --@kroma_network_tachyon//:has_openmp -c opt --config linux --config cuda //:prover_main
+bazel build --@kroma_network_tachyon//:has_openmp -c opt --config cuda //:prover_main
 ```
 
-### Linux
+### Without CUDA
 
 ```shell
-bazel build --@kroma_network_tachyon//:has_openmp -c opt --config linux //:prover_main
-```
-
-### MacOS arm64
-
-```shell
-bazel build --@kroma_network_tachyon//:has_openmp -c opt --config macos_arm64 //:prover_main
-```
-
-### MacOS x64
-
-```shell
-bazel build --@kroma_network_tachyon//:has_openmp -c opt --config macos_x86_64 //:prover_main
+bazel build --@kroma_network_tachyon//:has_openmp -c opt //:prover_main
 ```
 
 ## How to run

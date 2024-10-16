@@ -52,54 +52,14 @@ pip install matplotlib
 
 ### Build
 
-#### Build on Linux
-
 ```shell
-bazel build --config linux //...
-```
-
-#### Build on Macos arm64
-
-```shell
-bazel build --config macos_arm64 //...
-```
-
-#### Build on Macos x64
-
-```shell
-bazel build --config macos_x86_64 //...
+bazel build //...
 ```
 
 ### Test
 
-#### Test on Linux
-
 ```shell
-bazel test --config linux //...
-```
-
-#### Test on Macos arm64
-
-```shell
-bazel test --config macos_arm64 //...
-```
-
-#### Test on Macos x64
-
-```shell
-bazel test --config macos_x86_64 //...
-```
-
-## Configurations
-
-### OS options
-
-- `linux`
-- `macos_x86_64`
-- `macos_arm64`
-
-```shell
-bazel build --config macos_arm64 //...
+bazel test //...
 ```
 
 ### Build options
@@ -109,7 +69,7 @@ bazel build --config macos_arm64 //...
 - `fastbuild`: Fast build option
 
 ```shell
-bazel build --config macos_arm64 --config dbg //...
+bazel build --config dbg //...
 ```
 
 ### Hardware acceleration
@@ -119,7 +79,7 @@ bazel build --config macos_arm64 --config dbg //...
 - `--config cuda`: Enable [cuda] backend.
 
   ```shell
-  bazel build --config ${os} --config cuda //...
+  bazel build --config cuda //...
   ```
 
 #### ROCm backend
@@ -127,7 +87,7 @@ bazel build --config macos_arm64 --config dbg //...
 - `--config rocm`: Enable [rocm] backend.
 
   ```shell
-  bazel build --config ${os} --config rocm //...
+  bazel build --config rocm //...
   ```
 
 _NOTE_: The `rocm` option is not recommended for current use because it is not being tested yet.
@@ -144,14 +104,13 @@ For example:
 ```
 # .bazelrc.user
 
-build --config linux
 build --config dbg
 ```
 
 ```shell
 bazel build //...
 # With the preset options in .bazelrc.user, this is the same as:
-# bazel build --config linux --config dbg //...
+# bazel build --config dbg //...
 ```
 
 ## Building Tachyon from a Bazel repository
@@ -200,8 +159,8 @@ Build a Debian package with the supported scheme (only halo2 for now) and the op
 To build the Halo2 Debian package, the `has_openmp` option is recommended. Run the following commands:
 
 ```shell
-bazel build -c opt --config ${os} --//:has_openmp  --//:c_shared_object //scripts/packages/debian/runtime:debian
-bazel build -c opt --config ${os} --//:has_openmp  --//:c_shared_object //scripts/packages/debian/dev:debian
+bazel build -c opt --//:has_openmp  --//:c_shared_object //scripts/packages/debian/runtime:debian
+bazel build -c opt --//:has_openmp  --//:c_shared_object //scripts/packages/debian/dev:debian
 
 sudo dpkg -i bazel-bin/scripts/packages/debian/runtime/libtachyon_0.3.0_amd64.deb
 sudo dpkg -i bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.3.0_amd64.deb
@@ -334,7 +293,7 @@ build:cuda --action_env=TACHYON_CUDA_COMPUTE_CAPABILITIES="compute_52"
 Doxygen generates C API documents (`tachyon_api_docs.zip`) in the binary directory (`bazel-bin/docs/doxygen/`). Currently this feature is available only on Linux.
 
 ```shell
-bazel build --config linux //docs/doxygen:generate_docs &&
+bazel build //docs/doxygen:generate_docs &&
 unzip -o bazel-bin/docs/doxygen/tachyon_api_docs.zip &&
 google-chrome bazel-bin/docs/doxygen/html/index.html
 # generate HTML files and open on Chrome browser.
@@ -345,7 +304,7 @@ google-chrome bazel-bin/docs/doxygen/html/index.html
 You may encounter an illegal instruction error when running unit tests. Although the exact cause is not yet known, thanks to @zkbitcoin, we discovered that this issue is related to [ffiasm](https://github.com/iden3/ffiasm). Temporarily disabling assembly-optimized prime field can resolve this problem.
 
 ```shell
-bazel build --config ${os} --//:has_asm_prime_field=false //...
+bazel build --//:has_asm_prime_field=false //...
 ```
 
 ## Performance Tuning
@@ -364,7 +323,7 @@ You can install `libomp` by following the [instructions](https://www.intel.com/c
 To link `libomp`, you need to add an additional flag `--//:has_intel_openmp`.
 
 ```shell
-bazel build --config ${os} --//:has_openmp --//:has_intel_openmp //...
+bazel build --//:has_openmp --//:has_intel_openmp //...
 ```
 
 See also [PyTorch Recipes/Performance Tuning Guide/Intel OpenMP Library](https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html#intel-openmp-runtime-library-libiomp).

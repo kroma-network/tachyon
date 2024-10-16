@@ -124,13 +124,13 @@ brew install gmp libomp
 ### Build
 
 ```shell
-bazel build --config {os} //...
+bazel build //...
 ```
 
 ### Test
 
 ```shell
-bazel test --config {os} //...
+bazel test //...
 ```
 
 Check [How To Build](/docs/how_to_use/how_to_build.md) for more information.
