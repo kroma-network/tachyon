@@ -126,19 +126,21 @@ class Radix2TwiddleCache {
     static base::NoDestructor<Radix2TwiddleCache> twiddle_cache;
 
     absl::MutexLock lock(&twiddle_cache->mutex_);
-    auto it = twiddle_cache->items_.find(domain->size());
+    auto it = twiddle_cache->items_.find(
+        std::make_pair(domain->size(), domain->group_gen()));
     if (it == twiddle_cache->items_.end() ||
         (it->second->packed_vec_only && !packed_vec_only)) {
       it = twiddle_cache->items_.insert(
-          it, std::make_pair(domain->size(),
-                             std::make_unique<Item>(domain, packed_vec_only)));
+          it,
+          std::make_pair(std::make_pair(domain->size(), domain->group_gen()),
+                         std::make_unique<Item>(domain, packed_vec_only)));
     }
     return it->second.get();
   }
 
  private:
   absl::Mutex mutex_;
-  absl::flat_hash_map<size_t, std::unique_ptr<Item>> items_
+  absl::flat_hash_map<std::pair<size_t, F>, std::unique_ptr<Item>> items_
       ABSL_GUARDED_BY(mutex_);
 };
 
