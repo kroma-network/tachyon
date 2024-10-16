@@ -385,7 +385,7 @@ class TwoAdicFRI {
   // https://hackmd.io/@vbuterin/barycentric_evaluation
   template <typename Derived>
   static std::vector<ExtF> InterpolateCoset(
-      const Eigen::MatrixBase<Derived>& coset_evals, F shift,
+      const Eigen::MatrixBase<Derived>& coset_evals, const F shift,
       const ExtF& point) {
     TRACE_EVENT("Utils", "InterpolateCoset");
     size_t num_rows = static_cast<size_t>(coset_evals.rows());
