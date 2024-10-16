@@ -20,7 +20,7 @@ Note that Poseidon2 runs 10000x per test due to some time results being too smal
 ## BN254
 
 ```shell
-bazel run --config opt --//:has_rtti --//:has_matplotlib //benchmark/poseidon2:poseidon2_benchmark -- -p bn254_fr --vendor horizen --vendor plonky3 --check_results
+bazel run --config opt --//:has_matplotlib //benchmark/poseidon2:poseidon2_benchmark -- -p bn254_fr --vendor horizen --vendor plonky3 --check_results
 ```
 
 ### On Intel i9-13900K
@@ -66,7 +66,7 @@ Note: Horizen and Plonky3 compute values with a different internal matrix, requi
 ### Horizen
 
 ```shell
-bazel run --config opt --//:has_rtti --//:has_matplotlib //benchmark/poseidon2:poseidon2_benchmark -- -p baby_bear --vendor horizen --check_results
+bazel run --config opt --//:has_matplotlib //benchmark/poseidon2:poseidon2_benchmark -- -p baby_bear --vendor horizen --check_results
 ```
 
 #### On Intel i9-13900K
@@ -108,7 +108,7 @@ bazel run --config opt --//:has_rtti --//:has_matplotlib //benchmark/poseidon2:p
 ### Plonky3
 
 ```shell
-bazel run --config opt --//:has_rtti --//:has_matplotlib //benchmark/poseidon2:poseidon2_benchmark -- -p baby_bear --vendor plonky3 --check_results
+bazel run --config opt --//:has_matplotlib //benchmark/poseidon2:poseidon2_benchmark -- -p baby_bear --vendor plonky3 --check_results
 ```
 
 #### On Intel i9-13900K
