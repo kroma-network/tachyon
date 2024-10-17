@@ -81,12 +81,12 @@ jobs:
           echo "build --@rules_rust//rust/toolchain/channel=nightly" >> .bazelrc.user
 
       - name: Build
-        run: bazel build -c ${{ matrix.build_flag }} ${{ matrix.has_openmp }} //...
+        run: bazel build --config ${{ matrix.build_flag }} ${{ matrix.has_openmp }} //...
 
       - name: Test
         # NOTE(chokobole): Test timeouts are overridden 1.5x of the default timeout due to timeout failure on GitHub Actions.
         # See https://github.com/kroma-network/tachyon/actions/runs/9581476338/job/26418352737.
-        run: bazel test -c ${{ matrix.build_flag }} ${{ matrix.has_openmp }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
+        run: bazel test --config ${{ matrix.build_flag }} ${{ matrix.has_openmp }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
 
       - name: Test Node Binding
         run: |
@@ -101,7 +101,7 @@ jobs:
       - name: Test Circom
         run: |
           cd vendors/circom
-          CARGO_BAZEL_REPIN=true bazel test -c ${{ matrix.build_flag}} --test_output=errors //...
+          CARGO_BAZEL_REPIN=true bazel test --config ${{ matrix.build_flag}} --test_output=errors //...
 
   lint:
     runs-on: ubuntu-latest

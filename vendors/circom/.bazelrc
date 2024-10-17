@@ -1,4 +1,9 @@
+build:fastbuild -c fastbuild
+
 build:dbg -c dbg
+
+build:opt -c opt
+
 common --enable_platform_specific_config
 
 build:linux --cxxopt=-std=c++17
