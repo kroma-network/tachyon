@@ -1,3 +1,5 @@
+#include <memory>
+#include <vector>
 #if TACHYON_CUDA
 #include <iostream>
 

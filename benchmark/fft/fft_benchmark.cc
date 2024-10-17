@@ -2,6 +2,8 @@
 #include <stdint.h>
 
 #include <iostream>
+#include <memory>
+#include <vector>
 
 // clang-format off
 #include "benchmark/fft/fft_config.h"

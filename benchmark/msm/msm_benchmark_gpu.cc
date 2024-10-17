@@ -1,5 +1,6 @@
-#if TACHYON_CUDA
 #include <iostream>
+#include <vector>
+#if TACHYON_CUDA
 
 // clang-format off
 #include "benchmark/msm/msm_config.h"

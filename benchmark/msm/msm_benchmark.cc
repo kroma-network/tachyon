@@ -1,4 +1,6 @@
 #include <iostream>
+#include <memory>
+#include <vector>
 
 // clang-format off
 #include "benchmark/msm/msm_config.h"
