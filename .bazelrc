@@ -63,6 +63,13 @@ build:dbg -c dbg
 
 # Opt config
 build:opt -c opt
+build:opt --//:has_openmp
+
+build:maxopt -c opt
+build:maxopt --//:has_openmp
+build:maxopt --config=native
+build:maxopt --copt=-flto
+build:maxopt --linkopt=-flto
 
 # By default, build Tachyon in C++ 17 mode.
 build:linux --cxxopt=-std=c++17

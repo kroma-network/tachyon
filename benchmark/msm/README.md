@@ -20,7 +20,7 @@ CPU Caches:
 ### Uniform points
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --check_results
+bazel run --config opt --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --check_results
 ```
 
 #### On Intel i9-13900K
@@ -56,7 +56,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 ### Non-uniform points
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --test_set non_uniform --check_results
+bazel run --config opt --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --test_set non_uniform --check_results
 ```
 
 #### On Intel i9-13900K
@@ -94,7 +94,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 ### Uniform points
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib --config cuda //benchmark/msm:msm_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --test_set non_uniform --check_results
+bazel run --config opt --//:has_rtti --//:has_matplotlib --config cuda //benchmark/msm:msm_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --test_set non_uniform --check_results
 ```
 
 #### On RTX-4090
@@ -115,7 +115,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib --config cuda
 ### Non-uniform points
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib --config cuda //benchmark/msm:msm_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --check_results
+bazel run --config opt --//:has_rtti --//:has_matplotlib --config cuda //benchmark/msm:msm_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --check_results
 ```
 
 #### On RTX-4090

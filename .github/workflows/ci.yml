@@ -12,13 +12,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest-xlarge]
         build_flag: [fastbuild, opt]
-        openmp: ["openmp", "no-openmp"]
-        include:
-          - openmp: "openmp"
-            has_openmp: "--//:has_openmp"
-        exclude:
-          - build_flag: fastbuild
-            openmp: "openmp"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -46,7 +39,7 @@ jobs:
           # Avoid downloading Bazel every time.
           bazelisk-cache: true
           # Share a single build cache between workflows.
-          disk-cache: ${{ matrix.os }}-${{ matrix.build_flag }}-${{ matrix.openmp }}
+          disk-cache: ${{ matrix.os }}-${{ matrix.build_flag }}-build
           # Share repository cache between workflows.
           repository-cache: false
           # Cache external repositories
@@ -61,11 +54,11 @@ jobs:
         run: python3 -m pip install numpy
 
       - name: Install OpenMP on linux
-        if: matrix.os == 'ubuntu-latest' && matrix.openmp == 'openmp'
+        if: matrix.os == 'ubuntu-latest' && matrix.build_flag == 'opt'
         run: sudo apt-get install -y libomp-dev
 
       - name: Install OpenMP on macos
-        if: matrix.os == 'macos-latest-xlarge' && matrix.openmp == 'openmp'
+        if: matrix.os == 'macos-latest-xlarge' && matrix.build_flag == 'opt'
         run: brew install libomp
 
       - name: Add .bazelrc.user on linux
@@ -81,12 +74,12 @@ jobs:
           echo "build --@rules_rust//rust/toolchain/channel=nightly" >> .bazelrc.user
 
       - name: Build
-        run: bazel build --config ${{ matrix.build_flag }} ${{ matrix.has_openmp }} //...
+        run: bazel build --config ${{ matrix.build_flag }} //...
 
       - name: Test
         # NOTE(chokobole): Test timeouts are overridden 1.5x of the default timeout due to timeout failure on GitHub Actions.
         # See https://github.com/kroma-network/tachyon/actions/runs/9581476338/job/26418352737.
-        run: bazel test --config ${{ matrix.build_flag }} ${{ matrix.has_openmp }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
+        run: bazel test --config ${{ matrix.build_flag }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
 
       - name: Test Node Binding
         run: |

@@ -34,13 +34,13 @@ Go to [prerequisites](../../docs/how_to_use/how_to_build.md#Prerequisites) and f
 ### With CUDA
 
 ```shell
-bazel build --@kroma_network_tachyon//:has_openmp -c opt --config cuda //:prover_main
+bazel build --@kroma_network_tachyon//:has_openmp --config maxopt --config cuda //:prover_main
 ```
 
 ### Without CUDA
 
 ```shell
-bazel build --@kroma_network_tachyon//:has_openmp -c opt //:prover_main
+bazel build --@kroma_network_tachyon//:has_openmp --config maxopt //:prover_main
 ```
 
 ## How to run
@@ -75,7 +75,7 @@ Optional arguments:
 This creates a witness_generator binary similar to when circom is used, but compiles much faster in comparison.
 
 ```shell
-bazel build -c opt //circomlib/build:compile_witness_generator
+bazel build --config opt //circomlib/build:compile_witness_generator
 
 bazel-bin/circomlib/build/compile_witness_generator --help
 Usage:

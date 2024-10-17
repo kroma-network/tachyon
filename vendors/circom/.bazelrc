@@ -4,6 +4,11 @@ build:dbg -c dbg
 
 build:opt -c opt
 
+build:maxopt -c opt
+build:maxopt --config=native
+build:maxopt --copt=-flto
+build:maxopt --linkopt=-flto
+
 common --enable_platform_specific_config
 
 build:linux --cxxopt=-std=c++17
@@ -26,6 +31,8 @@ build:cuda --repo_env TACHYON_NEED_CUDA=1
 build:cuda --crosstool_top=@local_config_cuda//crosstool:toolchain
 build:cuda --@local_config_cuda//:enable_cuda
 build:cuda --@kroma_network_tachyon//:has_rtti
+
+build:native --copt=-march=native
 
 # Enable googletest build with absl.
 # See https://github.com/google/googletest/blob/v1.13.0/BUILD.bazel#L67C1-L70

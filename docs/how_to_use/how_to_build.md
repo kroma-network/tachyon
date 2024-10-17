@@ -159,8 +159,8 @@ Build a Debian package with the supported scheme (only halo2 for now) and the op
 To build the Halo2 Debian package, the `has_openmp` option is recommended. Run the following commands:
 
 ```shell
-bazel build -c opt --//:has_openmp  --//:c_shared_object //scripts/packages/debian/runtime:debian
-bazel build -c opt --//:has_openmp  --//:c_shared_object //scripts/packages/debian/dev:debian
+bazel build --config opt --//:c_shared_object //scripts/packages/debian/runtime:debian
+bazel build --config opt --//:c_shared_object //scripts/packages/debian/dev:debian
 
 sudo dpkg -i bazel-bin/scripts/packages/debian/runtime/libtachyon_0.3.0_amd64.deb
 sudo dpkg -i bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.3.0_amd64.deb

@@ -20,7 +20,7 @@ CPU Caches:
 ### FFT
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --check_results
+bazel run --config opt --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --check_results
 ```
 
 #### On Intel i9-13900K
@@ -56,7 +56,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/f
 ### IFFT
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --run_ifft --check_results
+bazel run --config opt --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --run_ifft --check_results
 ```
 
 #### On Intel i9-13900K
@@ -94,7 +94,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/f
 ### FFT
 
 ```shell
-bazel run -c opt --config cuda --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --check_results
+bazel run --config opt --config cuda --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --check_results
 ```
 
 #### On RTX-4090
@@ -115,7 +115,7 @@ bazel run -c opt --config cuda --//:has_openmp --//:has_rtti --//:has_matplotlib
 ### IFFT
 
 ```shell
-bazel run -c opt --config cuda --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --run_ifft --check_results
+bazel run --config opt --config cuda --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark_gpu -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --run_ifft --check_results
 ```
 
 #### On RTX-4090
