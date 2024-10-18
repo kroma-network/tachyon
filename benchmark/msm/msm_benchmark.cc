@@ -1,4 +1,6 @@
 #include <iostream>
+#include <memory>
+#include <vector>
 
 // clang-format off
 #include "benchmark/msm/msm_config.h"
@@ -89,7 +91,7 @@ int RealMain(int argc, char** argv) {
     }
 
     if (config.check_results()) {
-      CHECK(results == results_vendor) << "Result not matched";
+      CHECK(results == results_vendor) << "Results do not match";
     }
   }
 

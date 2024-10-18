@@ -22,8 +22,7 @@ class ExtensionFieldMerkleTreeMMCS final
       typename MixedMatrixCommitmentSchemeTraits<InnerMMCS>::Commitment;
   using ProverData =
       typename MixedMatrixCommitmentSchemeTraits<InnerMMCS>::ProverData;
-  using Digest = Commitment;
-  using Proof = std::vector<Digest>;
+  using Proof = std::vector<Commitment>;
 
   ExtensionFieldMerkleTreeMMCS() = default;
   ExtensionFieldMerkleTreeMMCS(InnerMMCS&& inner) : inner_(std::move(inner)) {}

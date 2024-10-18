@@ -1,5 +1,6 @@
+#include <memory>
+#include <vector>
 #if TACHYON_CUDA
-#include <iostream>
 
 // clang-format off
 #include "benchmark/fft/fft_config.h"
@@ -79,7 +80,7 @@ void Run(const FFTConfig& config) {
                  domain.get(), input, kShouldRecord, gpu_result);
     }
     if (config.check_results()) {
-      CHECK_EQ(cpu_result, gpu_result) << "Results not matched";
+      CHECK_EQ(cpu_result, gpu_result) << "Results do not match";
     }
   }
 

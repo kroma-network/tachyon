@@ -47,7 +47,7 @@ int RealMain(int argc, char** argv) {
       runner.RunExternal(Vendor::Arkworks(), run_poseidon_arkworks);
 
   if (config.check_results()) {
-    CHECK_EQ(result, result_arkworks) << "Result not matched";
+    CHECK_EQ(result, result_arkworks) << "Results do not match";
   }
 
   reporter.AddAverageAsLastColumn();

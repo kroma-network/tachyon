@@ -113,7 +113,7 @@ class Radix2EvaluationDomain
 
     // For the second half, we flip the DIT, working in bit-reversed order.
     ReverseMatrixIndexBits(mat);
-    RunParallelRowChunksReversed(mat, cache_->rev_roots_vec,
+    RunParallelRowChunksReversed(mat, cache_->bitrev_roots_vec,
                                  cache_->packed_roots_vec[1]);
     ReverseMatrixIndexBits(mat);
   }
@@ -145,7 +145,7 @@ class Radix2EvaluationDomain
 
     // For the second half, we flip the DIT, working in bit-reversed order.
     ReverseMatrixIndexBits(mat);
-    RunParallelRowChunksReversed(mat, cache_->rev_inv_roots_vec,
+    RunParallelRowChunksReversed(mat, cache_->bitrev_inv_roots_vec,
                                  cache_->packed_inv_roots_vec[1]);
     // We skip the final bit-reversal, since the next FFT expects bit-reversed
     // input.
@@ -160,7 +160,7 @@ class Radix2EvaluationDomain
       // Reverse bits because |mat| is encoded in bit-reversed order
       size_t start = chunk_offset * chunk_size;
       F weight = this->size_inv_ * shift.Pow(start);
-      // NOTE: It is not possible to have empty chunk so this is safe
+      // NOTE: It is not possible to have an empty chunk so this is safe
       for (size_t row = start; row < start + len - 1; ++row) {
         mat.row(base::bits::ReverseBitsLen(row, this->log_size_of_group_)) *=
             weight;
@@ -189,7 +189,7 @@ class Radix2EvaluationDomain
 
     // For the second half, we flip the DIT, working in bit-reversed order.
     ReverseMatrixIndexBits(out);
-    domain->RunParallelRowChunksReversed(out, domain->cache_->rev_roots_vec,
+    domain->RunParallelRowChunksReversed(out, domain->cache_->bitrev_roots_vec,
                                          domain->cache_->packed_roots_vec[1]);
     if (reverse_at_last) {
       ReverseMatrixIndexBits(out);

@@ -1,4 +1,5 @@
-#include <iostream>
+#include <string>
+#include <vector>
 
 #include "absl/strings/substitute.h"
 
@@ -26,7 +27,7 @@ void CheckResults(bool check_results,
                   const math::RowMajorMatrix<F>& tachyon_result,
                   const math::RowMajorMatrix<F>& vendor_result) {
   if (check_results) {
-    CHECK_EQ(tachyon_result, vendor_result) << "Results not matched";
+    CHECK_EQ(tachyon_result, vendor_result) << "Results do not match";
   }
 }
 

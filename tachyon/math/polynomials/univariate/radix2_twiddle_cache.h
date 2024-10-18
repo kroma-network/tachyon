@@ -27,8 +27,8 @@ class Radix2TwiddleCache {
 
   struct Item {
     // For small prime fields
-    std::vector<F> rev_roots_vec;
-    std::vector<F> rev_inv_roots_vec;
+    std::vector<F> bitrev_roots_vec;
+    std::vector<F> bitrev_inv_roots_vec;
     std::vector<std::vector<PackedPrimeField>> packed_roots_vec;
     std::vector<std::vector<PackedPrimeField>> packed_inv_roots_vec;
     // For all finite fields
@@ -80,16 +80,16 @@ class Radix2TwiddleCache {
         packed_inv_roots_vec[0].resize(vec_largest_size);
         packed_roots_vec[1].resize(vec_largest_size);
         packed_inv_roots_vec[1].resize(vec_largest_size);
-        rev_roots_vec = SwapBitRevElements(largest);
-        rev_inv_roots_vec = SwapBitRevElements(largest_inv);
+        bitrev_roots_vec = SwapBitRevElements(largest);
+        bitrev_inv_roots_vec = SwapBitRevElements(largest_inv);
         OMP_PARALLEL_FOR(size_t i = 0; i < vec_largest_size; ++i) {
           packed_roots_vec[0][i] = PackedPrimeField::Broadcast(largest[i]);
           packed_inv_roots_vec[0][i] =
               PackedPrimeField::Broadcast(largest_inv[i]);
           packed_roots_vec[1][i] =
-              PackedPrimeField::Broadcast(rev_roots_vec[i]);
+              PackedPrimeField::Broadcast(bitrev_roots_vec[i]);
           packed_inv_roots_vec[1][i] =
-              PackedPrimeField::Broadcast(rev_inv_roots_vec[i]);
+              PackedPrimeField::Broadcast(bitrev_inv_roots_vec[i]);
         }
       }
 
