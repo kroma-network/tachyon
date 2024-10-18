@@ -24,6 +24,9 @@ build --announce_rc
 # TODO(chokobole): Remove when `cc_shared_library` is enabled by default
 build --experimental_cc_shared_library
 
+# Enable platform specific configurations by default depending on host machine.
+common --enable_platform_specific_config
+
 build:macos_x86_64 --config=macos
 build:macos_x86_64 --cpu=darwin_x86_64
 build:macos_x86_64 --host_cpu=darwin_x86_64
@@ -52,8 +55,21 @@ build:rocm --repo_env TACHYON_NEED_ROCM=1
 # Options extracted from configure script
 build:numa --//:has_numa
 
+# Fastbuild config
+build:fastbuild -c fastbuild
+
 # Debug config
 build:dbg -c dbg
+
+# Opt config
+build:opt -c opt
+build:opt --//:has_openmp
+
+build:maxopt -c opt
+build:maxopt --//:has_openmp
+build:maxopt --config=native
+build:maxopt --copt=-flto
+build:maxopt --linkopt=-flto
 
 # By default, build Tachyon in C++ 17 mode.
 build:linux --cxxopt=-std=c++17
@@ -70,10 +86,13 @@ build:windows --host_cxxopt=/std:c++17
 build:avx_linux --copt=-mavx
 build:avx2_linux --copt=-mavx2
 build:avx512_linux --copt=-mavx512f
-build:native_arch_linux --copt=-march=native
 build:avx_windows --copt=/arch=AVX
 build:avx2_windows --copt=/arch=AVX2
 build:avx512_windows --copt=/arch=AVX512
+
+# Compile for the native architecture
+# WARN(batzor): this will make the build non-portable
+build:native --copt=-march=native
 
 # Enable googletest build with absl.
 # See https://github.com/google/googletest/blob/v1.13.0/BUILD.bazel#L67C1-L70

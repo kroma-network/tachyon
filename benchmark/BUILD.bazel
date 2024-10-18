@@ -5,6 +5,7 @@ tachyon_cc_library(
     name = "simple_reporter",
     srcs = ["simple_reporter.cc"],
     hdrs = ["simple_reporter.h"],
+    force_rtti = if_has_matplotlib(True, False),
     local_defines = tachyon_matplotlib_defines(),
     visibility = ["//benchmark:__subpackages__"],
     deps = [

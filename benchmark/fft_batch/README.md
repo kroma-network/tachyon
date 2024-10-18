@@ -20,7 +20,7 @@ CPU Caches:
 ### FFTBatch
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 --vendor plonky3 -p baby_bear --check_results
+bazel run --config opt --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 --vendor plonky3 -p baby_bear --check_results
 ```
 
 WARNING: On Mac M3, tests beyond degree 24 are not feasible due to memory constraints.
@@ -54,7 +54,7 @@ WARNING: On Mac M3, tests beyond degree 24 are not feasible due to memory constr
 ### CosetLDEBatch
 
 ```shell
-bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 --vendor plonky3 -p baby_bear --run_coset_lde --check_results
+bazel run --config opt --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 --vendor plonky3 -p baby_bear --run_coset_lde --check_results
 ```
 
 WARNING: On Mac M3, tests beyond degree 24 are not feasible due to memory constraints.
