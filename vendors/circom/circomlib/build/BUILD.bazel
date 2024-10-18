@@ -5,6 +5,7 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_binary(
     name = "split_tool",
     srcs = ["split_tool.cc"],
+    tags = ["manual"],
     deps = [
         "@kroma_network_tachyon//tachyon/base/files:file",
         "@kroma_network_tachyon//tachyon/base/strings:string_number_conversions",
@@ -25,4 +26,5 @@ sh_binary(
         ":split_tool",
         "@iden3_circom//:generated_files",
     ],
+    tags = ["manual"],
 )
