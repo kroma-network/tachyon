@@ -1,7 +1,6 @@
 #include <memory>
 #include <vector>
 #if TACHYON_CUDA
-#include <iostream>
 
 // clang-format off
 #include "benchmark/fft/fft_config.h"
