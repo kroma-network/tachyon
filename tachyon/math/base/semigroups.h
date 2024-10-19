@@ -250,7 +250,7 @@ class MultiplicativeSemigroup {
       size_t size, const G& generator, const G& c = G::One()) {
     std::vector<MulResult> ret(size);
     uint32_t log_size = base::bits::CheckedLog2(size);
-    MulResult pow = c.IsOne() ? G::One() : c;
+    MulResult pow = c;
     for (size_t idx = 0; idx < size - 1; ++idx) {
       ret[base::bits::ReverseBitsLen(idx, log_size)] = pow;
       pow *= generator;
