@@ -26,10 +26,12 @@ struct FRIConfig {
   size_t Blowup() const { return size_t{1} << log_blowup; }
 };
 
+// NOTE(ashjeong): |kLogArity| is subject to change in the future
 template <typename ExtF, typename Derived>
 std::vector<ExtF> FoldMatrix(const ExtF& beta,
                              const Eigen::MatrixBase<Derived>& mat) {
   using F = typename math::ExtensionFieldTraits<ExtF>::BaseField;
+  const size_t kLogArity = 1;
   // We use the fact that
   //     pₑ(x²) = (p(x) + p(-x)) / 2
   //     pₒ(x²) = (p(x) - p(-x)) / (2x)
@@ -42,8 +44,8 @@ std::vector<ExtF> FoldMatrix(const ExtF& beta,
   //                    + (1/2 - β/2gᵢₙᵥⁱ)p(gⁿᐟ²⁺ⁱ)
   size_t rows = static_cast<size_t>(mat.rows());
   F w;
-  CHECK(
-      F::GetRootOfUnity(size_t{1} << (base::bits::CheckedLog2(rows) + 1), &w));
+  CHECK(F::GetRootOfUnity(
+      size_t{1} << (base::bits::CheckedLog2(rows) + kLogArity), &w));
   ExtF w_inv = ExtF(unwrap(w.Inverse()));
   ExtF half_beta = beta * ExtF::TwoInv();
 
@@ -61,26 +63,25 @@ std::vector<ExtF> FoldMatrix(const ExtF& beta,
   return ret;
 }
 
-// NOTE(ashjeong): |arity| is subject to change in the future
+// NOTE(ashjeong): |kLogArity| is subject to change in the future
 template <typename ExtF>
 ExtF FoldRow(size_t index, uint32_t log_num_rows, const ExtF& beta,
              const std::vector<ExtF>& evals) {
   using F = typename math::ExtensionFieldTraits<ExtF>::BaseField;
-  const size_t kArity = 2;
   const size_t kLogArity = 1;
-  const ExtF& e0 = evals[0];
-  const ExtF& e1 = evals[1];
 
   F w;
   CHECK(F::GetRootOfUnity(size_t{1} << (log_num_rows + kLogArity), &w));
-  ExtF subgroup_start =
-      ExtF(w.Pow(base::bits::ReverseBitsLen(index, log_num_rows)));
+  ExtF w_inv = ExtF(unwrap(w.Inverse()));
+  ExtF half_beta = beta * ExtF::TwoInv();
+  ExtF power =
+      ExtF(w_inv.Pow(base::bits::ReverseBitsLen(index, log_num_rows))) *
+      half_beta;
 
-  CHECK(F::GetRootOfUnity(size_t{1} << kLogArity, &w));
-  std::vector<ExtF> xs = ExtF::GetBitRevIndexSuccessivePowersSerial(
-      kArity, ExtF(w), subgroup_start);
-  // interpolate and evaluate at beta
-  return e0 + unwrap((beta - xs[0]) * (e1 - e0) / (xs[1] - xs[0]));
+  // result(g²ⁱ) = (1/2 + β/2gᵢₙᵥⁱ)p(gⁱ) + (1/2 - β/2gᵢₙᵥⁱ)p(gⁿᐟ²⁺ⁱ)
+  const ExtF& lo = evals[0];
+  const ExtF& hi = evals[1];
+  return (ExtF::TwoInv() + power) * lo + (ExtF::TwoInv() - power) * hi;
 }
 
 }  // namespace tachyon::crypto
