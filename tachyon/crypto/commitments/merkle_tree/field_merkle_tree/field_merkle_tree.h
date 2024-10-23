@@ -361,8 +361,7 @@ class FieldMerkleTree {
           }
         });
 
-    Digest default_digest =
-        base::CreateArray<N>([]() { return PrimeField::Zero(); });
+    Digest default_digest = {PrimeField::Zero()};
     Digest inputs_with_default_digest[] = {
         default_digest,
         default_digest,
