@@ -43,6 +43,23 @@ bazel build --@kroma_network_tachyon//:has_openmp --config maxopt --config cuda 
 bazel build --@kroma_network_tachyon//:has_openmp --config maxopt //:prover_main
 ```
 
+### With Docker
+
+For the CUDA build, you need to [setup the NVIDIA Container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
+
+```shell
+# These commands should be run in the base folder
+cd ../..
+# Build without CUDA
+docker build -f docker/Dockerfile.circom.jammy -t tachyon:cpu  --target builder .
+docker run -it tachyon:cpu
+# Build with CUDA
+docker build -f docker/Dockerfile.circom.jammy -t tachyon:cuda  --target builder-cuda .
+docker run -it --runtime nvidia --gpus all tachyon:cuda
+```
+
+NOTE: To use external files for proving or compiling, you need to mount or copy them to the tachyon folder to use it within docker.
+
 ## How to run
 
 ```shell
