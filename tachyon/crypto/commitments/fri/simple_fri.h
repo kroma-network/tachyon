@@ -66,7 +66,7 @@ class SimpleFRI final
     if (num_layers > 1) {
       for (uint32_t i = 1; i < num_layers; ++i) {
         // Pᵢ(X)   = Pᵢ_even(X²) + X * Pᵢ_odd(X²)
-        // Pᵢ₊₁(X) = Pᵢ_even(X²) + β * Pᵢ_odd(X²)
+        // Pᵢ₊₁(X) = Pᵢ_even(X) + β * Pᵢ_odd(X)
         beta = writer->SqueezeChallenge();
         VLOG(2) << "SimpleFRI(beta[" << i - 1
                 << "]): " << beta.ToHexString(true);
@@ -150,14 +150,14 @@ class SimpleFRI final
       // Pᵢ_odd(X²)  = (Pᵢ(X) - Pᵢ(-X)) / (2 * X)
       //
       // Next layer equation:
-      // Pᵢ₊₁(X) = Pᵢ_even(X²) + β * Pᵢ_odd(X²)
+      // Pᵢ₊₁(X) = Pᵢ_even(X) + β * Pᵢ_odd(X)
       //
       // If the domain of Pᵢ(X) is Dᵢ = {ω⁰, ω¹, ..., ωⁿ⁻¹},
       // then the domain of Pᵢ₊₁(X) is Dᵢ₊₁ = {ω⁰, ω¹, ..., ωᵏ⁻¹},
       // where k = n / 2.
       //
       // As per the definition:
-      // Pᵢ₊₁(ωʲ) = Pᵢ_even((ωʲ)²) + β * Pᵢ_odd((ωʲ)²)
+      // Pᵢ₊₁(ωʲ) = Pᵢ_even(ωʲ) + β * Pᵢ_odd(ωʲ)
       //
       // Substituting Pᵢ_even and Pᵢ_odd:
       // Pᵢ₊₁(ωʲ) = (Pᵢ(ωʲ) + Pᵢ(-ωʲ)) / 2 + β * (Pᵢ(ωʲ) - Pᵢ(-ωʲ)) / (2 * ωʲ)
