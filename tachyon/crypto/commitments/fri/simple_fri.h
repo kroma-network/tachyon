@@ -153,14 +153,13 @@ class SimpleFRI final
       // Pᵢ₊₁(X) = Pᵢ_even(X) + β * Pᵢ_odd(X)
       //
       // If the domain of Pᵢ(X) is Dᵢ = {ω⁰, ω¹, ..., ωⁿ⁻¹},
-      // then the domain of Pᵢ₊₁(X) is Dᵢ₊₁ = {ω⁰, ω¹, ..., ωᵏ⁻¹},
-      // where k = n / 2.
+      // then the domain of Pᵢ₊₁(X) is Dᵢ₊₁ = {ω⁰, ω², ..., ωⁿ⁻²}.
       //
       // As per the definition:
-      // Pᵢ₊₁(ωʲ) = Pᵢ_even(ωʲ) + β * Pᵢ_odd(ωʲ)
+      // Pᵢ₊₁(ω²ʲ) = Pᵢ_even(ω²ʲ) + β * Pᵢ_odd(ω²ʲ)
       //
       // Substituting Pᵢ_even and Pᵢ_odd:
-      // Pᵢ₊₁(ωʲ) = (Pᵢ(ωʲ) + Pᵢ(-ωʲ)) / 2 + β * (Pᵢ(ωʲ) - Pᵢ(-ωʲ)) / (2 * ωʲ)
+      // Pᵢ₊₁(ω²ʲ) = (Pᵢ(ωʲ) + Pᵢ(-ωʲ)) / 2 + β * (Pᵢ(ωʲ) - Pᵢ(-ωʲ)) / (2 * ωʲ)
       //           = ((1 + β * ω⁻ʲ) * Pᵢ(ωʲ) + (1 - β * ω⁻ʲ) * Pᵢ(-ωʲ)) / 2
       size_t leaf_index = index % domain_size;
       if (i == 0) {

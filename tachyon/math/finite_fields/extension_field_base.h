@@ -69,8 +69,9 @@ class ExtensionFieldBase {
     using PackedField = typename PackedFieldTraits<BaseField>::PackedField;
     constexpr uint32_t kDegree = T::ExtensionDegree();
 
-    // if |PackedField::N| = 8:
-    // |first_n_powers[i]| = {1, aᵢ, ..., a⁷ᵢ}
+    // if |PackedField::N| = 8,
+    // |first_n_powers| = [ 1, b, b², b³,..., b⁶, b⁷ ], where b is an extension
+    // field of |base|.
     ExtendedPackedField first_n_powers;
     T pow = T::One();
     for (size_t i = 0; i < PackedField::N; ++i) {
@@ -80,7 +81,8 @@ class ExtensionFieldBase {
       pow *= base;
     }
 
-    // |multiplier[j]| = {a⁸ⱼ, a⁸ⱼ, ..., a⁸ⱼ, a⁸ⱼ}
+    // |multiplier| = [ b⁸, b⁸, ..., b⁸, b⁸ ], where b is an extension field of
+    // |base|. #|multiplier| = 8
     ExtendedPackedField multiplier;
     for (size_t i = 0; i < PackedField::N; ++i) {
       for (uint32_t j = 0; j < kDegree; ++j) {
@@ -88,7 +90,8 @@ class ExtensionFieldBase {
       }
     }
 
-    // |ret[i]| = {(a⁸ᵢ)ⁱ, aᵢ * (a⁸ᵢ)ⁱ, ..., a⁷ᵢ * (a⁸ᵢ)ⁱ}
+    // |ret[i]| = [ b⁸ⁱ, b⁸ⁱ⁺¹, ..., b⁸ⁱ⁺⁶, b⁸ⁱ⁺⁷ ], where b is an extension
+    // field of |base|.
     std::vector<ExtendedPackedField> ret;
     ret.reserve(size);
     ret.emplace_back(first_n_powers);
