@@ -21,7 +21,7 @@ CPU Caches:
 Note: Run with `build --@rules_rust//:extra_rustc_flags="-Ctarget-cpu=native"` in your .bazelrc.user
 
 ```shell
-GOMP_SPINCOUNT=0 bazel run --config maxopt --//:has_matplotlib //benchmark/fri:fri_benchmark -- -k 18 -k 19 -k 20 -k 21 -k 22 --batch_size 100 --input_num 4 --round_num 4 --log_blowup 2 --vendor plonky3 --check_results
+GOMP_SPINCOUNT=0 bazel run --config maxopt --//:has_matplotlib --@rules_rust//:extra_rustc_flag="--cfg=feature=\"parallel\"" //benchmark/fri:fri_benchmark -- -k 18 -k 19 -k 20 -k 21 -k 22 --batch_size 100 --input_num 4 --round_num 4 --log_blowup 2 --vendor plonky3 --check_results
 ```
 
 ## On Intel i9-13900K

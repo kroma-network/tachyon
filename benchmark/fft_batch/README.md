@@ -65,7 +65,7 @@ WARNING: On Intel i9-13900K, tests beyond degree 25 are not feasible due to memo
 #### On Intel i9-13900K
 
 ```shell
-GOMP_SPINCOUNT=0 bazel run --config maxopt --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 --vendor plonky3 -p baby_bear --run_coset_lde --check_results
+GOMP_SPINCOUNT=0 bazel run --config maxopt --//:has_matplotlib //benchmark/fft_batch:fft_batch_benchmark --@rules_rust//:extra_rustc_flag="--cfg=feature=\"parallel\"" -- -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 --vendor plonky3 -p baby_bear --run_coset_lde --check_results
 ```
 
 | Exponent | Tachyon     | Plonky3  |

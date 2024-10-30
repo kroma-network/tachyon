@@ -14,5 +14,5 @@ members = [
     "tachyon/rs",
     "vendors/scroll_halo2",
     "vendors/plonky3",
-    "vendors/sp1",
+    # "vendors/sp1",
 ]
