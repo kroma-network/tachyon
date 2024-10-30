@@ -35,9 +35,9 @@ class PoseidonBenchmarkRunner {
   Field Run() {
     reporter_.AddVendor(Vendor::Tachyon());
     Field ret;
+    auto config = crypto::PoseidonConfig<Params>::Create(0);
+    crypto::PoseidonSponge<Params> sponge(std::move(config));
     for (size_t i = 0; i < config_.repeating_num(); ++i) {
-      auto config = crypto::PoseidonConfig<Params>::Create(0);
-      crypto::PoseidonSponge<Params> sponge(std::move(config));
       crypto::SpongeState<Params> state;
       base::TimeTicks start = base::TimeTicks::Now();
       sponge.Permute(state);

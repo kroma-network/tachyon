@@ -42,6 +42,11 @@ load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository")
 
 crates_repository(
     name = "crate_index",
+    annotations = {
+        "ark-serialize": [crate.annotation(
+            deps = ["@crate_index__rayon-1.10.0//:rayon"],
+        )],
+    },
     cargo_lockfile = "//:Cargo.lock",
     lockfile = "//:Cargo.Bazel.lock",
     manifests = [
@@ -60,7 +65,7 @@ crates_repository(
         "//tachyon/rs:Cargo.toml",
         "//vendors/plonky3:Cargo.toml",
         "//vendors/scroll_halo2:Cargo.toml",
-        "//vendors/sp1:Cargo.toml",
+        # "//vendors/sp1:Cargo.toml",
     ],
     packages = {
         "hashbrown": crate.spec(

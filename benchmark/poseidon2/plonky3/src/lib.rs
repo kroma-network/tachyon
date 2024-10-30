@@ -20,7 +20,7 @@ fn bn254_from_ark_ff(input: ark_FpBN256) -> Bn254Fr {
 
     let mut res = <FFBn254Fr as PrimeField>::Repr::default();
 
-    for (i, digit) in res.0.as_mut().iter_mut().enumerate() {
+    for (i, digit) in res.as_mut().iter_mut().enumerate() {
         *digit = bytes[i];
     }
 
@@ -106,7 +106,7 @@ pub extern "C" fn run_poseidon2_plonky3_baby_bear(duration: *mut u64) -> *mut Cp
         duration,
         &BabyBearRC16,
         &baby_bear_from_ark_ff,
-        DiffusionMatrixBabyBear,
+        DiffusionMatrixBabyBear::default(),
     )
 }
 
