@@ -62,6 +62,10 @@ class TACHYON_EXPORT PackedBabyBearAVX2 final
 
   // MultiplicativeSemigroup methods
   PackedBabyBearAVX2 Mul(const PackedBabyBearAVX2& other) const;
+
+  PackedBabyBearAVX2 Exp3() const;
+  PackedBabyBearAVX2 Exp5() const;
+  PackedBabyBearAVX2 Exp7() const;
 };
 
 }  // namespace tachyon::math
