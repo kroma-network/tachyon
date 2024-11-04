@@ -164,7 +164,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "packed_prime_field32_avx2",
     hdrs = ["packed_prime_field32_avx2.h"],
-    deps = ["//tachyon/base:compiler_specific"],
+    deps = [
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base/functional:callback",
+    ],
 )
 
 tachyon_cc_library(

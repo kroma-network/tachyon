@@ -53,6 +53,14 @@
                                         std::declval<T>().Name##InPlace()))> \
       : std::true_type {}
 
+#define SUPPORTS_DEDICATED_EXP_OPERATOR(Pow)                               \
+  template <typename T, typename = void>                                   \
+  struct SupportsExp##Pow : std::false_type {};                            \
+                                                                           \
+  template <typename T>                                                    \
+  struct SupportsExp##Pow<T, decltype(void(std::declval<T>().Exp##Pow()))> \
+      : std::true_type {};
+
 namespace tachyon::math {
 namespace internal {
 
@@ -60,6 +68,9 @@ SUPPORTS_BINARY_OPERATOR(Mul);
 SUPPORTS_UNARY_OPERATOR(SquareImpl);
 SUPPORTS_BINARY_OPERATOR(Add);
 SUPPORTS_UNARY_OPERATOR(DoubleImpl);
+SUPPORTS_DEDICATED_EXP_OPERATOR(3);
+SUPPORTS_DEDICATED_EXP_OPERATOR(5);
+SUPPORTS_DEDICATED_EXP_OPERATOR(7);
 
 template <typename T, typename = void>
 struct SupportsSize : std::false_type {};
@@ -157,24 +168,36 @@ class MultiplicativeSemigroup {
       return g;
     else if constexpr (Power == 2)
       return Square();
-    else if constexpr (Power == 3)
-      return Square() * g;
-    else if constexpr (Power == 4)
+    else if constexpr (Power == 3) {
+      if constexpr (internal::SupportsExp3<G>::value) {
+        return g.Exp3();
+      } else {
+        return Square() * g;
+      }
+    } else if constexpr (Power == 4) {
       return Square().Square();
-    else if constexpr (Power == 5) {
-      MulResult g4 = Square();
-      g4.SquareInPlace();
-      return g4 * g;
+    } else if constexpr (Power == 5) {
+      if constexpr (internal::SupportsExp5<G>::value) {
+        return g.Exp5();
+      } else {
+        MulResult g4 = Square();
+        g4.SquareInPlace();
+        return g4 * g;
+      }
     } else if constexpr (Power == 6) {
       MulResult g2 = Square();
       MulResult g4 = g2;
       g4.SquareInPlace();
       return g4 * g2;
     } else if constexpr (Power == 7) {
-      MulResult g2 = Square();
-      MulResult g4 = g2;
-      g4.SquareInPlace();
-      return g4 * g2 * g;
+      if constexpr (internal::SupportsExp7<G>::value) {
+        return g.Exp7();
+      } else {
+        MulResult g2 = Square();
+        MulResult g4 = g2;
+        g4.SquareInPlace();
+        return g4 * g2 * g;
+      }
     } else {
       return DoPow(BigInt<1>(Power));
     }

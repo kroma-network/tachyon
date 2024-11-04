@@ -1,9 +1,15 @@
+// Copyright (c) 2022 The Plonky3 Authors
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
+// file.
+
 #ifndef TACHYON_MATH_FINITE_FIELDS_PACKED_PRIME_FIELD32_AVX2_H_
 #define TACHYON_MATH_FINITE_FIELDS_PACKED_PRIME_FIELD32_AVX2_H_
 
 #include <immintrin.h>
 
 #include "tachyon/base/compiler_specific.h"
+#include "tachyon/base/functional/callback.h"
 
 namespace tachyon::math {
 
@@ -166,11 +172,59 @@ ALWAYS_INLINE __m256i NegateMod32(__m256i val, __m256i p) {
 //
 // [1] Modern Computer Arithmetic, Richard Brent and Paul Zimmermann,
 //     Cambridge University Press, 2010, algorithm 2.7.
-ALWAYS_INLINE __m256i MontyD(__m256i lhs, __m256i rhs, __m256i p, __m256i inv) {
-  __m256i prod = _mm256_mul_epu32(lhs, rhs);
-  __m256i q = _mm256_mul_epu32(prod, inv);
+
+// We provide 2 variants of Montgomery reduction depending on if the inputs are
+// unsigned or signed. The unsigned variant follows steps 1 and 2 in the above
+// protocol to produce D in (-P, ..., P). For the signed variant we assume -PB/2
+// < C < PB/2 and let Q := μ C mod B be the unique representative in [-B/2, ...,
+// B/2 - 1]. The division in step 2 is clearly still exact and |C - Q P| <= |C|
+// + |Q||P| < PB so D still lies in (-P, ..., P).
+
+// Perform a partial Montgomery reduction on each 64 bit element.
+// Input must lie in {0, ..., 2³²P}.
+// The output will lie in {-P, ..., P} and be stored in the upper 32 bits.
+ALWAYS_INLINE __m256i PartialMontyRedUnsignedToSigned(__m256i input, __m256i p,
+                                                      __m256i inv) {
+  __m256i q = _mm256_mul_epu32(input, inv);
   __m256i q_p = _mm256_mul_epu32(q, p);
-  return _mm256_sub_epi64(prod, q_p);
+  // By construction, the bottom 32 bits of input and q_p are equal.
+  // Thus |_mm256_sub_epi32| and |_mm256_sub_epi64| should act identically.
+  // However for some reason, the compiler gets confused if we use
+  // |_mm256_sub_epi64| and outputs a load of nonsense, see:
+  // https://godbolt.org/z/3W8M7Tv84.
+  return _mm256_sub_epi32(input, q_p);
+}
+// Perform a partial Montgomery reduction on each 64 bit element.
+// Input must lie in {-2³¹P, ..., 2³¹P}.
+// The output will lie in {-P, ..., P} and be stored in the upper 32 bits.
+ALWAYS_INLINE __m256i PartialMontyRedSignedToSigned(__m256i input, __m256i p,
+                                                    __m256i inv) {
+  __m256i q = _mm256_mul_epi32(input, inv);
+  __m256i q_p = _mm256_mul_epi32(q, p);
+  // Unlike the previous case the compiler output is essentially identical
+  // between |_mm256_sub_epi32| and |_mm256_sub_epi64|. We use
+  // |_mm256_sub_epi32| again just for consistency.
+  return _mm256_sub_epi32(input, q_p);
+}
+
+// Multiply the field elements in the even index entries.
+// |lhs[2i]|, |rhs[2i]| must be unsigned 32-bit integers such that
+// |lhs[2i]| * |rhs[2i]| lies in {0, ..., 2³²P}.
+// The output will lie in {-P, ..., P} and be stored in |output[2i + 1]|.
+ALWAYS_INLINE __m256i MontyMul(__m256i lhs, __m256i rhs, __m256i p,
+                               __m256i inv) {
+  __m256i prod = _mm256_mul_epu32(lhs, rhs);
+  return PartialMontyRedSignedToSigned(prod, p, inv);
+}
+
+// Multiply the field elements in the even index entries.
+// |lhs[2i]|, |rhs[2i]| must be signed 32-bit integers such that
+// |lhs[2i]| * |rhs[2i]| lies in {-2³¹P, ..., 2³¹P}.
+// The output will lie in {-P, ..., P} stored in |output[2i + 1]|.
+ALWAYS_INLINE __m256i MontyMulSigned(__m256i lhs, __m256i rhs, __m256i p,
+                                     __m256i inv) {
+  __m256i prod = _mm256_mul_epi32(lhs, rhs);
+  return PartialMontyRedSignedToSigned(prod, p, inv);
 }
 
 ALWAYS_INLINE __m256i movehdup_epi32(__m256i x) {
@@ -205,14 +259,91 @@ ALWAYS_INLINE __m256i MontMulMod32(__m256i lhs, __m256i rhs, __m256i p,
   __m256i lhs_odd = movehdup_epi32(lhs);
   __m256i rhs_odd = movehdup_epi32(rhs);
 
-  __m256i d_evn = MontyD(lhs_evn, rhs_evn, p, inv);
-  __m256i d_odd = MontyD(lhs_odd, rhs_odd, p, inv);
+  __m256i d_evn = MontyMul(lhs_evn, rhs_evn, p, inv);
+  __m256i d_odd = MontyMul(lhs_odd, rhs_odd, p, inv);
 
   __m256i d_evn_hi = movehdup_epi32(d_evn);
   __m256i t = _mm256_blend_epi32(d_evn_hi, d_odd, 0b10101010);
 
   __m256i u = _mm256_add_epi32(t, p);
   return _mm256_min_epu32(t, u);
+}
+
+// Square the field elements in the even index entries.
+// Inputs must be signed 32-bit integers.
+// Outputs will be a signed integer in (-P, ..., P) copied into both the even
+// and odd indices.
+ALWAYS_INLINE __m256i ShiftedSquare(__m256i input, __m256i p, __m256i inv) {
+  // Note that we do not need a restriction on the size of |input[i]²| as
+  // 2³⁰ < P and |i32| <= 2³¹ and so => |input[i]²| <= 2⁶² < 2³²P.
+  __m256i square = _mm256_mul_epi32(input, input);
+  __m256i square_red = PartialMontyRedSignedToSigned(square, p, inv);
+  return movehdup_epi32(square_red);
+}
+
+// Apply callback to the even and odd indices of the input vector.
+// callback should only depend in the 32 bit entries in the even indices.
+// The output of callback must lie in (-P, ..., P) and be stored in the odd
+// indices. The even indices of the output of callback will not be read. The
+// input should conform to the requirements of |callback|.
+// NOTE(chokobole): This is to suppress the error below.
+// clang-format off
+// error: ignoring attributes on template argument '__m256i(__m256i, __m256i, __m256i)' [-Werror=ignored-attributes]
+// clang-format on
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
+ALWAYS_INLINE __m256i ApplyFuncToEvenOdd(
+    __m256i input, __m256i p, __m256i inv,
+    base::RepeatingCallback<__m256i(__m256i, __m256i, __m256i)> callback) {
+  __m256i input_evn = input;
+  __m256i input_odd = movehdup_epi32(input);
+  __m256i d_evn = callback.Run(input_evn, p, inv);
+  __m256i d_odd = callback.Run(input_odd, p, inv);
+  __m256i d_evn_hi = movehdup_epi32(d_evn);
+  __m256i t = _mm256_blend_epi32(d_evn_hi, d_odd, 0b10101010);
+  __m256i u = _mm256_add_epi32(t, p);
+  return _mm256_min_epu32(t, u);
+}
+#pragma GCC diagnostic pop
+
+// Cube the field elements in the even index entries.
+// Inputs must be signed 32-bit integers in [-P, ..., P].
+// Outputs will be a signed integer in (-P, ..., P) stored in the odd indices.
+ALWAYS_INLINE __m256i DoExp3(__m256i input, __m256i p, __m256i inv) {
+  __m256i square = ShiftedSquare(input, p, inv);
+  return MontyMulSigned(square, input, p, inv);
+}
+
+ALWAYS_INLINE __m256i Exp3(__m256i input, __m256i p, __m256i inv) {
+  return ApplyFuncToEvenOdd(input, p, inv, &DoExp3);
+}
+
+// Take the fifth power of the field elements in the even index
+// entries. Inputs must be signed 32-bit integers in [-P, ..., P]. Outputs will
+// be a signed integer in (-P, ..., P) stored in the odd indices.
+ALWAYS_INLINE __m256i DoExp5(__m256i input, __m256i p, __m256i inv) {
+  __m256i square = ShiftedSquare(input, p, inv);
+  __m256i quad = ShiftedSquare(square, p, inv);
+  return MontyMulSigned(quad, input, p, inv);
+}
+
+ALWAYS_INLINE __m256i Exp5(__m256i input, __m256i p, __m256i inv) {
+  return ApplyFuncToEvenOdd(input, p, inv, &DoExp5);
+}
+
+/// Take the seventh power of the field elements in the even index
+/// entries. Inputs must lie in [-P, ..., P]. Outputs will also lie in (-P, ...,
+/// P) stored in the odd indices.
+ALWAYS_INLINE __m256i DoExp7(__m256i input, __m256i p, __m256i inv) {
+  __m256i square = ShiftedSquare(input, p, inv);
+  __m256i cube = MontyMulSigned(square, input, p, inv);
+  __m256i cube_shifted = movehdup_epi32(cube);
+  __m256i quad = ShiftedSquare(square, p, inv);
+  return MontyMulSigned(quad, cube_shifted, p, inv);
+}
+
+ALWAYS_INLINE __m256i Exp7(__m256i input, __m256i p, __m256i inv) {
+  return ApplyFuncToEvenOdd(input, p, inv, &DoExp7);
 }
 
 }  // namespace tachyon::math

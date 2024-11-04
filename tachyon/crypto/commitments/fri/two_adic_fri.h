@@ -148,9 +148,13 @@ class TwoAdicFRI {
             reduced_openings[log_num_rows];
         CHECK_EQ(reduced_opening_for_log_num_rows.size(), num_rows);
 
-        math::RowMajorMatrix<F> block =
-            mat.topRows(num_rows >> config_.log_blowup);
-        ReverseMatrixIndexBits(block);
+        math::RowMajorMatrix<F> block;
+        block.resize(num_rows >> config_.log_blowup, mat.cols());
+        OMP_PARALLEL_FOR(size_t row = 0; row < num_rows >> config_.log_blowup;
+                         ++row) {
+          block.row(row) = mat.row(base::bits::ReverseBitsLen(
+              row, log_num_rows - config_.log_blowup));
+        }
         std::vector<ExtF> reduced_rows = DotExtPowers(mat, alpha);
 
         // TODO(ashjeong): Determine if using a matrix is a better fit.

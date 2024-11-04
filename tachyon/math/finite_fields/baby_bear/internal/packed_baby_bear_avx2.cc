@@ -103,4 +103,16 @@ PackedBabyBearAVX2 PackedBabyBearAVX2::Mul(
   return FromVector(math::Mul(ToVector(*this), ToVector(other)));
 }
 
+PackedBabyBearAVX2 PackedBabyBearAVX2::Exp3() const {
+  return FromVector(math::Exp3(ToVector(*this), kP, kInv));
+}
+
+PackedBabyBearAVX2 PackedBabyBearAVX2::Exp5() const {
+  return FromVector(math::Exp5(ToVector(*this), kP, kInv));
+}
+
+PackedBabyBearAVX2 PackedBabyBearAVX2::Exp7() const {
+  return FromVector(math::Exp7(ToVector(*this), kP, kInv));
+}
+
 }  // namespace tachyon::math
