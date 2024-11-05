@@ -120,9 +120,9 @@ Tachyon can be built in your own Bazel project with the following two simple ste
 First, obtain the Tachyon code from a specific commit hash and get a SHA256 value from the fetched code through these commands:
 
 ```shell
-wget https://github.com/kroma-network/tachyon/archive/d056e1c61622e8788ae558c7fd4c19415fe7a7e8.tar.gz
+wget https://github.com/kroma-network/tachyon/archive/e02feac98608a6bb1efc75df07237f702db7cce7.tar.gz
 
-shasum -a 256 d056e1c61622e8788ae558c7fd4c19415fe7a7e8.tar.gz
+shasum -a 256 e02feac98608a6bb1efc75df07237f702db7cce7.tar.gz
 ```
 
 Second, input the shasum output into your `WORKSPACE` file as the `sha256` argument like shown below:
@@ -133,9 +133,9 @@ Second, input the shasum output into your `WORKSPACE` file as the `sha256` argum
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "kroma_network_tachyon",
-    sha256 = "aae28c7853dff4bb91f60aa7cbd17f26e4014bbe67d8853d6e2012d61c7e3715",
-    strip_prefix = "tachyon-d056e1c61622e8788ae558c7fd4c19415fe7a7e8",
-    urls = ["https://github.com/kroma-network/tachyon/archive/d056e1c61622e8788ae558c7fd4c19415fe7a7e8.tar.gz"],
+    sha256 = "e3bfefb20bcb425a5169c46cf0bd4dacbdeaceab94b144a3d5fa4214d9e974d2",
+    strip_prefix = "tachyon-e02feac98608a6bb1efc75df07237f702db7cce7",
+    urls = ["https://github.com/kroma-network/tachyon/archive/e02feac98608a6bb1efc75df07237f702db7cce7.tar.gz"],
 )
 ```
 
@@ -146,11 +146,11 @@ There are two ways to install the Tachyon package. While it is recommended to in
 ### Install package from pre-built binaries
 
 ```shell
-curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.3.0/libtachyon_0.3.0_amd64.deb
-curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.3.0/libtachyon-dev_0.3.0_amd64.deb
+curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.4.0/libtachyon_0.4.0_amd64.deb
+curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.4.0/libtachyon-dev_0.4.0_amd64.deb
 
-sudo dpkg -i libtachyon_0.3.0_amd64.deb
-sudo dpkg -i libtachyon-dev_0.3.0_amd64.deb
+sudo dpkg -i libtachyon_0.4.0_amd64.deb
+sudo dpkg -i libtachyon-dev_0.4.0_amd64.deb
 ```
 
 ### Build package from source
@@ -162,8 +162,8 @@ To build the Halo2 Debian package, the `has_openmp` option is recommended. Run t
 bazel build --config opt --//:c_shared_object //scripts/packages/debian/runtime:debian
 bazel build --config opt --//:c_shared_object //scripts/packages/debian/dev:debian
 
-sudo dpkg -i bazel-bin/scripts/packages/debian/runtime/libtachyon_0.3.0_amd64.deb
-sudo dpkg -i bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.3.0_amd64.deb
+sudo dpkg -i bazel-bin/scripts/packages/debian/runtime/libtachyon_0.4.0_amd64.deb
+sudo dpkg -i bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.4.0_amd64.deb
 ```
 
 ## Other Info
