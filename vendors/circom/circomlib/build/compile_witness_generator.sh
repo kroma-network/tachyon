@@ -12,6 +12,7 @@ function compile_witness_generator() {
   cp ../../../iden3_circom/code_producers/src/c_elements/$2/* .
 
   echo "Splitting source file into smaller pieces..."
+  rm part_*
   ./split_tool $1 --output_dir=. -- -std=c++11 -I../../external/llvm-project/clang/staging/include
 
   echo "Compiling everything..."
