@@ -49,7 +49,7 @@ The following circuits result in the same test data when using `SimpleFloorPlann
 Refer to the following files to learn more about these variables:
 
 - [circuit_test_data.h](circuit_test_data.h)
-- [circuit_test.cc](circuit_test_data.cc)
+- [circuit_test.cc](circuit_test.cc)
 - Any `...test_data.h` file:
   - [shuffle_circuit_test_data.h](shuffle_circuit_test_data.h)
   - [shuffle_api_circuit_test_data.h](shuffle_api_circuit_test_data.h)

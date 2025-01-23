@@ -74,7 +74,7 @@ uint8_t byte_value = ClampFloor<uint8_t>(floating_point_value);
 ### Enforcing arithmetic type conversions at compile-time
 
 The `strict_cast` emits code that is identical to `static_cast`. However,
-provides static checks that will cause a compilation failure if the
+provides a static checks that will cause a compilation failure if the
 destination type cannot represent the full range of the source type:
 
 ```cpp
